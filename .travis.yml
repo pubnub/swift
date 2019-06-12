@@ -1,0 +1,56 @@
+os: osx
+osx_image: xcode10.2
+branches:
+  only:
+    - master
+cache:
+  - bundler
+  - directories:
+    - .build
+env:
+  global:
+  - LC_CTYPE=en_US.UTF-8
+  - LANG=en_US.UTF-8
+  - PROJECT=PubNub.xcodeproj
+  - SCHEME=PubNub
+  - LINT_DISTS="NO"
+  matrix:
+    # Test latest majors of all supported archs
+    # iOS
+    - DESTINATION="OS=12.2,name=iPhone XS"
+    - DESTINATION="OS=11.4,name=iPhone X"
+    - DESTINATION="OS=10.3.1,name=iPhone 8 Plus"
+    - DESTINATION="OS=9.3,name=iPhone SE"
+    - DESTINATION="OS=8.4,name=iPhone 6"
+
+    # macOS
+    - DESTINATION="arch=x86_64"
+
+    # tvOS
+    - DESTINATION="OS=12.2,name=Apple TV 4K"
+    - DESTINATION="OS=11.4,name=Apple TV 4K"
+    - DESTINATION="OS=10.2,name=Apple TV 1080p"
+    - DESTINATION="OS=9.2,name=Apple TV 1080p"
+
+    # watchOS
+    - DESTINATION="OS=5.2,name=Apple Watch Series 4 - 44mm"
+    - DESTINATION="OS=4.2,name=Apple Watch Series 3 - 42mm"
+    - DESTINATION="OS=3.2,name=Apple Watch Series 2 - 42mm"
+    - DESTINATION="OS=2.2,name=Apple Watch Series 2 - 42mm"
+
+    # Pod Linting
+    - DESTINATION="OS=8.4,name=iPhone 6" LINT_DISTS="YES"
+
+script:
+  - set -o pipefail
+  - xcodebuild -version
+  - xcodebuild -showsdks
+
+  - if [ $LINT_DISTS == "YES" ]; then
+      # Verify Dependency Distriburtions
+      pod lib lint --allow-warnings --verbose
+      swift build -c release --verbose
+    else
+      # Build Framework in Release and Run Tests if specified
+      xcodebuild -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO ENABLE_TESTABILITY=YES test | xcpretty;
+    fi

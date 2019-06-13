@@ -281,7 +281,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ];\n  swift run swiftformat .;\nfi\n";
+			shellScript = "if [ \"${CONFIGURATION}\" != \"Release\" ];\n  swift run swiftformat .;\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

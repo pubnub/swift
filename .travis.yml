@@ -37,11 +37,6 @@ env:
     - DESTINATION="OS=11.4,name=Apple TV 4K"
     - DESTINATION="OS=10.2,name=Apple TV 1080p"
     - DESTINATION="OS=9.2,name=Apple TV 1080p"
-    # watchOS
-    # - DESTINATION="OS=5.2,name=Apple Watch Series 4 - 44mm"
-    # - DESTINATION="OS=4.2,name=Apple Watch Series 3 - 42mm"
-    # - DESTINATION="OS=3.2,name=Apple Watch Series 2 - 42mm"
-    # - DESTINATION="OS=2.2,name=Apple Watch - 42mm"
     # Pod Linting
     - DESTINATION="OS=8.4,name=iPhone 6" LINT_DISTS="YES"
 script:

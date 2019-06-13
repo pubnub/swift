@@ -263,7 +263,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
-			shellScript = "if [[ -z $TRAVIS_CI ]]; then\n  swift run swiftlint\nfi\n";
+			shellScript = "if [ \"${CONFIGURATION}\" != \"Release\" ];\n  swift run swiftlint\nfi\n";
 		};
 		35EA73FA22B19B0400D97BF0 /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -281,7 +281,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ -z $TRAVIS_CI ]]; then\n  swift run swiftformat .;\nfi\n";
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Release\" ];\n  swift run swiftformat .;\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

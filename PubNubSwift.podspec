@@ -25,12 +25,4 @@ The PubNub Real-Time Network. Build real-time apps quickly and scale them global
 
   s.module_name = 'PubNub'
   s.source_files = 'Sources/**/*.swift'
-
-  s.test_spec 'Tests' do |test_spec|
-    test_spec.ios.deployment_target = '8.0'
-    test_spec.osx.deployment_target = '10.10'
-    test_spec.tvos.deployment_target = '9.0'
-
-    test_spec.source_files = 'Tests/**/*.swift'
-  end
 end

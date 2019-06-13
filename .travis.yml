@@ -1,6 +1,8 @@
 language: objective-c
 os: osx
 osx_image: xcode10.2
+rvm:
+  - 2.5.3
 cache:
   bundler: true
   directories:

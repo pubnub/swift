@@ -1,11 +1,16 @@
 language: objective-c
 os: osx
 osx_image: xcode10.2
+sudo: true
 rvm:
   - 2.5.3
 before_install:
   - gem update --system
   - gem install bundler
+  # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
+  - mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+  - mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+  - mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
 cache:
   bundler: true
   directories:

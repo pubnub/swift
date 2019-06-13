@@ -22,8 +22,8 @@ env:
     # iOS
     - DESTINATION="OS=12.2,name=iPhone XS"
     - DESTINATION="OS=11.4,name=iPhone X"
-    - DESTINATION="OS=10.3.1,name=iPhone 8 Plus"
-    - DESTINATION="OS=9.3,name=iPhone SE"
+    - DESTINATION="OS=10.3.1,name=iPhone SE"
+    - DESTINATION="OS=9.3,name=iPhone 6 Plus"
     - DESTINATION="OS=8.4,name=iPhone 6"
     # macOS
     - DESTINATION="arch=x86_64"
@@ -33,20 +33,18 @@ env:
     - DESTINATION="OS=10.2,name=Apple TV 1080p"
     - DESTINATION="OS=9.2,name=Apple TV 1080p"
     # watchOS
-    - DESTINATION="OS=5.2,name=Apple Watch Series 4 - 44mm"
-    - DESTINATION="OS=4.2,name=Apple Watch Series 3 - 42mm"
-    - DESTINATION="OS=3.2,name=Apple Watch Series 2 - 42mm"
-    - DESTINATION="OS=2.2,name=Apple Watch Series 2 - 42mm"
+    # - DESTINATION="OS=5.2,name=Apple Watch Series 4 - 44mm"
+    # - DESTINATION="OS=4.2,name=Apple Watch Series 3 - 42mm"
+    # - DESTINATION="OS=3.2,name=Apple Watch Series 2 - 42mm"
+    # - DESTINATION="OS=2.2,name=Apple Watch - 42mm"
     # Pod Linting
     - DESTINATION="OS=8.4,name=iPhone 6" LINT_DISTS="YES"
 script:
   - set -o pipefail
-  - xcodebuild -version
-  - xcodebuild -showsdks
   # Verify Dependency Distriburtions or run tests
   - if [ $LINT_DISTS == "YES" ]; then
-      pod lib lint --allow-warnings --verbose;
+      bundle exec pod lib lint --allow-warnings --verbose;
       swift build -c release --verbose;
     else
-      xcodebuild -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO ENABLE_TESTABILITY=YES test | xcpretty;
+      xcodebuild -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO ENABLE_TESTABILITY=YES test | bundle exec xcpretty;
     fi;

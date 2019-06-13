@@ -249,7 +249,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		35EA73F922B19AF200D97BF0 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -262,12 +262,12 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "swift run swiftlint\n";
+			shellPath = /bin/bash;
+			shellScript = "if [[ -z $TRAVIS_CI ]]; then\n  swift run swiftlint\nfi\n";
 		};
 		35EA73FA22B19B0400D97BF0 /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
+			buildActionMask = 12;
 			files = (
 			);
 			inputFileListPaths = (
@@ -281,7 +281,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "swift run swiftformat .\n";
+			shellScript = "if [[ -z $TRAVIS_CI ]]; then\n  swift run swiftformat .;\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -5,19 +5,19 @@
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Build Status](https://travis-ci.org/pubnub/swift.svg?branch=master)](https://travis-ci.org/pubnub/swift)
-[![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pubnub/swift&amp;utm_campaign=Badge_Grade)
+[![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=pubnub/swift&utm_campaign=Badge_Grade)
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Communication](#communication)
-- [Documentation](#documentation)
-- [License](#license)
+-   [Requirements](#requirements)
+-   [Installation](#installation)
+-   [Communication](#communication)
+-   [Documentation](#documentation)
+-   [License](#license)
 
 ## Requirements
 
-- iOS 8.0+ / macOS 10.10+ / tvOS 9.0+ / watchOS 2.0+
-- Xcode 10.2+
-- Swift 5+
+-   iOS 8.0+ / macOS 10.10+ / tvOS 9.0+ / watchOS 2.0+
+-   Xcode 10.2+
+-   Swift 5+
 
 ## Installation
 
@@ -62,13 +62,13 @@ carthage update
 
 Create or edit a `Package.swift` file to include:
 
-- Inside your root level `dependencies` array add:
+-   Inside your root level `dependencies` array add:
 
 ```swift
 .package(url: "https://github.com/pubnub/swift.git", from: "1.0.0")
 ```
 
-- Inside your `targets` array add `PubNub` as a dependency:
+-   Inside your `targets` array add `PubNub` as a dependency:
 
 ```swift
 .target(name: "YOUR_TARGET_NAME", dependencies: ["PubNub"])

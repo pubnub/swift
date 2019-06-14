@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 1.x Releases
 
-- `1.0.x` Releases - [1.0.0](#100)
+-   `1.0.x` Releases - [1.0.0](#100)
 
----
+* * *
 
 ## Unreleased
 
@@ -19,5 +19,5 @@ Released on YYYY-MM-DD.
 
 ### Added
 
-- Initial release of the PubNub Swift SDK.
-  - Added by [Person](https://github.com/person).
+-   Initial release of the PubNub Swift SDK.
+    -   Added by [Person](https://github.com/person).

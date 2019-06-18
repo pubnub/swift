@@ -27,7 +27,7 @@ jobs:
       name: "iOS Tests (w/ Code Coverage)"
       before_install:
         - brew update && brew install jq
-        - curl $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("application/x-java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
+        - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
       before_script:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
         - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"

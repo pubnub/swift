@@ -7,44 +7,27 @@ rvm:
 before_install:
   - gem update --system
   - gem install bundler
-  # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-  - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
-  - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
-  - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
 cache:
   bundler: true
   directories:
   - .build # Swift Package Manager packages
 env:
   global:
-  - LC_CTYPE=en_US.UTF-8
-  - LANG=en_US.UTF-8
-  - PROJECT=PubNub.xcodeproj
-  - SCHEME=PubNub
-  - LINT_DISTS="NO"
+  - TRAVIS_CI=TRUE
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
   matrix:
-    # Test latest majors of all supported archs
-    # iOS
-    - DESTINATION="OS=12.2,name=iPhone XS"
-    - DESTINATION="OS=11.4,name=iPhone X"
-    - DESTINATION="OS=10.3.1,name=iPhone SE"
-    - DESTINATION="OS=9.3,name=iPhone 6 Plus"
-    - DESTINATION="OS=8.4,name=iPhone 6"
-    # macOS
-    - DESTINATION="arch=x86_64"
-    # tvOS
-    - DESTINATION="OS=12.2,name=Apple TV 4K"
-    - DESTINATION="OS=11.4,name=Apple TV 4K"
-    - DESTINATION="OS=10.2,name=Apple TV 1080p"
-    - DESTINATION="OS=9.2,name=Apple TV 1080p"
-    # Pod Linting
-    - DESTINATION="OS=8.4,name=iPhone 6" LINT_DISTS="YES"
-script:
-  - set -o pipefail
-  # Verify Dependency Distriburtions or run tests
-  - if [ $LINT_DISTS == "YES" ]; then
-      bundle exec pod lib lint --allow-warnings --verbose;
-      swift build -c release --verbose;
-    else
-      xcodebuild -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release -enableCodeCoverage YES ONLY_ACTIVE_ARCH=NO ENABLE_TESTABILITY=YES GCC_GENERATE_TEST_COVERAGE_FILES=YES test | bundle exec xcpretty;
-    fi;
+    include:
+    - name: "iOS Unit Tests"
+      script: bundle exec fastlane test --env ios
+    - name: "macOS Unit Tests"
+      script: bundle exec fastlane test --env macos
+    - name: "tvOS Unit Tests"
+      script: bundle exec fastlane test --env tvos
+    - name: "Deliveralbe Linting"
+      script: bundle exec pod lib lint --allow-warnings --verbose
+      script: swift build -c release --verbose;
+    - name: "Code Coverage"
+      before_install:
+        - sudo apt-get install jq
+        - curl $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("application/x-java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
+      script: bundle exec fastlane code_coverage --env ios

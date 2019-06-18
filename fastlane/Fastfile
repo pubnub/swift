@@ -1,0 +1,112 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+before_all do |lane, opts|
+
+  # Need to use UTF-8 when using xcpretty
+  Encoding.default_external = Encoding::UTF_8
+  Encoding.default_internal = Encoding::UTF_8
+
+  setup_travis if ENV["TRAVIS_CI"]
+end
+
+private_lane :fix_xcode10_2_1_test_issue do
+  # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
+  iOS8_4 = '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+  iOS9_3 = '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+  tvOS9_2 = '/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+
+  FileUtils.mkdir(iOS9_3) unless File.directory?(iOS8_4)
+  FileUtils.mkdir(iOS9_3) unless File.directory?(iOS9_3)
+  FileUtils.mkdir(tvOS9_2) unless File.directory?(tvOS9_2)
+end
+
+desc "Executes SDK Unit Tests"
+lane :test do
+  fix_xcode10_2_1_test_issue
+
+  begin
+    if ENV['DEVICES'] # Test using simulators
+      scan(
+        workspace: ENV['WORKSPACE'],
+        scheme: ENV['SCHEME_SDK'],
+        devices: ENV['DEVICES'].split(','),
+        # https://github.com/xcpretty/xcpretty/issues/295
+        # xcpretty doesn't support parallel test output, so we disable it
+        fail_build: false,
+        output_types: '',
+        output_style: 'raw',
+        xcargs: '-quiet',
+        # end xcpretty issue overrides
+      )
+    elsif ENV['DESTINATION'] # Test using phyiscal devices
+      scan(
+        workspace: ENV['WORKSPACE'],
+        scheme: ENV['SCHEME_SDK'],
+        destination: ENV['DESTINATION'],
+        # https://github.com/xcpretty/xcpretty/issues/295
+        # xcpretty doesn't support parallel test output, so we disable it
+        fail_build: false,
+        output_types: '',
+        output_style: 'raw',
+        xcargs: '-quiet',
+        # end xcpretty issue overrides
+      )
+    end
+  rescue FastlaneCore::Interface::FastlaneBuildFailure
+    UI.message "Caught failed test expection even through 'fail_build' is false!"
+  end
+
+  begin
+    trainer(
+      #path: "#{ENV['TEST_OUTPUT_DIR']}/PubNub.test_result/TestSummaries.plist",
+      output_directory: ENV['TEST_OUTPUT_DIR'],
+      extension: ".junit",
+      verbose: true,
+      fail_build: true
+    )
+  rescue FastlaneCore::Interface::FastlaneTestFailure => e
+    UI.error "Lane Trainer: Unit tests failed"
+  end
+end
+
+desc "Generates Code Coverage Files"
+lane :code_coverage do
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_SDK'],
+    device: ENV['DEVICES'].split(',').first,
+    configuration: 'Debug',
+    code_coverage: true,
+    fail_build: true,
+    xcargs: 'GCC_GENERATE_TEST_COVERAGE_FILES=YES CLANG_ENABLE_CODE_COVERAGE=YES',
+  )
+
+  # Generate code coverage files
+  slather(
+    travis: ENV["TRAVIS_CI"],
+    workspace: ENV['WORKSPACE'],
+    proj: ENV['PROJECT_SDK'],
+    scheme: ENV['SCHEME_SDK'],
+    output_directory: ENV['TEST_OUTPUT_DIR'],
+    use_bundle_exec: true,
+    cobertura_xml: true,
+    decimals: 2,
+    verbose: true
+  )
+
+  # Update coverage files on codacy
+  sh("java -jar ~/codacy-coverage-reporter-assembly.jar report -l swift -r #{ENV['TEST_OUTPUT_DIR']}/cobertura.xml") if ENV["TRAVIS_CI"] 
+end

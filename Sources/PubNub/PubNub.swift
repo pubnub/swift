@@ -8,6 +8,8 @@
 
 import Foundation
 
-struct PubNub {
-  var text = "Hello, World!"
+public struct PubNub {
+  public init() {}
+
+  public var text = "Hello, World!"
 }

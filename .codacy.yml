@@ -1,0 +1,16 @@
+engines:
+ coverage:
+   exclude_paths:
+     - Examples/**
+     - '*.md'
+exclude_paths:
+  - Gemfile
+  - Gemfile.lock
+  - LICENSE
+  - 'fastlane/**'
+  - 'Package.*'
+  - '*.yml'
+  - '*.xcodeproj'
+  - '*.xcworkspace'
+  - '*.plist'
+  - '*.podspec'

@@ -13,7 +13,7 @@ cache:
   bundler: true
   directories:
   - .build # Swift Package Manager
-  - /home/travis/.rvm/ # RVM
+  - /Users/travis/.rvm/ # RVM
   - $HOME/Library/Caches/Homebrew # Brew
 
 before_install:
@@ -26,13 +26,12 @@ env:
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
 stages:
-  - Testing
-  - Deliverable Linting
+  - Verification
 
 jobs:
   fast_finish: true
   include:
-    - stage: Testing
+    - stage: Verification
       name: "iOS Tests (w/ Code Coverage)"
       before_install:
         - gem update --system
@@ -54,9 +53,7 @@ jobs:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
         - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env tvos
-
-    - stage: Deliverable Linting
-      name: "Cocoapods"
+    - name: "Cocoapods"
       script: bundle exec pod lib lint --allow-warnings
     - name: "Swift Package Manager"
       script: swift build -c release

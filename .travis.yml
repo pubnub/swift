@@ -4,13 +4,22 @@ osx_image: xcode10.2
 sudo: true
 rvm:
   - 2.5.3
-before_install:
-  - gem update --system
-  - gem install bundler
+before_cache:
+  - brew cleanup
+  - rvm cleanup all
+  - bundle clean
+  - swift package clean
 cache:
   bundler: true
   directories:
-  - .build # Swift Package Manager packages
+  - .build # Swift Package Manager
+  - /home/travis/.rvm/ # RVM
+  - $HOME/Library/Caches/Homebrew # Brew
+
+before_install:
+  - gem update --system
+  - gem install bundler
+
 env:
   global:
   - TRAVIS_CI=TRUE
@@ -26,6 +35,8 @@ jobs:
     - stage: Testing
       name: "iOS Tests (w/ Code Coverage)"
       before_install:
+        - gem update --system
+        - gem install bundler
         - brew update && brew install jq
         - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
       before_script:

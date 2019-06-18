@@ -15,19 +15,33 @@ env:
   global:
   - TRAVIS_CI=TRUE
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
-  matrix:
-    include:
-    - name: "iOS Unit Tests"
+
+stages:
+  - Testing
+  - Deliverable Linting
+
+jobs:
+  include:
+    - stage: Testing
+      name: "iOS Tests"
       script: bundle exec fastlane test --env ios
-    - name: "macOS Unit Tests"
+    - name: "macOS Tests"
       script: bundle exec fastlane test --env macos
-    - name: "tvOS Unit Tests"
+    - name: "tvOS Tests"
       script: bundle exec fastlane test --env tvos
-    - name: "Deliveralbe Linting"
-      script: bundle exec pod lib lint --allow-warnings --verbose
-      script: swift build -c release --verbose;
     - name: "Code Coverage"
       before_install:
+        - gem install bundler
         - sudo apt-get install jq
         - curl $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("application/x-java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
+      install:
+        - bundle install
       script: bundle exec fastlane code_coverage --env ios
+      after_success:
+        java -jar ~/codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml
+
+    - stage: Deliverable Linting
+      name: "Cocoapods"
+      script: bundle exec pod lib lint --allow-warnings --verbose
+    - name: "Swift Package Manager"
+      script: swift build -c release --verbose

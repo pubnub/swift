@@ -100,13 +100,10 @@ lane :code_coverage do
     workspace: ENV['WORKSPACE'],
     proj: ENV['PROJECT_SDK'],
     scheme: ENV['SCHEME_SDK'],
-    output_directory: ENV['TEST_OUTPUT_DIR'],
+    output_directory: 'fastlane/test_output',
     use_bundle_exec: true,
     cobertura_xml: true,
     decimals: 2,
     verbose: true
   )
-
-  # Update coverage files on codacy
-  sh("java -jar ~/codacy-coverage-reporter-assembly.jar report -l swift -r #{ENV['TEST_OUTPUT_DIR']}/cobertura.xml") if ENV["TRAVIS_CI"] 
 end

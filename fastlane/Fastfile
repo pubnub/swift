@@ -43,6 +43,7 @@ lane :test do
         workspace: ENV['WORKSPACE'],
         scheme: ENV['SCHEME_SDK'],
         devices: ENV['DEVICES'].split(','),
+        configuration: 'Debug',
         # https://github.com/xcpretty/xcpretty/issues/295
         # xcpretty doesn't support parallel test output, so we disable it
         fail_build: false,
@@ -84,16 +85,6 @@ end
 
 desc "Generates Code Coverage Files"
 lane :code_coverage do
-  scan(
-    workspace: ENV['WORKSPACE'],
-    scheme: ENV['SCHEME_SDK'],
-    device: ENV['DEVICES'].split(',').first,
-    configuration: 'Debug',
-    code_coverage: true,
-    fail_build: true,
-    xcargs: 'GCC_GENERATE_TEST_COVERAGE_FILES=YES CLANG_ENABLE_CODE_COVERAGE=YES',
-  )
-
   # Generate code coverage files
   slather(
     travis: ENV["TRAVIS_CI"],

@@ -46,7 +46,7 @@ jobs:
       script: bundle exec fastlane test --env ios
       after_success:
         - bundle exec fastlane code_coverage --env ios
-        - java -jar ~/codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml
+        - java -jar codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml
     - name: "macOS Tests"
       script: bundle exec fastlane test --env macos
     - name: "tvOS Tests"

@@ -27,20 +27,20 @@ jobs:
       name: "iOS Tests"
       before_script:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-        - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
-        - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env ios
     - name: "macOS Tests"
       script: bundle exec fastlane test --env macos
     - name: "tvOS Tests"
       before_script:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-        - sudo mkdir '/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
+        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env tvos
     - name: "Code Coverage"
       before_install:
         - gem install bundler
-        - sudo apt-get install jq
+        - brew update && brew install jq
         - curl $(curl https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("application/x-java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
       install:
         - bundle install
@@ -50,6 +50,6 @@ jobs:
 
     - stage: Deliverable Linting
       name: "Cocoapods"
-      script: bundle exec pod lib lint --allow-warnings --verbose
+      script: bundle exec pod lib lint --allow-warnings
     - name: "Swift Package Manager"
-      script: swift build -c release --verbose
+      script: swift build -c release

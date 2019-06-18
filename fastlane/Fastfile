@@ -28,9 +28,9 @@ private_lane :fix_xcode10_2_1_test_issue do
   iOS9_3 = '/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
   tvOS9_2 = '/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift'
 
-  FileUtils.mkdir(iOS9_3) unless File.directory?(iOS8_4)
-  FileUtils.mkdir(iOS9_3) unless File.directory?(iOS9_3)
-  FileUtils.mkdir(tvOS9_2) unless File.directory?(tvOS9_2)
+  FileUtils.mkdir(iOS9_3) if ENV['PLATFORM'] == 'ios' && !File.directory?(iOS8_4)
+  FileUtils.mkdir(iOS9_3) if ENV['PLATFORM'] == 'ios' && !File.directory?(iOS9_3)
+  FileUtils.mkdir(tvOS9_2) if ENV['PLATFORM'] == 'tvos' && !File.directory?(tvOS9_2)
 end
 
 desc "Executes SDK Unit Tests"

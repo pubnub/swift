@@ -38,7 +38,20 @@ lane :test do
   fix_xcode10_2_1_test_issue
 
   begin
-    if ENV['DEVICES'] # Test using simulators
+    if ENV['PLATFORM'] == 'mac' # Test using phyiscal device
+      scan(
+        workspace: ENV['WORKSPACE'],
+        scheme: ENV['SCHEME_SDK'],
+        destination: ENV['DESTINATION'],
+        # https://github.com/xcpretty/xcpretty/issues/295
+        # xcpretty doesn't support parallel test output, so we disable it
+        fail_build: false,
+        output_types: '',
+        output_style: 'raw',
+        xcargs: '-quiet',
+        # end xcpretty issue overrides
+      )
+    else # Test using simulators
       scan(
         workspace: ENV['WORKSPACE'],
         scheme: ENV['SCHEME_SDK'],
@@ -52,22 +65,9 @@ lane :test do
         xcargs: '-quiet',
         # end xcpretty issue overrides
       )
-    elsif ENV['DESTINATION'] # Test using phyiscal devices
-      scan(
-        workspace: ENV['WORKSPACE'],
-        scheme: ENV['SCHEME_SDK'],
-        destination: ENV['DESTINATION'],
-        # https://github.com/xcpretty/xcpretty/issues/295
-        # xcpretty doesn't support parallel test output, so we disable it
-        fail_build: false,
-        output_types: '',
-        output_style: 'raw',
-        xcargs: '-quiet',
-        # end xcpretty issue overrides
-      )
     end
   rescue FastlaneCore::Interface::FastlaneBuildFailure
-    UI.message "Caught failed test expection even through 'fail_build' is false!"
+    UI.message "Caught false positive build failure!"
   end
 
   begin
@@ -96,5 +96,17 @@ lane :code_coverage do
     cobertura_xml: true,
     decimals: 2,
     verbose: true
+  )
+end
+
+desc "Builds the SDK Example app"
+lane :build_example do
+# xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO build | xcpretty;
+  xcodebuild(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_EXAMPLE'],
+    destination: ENV['DESTINATION_EXAMPLE'],
+    configuration: "Release",
+    build: true
   )
 end

@@ -57,3 +57,5 @@ jobs:
       script: bundle exec pod lib lint --allow-warnings
     - name: "Swift Package Manager"
       script: swift build -c release
+    - name: "Build iOS Example"
+      script: bundle exec fastlane build_example --env ios

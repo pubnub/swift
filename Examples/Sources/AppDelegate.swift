@@ -1,6 +1,6 @@
 //
-//  PubNub.h
-// 
+//  AppDelegate.swift
+//
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
 //  http://www.pubnub.com/
@@ -25,14 +25,24 @@
 //  THE SOFTWARE.
 //
 
-#import <UIKit/UIKit.h>
+import UIKit
 
-//! Project version number for PubNub.
-FOUNDATION_EXPORT double PubNubVersionNumber;
+@UIApplicationMain
+class AppDelegate: UIResponder, UIApplicationDelegate {
+  var window: UIWindow?
 
-//! Project version string for PubNub.
-FOUNDATION_EXPORT const unsigned char PubNubVersionString[];
+  func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // Override point for customization after application launch.
+    return true
+  }
 
-// In this header, you should import all the public headers of your framework using statements like #import <PubNub/PublicHeader.h>
+  func applicationWillResignActive(_: UIApplication) {}
 
+  func applicationDidEnterBackground(_: UIApplication) {}
 
+  func applicationWillEnterForeground(_: UIApplication) {}
+
+  func applicationDidBecomeActive(_: UIApplication) {}
+
+  func applicationWillTerminate(_: UIApplication) {}
+}

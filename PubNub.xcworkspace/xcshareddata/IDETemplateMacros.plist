@@ -1,8 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>FILEHEADER</key>
+	<string>
+//  ___FILENAME___
 //
-//  PubNub.h
-// 
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © ___YEAR___ PubNub Inc.
 //  http://www.pubnub.com/
 //  http://www.pubnub.com/terms
 //
@@ -23,16 +28,6 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
-//
-
-#import <UIKit/UIKit.h>
-
-//! Project version number for PubNub.
-FOUNDATION_EXPORT double PubNubVersionNumber;
-
-//! Project version string for PubNub.
-FOUNDATION_EXPORT const unsigned char PubNubVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <PubNub/PublicHeader.h>
-
-
+//</string>
+</dict>
+</plist>

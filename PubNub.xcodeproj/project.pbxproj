@@ -7,6 +7,18 @@
 	objects = {
 
 /* Begin PBXAggregateTarget section */
+		359152A222BA9F380048842D /* Linting */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 359152A522BA9F380048842D /* Build configuration list for PBXAggregateTarget "Linting" */;
+			buildPhases = (
+				359152A822BA9F5B0048842D /* Swift Format */,
+				359152A922BA9F5D0048842D /* Swift Lint */,
+			);
+			dependencies = (
+			);
+			name = Linting;
+			productName = PubNubPackageTests;
+		};
 		"PubNub::PubNubPackageTests::ProductTarget" /* PubNubPackageTests */ = {
 			isa = PBXAggregateTarget;
 			buildConfigurationList = OBJ_40 /* Build configuration list for PBXAggregateTarget "PubNubPackageTests" */;
@@ -21,6 +33,8 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152A022BA9AA30048842D /* PubNubConfiguration.swift */; };
+		359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_38 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -45,10 +59,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		359152A022BA9AA30048842D /* PubNubConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfiguration.swift; sourceTree = "<group>"; };
+		359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfigurationTests.swift; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
-		OBJ_10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		35F0257222BAB043007BD7D3 /* PubNub_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNub_Info.plist; path = PubNub.xcodeproj/PubNub_Info.plist; sourceTree = SOURCE_ROOT; };
+		35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNubTests_Info.plist; path = PubNub.xcodeproj/PubNubTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
-		OBJ_14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		OBJ_22 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
@@ -83,7 +99,6 @@
 			isa = PBXGroup;
 			children = (
 				359F778A22B7FDDB00B6B46F /* Gemfile */,
-				OBJ_22 /* CHANGELOG.md */,
 				OBJ_6 /* Package.swift */,
 				OBJ_21 /* LICENSE */,
 				OBJ_24 /* PubNubSwift.podspec */,
@@ -95,7 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_9 /* PubNub.h */,
-				OBJ_10 /* Info.plist */,
+				35F0257222BAB043007BD7D3 /* PubNub_Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -103,15 +118,25 @@
 		35EA73F822B199FF00D97BF0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				OBJ_14 /* Info.plist */,
+				35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		35F0258D22BAC21E007BD7D3 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				OBJ_23 /* README.md */,
+				OBJ_22 /* CHANGELOG.md */,
+			);
+			name = Documentation;
 			sourceTree = "<group>";
 		};
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				OBJ_15 /* PubNubTests.swift */,
+				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
 				35EA73F822B199FF00D97BF0 /* Supporting Files */,
 			);
 			name = Tests;
@@ -130,8 +155,8 @@
 		OBJ_5 = {
 			isa = PBXGroup;
 			children = (
-				OBJ_23 /* README.md */,
 				35EA73F622B1916800D97BF0 /* Deployment */,
+				35F0258D22BAC21E007BD7D3 /* Documentation */,
 				OBJ_7 /* Sources */,
 				OBJ_12 /* Tests */,
 				OBJ_17 /* Products */,
@@ -142,6 +167,7 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_11 /* PubNub.swift */,
+				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
 				35EA73F722B199EA00D97BF0 /* Supporting Files */,
 			);
 			name = Sources;
@@ -155,8 +181,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
-				35EA73FA22B19B0400D97BF0 /* SwiftFormat */,
-				35EA73F922B19AF200D97BF0 /* SwiftLint */,
 				OBJ_30 /* Sources */,
 				OBJ_32 /* Frameworks */,
 			);
@@ -238,46 +262,47 @@
 				"PubNub::SwiftPMPackageDescription" /* PubNubPackageDescription */,
 				"PubNub::PubNubPackageTests::ProductTarget" /* PubNubPackageTests */,
 				"PubNub::PubNubTests" /* PubNubTests */,
+				359152A222BA9F380048842D /* Linting */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		35EA73F922B19AF200D97BF0 /* SwiftLint */ = {
+		359152A822BA9F5B0048842D /* Swift Format */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
+			buildActionMask = 2147483647;
 			files = (
 			);
 			inputFileListPaths = (
 			);
 			inputPaths = (
 			);
-			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/bash;
-			shellScript = "if [ $CONFIGURATION != \"Release\" ] && [ -z $TRAVIS_CI ]; then\n  swift run swiftlint\nfi\n";
-		};
-		35EA73FA22B19B0400D97BF0 /* SwiftFormat */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 12;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftFormat;
+			name = "Swift Format";
 			outputFileListPaths = (
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ $CONFIGURATION != \"Release\" ] && [ -z $TRAVIS_CI ]; then\n  swift run swiftformat .;\nfi\n";
+			shellScript = "swift run swiftformat .\n";
+		};
+		359152A922BA9F5D0048842D /* Swift Lint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swift Lint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "swift run swiftlint\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -286,6 +311,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				OBJ_31 /* PubNub.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -302,6 +328,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -322,6 +349,20 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		359152A622BA9F380048842D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		359152A722BA9F380048842D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		OBJ_28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -514,6 +555,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		359152A522BA9F380048842D /* Build configuration list for PBXAggregateTarget "Linting" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				359152A622BA9F380048842D /* Debug */,
+				359152A722BA9F380048842D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		OBJ_2 /* Build configuration list for PBXProject "PubNub" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

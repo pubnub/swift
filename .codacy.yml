@@ -1,7 +1,7 @@
 engines:
  coverage:
    exclude_paths:
-     - Examples/**
+     - 'Examples/**'
      - '*.md'
 exclude_paths:
   - Gemfile

@@ -46,10 +46,10 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertEqual(config, PubNubConfiguration.default)
 
-    XCTAssertEqual(config.publishKey, "")
-    XCTAssertEqual(config.subscribeKey, "")
-    XCTAssertEqual(config.cipherKey, nil)
-    XCTAssertEqual(config.authKey, nil)
+    XCTAssertNil(config.publishKey)
+    XCTAssertNil(config.subscribeKey)
+    XCTAssertNil(config.cipherKey)
+    XCTAssertNil(config.authKey)
     XCTAssertNotNil(config.uuid)
     XCTAssertEqual(config.useSecureConnections, true)
     XCTAssertEqual(config.origin, "ps.pndsn.com")

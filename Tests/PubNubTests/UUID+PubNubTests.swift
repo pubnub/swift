@@ -1,5 +1,5 @@
 //
-//  PubNub.swift
+//  UUID+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,15 +25,13 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-/// An object that coordinates a group of related PubNub pub/sub network events
-public struct PubNub {
-  /// A copy of the configuration object used for this session
-  public let configuration: PubNubConfiguration
+final class UUIDPubNubTests: XCTestCase {
+  func testPubNubUUID() {
+    let uuid = UUID()
 
-  /// Creates a session with the specified configuration
-  public init(configuration: PubNubConfiguration = .default) {
-    self.configuration = configuration
+    XCTAssertEqual(uuid.pubnubString, "pn-\(uuid.uuidString)")
   }
 }

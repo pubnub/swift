@@ -1,5 +1,5 @@
 //
-//  PubNub.swift
+//  UUID+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,13 +27,8 @@
 
 import Foundation
 
-/// An object that coordinates a group of related PubNub pub/sub network events
-public struct PubNub {
-  /// A copy of the configuration object used for this session
-  public let configuration: PubNubConfiguration
-
-  /// Creates a session with the specified configuration
-  public init(configuration: PubNubConfiguration = .default) {
-    self.configuration = configuration
+public extension UUID {
+  var pubnubString: String {
+    return "pn-\(uuidString)"
   }
 }

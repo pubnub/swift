@@ -112,7 +112,7 @@ class MasterDetailTableViewController: UITableViewController {
     switch SegueId(rawValue: segue.identifier ?? "") {
     case .config?:
       let configVC = segue.destination as? ConfigDetailTableViewController
-      configVC?.config = pubnub.config
+      configVC?.config = pubnub.configuration
     default:
       break
     }

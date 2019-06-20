@@ -35,6 +35,8 @@
 /* Begin PBXBuildFile section */
 		359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152A022BA9AA30048842D /* PubNubConfiguration.swift */; };
 		359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */; };
+		35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */; };
+		35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_38 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -64,6 +66,8 @@
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
 		35F0257222BAB043007BD7D3 /* PubNub_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNub_Info.plist; path = PubNub.xcodeproj/PubNub_Info.plist; sourceTree = SOURCE_ROOT; };
 		35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNubTests_Info.plist; path = PubNub.xcodeproj/PubNubTests_Info.plist; sourceTree = SOURCE_ROOT; };
+		35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNub.swift"; sourceTree = "<group>"; };
+		35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNubTests.swift"; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -132,11 +136,20 @@
 			name = Documentation;
 			sourceTree = "<group>";
 		};
+		35F0259222BBE68B007BD7D3 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
 				OBJ_15 /* PubNubTests.swift */,
 				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
+				35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */,
 				35EA73F822B199FF00D97BF0 /* Supporting Files */,
 			);
 			name = Tests;
@@ -168,6 +181,7 @@
 			children = (
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
+				35F0259222BBE68B007BD7D3 /* Extensions */,
 				35EA73F722B199EA00D97BF0 /* Supporting Files */,
 			);
 			name = Sources;
@@ -311,6 +325,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				OBJ_31 /* PubNub.swift in Sources */,
 			);
@@ -329,6 +344,7 @@
 			buildActionMask = 0;
 			files = (
 				359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */,
+				35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

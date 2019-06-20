@@ -94,7 +94,7 @@ class ConfigDetailTableViewController: UITableViewController {
       case .authKey:
         return config.authKey
       case .uuid:
-        return config.uuid.uuidString
+        return config.uuid
       case .useSecureConnections:
         return config.useSecureConnections.description
       case .origin:

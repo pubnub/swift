@@ -28,7 +28,7 @@
 import Foundation
 
 /// An object that coordinates a group of related PubNub pub/sub network events
-public struct PubNub {
+public struct PubNub: Codable, Hashable {
   /// A copy of the configuration object used for this session
   public let configuration: PubNubConfiguration
 

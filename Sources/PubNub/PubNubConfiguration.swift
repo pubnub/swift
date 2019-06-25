@@ -76,11 +76,11 @@ public struct PubNubConfiguration: Codable, Hashable {
     self.subscribeKey = subscribeKey
   }
 
-  /// Specifies the PubNub Publish Key to be used when publishing messages to a channel.
+  /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   public var publishKey: String?
-  /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel.
+  /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   public var subscribeKey: String?
-  /// If set, all communicaton will be encrypted with this key
+  /// If set, all communication will be encrypted with this key
   public var cipherKey: String?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
@@ -96,9 +96,11 @@ public struct PubNubConfiguration: Codable, Hashable {
   public var useSecureConnections: Bool = true
   /// Domain name used for requests
   public var origin: String = "ps.pndsn.com"
-  /// How long (in seconds) the server will consider the client alive for presence.
+  /// How long (in seconds) the server will consider the client alive for presence
+  ///
+  /// - NOTE: The minimum value this field can be is 20
   public var presenceTimeout: Int = 300
-  /// How often (in seconds) the client will announce itself to server.
+  /// How often (in seconds) the client will announce itself to server
   public var heartbeatInterval: Int = -1
   /// Whether to send out the leave requests
   public var supressLeaveEvents: Bool = false

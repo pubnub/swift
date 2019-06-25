@@ -1,32 +1,37 @@
-# fastlane documentation
-
+fastlane documentation
+================
 # Installation
 
 Make sure you have the latest version of the Xcode command line tools installed:
 
-    xcode-select --install
+```
+xcode-select --install
+```
 
 Install _fastlane_ using
-
-    [sudo] gem install fastlane -NV
-
+```
+[sudo] gem install fastlane -NV
+```
 or alternatively using `brew cask install fastlane`
 
 # Available Actions
-
 ### test
-
-    fastlane test
-
+```
+fastlane test
+```
 Executes SDK Unit Tests
-
 ### code_coverage
-
-    fastlane code_coverage
-
+```
+fastlane code_coverage
+```
 Generates Code Coverage Files
+### build_example
+```
+fastlane build_example
+```
+Builds the SDK Example app
 
-* * *
+----
 
 This README.md is auto-generated and will be re-generated every time [fastlane](https://fastlane.tools) is run.
 More information about fastlane can be found on [fastlane.tools](https://fastlane.tools).

@@ -1,6 +1,6 @@
 //
-//  PubNub.h
-// 
+//  UUID+PubNubTests.swift
+//
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
 //  http://www.pubnub.com/
@@ -25,14 +25,13 @@
 //  THE SOFTWARE.
 //
 
-#import <UIKit/UIKit.h>
+@testable import PubNub
+import XCTest
 
-//! Project version number for PubNub.
-FOUNDATION_EXPORT double PubNubVersionNumber;
+final class UUIDPubNubTests: XCTestCase {
+  func testPubNubUUID() {
+    let uuid = UUID()
 
-//! Project version string for PubNub.
-FOUNDATION_EXPORT const unsigned char PubNubVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <PubNub/PublicHeader.h>
-
-
+    XCTAssertEqual(uuid.pubnubString, "pn-\(uuid.uuidString)")
+  }
+}

@@ -34,7 +34,7 @@ struct SubscribeResponseDecoder: ResponseDecoder {
     do {
       let decodedPayload = try JSONDecoder().decode(SubscriptionResponsePayload.self, from: response.payload)
 
-      let decodedResponse = Response<SubscriptionResponsePayload>(endpoint: response.endpoint,
+      let decodedResponse = Response<SubscriptionResponsePayload>(router: response.router,
                                                                   request: response.request,
                                                                   response: response.response,
                                                                   data: response.data,
@@ -43,9 +43,9 @@ struct SubscribeResponseDecoder: ResponseDecoder {
       completion(.success(decodedResponse))
     } catch {
       completion(.failure(PNError
-          .endpointOperationFailure(.jsonDataDecodeFailure(response.data, with: error),
-                                    forRequest: response.request,
-                                    onResponse: response.response)))
+          .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                           forRequest: response.request,
+                           onResponse: response.response)))
     }
   }
 }

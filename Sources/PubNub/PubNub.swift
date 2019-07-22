@@ -53,10 +53,10 @@ public struct PubNub {
     completion: ((Result<TimeResponsePayload, Error>) -> Void)?
   ) {
     let client = networkConfiguration?.customSession ?? networkSession
-    let endpoint = PubNubEndpoint(configuration: configuration, operation: .time)
+    let router = PubNubRouter(configuration: configuration, endpoint: .time)
 
     client
-      .request(on: endpoint, requestOperator: networkConfiguration?.requestOperator)
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(on: queue, decoder: TimeResponseDecoder(), operator: networkConfiguration?.responseOperator) { result in
         switch result {
@@ -81,26 +81,26 @@ public struct PubNub {
   ) {
     let client = networkConfiguration?.customSession ?? networkSession
 
-    let operation: PubNubOperation
+    let endpoint: Endpoint
     if shouldCompress {
-      operation = .compressedPublish(message: message,
-                                     channel: channel,
-                                     shouldStore: shouldStore,
-                                     ttl: storeTTL,
-                                     meta: meta)
+      endpoint = .compressedPublish(message: message,
+                                    channel: channel,
+                                    shouldStore: shouldStore,
+                                    ttl: storeTTL,
+                                    meta: meta)
     } else {
-      operation = .publish(message: message,
-                           channel: channel,
-                           shouldStore: shouldStore,
-                           ttl: storeTTL,
-                           meta: meta)
+      endpoint = .publish(message: message,
+                          channel: channel,
+                          shouldStore: shouldStore,
+                          ttl: storeTTL,
+                          meta: meta)
     }
 
-    let endpoint = PubNubEndpoint(configuration: configuration,
-                                  operation: operation)
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: endpoint)
 
     client
-      .request(on: endpoint, requestOperator: networkConfiguration?.requestOperator)
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
         on: queue,

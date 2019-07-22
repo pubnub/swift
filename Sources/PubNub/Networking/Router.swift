@@ -1,5 +1,5 @@
 //
-//  Endpoint.swift
+//  Router.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 import Foundation
 
 /// Base configuration for PubNub Endpoints
-public protocol EndpointConfiguration {
+public protocol RouterConfiguration {
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   var publishKey: String? { get }
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
@@ -43,7 +43,7 @@ public protocol EndpointConfiguration {
   var authKey: String? { get }
 }
 
-extension EndpointConfiguration {
+extension RouterConfiguration {
   public var urlScheme: String {
     return useSecureConnections ? "https" : "http"
   }
@@ -63,7 +63,7 @@ extension EndpointConfiguration {
   }
 }
 
-extension PubNubConfiguration: EndpointConfiguration {}
+extension PubNubConfiguration: RouterConfiguration {}
 
 public enum PNKeyRequirement: String {
   public enum Contract {
@@ -108,9 +108,9 @@ public protocol ResponseDecoder {
   func decode(response: Response<Data>, completion: (Result<Response<Payload>, Error>) -> Void)
 }
 
-public protocol Endpoint: URLRequestConvertible, CustomStringConvertible {
-  var operation: PubNubOperation { get }
-  var configuration: EndpointConfiguration { get }
+public protocol Router: URLRequestConvertible, CustomStringConvertible {
+  var endpoint: Endpoint { get }
+  var configuration: RouterConfiguration { get }
   var method: HTTPMethod { get }
   func path() throws -> String
   var additionalHeaders: HTTPHeaders { get }
@@ -129,7 +129,7 @@ public protocol Endpoint: URLRequestConvertible, CustomStringConvertible {
   func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
 }
 
-extension Endpoint {
+extension Router {
   // Default Protocol Implementation
 
   func decode<D: ResponseDecoder>(
@@ -143,7 +143,7 @@ extension Endpoint {
   func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     // Attempt to decode based on general system response payload
     if let data = data,
-      let generalErrorPayload = try? JSONDecoder().decode(GeneralSystemErrorPayload.self, from: data) {
+      let generalErrorPayload = try? JSONDecoder().decode(EndpointErrorPayload.self, from: data) {
       let pnError = PNError.convert(generalError: generalErrorPayload,
                                     request: request,
                                     response: response)
@@ -176,25 +176,25 @@ extension Endpoint {
       if configuration.subscribeKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPubNubKey(.subscribe, for: operation))
+      return .requestCreationFailure(.missingPubNubKey(.subscribe, for: endpoint))
 
     case .publish:
       if configuration.publishKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPubNubKey(.publish, for: operation))
+      return .requestCreationFailure(.missingPubNubKey(.publish, for: endpoint))
 
     case .publishAndSubscribe:
       switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
       case (false, false):
         return .requestCreationFailure(
-          .missingPubNubKey(.publishAndSubscribe, for: operation))
+          .missingPubNubKey(.publishAndSubscribe, for: endpoint))
       case (true, false):
         return .requestCreationFailure(
-          .missingPubNubKey(.subscribe, for: operation))
+          .missingPubNubKey(.subscribe, for: endpoint))
       case (false, true):
         return .requestCreationFailure(
-          .missingPubNubKey(.publish, for: operation))
+          .missingPubNubKey(.publish, for: endpoint))
       case (true, true):
         return nil
       }
@@ -204,7 +204,7 @@ extension Endpoint {
 
 // MARK: - URLRequestConvertible
 
-extension Endpoint {
+extension Router {
   public var asURL: Result<URL, Error> {
     if let invalidKeysError = keyValidationError {
       return .failure(invalidKeysError)
@@ -254,7 +254,7 @@ extension Endpoint {
 
 // MARK: - CustomStringConvertible
 
-extension Endpoint {
+extension Router {
   public var description: String {
     return String(describing: Self.self)
   }

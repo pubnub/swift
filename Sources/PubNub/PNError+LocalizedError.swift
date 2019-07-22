@@ -47,8 +47,8 @@ extension PNError: LocalizedError {
       return "Transmission Failure: \(reason)"
     case let .responseProcessingFailure(reason):
       return "Response Failure: \(reason)"
-    case let .endpointOperationFailure(reason, _, _):
-      return "Operation Error: \(reason)"
+    case let .endpointFailure(reason, _, _):
+      return "Endpoint Error: \(reason)"
     }
   }
 }
@@ -137,7 +137,7 @@ extension PNError.ResponseProcessingFailureReason: LocalizedErrorReason {
 }
 
 // "Operation Error: \(reason)"
-extension PNError.EndpointOperationFailureReason: LocalizedErrorReason {
+extension PNError.EndpointFailureReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
     case .accessDenied:
@@ -198,7 +198,7 @@ extension String.StringInterpolation {
     appendLiteral(value.errorDescription)
   }
 
-  mutating func appendInterpolation(_ value: PNError.EndpointOperationFailureReason) {
+  mutating func appendInterpolation(_ value: PNError.EndpointFailureReason) {
     appendLiteral(value.errorDescription)
   }
 

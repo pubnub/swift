@@ -43,7 +43,7 @@ extension URLSession: URLSessionReplaceable {}
 public protocol SessionReplaceable {
   var sessionID: UUID { get }
   var session: URLSessionReplaceable { get }
-  func request(on endpoint: Endpoint, requestOperator: RequestOperator?) -> Request
+  func request(with router: Router, requestOperator: RequestOperator?) -> Request
 }
 
 extension Session: SessionReplaceable {}

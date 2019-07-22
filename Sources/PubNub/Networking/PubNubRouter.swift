@@ -1,5 +1,5 @@
 //
-//  PNRouter.swift
+//  PubNubRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 
 import Foundation
 
-struct PubNubEndpoint {
+struct PubNubRouter {
   // URL Param Keys
   private let metaKey = "meta"
   private let storedKey = "store"
@@ -41,13 +41,13 @@ struct PubNubEndpoint {
   private let heartbeatKey = "heartbeat"
   private let filterKey = "filter-expr"
 
-  let configuration: EndpointConfiguration
-  let operation: PubNubOperation
+  let configuration: RouterConfiguration
+  let endpoint: Endpoint
 }
 
-extension PubNubEndpoint: Endpoint {
+extension PubNubRouter: Router {
   var method: HTTPMethod {
-    switch operation {
+    switch endpoint {
     case .time:
       return .get
     case .publish:
@@ -65,7 +65,7 @@ extension PubNubEndpoint: Endpoint {
     let publishKey = configuration.publishKey ?? ""
     let subscribeKey = configuration.subscribeKey ?? ""
 
-    switch operation {
+    switch endpoint {
     case .time:
       return "/time/0"
     case let .publish(parameters):
@@ -89,7 +89,7 @@ extension PubNubEndpoint: Endpoint {
 
   func queryItems() throws -> [URLQueryItem] {
     var query = defaultQueryItems
-    switch operation {
+    switch endpoint {
     case .time:
       break
     case let .publish(message, channel, shouldStore, ttl, meta):
@@ -126,7 +126,7 @@ extension PubNubEndpoint: Endpoint {
   }
 
   var body: AnyJSON? {
-    switch operation {
+    switch endpoint {
     case .time:
       return nil
     case .publish:
@@ -141,7 +141,7 @@ extension PubNubEndpoint: Endpoint {
   }
 
   var keysRequired: PNKeyRequirement {
-    switch operation {
+    switch endpoint {
     case .time:
       return .none
     case .publish, .compressedPublish:
@@ -154,7 +154,7 @@ extension PubNubEndpoint: Endpoint {
   }
 
   var pamVersion: PAMVersionRequirement {
-    switch operation {
+    switch endpoint {
     case .time:
       return .none
     case .publish, .compressedPublish:
@@ -167,7 +167,7 @@ extension PubNubEndpoint: Endpoint {
   }
 }
 
-extension PubNubEndpoint {
+extension PubNubRouter {
   func parsePresenceQuery(
     message _: AnyJSON,
     channel _: String,

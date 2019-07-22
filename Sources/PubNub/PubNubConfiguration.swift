@@ -76,7 +76,7 @@ public struct PubNubConfiguration: Hashable {
     self.subscribeKey = subscribeKey
   }
 
-  // MARK: - Endpoint Configurations
+  // MARK: - Router Configurations
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   public var publishKey: String?

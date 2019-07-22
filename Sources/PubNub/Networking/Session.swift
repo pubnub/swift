@@ -96,10 +96,10 @@ public final class Session {
   // MARK: -
 
   public func request(
-    on endpoint: Endpoint,
+    with router: Router,
     requestOperator: RequestOperator? = nil
   ) -> Request {
-    let request = Request(with: endpoint,
+    let request = Request(with: router,
                           requestQueue: sessionQueue,
                           sessionStream: sessionStream,
                           requestOperator: requestOperator,
@@ -115,7 +115,7 @@ public final class Session {
       // Ensure that the request hasn't been cancelled
       if request.isCancelled { return }
 
-      self.perform(request, urlRequest: request.endpoint)
+      self.perform(request, urlRequest: request.router)
     }
   }
 

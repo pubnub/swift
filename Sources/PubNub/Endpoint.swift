@@ -1,5 +1,5 @@
 //
-//  PNOperation.swift
+//  Endpoint.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 
 import Foundation
 
-public enum PubNubOperation {
+public enum Endpoint {
   // Time Endpoint
   case time
   // Publish Endpoint
@@ -65,7 +65,7 @@ public enum PubNubOperation {
   //  case removeAllPushNotifications           = "RemoveAllPushNotifications"
 }
 
-extension PubNubOperation: CustomStringConvertible {
+extension Endpoint: CustomStringConvertible {
   public var description: String {
     switch self {
     case .time:

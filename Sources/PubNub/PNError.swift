@@ -39,7 +39,7 @@ public enum PNError: Error {
   public enum RequestCreationFailureReason {
     // URL Creation Errors
     case jsonStringCodingFailure(AnyJSON, dueTo: Error)
-    case missingPubNubKey(PNKeyRequirement, for: PubNubOperation)
+    case missingPubNubKey(PNKeyRequirement, for: Endpoint)
 
     // Reqeuest Creation
     case unknown(Error)
@@ -76,27 +76,27 @@ public enum PNError: Error {
 
   case responseProcessingFailure(ResponseProcessingFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse?)
 
-  public enum EndpointOperationFailureReason {
+  public enum EndpointFailureReason {
     case accessDenied
     case malformedFilterExpression
     case malformedResponseBody
     case jsonDataDecodeFailure(Data?, with: Error)
     case decryptionFailure
     // Contains Server Response Message
-    case invalidSubscribeKey(GeneralSystemErrorPayload)
-    case invalidPublishKey(GeneralSystemErrorPayload)
-    case couldNotParseRequest(GeneralSystemErrorPayload)
+    case invalidSubscribeKey(EndpointErrorPayload)
+    case invalidPublishKey(EndpointErrorPayload)
+    case couldNotParseRequest(EndpointErrorPayload)
 
-    case badRequest(GeneralSystemErrorPayload)
-    case forbidden(GeneralSystemErrorPayload)
-    case resourceNotFound(GeneralSystemErrorPayload)
-    case requestURITooLong(GeneralSystemErrorPayload)
+    case badRequest(EndpointErrorPayload)
+    case forbidden(EndpointErrorPayload)
+    case resourceNotFound(EndpointErrorPayload)
+    case requestURITooLong(EndpointErrorPayload)
 
-    case unknown(GeneralSystemErrorPayload)
+    case unknown(EndpointErrorPayload)
   }
 
   /// Indicates that the request/reponse was successfully sent, but the PubNub system returned an error
-  case endpointOperationFailure(EndpointOperationFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse)
+  case endpointFailure(EndpointFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse)
 
   // When Error Occurred
   public enum SessionInvalidationReason {
@@ -246,31 +246,31 @@ extension PNError {
   }
 
   static func convert(
-    generalError payload: GeneralSystemErrorPayload,
+    generalError payload: EndpointErrorPayload,
     request: URLRequest,
     response: HTTPURLResponse
   ) -> PNError {
     // Try to associate with a specific error message
     if let reason = PNError.lookupGeneralErrorMessage(using: payload) {
-      return PNError.endpointOperationFailure(reason,
-                                              forRequest: request,
-                                              onResponse: response)
+      return PNError.endpointFailure(reason,
+                                     forRequest: request,
+                                     onResponse: response)
     }
 
     // Try to associate with a general status code error
-    let status = payload.status ?? GeneralSystemErrorPayload.Code(rawValue: response.statusCode)
+    let status = payload.status ?? EndpointErrorPayload.Code(rawValue: response.statusCode)
     if let reason = PNError.lookupGeneralErrorStatus(using: status, for: payload) {
-      return PNError.endpointOperationFailure(reason,
-                                              forRequest: request,
-                                              onResponse: response)
+      return PNError.endpointFailure(reason,
+                                     forRequest: request,
+                                     onResponse: response)
     }
 
-    return PNError.endpointOperationFailure(.unknown(payload),
-                                            forRequest: request,
-                                            onResponse: response)
+    return PNError.endpointFailure(.unknown(payload),
+                                   forRequest: request,
+                                   onResponse: response)
   }
 
-  static func lookupGeneralErrorMessage(using payload: GeneralSystemErrorPayload) -> EndpointOperationFailureReason? {
+  static func lookupGeneralErrorMessage(using payload: EndpointErrorPayload) -> EndpointFailureReason? {
     switch payload.message {
     case .couldNotParseRequest:
       return .couldNotParseRequest(payload)
@@ -288,9 +288,9 @@ extension PNError {
   }
 
   static func lookupGeneralErrorStatus(
-    using code: GeneralSystemErrorPayload.Code,
-    for payload: GeneralSystemErrorPayload
-  ) -> EndpointOperationFailureReason? {
+    using code: EndpointErrorPayload.Code,
+    for payload: EndpointErrorPayload
+  ) -> EndpointFailureReason? {
     switch code {
     case .badRequest:
       return .badRequest(payload)

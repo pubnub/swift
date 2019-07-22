@@ -67,7 +67,7 @@ public final class Request {
   }
 
   public let requestID: UUID = UUID()
-  public let endpoint: Endpoint
+  public let router: Router
   public let requestQueue: DispatchQueue
   public let requestOperator: RequestOperator?
 
@@ -79,13 +79,13 @@ public final class Request {
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
 
   public init(
-    with endpoint: Endpoint,
+    with router: Router,
     requestQueue: DispatchQueue,
     sessionStream: SessionStream?,
     requestOperator: RequestOperator? = nil,
     delegate: RequestDelegate
   ) {
-    self.endpoint = endpoint
+    self.router = router
     self.requestQueue = requestQueue
     self.sessionStream = sessionStream
     self.requestOperator = requestOperator
@@ -328,12 +328,12 @@ public final class Request {
   }
 
   public func validate() -> Self {
-    let endpoint = self.endpoint
+    let router = self.router
     return validate { request, response, data in
       if !response.isSuccessful {
-        return endpoint.decodeError(request: request,
-                                    response: response,
-                                    for: data)
+        return router.decodeError(request: request,
+                                  response: response,
+                                  for: data)
       }
       return nil
     }

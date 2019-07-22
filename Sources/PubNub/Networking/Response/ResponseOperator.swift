@@ -117,13 +117,13 @@ extension Request {
         return
       }
 
-      let dataResponse = Response<Data>(endpoint: self.endpoint,
+      let dataResponse = Response<Data>(router: self.router,
                                         request: urlRequest,
                                         response: urlResponse,
                                         payload: self.data ?? Data())
 
       // Decode the Response
-      dataResponse.endpoint.decode(response: dataResponse, decoder: responseDecoder) { decodeResult in
+      dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) { decodeResult in
         switch decodeResult {
         case let .success(decodedResponse):
           self.sessionStream?.emitDidDecode(dataResponse)

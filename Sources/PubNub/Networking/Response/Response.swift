@@ -28,7 +28,7 @@
 import Foundation
 
 public struct Response<Value> {
-  public let endpoint: Endpoint
+  public let router: Router
   public let request: URLRequest
   public let response: HTTPURLResponse
   public let data: Data?
@@ -38,11 +38,11 @@ public struct Response<Value> {
 
 extension Response {
   public func copy<T>(with value: T) -> Response<T> {
-    return Response<T>(endpoint: endpoint, request: request, response: response, data: data, payload: value)
+    return Response<T>(router: router, request: request, response: response, data: data, payload: value)
   }
 
   public func map<T>(_ transform: (Value) -> T) -> Response<T> {
-    return Response<T>(endpoint: endpoint,
+    return Response<T>(router: router,
                        request: request,
                        response: response,
                        data: data,
@@ -51,8 +51,8 @@ extension Response {
 }
 
 extension Response where Value == Data {
-  init(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, payload: Data) {
-    self.endpoint = endpoint
+  init(router: Router, request: URLRequest, response: HTTPURLResponse, payload: Data) {
+    self.router = router
     self.request = request
     self.response = response
     data = payload

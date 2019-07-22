@@ -1,5 +1,5 @@
 //
-//  GeneralSystemErrorPayload.swift
+//  EndpointErrorPayload.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 
 import Foundation
 
-public struct GeneralSystemErrorPayload: Codable {
+public struct EndpointErrorPayload: Codable {
   public enum Message: RawRepresentable, Codable {
     case couldNotParseRequest
     case invalidSubscribeKey

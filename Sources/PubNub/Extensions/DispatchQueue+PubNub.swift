@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  DispatchQueue+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,8 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension DispatchQueue {
+  public class var currentLabel: String {
+    return "\(String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? "Label Unknown")"
   }
 }

@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  Array+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,22 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension Collection where Element == String {
+  /// A comma-separated list of `String` elements
+  var csvString: String {
+    return joined(separator: ",")
+  }
+
+  /// Decreases the q-factor weighting of each header value by 0.1 in sequence order
+  /// NOTE: If there 10 or more values in the collection then no weight will be assigned
+  func headerQualityEncoded() -> String {
+    guard count >= 10 else {
+      return joined(separator: ",")
+    }
+
+    return enumerated().map { index, encoding in
+      let quality = 1.0 - (Double(index) * 0.1)
+      return "\(encoding);q=\(quality)"
+    }.joined(separator: ", ")
   }
 }

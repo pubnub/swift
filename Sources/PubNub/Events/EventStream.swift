@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  EventStream.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,53 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+public protocol EventStream {
+  var uuid: UUID { get }
+  var queue: DispatchQueue { get }
+}
+
+public extension EventStream {
+  var queue: DispatchQueue {
+    return .main
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(uuid)
+  }
+}
+
+public protocol EventStreamListener: AnyObject {
+  associatedtype ListenerType
+
+  var listeners: [ListenerType] { get }
+
+  func add(_ listener: ListenerType) -> ListenerToken
+  func remove(_ listener: ListenerType)
+
+  func notify(listeners closure: (ListenerType) -> Void)
+}
+
+public class ListenerToken: CustomStringConvertible {
+  private let cancellationClosure: () -> Void
+  private let identifier = UUID()
+
+  public init(cancellationClosure: @escaping () -> Void) {
+    self.cancellationClosure = cancellationClosure
+  }
+
+  deinit {
+    cancellationClosure()
+  }
+
+  public func cancel() {
+    cancellationClosure()
+  }
+}
+
+// MARK: - CustomStringConvertible
+
+extension ListenerToken {
+  public var description: String {
+    return "ListenerToken: (\(identifier))"
   }
 }

@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  URLRequest+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,17 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+public extension URLRequest {
+  var method: HTTPMethod? {
+    return HTTPMethod(rawValue: httpMethod ?? "")
+  }
+
+  var headers: HTTPHeaders {
+    get {
+      return allHTTPHeaderFields.map(HTTPHeaders.init) ?? []
+    }
+    set {
+      allHTTPHeaderFields = newValue.allHTTPHeaderFields
+    }
   }
 }

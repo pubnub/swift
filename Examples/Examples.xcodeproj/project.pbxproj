@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779722B7FEF600B6B46F /* AppDelegate.swift */; };
-		359F779A22B7FEF600B6B46F /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		359F779D22B7FEF700B6B46F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F779B22B7FEF700B6B46F /* Main.storyboard */; };
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
@@ -241,7 +241,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */,
-				359F779A22B7FEF600B6B46F /* MasterDetailTableViewController.swift in Sources */,
+				3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */,
 				359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

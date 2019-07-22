@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  DateFormatter+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,8 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension DateFormatter {
+  var currentDateString: String {
+    return string(from: Date())
   }
 }

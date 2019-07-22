@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  OperationQueue+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,18 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension OperationQueue {
+  // Used by PubNubSession to manage response
+  convenience init(qualityOfService: QualityOfService = .default,
+                   maxConcurrentOperationCount: Int = OperationQueue.defaultMaxConcurrentOperationCount,
+                   underlyingQueue: DispatchQueue? = nil,
+                   name: String? = nil,
+                   startSuspended: Bool = false) {
+    self.init()
+    self.qualityOfService = qualityOfService
+    self.maxConcurrentOperationCount = maxConcurrentOperationCount
+    self.underlyingQueue = underlyingQueue
+    self.name = name
+    isSuspended = startSuspended
   }
 }

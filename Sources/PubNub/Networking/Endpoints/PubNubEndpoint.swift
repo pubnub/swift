@@ -1,0 +1,201 @@
+//
+//  PNRouter.swift
+//
+//  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
+//  Copyright © 2019 PubNub Inc.
+//  http://www.pubnub.com/
+//  http://www.pubnub.com/terms
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+// swiftlint:disable discouraged_optional_boolean
+
+import Foundation
+
+struct PubNubEndpoint {
+  // URL Param Keys
+  private let metaKey = "meta"
+  private let storedKey = "store"
+  private let ttlKey = "ttl"
+  private let noRepKey = "norep"
+  private let channelGroupsKey = "channel-group"
+  private let timetokenKey = "tt"
+  private let regionKey = "tr"
+  private let stateKey = "state"
+  private let heartbeatKey = "heartbeat"
+  private let filterKey = "filter-expr"
+
+  let configuration: EndpointConfiguration
+  let operation: PubNubOperation
+}
+
+extension PubNubEndpoint: Endpoint {
+  var method: HTTPMethod {
+    switch operation {
+    case .time:
+      return .get
+    case .publish:
+      return .get
+    case .compressedPublish:
+      return .post
+    case .fire:
+      return .get
+    case .subscribe:
+      return .get
+    }
+  }
+
+  func path() throws -> String {
+    let publishKey = configuration.publishKey ?? ""
+    let subscribeKey = configuration.subscribeKey ?? ""
+
+    switch operation {
+    case .time:
+      return "/time/0"
+    case let .publish(parameters):
+      do {
+        let jsonMessage = try parameters.message.jsonString()
+        return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0/\(jsonMessage)"
+      } catch {
+        let reason = PNError
+          .RequestCreationFailureReason
+          .jsonStringCodingFailure(parameters.message, dueTo: error)
+        throw PNError.requestCreationFailure(reason)
+      }
+    case let .compressedPublish(parameters):
+      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0"
+    case let .fire(parameters):
+      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0"
+    case let .subscribe(parameters):
+      return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString)/0"
+    }
+  }
+
+  func queryItems() throws -> [URLQueryItem] {
+    var query = defaultQueryItems
+    switch operation {
+    case .time:
+      break
+    case let .publish(message, channel, shouldStore, ttl, meta):
+      try query.append(contentsOf: parsePresenceQuery(message: message,
+                                                      channel: channel,
+                                                      shouldStore: shouldStore,
+                                                      ttl: ttl,
+                                                      meta: meta))
+    case let .compressedPublish(message, channel, shouldStore, ttl, meta):
+      try query.append(contentsOf: parsePresenceQuery(message: message,
+                                                      channel: channel,
+                                                      shouldStore: shouldStore,
+                                                      ttl: ttl,
+                                                      meta: meta))
+    case .fire:
+      query.append(contentsOf: [
+        URLQueryItem(name: noRepKey, value: "true"),
+        URLQueryItem(name: storedKey, value: "0")
+      ])
+    case let .subscribe(parameters):
+      query.append(URLQueryItem(name: timetokenKey, value: parameters.timetoken?.description ?? "0"))
+      if !parameters.groups.isEmpty {
+        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.joined(separator: ",")))
+      }
+      if let region = parameters.region {
+        query.append(URLQueryItem(name: regionKey, value: region.description))
+      }
+    }
+    return query
+  }
+
+  var additionalHeaders: HTTPHeaders {
+    return [:]
+  }
+
+  var body: AnyJSON? {
+    switch operation {
+    case .time:
+      return nil
+    case .publish:
+      return nil
+    case let .compressedPublish(parameters):
+      return parameters.message
+    case let .fire(parameters):
+      return parameters.message
+    case .subscribe:
+      return nil
+    }
+  }
+
+  var keysRequired: PNKeyRequirement {
+    switch operation {
+    case .time:
+      return .none
+    case .publish, .compressedPublish:
+      return .publishAndSubscribe
+    case .fire:
+      return .publishAndSubscribe
+    case .subscribe:
+      return .subscribe
+    }
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    switch operation {
+    case .time:
+      return .none
+    case .publish, .compressedPublish:
+      return .version2
+    case .fire:
+      return .version2
+    case .subscribe:
+      return .version2
+    }
+  }
+}
+
+extension PubNubEndpoint {
+  func parsePresenceQuery(
+    message _: AnyJSON,
+    channel _: String,
+    shouldStore: Bool?,
+    ttl: Int?,
+    meta: AnyJSON?
+  ) throws -> [URLQueryItem] {
+    var query = [URLQueryItem]()
+
+    if let shouldStore = shouldStore {
+      query.append(URLQueryItem(name: storedKey, value: shouldStore.stringNumber))
+    }
+    if let ttl = ttl {
+      query.append(URLQueryItem(name: ttlKey, value: ttl.description))
+    }
+    if let meta = meta {
+      do {
+        try query.append(URLQueryItem(name: metaKey,
+                                      value: meta.jsonString()))
+      } catch {
+        let reason = PNError
+          .RequestCreationFailureReason
+          .jsonStringCodingFailure(meta, dueTo: error)
+        throw PNError.requestCreationFailure(reason)
+      }
+    }
+    return query
+  }
+}
+
+// swiftlint:enable discouraged_optional_boolean

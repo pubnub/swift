@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  NSLocking+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,26 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension NSLocking {
+  @inline(__always)
+  func synchronize(_ closure: () -> Void) {
+    lock()
+    defer { unlock() }
+    return closure()
+  }
+
+  @inline(__always)
+  func synchronize<T>(_ closure: () -> T) -> T {
+    lock()
+    defer { unlock() }
+    return closure()
+  }
+
+  @inline(__always)
+  func synchronize<T>(_ closure: () throws -> T) throws -> T {
+    lock()
+    defer { unlock() }
+    let result = try closure()
+    return result
   }
 }

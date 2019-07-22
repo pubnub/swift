@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  Error+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,14 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+extension Error {
+  /// Instance cast as a `PubNubError`
+  var pubNubError: PNError? {
+    return self as? PNError
+  }
+
+  /// Instance cast as a `URLError`
+  var urlError: URLError? {
+    return self as? URLError
   }
 }

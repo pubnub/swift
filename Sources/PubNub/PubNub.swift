@@ -24,16 +24,97 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// swiftlint:disable discouraged_optional_boolean
 
 import Foundation
 
 /// An object that coordinates a group of related PubNub pub/sub network events
-public struct PubNub: Codable, Hashable {
+public struct PubNub {
+  /// Instance identifier
+  public let instanceID: UUID
   /// A copy of the configuration object used for this session
   public let configuration: PubNubConfiguration
+  /// HTTP Session used for performing request/response REST calls
+  public let networkSession: SessionReplaceable
 
   /// Creates a session with the specified configuration
-  public init(configuration: PubNubConfiguration = .default) {
+  public init(configuration: PubNubConfiguration = .default,
+              session: SessionReplaceable? = nil) {
+    instanceID = UUID()
     self.configuration = configuration
+    let complexSessionStream = MultiplexSessionStream([])
+    networkSession = session ?? Session(configuration: configuration.urlSessionConfiguration,
+                                        sessionStream: complexSessionStream)
+  }
+
+  public func time(
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<TimeResponsePayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+    let endpoint = PubNubEndpoint(configuration: configuration, operation: .time)
+
+    client
+      .request(on: endpoint, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(on: queue, decoder: TimeResponseDecoder(), operator: networkConfiguration?.responseOperator) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func publish(
+    channel: String,
+    message: AnyJSON,
+    shouldStore: Bool? = nil,
+    storeTTL: Int? = nil,
+    meta: AnyJSON? = nil,
+    shouldCompress: Bool = false,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let operation: PubNubOperation
+    if shouldCompress {
+      operation = .compressedPublish(message: message,
+                                     channel: channel,
+                                     shouldStore: shouldStore,
+                                     ttl: storeTTL,
+                                     meta: meta)
+    } else {
+      operation = .publish(message: message,
+                           channel: channel,
+                           shouldStore: shouldStore,
+                           ttl: storeTTL,
+                           meta: meta)
+    }
+
+    let endpoint = PubNubEndpoint(configuration: configuration,
+                                  operation: operation)
+
+    client
+      .request(on: endpoint, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: PublishResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
   }
 }
+
+// swiftlint:enable discouraged_optional_boolean

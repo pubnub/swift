@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  NetworkTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,10 +25,9 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
-  }
+final class NetworkTests: XCTestCase {
+  func testNetwork() {}
 }

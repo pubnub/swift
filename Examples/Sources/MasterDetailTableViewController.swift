@@ -30,7 +30,7 @@ import UIKit
 import PubNub
 
 class MasterDetailTableViewController: UITableViewController {
-  let pubnub = PubNub()
+  var pubnub: PubNub!
 
   let masterDetailCellID = "MasterDetailCell"
 
@@ -40,6 +40,29 @@ class MasterDetailTableViewController: UITableViewController {
 
   enum Section: Int {
     case pubnub = 0
+    case endpoints = 1
+
+    var title: String {
+      switch self {
+      case .pubnub:
+        return "PubNub"
+      case .endpoints:
+        return "Endpoints"
+      }
+    }
+
+    var rowCount: Int {
+      switch self {
+      case .pubnub:
+        return PubNubRow.rowCount
+      case .endpoints:
+        return EndpointRow.rowCount
+      }
+    }
+
+    static var sectionCount: Int {
+      return 2
+    }
   }
 
   enum PubNubRow: Int {
@@ -57,35 +80,64 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  enum EndpointRow: Int {
+    case time = 0
+    case publish = 1
+
+    var title: String {
+      switch self {
+      case .time:
+        return "Time"
+      case .publish:
+        return "Publish"
+      }
+    }
+
+    static var rowCount: Int {
+      return 2
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
+
+    let config = PubNubConfiguration()
+
+    pubnub = PubNub(configuration: config)
   }
 
-  override func tableView(_: UITableView, titleForHeaderInSection section: Int) -> String? {
-    switch Section(rawValue: section) {
-    case .pubnub?:
-      return "PubNub"
-    default:
-      return nil
-    }
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
   }
 
-  override func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-    switch Section(rawValue: section) {
-    case .pubnub?:
-      return PubNubRow.rowCount
-    default:
-      return 0
-    }
+  override func numberOfSections(in tableView: UITableView) -> Int {
+    super.numberOfSections(in: tableView)
+
+    return Section.sectionCount
+  }
+
+  override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    super.tableView(tableView, titleForHeaderInSection: section)
+
+    return Section(rawValue: section)?.title
+  }
+
+  override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    super.tableView(tableView, numberOfRowsInSection: section)
+
+    return Section(rawValue: section)?.rowCount ?? 0
   }
 
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    super.tableView(tableView, cellForRowAt: indexPath)
+
     let cell = tableView.dequeueReusableCell(withIdentifier: masterDetailCellID, for: indexPath)
 
     switch Section(rawValue: indexPath.section) {
     case .pubnub?:
       cell.textLabel?.text = PubNubRow(rawValue: indexPath.row)?.title
-
+    case .endpoints?:
+      cell.textLabel?.text = EndpointRow(rawValue: indexPath.row)?.title
     default:
       break
     }
@@ -93,22 +145,64 @@ class MasterDetailTableViewController: UITableViewController {
     return cell
   }
 
-  override func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+  override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+    tableView.deselectRow(at: indexPath, animated: true)
+
     switch Section(rawValue: indexPath.section) {
     case .pubnub?:
-      switch PubNubRow(rawValue: indexPath.row) {
-      case .config?:
-        performSegue(withIdentifier: SegueId.config.rawValue, sender: self)
-      default:
-        break
-      }
-
+      didSelectPubNubSection(at: indexPath.row)
+    case .endpoints?:
+      didSelectEndpointSection(at: indexPath.row)
     default:
       break
     }
   }
 
-  override func prepare(for segue: UIStoryboardSegue, sender _: Any?) {
+  func didSelectPubNubSection(at row: Int) {
+    switch PubNubRow(rawValue: row) {
+    case .some(.config):
+      performSegue(withIdentifier: SegueId.config.rawValue, sender: self)
+    case .none:
+      break
+    }
+  }
+
+  func didSelectEndpointSection(at row: Int) {
+    switch EndpointRow(rawValue: row) {
+    case .some(.time):
+      performTimeRequest()
+    case .some(.publish):
+      performPublishRequest()
+    case .none:
+      break
+    }
+  }
+
+  func performTimeRequest() {
+    pubnub.time { result in
+      switch result {
+      case let .success(response):
+        print("Successful Time Response: \(response)")
+      case let .failure(error):
+        print("Failed Time Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performPublishRequest() {
+    pubnub.publish(channel: "channelSwift", message: ["message": "sent from demo"], shouldCompress: true) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Publish Response: \(response)")
+      case let .failure(error):
+        print("Failed Publish Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    super.prepare(for: segue, sender: sender)
+
     switch SegueId(rawValue: segue.identifier ?? "") {
     case .config?:
       let configVC = segue.destination as? ConfigDetailTableViewController

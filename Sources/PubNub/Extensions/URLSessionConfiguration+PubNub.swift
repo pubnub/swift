@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  URLSessionConfiguration.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,37 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+public extension URLSessionConfiguration {
+  static var pubnub: URLSessionConfiguration {
+    let configuration = URLSessionConfiguration.default
+
+    configuration.headers = [.defaultAcceptEncoding,
+                             .defaultContentType,
+                             .defaultUserAgent]
+
+    return configuration
   }
+
+  static var subscription: URLSessionConfiguration {
+    let configuration = URLSessionConfiguration.pubnub
+    configuration.timeoutIntervalForRequest += .minimumSubscribeRequestTimeout
+    configuration.httpMaximumConnectionsPerHost = 1
+
+    return configuration
+  }
+
+  var headers: HTTPHeaders {
+    get {
+      return (httpAdditionalHeaders as? [String: String]).map(HTTPHeaders.init) ?? []
+    }
+    set {
+      httpAdditionalHeaders = newValue.allHTTPHeaderFields
+    }
+  }
+}
+
+public extension TimeInterval {
+  static let minimumSubscribeRequestTimeout: TimeInterval = {
+    280
+  }()
 }

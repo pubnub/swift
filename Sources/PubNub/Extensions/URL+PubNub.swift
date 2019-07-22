@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  URL+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,44 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+public extension URL {
+  func appending(queryItems: [URLQueryItem]) -> URL {
+    guard var urlComponents = URLComponents(string: absoluteString) else {
+      return self
+    }
+
+    urlComponents.queryItems?.merge(queryItems)
+
+    guard let url = urlComponents.url else {
+      return self
+    }
+
+    return url
+  }
+}
+
+public extension Array where Element == URLQueryItem {
+  func merging(_ other: [URLQueryItem]) -> [URLQueryItem] {
+    var queryItems = self
+
+    queryItems.merge(other)
+
+    return queryItems
+  }
+
+  mutating func merge(_ other: [URLQueryItem]) {
+    for query in other {
+      guard let index = self.index(of: query.name) else {
+        append(query)
+        return
+      }
+
+      replaceSubrange(index ... index, with: [query])
+    }
+  }
+
+  private func index(of name: String) -> Int? {
+    let lowercasedName = name.lowercased()
+    return firstIndex { $0.name.lowercased() == lowercasedName }
   }
 }

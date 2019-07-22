@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  Replaceables+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,23 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
-  }
+// MARK: - URLSession
+
+public protocol URLSessionReplaceable {
+  func dataTask(with: URLRequest) -> URLSessionDataTask
+  var delegateQueue: OperationQueue { get }
+  var configuration: URLSessionConfiguration { get }
+  func invalidateAndCancel()
 }
+
+extension URLSession: URLSessionReplaceable {}
+
+// MARK: - Session
+
+public protocol SessionReplaceable {
+  var sessionID: UUID { get }
+  var session: URLSessionReplaceable { get }
+  func request(on endpoint: Endpoint, requestOperator: RequestOperator?) -> Request
+}
+
+extension Session: SessionReplaceable {}

@@ -1,5 +1,5 @@
 //
-//  UUID+PubNub.swift
+//  Response.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,8 +27,35 @@
 
 import Foundation
 
-extension UUID {
-  var pubnubString: String {
-    return "pn-\(uuidString)"
+public struct Response<Value> {
+  public let endpoint: Endpoint
+  public let request: URLRequest
+  public let response: HTTPURLResponse
+  public let data: Data?
+
+  public let payload: Value
+}
+
+extension Response {
+  public func copy<T>(with value: T) -> Response<T> {
+    return Response<T>(endpoint: endpoint, request: request, response: response, data: data, payload: value)
+  }
+
+  public func map<T>(_ transform: (Value) -> T) -> Response<T> {
+    return Response<T>(endpoint: endpoint,
+                       request: request,
+                       response: response,
+                       data: data,
+                       payload: transform(payload))
+  }
+}
+
+extension Response where Value == Data {
+  init(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, payload: Data) {
+    self.endpoint = endpoint
+    self.request = request
+    self.response = response
+    data = payload
+    self.payload = payload
   }
 }

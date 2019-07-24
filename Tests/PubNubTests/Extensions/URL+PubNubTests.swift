@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  URL+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,26 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class URLPubNubTests: XCTestCase {
+  func testAppendingQueryItems() {
+    let testString = "https://example.com?one=two&key=value"
+    let url = URL(string: "https://example.com?one=two")!
+    let queryItem = URLQueryItem(name: "key", value: "value")
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    let newURL = url.appending(queryItems: [queryItem])
 
-    return urlComponents?.url
+    XCTAssertEqual(newURL?.absoluteString, testString)
+  }
+  func testAppendingQueryItems_NonePrevious() {
+    let testString = "https://example.com?key=value"
+    let url = URL(string: "https://example.com")!
+    let queryItem = URLQueryItem(name: "key", value: "value")
+
+    let newURL = url.appending(queryItems: [queryItem])
+
+    XCTAssertEqual(newURL?.absoluteString, testString)
   }
 }

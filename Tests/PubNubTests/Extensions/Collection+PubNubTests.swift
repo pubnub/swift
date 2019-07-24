@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  Collection+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,27 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class CollectionPubNubTests: XCTestCase {
+  func testPubNubUUID() {
+    let csvInput = ["one", "two", "three", "four"]
+    let csvOutput = "one,two,three,four"
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    XCTAssertEqual(csvInput.csvString, csvOutput)
+  }
 
-    return urlComponents?.url
+  func testHeaderQualityEncoded() {
+    let headerInput = ["one", "two", "three", "four"]
+    let headerOutput = "one;q=1.0, two;q=0.9, three;q=0.8, four;q=0.7"
+
+    XCTAssertEqual(headerInput.headerQualityEncoded, headerOutput)
+  }
+
+  func testHeaderQualityEncoded_Overflow() {
+    let headerInput = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+
+    XCTAssertEqual(headerInput.headerQualityEncoded, headerInput.joined(separator: ", "))
   }
 }

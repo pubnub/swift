@@ -27,40 +27,18 @@
 
 import Foundation
 
-enum AnyJSONError: Error {
-  case stringCreationFailure
-}
-
-extension AnyJSONError: LocalizedError {
-  var localizedDescription: String {
-    switch self {
-    case .stringCreationFailure:
-      return "`String(data:ecoding:) returned nil when converting JSON Data to a `String`"
-    }
-  }
-}
-
+/// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
   public let value: Any
 
   public init(_ value: Any) {
-    self.value = value
-  }
-
-  public func jsonEncodedData() throws -> Data {
-    return try JSONEncoder().encode(self)
-  }
-
-  public func jsonString() throws -> String {
-    guard let decodedString = try String(data: jsonEncodedData(), encoding: .utf8) else {
-      throw AnyJSONError.stringCreationFailure
+    if let list = value as? [Any] {
+      self.value = transform(list: list)
+    } else if let dict = value as? [String: Any] {
+      self.value = transform(dictionary: dict)
+    } else {
+      self.value = value
     }
-
-    return decodedString
-  }
-
-  public func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
-    return try JSONDecoder().decode(type, from: jsonEncodedData())
   }
 }
 
@@ -74,33 +52,39 @@ extension AnyJSON: Hashable {
       return lhs == rhs
     case let (lhs as Data, rhs as Data):
       return lhs == rhs
-    case let (lhs as TimeInterval, rhs as TimeInterval):
-      return lhs == rhs
     case let (lhs as [String: Any], rhs as [String: Any]):
-      // Ensure the dictionaries have the same number of items
-      if lhs.count != rhs.count {
-        return false
-      }
-      // Walk through keys to ensure that each value is equal
-      for (key, lhv) in lhs {
-        guard let rhv = rhs[key], AnyJSON(lhv) == AnyJSON(rhv) else {
-          return false
-        }
-      }
-      return true
+      return compare(lhs: lhs, rhs: rhs)
     case let (lhs as [Any], rhs as [Any]):
-      // Ensure that each array has the same number of elements
-      if lhs.count != rhs.count {
-        return false
-      }
-      // Walk through the arrays and compare
-      for index in 0 ..< lhs.count where AnyJSON(lhs[index]) != AnyJSON(rhs[index]) {
-        return false
-      }
-      return true
+      return compare(lhs: lhs, rhs: rhs)
     default:
       return false
     }
+  }
+
+  private static func compare(lhs: [String: Any], rhs: [String: Any]) -> Bool {
+    // Ensure the dictionaries have the same number of items
+    if lhs.count != rhs.count {
+      return false
+    }
+    // Walk through keys to ensure that each value is equal
+    for (key, lhv) in lhs {
+      guard let rhv = rhs[key], AnyJSON(lhv) == AnyJSON(rhv) else {
+        return false
+      }
+    }
+    return true
+  }
+
+  private static func compare(lhs: [Any], rhs: [Any]) -> Bool {
+    // Ensure that each array has the same number of elements
+    if lhs.count != rhs.count {
+      return false
+    }
+    // Walk through the arrays and compare
+    for index in 0 ..< lhs.count where AnyJSON(lhs[index]) != AnyJSON(rhs[index]) {
+      return false
+    }
+    return true
   }
 
   // swiftlint:disable:next cyclomatic_complexity
@@ -134,17 +118,45 @@ extension AnyJSON: Hashable {
       hasher.combine(value)
     case let value as String:
       hasher.combine(value)
-    case let value as TimeInterval:
-      hasher.combine(value)
     case let value as Data:
       hasher.combine(value)
     case let value as [String: Any]:
-      hasher.combine(value.compactMap { [$0.key: $0.value as? AnyJSON] })
+      let map = value.compactMapValues{ AnyJSON($0) }
+      hasher.combine(map)
     case let value as [Any]:
-      hasher.combine(value.compactMap { [$0 as? AnyJSON] })
+      hasher.combine(value.compactMap { [AnyJSON($0)] })
     default:
       break
     }
+  }
+}
+
+func transform(list elements: [Any]) -> [Any] {
+  let json: [Any] = elements.map { element in
+    if let date = element as? Date {
+      return Constant.iso8601Full.string(from: date)
+    }
+    return element
+  }
+  return json
+}
+
+func transform(sequnce pairs: [(String, Any)]) -> [String: Any] {
+  return pairs.reduce(into: [:]) { result, element in
+    if let date = element.1 as? Date {
+      result[element.0] = Constant.iso8601Full.string(from: date)
+    } else {
+      result[element.0] = element.1
+    }
+  }
+}
+
+func transform(dictionary pairs: [String: Any]) -> [String: Any] {
+  return pairs.mapValues { value in
+    if let date = value as? Date {
+      return Constant.iso8601Full.string(from: date)
+    }
+    return value
   }
 }
 
@@ -177,73 +189,42 @@ extension AnyJSON: CustomDebugStringConvertible {
 extension AnyJSON {
   // MARK: ...ArrayLiteral
 
-  /// Creates an instance initialized to the given value.
-  public init(arrayLiteral: Any...) {
-    let literal: [Any] = arrayLiteral.map { element in
-      if let date = element as? Date {
-        return date.timeIntervalSinceReferenceDate
-      }
-
-      return element
-    }
-
-    self.init(literal)
+  public init(arrayLiteral elements: Any...) {
+    self.init(transform(list: elements))
   }
 
   // MARK: ...BooleanLiteral
 
-  /// Creates an instance initialized to the given value.
   public init(booleanLiteral value: Bool) {
     self.init(value)
   }
 
   // MARK: ...DictionaryLiteral
 
-  /// Creates an instance initialized to the given value.
   public init(dictionaryLiteral elements: (String, Any)...) {
-    let json: [String: Any] = elements.reduce(into: [:]) { result, element in
-      if let date = element.1 as? Date {
-        result[element.0] = date.timeIntervalSinceReferenceDate
-      } else {
-        result[element.0] = element.1
-      }
-    }
-
-    self.init(json)
+    self.init(transform(sequnce: elements))
   }
 
   // MARK: ...FloatLiteral
 
-  /// Creates an instance initialized to the given value.
   public init(floatLiteral value: FloatLiteralType) {
     self.init(value)
   }
 
   // MARK: ...IntegerLiteral
 
-  /// Creates an instance initialized to the given value.
   public init(integerLiteral value: Int) {
     self.init(value)
   }
 
   // MARK: ...StringLiteral
 
-  /// Creates an instance initialized to the given value.
-  public init(unicodeScalarLiteral value: StringLiteralType) {
-    self.init(value)
-  }
-
-  /// Creates an instance initialized to the given value.
-  public init(extendedGraphemeClusterLiteral value: StringLiteralType) {
-    self.init(value)
-  }
-
-  /// Creates an instance initialized to the given value.
   public init(stringLiteral value: StringLiteralType) {
     self.init(value)
   }
 }
 
+// MARK: ExpiressibleBy... Inheritance
 extension AnyJSON: ExpressibleByArrayLiteral {}
 extension AnyJSON: ExpressibleByBooleanLiteral {}
 extension AnyJSON: ExpressibleByDictionaryLiteral {}

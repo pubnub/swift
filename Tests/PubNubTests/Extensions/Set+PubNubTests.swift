@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  Set+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,33 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class SetPubNubTests: XCTestCase {
+  func testAllObjects() {
+    let set = Set(["one", "two", "three"])
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    XCTAssertEqual(set.allObjects, Array(set))
+  }
 
-    return urlComponents?.url
+  func testUpdateContents() {
+    let compare = Set(["one", "two", "three", "four", "five"])
+    var set = Set(["one", "two", "three"])
+
+    let updated = set.update(with: ["three", "four", "five"])
+
+    XCTAssertEqual(set, compare)
+    XCTAssertEqual(updated, ["three"])
+  }
+
+  func testRemoveContents() {
+    let compare = Set(["one", "two"])
+    var set = Set(["one", "two", "three"])
+
+    let removed = set.remove(contentsOf: ["three", "four"])
+
+    XCTAssertEqual(set, compare)
+    XCTAssertEqual(removed, ["three"])
   }
 }

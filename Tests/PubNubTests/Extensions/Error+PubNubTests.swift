@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  Error+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,21 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class ErrorPubNubTests: XCTestCase {
+  func testPubNubErrorCast() {
+    let error: Error = PNError.unknown("Testing")
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    XCTAssertNotNil(error.pubNubError)
+    XCTAssertNil(error.urlError)
+  }
+  func testURLErrorCast() {
+    let error: Error = URLError(.unknown)
 
-    return urlComponents?.url
+    XCTAssertNotNil(error.urlError)
+    XCTAssertNil(error.pubNubError)
   }
 }
+

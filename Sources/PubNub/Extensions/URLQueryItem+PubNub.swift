@@ -1,5 +1,5 @@
 //
-//  Set+PubNub.swift
+//  URLQueryItem+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,32 +27,30 @@
 
 import Foundation
 
-extension Set {
-  var allObjects: [Element] {
-    return Array(self)
+public extension Array where Element == URLQueryItem {
+  /// Returns new list of query items replaces any existing
+  func merging(_ other: [URLQueryItem]) -> [URLQueryItem] {
+    var queryItems = self
+
+    queryItems.merge(other)
+
+    return queryItems
   }
 
-
-
-  /// Updates the `Set` with the contents of another `Collection`
-  /// - parameters:
-  ///   - with: The `Collection` that will be added to this `Set`
-  /// - returns: For ordinary sets, an element equal to newMember if the set
-  ///   already contained such a member; otherwise, nil. In some cases, the returned
-  ///   element may be distinguishable from newMember by identity comparison or some other means.
-  @discardableResult
-  @inlinable mutating func update<C>(with contentsOf: C) -> [Element] where C: Collection, Element == C.Element {
-    return contentsOf.compactMap { self.update(with: $0) }
+  /// Merges list of query items replaces any existing
+  mutating func merge(_ other: [URLQueryItem]) {
+    for query in other {
+      print(query)
+      if let index = self.firstIndex(of: query.name) {
+        replaceSubrange(index ... index, with: [query])
+      } else {
+        append(query)
+      }
+    }
   }
 
-  /// Remove elements from the `Set` matching conents of supplied `Collection`
-  /// - parameters:
-  ///   - with: The `Collection` of items that will be removed from this `Set`
-  /// - returns: For ordinary sets, an element equal to member if member is contained
-  ///   in the set; otherwise, nil. In some cases, a returned element may be
-  ///   distinguishable from newMember by identity comparison or some other means.
-  @discardableResult
-  @inlinable mutating func remove<C>(contentsOf: C) -> [Element] where C: Collection, Element == C.Element {
-    return contentsOf.compactMap { self.remove($0) }
+  /// Returns the first index whose name matches the parameter
+  func firstIndex(of name: String) -> Int? {
+    return firstIndex { $0.name == name }
   }
 }

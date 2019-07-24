@@ -1,5 +1,5 @@
 //
-//  AnyJSONTests.swift
+//  AnyJSON+CodableTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,13 +28,7 @@
 @testable import PubNub
 import XCTest
 
-struct SomeJSON: Codable {
-  var something: AnyJSON
-}
-
-class AnyJSONTests: XCTestCase {
-  // Info.plist for the PubNubTests Target Bundle
-  let testsBundle = Bundle(for: PubNubConfigurationTests.self)
+class AnyJSONCodableTests: XCTestCase {
 
   func testExample() {
     let json: AnyJSON = ["key1": 1.1,
@@ -66,21 +60,12 @@ class AnyJSONTests: XCTestCase {
   }
 
   func testSubscriptionBuilder() {
-    guard let url = testsBundle.url(forResource: "subscription", withExtension: "json") else {
-      return XCTFail("URL unwrapped to nil")
-    }
-    guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {
-      return XCTFail("Contents of URL unwrapped to nil")
-    }
+    let data = ImportJSON.file("subscription")
 
     guard let subResponse = try? JSONDecoder().decode(SubscriptionResponsePayload.self, from: data) else {
       return XCTFail("Decoder value of JSON Data unwrapped to nil")
     }
 
     XCTAssertEqual(subResponse.messages.first?.payload, ["message": "Hello"])
-
-//    let payload = try? subResponse.messages.first?.payload.decode(PayloadResponse.self)
-
-//    XCTAssertNotNil(payload)
   }
 }

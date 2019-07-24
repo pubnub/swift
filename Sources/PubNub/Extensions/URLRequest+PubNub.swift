@@ -28,10 +28,22 @@
 import Foundation
 
 public extension URLRequest {
+  /// Convience for assigning `HTTPMethod` values to `httpMethod`
   var method: HTTPMethod? {
-    return HTTPMethod(rawValue: httpMethod ?? "")
+    get  {
+      // `httpMethod` defaults to GET; unclear why it's optional
+      guard let method = httpMethod else {
+        return .get
+      }
+      return HTTPMethod(rawValue: method)
+    }
+    set {
+      httpMethod = newValue?.rawValue
+    }
   }
 
+
+  /// Convience for assigning `HTTPHeader` values to `allHTTPHeaderFields`
   var headers: HTTPHeaders {
     get {
       return allHTTPHeaderFields.map(HTTPHeaders.init) ?? []

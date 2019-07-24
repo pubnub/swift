@@ -157,7 +157,7 @@ extension Router {
   // Default Endpoint Values
   public var defaultQueryItems: [URLQueryItem] {
     var queryItems = [
-      URLQueryItem(name: "pnsdk", value: StringConstant.pnSDKQueryParameterValue),
+      URLQueryItem(name: "pnsdk", value: Constant.pnSDKQueryParameterValue),
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
     if let authKey = configuration.authKey {

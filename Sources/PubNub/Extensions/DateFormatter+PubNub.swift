@@ -28,6 +28,7 @@
 import Foundation
 
 extension DateFormatter {
+  /// Returns a string representation of the current `date` formatted using the receiver’s current settings.
   var currentDateString: String {
     return string(from: Date())
   }

@@ -28,6 +28,7 @@
 import Foundation
 
 extension UUID {
+  /// UUID String that conforms to PubNub UUID naming conventions
   var pubnubString: String {
     return "pn-\(uuidString)"
   }

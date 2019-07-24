@@ -28,7 +28,7 @@
 import Foundation
 
 extension OperationQueue {
-  // Used by PubNubSession to manage response
+  /// Convenience init that initializes and configures `OperationQueue`
   convenience init(qualityOfService: QualityOfService = .default,
                    maxConcurrentOperationCount: Int = OperationQueue.defaultMaxConcurrentOperationCount,
                    underlyingQueue: DispatchQueue? = nil,

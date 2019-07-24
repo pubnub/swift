@@ -28,15 +28,18 @@
 import Foundation
 
 extension HTTPURLResponse {
+  /// The `allHeaderFields` represented as a collection of `HTTPHeader` values
   public var headers: HTTPHeaders {
     return (allHeaderFields as? [String: String]).map(HTTPHeaders.init) ?? []
   }
 
+  /// If the `HTTPURLResponse` can be considered successful based on its status code
   public var isSuccessful: Bool {
-    return successfulStatusCodes.contains(statusCode)
+    return HTTPURLResponse.successfulStatusCodes.contains(statusCode)
   }
 
-  public var successfulStatusCodes: Range<Int> {
+  /// Range of successful status codes from 200 to 299
+  public static let successfulStatusCodes: Range<Int> = {
     return 200 ..< 300
-  }
+  }()
 }

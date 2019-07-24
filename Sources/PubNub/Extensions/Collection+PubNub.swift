@@ -34,10 +34,10 @@ extension Collection where Element == String {
   }
 
   /// Decreases the q-factor weighting of each header value by 0.1 in sequence order
-  /// NOTE: If there 10 or more values in the collection then no weight will be assigned
-  func headerQualityEncoded() -> String {
-    guard count >= 10 else {
-      return joined(separator: ",")
+  /// - NOTE: If there 10 or more values in the collection then no weight will be assigned
+  var headerQualityEncoded: String {
+    if count >= 10 {
+      return joined(separator: ", ")
     }
 
     return enumerated().map { index, encoding in

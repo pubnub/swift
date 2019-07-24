@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  ImportJSON.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,21 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+struct ImportJSON {
+  static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
+  static func file(_ filename: String) -> Data {
+    guard let url = testsBundle.url(forResource: filename, withExtension: "json") else {
+      XCTFail("ImportJSON failed to find a json resource named \(filename)")
+      return Data()
+    }
+    guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {
+      XCTFail("ImportJSON failed to convert contents of \(filename) to a `Data` object")
+      return Data()
     }
 
-    return urlComponents?.url
+    return data
   }
 }

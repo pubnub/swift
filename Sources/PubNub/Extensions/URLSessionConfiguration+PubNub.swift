@@ -28,6 +28,9 @@
 import Foundation
 
 public extension URLSessionConfiguration {
+  /// Default configuration for PubNub URLSessions
+  ///
+  /// Sets `Accept-Encoding`, `Content-Type`, and `User-Agent` headers
   static var pubnub: URLSessionConfiguration {
     let configuration = URLSessionConfiguration.default
 
@@ -38,14 +41,22 @@ public extension URLSessionConfiguration {
     return configuration
   }
 
+  /// Default configuration for PubNub subscription URLSessions
+  ///
+  /// Sets `Accept-Encoding`, `Content-Type`, and `User-Agent` headers.
+  ///
+  /// Also sets the `timeoutIntervalForRequest` to:
+  ///
+  /// *280s + timeoutIntervalForRequest default*
   static var subscription: URLSessionConfiguration {
     let configuration = URLSessionConfiguration.pubnub
-    configuration.timeoutIntervalForRequest += .minimumSubscribeRequestTimeout
+    configuration.timeoutIntervalForRequest += Constant.minimumSubscribeRequestTimeout
     configuration.httpMaximumConnectionsPerHost = 1
 
     return configuration
   }
 
+  /// Convience for assigning `HTTPHeader` values to `httpAdditionalHeaders`
   var headers: HTTPHeaders {
     get {
       return (httpAdditionalHeaders as? [String: String]).map(HTTPHeaders.init) ?? []
@@ -54,10 +65,4 @@ public extension URLSessionConfiguration {
       httpAdditionalHeaders = newValue.allHTTPHeaderFields
     }
   }
-}
-
-public extension TimeInterval {
-  static let minimumSubscribeRequestTimeout: TimeInterval = {
-    280
-  }()
 }

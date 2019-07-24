@@ -28,7 +28,8 @@
 import Foundation
 
 extension DispatchQueue {
-  public class var currentLabel: String {
-    return "\(String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? "Label Unknown")"
+  /// The label of the current `DispatchQueue` or nil if no label was set
+  public static var currentLabel: String? {
+    return String(validatingUTF8: __dispatch_queue_get_label(nil))
   }
 }

@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  String+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,22 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class StringPubNubTests: XCTestCase {
+  func testPresenceChannel() {
+    let channel = "channelName"
+    let presece = "channelName-pnpres"
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    XCTAssertEqual(channel.presenceChannel, presece)
+  }
 
-    return urlComponents?.url
+  func testIsPresenceChannel() {
+    let channel = "channelName"
+    let presece = "channelName-pnpres"
+
+    XCTAssertFalse(channel.isPresenceChannel)
+    XCTAssertTrue(presece.isPresenceChannel)
   }
 }

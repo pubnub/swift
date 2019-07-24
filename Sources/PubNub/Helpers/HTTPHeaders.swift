@@ -27,7 +27,8 @@
 
 import Foundation
 
-public struct HTTPHeaders {
+/// A Collection whose elements are HTTPHeader values objects
+public struct HTTPHeaders: Hashable {
   var headers: [HTTPHeader] = []
 
   private init() { /* no-op */ }
@@ -44,8 +45,10 @@ public struct HTTPHeaders {
     headers.forEach { update($0) }
   }
 
+  /// Updates the value stored for the given HTTPHeader name,
+  /// or adds a new HTTPHeader if the a matching one does not exist.
   public mutating func update(_ header: HTTPHeader) {
-    guard let index = headers.index(of: header.name) else {
+    guard let index = headers.firstIndex(of: header.name) else {
       headers.append(header)
       return
     }
@@ -53,14 +56,17 @@ public struct HTTPHeaders {
     headers.replaceSubrange(index ... index, with: [header])
   }
 
+  /// Updates the value stored for the given HTTPHeader name,
+  /// or adds a new HTTPHeader if the a matching one does not exist.
   public mutating func update(name: String, value: String) {
     update(HTTPHeader(name: name, value: value))
   }
 
+  /// The list of HTTPHeader values represented as a Dictionary
   public var allHTTPHeaderFields: [String: String] {
-    let namesAndValues = headers.map { ($0.name, $0.value) }
-
-    return Dictionary(namesAndValues, uniquingKeysWith: { _, last in last })
+    var dict = Dictionary<String, String>.init(minimumCapacity: self.count)
+    headers.forEach { dict.updateValue($0.value, forKey: $0.name) }
+    return dict
   }
 }
 
@@ -69,6 +75,7 @@ extension HTTPHeaders: ExpressibleByDictionaryLiteral {
     self.init()
 
     dictionaryLiteral.forEach { update(name: $0.0, value: $0.1) }
+    print(self)
   }
 }
 
@@ -104,8 +111,11 @@ extension HTTPHeaders: Collection {
 
 // MARK: - HTTPHeader
 
+/// A single name-value pair, for use with URL Loding System
 public struct HTTPHeader: Hashable {
+  /// The name of the key for the header
   public let name: String
+  /// The value of the header
   public let value: String
 }
 
@@ -117,14 +127,20 @@ extension HTTPHeader: CustomStringConvertible {
 
 // Common Headers
 extension HTTPHeader {
+  /// Produces a `Accept-Encoding` header according to
+  /// [RFC7231 section 5.3.4](https://tools.ietf.org/html/rfc7231#section-5.3.4)
   public static func acceptEncoding(_ value: String) -> HTTPHeader {
     return HTTPHeader(name: "Accept-Encoding", value: value)
   }
 
+  /// Produces a `Content-Type` header according to
+  /// [RFC7231 section 3.1.1.5](https://tools.ietf.org/html/rfc7231#section-3.1.1.5)
   public static func contentType(_ value: String) -> HTTPHeader {
     return HTTPHeader(name: "Content-Type", value: value)
   }
 
+  /// Produces a `User-Agent` header according to
+  /// [RFC7231 section 5.5.3](https://tools.ietf.org/html/rfc7231#section-5.5.3)
   public static func userAgent(_ value: String) -> HTTPHeader {
     return HTTPHeader(name: "User-Agent", value: value)
   }
@@ -132,10 +148,12 @@ extension HTTPHeader {
 
 // Defaults
 extension HTTPHeader {
+  /// The default `Content-Type` used for PubNub requests
   public static let defaultContentType: HTTPHeader = {
     .contentType("application/json; charset=UTF-8")
   }()
 
+  /// The default `Accept-Encoding` used for PubNub requests
   public static let defaultAcceptEncoding: HTTPHeader = {
     let encodings: [String]
     // Brotli (br) suppoert added in iOS 11 https://9to5mac.com/2017/06/21/apple-ios-11-beta-2/
@@ -144,16 +162,18 @@ extension HTTPHeader {
     } else {
       encodings = ["gzip", "deflate"]
     }
-    return .acceptEncoding(encodings.headerQualityEncoded())
+    return .acceptEncoding(encodings.headerQualityEncoded)
   }()
 
+  /// The default `User-Agent` used for PubNub requests
   public static let defaultUserAgent: HTTPHeader = {
-    .userAgent(StringConstant.defaultUserAgent)
+    .userAgent(Constant.defaultUserAgent)
   }()
 }
 
 extension Array where Element == HTTPHeader {
-  func index(of name: String) -> Int? {
+  /// The index of the first case-insensitive Header name match
+  func firstIndex(of name: String) -> Int? {
     let lowercasedName = name.lowercased()
     return firstIndex { $0.name.lowercased() == lowercasedName }
   }

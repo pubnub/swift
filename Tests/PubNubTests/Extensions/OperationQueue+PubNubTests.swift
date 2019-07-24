@@ -1,5 +1,5 @@
 //
-//  URL+PubNub.swift
+//  OperationQueue+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,22 +25,29 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-public extension URL {
-  /// Appends a news query items to an existing URL
-  /// - parameters:
-  ///   - queryItems: The `URLQueryItem` collection to append
-  /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
-    var urlComponents = URLComponents(string: absoluteString)
+final class OperationQueuePubNubTests: XCTestCase {
+  func testOperationQueue_CustomInit() {
 
-    if urlComponents?.queryItems != nil {
-      urlComponents?.queryItems?.merge(queryItems)
-    } else {
-      urlComponents?.queryItems = queryItems
-    }
+    let queue = DispatchQueue(label: "testQueue")
+    let name = "Test Operation Queue"
+    let isSuspended = true
+    let qos = QualityOfService.default
+    let maxConcurrency = 1
 
-    return urlComponents?.url
+    let operationQueue = OperationQueue(qualityOfService: qos,
+                                        maxConcurrentOperationCount: maxConcurrency,
+                                        underlyingQueue: queue,
+                                        name: name,
+                                        startSuspended: isSuspended)
+
+    XCTAssertEqual(operationQueue.qualityOfService, .default)
+    XCTAssertEqual(operationQueue.maxConcurrentOperationCount, maxConcurrency)
+    XCTAssertEqual(operationQueue.underlyingQueue, queue)
+    XCTAssertEqual(operationQueue.name, name)
+    XCTAssertEqual(operationQueue.isSuspended, isSuspended)
   }
 }
+

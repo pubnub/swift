@@ -27,7 +27,7 @@
 
 import Foundation
 
-struct StringConstant {
+struct Constant {
   public static let operatingSystemName: String = {
     let osName: String = {
       #if os(iOS)
@@ -91,20 +91,33 @@ struct StringConstant {
   public static let defaultUserAgent: String = {
     let userAgent: String = {
       let appNameVersion: String = {
-        "\(StringConstant.appBundleId)/\(StringConstant.appVersion)"
+        "\(Constant.appBundleId)/\(Constant.appVersion)"
       }()
 
       let osNameVersion: String = {
-        "(\(StringConstant.operatingSystemName) \(StringConstant.operatingSystemVersion))"
+        "\(Constant.operatingSystemName) \(Constant.operatingSystemVersion)"
       }()
 
       let pubnubVersion: String = {
-        "\(StringConstant.pubnubSwiftSDKName)/\(StringConstant.pubnubSwiftSDKVersion)"
+        "\(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
       }()
 
       return "\(appNameVersion) (\(osNameVersion)) \(pubnubVersion)"
     }()
 
     return userAgent
+  }()
+
+  static let minimumSubscribeRequestTimeout: TimeInterval = {
+    280
+  }()
+
+  public static let iso8601Full: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
+    formatter.calendar = Calendar(identifier: .iso8601)
+    formatter.timeZone = TimeZone(secondsFromGMT: 0)
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    return formatter
   }()
 }

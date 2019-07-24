@@ -28,6 +28,7 @@
 import Foundation
 
 extension Bool {
+  /// A string value representing `1` for `true` or `0` for `false`
   var stringNumber: String {
     return self ? "1" : "0"
   }

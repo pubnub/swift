@@ -27,8 +27,39 @@
 
 import Foundation
 
+enum AnyJSONError: Error {
+  case stringCreationFailure
+}
+
+extension AnyJSONError: LocalizedError {
+  var localizedDescription: String {
+    switch self {
+    case .stringCreationFailure:
+      return "`String(data:ecoding:) returned nil when converting JSON Data to a `String`"
+    }
+  }
+}
+
+extension AnyJSON {
+  public func jsonEncodedData() throws -> Data {
+    return try JSONEncoder().encode(self)
+  }
+
+  public func jsonString() throws -> String {
+    guard let decodedString = try String(data: jsonEncodedData(), encoding: .utf8) else {
+      throw AnyJSONError.stringCreationFailure
+    }
+
+    return decodedString
+  }
+
+  public func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
+    return try JSONDecoder().decode(type, from: jsonEncodedData())
+  }
+}
+
 extension AnyJSON: Codable {
-  // MARK: Decodable
+  // MARK:- Decodable
 
   public init(from decoder: Decoder) throws {
     if let keyed = try? decoder.container(keyedBy: AnyJSONCodingKey.self) {
@@ -44,8 +75,8 @@ extension AnyJSON: Codable {
       self.init(val)
     } else if let val = try? decoder.singleValueContainer().decode(Double.self) {
       self.init(val)
-    } else if let val = try? decoder.singleValueContainer().decode(TimeInterval.self) {
-      self.init(Date(timeIntervalSinceReferenceDate: val))
+    } else if let val = try? decoder.singleValueContainer().decode(Date.self) {
+      self.init(val)
     } else {
       let message = "AnyJSON could not decode value inside `SingleValueDecodingContainer`"
       let context = DecodingError.Context(codingPath: decoder.codingPath,
@@ -70,8 +101,8 @@ extension AnyJSON: Codable {
         json[key.stringValue] = val
       } else if let val = try? container.decode(Double.self, forKey: key) {
         json[key.stringValue] = val
-      } else if let val = try? container.decode(TimeInterval.self, forKey: key) {
-        json[key.stringValue] = Date(timeIntervalSinceReferenceDate: val)
+      } else if let val = try? container.decode(Date.self, forKey: key) {
+        json[key.stringValue] = val
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,
@@ -99,8 +130,8 @@ extension AnyJSON: Codable {
         jsonArray.append(val)
       } else if let val = try? container.decode(Double.self) {
         jsonArray.append(val)
-      } else if let val = try? container.decode(TimeInterval.self) {
-        jsonArray.append(Date(timeIntervalSinceReferenceDate: val))
+      } else if let val = try? container.decode(Date.self) {
+        jsonArray.append(val)
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,
@@ -111,7 +142,7 @@ extension AnyJSON: Codable {
     return jsonArray
   }
 
-  // MARK: Encodable
+  // MARK:- Encodable
 
   public func encode(to encoder: Encoder) throws {
     if try AnyJSON.encode(single: value, from: encoder.singleValueContainer()) {
@@ -153,7 +184,7 @@ extension AnyJSON: Codable {
       case let val as Bool:
         try container.encode(val, forKey: key)
       case let val as Date:
-        try container.encode(val.timeIntervalSinceReferenceDate, forKey: key)
+        try container.encode(val, forKey: key)
       case let val as Data:
         try container.encode(val, forKey: key)
       case let val as Float:
@@ -204,7 +235,7 @@ extension AnyJSON: Codable {
       case let value as Bool:
         try container.encode(value)
       case let value as Date:
-        try container.encode(value.timeIntervalSinceReferenceDate)
+        try container.encode(value)
       case let value as Data:
         try container.encode(value)
       case let value as Float:
@@ -250,7 +281,7 @@ extension AnyJSON: Codable {
     case let value as Bool:
       try container.encode(value)
     case let value as Date:
-      try container.encode(value.timeIntervalSinceReferenceDate)
+      try container.encode(value)
     case let value as Data:
       try container.encode(value)
     case let value as Float:

@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -27,19 +27,19 @@
 
 @testable import PubNub
 import XCTest
-  #if os(iOS)
+#if os(iOS)
   let osName = "iOS"
-  #elseif os(watchOS)
+#elseif os(watchOS)
   let osName = "watchOS"
-  #elseif os(tvOS)
+#elseif os(tvOS)
   let osName = "tvOS"
-  #elseif os(macOS)
+#elseif os(macOS)
   let osName = "macOS"
-  #elseif os(Linux)
+#elseif os(Linux)
   let osName = "Linux"
-  #else
+#else
   let osName = "Unknown"
-  #endif
+#endif
 
 class ConstantsTests: XCTestCase {
   func testOperatingSystem() {

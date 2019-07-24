@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ public struct AnyJSON {
 }
 
 extension AnyJSON: Hashable {
-  // swiftlint:disable:next cyclomatic_complexity
   public static func == (lhs: AnyJSON, rhs: AnyJSON) -> Bool {
     switch (lhs.value, rhs.value) {
     case let (lhs as NSNumber, rhs as NSNumber):
@@ -121,7 +120,7 @@ extension AnyJSON: Hashable {
     case let value as Data:
       hasher.combine(value)
     case let value as [String: Any]:
-      let map = value.compactMapValues{ AnyJSON($0) }
+      let map = value.compactMapValues { AnyJSON($0) }
       hasher.combine(map)
     case let value as [Any]:
       hasher.combine(value.compactMap { [AnyJSON($0)] })
@@ -225,6 +224,7 @@ extension AnyJSON {
 }
 
 // MARK: ExpiressibleBy... Inheritance
+
 extension AnyJSON: ExpressibleByArrayLiteral {}
 extension AnyJSON: ExpressibleByBooleanLiteral {}
 extension AnyJSON: ExpressibleByDictionaryLiteral {}

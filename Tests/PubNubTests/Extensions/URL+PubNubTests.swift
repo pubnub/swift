@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -31,16 +31,21 @@ import XCTest
 final class URLPubNubTests: XCTestCase {
   func testAppendingQueryItems() {
     let testString = "https://example.com?one=two&key=value"
-    let url = URL(string: "https://example.com?one=two")!
+    guard let url = URL(string: "https://example.com?one=two") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     let queryItem = URLQueryItem(name: "key", value: "value")
 
     let newURL = url.appending(queryItems: [queryItem])
 
     XCTAssertEqual(newURL?.absoluteString, testString)
   }
+
   func testAppendingQueryItems_NonePrevious() {
     let testString = "https://example.com?key=value"
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     let queryItem = URLQueryItem(name: "key", value: "value")
 
     let newURL = url.appending(queryItems: [queryItem])

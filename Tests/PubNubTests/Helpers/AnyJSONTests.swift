@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,7 @@ class AnyJSONTests: XCTestCase {
   }
 
   // MARK: Hashable
+
   func testHashable_Int8() {
     let literal = Int8(1)
     let json = AnyJSON(Int8(1))
@@ -45,6 +46,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_Int16() {
     let literal = Int16(1)
     let json = AnyJSON(Int16(1))
@@ -52,6 +54,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_Int32() {
     let literal = Int32(1)
     let json = AnyJSON(Int32(1))
@@ -59,6 +62,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_Int64() {
     let literal = Int64(1)
     let json = AnyJSON(Int64(1))
@@ -74,6 +78,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_UInt8() {
     let literal = UInt8(1)
     let json = AnyJSON(UInt8(1))
@@ -81,6 +86,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_UInt16() {
     let literal = UInt16(1)
     let json = AnyJSON(UInt16(1))
@@ -88,6 +94,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_UInt32() {
     let literal = UInt32(1)
     let json = AnyJSON(UInt32(1))
@@ -95,6 +102,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_UInt64() {
     let literal = UInt64(1)
     let json = AnyJSON(UInt64(1))
@@ -102,6 +110,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_Double() {
     let literal = Double(1.0)
     let json = AnyJSON(Double(1.0))
@@ -109,6 +118,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashable_Float() {
     let literal = Float(1.0)
     let json = AnyJSON(Float(1.0))
@@ -116,6 +126,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
+
   func testHashble_NonHashable() {
     let nonHashable = NonHashable(value: "value")
 
@@ -154,6 +165,7 @@ class AnyJSONTests: XCTestCase {
   }
 
   // MARK: ExpressibleBy...
+
   func testHashableExpressible_Array() {
     let date = Date()
     let literal: [Any] = ["One", 2, true, date, Data(), 3.0]
@@ -220,7 +232,8 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
   }
 
-  // MARK:- Convertible
+  // MARK: - Convertible
+
   func testCustomStringConvertible() {
     let testString = "String Describing This Object"
 

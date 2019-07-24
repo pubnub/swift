@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,6 @@
 import XCTest
 
 class AnyJSONCodableTests: XCTestCase {
-
   func testExample() {
     let json: AnyJSON = ["key1": 1.1,
                          "key2": ["sub", 1, ["subsub"]],

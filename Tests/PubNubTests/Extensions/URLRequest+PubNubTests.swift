@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,9 @@ import XCTest
 
 final class URLRequestPubNubTests: XCTestCase {
   func testmethod() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
 
@@ -38,7 +40,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testMethod_UnknownMethod() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
     request.httpMethod = "Something"
 
@@ -46,7 +50,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testMethod_DefaultMethod() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
     request.httpMethod = nil
 
@@ -54,7 +60,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testMethod_Set() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
     request.method = .post
 
@@ -62,7 +70,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testHeaders_Get() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
 
     let dictionary = [
@@ -78,7 +88,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testHeaders_GetNil() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
     request.allHTTPHeaderFields = nil
 
@@ -86,7 +98,9 @@ final class URLRequestPubNubTests: XCTestCase {
   }
 
   func testHeaders_Set() {
-    let url = URL(string: "https://example.com")!
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Failed to unwrap url string")
+    }
     var request = URLRequest(url: url)
 
     let dictionary = [
@@ -100,4 +114,3 @@ final class URLRequestPubNubTests: XCTestCase {
     XCTAssertEqual(request.allHTTPHeaderFields, dictionary)
   }
 }
-

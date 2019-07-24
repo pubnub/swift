@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-
 
 @testable import PubNub
 import XCTest
@@ -78,7 +77,7 @@ class HTTPHeadersTests: XCTestCase {
   func testAllHTTPHeaderFields() {
     let list = [
       HTTPHeader(name: "Key", value: "Value"),
-      HTTPHeader(name: "Key", value: "NextValue"),
+      HTTPHeader(name: "Key", value: "NextValue")
     ]
     let headers = HTTPHeaders(list)
 
@@ -87,7 +86,7 @@ class HTTPHeadersTests: XCTestCase {
   }
 
   func testExpressibleByDictionary() {
-    let headers: HTTPHeaders = [ "Key": "Value", "Key": "NextValue"]
+    let headers: HTTPHeaders = ["Key": "Value", "Key": "NextValue"]
 
     XCTAssertEqual(headers.allHTTPHeaderFields, ["Key": "NextValue"])
   }
@@ -100,6 +99,7 @@ class HTTPHeadersTests: XCTestCase {
 
     XCTAssertEqual(headers.allHTTPHeaderFields, ["Key": "NextValue"])
   }
+
   func testMakeIterator() {
     let headers: HTTPHeaders = [
       "Key": "Value",
@@ -151,7 +151,7 @@ class HTTPHeaderTests: XCTestCase {
   func testIndexOf() {
     let headers = [
       HTTPHeader(name: "Key", value: "Value"),
-      HTTPHeader(name: "OtherKey", value: "OtherValue"),
+      HTTPHeader(name: "OtherKey", value: "OtherValue")
     ]
 
     XCTAssertEqual(headers.firstIndex(of: "Key"), 0)
@@ -161,7 +161,7 @@ class HTTPHeaderTests: XCTestCase {
   func testIndexOf_Nil() {
     let headers = [
       HTTPHeader(name: "Key", value: "Value"),
-      HTTPHeader(name: "OtherKey", value: "OtherValue"),
+      HTTPHeader(name: "OtherKey", value: "OtherValue")
     ]
 
     XCTAssertEqual(headers.firstIndex(of: "Missing"), nil)

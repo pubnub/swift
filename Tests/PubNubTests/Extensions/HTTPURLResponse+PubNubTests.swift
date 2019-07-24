@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,7 @@
 import XCTest
 
 final class HTTPURLResponsePubNubTests: XCTestCase {
-  let url = URL(string: "https://example.com")!
-
+  let url: URL! = URL(string: "https://example.com")
 
   func testHeaders() {
     let headers = [
@@ -51,7 +50,8 @@ final class HTTPURLResponsePubNubTests: XCTestCase {
 
     XCTAssertEqual(
       responseHeaders.allHTTPHeaderFields,
-      httpHeaders.allHTTPHeaderFields)
+      httpHeaders.allHTTPHeaderFields
+    )
   }
 
   func testIsSuccessful_True() {
@@ -59,8 +59,8 @@ final class HTTPURLResponsePubNubTests: XCTestCase {
       url: url,
       statusCode: 200,
       httpVersion: "1.2",
-      headerFields: nil) else
-    {
+      headerFields: nil
+    ) else {
       XCTFail("HTTPURLResponse was nil ")
       return
     }
@@ -73,8 +73,8 @@ final class HTTPURLResponsePubNubTests: XCTestCase {
       url: url,
       statusCode: 300,
       httpVersion: "1.2",
-      headerFields: nil) else
-    {
+      headerFields: nil
+    ) else {
       XCTFail("HTTPURLResponse was nil ")
       return
     }
@@ -83,7 +83,6 @@ final class HTTPURLResponsePubNubTests: XCTestCase {
   }
 
   func testSuccessfulStatusCodes() {
-    XCTAssertEqual(HTTPURLResponse.successfulStatusCodes, 200..<300)
+    XCTAssertEqual(HTTPURLResponse.successfulStatusCodes, 200 ..< 300)
   }
 }
-

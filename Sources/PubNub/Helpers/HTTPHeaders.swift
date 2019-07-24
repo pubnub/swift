@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,7 @@ public struct HTTPHeaders: Hashable {
 
   /// The list of HTTPHeader values represented as a Dictionary
   public var allHTTPHeaderFields: [String: String] {
-    var dict = Dictionary<String, String>.init(minimumCapacity: self.count)
+    var dict = [String: String](minimumCapacity: count)
     headers.forEach { dict.updateValue($0.value, forKey: $0.name) }
     return dict
   }
@@ -156,7 +156,7 @@ extension HTTPHeader {
   /// The default `Accept-Encoding` used for PubNub requests
   public static let defaultAcceptEncoding: HTTPHeader = {
     let encodings: [String]
-    // Brotli (br) suppoert added in iOS 11 https://9to5mac.com/2017/06/21/apple-ios-11-beta-2/
+    // Brotli (br) support added in iOS 11 https://9to5mac.com/2017/06/21/apple-ios-11-beta-2/
     if #available(iOS 11.0, macOS 10.13, tvOS 11.0, watchOS 4.0, *) {
       encodings = ["br", "gzip", "deflate"]
     } else {

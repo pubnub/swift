@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ extension AnyJSONError: LocalizedError {
   var localizedDescription: String {
     switch self {
     case .stringCreationFailure:
-      return "`String(data:ecoding:) returned nil when converting JSON Data to a `String`"
+      return "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`"
     }
   }
 }
@@ -59,7 +59,7 @@ extension AnyJSON {
 }
 
 extension AnyJSON: Codable {
-  // MARK:- Decodable
+  // MARK: - Decodable
 
   public init(from decoder: Decoder) throws {
     if let keyed = try? decoder.container(keyedBy: AnyJSONCodingKey.self) {
@@ -142,7 +142,7 @@ extension AnyJSON: Codable {
     return jsonArray
   }
 
-  // MARK:- Encodable
+  // MARK: - Encodable
 
   public func encode(to encoder: Encoder) throws {
     if try AnyJSON.encode(single: value, from: encoder.singleValueContainer()) {

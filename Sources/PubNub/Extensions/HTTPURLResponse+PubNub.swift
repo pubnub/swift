@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,6 @@ extension HTTPURLResponse {
 
   /// Range of successful status codes from 200 to 299
   public static let successfulStatusCodes: Range<Int> = {
-    return 200 ..< 300
+    200 ..< 300
   }()
 }

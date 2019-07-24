@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,7 +30,7 @@ import Foundation
 public extension URLRequest {
   /// Convience for assigning `HTTPMethod` values to `httpMethod`
   var method: HTTPMethod? {
-    get  {
+    get {
       // `httpMethod` defaults to GET; unclear why it's optional
       guard let method = httpMethod else {
         return .get
@@ -41,7 +41,6 @@ public extension URLRequest {
       httpMethod = newValue?.rawValue
     }
   }
-
 
   /// Convience for assigning `HTTPHeader` values to `allHTTPHeaderFields`
   var headers: HTTPHeaders {

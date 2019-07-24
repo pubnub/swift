@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,40 +30,40 @@ import XCTest
 
 final class URLQueryItemPubNubTests: XCTestCase {
   func testIndexOf() {
-    
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
-      URLQueryItem(name: "third", value: "value"),
+      URLQueryItem(name: "third", value: "value")
     ]
 
     XCTAssertEqual(queryItems.firstIndex(of: "first"), 0)
   }
+
   func testIndexOf_CaseSensitivity() {
-
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
-      URLQueryItem(name: "third", value: "value"),
+      URLQueryItem(name: "third", value: "value")
     ]
 
     XCTAssertEqual(queryItems.firstIndex(of: "second"), nil)
   }
+
   func testIndexOf_NotFound() {
-
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
-      URLQueryItem(name: "third", value: "value"),
+      URLQueryItem(name: "third", value: "value")
     ]
 
     XCTAssertEqual(queryItems.firstIndex(of: "second"), nil)
   }
+
   func testMerge() {
     var queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "second", value: "value"),
-      URLQueryItem(name: "third", value: "value"),
+      URLQueryItem(name: "third", value: "value")
     ]
     let otherItems = [
       URLQueryItem(name: "fourth", value: "value"),
@@ -76,11 +76,12 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertEqual(queryItems[1].value, "NewValue")
     XCTAssertNotNil(queryItems.firstIndex(of: "fourth"))
   }
+
   func testMerging() {
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "second", value: "value"),
-      URLQueryItem(name: "third", value: "value"),
+      URLQueryItem(name: "third", value: "value")
     ]
     let otherItems = [
       URLQueryItem(name: "fourth", value: "value"),
@@ -94,4 +95,3 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertNotNil(newList.firstIndex(of: "fourth"))
   }
 }
-

@@ -32,7 +32,7 @@ import Foundation
 struct SubscribeResponseDecoder: ResponseDecoder {
   func decode(response: Response<Data>, completion: (Result<Response<SubscriptionResponsePayload>, Error>) -> Void) {
     do {
-      let decodedPayload = try JSONDecoder().decode(SubscriptionResponsePayload.self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode(SubscriptionResponsePayload.self, from: response.payload)
 
       let decodedResponse = Response<SubscriptionResponsePayload>(router: response.router,
                                                                   request: response.request,
@@ -64,18 +64,18 @@ struct SubscriptionResponsePayload: Codable, Hashable {
 }
 
 struct TimetokenResponse: Codable, Hashable {
-  let tokenString: String
+  let timetokenString: String
   let region: Int
 
   enum CodingKeys: String, CodingKey {
-    case tokenString = "t"
+    case timetokenString = "t"
     case region = "r"
   }
 }
 
 extension TimetokenResponse {
-  var timetoken: Int? {
-    return Int(tokenString)
+  var timetoken: Timetoken? {
+    return Int(timetokenString)
   }
 }
 

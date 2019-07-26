@@ -143,7 +143,7 @@ extension Router {
   func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     // Attempt to decode based on general system response payload
     if let data = data,
-      let generalErrorPayload = try? JSONDecoder().decode(EndpointErrorPayload.self, from: data) {
+      let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {
       let pnError = PNError.convert(generalError: generalErrorPayload,
                                     request: request,
                                     response: response)

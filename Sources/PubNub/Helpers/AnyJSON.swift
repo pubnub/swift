@@ -29,133 +29,107 @@ import Foundation
 
 /// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
-  public let value: Any
+  let value: Any
 
   public init(_ value: Any) {
-    if let list = value as? [Any] {
-      self.value = transform(list: list)
-    } else if let dict = value as? [String: Any] {
-      self.value = transform(dictionary: dict)
-    } else {
-      self.value = value
-    }
+    self.value = value
   }
+
+  // MARK: - Helpers
+
+  // swiftlint:disable discouraged_optional_collection
+
+  /// The value cast as a JSON Array
+  public var arrayValue: [Any]? {
+    return value as? [Any]
+  }
+
+  /// The value cast as a JSON Dictionary
+  public var dictionaryValue: [String: Any]? {
+    return value as? [String: Any]
+  }
+
+  // swiftlint:enable discouraged_optional_collection
 }
 
 extension AnyJSON: Hashable {
   public static func == (lhs: AnyJSON, rhs: AnyJSON) -> Bool {
-    switch (lhs.value, rhs.value) {
-    case let (lhs as NSNumber, rhs as NSNumber):
-      return lhs == rhs
-    case let (lhs as String, rhs as String):
+    return compare(lhs.value, rhs.value)
+  }
+
+  private static func compare(_ lhs: Any, _ rhs: Any) -> Bool {
+    switch (lhs, rhs) {
+    case let (lhs as [String: Any], rhs as [String: Any]):
+      return compare(lhs, rhs)
+    case let (lhs as [Any], rhs as [Any]):
+      return compare(lhs, rhs)
+    case let (lhs as Date, rhs as Date):
       return lhs == rhs
     case let (lhs as Data, rhs as Data):
       return lhs == rhs
-    case let (lhs as [String: Any], rhs as [String: Any]):
-      return compare(lhs: lhs, rhs: rhs)
-    case let (lhs as [Any], rhs as [Any]):
-      return compare(lhs: lhs, rhs: rhs)
+    case let (lhs as Bool, rhs as Bool):
+      return lhs == rhs
+    case let (lhs as String, rhs as String):
+      return lhs == rhs
+    case let (lhs as Int, rhs as Int):
+      return lhs == rhs
+    case let (lhs as Double, rhs as Double):
+      return lhs == rhs
+    case let (lhs as NSObject, rhs as NSObject):
+      return lhs.isEqual(rhs)
     default:
       return false
     }
   }
 
-  private static func compare(lhs: [String: Any], rhs: [String: Any]) -> Bool {
+  private static func compare(_ lhs: [String: Any], _ rhs: [String: Any]) -> Bool {
     // Ensure the dictionaries have the same number of items
     if lhs.count != rhs.count {
       return false
     }
     // Walk through keys to ensure that each value is equal
     for (key, lhv) in lhs {
-      guard let rhv = rhs[key], AnyJSON(lhv) == AnyJSON(rhv) else {
+      guard let rhv = rhs[key], compare(lhv, rhv) else {
         return false
       }
     }
     return true
   }
 
-  private static func compare(lhs: [Any], rhs: [Any]) -> Bool {
+  private static func compare(_ lhs: [Any], _ rhs: [Any]) -> Bool {
     // Ensure that each array has the same number of elements
     if lhs.count != rhs.count {
       return false
     }
     // Walk through the arrays and compare
-    for index in 0 ..< lhs.count where AnyJSON(lhs[index]) != AnyJSON(rhs[index]) {
+    for index in 0 ..< lhs.count where !compare(lhs[index], rhs[index]) {
       return false
     }
     return true
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   public func hash(into hasher: inout Hasher) {
+    hash(into: &hasher, value: value)
+  }
+
+  private func hash(into hasher: inout Hasher, value: Any) {
     switch value {
     case let value as Bool:
       hasher.combine(value)
+    case let value as String:
+      hasher.combine(value)
     case let value as Int:
-      hasher.combine(value)
-    case let value as Int8:
-      hasher.combine(value)
-    case let value as Int16:
-      hasher.combine(value)
-    case let value as Int32:
-      hasher.combine(value)
-    case let value as Int64:
-      hasher.combine(value)
-    case let value as UInt:
-      hasher.combine(value)
-    case let value as UInt8:
-      hasher.combine(value)
-    case let value as UInt16:
-      hasher.combine(value)
-    case let value as UInt32:
-      hasher.combine(value)
-    case let value as UInt64:
-      hasher.combine(value)
-    case let value as Float:
       hasher.combine(value)
     case let value as Double:
       hasher.combine(value)
-    case let value as String:
-      hasher.combine(value)
-    case let value as Data:
-      hasher.combine(value)
     case let value as [String: Any]:
-      let map = value.compactMapValues { AnyJSON($0) }
-      hasher.combine(map)
+      let ordered = value.sorted { $0.key < $1.key }
+      ordered.forEach { hash(into: &hasher, value: $0.value) }
     case let value as [Any]:
-      hasher.combine(value.compactMap { [AnyJSON($0)] })
+      value.forEach { hash(into: &hasher, value: $0) }
     default:
       break
     }
-  }
-}
-
-func transform(list elements: [Any]) -> [Any] {
-  let json: [Any] = elements.map { element in
-    if let date = element as? Date {
-      return Constant.iso8601Full.string(from: date)
-    }
-    return element
-  }
-  return json
-}
-
-func transform(sequnce pairs: [(String, Any)]) -> [String: Any] {
-  return pairs.reduce(into: [:]) { result, element in
-    if let date = element.1 as? Date {
-      result[element.0] = Constant.iso8601Full.string(from: date)
-    } else {
-      result[element.0] = element.1
-    }
-  }
-}
-
-func transform(dictionary pairs: [String: Any]) -> [String: Any] {
-  return pairs.mapValues { value in
-    if let date = value as? Date {
-      return Constant.iso8601Full.string(from: date)
-    }
-    return value
   }
 }
 
@@ -183,51 +157,21 @@ extension AnyJSON: CustomDebugStringConvertible {
   }
 }
 
-// MARK: - ExpressibleBy...
+// MARK: - ExpressibleByArrayLiteral
 
-extension AnyJSON {
-  // MARK: ...ArrayLiteral
-
+extension AnyJSON: ExpressibleByArrayLiteral {
   public init(arrayLiteral elements: Any...) {
-    self.init(transform(list: elements))
-  }
-
-  // MARK: ...BooleanLiteral
-
-  public init(booleanLiteral value: Bool) {
-    self.init(value)
-  }
-
-  // MARK: ...DictionaryLiteral
-
-  public init(dictionaryLiteral elements: (String, Any)...) {
-    self.init(transform(sequnce: elements))
-  }
-
-  // MARK: ...FloatLiteral
-
-  public init(floatLiteral value: FloatLiteralType) {
-    self.init(value)
-  }
-
-  // MARK: ...IntegerLiteral
-
-  public init(integerLiteral value: Int) {
-    self.init(value)
-  }
-
-  // MARK: ...StringLiteral
-
-  public init(stringLiteral value: StringLiteralType) {
-    self.init(value)
+    self.init(elements.map { $0 })
   }
 }
 
-// MARK: ExpiressibleBy... Inheritance
+// MARK: - ExpressibleByDictionaryLiteral
 
-extension AnyJSON: ExpressibleByArrayLiteral {}
-extension AnyJSON: ExpressibleByBooleanLiteral {}
-extension AnyJSON: ExpressibleByDictionaryLiteral {}
-extension AnyJSON: ExpressibleByFloatLiteral {}
-extension AnyJSON: ExpressibleByIntegerLiteral {}
-extension AnyJSON: ExpressibleByStringLiteral {}
+extension AnyJSON: ExpressibleByDictionaryLiteral {
+  public init(dictionaryLiteral elements: (String, Any)...) {
+    let dictionary = elements.reduce(into: [:]) { result, element in
+      result[element.0] = element.1
+    }
+    self.init(dictionary)
+  }
+}

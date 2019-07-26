@@ -32,13 +32,13 @@ import Foundation
 struct PublishResponseDecoder: ResponseDecoder {
   func decode(response: Response<Data>, completion: (Result<Response<PublishResponsePayload>, Error>) -> Void) {
     do {
-      let decodedPayload = try JSONDecoder().decode([AnyJSON].self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
-      if let errorFlag = decodedPayload.first?.value as? Int, errorFlag == 0 {
+      if let errorFlag = decodedPayload.arrayValue?.first as? Int, errorFlag == 0 {
 //        completion(.failure())
       }
 
-      guard let timeString = decodedPayload.last?.value as? String, let timetoken = Int(timeString) else {
+      guard let timeString = decodedPayload.arrayValue?.last as? String, let timetoken = Int(timeString) else {
         throw PNError.endpointFailure(.malformedResponseBody,
                                       forRequest: response.request,
                                       onResponse: response.response)
@@ -63,7 +63,7 @@ struct PublishResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct PublishResponsePayload: Codable, Hashable {
-  let timetoken: Int
+  let timetoken: Timetoken
 }
 
 public struct ErrorResponse: Codable, Hashable {

@@ -1,5 +1,5 @@
 //
-//  Typealias+PubNub.swift
+//  Int+PubNubTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,19 +25,15 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-// MARK: - Types
+class IntTests: XCTestCase {
+  func testTimetoken() {
+    let timetoken = Timetoken(15_614_817_397_828_462)
 
-/// 17-digit precision unix time (UTC) since 1970
-///
-/// - important: A 64-bit `Double` has a max precision of 15-digits, so
-///         any value derived from a `TimeInterval` will not be precise
-///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = Int
+    let date = Date(timeIntervalSince1970: TimeInterval(timetoken / 10_000_000))
 
-typealias AtomicInt = Atomic<Int32>
-
-// MARK: - Closures
-
-public typealias EmptyClosure = () -> Void
+    XCTAssertEqual(timetoken.timetokenDate, date)
+  }
+}

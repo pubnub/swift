@@ -29,42 +29,270 @@
 import XCTest
 
 class AnyJSONCodableTests: XCTestCase {
-  func testExample() {
-    let json: AnyJSON = ["key1": 1.1,
-                         "key2": ["sub", 1, ["subsub"]],
-                         "key3": Date()]
-
-    guard let data = try? json.jsonEncodedData() else {
-      return XCTFail("Could not turn AnyJSON into Data")
-    }
-
-    guard let jason = try? json.decode(AnyJSON.self) else {
-      return XCTFail("Yo Dawg...")
-    }
-
-    XCTAssertEqual(json, jason)
-
-    guard let json2 = try? JSONDecoder().decode(AnyJSON.self, from: data) else {
-      return XCTFail("Could not decode AnyJSON from Data")
-    }
-
-    XCTAssertEqual(json, json2)
+  struct NonCodable: Hashable {
+    var value: String
   }
 
-  func testEquals() {
-    let testJSON: AnyJSON = ["x": 1, "y": []]
-    let equalJSON: AnyJSON = ["x": 1, "y": []]
-
-    XCTAssertEqual(testJSON, equalJSON)
+  struct CodableStruct: Codable, Hashable {
+    var value: String
   }
 
-  func testSubscriptionBuilder() {
-    let data = ImportJSON.file("subscription")
+  var exampleList: [Any] = [
+    "String",
+    true,
+    Date(),
+    Float.greatestFiniteMagnitude,
+    Double.greatestFiniteMagnitude,
+    Decimal.greatestFiniteMagnitude,
+    Int.min,
+    Int8.min,
+    Int16.min,
+    Int32.min,
+    Int64.min,
+    UInt.max,
+    UInt8.max,
+    UInt16.max,
+    UInt32.max,
+    UInt64.max
+  ]
+  let emptyList = [Any]()
 
-    guard let subResponse = try? JSONDecoder().decode(SubscriptionResponsePayload.self, from: data) else {
-      return XCTFail("Decoder value of JSON Data unwrapped to nil")
+  var exampleDict: [String: Any] = [
+    "String": "String",
+    "Bool": true,
+    "Date": Date(),
+    "Float": Float.greatestFiniteMagnitude,
+    "Double": Double.greatestFiniteMagnitude,
+    "Decimal": Decimal.greatestFiniteMagnitude,
+    "Int": Int.min,
+    "Int8": Int8.min,
+    "Int16": Int16.min,
+    "Int32": Int32.min,
+    "Int64": Int64.min,
+    "UInt": UInt.max,
+    "UInt8": UInt8.max,
+    "UInt16": UInt16.max,
+    "UInt32": UInt32.max,
+    "UInt64": UInt64.max
+  ]
+  let emptyDict = [String: Any]()
+
+  override func setUp() {
+    super.setUp()
+
+    guard let data = "Big Data".data(using: .utf8) else {
+      return XCTFail("Could not create data")
     }
 
-    XCTAssertEqual(subResponse.messages.first?.payload, ["message": "Hello"])
+    exampleList.append(data)
+    XCTAssertNotNil(exampleList.last as? Data)
+
+    exampleList.append(exampleDict)
+    XCTAssertNotNil(exampleList.last as? [String: Any])
+
+    exampleList.append(exampleList)
+    XCTAssertNotNil(exampleList.last as? [Any])
+
+    exampleDict["Data"] = data
+    exampleDict["Dictionary"] = exampleDict
+    exampleDict["Array"] = exampleList
+    XCTAssertNotNil(exampleDict["Data"] as? Data)
+    XCTAssertNotNil(exampleDict["Dictionary"] as? [String: Any])
+    XCTAssertNotNil(exampleDict["Array"] as? [Any])
+  }
+
+  func testEncode_Dictionary() {
+    let json = AnyJSON(exampleDict)
+
+    do {
+      let anyJSONDecode = try json.decode(AnyJSON.self)
+      XCTAssertEqual(json, anyJSONDecode)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      let data = try json.jsonEncodedData()
+      let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+      XCTAssertEqual(json, jsonDecoder)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      _ = try json.jsonString()
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+  }
+
+  func testEncode_Dictionary_Empty() {
+    let json = AnyJSON(emptyDict)
+
+    do {
+      let anyJSONDecode = try json.decode(AnyJSON.self)
+      XCTAssertEqual(json, anyJSONDecode)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      let data = try json.jsonEncodedData()
+      let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+      XCTAssertEqual(json, jsonDecoder)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      _ = try json.jsonString()
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+  }
+
+  func testEncode_Array() {
+    let json = AnyJSON(exampleList)
+
+    do {
+      let anyJSONDecode = try json.decode(AnyJSON.self)
+      XCTAssertEqual(json, anyJSONDecode)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      let data = try json.jsonEncodedData()
+      let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+      XCTAssertEqual(json, jsonDecoder)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      _ = try json.jsonString()
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+  }
+
+  func testEncode_Array_Empty() {
+    let json = AnyJSON(emptyList)
+
+    do {
+      let anyJSONDecode = try json.decode(AnyJSON.self)
+      XCTAssertEqual(json, anyJSONDecode)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      let data = try json.jsonEncodedData()
+      let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+      XCTAssertEqual(json, jsonDecoder)
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+
+    do {
+      _ = try json.jsonString()
+    } catch {
+      XCTFail("Exception thrown: \(error.localizedDescription)")
+    }
+  }
+
+  // MARK: - Failed Coding
+
+  func testFailedEncoding_SingleValueContainer() {
+    let nonCodable = NonCodable(value: "Test")
+    let json = AnyJSON(nonCodable)
+
+    XCTAssertThrowsError(
+      try json.jsonEncodedData(),
+      "Should throw EncodingError"
+    ) { error in
+      guard let encodingError = error as? EncodingError else {
+        return XCTFail("Error was not the correct type of EncodingError")
+      }
+
+      switch encodingError {
+      case let .invalidValue(value, context):
+
+        XCTAssertEqual(nonCodable, value as? NonCodable)
+        XCTAssertEqual(context.codingPath.count, 0)
+        XCTAssertNil(context.underlyingError)
+        XCTAssertEqual(
+          context.debugDescription,
+          ErrorDescription.EncodingError.invalidRootLevelErrorDescription
+        )
+      @unknown default:
+        XCTFail("New errors types were added that need to be accounted for")
+      }
+    }
+  }
+
+  func testFailedEncoding_UnkeyedContainer() {
+    let nonCodable = NonCodable(value: "Test")
+    let json = AnyJSON([nonCodable])
+
+    XCTAssertThrowsError(
+      try json.jsonEncodedData(),
+      "Should throw EncodingError"
+    ) { error in
+      guard let encodingError = error as? EncodingError else {
+        return XCTFail("Error was not the correct type of EncodingError")
+      }
+
+      switch encodingError {
+      case let .invalidValue(value, context):
+
+        XCTAssertEqual(nonCodable, value as? NonCodable)
+        XCTAssertEqual(context.codingPath.count, 0)
+        XCTAssertNil(context.underlyingError)
+        XCTAssertEqual(
+          context.debugDescription,
+          ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
+        )
+      @unknown default:
+        XCTFail("New errors types were added that need to be accounted for")
+      }
+    }
+  }
+
+  func testFailedEncoding_KeyedContainer() {
+    let codableKey = "NonCodable"
+    let nonCodable = NonCodable(value: "Test")
+    let json = AnyJSON([codableKey: nonCodable])
+
+    XCTAssertThrowsError(
+      try json.jsonEncodedData(),
+      "Should throw EncodingError"
+    ) { error in
+      guard let encodingError = error as? EncodingError else {
+        return XCTFail("Error was not the correct type of EncodingError")
+      }
+
+      switch encodingError {
+      case let .invalidValue(value, context):
+        XCTAssertEqual(nonCodable, value as? NonCodable)
+        XCTAssertEqual(context.codingPath.count, 0)
+        XCTAssertNil(context.underlyingError)
+        XCTAssertEqual(
+          context.debugDescription,
+          ErrorDescription.EncodingError.invalidKeyedContainerErrorDescription
+        )
+      @unknown default:
+        XCTFail("New errors types were added that need to be accounted for")
+      }
+    }
+  }
+
+  // MARK: - AnyJSONCodingKey
+
+  func testCodingKeys_IntValue() {
+    let intValue = 1
+    let keys = AnyJSONCodingKey(intValue: intValue)
+    XCTAssertNil(keys?.intValue)
+    XCTAssertEqual(keys?.stringValue, intValue.description)
   }
 }

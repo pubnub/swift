@@ -1,5 +1,5 @@
 //
-//  NetworkTests.swift
+//  Int+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,9 +25,10 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-final class NetworkTests: XCTestCase {
-  func testNetwork() {}
+extension Int {
+  var timetokenDate: Date {
+    return Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(self) / 10_000_000))
+  }
 }

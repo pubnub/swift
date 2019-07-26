@@ -90,4 +90,24 @@ class ConstantsTests: XCTestCase {
   func testMinimumSubscribeRequestTimeout() {
     XCTAssertEqual(Constant.minimumSubscribeRequestTimeout, 280)
   }
+
+  func testErrorDescription_AnyJSON_StringCreationFailure() {
+    XCTAssertEqual(ErrorDescription.AnyJSONError.stringCreationFailure,
+                   "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`")
+  }
+
+  func testErrorDescription_DecodingError_RootLeve() {
+    XCTAssertEqual(ErrorDescription.DecodingError.invalidRootLevelErrorDescription,
+                   "AnyJSON could not decode invalid root-level JSON object")
+  }
+
+  func testErrorDescription_DecodingError_KeyedContainer() {
+    XCTAssertEqual(ErrorDescription.DecodingError.invalidKeyedContainerErrorDescription,
+                   "AnyJSON could not decode value inside `KeyedDecodingContainer`")
+  }
+
+  func testErrorDescription_DecodingError_UnkeyedContainer() {
+    XCTAssertEqual(ErrorDescription.DecodingError.invalidUnkeyedContainerErrorDescription,
+                   "AnyJSON could not decode value inside `UnkeyedDecodingContainer`")
+  }
 }

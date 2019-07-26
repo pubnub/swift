@@ -27,6 +27,42 @@
 
 import Foundation
 
+public struct ErrorDescription {
+  public struct AnyJSONError {
+    public static let stringCreationFailure: String = {
+      "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`"
+    }()
+  }
+
+  struct DecodingError {
+    public static let invalidRootLevelErrorDescription: String = {
+      "AnyJSON could not decode invalid root-level JSON object"
+    }()
+
+    public static let invalidKeyedContainerErrorDescription: String = {
+      "AnyJSON could not decode value inside `KeyedDecodingContainer`"
+    }()
+
+    public static let invalidUnkeyedContainerErrorDescription: String = {
+      "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
+    }()
+  }
+
+  struct EncodingError {
+    public static let invalidRootLevelErrorDescription: String = {
+      "AnyJSON could not encode invalid root-level JSON object"
+    }()
+
+    public static let invalidKeyedContainerErrorDescription: String = {
+      "AnyJSON could not encode value inside `KeyedEncodingContainer`"
+    }()
+
+    public static let invalidUnkeyedContainerErrorDescription: String = {
+      "AnyJSON could not encode value inside `UnkeyedEncodingContainer`"
+    }()
+  }
+}
+
 struct Constant {
   public static let operatingSystemName: String = {
     let osName: String = {
@@ -112,12 +148,17 @@ struct Constant {
     280
   }()
 
-  public static let iso8601Full: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ"
-    formatter.calendar = Calendar(identifier: .iso8601)
-    formatter.timeZone = TimeZone(secondsFromGMT: 0)
-    formatter.locale = Locale(identifier: "en_US_POSIX")
-    return formatter
+  public static let jsonDecoder: JSONDecoder = {
+    let decoder = JSONDecoder()
+    decoder.dataDecodingStrategy = .deferredToData
+    decoder.dateDecodingStrategy = .deferredToDate
+    return decoder
+  }()
+
+  public static let jsonEncoder: JSONEncoder = {
+    let encoder = JSONEncoder()
+    encoder.dateEncodingStrategy = .deferredToDate
+    encoder.dataEncodingStrategy = .deferredToData
+    return encoder
   }()
 }

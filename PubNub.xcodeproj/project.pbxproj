@@ -52,7 +52,6 @@
 		354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */; };
 		354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA9322DCBC350093EFFB /* ResponseOperator.swift */; };
 		354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */; };
-		355BE9FD22C2917C000EC334 /* AnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FC22C2917C000EC334 /* AnyJSON.swift */; };
 		355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */; };
 		355BEA0422C2CE05000EC334 /* subscription.json in Resources */ = {isa = PBXBuildFile; fileRef = 355BEA0122C2CD0C000EC334 /* subscription.json */; };
 		355C47A222CBD6F2006C3EEE /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355C47A122CBD6F2006C3EEE /* EventStream.swift */; };
@@ -68,7 +67,6 @@
 		357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8B22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift */; };
 		357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */; };
 		35834F3922E600C60034CF0C /* EndpointErrorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3822E600C60034CF0C /* EndpointErrorPayload.swift */; };
-		35834F3E22E62BDE0034CF0C /* AnyJSON+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3D22E62BDE0034CF0C /* AnyJSON+Codable.swift */; };
 		35834F4022E62C300034CF0C /* PNError+LocalizedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3F22E62C300034CF0C /* PNError+LocalizedError.swift */; };
 		35834F4222E639F30034CF0C /* SubscribeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBD722C926C300FA33AA /* SubscribeEndpoint.swift */; };
 		3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033122CD138300A11D9A /* Set+PubNub.swift */; };
@@ -77,6 +75,7 @@
 		3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */; };
 		359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152A022BA9AA30048842D /* PubNubConfiguration.swift */; };
 		359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */; };
+		359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */; };
 		35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */; };
 		35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */; };
 		35CDFEA922E75DA800F3B9F2 /* Set+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA822E75DA800F3B9F2 /* Set+PubNubTests.swift */; };
@@ -89,13 +88,16 @@
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */; };
 		35CDFEC022E7B48000F3B9F2 /* ImportJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportJSON.swift */; };
+		35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FC22C2917C000EC334 /* AnyJSON.swift */; };
+		35D8D4C622EB46BC001B07D9 /* AnyJSON+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3D22E62BDE0034CF0C /* AnyJSON+Codable.swift */; };
+		35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */; };
+		35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */; };
 		35EE358822E247B200E3F081 /* URLSessionConfiguration+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */; };
 		35EE358A22E2671600E3F081 /* HTTPHeaders.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EE358922E2671600E3F081 /* HTTPHeaders.swift */; };
 		35EE358C22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */; };
 		35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */; };
 		35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */; };
 		35F0259922BBFA85007BD7D3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259822BBFA85007BD7D3 /* Session.swift */; };
-		35F0259B22BC109F007BD7D3 /* NetworkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259A22BC109F007BD7D3 /* NetworkTests.swift */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_38 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -169,6 +171,7 @@
 		3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLRequest+PubNub.swift"; sourceTree = "<group>"; };
 		359152A022BA9AA30048842D /* PubNubConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfiguration.swift; sourceTree = "<group>"; };
 		359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfigurationTests.swift; sourceTree = "<group>"; };
+		359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNubTests.swift"; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
 		35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNubTests.swift"; sourceTree = "<group>"; };
@@ -182,6 +185,8 @@
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeadersTests.swift; sourceTree = "<group>"; };
 		35CDFEBF22E7B48000F3B9F2 /* ImportJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportJSON.swift; sourceTree = "<group>"; };
+		35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
+		35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNub.swift"; sourceTree = "<group>"; };
 		35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNub.swift"; sourceTree = "<group>"; };
 		35EE358922E2671600E3F081 /* HTTPHeaders.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeaders.swift; sourceTree = "<group>"; };
 		35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+PubNub.swift"; sourceTree = "<group>"; };
@@ -190,7 +195,6 @@
 		35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNub.swift"; sourceTree = "<group>"; };
 		35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNubTests.swift"; sourceTree = "<group>"; };
 		35F0259822BBFA85007BD7D3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
-		35F0259A22BC109F007BD7D3 /* NetworkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -346,7 +350,6 @@
 			isa = PBXGroup;
 			children = (
 				357AEB8122E6949300C18250 /* Bool+PubNubTests.swift */,
-				35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */,
 				357AEB8322E6954600C18250 /* Collection+PubNubTests.swift */,
 				357AEB8522E6979D00C18250 /* DateFormatter+PubNubTests.swift */,
 				357AEB8722E69B0800C18250 /* DispatchQueue+PubNub.swift */,
@@ -359,6 +362,8 @@
 				35CDFEB022E76B7200F3B9F2 /* URLQueryItem+PubNubTests.swift */,
 				35CDFEB722E7776400F3B9F2 /* URLRequest+PubNubTests.swift */,
 				35CDFEB922E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift */,
+				35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */,
+				359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -370,6 +375,7 @@
 				35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */,
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
 				35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */,
+				35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -420,6 +426,7 @@
 				354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */,
 				35089A0822E3C08D002BCC94 /* Error+PubNub.swift */,
 				35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */,
+				35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */,
 				350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */,
 				3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */,
 				3585033122CD138300A11D9A /* Set+PubNub.swift */,
@@ -456,7 +463,6 @@
 				355BEA0022C2CCBF000EC334 /* Responses */,
 				OBJ_15 /* PubNubTests.swift */,
 				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
-				35F0259A22BC109F007BD7D3 /* NetworkTests.swift */,
 				357AEB7F22E6940000C18250 /* Extensions */,
 				357AEB8022E6940800C18250 /* Helpers */,
 				35EA73F822B199FF00D97BF0 /* Supporting Files */,
@@ -651,6 +657,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */,
 				3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */,
 				3585033422CD139400A11D9A /* String+PubNub.swift in Sources */,
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
@@ -659,7 +666,6 @@
 				35CDFEAF22E7664D00F3B9F2 /* URLQueryItem+PubNub.swift in Sources */,
 				355F213122DE4D97004DEFBF /* Endpoint.swift in Sources */,
 				35834F4222E639F30034CF0C /* SubscribeEndpoint.swift in Sources */,
-				355BE9FD22C2917C000EC334 /* AnyJSON.swift in Sources */,
 				350EFBDE22C9520400FA33AA /* Response.swift in Sources */,
 				35EE358822E247B200E3F081 /* URLSessionConfiguration+PubNub.swift in Sources */,
 				3567434622E1284000BF2639 /* PubNubRouter.swift in Sources */,
@@ -670,6 +676,7 @@
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* Router.swift in Sources */,
 				350EFBDA22C9487B00FA33AA /* PNError.swift in Sources */,
+				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
@@ -680,11 +687,11 @@
 				35F0259922BBFA85007BD7D3 /* Session.swift in Sources */,
 				35EE358A22E2671600E3F081 /* HTTPHeaders.swift in Sources */,
 				35834F3922E600C60034CF0C /* EndpointErrorPayload.swift in Sources */,
+				35D8D4C622EB46BC001B07D9 /* AnyJSON+Codable.swift in Sources */,
 				35277A6722D673090083B9B6 /* SessionDelegate.swift in Sources */,
 				355C47A222CBD6F2006C3EEE /* EventStream.swift in Sources */,
 				3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */,
 				354ADA8822D909A30093EFFB /* Convertibles+PubNub.swift in Sources */,
-				35834F3E22E62BDE0034CF0C /* AnyJSON+Codable.swift in Sources */,
 				350EFBDC22C951F700FA33AA /* Request.swift in Sources */,
 				OBJ_31 /* PubNub.swift in Sources */,
 				354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */,
@@ -714,10 +721,10 @@
 				35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
-				35F0259B22BC109F007BD7D3 /* NetworkTests.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,
 				35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
+				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,
 				35CDFEC022E7B48000F3B9F2 /* ImportJSON.swift in Sources */,
 				35CDFEAD22E7655700F3B9F2 /* URL+PubNubTests.swift in Sources */,
 				35CDFEBA22E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift in Sources */,
@@ -725,6 +732,7 @@
 				357AEB8A22E6A02F00C18250 /* Error+PubNubTests.swift in Sources */,
 				35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */,
 				35CDFEB622E76DC200F3B9F2 /* URLQueryItem+PubNubTests.swift in Sources */,
+				35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 				357AEB8622E6979D00C18250 /* DateFormatter+PubNubTests.swift in Sources */,
 				357AEB8222E6949300C18250 /* Bool+PubNubTests.swift in Sources */,

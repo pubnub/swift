@@ -32,7 +32,7 @@ import Foundation
 struct TimeResponseDecoder: ResponseDecoder {
   func decode(response: Response<Data>, completion: (Result<Response<TimeResponsePayload>, Error>) -> Void) {
     do {
-      let decodedPayload = try JSONDecoder().decode([Int].self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode([Int].self, from: response.payload)
 
       guard let timetoken = decodedPayload.first else {
         throw PNError.endpointFailure(.malformedResponseBody,

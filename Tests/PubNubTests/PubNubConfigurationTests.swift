@@ -59,6 +59,13 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.requestMessageCountThreshold, 100)
   }
 
+  func testPresenceTimeout_Floor() {
+    var config = PubNubConfiguration.default
+    config.presenceTimeout = 0
+
+    XCTAssertEqual(config.presenceTimeout, 20)
+  }
+
   func testInit_Bundle() {
     let config = PubNubConfiguration(from: testsBundle)
 
@@ -84,5 +91,14 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertEqual(config.publishKey, publishKeyValue)
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)
+  }
+
+  func testNetworkConfiguration() {
+    let session = Session()
+    let networkConfig = NetworkConfiguration(customSession: session,
+                                             requestOperator: nil,
+                                             responseOperator: nil)
+
+    XCTAssertEqual(networkConfig.customSession?.sessionID, session.sessionID)
   }
 }

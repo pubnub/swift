@@ -93,7 +93,7 @@ public final class Request {
   }
 
   public var urlRequests: [URLRequest] {
-    return atomicState.lockedValue.urlRequests
+    return atomicState.lockedRead { $0.urlRequests }
   }
 
   public var urlRequest: URLRequest? {
@@ -101,7 +101,7 @@ public final class Request {
   }
 
   public var tasks: [URLSessionTask] {
-    return atomicState.lockedValue.tasks
+    return atomicState.lockedRead { $0.tasks }
   }
 
   public var task: URLSessionTask? {
@@ -113,12 +113,12 @@ public final class Request {
   }
 
   public var data: Data? {
-    return atomicState.lockedValue.responesData
+    return atomicState.lockedRead { $0.responesData }
   }
 
   public private(set) var error: Error? {
     get {
-      return atomicState.lockedValue.error
+      return atomicState.lockedRead { $0.error }
     }
     set {
       atomicState.lockedWrite { $0.error = newValue }
@@ -126,7 +126,7 @@ public final class Request {
   }
 
   public var retryCount: Int {
-    return atomicState.lockedValue.retryCount
+    return atomicState.lockedRead { $0.retryCount }
   }
 
   public var isCancelled: Bool {
@@ -134,7 +134,8 @@ public final class Request {
   }
 
   func withTaskState(perform closure: (TaskState) -> Void) {
-    atomicState.withTaskState(perform: closure)
+    atomicState.lockedWrite { closure($0.taskState) }
+//    atomicState.withTaskState(perform: closure)
   }
 
   // MARK: - Request Processing
@@ -208,7 +209,7 @@ public final class Request {
   }
 
   func didComplete(_ task: URLSessionTask) {
-    atomicValidators.lockedValue.forEach { $0() }
+    atomicValidators.lockedRead { $0.forEach { $0() } }
 
     sessionStream?.emitRequest(self, didComplete: task)
 

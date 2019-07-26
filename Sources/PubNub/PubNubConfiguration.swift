@@ -136,12 +136,13 @@ public struct PubNubConfiguration: Hashable {
   //  public var subscriptionSessionConfiguration: URLSessionConfiguration? = nil
 }
 
+/// A Configuration Object that behavior and policies for a Network tasks.
 public struct NetworkConfiguration {
-  let customSession: SessionReplaceable?
-  let requestOperator: RequestOperator?
-  let responseOperator: ResponseOperator?
+  public let customSession: SessionReplaceable?
+  public let requestOperator: RequestOperator?
+  public let responseOperator: ResponseOperator?
 
-  init(
+  public init(
     customSession: SessionReplaceable? = nil,
     requestOperator: RequestOperator? = nil,
     responseOperator: ResponseOperator? = nil

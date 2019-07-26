@@ -39,94 +39,6 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: Hashable
 
-  func testHashable_Int8() {
-    let literal = Int8(1)
-    let json = AnyJSON(Int8(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_Int16() {
-    let literal = Int16(1)
-    let json = AnyJSON(Int16(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_Int32() {
-    let literal = Int32(1)
-    let json = AnyJSON(Int32(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_Int64() {
-    let literal = Int64(1)
-    let json = AnyJSON(Int64(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_UInt() {
-    let literal = UInt(1)
-    let json = AnyJSON(UInt(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_UInt8() {
-    let literal = UInt8(1)
-    let json = AnyJSON(UInt8(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_UInt16() {
-    let literal = UInt16(1)
-    let json = AnyJSON(UInt16(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_UInt32() {
-    let literal = UInt32(1)
-    let json = AnyJSON(UInt32(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_UInt64() {
-    let literal = UInt64(1)
-    let json = AnyJSON(UInt64(1))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_Double() {
-    let literal = Double(1.0)
-    let json = AnyJSON(Double(1.0))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashable_Float() {
-    let literal = Float(1.0)
-    let json = AnyJSON(Float(1.0))
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
   func testHashble_NonHashable() {
     let nonHashable = NonHashable(value: "value")
 
@@ -174,14 +86,7 @@ class AnyJSONTests: XCTestCase {
 
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashableExpressible_Bool() {
-    let literal = true
-    let json: AnyJSON = true
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
+    XCTAssertNotNil(json.arrayValue)
   }
 
   func testHashableExpressible_Dictionary() {
@@ -206,30 +111,7 @@ class AnyJSONTests: XCTestCase {
 
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashableExpressible_Float() {
-    let literal = 1.0
-    let json: AnyJSON = 1.0
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashableExpressible_Int() {
-    let literal = 1
-    let json: AnyJSON = 1
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
-  }
-
-  func testHashableExpressible_String() {
-    let literal = "Hello World!"
-    let json: AnyJSON = "Hello World!"
-
-    XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
+    XCTAssertNotNil(json.dictionaryValue)
   }
 
   // MARK: - Convertible

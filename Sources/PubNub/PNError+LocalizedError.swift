@@ -31,9 +31,9 @@ extension PNError: LocalizedError {
   public var errorDescription: String? {
     switch self {
     case let .unknown(message):
-      return "Unkonwn Erorr: An unknown error occurred with the supplied message: \(message)"
+      return "Unkonwn Error: An unknown error occurred with the supplied message: \(message)"
     case let .unknownError(error):
-      return "Unkonwn Erorr: An unkonwn error occurred with the supplied error: \(error)"
+      return "Unkonwn Error: An unkonwn error occurred with the supplied error: \(error)"
     case let .sessionInvalidated(reason, sessionId):
       let idString = sessionId?.uuidString ?? "<Unknown>"
       return "Session Invalidated: The underlying `URLSession` for `Session` \(idString) was invalidated \(reason)"
@@ -140,16 +140,10 @@ extension PNError.ResponseProcessingFailureReason: LocalizedErrorReason {
 extension PNError.EndpointFailureReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
-    case .accessDenied:
-      return "Access was denied"
-    case .malformedFilterExpression:
-      return "The supplied filter expression was malformed"
     case .malformedResponseBody:
       return "Unable to decode the response body"
     case .jsonDataDecodeFailure:
       return "An error was thrown attempting to decode the response body"
-    case .decryptionFailure:
-      return "Failed to decrypt the payload with the provide encryption key"
     case .invalidSubscribeKey:
       return "The PubNub Subscribe key used for the request is invalid"
     case .invalidPublishKey:
@@ -158,14 +152,22 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return "The PubNub server was unable to parse the request"
     case .badRequest:
       return "Bad request on that endpoint"
+    case .unauthorized:
+      return "Access was denied due to insuffienct authorization"
     case .forbidden:
       return "Operation forbidden on that endpoint"
     case .resourceNotFound:
       return "Resource not found at that endpoint"
     case .requestURITooLong:
       return "URI of the request was too long to be processed"
-    case .unknown:
-      return "An unknown error has occurred."
+    case .malformedFilterExpression:
+      return "The supplied filter expression was malformed"
+    case .internalServiceError:
+      return "The server encountered an unforseen error while processing the request"
+    case .unrecognizedErrorPayload:
+      return "A payload not matching any konwn reason was received"
+    case let .unknown(message):
+      return "Unknown Reason: \(message)."
     }
   }
 }

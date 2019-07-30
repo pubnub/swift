@@ -54,7 +54,6 @@
 		354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */; };
 		355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */; };
 		355BEA0422C2CE05000EC334 /* subscription.json in Resources */ = {isa = PBXBuildFile; fileRef = 355BEA0122C2CD0C000EC334 /* subscription.json */; };
-		355C47A222CBD6F2006C3EEE /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355C47A122CBD6F2006C3EEE /* EventStream.swift */; };
 		355F213122DE4D97004DEFBF /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213022DE4D97004DEFBF /* Endpoint.swift */; };
 		355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */; };
 		3567434622E1284000BF2639 /* PubNubRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3567434522E1284000BF2639 /* PubNubRouter.swift */; };
@@ -68,7 +67,6 @@
 		357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */; };
 		35834F3922E600C60034CF0C /* EndpointErrorPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3822E600C60034CF0C /* EndpointErrorPayload.swift */; };
 		35834F4022E62C300034CF0C /* PNError+LocalizedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3F22E62C300034CF0C /* PNError+LocalizedError.swift */; };
-		35834F4222E639F30034CF0C /* SubscribeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBD722C926C300FA33AA /* SubscribeEndpoint.swift */; };
 		3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033122CD138300A11D9A /* Set+PubNub.swift */; };
 		3585033422CD139400A11D9A /* String+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033322CD139400A11D9A /* String+PubNub.swift */; };
 		3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033622CD4A1A00A11D9A /* RequestOperator.swift */; };
@@ -76,6 +74,7 @@
 		359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152A022BA9AA30048842D /* PubNubConfiguration.swift */; };
 		359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */; };
 		359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */; };
+		359C2C1622EE29ED009C3B4B /* time_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359C2C1522EE29E2009C3B4B /* time_success.json */; };
 		35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */; };
 		35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */; };
 		35CDFEA922E75DA800F3B9F2 /* Set+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA822E75DA800F3B9F2 /* Set+PubNubTests.swift */; };
@@ -87,7 +86,7 @@
 		35CDFEBA22E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEB922E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift */; };
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */; };
-		35CDFEC022E7B48000F3B9F2 /* ImportJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportJSON.swift */; };
+		35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */; };
 		35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FC22C2917C000EC334 /* AnyJSON.swift */; };
 		35D8D4C622EB46BC001B07D9 /* AnyJSON+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35834F3D22E62BDE0034CF0C /* AnyJSON+Codable.swift */; };
 		35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */; };
@@ -98,6 +97,58 @@
 		35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */; };
 		35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */; };
 		35F0259922BBFA85007BD7D3 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0259822BBFA85007BD7D3 /* Session.swift */; };
+		35FE93B922EE44F70051C455 /* MockURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE93B822EE44F70051C455 /* MockURLSession.swift */; };
+		35FE93BA22EE9C370051C455 /* publish_invalid_key.json in Resources */ = {isa = PBXBuildFile; fileRef = 357AEB7A22E693C000C18250 /* publish_invalid_key.json */; };
+		35FE93BB22EE9C3E0051C455 /* resourceNotFound_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 357AEB7822E693C000C18250 /* resourceNotFound_Message.json */; };
+		35FE93BC22EE9C420051C455 /* invalidSubscribeKey.json in Resources */ = {isa = PBXBuildFile; fileRef = 357AEB7722E693BF00C18250 /* invalidSubscribeKey.json */; };
+		35FE93BD22EE9C470051C455 /* requestURITooLong_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 357AEB7922E693C000C18250 /* requestURITooLong_Message.json */; };
+		35FE93BE22EE9C4A0051C455 /* couldNotParseRequest.json in Resources */ = {isa = PBXBuildFile; fileRef = 357AEB7622E6920300C18250 /* couldNotParseRequest.json */; };
+		35FE93C022EF47CC0051C455 /* timedOut.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93BF22EF47CC0051C455 /* timedOut.json */; };
+		35FE93C322EF57FA0051C455 /* Session+URLError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE93C222EF57FA0051C455 /* Session+URLError.swift */; };
+		35FE93C522EF5C880051C455 /* PNError+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE93C422EF5C880051C455 /* PNError+Equatable.swift */; };
+		35FE93C722EF85CF0051C455 /* publish_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93C622EF80AB0051C455 /* publish_success.json */; };
+		35FE93E422EF93A90051C455 /* networkConnectionLost.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93C822EF93A50051C455 /* networkConnectionLost.json */; };
+		35FE93E522EF93A90051C455 /* badServerResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93C922EF93A60051C455 /* badServerResponse.json */; };
+		35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CA22EF93A60051C455 /* secureConnectionFailed.json */; };
+		35FE93E722EF93A90051C455 /* serverCertificateHasUnknownRoot.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CB22EF93A60051C455 /* serverCertificateHasUnknownRoot.json */; };
+		35FE93E822EF93A90051C455 /* notConnectedToInternet.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CC22EF93A60051C455 /* notConnectedToInternet.json */; };
+		35FE93E922EF93A90051C455 /* cannotDecodeRawData.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CD22EF93A60051C455 /* cannotDecodeRawData.json */; };
+		35FE93EA22EF93A90051C455 /* cannotConnectToHost.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CE22EF93A60051C455 /* cannotConnectToHost.json */; };
+		35FE93EB22EF93A90051C455 /* appTransportSecurityRequiresSecureConnection.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93CF22EF93A60051C455 /* appTransportSecurityRequiresSecureConnection.json */; };
+		35FE93EC22EF93A90051C455 /* cannotFindHost.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D022EF93A60051C455 /* cannotFindHost.json */; };
+		35FE93ED22EF93A90051C455 /* unknown.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D122EF93A60051C455 /* unknown.json */; };
+		35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D222EF93A60051C455 /* unsupportedURL.json */; };
+		35FE93EF22EF93A90051C455 /* dataNotAllowed.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D322EF93A60051C455 /* dataNotAllowed.json */; };
+		35FE93F022EF93A90051C455 /* resourceUnavailable.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D422EF93A70051C455 /* resourceUnavailable.json */; };
+		35FE93F122EF93A90051C455 /* serverCertificateUntrusted.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D522EF93A70051C455 /* serverCertificateUntrusted.json */; };
+		35FE93F222EF93A90051C455 /* cannotDecodeContentData.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D622EF93A70051C455 /* cannotDecodeContentData.json */; };
+		35FE93F322EF93A90051C455 /* dnsLookupFailed.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D722EF93A70051C455 /* dnsLookupFailed.json */; };
+		35FE93F422EF93A90051C455 /* zeroByteResource.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D822EF93A70051C455 /* zeroByteResource.json */; };
+		35FE93F522EF93A90051C455 /* serverCertificateHasBadDate.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93D922EF93A70051C455 /* serverCertificateHasBadDate.json */; };
+		35FE93F622EF93A90051C455 /* cannotParseResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DA22EF93A70051C455 /* cannotParseResponse.json */; };
+		35FE93F722EF93A90051C455 /* internationalRoamingOff.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DB22EF93A80051C455 /* internationalRoamingOff.json */; };
+		35FE93F822EF93A90051C455 /* clientCertificateRequired.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DC22EF93A80051C455 /* clientCertificateRequired.json */; };
+		35FE93F922EF93A90051C455 /* cancelled.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DD22EF93A80051C455 /* cancelled.json */; };
+		35FE93FA22EF93A90051C455 /* callIsActive.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DE22EF93A80051C455 /* callIsActive.json */; };
+		35FE93FB22EF93A90051C455 /* serverCertificateNotYetValid.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93DF22EF93A80051C455 /* serverCertificateNotYetValid.json */; };
+		35FE93FC22EF93A90051C455 /* badURL.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93E022EF93A80051C455 /* badURL.json */; };
+		35FE93FD22EF93A90051C455 /* clientCertificateRejected.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93E122EF93A90051C455 /* clientCertificateRejected.json */; };
+		35FE93FE22EF93A90051C455 /* dataLengthExceedsMaximum.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93E222EF93A90051C455 /* dataLengthExceedsMaximum.json */; };
+		35FE93FF22EF93A90051C455 /* userCancelledAuthentication.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE93E322EF93A90051C455 /* userCancelledAuthentication.json */; };
+		35FE940122EF983A0051C455 /* Session+EndpointError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE940022EF983A0051C455 /* Session+EndpointError.swift */; };
+		35FE940922EFA0040051C455 /* unauthorized_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940322EFA0030051C455 /* unauthorized_StatusCode.json */; };
+		35FE940A22EFA0040051C455 /* forbidden_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940422EFA0030051C455 /* forbidden_StatusCode.json */; };
+		35FE940B22EFA0040051C455 /* resourceNotFound_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940522EFA0030051C455 /* resourceNotFound_StatusCode.json */; };
+		35FE940C22EFA0040051C455 /* internalServiceError_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940622EFA0030051C455 /* internalServiceError_StatusCode.json */; };
+		35FE940D22EFA0040051C455 /* requestURITooLong_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940722EFA0040051C455 /* requestURITooLong_StatusCode.json */; };
+		35FE940E22EFA0040051C455 /* badRequest_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940822EFA0040051C455 /* badRequest_StatusCode.json */; };
+		35FE941022EFA30A0051C455 /* malformedFilterExpression_StatusCode.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE940F22EFA30A0051C455 /* malformedFilterExpression_StatusCode.json */; };
+		35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */; };
+		35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941322EFB7C10051C455 /* unknownEndpointError.json */; };
+		35FE941622EFC4920051C455 /* EndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941522EFC4920051C455 /* EndpointTests.swift */; };
+		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
+		35FE941922EFE51F0051C455 /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355C47A122CBD6F2006C3EEE /* EventStream.swift */; };
+		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_38 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -150,10 +201,10 @@
 		355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Typealias+PubNub.swift"; sourceTree = "<group>"; };
 		3567434522E1284000BF2639 /* PubNubRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubRouter.swift; sourceTree = "<group>"; };
 		3567434722E1E4F700BF2639 /* Collection+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+PubNub.swift"; sourceTree = "<group>"; };
-		357AEB7622E6920300C18250 /* could_not_parse_request.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = could_not_parse_request.json; sourceTree = "<group>"; };
-		357AEB7722E693BF00C18250 /* invalid_subscribe_key.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = invalid_subscribe_key.json; sourceTree = "<group>"; };
-		357AEB7822E693C000C18250 /* not_found.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = not_found.json; sourceTree = "<group>"; };
-		357AEB7922E693C000C18250 /* request_uri_too_long.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = request_uri_too_long.json; sourceTree = "<group>"; };
+		357AEB7622E6920300C18250 /* couldNotParseRequest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = couldNotParseRequest.json; sourceTree = "<group>"; };
+		357AEB7722E693BF00C18250 /* invalidSubscribeKey.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = invalidSubscribeKey.json; sourceTree = "<group>"; };
+		357AEB7822E693C000C18250 /* resourceNotFound_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = resourceNotFound_Message.json; sourceTree = "<group>"; };
+		357AEB7922E693C000C18250 /* requestURITooLong_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = requestURITooLong_Message.json; sourceTree = "<group>"; };
 		357AEB7A22E693C000C18250 /* publish_invalid_key.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = publish_invalid_key.json; sourceTree = "<group>"; };
 		357AEB8122E6949300C18250 /* Bool+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+PubNubTests.swift"; sourceTree = "<group>"; };
 		357AEB8322E6954600C18250 /* Collection+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+PubNubTests.swift"; sourceTree = "<group>"; };
@@ -172,6 +223,7 @@
 		359152A022BA9AA30048842D /* PubNubConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfiguration.swift; sourceTree = "<group>"; };
 		359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubConfigurationTests.swift; sourceTree = "<group>"; };
 		359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNubTests.swift"; sourceTree = "<group>"; };
+		359C2C1522EE29E2009C3B4B /* time_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = time_success.json; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
 		35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNubTests.swift"; sourceTree = "<group>"; };
@@ -184,7 +236,7 @@
 		35CDFEB922E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeadersTests.swift; sourceTree = "<group>"; };
-		35CDFEBF22E7B48000F3B9F2 /* ImportJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportJSON.swift; sourceTree = "<group>"; };
+		35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTestResource.swift; sourceTree = "<group>"; };
 		35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
 		35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNub.swift"; sourceTree = "<group>"; };
 		35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNub.swift"; sourceTree = "<group>"; };
@@ -195,6 +247,52 @@
 		35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNub.swift"; sourceTree = "<group>"; };
 		35F0259522BBE918007BD7D3 /* UUID+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UUID+PubNubTests.swift"; sourceTree = "<group>"; };
 		35F0259822BBFA85007BD7D3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		35FE93B822EE44F70051C455 /* MockURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockURLSession.swift; sourceTree = "<group>"; };
+		35FE93BF22EF47CC0051C455 /* timedOut.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = timedOut.json; sourceTree = "<group>"; };
+		35FE93C222EF57FA0051C455 /* Session+URLError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session+URLError.swift"; sourceTree = "<group>"; };
+		35FE93C422EF5C880051C455 /* PNError+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PNError+Equatable.swift"; sourceTree = "<group>"; };
+		35FE93C622EF80AB0051C455 /* publish_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = publish_success.json; sourceTree = "<group>"; };
+		35FE93C822EF93A50051C455 /* networkConnectionLost.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = networkConnectionLost.json; sourceTree = "<group>"; };
+		35FE93C922EF93A60051C455 /* badServerResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = badServerResponse.json; sourceTree = "<group>"; };
+		35FE93CA22EF93A60051C455 /* secureConnectionFailed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = secureConnectionFailed.json; sourceTree = "<group>"; };
+		35FE93CB22EF93A60051C455 /* serverCertificateHasUnknownRoot.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = serverCertificateHasUnknownRoot.json; sourceTree = "<group>"; };
+		35FE93CC22EF93A60051C455 /* notConnectedToInternet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = notConnectedToInternet.json; sourceTree = "<group>"; };
+		35FE93CD22EF93A60051C455 /* cannotDecodeRawData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cannotDecodeRawData.json; sourceTree = "<group>"; };
+		35FE93CE22EF93A60051C455 /* cannotConnectToHost.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cannotConnectToHost.json; sourceTree = "<group>"; };
+		35FE93CF22EF93A60051C455 /* appTransportSecurityRequiresSecureConnection.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = appTransportSecurityRequiresSecureConnection.json; sourceTree = "<group>"; };
+		35FE93D022EF93A60051C455 /* cannotFindHost.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cannotFindHost.json; sourceTree = "<group>"; };
+		35FE93D122EF93A60051C455 /* unknown.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknown.json; sourceTree = "<group>"; };
+		35FE93D222EF93A60051C455 /* unsupportedURL.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unsupportedURL.json; sourceTree = "<group>"; };
+		35FE93D322EF93A60051C455 /* dataNotAllowed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dataNotAllowed.json; sourceTree = "<group>"; };
+		35FE93D422EF93A70051C455 /* resourceUnavailable.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = resourceUnavailable.json; sourceTree = "<group>"; };
+		35FE93D522EF93A70051C455 /* serverCertificateUntrusted.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = serverCertificateUntrusted.json; sourceTree = "<group>"; };
+		35FE93D622EF93A70051C455 /* cannotDecodeContentData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cannotDecodeContentData.json; sourceTree = "<group>"; };
+		35FE93D722EF93A70051C455 /* dnsLookupFailed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dnsLookupFailed.json; sourceTree = "<group>"; };
+		35FE93D822EF93A70051C455 /* zeroByteResource.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = zeroByteResource.json; sourceTree = "<group>"; };
+		35FE93D922EF93A70051C455 /* serverCertificateHasBadDate.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = serverCertificateHasBadDate.json; sourceTree = "<group>"; };
+		35FE93DA22EF93A70051C455 /* cannotParseResponse.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cannotParseResponse.json; sourceTree = "<group>"; };
+		35FE93DB22EF93A80051C455 /* internationalRoamingOff.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = internationalRoamingOff.json; sourceTree = "<group>"; };
+		35FE93DC22EF93A80051C455 /* clientCertificateRequired.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = clientCertificateRequired.json; sourceTree = "<group>"; };
+		35FE93DD22EF93A80051C455 /* cancelled.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cancelled.json; sourceTree = "<group>"; };
+		35FE93DE22EF93A80051C455 /* callIsActive.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = callIsActive.json; sourceTree = "<group>"; };
+		35FE93DF22EF93A80051C455 /* serverCertificateNotYetValid.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = serverCertificateNotYetValid.json; sourceTree = "<group>"; };
+		35FE93E022EF93A80051C455 /* badURL.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = badURL.json; sourceTree = "<group>"; };
+		35FE93E122EF93A90051C455 /* clientCertificateRejected.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = clientCertificateRejected.json; sourceTree = "<group>"; };
+		35FE93E222EF93A90051C455 /* dataLengthExceedsMaximum.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dataLengthExceedsMaximum.json; sourceTree = "<group>"; };
+		35FE93E322EF93A90051C455 /* userCancelledAuthentication.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = userCancelledAuthentication.json; sourceTree = "<group>"; };
+		35FE940022EF983A0051C455 /* Session+EndpointError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = "Session+EndpointError.swift"; path = "Tests/PubNubTests/Session+EndpointError.swift"; sourceTree = SOURCE_ROOT; };
+		35FE940322EFA0030051C455 /* unauthorized_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unauthorized_StatusCode.json; sourceTree = "<group>"; };
+		35FE940422EFA0030051C455 /* forbidden_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = forbidden_StatusCode.json; sourceTree = "<group>"; };
+		35FE940522EFA0030051C455 /* resourceNotFound_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = resourceNotFound_StatusCode.json; sourceTree = "<group>"; };
+		35FE940622EFA0030051C455 /* internalServiceError_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = internalServiceError_StatusCode.json; sourceTree = "<group>"; };
+		35FE940722EFA0040051C455 /* requestURITooLong_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = requestURITooLong_StatusCode.json; sourceTree = "<group>"; };
+		35FE940822EFA0040051C455 /* badRequest_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = badRequest_StatusCode.json; sourceTree = "<group>"; };
+		35FE940F22EFA30A0051C455 /* malformedFilterExpression_StatusCode.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = malformedFilterExpression_StatusCode.json; sourceTree = "<group>"; };
+		35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unrecognizedEndpointError.json; sourceTree = "<group>"; };
+		35FE941322EFB7C10051C455 /* unknownEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknownEndpointError.json; sourceTree = "<group>"; };
+		35FE941522EFC4920051C455 /* EndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointTests.swift; sourceTree = "<group>"; };
+		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
+		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -315,10 +413,8 @@
 		357AEB7B22E693C300C18250 /* Errors */ = {
 			isa = PBXGroup;
 			children = (
-				357AEB7822E693C000C18250 /* not_found.json */,
-				357AEB7722E693BF00C18250 /* invalid_subscribe_key.json */,
-				357AEB7922E693C000C18250 /* request_uri_too_long.json */,
-				357AEB7622E6920300C18250 /* could_not_parse_request.json */,
+				35FE940222EF99BF0051C455 /* EndpointError */,
+				35FE93C122EF48250051C455 /* URLError */,
 			);
 			path = Errors;
 			sourceTree = "<group>";
@@ -327,6 +423,7 @@
 			isa = PBXGroup;
 			children = (
 				357AEB7A22E693C000C18250 /* publish_invalid_key.json */,
+				35FE93C622EF80AB0051C455 /* publish_success.json */,
 			);
 			path = Publish;
 			sourceTree = "<group>";
@@ -334,6 +431,7 @@
 		357AEB7D22E693D600C18250 /* Time */ = {
 			isa = PBXGroup;
 			children = (
+				359C2C1522EE29E2009C3B4B /* time_success.json */,
 			);
 			path = Time;
 			sourceTree = "<group>";
@@ -456,15 +554,77 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
+		35FE93C122EF48250051C455 /* URLError */ = {
+			isa = PBXGroup;
+			children = (
+				35FE93CF22EF93A60051C455 /* appTransportSecurityRequiresSecureConnection.json */,
+				35FE93C922EF93A60051C455 /* badServerResponse.json */,
+				35FE93E022EF93A80051C455 /* badURL.json */,
+				35FE93DE22EF93A80051C455 /* callIsActive.json */,
+				35FE93DD22EF93A80051C455 /* cancelled.json */,
+				35FE93CE22EF93A60051C455 /* cannotConnectToHost.json */,
+				35FE93D622EF93A70051C455 /* cannotDecodeContentData.json */,
+				35FE93CD22EF93A60051C455 /* cannotDecodeRawData.json */,
+				35FE93D022EF93A60051C455 /* cannotFindHost.json */,
+				35FE93DA22EF93A70051C455 /* cannotParseResponse.json */,
+				35FE93E122EF93A90051C455 /* clientCertificateRejected.json */,
+				35FE93DC22EF93A80051C455 /* clientCertificateRequired.json */,
+				35FE93E222EF93A90051C455 /* dataLengthExceedsMaximum.json */,
+				35FE93D322EF93A60051C455 /* dataNotAllowed.json */,
+				35FE93D722EF93A70051C455 /* dnsLookupFailed.json */,
+				35FE93DB22EF93A80051C455 /* internationalRoamingOff.json */,
+				35FE93C822EF93A50051C455 /* networkConnectionLost.json */,
+				35FE93CC22EF93A60051C455 /* notConnectedToInternet.json */,
+				35FE93D422EF93A70051C455 /* resourceUnavailable.json */,
+				35FE93CA22EF93A60051C455 /* secureConnectionFailed.json */,
+				35FE93D922EF93A70051C455 /* serverCertificateHasBadDate.json */,
+				35FE93CB22EF93A60051C455 /* serverCertificateHasUnknownRoot.json */,
+				35FE93DF22EF93A80051C455 /* serverCertificateNotYetValid.json */,
+				35FE93D522EF93A70051C455 /* serverCertificateUntrusted.json */,
+				35FE93D122EF93A60051C455 /* unknown.json */,
+				35FE93D222EF93A60051C455 /* unsupportedURL.json */,
+				35FE93E322EF93A90051C455 /* userCancelledAuthentication.json */,
+				35FE93D822EF93A70051C455 /* zeroByteResource.json */,
+				35FE93BF22EF47CC0051C455 /* timedOut.json */,
+			);
+			path = URLError;
+			sourceTree = "<group>";
+		};
+		35FE940222EF99BF0051C455 /* EndpointError */ = {
+			isa = PBXGroup;
+			children = (
+				35FE941322EFB7C10051C455 /* unknownEndpointError.json */,
+				35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */,
+				35FE940F22EFA30A0051C455 /* malformedFilterExpression_StatusCode.json */,
+				35FE940822EFA0040051C455 /* badRequest_StatusCode.json */,
+				35FE940422EFA0030051C455 /* forbidden_StatusCode.json */,
+				35FE940622EFA0030051C455 /* internalServiceError_StatusCode.json */,
+				35FE940722EFA0040051C455 /* requestURITooLong_StatusCode.json */,
+				35FE940522EFA0030051C455 /* resourceNotFound_StatusCode.json */,
+				35FE940322EFA0030051C455 /* unauthorized_StatusCode.json */,
+				357AEB7822E693C000C18250 /* resourceNotFound_Message.json */,
+				357AEB7722E693BF00C18250 /* invalidSubscribeKey.json */,
+				357AEB7922E693C000C18250 /* requestURITooLong_Message.json */,
+				357AEB7622E6920300C18250 /* couldNotParseRequest.json */,
+			);
+			path = EndpointError;
+			sourceTree = "<group>";
+		};
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				35CDFEBF22E7B48000F3B9F2 /* ImportJSON.swift */,
-				355BEA0022C2CCBF000EC334 /* Responses */,
+				35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */,
+				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
 				OBJ_15 /* PubNubTests.swift */,
+				35FE93C222EF57FA0051C455 /* Session+URLError.swift */,
+				35FE940022EF983A0051C455 /* Session+EndpointError.swift */,
 				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
+				35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */,
+				35FE941522EFC4920051C455 /* EndpointTests.swift */,
+				35FE941A22EFE5400051C455 /* EventStreamTests.swift */,
 				357AEB7F22E6940000C18250 /* Extensions */,
 				357AEB8022E6940800C18250 /* Helpers */,
+				355BEA0022C2CCBF000EC334 /* Responses */,
 				35EA73F822B199FF00D97BF0 /* Supporting Files */,
 			);
 			name = Tests;
@@ -498,6 +658,7 @@
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
 				355F213022DE4D97004DEFBF /* Endpoint.swift */,
 				350EFBD922C9487B00FA33AA /* PNError.swift */,
+				35FE93C422EF5C880051C455 /* PNError+Equatable.swift */,
 				35834F3F22E62C300034CF0C /* PNError+LocalizedError.swift */,
 				35F0259722BBF948007BD7D3 /* Networking */,
 				3556839322D28B8E0073A29C /* Events */,
@@ -607,7 +768,52 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35FE93F222EF93A90051C455 /* cannotDecodeContentData.json in Resources */,
+				35FE93BE22EE9C4A0051C455 /* couldNotParseRequest.json in Resources */,
+				359C2C1622EE29ED009C3B4B /* time_success.json in Resources */,
+				35FE93E922EF93A90051C455 /* cannotDecodeRawData.json in Resources */,
+				35FE93FD22EF93A90051C455 /* clientCertificateRejected.json in Resources */,
+				35FE93F322EF93A90051C455 /* dnsLookupFailed.json in Resources */,
+				35FE93F722EF93A90051C455 /* internationalRoamingOff.json in Resources */,
+				35FE93BC22EE9C420051C455 /* invalidSubscribeKey.json in Resources */,
+				35FE940D22EFA0040051C455 /* requestURITooLong_StatusCode.json in Resources */,
+				35FE93C722EF85CF0051C455 /* publish_success.json in Resources */,
+				35FE93EB22EF93A90051C455 /* appTransportSecurityRequiresSecureConnection.json in Resources */,
+				35FE93FC22EF93A90051C455 /* badURL.json in Resources */,
+				35FE940E22EFA0040051C455 /* badRequest_StatusCode.json in Resources */,
+				35FE93BA22EE9C370051C455 /* publish_invalid_key.json in Resources */,
+				35FE93FF22EF93A90051C455 /* userCancelledAuthentication.json in Resources */,
+				35FE93E822EF93A90051C455 /* notConnectedToInternet.json in Resources */,
+				35FE940A22EFA0040051C455 /* forbidden_StatusCode.json in Resources */,
+				35FE93BB22EE9C3E0051C455 /* resourceNotFound_Message.json in Resources */,
 				355BEA0422C2CE05000EC334 /* subscription.json in Resources */,
+				35FE93FA22EF93A90051C455 /* callIsActive.json in Resources */,
+				35FE93FE22EF93A90051C455 /* dataLengthExceedsMaximum.json in Resources */,
+				35FE93E522EF93A90051C455 /* badServerResponse.json in Resources */,
+				35FE93FB22EF93A90051C455 /* serverCertificateNotYetValid.json in Resources */,
+				35FE93EC22EF93A90051C455 /* cannotFindHost.json in Resources */,
+				35FE940B22EFA0040051C455 /* resourceNotFound_StatusCode.json in Resources */,
+				35FE93E722EF93A90051C455 /* serverCertificateHasUnknownRoot.json in Resources */,
+				35FE940C22EFA0040051C455 /* internalServiceError_StatusCode.json in Resources */,
+				35FE93F422EF93A90051C455 /* zeroByteResource.json in Resources */,
+				35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */,
+				35FE93F122EF93A90051C455 /* serverCertificateUntrusted.json in Resources */,
+				35FE93F622EF93A90051C455 /* cannotParseResponse.json in Resources */,
+				35FE93F522EF93A90051C455 /* serverCertificateHasBadDate.json in Resources */,
+				35FE93C022EF47CC0051C455 /* timedOut.json in Resources */,
+				35FE93E422EF93A90051C455 /* networkConnectionLost.json in Resources */,
+				35FE940922EFA0040051C455 /* unauthorized_StatusCode.json in Resources */,
+				35FE93ED22EF93A90051C455 /* unknown.json in Resources */,
+				35FE93BD22EE9C470051C455 /* requestURITooLong_Message.json in Resources */,
+				35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */,
+				35FE93EA22EF93A90051C455 /* cannotConnectToHost.json in Resources */,
+				35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */,
+				35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */,
+				35FE93F822EF93A90051C455 /* clientCertificateRequired.json in Resources */,
+				35FE941022EFA30A0051C455 /* malformedFilterExpression_StatusCode.json in Resources */,
+				35FE93F022EF93A90051C455 /* resourceUnavailable.json in Resources */,
+				35FE93F922EF93A90051C455 /* cancelled.json in Resources */,
+				35FE93EF22EF93A90051C455 /* dataNotAllowed.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -663,9 +869,9 @@
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
 				35277A7022D6B3F90083B9B6 /* URL+PubNub.swift in Sources */,
 				3534D4E222C56533008E89FA /* TimeEndpoint.swift in Sources */,
+				35FE941922EFE51F0051C455 /* EventStream.swift in Sources */,
 				35CDFEAF22E7664D00F3B9F2 /* URLQueryItem+PubNub.swift in Sources */,
 				355F213122DE4D97004DEFBF /* Endpoint.swift in Sources */,
-				35834F4222E639F30034CF0C /* SubscribeEndpoint.swift in Sources */,
 				350EFBDE22C9520400FA33AA /* Response.swift in Sources */,
 				35EE358822E247B200E3F081 /* URLSessionConfiguration+PubNub.swift in Sources */,
 				3567434622E1284000BF2639 /* PubNubRouter.swift in Sources */,
@@ -674,6 +880,7 @@
 				35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
+				35FE93C522EF5C880051C455 /* PNError+Equatable.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* Router.swift in Sources */,
 				350EFBDA22C9487B00FA33AA /* PNError.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
@@ -689,7 +896,6 @@
 				35834F3922E600C60034CF0C /* EndpointErrorPayload.swift in Sources */,
 				35D8D4C622EB46BC001B07D9 /* AnyJSON+Codable.swift in Sources */,
 				35277A6722D673090083B9B6 /* SessionDelegate.swift in Sources */,
-				355C47A222CBD6F2006C3EEE /* EventStream.swift in Sources */,
 				3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */,
 				354ADA8822D909A30093EFFB /* Convertibles+PubNub.swift in Sources */,
 				350EFBDC22C951F700FA33AA /* Request.swift in Sources */,
@@ -715,17 +921,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
+				35FE93B922EE44F70051C455 /* MockURLSession.swift in Sources */,
 				35CDFEAB22E762E100F3B9F2 /* String+PubNubTests.swift in Sources */,
 				35CDFEA922E75DA800F3B9F2 /* Set+PubNubTests.swift in Sources */,
 				359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */,
 				35F0259622BBE918007BD7D3 /* UUID+PubNubTests.swift in Sources */,
+				35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */,
+				35FE93C322EF57FA0051C455 /* Session+URLError.swift in Sources */,
+				35FE940122EF983A0051C455 /* Session+EndpointError.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,
 				35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,
-				35CDFEC022E7B48000F3B9F2 /* ImportJSON.swift in Sources */,
+				35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */,
 				35CDFEAD22E7655700F3B9F2 /* URL+PubNubTests.swift in Sources */,
 				35CDFEBA22E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift in Sources */,
 				35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */,
@@ -734,9 +944,11 @@
 				35CDFEB622E76DC200F3B9F2 /* URLQueryItem+PubNubTests.swift in Sources */,
 				35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
+				35FE941622EFC4920051C455 /* EndpointTests.swift in Sources */,
 				357AEB8622E6979D00C18250 /* DateFormatter+PubNubTests.swift in Sources */,
 				357AEB8222E6949300C18250 /* Bool+PubNubTests.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
+				35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */,
 				35CDFEB822E7776400F3B9F2 /* URLRequest+PubNubTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

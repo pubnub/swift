@@ -77,22 +77,23 @@ public enum PNError: Error {
   case responseProcessingFailure(ResponseProcessingFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse?)
 
   public enum EndpointFailureReason {
-    case accessDenied
-    case malformedFilterExpression
     case malformedResponseBody
     case jsonDataDecodeFailure(Data?, with: Error)
-    case decryptionFailure
-    // Contains Server Response Message
-    case invalidSubscribeKey(EndpointErrorPayload)
-    case invalidPublishKey(EndpointErrorPayload)
-    case couldNotParseRequest(EndpointErrorPayload)
 
-    case badRequest(EndpointErrorPayload)
-    case forbidden(EndpointErrorPayload)
-    case resourceNotFound(EndpointErrorPayload)
-    case requestURITooLong(EndpointErrorPayload)
+    case invalidSubscribeKey
+    case invalidPublishKey
+    case couldNotParseRequest
 
-    case unknown(EndpointErrorPayload)
+    case badRequest
+    case unauthorized
+    case forbidden
+    case resourceNotFound
+    case requestURITooLong
+    case malformedFilterExpression
+    case internalServiceError
+
+    case unrecognizedErrorPayload(EndpointErrorPayload)
+    case unknown(String)
   }
 
   /// Indicates that the request/reponse was successfully sent, but the PubNub system returned an error
@@ -118,86 +119,88 @@ extension PNError {
 
     switch errorCode {
     // Unknown
-    case .unknown:
+    case .unknown: // rawValue == -1
       return .requestTransmissionFailure(.unknown(error), forRequest: request)
 
     // Cancelled
-    case .cancelled,
-         .userCancelledAuthentication:
+    case .cancelled, // rawValue == -999
+         .userCancelledAuthentication: // rawValue == -1012
       return .requestTransmissionFailure(
         .cancelled(error), forRequest: request
       )
 
     // Timed Out
-    case .timedOut:
+    case .timedOut: // rawValue == -1001
       return .requestTransmissionFailure(
         .timedOut(error), forRequest: request
       )
 
     // Name Resolution Failure
-    case .cannotFindHost,
-         .dnsLookupFailed:
+    case .cannotFindHost, // rawValue == -1003
+         .dnsLookupFailed: // rawValue == -1006
       return .requestTransmissionFailure(
         .nameResolutionFailure(error), forRequest: request
       )
 
-    // Connection Issues
-    case .badURL,
-         .unsupportedURL:
+    // Invalid URL Issues
+    case .badURL, // rawValue == -1000
+         .unsupportedURL: // rawValue == -1002
       return .requestTransmissionFailure(
         .invalidURL(error), forRequest: request
       )
 
-    case .cannotConnectToHost,
-         .resourceUnavailable,
-         .notConnectedToInternet:
+    // Connection Issues
+    case .cannotConnectToHost, // rawValue == -1004
+         .resourceUnavailable, // rawValue == -1008
+         .notConnectedToInternet: // rawValue == -1009
       return .requestTransmissionFailure(
         .connectionFailure(error), forRequest: request
       )
 
     // SIM Related
-    case .internationalRoamingOff,
-         .callIsActive,
-         .dataNotAllowed:
+    case .internationalRoamingOff, // rawValue == -1018
+         .callIsActive, // rawValue == -1019
+         .dataNotAllowed: // rawValue == -1020
       return .requestTransmissionFailure(
         .connectionOverDataFailure(error), forRequest: request
       )
 
     // Connection Closed
-    case .networkConnectionLost:
+    case .networkConnectionLost: // rawValue == -1005
       return .requestTransmissionFailure(
         .connectionLost(error), forRequest: request
       )
 
     // Secure Connection Failure
-    case .secureConnectionFailed:
+    case .secureConnectionFailed: // rawValue == -1200
       return .requestTransmissionFailure(
         .secureConnectionFailure(error), forRequest: request
       )
 
     // Certificate Trust Failure
-    case .serverCertificateHasBadDate: break
-    case .serverCertificateUntrusted: break
-    case .serverCertificateHasUnknownRoot: break
-    case .serverCertificateNotYetValid: break
-    case .clientCertificateRejected: break
-    case .clientCertificateRequired:
+    case .serverCertificateHasBadDate, // rawValue == -1201
+         .serverCertificateUntrusted, // rawValue == -1202
+         .serverCertificateHasUnknownRoot, // rawValue == -1203
+         .serverCertificateNotYetValid, // rawValue == -1204
+         .clientCertificateRejected, // rawValue == -1205
+         .clientCertificateRequired: // rawValue == -1206
       return .requestTransmissionFailure(
         .secureTrustFailure(error), forRequest: request
       )
 
-    // Something wrong with the server
-    case .badServerResponse,
-         .zeroByteResource:
+    // Recieve Failure
+    case .badServerResponse, // rawValue == -1011
+         .zeroByteResource: // rawValue == -1014
       return .responseProcessingFailure(
         .receiveFailure(error),
         forRequest: request,
         onResponse: response
       )
 
-    case .cannotDecodeRawData,
-         .cannotDecodeContentData,
-         .cannotParseResponse:
+    // Response Decoding Failure
+    case .cannotDecodeRawData, // rawValue == -1015
+         .cannotDecodeContentData, // rawValue == -1016
+         .cannotParseResponse: // rawValue == -1017
       return .responseProcessingFailure(
         .responseDecodingFailure(error),
         forRequest: request,
@@ -205,7 +208,7 @@ extension PNError {
       )
 
     // Data Length Exceeded
-    case .dataLengthExceedsMaximum:
+    case .dataLengthExceedsMaximum: // rawValue == -1103
       return .responseProcessingFailure(
         .dataLengthExceedsMaximum(error),
         forRequest: request,
@@ -234,7 +237,7 @@ extension PNError {
 //    case .backgroundSessionWasDisconnected: break
     default:
       if #available(OSX 10.11, iOS 9.0, *) {
-        if errorCode == .appTransportSecurityRequiresSecureConnection {
+        if errorCode == .appTransportSecurityRequiresSecureConnection { // rawValue == -1022
           return .requestTransmissionFailure(
             .secureTrustFailure(error), forRequest: request
           )
@@ -246,60 +249,73 @@ extension PNError {
   }
 
   static func convert(
-    generalError payload: EndpointErrorPayload,
+    generalError payload: EndpointErrorPayload?,
     request: URLRequest,
-    response: HTTPURLResponse
+    response: HTTPURLResponse?
   ) -> PNError {
+    guard let response = response else {
+      return PNError.unknown("EndpointError could not be created due to missing HTTPURLResponse")
+    }
+
     // Try to associate with a specific error message
-    if let reason = PNError.lookupGeneralErrorMessage(using: payload) {
+    if let reason = PNError.lookupGeneralErrorMessage(using: payload?.message) {
       return PNError.endpointFailure(reason,
                                      forRequest: request,
                                      onResponse: response)
     }
 
     // Try to associate with a general status code error
-    let status = payload.status ?? EndpointErrorPayload.Code(rawValue: response.statusCode)
-    if let reason = PNError.lookupGeneralErrorStatus(using: status, for: payload) {
+    let status = payload?.status ?? EndpointErrorPayload.Code(rawValue: response.statusCode)
+    if let reason = PNError.lookupGeneralErrorStatus(using: status) {
       return PNError.endpointFailure(reason,
                                      forRequest: request,
                                      onResponse: response)
     }
 
-    return PNError.endpointFailure(.unknown(payload),
-                                   forRequest: request,
-                                   onResponse: response)
+    if let payload = payload, !payload.isEmpty {
+      return PNError.endpointFailure(.unrecognizedErrorPayload(payload),
+                                     forRequest: request,
+                                     onResponse: response)
+    } else {
+      return PNError.endpointFailure(.unknown("Could not determine appropriate endpoint error"),
+                                     forRequest: request,
+                                     onResponse: response)
+    }
   }
 
-  static func lookupGeneralErrorMessage(using payload: EndpointErrorPayload) -> EndpointFailureReason? {
-    switch payload.message {
-    case .couldNotParseRequest:
-      return .couldNotParseRequest(payload)
-    case .invalidSubscribeKey:
-      return .invalidSubscribeKey(payload)
-    case .invalidPublishKey:
-      return .invalidPublishKey(payload)
-    case .notFound:
-      return .resourceNotFound(payload)
-    case .requestURITooLong:
-      return .requestURITooLong(payload)
-    case .unknown:
+  static func lookupGeneralErrorMessage(using message: EndpointErrorPayload.Message?) -> EndpointFailureReason? {
+    switch message {
+    case .couldNotParseRequest?:
+      return .couldNotParseRequest
+    case .invalidSubscribeKey?:
+      return .invalidSubscribeKey
+    case .invalidPublishKey?:
+      return .invalidPublishKey
+    case .notFound?:
+      return .resourceNotFound
+    case .requestURITooLong?:
+      return .requestURITooLong
+    case .unknown?, .none:
       return nil
     }
   }
 
-  static func lookupGeneralErrorStatus(
-    using code: EndpointErrorPayload.Code,
-    for payload: EndpointErrorPayload
-  ) -> EndpointFailureReason? {
+  static func lookupGeneralErrorStatus(using code: EndpointErrorPayload.Code) -> EndpointFailureReason? {
     switch code {
     case .badRequest:
-      return .badRequest(payload)
+      return .badRequest
+    case .unauthorized:
+      return .unauthorized
     case .forbidden:
-      return .forbidden(payload)
+      return .forbidden
     case .notFound:
-      return .resourceNotFound(payload)
+      return .resourceNotFound
     case .uriTooLong:
-      return .requestURITooLong(payload)
+      return .requestURITooLong
+    case .malformedFilterExpression:
+      return .malformedFilterExpression
+    case .internalServiceError:
+      return .internalServiceError
     case .unknown:
       return nil
     }

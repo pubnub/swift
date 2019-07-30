@@ -123,22 +123,20 @@ extension Request {
                                         payload: self.data ?? Data())
 
       // Decode the Response
-      dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) { decodeResult in
-        switch decodeResult {
-        case let .success(decodedResponse):
-          self.sessionStream?.emitDidDecode(dataResponse)
-          if let responseOperator = responseOperator {
-            // Mutate Opject
-            responseOperator.mutate(response: decodedResponse) { _ in
-              queue.async { completion(.success(decodedResponse)) }
-            }
-          } else {
+      switch dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) {
+      case let .success(decodedResponse):
+        self.sessionStream?.emitDidDecode(dataResponse)
+        if let responseOperator = responseOperator {
+          // Mutate Opject
+          responseOperator.mutate(response: decodedResponse) { _ in
             queue.async { completion(.success(decodedResponse)) }
           }
-        case let .failure(decodeError):
-          self.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)
-          queue.async { completion(.failure(decodeError)) }
+        } else {
+          queue.async { completion(.success(decodedResponse)) }
         }
+      case let .failure(decodeError):
+        self.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)
+        queue.async { completion(.failure(decodeError)) }
       }
     }
   }

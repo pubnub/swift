@@ -75,7 +75,6 @@ extension HTTPHeaders: ExpressibleByDictionaryLiteral {
     self.init()
 
     dictionaryLiteral.forEach { update(name: $0.0, value: $0.1) }
-    print(self)
   }
 }
 

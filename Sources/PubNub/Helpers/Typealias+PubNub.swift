@@ -34,7 +34,7 @@ import Foundation
 /// - important: A 64-bit `Double` has a max precision of 15-digits, so
 ///         any value derived from a `TimeInterval` will not be precise
 ///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = Int
+public typealias Timetoken = Int64
 
 typealias AtomicInt = Atomic<Int32>
 

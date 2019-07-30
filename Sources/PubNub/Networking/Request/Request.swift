@@ -332,9 +332,7 @@ public final class Request {
     let router = self.router
     return validate { request, response, data in
       if !response.isSuccessful {
-        return router.decodeError(request: request,
-                                  response: response,
-                                  for: data)
+        return router.decodeError(request: request, response: response, for: data)
       }
       return nil
     }

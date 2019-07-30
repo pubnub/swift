@@ -64,7 +64,6 @@ public final class Session {
     delegate.sessionBridge = self
   }
 
-  // These values should not be mutable after being set
   public convenience init(
     configuration: URLSessionConfiguration = .ephemeral,
     delegate: SessionDelegate = SessionDelegate(),

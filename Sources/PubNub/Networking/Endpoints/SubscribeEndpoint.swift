@@ -30,7 +30,7 @@ import Foundation
 // MARK: - Response Decoder
 
 struct SubscribeResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>, completion: (Result<Response<SubscriptionResponsePayload>, Error>) -> Void) {
+  func decode(response: Response<Data>) -> Result<Response<SubscriptionResponsePayload>, Error> {
     do {
       let decodedPayload = try Constant.jsonDecoder.decode(SubscriptionResponsePayload.self, from: response.payload)
 
@@ -40,12 +40,12 @@ struct SubscribeResponseDecoder: ResponseDecoder {
                                                                   data: response.data,
                                                                   payload: decodedPayload)
 
-      completion(.success(decodedResponse))
+      return .success(decodedResponse)
     } catch {
-      completion(.failure(PNError
-          .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                           forRequest: response.request,
-                           onResponse: response.response)))
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
     }
   }
 }

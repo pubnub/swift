@@ -30,18 +30,15 @@ import Foundation
 // MARK: - Response Decoder
 
 struct PublishResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>, completion: (Result<Response<PublishResponsePayload>, Error>) -> Void) {
+  func decode(response: Response<Data>) -> Result<Response<PublishResponsePayload>, Error> {
     do {
+      // Publish Response pattern:  [Int, String, String]
       let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
-      if let errorFlag = decodedPayload.arrayValue?.first as? Int, errorFlag == 0 {
-//        completion(.failure())
-      }
-
-      guard let timeString = decodedPayload.arrayValue?.last as? String, let timetoken = Int(timeString) else {
-        throw PNError.endpointFailure(.malformedResponseBody,
-                                      forRequest: response.request,
-                                      onResponse: response.response)
+      guard let timeString = decodedPayload.arrayValue?.last as? String, let timetoken = Int64(timeString) else {
+        return .failure(PNError.endpointFailure(.malformedResponseBody,
+                                                forRequest: response.request,
+                                                onResponse: response.response))
       }
 
       let decodedResponse = Response<PublishResponsePayload>(router: response.router,
@@ -50,13 +47,44 @@ struct PublishResponseDecoder: ResponseDecoder {
                                                              data: response.data,
                                                              payload: PublishResponsePayload(timetoken: timetoken))
 
-      completion(.success(decodedResponse))
+      return .success(decodedResponse)
     } catch {
-      completion(.failure(PNError
-          .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                           forRequest: response.request,
-                           onResponse: response.response)))
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
     }
+  }
+
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    guard let data = data else {
+      return PNError.endpointFailure(.unknown(ErrorDescription.EndpointError.missingResponseData),
+                                     forRequest: request,
+                                     onResponse: response)
+    }
+
+    // Publish Response pattern:  [Int, String, String]
+    let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+
+    if let errorFlag = decodedPayload?.arrayValue?.first as? Int, errorFlag == 0 {
+      let errorPayload: EndpointErrorPayload
+      if let message = decodedPayload?.arrayValue?[1] as? String {
+        errorPayload = EndpointErrorPayload(message: .init(rawValue: message),
+                                            service: .publish,
+                                            status: .init(rawValue: response.statusCode))
+
+      } else {
+        errorPayload = EndpointErrorPayload(
+          message: .unknown(message: ErrorDescription.EndpointError.publishResponseMessageParseFailure),
+          service: .presence,
+          status: .init(rawValue: response.statusCode)
+        )
+      }
+
+      return PNError.convert(generalError: errorPayload, request: request, response: response)
+    }
+
+    return nil
   }
 }
 

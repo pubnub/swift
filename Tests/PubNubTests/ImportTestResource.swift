@@ -25,21 +25,62 @@
 //  THE SOFTWARE.
 //
 
+@testable import PubNub
 import XCTest
 
-struct ImportJSON {
+enum ImportTestResourceError: Error, LocalizedError {
+  case jsonResourceNotFound
+  case resourceDataConversionFailure
+  case malformedMockResource
+
+  var errorDescription: String? {
+    switch self {
+    case .jsonResourceNotFound:
+      return "JSON Resource was not found at URL"
+    case .resourceDataConversionFailure:
+      return "Contents of URL could not be transformed into Data"
+    case .malformedMockResource:
+      return "MockResource was malformed, and not useable"
+    }
+  }
+}
+
+struct EndpointResource: Codable {
+  var code: Int
+  var body: AnyJSON
+}
+
+struct URLErrorResource: Codable {
+  var rawURLErrorCode: Int
+}
+
+extension URLErrorResource {
+  var urlError: URLError {
+    return URLError(URLError.Code(rawValue: rawURLErrorCode))
+  }
+}
+
+struct ImportTestResource {
   static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
-  static func file(_ filename: String) -> Data {
+  static func importResource(_ filename: String) throws -> Data {
     guard let url = testsBundle.url(forResource: filename, withExtension: "json") else {
-      XCTFail("ImportJSON failed to find a json resource named \(filename)")
-      return Data()
+      throw ImportTestResourceError.jsonResourceNotFound
     }
     guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {
-      XCTFail("ImportJSON failed to convert contents of \(filename) to a `Data` object")
-      return Data()
+      throw ImportTestResourceError.resourceDataConversionFailure
     }
 
     return data
+  }
+
+  static func testResource<T>(_ filename: String) -> T? where T: Decodable {
+    do {
+      let data = try importResource(filename)
+      return try? JSONDecoder().decode(T.self, from: data)
+    } catch {
+      XCTFail("Failed to import requested resource file \(filename).json due to \(error.localizedDescription)")
+      return nil
+    }
   }
 }

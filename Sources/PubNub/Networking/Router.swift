@@ -105,7 +105,24 @@ public enum HTTPMethod: String {
 public protocol ResponseDecoder {
   associatedtype Payload
 
-  func decode(response: Response<Data>, completion: (Result<Response<Payload>, Error>) -> Void)
+  func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+}
+
+extension ResponseDecoder {
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    // Attempt to decode based on general system response payload
+    if let data = data,
+      let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {
+      let pnError = PNError.convert(generalError: generalErrorPayload,
+                                    request: request,
+                                    response: response)
+
+      return pnError
+    }
+
+    return nil
+  }
 }
 
 public protocol Router: URLRequestConvertible, CustomStringConvertible {
@@ -120,38 +137,14 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible {
   var keysRequired: PNKeyRequirement { get }
   var pamVersion: PAMVersionRequirement { get }
 
-  func decode<D: ResponseDecoder>(
-    response: Response<Data>,
-    decoder: D,
-    completion: (Result<Response<D.Payload>, Error>) -> Void
-  )
-
+  func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error>
   func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
 }
 
 extension Router {
   // Default Protocol Implementation
-
-  func decode<D: ResponseDecoder>(
-    response: Response<Data>,
-    decoder: D,
-    completion: (Result<Response<D.Payload>, Error>) -> Void
-  ) {
-    decoder.decode(response: response, completion: completion)
-  }
-
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    // Attempt to decode based on general system response payload
-    if let data = data,
-      let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {
-      let pnError = PNError.convert(generalError: generalErrorPayload,
-                                    request: request,
-                                    response: response)
-
-      return pnError
-    }
-
-    return nil
+  func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error> {
+    return decoder.decode(response: response)
   }
 
   // Default Endpoint Values

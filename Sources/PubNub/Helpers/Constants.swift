@@ -61,6 +61,16 @@ public struct ErrorDescription {
       "AnyJSON could not encode value inside `UnkeyedEncodingContainer`"
     }()
   }
+
+  struct EndpointError {
+    public static let publishResponseMessageParseFailure: String = {
+      "Unable to parse publish payload message"
+    }()
+
+    public static let missingResponseData: String = {
+      "Missing Response Data"
+    }()
+  }
 }
 
 struct Constant {

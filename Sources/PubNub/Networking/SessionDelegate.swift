@@ -29,7 +29,6 @@ import Foundation
 
 public class SessionDelegate: NSObject {
   weak var sessionBridge: SessionStateBridge?
-  var sessionStream: SessionStream?
 }
 
 extension SessionDelegate: URLSessionDataDelegate {
@@ -65,7 +64,7 @@ extension SessionDelegate: URLSessionDataDelegate {
     // Remove request/task from list
     sessionBridge?.didComplete(task)
 
-    sessionStream?.emitURLSession(session, task: task, didCompleteWith: error)
+    sessionBridge?.sessionStream?.emitURLSession(session, task: task, didCompleteWith: error)
   }
 
   // MARK: - URLSessionDataDelegate
@@ -75,12 +74,13 @@ extension SessionDelegate: URLSessionDataDelegate {
       request.didReceive(data: data)
     }
 
-    sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
+    sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 }
 
 protocol SessionStateBridge: AnyObject {
   var sessionID: UUID { get }
+  var sessionStream: SessionStream? { get }
   func request(for task: URLSessionTask) -> Request?
   func didComplete(_ task: URLSessionTask)
   func cancelRequests(for invalidationError: PNError)

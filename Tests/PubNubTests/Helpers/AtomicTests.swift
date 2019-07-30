@@ -159,8 +159,8 @@ class AtomicTests: XCTestCase {
   }
 
   func testConcurreny_FetchOr() {
-    let queue = DispatchQueue.global(qos: .default)
-    let repeatCount = 50
+    let queue = DispatchQueue(label: "ConcurrenyQueue Fetch", qos: .userInteractive, attributes: .concurrent)
+    let repeatCount = 25
     let concurrencyCount = 8
     let fetchCount: Int32 = 1
 
@@ -192,8 +192,8 @@ class AtomicTests: XCTestCase {
   }
 
   func testConcurreny_Add() {
-    let queue = DispatchQueue.global(qos: .default)
-    let repeatCount = 50
+    let queue = DispatchQueue(label: "ConcurrenyQueue Add", qos: .userInteractive, attributes: .concurrent)
+    let repeatCount = 25
     let concurrencyCount: Int32 = 8
 
     for _ in 0 ..< repeatCount {

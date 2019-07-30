@@ -54,19 +54,30 @@ public protocol EventStreamListener: AnyObject {
 }
 
 public class ListenerToken: CustomStringConvertible {
-  private let cancellationClosure: () -> Void
-  private let identifier = UUID()
+  private let cancelledState = AtomicInt(0)
+  private var cancellationClosure: (() -> Void)?
+
+  public var isCancelled: Bool {
+    return cancelledState.isEqual(to: 1)
+  }
+
+  public let tokenId = UUID()
 
   public init(cancellationClosure: @escaping () -> Void) {
     self.cancellationClosure = cancellationClosure
   }
 
   deinit {
-    cancellationClosure()
+    cancel()
   }
 
   public func cancel() {
-    cancellationClosure()
+    if cancelledState.bitwiseOrAssignemnt(1) == 0 {
+      if let closure = cancellationClosure {
+        cancellationClosure = nil
+        closure()
+      }
+    }
   }
 }
 
@@ -74,6 +85,6 @@ public class ListenerToken: CustomStringConvertible {
 
 extension ListenerToken {
   public var description: String {
-    return "ListenerToken: (\(identifier))"
+    return "ListenerToken: \(tokenId)"
   }
 }

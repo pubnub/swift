@@ -88,20 +88,20 @@ public extension SessionStream {
 }
 
 public final class MultiplexSessionStream: SessionStream, Hashable {
-  public let queue = DispatchQueue(label: "org.pubnub.complexSessionStream", qos: .background)
-
+  public let queue: DispatchQueue
   public let uuid: UUID
-  public let monitors: [SessionStream]
+  public let streams: [SessionStream]
 
-  public init(_ emitters: [SessionStream]) {
+  public init(_ streams: [SessionStream], queue: DispatchQueue? = nil) {
     uuid = UUID()
-    monitors = emitters
+    self.streams = streams
+    self.queue = queue ?? DispatchQueue(label: "org.pubnub.complexSessionStream", qos: .default)
   }
 
   func performEvent(_ closure: @escaping (SessionStream) -> Void) {
     queue.async {
-      for monitor in self.monitors {
-        monitor.queue.async { closure(monitor) }
+      for stream in self.streams {
+        stream.queue.async { closure(stream) }
       }
     }
   }

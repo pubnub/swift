@@ -30,14 +30,14 @@ import Foundation
 // MARK: - Response Decoder
 
 struct TimeResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>, completion: (Result<Response<TimeResponsePayload>, Error>) -> Void) {
+  func decode(response: Response<Data>) -> Result<Response<TimeResponsePayload>, Error> {
     do {
-      let decodedPayload = try Constant.jsonDecoder.decode([Int].self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode([Int64].self, from: response.payload)
 
       guard let timetoken = decodedPayload.first else {
-        throw PNError.endpointFailure(.malformedResponseBody,
-                                      forRequest: response.request,
-                                      onResponse: response.response)
+        return .failure(PNError.endpointFailure(.malformedResponseBody,
+                                                forRequest: response.request,
+                                                onResponse: response.response))
       }
 
       let decodedResponse = Response<TimeResponsePayload>(router: response.router,
@@ -46,12 +46,12 @@ struct TimeResponseDecoder: ResponseDecoder {
                                                           data: response.data,
                                                           payload: TimeResponsePayload(timetoken: timetoken))
 
-      completion(.success(decodedResponse))
+      return .success(decodedResponse)
     } catch {
-      completion(.failure(PNError
-          .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                           forRequest: response.request,
-                           onResponse: response.response)))
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
     }
   }
 }
@@ -59,5 +59,5 @@ struct TimeResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct TimeResponsePayload: Codable, Hashable {
-  let timetoken: Int
+  let timetoken: Timetoken
 }

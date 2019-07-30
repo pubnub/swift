@@ -40,7 +40,6 @@ public extension Array where Element == URLQueryItem {
   /// Merges list of query items replaces any existing
   mutating func merge(_ other: [URLQueryItem]) {
     for query in other {
-      print(query)
       if let index = self.firstIndex(of: query.name) {
         replaceSubrange(index ... index, with: [query])
       } else {

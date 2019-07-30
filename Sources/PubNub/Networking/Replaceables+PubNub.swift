@@ -30,6 +30,7 @@ import Foundation
 // MARK: - URLSession
 
 public protocol URLSessionReplaceable {
+  init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
   func dataTask(with: URLRequest) -> URLSessionDataTask
   var delegateQueue: OperationQueue { get }
   var configuration: URLSessionConfiguration { get }

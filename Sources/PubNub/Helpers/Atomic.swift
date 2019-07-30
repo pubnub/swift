@@ -41,10 +41,12 @@ final class UnfairLock: NSLocking {
     unfairLock.deallocate()
   }
 
+  @inline(__always)
   func lock() {
     os_unfair_lock_lock(unfairLock)
   }
 
+  @inline(__always)
   func unlock() {
     os_unfair_lock_unlock(unfairLock)
   }

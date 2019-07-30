@@ -24,16 +24,47 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean
 
 import Foundation
 
-public struct EndpointErrorPayload: Codable {
-  public enum Message: RawRepresentable, Codable {
+extension PubNubRouter {
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    switch endpoint {
+    case .publish:
+      return PublishResponseDecoder().decodeError(request: request, response: response, for: data)
+    default:
+      return AmbiguousResponseDecoder().decodeError(request: request, response: response, for: data)
+    }
+  }
+}
+
+struct AmbiguousResponseDecoder: ResponseDecoder {
+  func decode(response: Response<Data>) -> Result<Response<AnyJSON>, Error> {
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
+
+      let decodedResponse = Response<AnyJSON>(router: response.router,
+                                              request: response.request,
+                                              response: response.response,
+                                              data: response.data,
+                                              payload: decodedPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
+    }
+  }
+}
+
+public struct EndpointErrorPayload: Codable, Equatable {
+  public enum Message: RawRepresentable, Codable, Equatable {
     case couldNotParseRequest
     case invalidSubscribeKey
     case invalidPublishKey
-    case notFound(resource: String)
+    case notFound
     case requestURITooLong
     case unknown(message: String)
 
@@ -48,9 +79,8 @@ public struct EndpointErrorPayload: Codable {
       case "Request URI Too Long":
         self = .requestURITooLong
       default:
-        if rawValue.starts(with: "Not Found "),
-          let range = rawValue.range(of: "Not Found ") {
-          self = .notFound(resource: String(rawValue[range.upperBound...]))
+        if rawValue.starts(with: "Not Found ") {
+          self = .notFound
         }
 
         self = .unknown(message: rawValue)
@@ -65,8 +95,8 @@ public struct EndpointErrorPayload: Codable {
         return "Invalid Subscribe Key"
       case .invalidPublishKey:
         return "Invalid Publish Key"
-      case let .notFound(resource):
-        return "Resource Not Found: \(resource)"
+      case .notFound:
+        return "Resource Not Found"
       case .requestURITooLong:
         return "Request URI Too Long"
       case let .unknown(message):
@@ -75,10 +105,11 @@ public struct EndpointErrorPayload: Codable {
     }
   }
 
-  public enum Service: RawRepresentable, Codable {
+  public enum Service: RawRepresentable, Codable, Equatable {
     case accessManager
     case balancer
     case presence
+    case publish
     case unknown(message: String)
 
     public init(rawValue: String) {
@@ -89,6 +120,8 @@ public struct EndpointErrorPayload: Codable {
         self = .balancer
       case "Presence":
         self = .presence
+      case "Publish":
+        self = .publish
       default:
         self = .unknown(message: rawValue)
       }
@@ -102,29 +135,40 @@ public struct EndpointErrorPayload: Codable {
         return "Balancer"
       case .presence:
         return "Presence"
+      case .publish:
+        return "Publish"
       case let .unknown(message):
         return "Unknown: \(message)"
       }
     }
   }
 
-  public enum Code: RawRepresentable, Codable {
+  public enum Code: RawRepresentable, Codable, Equatable {
     case badRequest
+    case unauthorized
     case forbidden
     case notFound
     case uriTooLong
+    case malformedFilterExpression
+    case internalServiceError
     case unknown(code: Int)
 
     public init(rawValue: Int) {
       switch rawValue {
       case 400:
         self = .badRequest
+      case 401:
+        self = .unauthorized
       case 403:
         self = .forbidden
       case 404:
         self = .notFound
       case 414:
         self = .uriTooLong
+      case 481:
+        self = .malformedFilterExpression
+      case 500:
+        self = .internalServiceError
       default:
         self = .unknown(code: rawValue)
       }
@@ -134,22 +178,29 @@ public struct EndpointErrorPayload: Codable {
       switch self {
       case .badRequest:
         return 400
+      case .unauthorized:
+        return 401
       case .forbidden:
         return 403
       case .notFound:
         return 404
       case .uriTooLong:
         return 414
+      case .malformedFilterExpression:
+        return 481
+      case .internalServiceError:
+        return 500
       case let .unknown(code):
         return code
       }
     }
   }
 
-  public let message: Message
-  public let service: Service
+  public let message: Message?
+  public let service: Service?
   public let status: Code?
-  public let error: Bool?
-}
 
-// swiftlint:enable discouraged_optional_boolean
+  var isEmpty: Bool {
+    return message == nil || service == nil || status == nil
+  }
+}

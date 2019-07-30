@@ -93,9 +93,10 @@ lane :code_coverage do
     scheme: ENV['SCHEME_SDK'],
     output_directory: 'fastlane/test_output',
     use_bundle_exec: true,
-    cobertura_xml: true,
+    html: true,
     decimals: 2,
-    verbose: true
+    verbose: true,
+    show: true
   )
 end
 

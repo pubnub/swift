@@ -27,8 +27,8 @@
 
 import Foundation
 
-extension Int {
+extension Int64 {
   var timetokenDate: Date {
-    return Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(self) / 10_000_000))
+    return Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(self / 10_000_000)))
   }
 }

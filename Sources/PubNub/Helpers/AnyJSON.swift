@@ -27,6 +27,12 @@
 
 import Foundation
 
+extension NSNumber {
+  func isAlmostEqual(to other: NSNumber) -> Bool {
+    return fabs(self.doubleValue - other.doubleValue) < Double.ulpOfOne
+  }
+}
+
 /// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
   let value: Any
@@ -87,10 +93,18 @@ extension AnyJSON: Hashable {
     case let (lhs as Int, rhs as Int):
       return lhs == rhs
     case let (lhs as Double, rhs as Double):
-      return lhs == rhs
+      return lhs.isEqual(to: rhs)
+    case let (lhs as Decimal, rhs as Decimal):
+      return lhs.isEqual(to: rhs)
+    case let (lhs as NSDecimalNumber, rhs as NSDecimalNumber):
+      return lhs.decimalValue == rhs.decimalValue
+    case let (lhs as NSNumber, rhs as NSNumber):
+      return lhs.decimalValue == rhs.decimalValue || lhs.doubleValue == rhs.doubleValue || lhs.floatValue == rhs.floatValue
     case let (lhs as NSObject, rhs as NSObject):
+      print("Couldn't match \(type(of: lhs)) with \(type(of: rhs))")
       return lhs.isEqual(rhs)
     default:
+      print("Couldn't match \(type(of: lhs)) with \(type(of: rhs))")
       return false
     }
   }

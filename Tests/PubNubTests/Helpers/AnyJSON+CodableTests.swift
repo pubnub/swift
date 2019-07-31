@@ -41,9 +41,9 @@ class AnyJSONCodableTests: XCTestCase {
     "String",
     true,
     Date(),
-    Float.greatestFiniteMagnitude,
-    Double.greatestFiniteMagnitude,
-    Decimal.greatestFiniteMagnitude,
+    Float(1.34892),
+    Double(2.34892),
+    Decimal(3.34892),
     Int.min,
     Int8.min,
     Int16.min,
@@ -61,9 +61,9 @@ class AnyJSONCodableTests: XCTestCase {
     "String": "String",
     "Bool": true,
     "Date": Date(),
-    "Float": Float.greatestFiniteMagnitude,
-    "Double": Double.greatestFiniteMagnitude,
-    "Decimal": Decimal.greatestFiniteMagnitude,
+    "Float": Float(1.34892),
+    "Double": Double(2.34892),
+    "Decimal": Decimal(3.34892),
     "Int": Int.min,
     "Int8": Int8.min,
     "Int16": Int16.min,
@@ -152,6 +152,7 @@ class AnyJSONCodableTests: XCTestCase {
   }
 
   func testEncode_Array() {
+
     let json = AnyJSON(exampleList)
 
     do {

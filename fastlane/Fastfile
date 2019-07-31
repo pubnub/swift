@@ -37,49 +37,19 @@ desc "Executes SDK Unit Tests"
 lane :test do
   fix_xcode10_2_1_test_issue
 
-  begin
-    if ENV['PLATFORM'] == 'mac' # Test using phyiscal device
-      scan(
-        workspace: ENV['WORKSPACE'],
-        scheme: ENV['SCHEME_SDK'],
-        destination: ENV['DESTINATION'],
-        # https://github.com/xcpretty/xcpretty/issues/295
-        # xcpretty doesn't support parallel test output, so we disable it
-        fail_build: false,
-        output_types: '',
-        output_style: 'raw',
-        xcargs: '-quiet',
-        # end xcpretty issue overrides
-      )
-    else # Test using simulators
-      scan(
-        workspace: ENV['WORKSPACE'],
-        scheme: ENV['SCHEME_SDK'],
-        devices: ENV['DEVICES'].split(','),
-        configuration: 'Debug',
-        # https://github.com/xcpretty/xcpretty/issues/295
-        # xcpretty doesn't support parallel test output, so we disable it
-        fail_build: false,
-        output_types: '',
-        output_style: 'raw',
-        xcargs: '-quiet',
-        # end xcpretty issue overrides
-      )
-    end
-  rescue FastlaneCore::Interface::FastlaneBuildFailure
-    UI.message "Caught false positive build failure!"
-  end
-
-  begin
-    trainer(
-      #path: "#{ENV['TEST_OUTPUT_DIR']}/PubNub.test_result/TestSummaries.plist",
-      output_directory: ENV['TEST_OUTPUT_DIR'],
-      extension: ".junit",
-      verbose: true,
-      fail_build: true
+  if ENV['PLATFORM'] == 'mac' # Test using phyiscal device
+    scan(
+      workspace: ENV['WORKSPACE'],
+      scheme: ENV['SCHEME_SDK'],
+      destination: ENV['DESTINATION']
     )
-  rescue FastlaneCore::Interface::FastlaneTestFailure => e
-    UI.error "Lane Trainer: Unit tests failed"
+  else # Test using simulators
+    scan(
+      workspace: ENV['WORKSPACE'],
+      scheme: ENV['SCHEME_SDK'],
+      device: ENV['DEVICES'],
+      code_coverage: true
+    )
   end
 end
 

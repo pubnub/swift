@@ -26,36 +26,58 @@ env:
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
 stages:
-  - Verification
+  - "iOS Verfication"
+  - "macOS Verfication"
+  - "tvOS Verfication"
+  - "Release Verification"
 
 jobs:
   fast_finish: true
   include:
-    - stage: Verification
-      name: "iOS Tests (w/ Code Coverage)"
+    - stage: "iOS Verfication"
+      name: "iOS 12 Unit Tests (w/ Code Coverage Reporting)"
       before_install:
         - gem update --system
         - gem install bundler
         - brew update && brew install jq
         - curl -u ida-codacy-bot:$GITHUB_PAT -LSs $(curl -u ida-codacy-bot:$GITHUB_PAT -LSs https://api.github.com/repos/codacy/codacy-coverage-reporter/releases/latest | jq -r '.assets | map({content_type, browser_download_url} | select(.content_type | contains("java-archive"))) | .[0].browser_download_url') -o codacy-coverage-reporter-assembly.jar
-      before_script:
-        # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-      script: bundle exec fastlane test --env ios
+      script: bundle exec fastlane test --env ios.12
       after_success:
         - bundle exec fastlane code_coverage --env ios
         - java -jar codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml
-    - name: "macOS Tests"
+    - name: "iOS 11 Unit Tests"
+      script: bundle exec fastlane test --env ios.11
+    - name: "iOS 10 Unit Tests"
+      script: bundle exec fastlane test --env ios.10
+    - name: "iOS 9 Unit Tests"
+      before_script:
+      # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
+      - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+      script: bundle exec fastlane test --env ios.9
+    - name: "iOS 8 Unit Tests"
+      before_script:
+      # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
+      - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+      script: bundle exec fastlane test --env ios.8
+    - stage: "macOS Verfication"
+      name: "macOS Unit Tests"
       script: bundle exec fastlane test --env macos
-    - name: "tvOS Tests"
+    - stage: "tvOS Verfication"
+    - name: "tvOS 12 Unit Tests"
+      script: bundle exec fastlane test --env tvos.12
+    - name: "tvOS 11 Unit Tests"
+      script: bundle exec fastlane test --env tvos.11
+    - name: "tvOS 10 Unit Tests"
+      script: bundle exec fastlane test --env tvos.10
+    - name: "tvOS 9 Unit Tests"
       before_script:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
         - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-      script: bundle exec fastlane test --env tvos
-    - name: "Cocoapods"
+      script: bundle exec fastlane test --env tvos.9
+    - stage: "Release Verification"
+      name: "Cocoapods"
       script: bundle exec pod lib lint --allow-warnings
     - name: "Swift Package Manager"
       script: swift build -c release
     - name: "Build iOS Example"
-      script: bundle exec fastlane build_example --env ios
+      script: bundle exec fastlane build_example --env ios.12

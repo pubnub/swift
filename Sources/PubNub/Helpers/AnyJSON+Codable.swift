@@ -99,12 +99,12 @@ extension AnyJSON: Codable {
         json[key.stringValue] = val
       } else if let val = try? container.decode(Bool.self, forKey: key) {
         json[key.stringValue] = val
-      } else if let val = try? container.decode(UInt.self, forKey: key) {
-        json[key.stringValue] = val
       } else if let val = try? container.decode(Int.self, forKey: key) {
         json[key.stringValue] = val
-      } else if let val = try? container.decode(Double.self, forKey: key) {
+      } else if let val = try? container.decode(UInt.self, forKey: key) {
         json[key.stringValue] = val
+      } else if let val = try? container.decode(Double.self, forKey: key) {
+        json[key.stringValue] = NSDecimalNumber(value: val)
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,
@@ -134,8 +134,10 @@ extension AnyJSON: Codable {
         jsonArray.append(val)
       } else if let val = try? container.decode(Int.self) {
         jsonArray.append(val)
-      } else if let val = try? container.decode(Double.self) {
+      } else if let val = try? container.decode(UInt.self) {
         jsonArray.append(val)
+      } else if let val = try? container.decode(Double.self) {
+        jsonArray.append(NSDecimalNumber(value: val))
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,

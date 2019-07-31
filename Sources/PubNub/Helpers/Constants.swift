@@ -112,10 +112,23 @@ struct Constant {
     280
   }()
 
+  static let positiveInfinty = {
+    "+Infinity"
+  }()
+
+  static let negativeInfinty = {
+    "-Infinity"
+  }()
+
+  static let notANumber = {
+    "NaN"
+  }()
+
   public static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.dataDecodingStrategy = .deferredToData
     decoder.dateDecodingStrategy = .deferredToDate
+    decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty, negativeInfinity: negativeInfinty, nan: notANumber)
     return decoder
   }()
 
@@ -123,6 +136,7 @@ struct Constant {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .deferredToDate
     encoder.dataEncodingStrategy = .deferredToData
+    encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty, negativeInfinity: negativeInfinty, nan: notANumber)
     return encoder
   }()
 }

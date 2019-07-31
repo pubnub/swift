@@ -26,15 +26,12 @@ env:
   - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
 
 stages:
-  - "iOS Verfication"
-  - "macOS Verfication"
-  - "tvOS Verfication"
-  - "Release Verification"
+  - "Verification"
 
 jobs:
   fast_finish: true
   include:
-    - stage: "iOS Verfication"
+    - stage: "Verification"
       name: "iOS 12 Unit Tests (w/ Code Coverage Reporting)"
       before_install:
         - gem update --system
@@ -59,11 +56,9 @@ jobs:
       # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
       - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env ios.8
-    - stage: "macOS Verfication"
-      name: "macOS Unit Tests"
+    - name: "macOS Unit Tests"
       script: bundle exec fastlane test --env macos
-    - stage: "tvOS Verfication"
-      name: "tvOS 12 Unit Tests"
+    - name: "tvOS 12 Unit Tests"
       script: bundle exec fastlane test --env tvos.12
     - name: "tvOS 11 Unit Tests"
       script: bundle exec fastlane test --env tvos.11
@@ -74,8 +69,7 @@ jobs:
         # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
         - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env tvos.9
-    - stage: "Release Verification"
-      name: "Cocoapods"
+    - name: "Cocoapods"
       script: bundle exec pod lib lint --allow-warnings
     - name: "Swift Package Manager"
       script: swift build -c release

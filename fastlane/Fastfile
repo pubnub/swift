@@ -63,9 +63,27 @@ lane :code_coverage do
     scheme: ENV['SCHEME_SDK'],
     output_directory: 'fastlane/test_output',
     use_bundle_exec: true,
+    cobertura_xml: true,
+    decimals: 2,
+    verbose: true,
+    ignore: "Tests/**/*"
+  )
+end
+
+desc "Generates Code Coverage Files"
+lane :code_coverage_local do
+  # Generate code coverage files
+  slather(
+    travis: ENV["TRAVIS_CI"],
+    workspace: ENV['WORKSPACE'],
+    proj: ENV['PROJECT_SDK'],
+    scheme: ENV['SCHEME_SDK'],
+    output_directory: 'fastlane/test_output',
+    use_bundle_exec: true,
     html: true,
     decimals: 2,
     verbose: true,
+    ignore: "Tests/**/*",
     show: true
   )
 end

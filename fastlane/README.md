@@ -25,6 +25,11 @@ Executes SDK Unit Tests
 fastlane code_coverage
 ```
 Generates Code Coverage Files
+### code_coverage_local
+```
+fastlane code_coverage_local
+```
+Generates Code Coverage Files
 ### build_example
 ```
 fastlane build_example

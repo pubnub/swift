@@ -70,10 +70,10 @@ public struct PubNub {
 
   public func publish(
     channel: String,
-    message: AnyJSON,
+    message: [String: Codable],
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
-    meta: AnyJSON? = nil,
+    meta: [String: Codable] = [:],
     shouldCompress: Bool = false,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -83,18 +83,50 @@ public struct PubNub {
 
     let endpoint: Endpoint
     if shouldCompress {
-      endpoint = .compressedPublish(message: message,
+      endpoint = .compressedPublish(message: AnyJSON(message),
                                     channel: channel,
                                     shouldStore: shouldStore,
                                     ttl: storeTTL,
-                                    meta: meta)
+                                    meta: AnyJSON(meta))
     } else {
-      endpoint = .publish(message: message,
+      endpoint = .publish(message: AnyJSON(message),
                           channel: channel,
                           shouldStore: shouldStore,
                           ttl: storeTTL,
-                          meta: meta)
+                          meta: AnyJSON(meta))
     }
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: endpoint)
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: PublishResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func fire(
+    channel: String,
+    message: [String: Codable],
+    meta: [String: Codable] = [:],
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let endpoint = Endpoint.fire(message: AnyJSON(message), channel: channel, meta: AnyJSON(meta))
 
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)

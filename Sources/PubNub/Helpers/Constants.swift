@@ -27,52 +27,6 @@
 
 import Foundation
 
-public struct ErrorDescription {
-  public struct AnyJSONError {
-    public static let stringCreationFailure: String = {
-      "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`"
-    }()
-  }
-
-  struct DecodingError {
-    public static let invalidRootLevelErrorDescription: String = {
-      "AnyJSON could not decode invalid root-level JSON object"
-    }()
-
-    public static let invalidKeyedContainerErrorDescription: String = {
-      "AnyJSON could not decode value inside `KeyedDecodingContainer`"
-    }()
-
-    public static let invalidUnkeyedContainerErrorDescription: String = {
-      "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
-    }()
-  }
-
-  struct EncodingError {
-    public static let invalidRootLevelErrorDescription: String = {
-      "AnyJSON could not encode invalid root-level JSON object"
-    }()
-
-    public static let invalidKeyedContainerErrorDescription: String = {
-      "AnyJSON could not encode value inside `KeyedEncodingContainer`"
-    }()
-
-    public static let invalidUnkeyedContainerErrorDescription: String = {
-      "AnyJSON could not encode value inside `UnkeyedEncodingContainer`"
-    }()
-  }
-
-  struct EndpointError {
-    public static let publishResponseMessageParseFailure: String = {
-      "Unable to parse publish payload message"
-    }()
-
-    public static let missingResponseData: String = {
-      "Missing Response Data"
-    }()
-  }
-}
-
 struct Constant {
   public static let operatingSystemName: String = {
     let osName: String = {

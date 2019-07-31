@@ -1,5 +1,5 @@
 //
-//  Replaceables+PubNub.swift
+//  SessionTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,29 +25,7 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-// MARK: - URLSession
-
-public protocol URLSessionReplaceable {
-  init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
-
-  var sessionDescription: String? { get set }
-  var delegateQueue: OperationQueue { get }
-  var configuration: URLSessionConfiguration { get }
-
-  func dataTask(with: URLRequest) -> URLSessionDataTask
-  func invalidateAndCancel()
-}
-
-extension URLSession: URLSessionReplaceable {}
-
-// MARK: - Session
-
-public protocol SessionReplaceable {
-  var sessionID: UUID { get }
-  var session: URLSessionReplaceable { get }
-  func request(with router: Router, requestOperator: RequestOperator?) -> Request
-}
-
-extension Session: SessionReplaceable {}
+class SessionTests: XCTestCase {}

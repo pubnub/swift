@@ -35,7 +35,7 @@ final class SessionURLErrorTests: XCTestCase {
   func testURLError(code: URLError.Code, for resource: String) {
     let expectation = self.expectation(description: "URLError \(resource) Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: resource) else {
+    guard let sessions = try? MockURLSession.mockSession(for: [resource]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -48,16 +48,16 @@ final class SessionURLErrorTests: XCTestCase {
         guard let task = sessions.mockSession.tasks.first else {
           return XCTFail("Could not get task")
         }
-        let timedOut = PNError.convert(error: URLError(code),
-                                       request: task.mockRequest,
-                                       response: task.mockResponse)
+        let pnURLError = PNError.convert(error: URLError(code),
+                                         request: task.mockRequest,
+                                         response: task.mockResponse)
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, timedOut)
+        XCTAssertEqual(error.pubNubError, pnURLError)
       }
       expectation.fulfill()
     }
 
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   // Unknown

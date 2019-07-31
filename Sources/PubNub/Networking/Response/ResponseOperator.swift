@@ -87,6 +87,31 @@ public final class MultiplexResponseOperator: ResponseOperator {
   }
 }
 
+// MARK: - Response Decoder
+
+public protocol ResponseDecoder {
+  associatedtype Payload
+
+  func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+}
+
+extension ResponseDecoder {
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    // Attempt to decode based on general system response payload
+    if let data = data,
+      let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {
+      let pnError = PNError.convert(generalError: generalErrorPayload,
+                                    request: request,
+                                    response: response)
+
+      return pnError
+    }
+
+    return nil
+  }
+}
+
 // MARK: - Request: Response Handling
 
 extension Request {

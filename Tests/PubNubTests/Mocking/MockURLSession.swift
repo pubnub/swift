@@ -77,6 +77,9 @@ class MockURLSession: URLSessionReplaceable {
   var configuration: URLSessionConfiguration
   var urlSessionEvents: URLSessionDelegate?
   var delegateQueue: OperationQueue
+  var sessionDescription: String?
+
+  let actualSession: URLSession
 
   struct InternalState {
     var tasks = [MockURLSessionTask]()
@@ -87,12 +90,17 @@ class MockURLSession: URLSessionReplaceable {
     return state.lockedRead { $0.tasks }
   }
 
-  var responseForTask: ((URLSessionDataTask) -> (MockURLSessionTask?))?
+  var responseForTask: ((MockURLSessionTask, Int) -> (MockURLSessionTask?))?
 
   required init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?) {
     self.configuration = configuration
     urlSessionEvents = delegate
     self.delegateQueue = delegateQueue ?? .main
+
+    sessionDescription = "MockURLSession Description"
+
+    actualSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
+    actualSession.sessionDescription = sessionDescription
   }
 
   var dataDelegate: URLSessionDataDelegate? {
@@ -103,14 +111,16 @@ class MockURLSession: URLSessionReplaceable {
     return urlSessionEvents as? SessionDelegate
   }
 
-  func resume(task: URLSessionDataTask) {
+  func resume(task: MockURLSessionTask) {
     delegateQueue.addOperation {
-      if let mockTask = self.responseForTask?(task) {
+      let taskIndex = self.state.lockedRead { $0.tasks.firstIndex(of: task) ?? 0 }
+
+      if let mockTask = self.responseForTask?(task, taskIndex) {
         mockTask.mockState = .completed
         if let data = mockTask.mockData {
-          self.dataDelegate?.urlSession?(URLSession.shared, dataTask: task, didReceive: data)
+          self.dataDelegate?.urlSession?(self.actualSession, dataTask: task, didReceive: data)
         }
-        self.dataDelegate?.urlSession?(URLSession.shared, task: mockTask, didCompleteWithError: mockTask.error)
+        self.dataDelegate?.urlSession?(self.actualSession, task: mockTask, didCompleteWithError: mockTask.error)
       }
     }
   }
@@ -132,16 +142,23 @@ class MockURLSession: URLSessionReplaceable {
 
 extension MockURLSession {
   static func mockSession(
-    for jsonResource: String,
+    for jsonResources: [String],
     with stream: SessionStream? = nil
   ) throws -> (session: Session?, mockSession: MockURLSession) {
     let urlSession = MockURLSession(configuration: .ephemeral, delegate: SessionDelegate(), delegateQueue: .main)
 
-    urlSession.responseForTask = { task in
-      let endpointResource: EndpointResource? = ImportTestResource.testResource(jsonResource)
-      let urlErrorResource: URLErrorResource? = ImportTestResource.testResource(jsonResource)
+    urlSession.responseForTask = { mockTask, index in
+      guard jsonResources.count > index else {
+        print("Index out of range for next task")
+        return nil
+      }
 
-      guard let mockTask = task as? MockURLSessionTask, let request = task.originalRequest, let url = request.url else {
+      let resource = jsonResources[index]
+      let endpointResource: EndpointResource? = ImportTestResource.testResource(resource)
+      let urlErrorResource: URLErrorResource? = ImportTestResource.testResource(resource)
+
+      guard let url = mockTask.mockRequest.url else {
+        print("Could not get url from mock task")
         return nil
       }
 

@@ -48,7 +48,7 @@ final class PubNubTests: XCTestCase {
   func testTime_Success() {
     let expectation = self.expectation(description: "Time Response Recieved")
 
-    guard let sessions = try? MockURLSession.mockSession(for: "time_success") else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -63,13 +63,13 @@ final class PubNubTests: XCTestCase {
       expectation.fulfill()
     }
 
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func testPublish_Success() {
     let expectation = self.expectation(description: "Publish Response Recieved")
 
-    guard let sessions = try? MockURLSession.mockSession(for: "publish_success") else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -84,13 +84,55 @@ final class PubNubTests: XCTestCase {
       expectation.fulfill()
     }
 
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testCompressedPublish_Success() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.publish(channel: "Test", message: ["text": "Hello"], shouldCompress: true) { result in
+      switch result {
+      case let .success(payload):
+        XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+      case let .failure(error):
+        XCTFail("Publish request failed with error: \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFire_Success() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fire(channel: "Test", message: ["text": "Hello"], meta: ["metaKey": "metaValue"]) { result in
+      switch result {
+      case let .success(payload):
+        XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+      case let .failure(error):
+        XCTFail("Publish request failed with error: \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func testPublish_Error_InvalidKey() {
     let expectation = self.expectation(description: "Publish Response Recieved")
 
-    guard let sessions = try? MockURLSession.mockSession(for: "publish_invalid_key") else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -117,6 +159,84 @@ final class PubNubTests: XCTestCase {
       expectation.fulfill()
     }
 
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testPublish_Error_MissingPublishKey() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey")
+
+    pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
+    pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
+      switch result {
+      case .success:
+        XCTFail("Publish request should fail")
+      case let .failure(error):
+        let missingKey = PNError.requestCreationFailure(.missingPublishKey)
+
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError, missingKey)
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testPublish_Error_MissingSubscribeKey() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: nil)
+
+    pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
+    pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
+      switch result {
+      case .success:
+        XCTFail("Publish request should fail")
+      case let .failure(error):
+        let missingKey = PNError.requestCreationFailure(.missingSubscribeKey)
+
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError, missingKey)
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testPublish_Error_MissingPublishAndSubscribeKey() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
+
+    pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
+    pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
+      switch result {
+      case .success:
+        XCTFail("Publish request should fail")
+      case let .failure(error):
+        let missingKey = PNError.requestCreationFailure(.missingPublishAndSubscribeKey)
+
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError, missingKey)
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
   }
 }

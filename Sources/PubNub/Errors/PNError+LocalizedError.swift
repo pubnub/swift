@@ -31,24 +31,23 @@ extension PNError: LocalizedError {
   public var errorDescription: String? {
     switch self {
     case let .unknown(message):
-      return "Unkonwn Error: An unknown error occurred with the supplied message: \(message)"
+      return "\(ErrorDescription.PNError.unknown) \(message)"
     case let .unknownError(error):
-      return "Unkonwn Error: An unkonwn error occurred with the supplied error: \(error)"
-    case let .sessionInvalidated(reason, sessionId):
-      let idString = sessionId?.uuidString ?? "<Unknown>"
-      return "Session Invalidated: The underlying `URLSession` for `Session` \(idString) was invalidated \(reason)"
-    case let .sessionDeinitialized(sessionID):
-      return "Session Deinitialized: `Session` \(sessionID) was deinitialized while tasks were still executing."
+      return "\(ErrorDescription.PNError.unknownError) \(error)"
+    case let .sessionInvalidated(reason, _):
+      return "\(ErrorDescription.PNError.sessionInvalidated) \(reason)"
+    case .sessionDeinitialized:
+      return ErrorDescription.PNError.sessionDeinitialized
     case let .requestRetryFailed(_, error, _):
-      return "Request Retry Failed: Request reached max retry count with final error \(error)"
+      return "\(ErrorDescription.PNError.requestRetryFailed) \(error)"
     case let .requestCreationFailure(reason):
-      return "Request Creation Failed: \(reason)"
+      return "\(ErrorDescription.PNError.requestCreationFailure) \(reason)"
     case let .requestTransmissionFailure(reason):
-      return "Transmission Failure: \(reason)"
+      return "\(ErrorDescription.PNError.requestTransmissionFailure) \(reason)"
     case let .responseProcessingFailure(reason):
-      return "Response Failure: \(reason)"
+      return "\(ErrorDescription.PNError.responseProcessingFailure) \(reason)"
     case let .endpointFailure(reason, _, _):
-      return "Endpoint Error: \(reason)"
+      return "\(ErrorDescription.PNError.endpointFailure) \(reason)"
     }
   }
 }
@@ -68,11 +67,11 @@ public protocol LocalizedErrorReason {
 
 extension LocalizedErrorReason {
   public var failureReason: String {
-    return "No failure reason was provied."
+    return ErrorDescription.deafultFailureReason
   }
 
   public var recoverySuggestion: String {
-    return "No recover suggestion was provided."
+    return ErrorDescription.deafultRecoverySuggestion
   }
 }
 
@@ -81,15 +80,19 @@ extension PNError.RequestCreationFailureReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
     case .jsonStringCodingFailure:
-      return "The JSON object could not be serialized into a `String`"
-    case .missingPubNubKey:
-      return "One or more required PubNub Keys are missing"
+      return ErrorDescription.RequestCreationFailureReason.jsonStringCodingFailure
+    case .missingPublishKey:
+      return ErrorDescription.RequestCreationFailureReason.missingPublishKey
+    case .missingSubscribeKey:
+      return ErrorDescription.RequestCreationFailureReason.missingSubscribeKey
+    case .missingPublishAndSubscribeKey:
+      return ErrorDescription.RequestCreationFailureReason.missingPublishAndSubscribeKey
     case .unknown:
-      return "An unknown error occured"
+      return ErrorDescription.RequestCreationFailureReason.unknown
     case .jsonDataCodingFailure:
-      return "The JSON object could be serizlied into a `Data` object."
+      return ErrorDescription.RequestCreationFailureReason.jsonDataCodingFailure
     case .requestMutatorFailure:
-      return "The request mutation failued resulting in an error"
+      return ErrorDescription.RequestCreationFailureReason.requestMutatorFailure
     }
   }
 }
@@ -141,33 +144,33 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
     case .malformedResponseBody:
-      return "Unable to decode the response body"
+      return ErrorDescription.EndpointFailureReason.malformedResponseBody
     case .jsonDataDecodeFailure:
-      return "An error was thrown attempting to decode the response body"
+      return ErrorDescription.EndpointFailureReason.jsonDataDecodeFailure
     case .invalidSubscribeKey:
-      return "The PubNub Subscribe key used for the request is invalid"
+      return ErrorDescription.EndpointFailureReason.invalidSubscribeKey
     case .invalidPublishKey:
-      return "The PubNub Publish key used for the request is invalid"
+      return ErrorDescription.EndpointFailureReason.invalidPublishKey
     case .couldNotParseRequest:
-      return "The PubNub server was unable to parse the request"
+      return ErrorDescription.EndpointFailureReason.couldNotParseRequest
     case .badRequest:
-      return "Bad request on that endpoint"
+      return ErrorDescription.EndpointFailureReason.badRequest
     case .unauthorized:
-      return "Access was denied due to insuffienct authorization"
+      return ErrorDescription.EndpointFailureReason.unauthorized
     case .forbidden:
-      return "Operation forbidden on that endpoint"
+      return ErrorDescription.EndpointFailureReason.forbidden
     case .resourceNotFound:
-      return "Resource not found at that endpoint"
+      return ErrorDescription.EndpointFailureReason.resourceNotFound
     case .requestURITooLong:
-      return "URI of the request was too long to be processed"
+      return ErrorDescription.EndpointFailureReason.requestURITooLong
     case .malformedFilterExpression:
-      return "The supplied filter expression was malformed"
+      return ErrorDescription.EndpointFailureReason.malformedFilterExpression
     case .internalServiceError:
-      return "The server encountered an unforseen error while processing the request"
+      return ErrorDescription.EndpointFailureReason.internalServiceError
     case .unrecognizedErrorPayload:
-      return "A payload not matching any konwn reason was received"
-    case let .unknown(message):
-      return "Unknown Reason: \(message)."
+      return ErrorDescription.EndpointFailureReason.unrecognizedErrorPayload
+    case .unknown:
+      return ErrorDescription.EndpointFailureReason.unknown
     }
   }
 }
@@ -176,9 +179,9 @@ extension PNError.SessionInvalidationReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
     case .explicit:
-      return "Explicitly"
+      return ErrorDescription.SessionInvalidationReason.explicit
     case .implicit:
-      return "Inplicitly"
+      return ErrorDescription.SessionInvalidationReason.implicit
     }
   }
 }

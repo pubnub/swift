@@ -35,7 +35,7 @@ final class SessionEndpointErrorTests: XCTestCase {
   func testEndpointError(payload: EndpointErrorPayload?, for resource: String) {
     let expectation = self.expectation(description: "Endpoint Error \(resource) Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: resource) else {
+    guard let sessions = try? MockURLSession.mockSession(for: [resource]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -58,12 +58,8 @@ final class SessionEndpointErrorTests: XCTestCase {
       expectation.fulfill()
     }
 
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 1.0)
   }
-
-//  case malformedResponseBody
-//  case jsonDataDecodeFailure(Data?, with: Error)
-//  case decryptionFailure
 
   // Contains Server Response Message
   func testCouldNotParseRequest() {

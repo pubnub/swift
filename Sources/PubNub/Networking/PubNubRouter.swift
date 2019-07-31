@@ -69,19 +69,17 @@ extension PubNubRouter: Router {
     case .time:
       return "/time/0"
     case let .publish(parameters):
-      do {
-        let jsonMessage = try parameters.message.jsonString()
-        return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0/\(jsonMessage)"
-      } catch {
-        let reason = PNError
-          .RequestCreationFailureReason
-          .jsonStringCodingFailure(parameters.message, dueTo: error)
-        throw PNError.requestCreationFailure(reason)
-      }
+      return try parsePublishPath(publishKey: publishKey,
+                                  subscribeKey: subscribeKey,
+                                  channel: parameters.channel,
+                                  message: parameters.message)
     case let .compressedPublish(parameters):
       return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0"
     case let .fire(parameters):
-      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0"
+      return try parsePublishPath(publishKey: publishKey,
+                                  subscribeKey: subscribeKey,
+                                  channel: parameters.channel,
+                                  message: parameters.message)
     case let .subscribe(parameters):
       return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString)/0"
     }
@@ -92,19 +90,21 @@ extension PubNubRouter: Router {
     switch endpoint {
     case .time:
       break
-    case let .publish(message, channel, shouldStore, ttl, meta):
-      try query.append(contentsOf: parsePresenceQuery(message: message,
-                                                      channel: channel,
-                                                      shouldStore: shouldStore,
-                                                      ttl: ttl,
-                                                      meta: meta))
-    case let .compressedPublish(message, channel, shouldStore, ttl, meta):
-      try query.append(contentsOf: parsePresenceQuery(message: message,
-                                                      channel: channel,
-                                                      shouldStore: shouldStore,
-                                                      ttl: ttl,
-                                                      meta: meta))
-    case .fire:
+    case let .publish(_, channel, shouldStore, ttl, meta):
+      try query.append(contentsOf: parsePublishQuery(channel: channel,
+                                                     shouldStore: shouldStore,
+                                                     ttl: ttl,
+                                                     meta: meta))
+    case let .compressedPublish(_, channel, shouldStore, ttl, meta):
+      try query.append(contentsOf: parsePublishQuery(channel: channel,
+                                                     shouldStore: shouldStore,
+                                                     ttl: ttl,
+                                                     meta: meta))
+    case let .fire(_, channel, meta):
+      try query.append(contentsOf: parsePublishQuery(channel: channel,
+                                                     shouldStore: false,
+                                                     ttl: 0,
+                                                     meta: meta))
       query.append(contentsOf: [
         URLQueryItem(name: noRepKey, value: "true"),
         URLQueryItem(name: storedKey, value: "0")
@@ -112,7 +112,7 @@ extension PubNubRouter: Router {
     case let .subscribe(parameters):
       query.append(URLQueryItem(name: timetokenKey, value: parameters.timetoken?.description ?? "0"))
       if !parameters.groups.isEmpty {
-        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.joined(separator: ",")))
+        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.csvString))
       }
       if let region = parameters.region {
         query.append(URLQueryItem(name: regionKey, value: region.description))
@@ -168,8 +168,16 @@ extension PubNubRouter: Router {
 }
 
 extension PubNubRouter {
-  func parsePresenceQuery(
-    message _: AnyJSON,
+  func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
+    do {
+      return try "/publish/\(publishKey)/\(subscribeKey)/0/\(channel)/0/\(message.jsonString())"
+    } catch {
+      let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)
+      throw PNError.requestCreationFailure(reason)
+    }
+  }
+
+  func parsePublishQuery(
     channel _: String,
     shouldStore: Bool?,
     ttl: Int?,
@@ -183,7 +191,7 @@ extension PubNubRouter {
     if let ttl = ttl {
       query.append(URLQueryItem(name: ttlKey, value: ttl.description))
     }
-    if let meta = meta {
+    if let meta = meta, !meta.isEmpty {
       do {
         try query.append(URLQueryItem(name: metaKey,
                                       value: meta.jsonString()))

@@ -75,7 +75,7 @@ struct TimetokenResponse: Codable, Hashable {
 
 extension TimetokenResponse {
   var timetoken: Timetoken? {
-    return Int(timetokenString)
+    return Timetoken(timetokenString)
   }
 }
 

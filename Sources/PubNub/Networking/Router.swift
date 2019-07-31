@@ -102,28 +102,7 @@ public enum HTTPMethod: String {
   case trace = "TRACE"
 }
 
-public protocol ResponseDecoder {
-  associatedtype Payload
-
-  func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
-}
-
-extension ResponseDecoder {
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    // Attempt to decode based on general system response payload
-    if let data = data,
-      let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {
-      let pnError = PNError.convert(generalError: generalErrorPayload,
-                                    request: request,
-                                    response: response)
-
-      return pnError
-    }
-
-    return nil
-  }
-}
+// MARK: - Router
 
 public protocol Router: URLRequestConvertible, CustomStringConvertible {
   var endpoint: Endpoint { get }
@@ -169,25 +148,22 @@ extension Router {
       if configuration.subscribeKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPubNubKey(.subscribe, for: endpoint))
+      return .requestCreationFailure(.missingSubscribeKey)
 
     case .publish:
       if configuration.publishKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPubNubKey(.publish, for: endpoint))
+      return .requestCreationFailure(.missingPublishKey)
 
     case .publishAndSubscribe:
       switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
       case (false, false):
-        return .requestCreationFailure(
-          .missingPubNubKey(.publishAndSubscribe, for: endpoint))
+        return .requestCreationFailure(.missingPublishAndSubscribeKey)
       case (true, false):
-        return .requestCreationFailure(
-          .missingPubNubKey(.subscribe, for: endpoint))
+        return .requestCreationFailure(.missingSubscribeKey)
       case (false, true):
-        return .requestCreationFailure(
-          .missingPubNubKey(.publish, for: endpoint))
+        return .requestCreationFailure(.missingPublishKey)
       case (true, true):
         return nil
       }

@@ -49,6 +49,19 @@ public struct AnyJSON {
     return value as? [String: Any]
   }
 
+  /// A Boolean value that indicates whether the underlying JSON Collection is empty.
+  ///
+  /// Will also return `true` if the underlying value is not a JSON Collection type
+  public var isEmpty: Bool {
+    if let array = arrayValue {
+      return array.isEmpty
+    } else if let dictionary = dictionaryValue {
+      return dictionary.isEmpty
+    } else {
+      return true
+    }
+  }
+
   // swiftlint:enable discouraged_optional_collection
 }
 

@@ -28,7 +28,7 @@
 import Foundation
 
 public final class Request {
-  enum TaskState {
+  enum TaskState: CustomStringConvertible {
     case initialized
     case resumed
     case cancelled
@@ -48,6 +48,19 @@ public final class Request {
         return true
       }
     }
+
+    var description: String {
+      switch self {
+      case .initialized:
+        return "Initialized"
+      case .resumed:
+        return "Resumed"
+      case .cancelled:
+        return "Cancelled"
+      case .finished:
+        return "Finished"
+      }
+    }
   }
 
   struct InternalState {
@@ -60,6 +73,7 @@ public final class Request {
 
     var urlRequests: [URLRequest] = []
     var error: Error?
+    var previousErrors: [Error] = []
 
     var retryCount = 0
 
@@ -121,8 +135,22 @@ public final class Request {
       return atomicState.lockedRead { $0.error }
     }
     set {
-      atomicState.lockedWrite { $0.error = newValue }
+      atomicState.lockedWrite {
+        if let error = $0.error {
+          $0.previousErrors.append(error)
+        }
+
+        $0.error = newValue
+      }
     }
+  }
+
+  public var previousErrors: [Error] {
+    return atomicState.lockedRead { $0.previousErrors }
+  }
+
+  public var previousError: Error? {
+    return previousErrors.last
   }
 
   public var retryCount: Int {
@@ -239,12 +267,11 @@ public final class Request {
       return
     }
 
-    delegate.retryResult(for: self, dueTo: error) { retryResult in
-      switch retryResult {
-      case .doNotRetry, .doNotRetryWithError:
-        self.finish(error: retryResult.error)
-      case .retry, .retryWithDelay:
+    delegate.retryResult(for: self, dueTo: error, andPrevious: previousError) { retryResult in
+      if retryResult.isRequired {
         delegate.retryRequest(self, withDelay: retryResult.delay)
+      } else {
+        self.finish(error: retryResult.error)
       }
     }
   }
@@ -354,6 +381,12 @@ extension Request: Hashable {
 // MARK: - RequestDelegate
 
 public protocol RequestDelegate: AnyObject {
-  func retryResult(for request: Request, dueTo error: Error, completion: @escaping (RetryResult) -> Void)
+  func retryResult(
+    for request: Request,
+    dueTo error: Error,
+    andPrevious error: Error?,
+    completion: @escaping (RetryResult) -> Void
+  )
+
   func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?)
 }

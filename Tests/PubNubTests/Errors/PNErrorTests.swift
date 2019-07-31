@@ -1,5 +1,5 @@
 //
-//  Replaceables+PubNub.swift
+//  PNErrorTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,29 +25,25 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-// MARK: - URLSession
+class PNErrorTests: XCTestCase {
+  func testConvertGeneralError_MissingResponse() {
+    guard let url = URL(string: "https://example.com") else {
+      return XCTFail("Could not create url from string")
+    }
 
-public protocol URLSessionReplaceable {
-  init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
+    let request = URLRequest(url: url)
+    let error = PNError.convert(generalError: nil, request: request, response: nil)
 
-  var sessionDescription: String? { get set }
-  var delegateQueue: OperationQueue { get }
-  var configuration: URLSessionConfiguration { get }
+    let unknownError = PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse)
 
-  func dataTask(with: URLRequest) -> URLSessionDataTask
-  func invalidateAndCancel()
+    XCTAssertEqual(error, unknownError)
+    XCTAssertEqual(error.localizedDescription, unknownError.localizedDescription)
+  }
+
+  func testConvertURLError_MissingRequest() {
+    XCTAssertNil(PNError.convert(error: URLError(.timedOut), request: nil, response: nil))
+  }
 }
-
-extension URLSession: URLSessionReplaceable {}
-
-// MARK: - Session
-
-public protocol SessionReplaceable {
-  var sessionID: UUID { get }
-  var session: URLSessionReplaceable { get }
-  func request(with router: Router, requestOperator: RequestOperator?) -> Request
-}
-
-extension Session: SessionReplaceable {}

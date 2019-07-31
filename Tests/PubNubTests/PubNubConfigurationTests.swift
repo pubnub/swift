@@ -95,9 +95,7 @@ class PubNubConfigurationTests: XCTestCase {
 
   func testNetworkConfiguration() {
     let session = Session()
-    let networkConfig = NetworkConfiguration(customSession: session,
-                                             requestOperator: nil,
-                                             responseOperator: nil)
+    let networkConfig = NetworkConfiguration(customSession: session)
 
     XCTAssertEqual(networkConfig.customSession?.sessionID, session.sessionID)
   }

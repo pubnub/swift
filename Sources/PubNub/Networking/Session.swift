@@ -77,6 +77,7 @@ public final class Session {
                                        name: "org.pubnub.httpClient.URLSessionReplaceableDelegate")
 
     let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
+    session.sessionDescription = "Underlying URLSession for: com.pubnub.session"
 
     self.init(session: session,
               delegate: delegate,
@@ -185,8 +186,9 @@ public final class Session {
       case .initialized:
         sessionQueue.async { request.resume() }
       case .resumed:
-        // URLDataTasks cannot be 'resumed' after starting
-        break
+        // URLDataTasks cannot be 'resumed' after starting, but this is called during a retry
+        task.resume()
+        sessionQueue.async { request.didResume(task) }
       case .cancelled:
         task.cancel()
         sessionQueue.async { request.didCancel(task) }
@@ -221,7 +223,12 @@ public final class Session {
 // MARK: - RequestDelegate
 
 extension Session: RequestDelegate {
-  public func retryResult(for request: Request, dueTo error: Error, completion: @escaping (RetryResult) -> Void) {
+  public func retryResult(
+    for request: Request,
+    dueTo error: Error,
+    andPrevious previous: Error?,
+    completion: @escaping (RetryResult) -> Void
+  ) {
     guard let retrier = retrier(for: request) else {
       sessionQueue.async { completion(.doNotRetry) }
       return
@@ -236,7 +243,7 @@ extension Session: RequestDelegate {
 
         completion(.doNotRetryWithError(PNError.requestRetryFailed(urlRequest,
                                                                    dueTo: retryResultError,
-                                                                   withPreviousError: error)))
+                                                                   withPreviousError: previous)))
       }
     }
   }

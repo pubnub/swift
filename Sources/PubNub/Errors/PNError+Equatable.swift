@@ -39,7 +39,7 @@ extension PNError: Equatable {
     case let (.requestRetryFailed(lhsParams), .requestRetryFailed(rhsParams)):
       return lhsParams.0 == rhsParams.0 &&
         lhsParams.dueTo.localizedDescription == rhsParams.dueTo.localizedDescription &&
-        lhsParams.withPreviousError.localizedDescription == rhsParams.withPreviousError.localizedDescription
+        lhsParams.withPreviousError?.localizedDescription == rhsParams.withPreviousError?.localizedDescription
     case let (.requestCreationFailure(lhsReason), .requestCreationFailure(rhsReason)):
       return lhsReason == rhsReason
     case let (.requestTransmissionFailure(lhsReason), .requestTransmissionFailure(rhsReason)):
@@ -62,14 +62,18 @@ extension PNError.RequestCreationFailureReason: Equatable {
     rhs: PNError.RequestCreationFailureReason
   ) -> Bool {
     switch (lhs, rhs) {
-    case let (.jsonStringCodingFailure(lhsJSON, _), .jsonStringCodingFailure(rhsJSON, _)):
-      return lhsJSON == rhsJSON
-    case let (.missingPubNubKey(_, lhsEndpoint), .missingPubNubKey(_, rhsEndpoint)):
-      return lhsEndpoint.description == rhsEndpoint.description
+    case let (.jsonStringCodingFailure(_, lhsError), .jsonStringCodingFailure(_, rhsError)):
+      return lhsError.localizedDescription == rhsError.localizedDescription
+    case (.missingPublishKey, .missingPublishKey):
+      return true
+    case (.missingSubscribeKey, .missingSubscribeKey):
+      return true
+    case (.missingPublishAndSubscribeKey, .missingPublishAndSubscribeKey):
+      return true
     case let (.unknown(lhsError), .unknown(rhsError)):
       return lhsError.localizedDescription == rhsError.localizedDescription
-    case let (.jsonDataCodingFailure(lhsJSON, _), .jsonDataCodingFailure(rhsJSON, _)):
-      return lhsJSON == rhsJSON
+    case let (.jsonDataCodingFailure(_, lhsError), .jsonDataCodingFailure(_, rhsError)):
+      return lhsError.localizedDescription == rhsError.localizedDescription
     case let (.requestMutatorFailure(lhsRequest, lhsError), .requestMutatorFailure(rhsRequest, rhsError)):
       return lhsRequest == rhsRequest &&
         lhsError.localizedDescription == rhsError.localizedDescription

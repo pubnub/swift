@@ -34,12 +34,14 @@ public enum PNError: Error {
   case unknown(String)
   case unknownError(Error)
   case sessionDeinitialized(for: UUID)
-  case requestRetryFailed(URLRequest, dueTo: Error, withPreviousError: Error)
+  case requestRetryFailed(URLRequest, dueTo: Error, withPreviousError: Error?)
 
   public enum RequestCreationFailureReason {
     // URL Creation Errors
     case jsonStringCodingFailure(AnyJSON, dueTo: Error)
-    case missingPubNubKey(PNKeyRequirement, for: Endpoint)
+    case missingPublishKey
+    case missingSubscribeKey
+    case missingPublishAndSubscribeKey
 
     // Reqeuest Creation
     case unknown(Error)
@@ -254,7 +256,7 @@ extension PNError {
     response: HTTPURLResponse?
   ) -> PNError {
     guard let response = response else {
-      return PNError.unknown("EndpointError could not be created due to missing HTTPURLResponse")
+      return PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse)
     }
 
     // Try to associate with a specific error message
@@ -276,11 +278,11 @@ extension PNError {
       return PNError.endpointFailure(.unrecognizedErrorPayload(payload),
                                      forRequest: request,
                                      onResponse: response)
-    } else {
-      return PNError.endpointFailure(.unknown("Could not determine appropriate endpoint error"),
-                                     forRequest: request,
-                                     onResponse: response)
     }
+
+    return PNError.endpointFailure(.unknown(ErrorDescription.UnknownErrorReason.noAppropriateEndpointError),
+                                   forRequest: request,
+                                   onResponse: response)
   }
 
   static func lookupGeneralErrorMessage(using message: EndpointErrorPayload.Message?) -> EndpointFailureReason? {

@@ -63,7 +63,7 @@ jobs:
       name: "macOS Unit Tests"
       script: bundle exec fastlane test --env macos
     - stage: "tvOS Verfication"
-    - name: "tvOS 12 Unit Tests"
+      name: "tvOS 12 Unit Tests"
       script: bundle exec fastlane test --env tvos.12
     - name: "tvOS 11 Unit Tests"
       script: bundle exec fastlane test --env tvos.11

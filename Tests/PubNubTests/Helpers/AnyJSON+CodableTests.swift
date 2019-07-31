@@ -152,7 +152,6 @@ class AnyJSONCodableTests: XCTestCase {
   }
 
   func testEncode_Array() {
-
     let json = AnyJSON(exampleList)
 
     do {

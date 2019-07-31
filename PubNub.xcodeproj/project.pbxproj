@@ -84,6 +84,7 @@
 		359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */; };
 		359C2C1622EE29ED009C3B4B /* time_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359C2C1522EE29E2009C3B4B /* time_success.json */; };
 		35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */; };
+		35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */; };
 		35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */; };
 		35CDFEA922E75DA800F3B9F2 /* Set+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEA822E75DA800F3B9F2 /* Set+PubNubTests.swift */; };
 		35CDFEAB22E762E100F3B9F2 /* String+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEAA22E762E100F3B9F2 /* String+PubNubTests.swift */; };
@@ -243,6 +244,7 @@
 		359C2C1522EE29E2009C3B4B /* time_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = time_success.json; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
+		35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSNumber+PubNub.swift"; sourceTree = "<group>"; };
 		35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEA822E75DA800F3B9F2 /* Set+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEAA22E762E100F3B9F2 /* String+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+PubNubTests.swift"; sourceTree = "<group>"; };
@@ -600,6 +602,7 @@
 				35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */,
 				35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */,
 				350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */,
+				35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */,
 				3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */,
 				3585033122CD138300A11D9A /* Set+PubNub.swift */,
 				3585033322CD139400A11D9A /* String+PubNub.swift */,
@@ -950,6 +953,7 @@
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
 				35FE93C522EF5C880051C455 /* PNError+Equatable.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* Router.swift in Sources */,
+				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
 				350EFBDA22C9487B00FA33AA /* PNError.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,

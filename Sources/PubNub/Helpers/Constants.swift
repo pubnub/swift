@@ -128,7 +128,9 @@ struct Constant {
     let decoder = JSONDecoder()
     decoder.dataDecodingStrategy = .deferredToData
     decoder.dateDecodingStrategy = .deferredToDate
-    decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty, negativeInfinity: negativeInfinty, nan: notANumber)
+    decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty,
+                                                                    negativeInfinity: negativeInfinty,
+                                                                    nan: notANumber)
     return decoder
   }()
 
@@ -136,7 +138,9 @@ struct Constant {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .deferredToDate
     encoder.dataEncodingStrategy = .deferredToData
-    encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty, negativeInfinity: negativeInfinty, nan: notANumber)
+    encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty,
+                                                                  negativeInfinity: negativeInfinty,
+                                                                  nan: notANumber)
     return encoder
   }()
 }

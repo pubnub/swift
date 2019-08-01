@@ -146,6 +146,8 @@ extension PNError.EndpointFailureReason: Equatable {
       return true
     case (.invalidPublishKey, .invalidPublishKey):
       return true
+    case (.requestContainedInvalidJSON, .requestContainedInvalidJSON):
+      return true
     case (.couldNotParseRequest, .couldNotParseRequest):
       return true
     case (.badRequest, .badRequest):

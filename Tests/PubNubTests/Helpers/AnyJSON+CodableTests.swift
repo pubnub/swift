@@ -202,35 +202,6 @@ class AnyJSONCodableTests: XCTestCase {
   }
 
   // MARK: - Failed Coding
-
-  func testFailedEncoding_SingleValueContainer() {
-    let nonCodable = NonCodable(value: "Test")
-    let json = AnyJSON(nonCodable)
-
-    XCTAssertThrowsError(
-      try json.jsonEncodedData(),
-      "Should throw EncodingError"
-    ) { error in
-      guard let encodingError = error as? EncodingError else {
-        return XCTFail("Error was not the correct type of EncodingError")
-      }
-
-      switch encodingError {
-      case let .invalidValue(value, context):
-
-        XCTAssertEqual(nonCodable, value as? NonCodable)
-        XCTAssertEqual(context.codingPath.count, 0)
-        XCTAssertNil(context.underlyingError)
-        XCTAssertEqual(
-          context.debugDescription,
-          ErrorDescription.EncodingError.invalidRootLevelErrorDescription
-        )
-      @unknown default:
-        XCTFail("New errors types were added that need to be accounted for")
-      }
-    }
-  }
-
   func testFailedEncoding_UnkeyedContainer() {
     let nonCodable = NonCodable(value: "Test")
     let json = AnyJSON([nonCodable])

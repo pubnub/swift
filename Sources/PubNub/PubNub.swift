@@ -70,10 +70,10 @@ public struct PubNub {
 
   public func publish(
     channel: String,
-    message: [String: Codable],
+    message: AnyJSON,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
-    meta: [String: Codable] = [:],
+    meta: AnyJSON? = nil,
     shouldCompress: Bool = false,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -83,17 +83,17 @@ public struct PubNub {
 
     let endpoint: Endpoint
     if shouldCompress {
-      endpoint = .compressedPublish(message: AnyJSON(message),
+      endpoint = .compressedPublish(message: message,
                                     channel: channel,
                                     shouldStore: shouldStore,
                                     ttl: storeTTL,
-                                    meta: AnyJSON(meta))
+                                    meta: meta)
     } else {
-      endpoint = .publish(message: AnyJSON(message),
+      endpoint = .publish(message: message,
                           channel: channel,
                           shouldStore: shouldStore,
                           ttl: storeTTL,
-                          meta: AnyJSON(meta))
+                          meta: meta)
     }
 
     let router = PubNubRouter(configuration: configuration,
@@ -118,15 +118,15 @@ public struct PubNub {
 
   public func fire(
     channel: String,
-    message: [String: Codable],
-    meta: [String: Codable] = [:],
+    message: AnyJSON,
+    meta: AnyJSON? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
     let client = networkConfiguration?.customSession ?? networkSession
 
-    let endpoint = Endpoint.fire(message: AnyJSON(message), channel: channel, meta: AnyJSON(meta))
+    let endpoint = Endpoint.fire(message: message, channel: channel, meta: meta)
 
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)

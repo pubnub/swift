@@ -63,6 +63,11 @@ struct PublishResponseDecoder: ResponseDecoder {
                                      onResponse: response)
     }
 
+    // Check if we were provided a default error from the server
+    if let defaultError = decodeDefaultError(request: request, response: response, for: data) {
+      return defaultError
+    }
+
     // Publish Response pattern:  [Int, String, String]
     let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data)
 

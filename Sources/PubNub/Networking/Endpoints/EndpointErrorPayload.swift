@@ -64,6 +64,7 @@ public struct EndpointErrorPayload: Codable, Equatable {
     case couldNotParseRequest
     case invalidSubscribeKey
     case invalidPublishKey
+    case invalidJSON
     case notFound
     case requestURITooLong
     case unknown(message: String)
@@ -76,6 +77,8 @@ public struct EndpointErrorPayload: Codable, Equatable {
         self = .invalidSubscribeKey
       case "Invalid Key":
         self = .invalidPublishKey
+      case "Invalid JSON":
+        self = .invalidJSON
       case "Request URI Too Long":
         self = .requestURITooLong
       default:
@@ -95,6 +98,8 @@ public struct EndpointErrorPayload: Codable, Equatable {
         return "Invalid Subscribe Key"
       case .invalidPublishKey:
         return "Invalid Publish Key"
+      case .invalidJSON:
+        return "Invalid JSON"
       case .notFound:
         return "Resource Not Found"
       case .requestURITooLong:

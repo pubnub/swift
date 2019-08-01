@@ -98,6 +98,10 @@ public protocol ResponseDecoder {
 
 extension ResponseDecoder {
   func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    return decodeDefaultError(request: request, response: response, for: data)
+  }
+
+  func decodeDefaultError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     // Attempt to decode based on general system response payload
     if let data = data,
       let generalErrorPayload = try? Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: data) {

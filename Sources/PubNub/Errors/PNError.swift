@@ -85,6 +85,7 @@ public enum PNError: Error {
     case invalidSubscribeKey
     case invalidPublishKey
     case couldNotParseRequest
+    case requestContainedInvalidJSON
 
     case badRequest
     case unauthorized
@@ -293,6 +294,8 @@ extension PNError {
       return .invalidSubscribeKey
     case .invalidPublishKey?:
       return .invalidPublishKey
+    case .invalidJSON?:
+      return .requestContainedInvalidJSON
     case .notFound?:
       return .resourceNotFound
     case .requestURITooLong?:

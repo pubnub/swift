@@ -52,7 +52,7 @@ extension AnyJSON {
       throw AnyJSONError.stringCreationFailure
     }
 
-    return decodedString
+    return decodedString.replacingOccurrences(of: "\\/", with: "/")
   }
 
   /// Decode the internal value to a given `Decodable` type

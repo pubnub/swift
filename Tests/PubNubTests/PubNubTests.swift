@@ -162,6 +162,39 @@ final class PubNubTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testPublish_Error_SystemSupplied() {
+    let expectation = self.expectation(description: "Publish Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["requestURITooLong_Message"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
+      switch result {
+      case .success:
+        XCTFail("Publish request should fail")
+      case let .failure(error):
+        guard let task = sessions.mockSession.tasks.first else {
+          return XCTFail("Could not get task")
+        }
+        let invalidKeyError = PNError.convert(
+          generalError: .init(message: .requestURITooLong,
+                              service: .balancer,
+                              status: .badRequest),
+          request: task.mockRequest,
+          response: task.mockResponse
+        )
+
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError, invalidKeyError)
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testPublish_Error_MissingPublishKey() {
     let expectation = self.expectation(description: "Publish Response Recieved")
 

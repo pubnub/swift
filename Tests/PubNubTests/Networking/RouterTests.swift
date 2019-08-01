@@ -108,6 +108,18 @@ class RouterTests: XCTestCase {
     XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingSubscribeKey))
   }
 
+  func testURLEncodeSlash() {
+    let router = PubNubRouter(configuration: PubNubConfiguration.default, endpoint: .time)
+
+    let userInput = router.urlEncodeSlash(path: "unsanitary/input")
+    let path = "/path/component/\(userInput)/end"
+
+    let sanitaryInput = userInput.replacingOccurrences(of: "/", with: "%2F")
+    let sanitaryPath = "/path/component/\(sanitaryInput)/end"
+
+    XCTAssertEqual(path, sanitaryPath)
+  }
+
   func testAsRequest_Error_Unknown() {
     let payload = [NonCodable(code: 0)]
 

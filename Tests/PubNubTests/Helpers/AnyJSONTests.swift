@@ -33,8 +33,21 @@ struct SomeJSON: Codable {
 }
 
 class AnyJSONTests: XCTestCase {
+
   struct NonHashable {
     var value: String
+  }
+
+  struct NonHashableStringConvertible: CustomStringConvertible, CustomDebugStringConvertible {
+    var value: String
+
+    var description: String {
+      return value
+    }
+
+    var debugDescription: String {
+      return value.debugDescription
+    }
   }
 
   // MARK: Hashable
@@ -42,10 +55,10 @@ class AnyJSONTests: XCTestCase {
   func testHashble_NonHashable() {
     let nonHashable = NonHashable(value: "value")
 
-    let json = AnyJSON(nonHashable)
+    let json = AnyJSON([nonHashable])
 
-    XCTAssertNotEqual(json, AnyJSON(nonHashable))
-    XCTAssertEqual(json.hashValue, AnyJSON(nonHashable).hashValue)
+    XCTAssertNotEqual(json, AnyJSON([nonHashable]))
+    XCTAssertEqual(json.hashValue, AnyJSON([nonHashable]).hashValue)
   }
 
   func testArrayEquatible_Mismatch() {
@@ -116,26 +129,71 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: - Convertible
 
-  func testCustomStringConvertible() {
+  func testCustomStringConvertible_JSONString() {
     let testString = "String Describing This Object"
+    let testStringDescription = "[\"\(testString)\"]"
 
-    let test = NonHashable(value: testString)
-
-    let json = AnyJSON(test)
-    XCTAssertEqual(json.description, "NonHashable(value: \"\(testString)\")")
-
-    let stringJSON = AnyJSON(testString)
-    XCTAssertEqual(stringJSON.description, testString)
+    let stringJSON = AnyJSON([testString])
+    XCTAssertEqual(stringJSON.description, testStringDescription)
   }
 
-  func testCustomDebugStringConvertible() {
+  func testCustomStringConvertible_JSONString_WithForwardSlashe() {
+    let testString = "String/containing/Slashes"
+    let testStringDescription = "[\"\(testString)\"]"
+
+    let stringJSON = AnyJSON([testString])
+    XCTAssertEqual(stringJSON.description, testStringDescription)
+  }
+
+  func testCustomStringConvertible_NonHashable_Description() {
     let testString = "String Describing This Object"
+
+    let test = NonHashableStringConvertible(value: testString)
+
+    let stringJSON = AnyJSON([test])
+    XCTAssertEqual(stringJSON.description, [test].description)
+  }
+
+  func testCustomStringConvertible_NonHashable_NoDescription() {
+    let testString = "String Describing This Object"
+
     let test = NonHashable(value: testString)
 
-    let json = AnyJSON(test)
-    XCTAssertEqual(json.debugDescription, "NonHashable(value: \"\(testString)\")")
+    let json = AnyJSON([test])
+    XCTAssertEqual(json.description, [test].description)
+  }
 
-    let stringJSON = AnyJSON(testString)
-    XCTAssertEqual(stringJSON.debugDescription, "\"\(testString)\"")
+  func testCustomDebugStringConvertible_JSONString() {
+    let testString = "String Describing This Object"
+    let testStringDescription = "[\"\(testString)\"]"
+
+    let stringJSON = AnyJSON([testString])
+    XCTAssertEqual(stringJSON.debugDescription, testStringDescription)
+  }
+
+  func testCustomDebugStringConvertible_JSONString_WithForwardSlashe() {
+    let testString = "String/containing/Slashes"
+    let testStringDescription = "[\"\(testString)\"]"
+
+    let stringJSON = AnyJSON([testString])
+    XCTAssertEqual(stringJSON.debugDescription, testStringDescription)
+  }
+
+  func testCustomDebugStringConvertible_NonHashable_Description() {
+    let testString = "String Describing This Object"
+
+    let test = NonHashableStringConvertible(value: testString)
+
+    let stringJSON = AnyJSON([test])
+    XCTAssertEqual(stringJSON.debugDescription, [test].description)
+  }
+
+  func testCustomDebugStringConvertible_NonHashable_NoDescription() {
+    let testString = "String Describing This Object"
+
+    let test = NonHashable(value: testString)
+
+    let json = AnyJSON([test])
+    XCTAssertEqual(json.debugDescription, [test].description)
   }
 }

@@ -151,6 +151,8 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return ErrorDescription.EndpointFailureReason.invalidSubscribeKey
     case .invalidPublishKey:
       return ErrorDescription.EndpointFailureReason.invalidPublishKey
+    case .requestContainedInvalidJSON:
+      return ErrorDescription.EndpointFailureReason.requestContainedInvalidJSON
     case .couldNotParseRequest:
       return ErrorDescription.EndpointFailureReason.couldNotParseRequest
     case .badRequest:

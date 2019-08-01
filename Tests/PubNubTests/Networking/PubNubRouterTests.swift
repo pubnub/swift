@@ -101,6 +101,33 @@ class PubNubRouterTests: XCTestCase {
 
   // End Temporary Tests
 
+  func testPathContainsForwardSlash() {
+
+    let testMessage = AnyJSON(["/test/message/with/slashes/"])
+    let testChannel = "/test/channel/"
+
+    let publish = Endpoint.publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil)
+    let publishRouter = PubNubRouter(configuration: PubNubRouterTests.config, endpoint: publish)
+
+    guard let url = try? publishRouter.asURL.get() else {
+      return XCTFail("Could not create url")
+    }
+
+    var testPath = "/publish/TestKeyNotReal/TestKeyNotReal/0"
+    let encodedChannel = publishRouter.urlEncodeSlash(path: testChannel)
+    // URLEncode the path like it would be done inside the URL
+    guard let encodedMessage = testMessage.description.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
+      return XCTFail("Message could not be encoded")
+    }
+    // Perform the additional encoding to sanitize the forward slashes
+    testPath = "\(testPath)/\(encodedChannel)/0/\(publishRouter.urlEncodeSlash(path: encodedMessage))"
+
+
+    // url.path with print without being percent encoded, but will in fact be percent encoded
+    XCTAssertFalse(url.description.contains(url.path))
+    XCTAssertTrue(url.description.contains(testPath))
+  }
+
   func testInvalidMeta() {
     var expectations = [XCTestExpectation]()
 

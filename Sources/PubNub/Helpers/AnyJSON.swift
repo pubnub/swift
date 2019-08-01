@@ -31,7 +31,11 @@ import Foundation
 public struct AnyJSON {
   let value: Any
 
-  public init(_ value: Any) {
+  init(_ value: [Any])  {
+    self.value = value
+  }
+
+  init(_ value: [String: Any])  {
     self.value = value
   }
 
@@ -155,6 +159,10 @@ extension AnyJSON: Hashable {
 
 extension AnyJSON: CustomStringConvertible {
   public var description: String {
+    if let json = try? self.jsonString() {
+      return json
+    }
+
     if let value = value as? CustomStringConvertible {
       return value.description
     }
@@ -167,6 +175,11 @@ extension AnyJSON: CustomStringConvertible {
 
 extension AnyJSON: CustomDebugStringConvertible {
   public var debugDescription: String {
+
+    if let json = try? self.jsonString() {
+      return json
+    }
+
     if let value = value as? CustomDebugStringConvertible {
       return value.debugDescription
     }
@@ -178,7 +191,7 @@ extension AnyJSON: CustomDebugStringConvertible {
 // MARK: - ExpressibleByArrayLiteral
 
 extension AnyJSON: ExpressibleByArrayLiteral {
-  public init(arrayLiteral elements: Any...) {
+  public init(arrayLiteral elements: Codable...) {
     self.init(elements.map { $0 })
   }
 }
@@ -186,7 +199,7 @@ extension AnyJSON: ExpressibleByArrayLiteral {
 // MARK: - ExpressibleByDictionaryLiteral
 
 extension AnyJSON: ExpressibleByDictionaryLiteral {
-  public init(dictionaryLiteral elements: (String, Any)...) {
+  public init(dictionaryLiteral elements: (String, Codable)...) {
     let dictionary = elements.reduce(into: [:]) { result, element in
       result[element.0] = element.1
     }

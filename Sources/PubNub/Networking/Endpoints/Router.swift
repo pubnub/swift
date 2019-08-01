@@ -174,6 +174,11 @@ extension Router {
 // MARK: - URLRequestConvertible
 
 extension Router {
+  /// Sanitizes attempts to include `/` characters inside path components
+  func urlEncodeSlash(path component: String) -> String {
+    return component.replacingOccurrences(of: "/", with: "%2F")
+  }
+
   public var asURL: Result<URL, Error> {
     if let invalidKeysError = keyValidationError {
       return .failure(invalidKeysError)
@@ -192,10 +197,15 @@ extension Router {
       return .failure(PNError.requestCreationFailure(.unknown(error)))
     }
 
+
+    // URL will double encode our attempts to sanitize '/' inside path inputs
+    urlComponents.percentEncodedPath = urlComponents.percentEncodedPath
+      .replacingOccurrences(of: "%252F", with: "%2F")
+
+
     // URL will not encode `+`, so we will do it manually
-    let encodedQuery = urlComponents.percentEncodedQuery?.replacingOccurrences(of: "+",
-                                                                               with: "%2B")
-    urlComponents.percentEncodedQuery = encodedQuery
+    urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?
+      .replacingOccurrences(of: "+", with: "%2B")
 
     return urlComponents.asURL
   }

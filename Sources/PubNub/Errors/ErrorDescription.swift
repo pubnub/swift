@@ -175,6 +175,10 @@ public struct ErrorDescription {
       "The PubNub Publish key used for the request is invalid"
     }()
 
+    public static let requestContainedInvalidJSON: String = {
+      "The request contained a malformed JSON payload"
+    }()
+
     public static let couldNotParseRequest: String = {
       "The PubNub server was unable to parse the request"
     }()

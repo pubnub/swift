@@ -65,6 +65,8 @@ extension PubNubRouter: Router {
     let publishKey = configuration.publishKey ?? ""
     let subscribeKey = configuration.subscribeKey ?? ""
 
+    // General Note: Only URL Encode slashes `/` for the channel(s) in the path.
+    // Everything else will be encoded by the URL object
     switch endpoint {
     case .time:
       return "/time/0"
@@ -74,14 +76,14 @@ extension PubNubRouter: Router {
                                   channel: parameters.channel,
                                   message: parameters.message)
     case let .compressedPublish(parameters):
-      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel)/0"
+      return "/publish/\(publishKey)/\(subscribeKey)/0/\(urlEncodeSlash(path: parameters.channel))/0"
     case let .fire(parameters):
       return try parsePublishPath(publishKey: publishKey,
                                   subscribeKey: subscribeKey,
                                   channel: parameters.channel,
                                   message: parameters.message)
     case let .subscribe(parameters):
-      return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString)/0"
+      return "/v2/subscribe/\(subscribeKey)/\(urlEncodeSlash(path: parameters.channels.csvString))/0"
     }
   }
 
@@ -170,7 +172,7 @@ extension PubNubRouter: Router {
 extension PubNubRouter {
   func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
     do {
-      return try "/publish/\(publishKey)/\(subscribeKey)/0/\(channel)/0/\(message.jsonString())"
+      return try "/publish/\(publishKey)/\(subscribeKey)/0/\(urlEncodeSlash(path: channel))/0/\(urlEncodeSlash(path: message.jsonString()))"
     } catch {
       let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)
       throw PNError.requestCreationFailure(reason)

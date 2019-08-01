@@ -245,6 +245,7 @@
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
 		35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSNumber+PubNub.swift"; sourceTree = "<group>"; };
+		35B6FBB122F357A7005EE490 /* publish_invalid_json.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = publish_invalid_json.json; sourceTree = "<group>"; };
 		35CDFEA622E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEA822E75DA800F3B9F2 /* Set+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEAA22E762E100F3B9F2 /* String+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+PubNubTests.swift"; sourceTree = "<group>"; };
@@ -347,6 +348,8 @@
 		3534D4E022C56524008E89FA /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
+				3534D4E522C67CCA008E89FA /* Router.swift */,
+				3567434522E1284000BF2639 /* PubNubRouter.swift */,
 				355F213022DE4D97004DEFBF /* Endpoint.swift */,
 				3534D4E122C56533008E89FA /* TimeEndpoint.swift */,
 				3534D4E322C57659008E89FA /* PublishEndpoint.swift */,
@@ -445,6 +448,7 @@
 			children = (
 				357AEB7A22E693C000C18250 /* publish_invalid_key.json */,
 				35FE93C622EF80AB0051C455 /* publish_success.json */,
+				35B6FBB122F357A7005EE490 /* publish_invalid_json.json */,
 			);
 			path = Publish;
 			sourceTree = "<group>";
@@ -618,8 +622,6 @@
 		35F0259722BBF948007BD7D3 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				3534D4E522C67CCA008E89FA /* Router.swift */,
-				3567434522E1284000BF2639 /* PubNubRouter.swift */,
 				35F0259822BBFA85007BD7D3 /* Session.swift */,
 				35277A6622D673090083B9B6 /* SessionDelegate.swift */,
 				3534D4E022C56524008E89FA /* Endpoints */,

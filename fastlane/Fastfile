@@ -44,7 +44,7 @@ lane :test do
   else # Test using simulators
     ENV["DEVICES"].split(',').each do |device|
       runtime = device.match(/(?:[\(])(.*)(?:\))/)[1].split('.').first
-      fix_xcode10_2_1_test_issue if runtime < '10'
+      fix_xcode10_2_1_test_issue if runtime.to_i < 10
 
       scan(
         workspace: ENV['WORKSPACE'],

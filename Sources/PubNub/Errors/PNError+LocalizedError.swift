@@ -67,11 +67,11 @@ public protocol LocalizedErrorReason {
 
 extension LocalizedErrorReason {
   public var failureReason: String {
-    return ErrorDescription.deafultFailureReason
+    return ErrorDescription.defaultFailureReason
   }
 
   public var recoverySuggestion: String {
-    return ErrorDescription.deafultRecoverySuggestion
+    return ErrorDescription.defaultRecoverySuggestion
   }
 }
 

@@ -93,7 +93,7 @@ class ConstantsTests: XCTestCase {
 
   func testErrorDescription_AnyJSON_StringCreationFailure() {
     XCTAssertEqual(ErrorDescription.AnyJSONError.stringCreationFailure,
-                   "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`")
+                   "`String(data:encoding:)` returned nil when converting JSON Data to a `String`")
   }
 
   func testErrorDescription_DecodingError_RootLeve() {

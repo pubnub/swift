@@ -72,7 +72,7 @@ struct Constant {
       return bundleId
     }
 
-    return "<Uknown BundleID>"
+    return "<Unknown BundleID>"
   }()
 
   public static let appVersion: String = {

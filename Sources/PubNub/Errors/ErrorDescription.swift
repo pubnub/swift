@@ -28,17 +28,17 @@
 import Foundation
 
 public struct ErrorDescription {
-  public static let deafultFailureReason: String = {
+  public static let defaultFailureReason: String = {
     "No failure reason was provied."
   }()
 
-  public static let deafultRecoverySuggestion: String = {
+  public static let defaultRecoverySuggestion: String = {
     "No recover suggestion was provided."
   }()
 
   public struct AnyJSONError {
     public static let stringCreationFailure: String = {
-      "`String(data:ecoding:)` returned nil when converting JSON Data to a `String`"
+      "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
     }()
   }
 
@@ -82,11 +82,11 @@ public struct ErrorDescription {
 
   struct PNError {
     public static let unknown: String = {
-      "Unkonwn Error: An unknown error occurred with the supplied message:"
+      "Unknown Error: An unknown error occurred with the supplied message:"
     }()
 
     public static let unknownError: String = {
-      "Unkonwn Error: An unkonwn error occurred with the supplied error:"
+      "Unknown Error: An unknown error occurred with the supplied error:"
     }()
 
     public static let sessionInvalidated: String = {
@@ -150,11 +150,11 @@ public struct ErrorDescription {
     }()
 
     public static let jsonDataCodingFailure: String = {
-      "The JSON object could be serizlied into a `Data` object."
+      "The JSON object could be serialized into a `Data` object."
     }()
 
     public static let requestMutatorFailure: String = {
-      "The request mutation failued resulting in an error"
+      "The request mutation failed resulting in an error"
     }()
   }
 
@@ -188,7 +188,7 @@ public struct ErrorDescription {
     }()
 
     public static let unauthorized: String = {
-      "Access was denied due to insuffienct authorization"
+      "Access was denied due to insufficient authorization"
     }()
 
     public static let forbidden: String = {
@@ -212,7 +212,7 @@ public struct ErrorDescription {
     }()
 
     public static let unrecognizedErrorPayload: String = {
-      "A payload not matching any konwn reason was received"
+      "A payload not matching any known reason was received"
     }()
 
     public static let unknown: String = {

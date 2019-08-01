@@ -35,7 +35,7 @@ end
 
 desc "Executes SDK Unit Tests"
 lane :test do
-  fix_xcode10_2_1_test_issue
+  fix_xcode10_2_1_test_issue if ENV['RUNTIME'].to_i < 10
 
   if ENV['PLATFORM'] == 'mac' # Test using phyiscal device
     scan(

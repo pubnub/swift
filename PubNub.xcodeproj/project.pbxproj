@@ -348,7 +348,6 @@
 		3534D4E022C56524008E89FA /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
-				3534D4E522C67CCA008E89FA /* Router.swift */,
 				3567434522E1284000BF2639 /* PubNubRouter.swift */,
 				355F213022DE4D97004DEFBF /* Endpoint.swift */,
 				3534D4E122C56533008E89FA /* TimeEndpoint.swift */,
@@ -624,6 +623,7 @@
 			children = (
 				35F0259822BBFA85007BD7D3 /* Session.swift */,
 				35277A6622D673090083B9B6 /* SessionDelegate.swift */,
+				3534D4E522C67CCA008E89FA /* Router.swift */,
 				3534D4E022C56524008E89FA /* Endpoints */,
 				354ADA9122DCB9F00093EFFB /* Request */,
 				354ADA9222DCBA270093EFFB /* Response */,

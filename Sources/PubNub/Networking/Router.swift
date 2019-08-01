@@ -197,11 +197,9 @@ extension Router {
       return .failure(PNError.requestCreationFailure(.unknown(error)))
     }
 
-
     // URL will double encode our attempts to sanitize '/' inside path inputs
     urlComponents.percentEncodedPath = urlComponents.percentEncodedPath
       .replacingOccurrences(of: "%252F", with: "%2F")
-
 
     // URL will not encode `+`, so we will do it manually
     urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?

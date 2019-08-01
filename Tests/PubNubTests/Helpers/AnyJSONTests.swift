@@ -33,7 +33,6 @@ struct SomeJSON: Codable {
 }
 
 class AnyJSONTests: XCTestCase {
-
   struct NonHashable {
     var value: String
   }

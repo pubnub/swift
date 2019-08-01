@@ -31,11 +31,11 @@ import Foundation
 public struct AnyJSON {
   let value: Any
 
-  init(_ value: [Any])  {
+  init(_ value: [Any]) {
     self.value = value
   }
 
-  init(_ value: [String: Any])  {
+  init(_ value: [String: Any]) {
     self.value = value
   }
 
@@ -175,7 +175,6 @@ extension AnyJSON: CustomStringConvertible {
 
 extension AnyJSON: CustomDebugStringConvertible {
   public var debugDescription: String {
-
     if let json = try? self.jsonString() {
       return json
     }

@@ -172,7 +172,9 @@ extension PubNubRouter: Router {
 extension PubNubRouter {
   func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
     do {
-      return try "/publish/\(publishKey)/\(subscribeKey)/0/\(urlEncodeSlash(path: channel))/0/\(urlEncodeSlash(path: message.jsonString()))"
+      let encodedChannel = urlEncodeSlash(path: channel)
+      let encodedMessage = try urlEncodeSlash(path: message.jsonString())
+      return "/publish/\(publishKey)/\(subscribeKey)/0/\(encodedChannel)/0/\(encodedMessage)"
     } catch {
       let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)
       throw PNError.requestCreationFailure(reason)

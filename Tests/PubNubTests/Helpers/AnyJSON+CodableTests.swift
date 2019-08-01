@@ -202,6 +202,7 @@ class AnyJSONCodableTests: XCTestCase {
   }
 
   // MARK: - Failed Coding
+
   func testFailedEncoding_UnkeyedContainer() {
     let nonCodable = NonCodable(value: "Test")
     let json = AnyJSON([nonCodable])

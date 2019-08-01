@@ -49,12 +49,12 @@ jobs:
     - name: "iOS 9 Unit Tests"
       before_script:
       # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-      - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env ios.9
     - name: "iOS 8 Unit Tests"
       before_script:
       # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-      - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env ios.8
     - name: "macOS Unit Tests"
       script: bundle exec fastlane test --env macos
@@ -66,8 +66,8 @@ jobs:
       script: bundle exec fastlane test --env tvos.10
     - name: "tvOS 9 Unit Tests"
       before_script:
-        # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-        - sudo mkdir "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
+      # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
+      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env tvos.9
     - name: "Cocoapods"
       script: bundle exec pod lib lint --allow-warnings

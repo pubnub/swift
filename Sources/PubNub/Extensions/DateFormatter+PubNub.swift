@@ -32,4 +32,16 @@ extension DateFormatter {
   var currentDateString: String {
     return string(from: Date())
   }
+
+  static func date(fromISO8601String string: String) -> Date? {
+    if let dateWithMilliseconds = Constant.iso8601DateFormatter.date(from: string) {
+      return dateWithMilliseconds
+    }
+
+    if let dateWithoutMilliseconds = Constant.iso8601WithoutMillisecondsDateFormatter.date(from: string) {
+      return dateWithoutMilliseconds
+    }
+
+    return nil
+  }
 }

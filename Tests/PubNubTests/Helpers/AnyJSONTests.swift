@@ -33,11 +33,11 @@ struct SomeJSON: Codable {
 }
 
 class AnyJSONTests: XCTestCase {
-  struct NonHashable {
+  struct NonHashable: Codable {
     var value: String
   }
 
-  struct NonHashableStringConvertible: CustomStringConvertible, CustomDebugStringConvertible {
+  struct NonHashableStringConvertible: Codable, CustomStringConvertible, CustomDebugStringConvertible {
     var value: String
 
     var description: String {
@@ -51,13 +51,12 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: Hashable
 
-  func testHashble_NonHashable() {
+  func testCompare_Codable() {
     let nonHashable = NonHashable(value: "value")
 
     let json = AnyJSON([nonHashable])
 
-    XCTAssertNotEqual(json, AnyJSON([nonHashable]))
-    XCTAssertEqual(json.hashValue, AnyJSON([nonHashable]).hashValue)
+    XCTAssertEqual(json, AnyJSON([nonHashable]))
   }
 
   func testArrayEquatible_Mismatch() {
@@ -90,25 +89,20 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: ExpressibleBy...
 
-  func testHashableExpressible_Array() {
-    let date = Date()
-    let literal: [Any] = ["One", 2, true, date, Data(), 3.0]
+  func testExpressible_Array() {
+    let literal: [Any] = ["One", 2, true, 3.0]
 
-    let json: AnyJSON = ["One", 2, true, date, Data(), 3.0]
+    let json: AnyJSON = ["One", 2, true, 3.0]
 
     XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
     XCTAssertNotNil(json.arrayValue)
   }
 
-  func testHashableExpressible_Dictionary() {
-    let date = Date()
+  func testExpressible_Dictionary() {
     let literal: [String: Any] = [
       "String": "One",
       "Int": 2,
       "Bool": true,
-      "Date": date,
-      "Data": Data(),
       "Float": 3.0
     ]
 
@@ -116,13 +110,10 @@ class AnyJSONTests: XCTestCase {
       "String": "One",
       "Int": 2,
       "Bool": true,
-      "Date": date,
-      "Data": Data(),
       "Float": 3.0
     ]
 
     XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertEqual(json.hashValue, AnyJSON(literal).hashValue)
     XCTAssertNotNil(json.dictionaryValue)
   }
 
@@ -150,7 +141,7 @@ class AnyJSONTests: XCTestCase {
     let test = NonHashableStringConvertible(value: testString)
 
     let stringJSON = AnyJSON([test])
-    XCTAssertEqual(stringJSON.description, [test].description)
+    XCTAssertEqual(stringJSON.description, "[{\"value\":\"\(testString)\"}]")
   }
 
   func testCustomStringConvertible_NonHashable_NoDescription() {
@@ -159,7 +150,7 @@ class AnyJSONTests: XCTestCase {
     let test = NonHashable(value: testString)
 
     let json = AnyJSON([test])
-    XCTAssertEqual(json.description, [test].description)
+    XCTAssertEqual(json.description, "[{\"value\":\"\(testString)\"}]")
   }
 
   func testCustomDebugStringConvertible_JSONString() {

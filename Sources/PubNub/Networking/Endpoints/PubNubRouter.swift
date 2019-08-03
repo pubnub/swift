@@ -167,13 +167,23 @@ extension PubNubRouter: Router {
       return .version2
     }
   }
+
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    switch endpoint {
+    case .publish, .compressedPublish, .fire:
+      return PublishResponseDecoder().decodeError(request: request, response: response, for: data)
+    default:
+      return AmbiguousResponseDecoder().decodeError(request: request, response: response, for: data)
+    }
+  }
 }
 
 extension PubNubRouter {
   func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
     do {
       let encodedChannel = urlEncodeSlash(path: channel)
-      let encodedMessage = try urlEncodeSlash(path: message.jsonString())
+
+      let encodedMessage = try urlEncodeSlash(path: message.jsonStringifyResult.get())
       return "/publish/\(publishKey)/\(subscribeKey)/0/\(encodedChannel)/0/\(encodedMessage)"
     } catch {
       let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)
@@ -198,7 +208,7 @@ extension PubNubRouter {
     if let meta = meta, !meta.isEmpty {
       do {
         try query.append(URLQueryItem(name: metaKey,
-                                      value: meta.jsonString()))
+                                      value: meta.jsonStringifyResult.get()))
       } catch {
         let reason = PNError
           .RequestCreationFailureReason

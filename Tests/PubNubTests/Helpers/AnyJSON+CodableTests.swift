@@ -28,6 +28,7 @@
 @testable import PubNub
 import XCTest
 
+// swiftlint:disable:next type_body_length
 class AnyJSONCodableTests: XCTestCase {
   struct NonCodable: Hashable {
     var value: String
@@ -40,10 +41,8 @@ class AnyJSONCodableTests: XCTestCase {
   var exampleList: [Any] = [
     "String",
     true,
-    Date(),
-    Float(1.34892),
-    Double(2.34892),
-    Decimal(3.34892),
+    Float(1.348),
+    //    Double(2.34892),
     Int.min,
     Int8.min,
     Int16.min,
@@ -60,10 +59,8 @@ class AnyJSONCodableTests: XCTestCase {
   var exampleDict: [String: Any] = [
     "String": "String",
     "Bool": true,
-    "Date": Date(),
-    "Float": Float(1.34892),
-    "Double": Double(2.34892),
-    "Decimal": Decimal(3.34892),
+    "Float": Float(1.348),
+    //    "Double": Double(2.34892),
     "Int": Int.min,
     "Int8": Int8.min,
     "Int16": Int16.min,
@@ -80,23 +77,14 @@ class AnyJSONCodableTests: XCTestCase {
   override func setUp() {
     super.setUp()
 
-    guard let data = "Big Data".data(using: .utf8) else {
-      return XCTFail("Could not create data")
-    }
-
-    exampleList.append(data)
-    XCTAssertNotNil(exampleList.last as? Data)
-
     exampleList.append(exampleDict)
     XCTAssertNotNil(exampleList.last as? [String: Any])
 
     exampleList.append(exampleList)
     XCTAssertNotNil(exampleList.last as? [Any])
 
-    exampleDict["Data"] = data
     exampleDict["Dictionary"] = exampleDict
     exampleDict["Array"] = exampleList
-    XCTAssertNotNil(exampleDict["Data"] as? Data)
     XCTAssertNotNil(exampleDict["Dictionary"] as? [String: Any])
     XCTAssertNotNil(exampleDict["Array"] as? [Any])
   }
@@ -112,15 +100,9 @@ class AnyJSONCodableTests: XCTestCase {
     }
 
     do {
-      let data = try json.jsonEncodedData()
+      let data = try json.jsonDataResult.get()
       let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
       XCTAssertEqual(json, jsonDecoder)
-    } catch {
-      XCTFail("Exception thrown: \(error.localizedDescription)")
-    }
-
-    do {
-      _ = try json.jsonString()
     } catch {
       XCTFail("Exception thrown: \(error.localizedDescription)")
     }
@@ -137,40 +119,155 @@ class AnyJSONCodableTests: XCTestCase {
     }
 
     do {
-      let data = try json.jsonEncodedData()
+      let data = try json.jsonDataResult.get()
       let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
       XCTAssertEqual(json, jsonDecoder)
-    } catch {
-      XCTFail("Exception thrown: \(error.localizedDescription)")
-    }
-
-    do {
-      _ = try json.jsonString()
     } catch {
       XCTFail("Exception thrown: \(error.localizedDescription)")
     }
   }
 
+  func testSubscribeResponse() {
+    guard let data = try? ImportTestResource.importResource("subscription_success") else {
+      return XCTFail("Couldn't import JSON Response")
+    }
+
+    XCTAssertNoThrow(try Constant.jsonDecoder.decode(SubscriptionResponsePayload.self, from: data))
+  }
+
+  func testPublishResponse() {
+    guard let data = try? ImportTestResource.importResource("publish_success") else {
+      return XCTFail("Couldn't import JSON Response")
+    }
+
+    XCTAssertNoThrow(try Constant.jsonDecoder.decode(AnyJSON.self, from: data))
+  }
+
+  func testCompare_Single_String() {
+    let testMessage = "abcdefg HIJKLMNO 123456789 !@#$%^&*()"
+    let jsonString = AnyJSON(testMessage)
+    let jsonStringLiteral = AnyJSON("abcdefg HIJKLMNO 123456789 !@#$%^&*()")
+
+    XCTAssertEqual(jsonString, jsonStringLiteral)
+    XCTAssertNotNil(try? jsonString.jsonStringifyResult.get())
+    XCTAssertEqual(try? jsonString.jsonStringifyResult.get(), try? jsonString.jsonStringifyResult.get())
+    XCTAssertEqual(jsonString.debugDescription, testMessage)
+  }
+
+  func testEncode_Single_String() {
+    let testValue = "abcdefg HIJKLMNO 123456789 !@#$%^&*()"
+    let json = AnyJSON(testValue)
+    let jsonFromLiteral = AnyJSON("abcdefg HIJKLMNO 123456789 !@#$%^&*()")
+
+    guard let jsonLiteralData = jsonFromLiteral.jsonData,
+      let jsonData = json.jsonData else {
+      return XCTFail("Couldn't create json data")
+    }
+
+    XCTAssertEqual(jsonLiteralData, jsonData)
+
+    let valueLiteral = String(bytes: jsonLiteralData, encoding: .utf8)
+    let valueJson = String(bytes: jsonData, encoding: .utf8)
+
+    XCTAssertNotNil(valueLiteral)
+    XCTAssertNotNil(valueJson)
+
+    XCTAssertEqual(valueLiteral, "\"\(testValue)\"")
+    XCTAssertEqual(valueJson, "\"\(testValue)\"")
+  }
+
+  func testEncode_Single_Int() {
+    let testValue = 11_123_123
+    let json = AnyJSON(testValue)
+    let jsonFromLiteral = AnyJSON(11_123_123)
+
+    guard let jsonLiteralData = jsonFromLiteral.jsonData,
+      let jsonData = json.jsonData else {
+      return XCTFail("Couldn't create json data")
+    }
+
+    XCTAssertEqual(jsonLiteralData, jsonData)
+
+    guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
+      let valueStringJson = String(bytes: jsonData, encoding: .utf8) else {
+      return XCTFail("Could not convert data back into string intermediary")
+    }
+
+    XCTAssertEqual(valueStringLiteral, valueStringJson)
+
+    let valueLiteral = Int(valueStringLiteral)
+    let valueJson = Int(valueStringJson)
+
+    XCTAssertEqual(valueLiteral, testValue)
+    XCTAssertEqual(valueJson, testValue)
+  }
+
+  func testEncode_Single_Double() {
+    let testValue = 11123.2302342
+    let json = AnyJSON(testValue)
+    let jsonFromLiteral = AnyJSON(11123.2302342)
+
+    guard let jsonLiteralData = jsonFromLiteral.jsonData,
+      let jsonData = json.jsonData else {
+      return XCTFail("Couldn't create json data")
+    }
+
+    XCTAssertEqual(jsonLiteralData, jsonData)
+
+    guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
+      let valueStringJson = String(bytes: jsonData, encoding: .utf8) else {
+      return XCTFail("Could not convert data back into string intermediary")
+    }
+
+    XCTAssertEqual(valueStringLiteral, valueStringJson)
+
+    let valueLiteral = Double(valueStringLiteral)
+    let valueJson = Double(valueStringJson)
+
+    XCTAssertEqual(valueLiteral, testValue)
+    XCTAssertEqual(valueJson, testValue)
+  }
+
+  func testEncode_Single_Bool() {
+    let testValue = true
+    let json = AnyJSON(testValue)
+    let jsonFromLiteral = AnyJSON(true)
+
+    guard let jsonLiteralData = jsonFromLiteral.jsonData,
+      let jsonData = json.jsonData else {
+      return XCTFail("Couldn't create json data")
+    }
+
+    XCTAssertEqual(jsonLiteralData, jsonData)
+
+    guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
+      let valueStringJson = String(bytes: jsonData, encoding: .utf8) else {
+      return XCTFail("Could not convert data back into string intermediary")
+    }
+
+    XCTAssertEqual(valueStringLiteral, valueStringJson)
+
+    let valueLiteral = Bool(valueStringLiteral)
+    let valueJson = Bool(valueStringJson)
+
+    XCTAssertEqual(valueLiteral, testValue)
+    XCTAssertEqual(valueJson, testValue)
+  }
+
   func testEncode_Array() {
     let json = AnyJSON(exampleList)
-
     do {
-      let anyJSONDecode = try json.decode(AnyJSON.self)
+      let data = try Constant.jsonEncoder.encode(json)
+      let anyJSONDecode = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
       XCTAssertEqual(json, anyJSONDecode)
     } catch {
-      XCTFail("Exception thrown: \(error.localizedDescription)")
+      XCTFail("Exception thrown: \(error)")
     }
 
     do {
-      let data = try json.jsonEncodedData()
+      let data = try Constant.jsonEncoder.encode(json)
       let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
       XCTAssertEqual(json, jsonDecoder)
-    } catch {
-      XCTFail("Exception thrown: \(error.localizedDescription)")
-    }
-
-    do {
-      _ = try json.jsonString()
     } catch {
       XCTFail("Exception thrown: \(error.localizedDescription)")
     }
@@ -187,15 +284,9 @@ class AnyJSONCodableTests: XCTestCase {
     }
 
     do {
-      let data = try json.jsonEncodedData()
+      let data = try json.jsonDataResult.get()
       let jsonDecoder = try Constant.jsonDecoder.decode(AnyJSON.self, from: data)
       XCTAssertEqual(json, jsonDecoder)
-    } catch {
-      XCTFail("Exception thrown: \(error.localizedDescription)")
-    }
-
-    do {
-      _ = try json.jsonString()
     } catch {
       XCTFail("Exception thrown: \(error.localizedDescription)")
     }
@@ -208,7 +299,7 @@ class AnyJSONCodableTests: XCTestCase {
     let json = AnyJSON([nonCodable])
 
     XCTAssertThrowsError(
-      try json.jsonEncodedData(),
+      try json.jsonDataResult.get(),
       "Should throw EncodingError"
     ) { error in
       guard let encodingError = error as? EncodingError else {
@@ -217,13 +308,12 @@ class AnyJSONCodableTests: XCTestCase {
 
       switch encodingError {
       case let .invalidValue(value, context):
-
-        XCTAssertEqual(nonCodable, value as? NonCodable)
-        XCTAssertEqual(context.codingPath.count, 0)
+        XCTAssertEqual(nonCodable, (value as? AnyJSONType)?.rawValue as? NonCodable)
+        XCTAssertEqual(context.codingPath.count, 1)
         XCTAssertNil(context.underlyingError)
         XCTAssertEqual(
           context.debugDescription,
-          ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
+          "AnyJSON could not encode invalid root-level JSON object"
         )
       @unknown default:
         XCTFail("New errors types were added that need to be accounted for")
@@ -237,7 +327,7 @@ class AnyJSONCodableTests: XCTestCase {
     let json = AnyJSON([codableKey: nonCodable])
 
     XCTAssertThrowsError(
-      try json.jsonEncodedData(),
+      try json.jsonDataResult.get(),
       "Should throw EncodingError"
     ) { error in
       guard let encodingError = error as? EncodingError else {
@@ -246,12 +336,12 @@ class AnyJSONCodableTests: XCTestCase {
 
       switch encodingError {
       case let .invalidValue(value, context):
-        XCTAssertEqual(nonCodable, value as? NonCodable)
-        XCTAssertEqual(context.codingPath.count, 0)
+        XCTAssertEqual(nonCodable, (value as? AnyJSONType)?.rawValue as? NonCodable)
+        XCTAssertEqual(context.codingPath.count, 1)
         XCTAssertNil(context.underlyingError)
         XCTAssertEqual(
           context.debugDescription,
-          ErrorDescription.EncodingError.invalidKeyedContainerErrorDescription
+          "AnyJSON could not encode invalid root-level JSON object"
         )
       @unknown default:
         XCTFail("New errors types were added that need to be accounted for")
@@ -263,7 +353,7 @@ class AnyJSONCodableTests: XCTestCase {
 
   func testCodingKeys_IntValue() {
     let intValue = 1
-    let keys = AnyJSONCodingKey(intValue: intValue)
+    let keys = AnyJSONType.AnyJSONTypeCodingKey(intValue: intValue)
     XCTAssertNil(keys?.intValue)
     XCTAssertEqual(keys?.stringValue, intValue.description)
   }

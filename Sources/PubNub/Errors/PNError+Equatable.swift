@@ -62,8 +62,8 @@ extension PNError.RequestCreationFailureReason: Equatable {
     rhs: PNError.RequestCreationFailureReason
   ) -> Bool {
     switch (lhs, rhs) {
-    case let (.jsonStringCodingFailure(_, lhsError), .jsonStringCodingFailure(_, rhsError)):
-      return lhsError.localizedDescription == rhsError.localizedDescription
+    case (.jsonStringCodingFailure, .jsonStringCodingFailure):
+      return true
     case (.missingPublishKey, .missingPublishKey):
       return true
     case (.missingSubscribeKey, .missingSubscribeKey):
@@ -72,8 +72,8 @@ extension PNError.RequestCreationFailureReason: Equatable {
       return true
     case let (.unknown(lhsError), .unknown(rhsError)):
       return lhsError.localizedDescription == rhsError.localizedDescription
-    case let (.jsonDataCodingFailure(_, lhsError), .jsonDataCodingFailure(_, rhsError)):
-      return lhsError.localizedDescription == rhsError.localizedDescription
+    case (.jsonDataCodingFailure, .jsonDataCodingFailure):
+      return true
     case let (.requestMutatorFailure(lhsRequest, lhsError), .requestMutatorFailure(rhsRequest, rhsError)):
       return lhsRequest == rhsRequest &&
         lhsError.localizedDescription == rhsError.localizedDescription

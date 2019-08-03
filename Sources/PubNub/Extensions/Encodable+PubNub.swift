@@ -1,5 +1,5 @@
 //
-//  SessionTests.swift
+//  Data+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,7 +25,18 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-class SessionTests: XCTestCase {}
+extension Encodable {
+  func encode(from container: inout SingleValueEncodingContainer) throws {
+    try container.encode(self)
+  }
+
+  func encode(from container: inout UnkeyedEncodingContainer) throws {
+    try container.encode(self)
+  }
+
+  func encode<T>(from container: inout KeyedEncodingContainer<T>, using key: T) throws where T: CodingKey {
+    try container.encode(self, forKey: key)
+  }
+}

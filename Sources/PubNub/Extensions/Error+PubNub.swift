@@ -37,4 +37,14 @@ extension Error {
   var urlError: URLError? {
     return self as? URLError
   }
+
+  /// Instance cast as a `EncodingError`
+  var encodingError: EncodingError? {
+    return self as? EncodingError
+  }
+
+  /// Instance cast as a `DecodingError`
+  var decodingError: DecodingError? {
+    return self as? DecodingError
+  }
 }

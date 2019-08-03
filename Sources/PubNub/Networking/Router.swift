@@ -215,7 +215,7 @@ extension Router {
       request.httpMethod = method.rawValue
       if let body = body {
         do {
-          request.httpBody = try body.jsonEncodedData()
+          request.httpBody = try body.jsonDataResult.get()
         } catch {
           return .failure(PNError
             .requestCreationFailure(

@@ -27,163 +27,230 @@
 
 import Foundation
 
+// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection
+
 /// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
-  let value: Any
+  public let value: AnyJSONType
 
-  init(_ value: [Any]) {
-    self.value = value
-  }
-
-  init(_ value: [String: Any]) {
-    self.value = value
+  public init(_ value: Any) {
+    self.value = AnyJSONType(rawValue: value)
   }
 
   // MARK: - Helpers
-
-  // swiftlint:disable discouraged_optional_collection
-
-  /// The value cast as a JSON Array
-  public var arrayValue: [Any]? {
-    return value as? [Any]
-  }
-
-  /// The value cast as a JSON Dictionary
-  public var dictionaryValue: [String: Any]? {
-    return value as? [String: Any]
-  }
 
   /// A Boolean value that indicates whether the underlying JSON Collection is empty.
   ///
   /// Will also return `true` if the underlying value is not a JSON Collection type
   public var isEmpty: Bool {
-    if let array = arrayValue {
-      return array.isEmpty
-    } else if let dictionary = dictionaryValue {
-      return dictionary.isEmpty
-    } else {
-      return true
+    switch value {
+    case let .array(value):
+      return value.isEmpty
+    case let .dictionary(value):
+      return value.isEmpty
+    default:
+      return false
     }
   }
-
-  // swiftlint:enable discouraged_optional_collection
 }
 
-extension AnyJSON: Hashable {
-  public static func == (lhs: AnyJSON, rhs: AnyJSON) -> Bool {
-    return compare(lhs.value, rhs.value)
+// MARK: - Codable
+
+extension AnyJSON: Codable {
+  public init(from decoder: Decoder) throws {
+    let jsonTypeValue = try AnyJSONType(from: decoder)
+    value = jsonTypeValue
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
-  private static func compare(_ lhs: Any, _ rhs: Any) -> Bool {
+  public func encode(to encoder: Encoder) throws {
+    try value.encode(to: encoder)
+  }
+
+  /// Decode the internal value to a given `Decodable` type
+  /// - parameters:
+  ///   - type: The `Type` of the `Any` value contained inside the `AnyJSON`
+  /// - returns: The JSON represented as the `Type` value
+  /// - throws: A Encoding/Decoding error if the stored `Any` is not valid JSON,
+  /// or whose structure does not match the provided `Type`
+  public func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
+    return try Constant.jsonDecoder.decode(type, from: Constant.jsonEncoder.encode(self))
+  }
+}
+
+// MARK: - Collection
+
+public enum AnyJSONIndex: Comparable {
+  case arrayIndex(Int)
+  case dictionaryIndex(DictionaryIndex<String, Any>)
+  case null
+
+  public static func == (lhs: AnyJSONIndex, rhs: AnyJSONIndex) -> Bool {
     switch (lhs, rhs) {
-    case let (lhs as [String: Any], rhs as [String: Any]):
-      return compare(lhs, rhs)
-    case let (lhs as [Any], rhs as [Any]):
-      return compare(lhs, rhs)
-    case let (lhs as Date, rhs as Date):
-      return lhs == rhs
-    case let (lhs as Data, rhs as Data):
-      return lhs == rhs
-    case let (lhs as Bool, rhs as Bool):
-      return lhs == rhs
-    case let (lhs as String, rhs as String):
-      return lhs == rhs
-    case let (lhs as Int, rhs as Int):
-      return lhs == rhs
-    case let (lhs as Double, rhs as Double):
-      return lhs.isEqual(to: rhs)
-    case let (lhs as NSDecimalNumber, rhs as NSDecimalNumber):
-      return lhs.decimalValue == rhs.decimalValue
-    case let (lhs as NSNumber, rhs as NSNumber):
-      return lhs.isUnderlyingTypeEqual(to: rhs)
-    case let (lhs as NSObject, rhs as NSObject):
-      return lhs.isEqual(rhs)
+    case let (.arrayIndex(left), .arrayIndex(right)):
+      return left == right
+    case let (.dictionaryIndex(left), .dictionaryIndex(right)):
+      return left == right
+    case (.null, .null):
+      return true
     default:
       return false
     }
   }
 
-  private static func compare(_ lhs: [String: Any], _ rhs: [String: Any]) -> Bool {
-    // Ensure the dictionaries have the same number of items
-    if lhs.count != rhs.count {
+  public static func < (lhs: AnyJSONIndex, rhs: AnyJSONIndex) -> Bool {
+    switch (lhs, rhs) {
+    case let (.arrayIndex(left), .arrayIndex(right)):
+      return left < right
+    case let (.dictionaryIndex(left), .dictionaryIndex(right)):
+      return left < right
+    default:
       return false
     }
-    // Walk through keys to ensure that each value is equal
-    for (key, lhv) in lhs {
-      guard let rhv = rhs[key], compare(lhv, rhv) else {
-        return false
-      }
-    }
-    return true
   }
+}
 
-  private static func compare(_ lhs: [Any], _ rhs: [Any]) -> Bool {
-    // Ensure that each array has the same number of elements
-    if lhs.count != rhs.count {
-      return false
-    }
-    // Walk through the arrays and compare
-    for index in 0 ..< lhs.count where !compare(lhs[index], rhs[index]) {
-      return false
-    }
-    return true
-  }
-
-  public func hash(into hasher: inout Hasher) {
-    hash(into: &hasher, value: value)
-  }
-
-  private func hash(into hasher: inout Hasher, value: Any) {
+extension AnyJSON: Collection {
+  public var startIndex: AnyJSONIndex {
     switch value {
-    case let value as Bool:
-      hasher.combine(value)
-    case let value as String:
-      hasher.combine(value)
-    case let value as Int:
-      hasher.combine(value)
-    case let value as Double:
-      hasher.combine(value)
-    case let value as [String: Any]:
-      let ordered = value.sorted { $0.key < $1.key }
-      ordered.forEach { hash(into: &hasher, value: $0.value) }
-    case let value as [Any]:
-      value.forEach { hash(into: &hasher, value: $0) }
+    case .array:
+      return .arrayIndex(arrayValue.startIndex)
+    case .dictionary:
+      return .dictionaryIndex(dictionaryValue.startIndex)
     default:
-      break
+      return .null
     }
+  }
+
+  public var endIndex: AnyJSONIndex {
+    switch value {
+    case .array:
+      return .arrayIndex(arrayValue.endIndex)
+    case .dictionary:
+      return .dictionaryIndex(dictionaryValue.endIndex)
+    default:
+      return .null
+    }
+  }
+
+  public func index(after index: AnyJSONIndex) -> AnyJSONIndex {
+    switch index {
+    case let .arrayIndex(index):
+      return .arrayIndex(arrayValue.index(after: index))
+    case let .dictionaryIndex(index):
+      return .dictionaryIndex(dictionaryValue.index(after: index))
+    default:
+      return .null
+    }
+  }
+
+  public subscript(position: AnyJSONIndex) -> (String, Any) {
+    switch position {
+    case let .arrayIndex(index):
+      return (String(index), AnyJSON(arrayValue[index]))
+    case let .dictionaryIndex(index):
+      return (dictionaryValue[index].key, AnyJSON(dictionaryValue[index].value))
+    default:
+      return ("", AnyJSON(NSNull()))
+    }
+  }
+}
+
+// MARK: - Equatable
+
+extension AnyJSON: Equatable {
+  public static func == (lhs: AnyJSON, rhs: AnyJSON) -> Bool {
+    return lhs.value == rhs.value
+  }
+}
+
+// MARK: - JSON Objects
+
+extension AnyJSON {
+  var jsonStringifyResult: Result<String, Error> {
+    return value.stringify.map { $0.replacingOccurrences(of: "\\/", with: "/") }
+  }
+
+  var jsonStringify: String? {
+    return try? jsonStringifyResult.get()
+  }
+
+  var jsonDataResult: Result<Data, Error> {
+    return value.jsonEncodedData
+  }
+
+  var jsonData: Data? {
+    return try? jsonDataResult.get()
+  }
+}
+
+// MARK: - Underlying Data Casting
+
+extension AnyJSON {
+  /// The underlying `Any` stored inside the `AnyJSON`
+  public var underlyingValue: Any {
+    return value.rawValue
+  }
+
+  public var stringOptional: String? {
+    return underlyingValue as? String
+  }
+
+  public var stringValue: String {
+    return stringOptional ?? ""
+  }
+
+  public var boolOptional: Bool? {
+    return underlyingValue as? Bool
+  }
+
+  public var boolValue: Bool {
+    return boolOptional ?? false
+  }
+
+  public var intOptional: Int? {
+    return underlyingValue as? Int
+  }
+
+  public var intValue: Int {
+    return intOptional ?? 0
+  }
+
+  public var doubleOptional: Double? {
+    return underlyingValue as? Double
+  }
+
+  public var doubleValue: Double {
+    return doubleOptional ?? 0.0
+  }
+
+  public var arrayOptional: [Any]? {
+    return underlyingValue as? [Any]
+  }
+
+  public var arrayValue: [Any] {
+    return arrayOptional ?? []
+  }
+
+  public var dictionaryOptional: [String: Any]? {
+    return underlyingValue as? [String: Any]
+  }
+
+  public var dictionaryValue: [String: Any] {
+    return dictionaryOptional ?? [:]
   }
 }
 
 // MARK: - CustomStringConvertible
 
-extension AnyJSON: CustomStringConvertible {
-  public var description: String {
-    if let json = try? self.jsonString() {
-      return json
-    }
-
-    if let value = value as? CustomStringConvertible {
-      return value.description
-    }
-
-    return String(describing: value)
-  }
-}
-
 // MARK: - CustomDebugStringConvertible
 
-extension AnyJSON: CustomDebugStringConvertible {
+extension AnyJSON: CustomStringConvertible, CustomDebugStringConvertible {
+  public var description: String {
+    return jsonStringify ?? Constant.jsonNull
+  }
+
   public var debugDescription: String {
-    if let json = try? self.jsonString() {
-      return json
-    }
-
-    if let value = value as? CustomDebugStringConvertible {
-      return value.debugDescription
-    }
-
-    return String(describing: value)
+    return String(describing: underlyingValue)
   }
 }
 
@@ -199,9 +266,63 @@ extension AnyJSON: ExpressibleByArrayLiteral {
 
 extension AnyJSON: ExpressibleByDictionaryLiteral {
   public init(dictionaryLiteral elements: (String, Codable)...) {
-    let dictionary = elements.reduce(into: [:]) { result, element in
-      result[element.0] = element.1
-    }
+    let dictionary = elements.reduce(into: [:]) { $0[$1.0] = $1.1 }
+
     self.init(dictionary)
   }
 }
+
+// MARK: - ExpressibleByBooleanLiteral
+
+extension AnyJSON: ExpressibleByBooleanLiteral {
+  public init(booleanLiteral value: BooleanLiteralType) {
+    self.init(value)
+  }
+}
+
+// MARK: - ExpressibleByFloatLiteral
+
+extension AnyJSON: ExpressibleByFloatLiteral {
+  public init(floatLiteral value: FloatLiteralType) {
+    self.init(value)
+  }
+}
+
+// MARK: - ExpressibleByIntegerLiteral
+
+extension AnyJSON: ExpressibleByIntegerLiteral {
+  public init(integerLiteral value: IntegerLiteralType) {
+    self.init(value)
+  }
+}
+
+// MARK: - ExpressibleByStringLiteral
+
+extension AnyJSON: ExpressibleByStringLiteral {
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(value)
+  }
+}
+
+// MARK: - AnyJSONError
+
+enum AnyJSONError: Error {
+  case unknownCoding(Error)
+  case stringCreationFailure(Error?)
+  case dataCreationFailure(Error?)
+}
+
+extension AnyJSONError: LocalizedError {
+  var localizedDescription: String {
+    switch self {
+    case .unknownCoding:
+      return "An unknown error occurred while performing `Codable` functions"
+    case .stringCreationFailure:
+      return ErrorDescription.AnyJSONError.stringCreationFailure
+    case .dataCreationFailure:
+      return "Failed to create JSONEncoded data"
+    }
+  }
+}
+
+// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection

@@ -162,7 +162,7 @@ extension MockURLSession {
         return nil
       }
 
-      mockTask.mockData = try? endpointResource?.body.jsonEncodedData()
+      mockTask.mockData = try? endpointResource?.body.jsonDataResult.get()
 
       // Return either the response or a URL error
       if let responseCode = endpointResource?.code {

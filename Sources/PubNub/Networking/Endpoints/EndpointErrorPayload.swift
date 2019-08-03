@@ -27,17 +27,6 @@
 
 import Foundation
 
-extension PubNubRouter {
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    switch endpoint {
-    case .publish:
-      return PublishResponseDecoder().decodeError(request: request, response: response, for: data)
-    default:
-      return AmbiguousResponseDecoder().decodeError(request: request, response: response, for: data)
-    }
-  }
-}
-
 struct AmbiguousResponseDecoder: ResponseDecoder {
   func decode(response: Response<Data>) -> Result<Response<AnyJSON>, Error> {
     do {

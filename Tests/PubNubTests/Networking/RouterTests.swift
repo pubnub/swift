@@ -46,7 +46,7 @@ class RouterTests: XCTestCase {
 
     var testablePathPayload = AnyJSON(["Key": "Value"])
     func path() throws -> String {
-      return try "some/path/\(testablePathPayload.jsonString())"
+      return try "some/path/\(testablePathPayload.jsonStringifyResult.get())"
     }
 
     var additionalHeaders: HTTPHeaders = []
@@ -120,7 +120,7 @@ class RouterTests: XCTestCase {
     XCTAssertEqual(path, sanitaryPath)
   }
 
-  func testAsRequest_Error_Unknown() {
+  func testAsURL_Error_Unknown() {
     let payload = [NonCodable(code: 0)]
 
     let config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: "TestKeyNotReal")
@@ -133,13 +133,7 @@ class RouterTests: XCTestCase {
     case .success:
       XCTFail("The URL Convertible should always fail")
     case let .failure(error):
-      let context = EncodingError.Context(
-        codingPath: [],
-        debugDescription: ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
-      )
-
-      let encodingError = EncodingError.invalidValue(payload, context)
-      let pnError = PNError.requestCreationFailure(.unknown(encodingError))
+      let pnError = PNError.requestCreationFailure(.unknown(AnyJSONError.stringCreationFailure(nil)))
       XCTAssertEqual(error.pubNubError, pnError)
     }
   }

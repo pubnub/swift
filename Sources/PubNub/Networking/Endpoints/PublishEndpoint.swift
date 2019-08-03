@@ -33,9 +33,9 @@ struct PublishResponseDecoder: ResponseDecoder {
   func decode(response: Response<Data>) -> Result<Response<PublishResponsePayload>, Error> {
     do {
       // Publish Response pattern:  [Int, String, String]
-      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload).arrayOptional
 
-      guard let timeString = decodedPayload.arrayValue?.last as? String, let timetoken = Int64(timeString) else {
+      guard let timeString = decodedPayload?.last as? String, let timetoken = Int64(timeString) else {
         return .failure(PNError.endpointFailure(.malformedResponseBody,
                                                 forRequest: response.request,
                                                 onResponse: response.response))
@@ -69,11 +69,11 @@ struct PublishResponseDecoder: ResponseDecoder {
     }
 
     // Publish Response pattern:  [Int, String, String]
-    let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data)
+    let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data).arrayOptional
 
-    if let errorFlag = decodedPayload?.arrayValue?.first as? Int, errorFlag == 0 {
+    if let errorFlag = decodedPayload?.first as? Int, errorFlag == 0 {
       let errorPayload: EndpointErrorPayload
-      if let message = decodedPayload?.arrayValue?[1] as? String {
+      if let message = decodedPayload?[1] as? String {
         errorPayload = EndpointErrorPayload(message: .init(rawValue: message),
                                             service: .publish,
                                             status: .init(rawValue: response.statusCode))

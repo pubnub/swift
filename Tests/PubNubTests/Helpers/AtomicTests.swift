@@ -78,7 +78,7 @@ class AtomicTests: XCTestCase {
     let value = AnyJSON(validJson)
     let atomic = Atomic(value)
 
-    XCTAssertNoThrow(try atomic.lockedTry { try $0.jsonEncodedData() })
+    XCTAssertNoThrow(try atomic.lockedTry { try $0.jsonDataResult.get() })
   }
 
   func testIsEmpty() {

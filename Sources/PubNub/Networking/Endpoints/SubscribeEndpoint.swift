@@ -52,7 +52,7 @@ struct SubscribeResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-struct SubscriptionResponsePayload: Codable, Hashable {
+struct SubscriptionResponsePayload: Codable {
   // Root Level
   let token: TimetokenResponse
   let messages: [MessageResponse]
@@ -63,7 +63,7 @@ struct SubscriptionResponsePayload: Codable, Hashable {
   }
 }
 
-struct TimetokenResponse: Codable, Hashable {
+struct TimetokenResponse: Codable {
   let timetokenString: String
   let region: Int
 
@@ -79,7 +79,7 @@ extension TimetokenResponse {
   }
 }
 
-struct MessageResponse: Codable, Hashable {
+struct MessageResponse: Codable {
   let shard: String
   let subscriptionMatch: String?
   let channel: String

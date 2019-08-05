@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@
 import Foundation
 
 /// A configuration object that defines behavior and policies for a PubNub session.
-public struct PubNubConfiguration: Codable, Hashable {
+public struct PubNubConfiguration: Hashable {
   /// A default session configuration object.
   public static var `default` = PubNubConfiguration()
 
@@ -44,7 +44,7 @@ public struct PubNubConfiguration: Codable, Hashable {
   ///   - and: The dictionary key used to search the Info Dictionary of the `Bundle` for the Subscribe Key Value
   public init(from bundle: Bundle = .main,
               using pubPlistKey: String = "PubNubPublishKey", and subPlistKey: String = "PubNubSubscribeKey") {
-    self.init(from: bundle.infoDictionary, using: pubPlistKey, and: subPlistKey)
+    self.init(from: bundle.infoDictionary ?? [:], using: pubPlistKey, and: subPlistKey)
   }
 
   /// Creates a configuration from the contents of the specified Dictionary
@@ -57,9 +57,9 @@ public struct PubNubConfiguration: Codable, Hashable {
   ///   - from: The `Dictionary` that contains the Pub/Sub keys to use for the `PubNub` session.
   ///   - using: The unique `Dictionary` key used to retrieve the stored PubNub Publish Key
   ///   - and: The unique `Dictionary` key used to retrieve the stored PubNub Publish Key
-  public init(from infoDictionary: [String: Any]?, using pubDictKey: String, and subDictKey: String) {
-    self.init(publishKey: infoDictionary?[pubDictKey] as? String,
-              subscribeKey: infoDictionary?[subDictKey] as? String)
+  public init(from infoDictionary: [String: Any], using pubDictKey: String, and subDictKey: String) {
+    self.init(publishKey: infoDictionary[pubDictKey] as? String,
+              subscribeKey: infoDictionary[subDictKey] as? String)
   }
 
   /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
@@ -75,6 +75,8 @@ public struct PubNubConfiguration: Codable, Hashable {
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey
   }
+
+  // MARK: - Router Configurations
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   public var publishKey: String?
@@ -94,16 +96,59 @@ public struct PubNubConfiguration: Codable, Hashable {
   /// [documentation](https://developer.apple.com/documentation/security/preventing_insecure_network_connections)
   /// for further details.
   public var useSecureConnections: Bool = true
-  /// Domain name used for requests
+  /// Domain name used for requests ps.pndsn.com
   public var origin: String = "ps.pndsn.com"
+
+  // MARK: - Debug Configuration
+
+  public var useInstanceId: Bool = false
+  public var useRequestId: Bool = false
+  // URLSessionReplaceable?
+
+  // MARK: - Session Configuration
+
+  public var urlSessionConfiguration: URLSessionConfiguration = .pubnub
+
+  // MARK: - Presence Configurations (Presence Policy?)
+
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  public var presenceTimeout: Int = 300
+  public var presenceTimeout: Int = 300 {
+    didSet {
+      if presenceTimeout < 20 {
+        presenceTimeout = 20
+      }
+    }
+  }
+
   /// How often (in seconds) the client will announce itself to server
   public var heartbeatInterval: Int = -1
   /// Whether to send out the leave requests
   public var supressLeaveEvents: Bool = false
   /// The number of messages into the payload before emitting `RequestMessageCountExceeded`
   public var requestMessageCountThreshold: Int = 100
+
+  // MARK: - Subscription Configurations
+
+  /// PSV2 feature to subscribe with a custom filter expression.
+  public var filterExpression: String?
+  //  public var subscriptionSessionConfiguration: URLSessionConfiguration? = nil
+}
+
+/// A Configuration Object that behavior and policies for a Network tasks.
+public struct NetworkConfiguration {
+  public let customSession: SessionReplaceable?
+  public let requestOperator: RequestOperator?
+  public let responseOperator: ResponseOperator?
+
+  public init(
+    customSession: SessionReplaceable? = nil,
+    requestOperator: RequestOperator? = nil,
+    responseOperator: ResponseOperator? = nil
+  ) {
+    self.customSession = customSession
+    self.requestOperator = requestOperator
+    self.responseOperator = responseOperator
+  }
 }

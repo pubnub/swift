@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,14 @@
 
 import UIKit
 
+import PubNub
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
+  var pubnub: PubNub?
 
+  // swiftlint:disable:next discouraged_optional_collection
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
     return true

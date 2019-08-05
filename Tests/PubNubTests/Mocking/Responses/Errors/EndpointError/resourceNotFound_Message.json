@@ -1,0 +1,8 @@
+{
+  "code": 404,
+  "body": {"message": "Not found: '/v2/presence/demo/demo/channel/channelSwift/heartbeat'","error": 1,"service": "Presence"}
+}
+
+
+
+

@@ -3,8 +3,8 @@
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  http://www.pubnub.com/
-//  http://www.pubnub.com/terms
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -59,6 +59,13 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.requestMessageCountThreshold, 100)
   }
 
+  func testPresenceTimeout_Floor() {
+    var config = PubNubConfiguration.default
+    config.presenceTimeout = 0
+
+    XCTAssertEqual(config.presenceTimeout, 20)
+  }
+
   func testInit_Bundle() {
     let config = PubNubConfiguration(from: testsBundle)
 
@@ -84,5 +91,12 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertEqual(config.publishKey, publishKeyValue)
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)
+  }
+
+  func testNetworkConfiguration() {
+    let session = Session()
+    let networkConfig = NetworkConfiguration(customSession: session)
+
+    XCTAssertEqual(networkConfig.customSession?.sessionID, session.sessionID)
   }
 }

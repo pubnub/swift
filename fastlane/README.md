@@ -25,6 +25,31 @@ Executes SDK Unit Tests
 fastlane code_coverage
 ```
 Generates Code Coverage Files
+### codacy_code_coverage
+```
+fastlane codacy_code_coverage
+```
+
+### release_verification
+```
+fastlane release_verification
+```
+Executes Linting for Framework releasing
+### lint_cocoapods
+```
+fastlane lint_cocoapods
+```
+Lints a release using Cocoapods
+### lint_swift_package_manager
+```
+fastlane lint_swift_package_manager
+```
+Lints a release using Swift Package Manager
+### code_coverage_local
+```
+fastlane code_coverage_local
+```
+Generates Code Coverage Files
 ### build_example
 ```
 fastlane build_example

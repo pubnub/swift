@@ -61,12 +61,14 @@ extension PubNubRouter: Router {
       return .get
     case .hereNow:
       return .get
+    case .whereNow:
+      return .get
     }
   }
 
   func path() throws -> String {
-    let publishKey = configuration.publishKey ?? ""
-    let subscribeKey = configuration.subscribeKey ?? ""
+    let publishKey = configuration.publishKey?.urlEncodeSlash ?? ""
+    let subscribeKey = configuration.subscribeKey?.urlEncodeSlash ?? ""
 
     // General Note: Only URL Encode slashes `/` for the channel(s) in the path.
     // Everything else will be encoded by the URL object
@@ -89,9 +91,12 @@ extension PubNubRouter: Router {
       return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
     case let .hereNow(channels, _, _, _):
       return "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+    case let .whereNow(uuid):
+      return "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func queryItems() throws -> [URLQueryItem] {
     var query = defaultQueryItems
     switch endpoint {
@@ -133,6 +138,8 @@ extension PubNubRouter: Router {
       }
       query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
       query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
+    case .whereNow:
+      break
     }
     return query
   }
@@ -155,6 +162,8 @@ extension PubNubRouter: Router {
       return nil
     case .hereNow:
       return nil
+    case .whereNow:
+      return nil
     }
   }
 
@@ -170,6 +179,8 @@ extension PubNubRouter: Router {
       return .subscribe
     case .hereNow:
       return .subscribe
+    case .whereNow:
+      return .subscribe
     }
   }
 
@@ -184,7 +195,9 @@ extension PubNubRouter: Router {
     case .subscribe:
       return .version2
     case .hereNow:
-      return .version2
+      return .none
+    case .whereNow:
+      return .none
     }
   }
 

@@ -41,6 +41,11 @@ public enum Endpoint {
     case getPresenceState
     case hereNow
     case whereNow
+    case channelsForGroup
+    case addChannelsForGroup
+    case removeChannelsForGroup
+    case channelGroups
+    case deleteGroup
   }
 
   // Time Endpoint
@@ -58,7 +63,6 @@ public enum Endpoint {
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
-  //  case hereNowGlobal                        = "HereNowGlobal"
   //  case heartbeat                            = "Heartbeat"
   //  case setState                             = "SetState"
   //  case getState                             = "GetState"
@@ -66,11 +70,11 @@ public enum Endpoint {
   //  case stateForChannelGroup                 = "StateForChannelGroup"
   //  case unsubscribe                          = "Unsubscribe"
   // Channel Groups
-  //  case addChannelsToGroup                   = "AddChannelsToGroup"
-  //  case removeChannelsFromGroup              = "RemoveChannelsFromGroup"
-  //  case channelGroups                        = "ChannelGroups"
-  //  case removeGroup                          = "RemoveGroup"
-  //  case channelsForGroup                     = "ChannelsForGroup"
+  case channelsForGroup(group: String)
+  case addChannelsForGroup(group: String, channels: [String])
+  case removeChannelsForGroup(group: String, channels: [String])
+  case channelGroups
+  case deleteGroup(group: String)
   // Push Notifications
   //  case pushNotificationEnabledChannels      = "PushNotificationEnabledChannels"
   //  case addPushNotificationsOnChannels       = "AddPushNotificationsOnChannels"
@@ -93,6 +97,16 @@ public enum Endpoint {
       return .hereNow
     case .whereNow:
       return .whereNow
+    case .channelsForGroup:
+      return .channelsForGroup
+    case .addChannelsForGroup:
+      return .addChannelsForGroup
+    case .removeChannelsForGroup:
+      return .removeChannelsForGroup
+    case .channelGroups:
+      return .channelGroups
+    case .deleteGroup:
+      return .deleteGroup
     }
   }
 }
@@ -112,6 +126,16 @@ extension Endpoint: CustomStringConvertible {
       return "Here Now"
     case .whereNow:
       return "Where Now"
+    case .channelsForGroup:
+      return "List of Channels for Group"
+    case .addChannelsForGroup:
+      return "Add Channels to Group"
+    case .removeChannelsForGroup:
+      return "Remove Channels from Group"
+    case .channelGroups:
+      return "List of Channel Groups"
+    case .deleteGroup:
+      return "Delete Channel Group"
     }
   }
 }

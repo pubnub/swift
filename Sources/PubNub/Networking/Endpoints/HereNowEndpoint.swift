@@ -110,7 +110,6 @@ public struct HereNowUUIDPayload: Codable {
 
 // MARK: Where Now Response
 
-// {"status": 200, "message": "OK", "payload": {"channels": ["channelSwift"]}, "service": "Presence"}
 public typealias WhereNowResponsePayload = AnyPresencePayload<WhereNowPayload>
 
 public struct WhereNowPayload: Codable {

@@ -88,7 +88,7 @@ extension PubNubRouter: Router {
     case let .subscribe(parameters):
       return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
     case let .hereNow(channels, _, _, _):
-      return "/v2/presence/sub-key/\(subscribeKey)/uuid/\(channels.csvString.urlEncodeSlash)"
+      return "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     }
   }
 

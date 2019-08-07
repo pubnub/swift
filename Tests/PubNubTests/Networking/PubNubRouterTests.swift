@@ -113,14 +113,14 @@ class PubNubRouterTests: XCTestCase {
     }
 
     var testPath = "/publish/TestKeyNotReal/TestKeyNotReal/0"
-    let encodedChannel = publishRouter.urlEncodeSlash(path: testChannel)
+    let encodedChannel = testChannel.urlEncodeSlash
     // URLEncode the path like it would be done inside the URL
     guard let encodedMessage = testMessage.description
       .addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) else {
       return XCTFail("Message could not be encoded")
     }
     // Perform the additional encoding to sanitize the forward slashes
-    testPath = "\(testPath)/\(encodedChannel)/0/\(publishRouter.urlEncodeSlash(path: encodedMessage))"
+    testPath = "\(testPath)/\(encodedChannel)/0/\(encodedMessage.urlEncodeSlash)"
 
     // url.path with print without being percent encoded, but will in fact be percent encoded
     XCTAssertFalse(url.description.contains(url.path))

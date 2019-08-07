@@ -37,4 +37,9 @@ extension String {
   var isPresenceChannel: Bool {
     return hasSuffix("-pnpres")
   }
+
+  /// Sanitizes attempts to include `/` characters inside path components
+  var urlEncodeSlash: String {
+    return replacingOccurrences(of: "/", with: "%2F")
+  }
 }

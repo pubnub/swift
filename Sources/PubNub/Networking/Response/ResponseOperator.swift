@@ -125,8 +125,8 @@ extension Request {
     operator responseOperator: ResponseOperator? = nil,
     completion: @escaping (Result<Response<D.Payload>, Error>) -> Void
   ) {
-    appendResponseCompletion {
-      switch self.error {
+    appendResponseCompletion { [weak self] in
+      switch self?.error {
       case let .some(error as PNError):
         queue.async { completion(.failure(error)) }
         return
@@ -138,23 +138,24 @@ extension Request {
       }
 
       // Ensure that we have valid request, response, and data
-      guard let urlRequest = self.urlRequest,
-        let urlResponse = self.urlResponse else {
+      guard let urlRequest = self?.urlRequest,
+        let urlResponse = self?.urlResponse,
+        let router = self?.router else {
         let message = "Request and/or Response nil w/o an underlying error"
         queue.async { completion(.failure(PNError.unknown(message))) }
 
         return
       }
 
-      let dataResponse = Response<Data>(router: self.router,
+      let dataResponse = Response<Data>(router: router,
                                         request: urlRequest,
                                         response: urlResponse,
-                                        payload: self.data ?? Data())
+                                        payload: self?.data ?? Data())
 
       // Decode the Response
       switch dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) {
       case let .success(decodedResponse):
-        self.sessionStream?.emitDidDecode(dataResponse)
+        self?.sessionStream?.emitDidDecode(dataResponse)
         if let responseOperator = responseOperator {
           // Mutate Opject
           responseOperator.mutate(response: decodedResponse) { _ in
@@ -164,7 +165,7 @@ extension Request {
           queue.async { completion(.success(decodedResponse)) }
         }
       case let .failure(decodeError):
-        self.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)
+        self?.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)
         queue.async { completion(.failure(decodeError)) }
       }
     }

@@ -59,5 +59,5 @@ struct TimeResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct TimeResponsePayload: Codable, Hashable {
-  let timetoken: Timetoken
+  public let timetoken: Timetoken
 }

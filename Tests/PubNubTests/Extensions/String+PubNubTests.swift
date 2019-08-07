@@ -43,4 +43,14 @@ final class StringPubNubTests: XCTestCase {
     XCTAssertFalse(channel.isPresenceChannel)
     XCTAssertTrue(presece.isPresenceChannel)
   }
+
+  func testURLEncodeSlash() {
+    let userInput = "unsanitary/input".urlEncodeSlash
+    let path = "/path/component/\(userInput)/end"
+
+    let sanitaryInput = userInput.replacingOccurrences(of: "/", with: "%2F")
+    let sanitaryPath = "/path/component/\(sanitaryInput)/end"
+
+    XCTAssertEqual(path, sanitaryPath)
+  }
 }

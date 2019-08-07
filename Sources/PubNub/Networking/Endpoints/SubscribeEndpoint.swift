@@ -54,8 +54,8 @@ struct SubscribeResponseDecoder: ResponseDecoder {
 
 struct SubscriptionResponsePayload: Codable {
   // Root Level
-  let token: TimetokenResponse
-  let messages: [MessageResponse]
+  public let token: TimetokenResponse
+  public let messages: [MessageResponse]
 
   enum CodingKeys: String, CodingKey {
     case token = "t"
@@ -64,32 +64,35 @@ struct SubscriptionResponsePayload: Codable {
 }
 
 struct TimetokenResponse: Codable {
-  let timetokenString: String
-  let region: Int
+  public let timetoken: Timetoken
+  public let region: Int
 
   enum CodingKeys: String, CodingKey {
-    case timetokenString = "t"
+    case timetoken = "t"
     case region = "r"
   }
-}
 
-extension TimetokenResponse {
-  var timetoken: Timetoken? {
-    return Timetoken(timetokenString)
+  // We want the timetoken as a Int instead of a String
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    region = try container.decode(Int.self, forKey: .region)
+
+    let timetokenString = try container.decode(String.self, forKey: .timetoken)
+    timetoken = Timetoken(timetokenString) ?? 0
   }
 }
 
 struct MessageResponse: Codable {
-  let shard: String
-  let subscriptionMatch: String?
-  let channel: String
-  let payload: AnyJSON
-  let flags: Int
-  let issuer: String
-  let subscribeKey: String
-  let originTimetoken: TimetokenResponse?
-  let publishTimetoken: TimetokenResponse
-  let metadata: AnyJSON?
+  public let shard: String
+  public let subscriptionMatch: String?
+  public let channel: String
+  public let payload: AnyJSON
+  public let flags: Int
+  public let issuer: String
+  public let subscribeKey: String
+  public let originTimetoken: TimetokenResponse?
+  public let publishTimetoken: TimetokenResponse
+  public let metadata: AnyJSON?
 
   enum CodingKeys: String, CodingKey {
     case shard = "a"

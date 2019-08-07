@@ -100,8 +100,8 @@ public struct PublishResponsePayload: Codable, Hashable {
 }
 
 public struct ErrorResponse: Codable, Hashable {
-  var message: String?
-  var error: Bool
-  var service: String?
-  var status: Int
+  public let message: String?
+  public let error: Bool
+  public let service: String?
+  public let status: Int
 }

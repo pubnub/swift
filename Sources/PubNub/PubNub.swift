@@ -181,6 +181,34 @@ public struct PubNub {
         }
       }
   }
+
+  public func whereNow(
+    for uuid: String,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<WhereNowPayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .whereNow(uuid: uuid))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
 }
 
 // swiftlint:enable discouraged_optional_boolean

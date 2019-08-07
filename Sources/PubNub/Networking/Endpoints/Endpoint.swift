@@ -40,6 +40,7 @@ public enum Endpoint {
     case setPresenceState
     case getPresenceState
     case hereNow
+    case whereNow
   }
 
   // Time Endpoint
@@ -56,9 +57,8 @@ public enum Endpoint {
   //  case deleteMessage                        = "DeleteMessage"
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
+  case whereNow(uuid: String)
   //  case hereNowGlobal                        = "HereNowGlobal"
-  //  case hereNowForChannel                    = "HereNowForChannel"
-  //  case hereNowForChannelGroup               = "HereNowForChannelGroup"
   //  case heartbeat                            = "Heartbeat"
   //  case setState                             = "SetState"
   //  case getState                             = "GetState"
@@ -91,6 +91,8 @@ public enum Endpoint {
       return .subscribe
     case .hereNow:
       return .hereNow
+    case .whereNow:
+      return .whereNow
     }
   }
 }
@@ -108,6 +110,8 @@ extension Endpoint: CustomStringConvertible {
       return "Subscribe"
     case .hereNow:
       return "Here Now"
+    case .whereNow:
+      return "Where Now"
     }
   }
 }

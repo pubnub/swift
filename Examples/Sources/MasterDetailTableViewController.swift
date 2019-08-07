@@ -105,16 +105,19 @@ class MasterDetailTableViewController: UITableViewController {
 
   enum PresenceRow: Int {
     case hereNow = 0
+    case whereNow = 1
 
     var title: String {
       switch self {
       case .hereNow:
         return "Here Now"
+      case .whereNow:
+        return "Where Now"
       }
     }
 
     static var rowCount: Int {
-      return 1
+      return 2
     }
   }
 
@@ -206,6 +209,8 @@ class MasterDetailTableViewController: UITableViewController {
     switch PresenceRow(rawValue: row) {
     case .some(.hereNow):
       performHereNowRequest()
+    case .some(.whereNow):
+      performWhereNowRequest()
     case .none:
       break
     }
@@ -235,6 +240,17 @@ class MasterDetailTableViewController: UITableViewController {
 
   func performHereNowRequest() {
     pubnub.hereNow(on: ["channelSwift"], and: ["demo"], also: true) { result in
+      switch result {
+      case let .success(response):
+        print("Successful WhereNow Response: \(response)")
+      case let .failure(error):
+        print("Failed WhereNow Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performWhereNowRequest() {
+    pubnub.whereNow(for: "db9c5e39-7c95-40f5-8d71-125765b6f561") { result in
       switch result {
       case let .success(response):
         print("Successful HereNow Response: \(response)")

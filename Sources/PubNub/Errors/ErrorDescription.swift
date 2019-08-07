@@ -117,6 +117,14 @@ public struct ErrorDescription {
       "Request Retry Failed: Request reached max retry count with final error:"
     }()
 
+    public static let requestCancelled: String = {
+      "The request was explicitly cancelled without error"
+    }()
+
+    public static let messageCountExceededMaximum: String = {
+      "The amount of messages returned exceeded the maximum allowed"
+    }()
+
     public static let requestCreationFailure: String = {
       "Request Creation Failed:"
     }()

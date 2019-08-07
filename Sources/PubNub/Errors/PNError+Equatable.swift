@@ -41,6 +41,8 @@ extension PNError: Equatable {
       return true
     case let (.sessionDeinitialized(lhsUUID), .sessionDeinitialized(rhsUUID)):
       return lhsUUID == rhsUUID
+    case (.messageCountExceededMaximum, .messageCountExceededMaximum):
+      return true
     case let (.requestRetryFailed(lhsParams), .requestRetryFailed(rhsParams)):
       return lhsParams.1 == rhsParams.1 &&
         lhsParams.dueTo.localizedDescription == rhsParams.dueTo.localizedDescription &&

@@ -96,3 +96,98 @@ public typealias WhereNowResponsePayload = AnyPresencePayload<WhereNowPayload>
 public struct WhereNowPayload: Codable {
   public let channels: [String]
 }
+
+struct SetPresenceStateResponseDecoder: ResponseDecoder {
+  func decode(response: Response<Data>) -> Result<Response<SetPresenceStatePayload>, Error> {
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(SetPresenceStatePayload.self, from: response.payload)
+
+      let decodedResponse = Response<SetPresenceStatePayload>(router: response.router,
+                                                              request: response.request,
+                                                              response: response.response,
+                                                              data: response.data,
+                                                              payload: decodedPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
+    }
+  }
+}
+
+struct PresenceLeaveResponseDecoder: ResponseDecoder {
+  func decode(response: Response<Data>) -> Result<Response<EndpointErrorPayload>, Error> {
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(EndpointErrorPayload.self, from: response.payload)
+
+      let decodedResponse = Response<EndpointErrorPayload>(router: response.router,
+                                                           request: response.request,
+                                                           response: response.response,
+                                                           data: response.data,
+                                                           payload: decodedPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         forRequest: response.request,
+                         onResponse: response.response))
+    }
+  }
+}
+
+// MARK: - Response Body
+
+public struct SetPresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+  public var payload: [String: AnyJSON]
+}
+
+extension SetPresenceStatePayload {
+  public func normalizedPayload(using channels: [String]) -> [String: [String: AnyJSON]] {
+    var normalizedPayload = [String: [String: AnyJSON]]()
+    channels.forEach { normalizedPayload[$0] = payload }
+    return normalizedPayload
+  }
+}
+
+// Get State Payloads
+
+public struct SinglePresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+  public var uuid: String
+
+  public var channel: String
+  public var payload: [String: AnyJSON]
+}
+
+extension SinglePresenceStatePayload {
+  public var normalizedPayload: [String: [String: AnyJSON]] {
+    return [channel: payload]
+  }
+}
+
+public struct MultiPresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+
+  public var payload: PresenceChannelsPayload
+}
+
+extension MultiPresenceStatePayload {
+  public var normalizedPayload: [String: [String: AnyJSON]] {
+    return payload.channels
+  }
+}
+
+public struct PresenceChannelsPayload: Codable, Equatable {
+  public var channels: [String: [String: AnyJSON]]
+}

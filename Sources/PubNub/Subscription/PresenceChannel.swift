@@ -1,5 +1,5 @@
 //
-//  Data+PubNub.swift
+//  PresenceChannel.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,33 +27,55 @@
 
 import Foundation
 
-extension Encodable {
-  func encode(from container: inout SingleValueEncodingContainer) throws {
-    try container.encode(self)
+public struct PresenceChannel {
+  public enum State {
+    case initialized
+    case joined
+    case timedOut
+    case left
   }
 
-  func encode(from container: inout UnkeyedEncodingContainer) throws {
-    try container.encode(self)
-  }
+  public let name: String
+  public let presenceName: String
 
-  func encode<T>(from container: inout KeyedEncodingContainer<T>, using key: T) throws where T: CodingKey {
-    try container.encode(self, forKey: key)
-  }
+  private var state: [String: Codable]
+  public var presenceState: State = .initialized
 
-  var encodableJSONData: Result<Data, Error> {
-    do {
-      return try .success(Constant.jsonEncoder.encode(self))
-    } catch {
-      return .failure(error)
+  public var userState: [String: Codable] {
+    get {
+      return state
+    }
+    set {
+      state.merge(newValue) { $1 }
     }
   }
 
-  var encodableJSONString: Result<String, Error> {
-    return encodableJSONData.flatMap { data -> Result<String, Error> in
-      if let string = String(data: data, encoding: .utf8) {
-        return .success(string)
-      }
-      return .failure(AnyJSONError.stringCreationFailure(nil))
-    }
+  public init(_ name: String, with userState: [String: Codable] = [:], and presenceState: State = .initialized) {
+    self.name = name
+    presenceName = name.presenceChannelName
+    state = userState
+    self.presenceState = presenceState
+  }
+}
+
+extension PresenceChannel: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    name.hash(into: &hasher)
+  }
+
+  public static func == (lhs: PresenceChannel, rhs: PresenceChannel) -> Bool {
+    return lhs.name == rhs.name
+  }
+}
+
+extension PresenceChannel: CustomStringConvertible {
+  public var description: String {
+    return name
+  }
+}
+
+extension PresenceChannel: ExpressibleByStringLiteral {
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(value)
   }
 }

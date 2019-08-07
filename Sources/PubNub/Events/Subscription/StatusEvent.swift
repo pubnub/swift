@@ -1,5 +1,5 @@
 //
-//  Data+PubNub.swift
+//  StatusEvent.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,33 +27,24 @@
 
 import Foundation
 
-extension Encodable {
-  func encode(from container: inout SingleValueEncodingContainer) throws {
-    try container.encode(self)
-  }
+public enum ConnectionStatus {
+  case initialized
+  case connecting
+  case connected
+  case reconnecting
+  case reconnected
+  case disconnected
+  case disconnectedUnexpectedly
+  case cancelled
 
-  func encode(from container: inout UnkeyedEncodingContainer) throws {
-    try container.encode(self)
-  }
-
-  func encode<T>(from container: inout KeyedEncodingContainer<T>, using key: T) throws where T: CodingKey {
-    try container.encode(self, forKey: key)
-  }
-
-  var encodableJSONData: Result<Data, Error> {
-    do {
-      return try .success(Constant.jsonEncoder.encode(self))
-    } catch {
-      return .failure(error)
-    }
-  }
-
-  var encodableJSONString: Result<String, Error> {
-    return encodableJSONData.flatMap { data -> Result<String, Error> in
-      if let string = String(data: data, encoding: .utf8) {
-        return .success(string)
-      }
-      return .failure(AnyJSONError.stringCreationFailure(nil))
+  var emitState: Bool {
+    switch self {
+    case .initialized, .connecting, .reconnecting:
+      return false
+    case .connected, .reconnected, .disconnected, .disconnectedUnexpectedly, .cancelled:
+      return true
     }
   }
 }
+
+public typealias StatusEvent = Result<ConnectionStatus, PNError>

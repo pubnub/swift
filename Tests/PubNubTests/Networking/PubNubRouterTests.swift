@@ -29,6 +29,8 @@
 import XCTest
 
 class PubNubRouterTests: XCTestCase {
+  static let testState = ["TestChannel": ["Value": AnyJSON([0])]]
+
   static let time = Endpoint.time
   static let publish = Endpoint.publish(message: AnyJSON([0]),
                                         channel: "TestChannel",
@@ -44,8 +46,9 @@ class PubNubRouterTests: XCTestCase {
   static let subscribe = Endpoint.subscribe(channels: ["TestChannel"],
                                             groups: ["TestGroup"],
                                             timetoken: 1111,
-                                            region: 0,
-                                            state: AnyJSON([0]))
+                                            region: "0",
+                                            state: PubNubRouterTests.testState,
+                                            heartbeat: 300, filter: "Test Filter")
 
   static let config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: "TestKeyNotReal")
 
@@ -73,11 +76,17 @@ class PubNubRouterTests: XCTestCase {
       return XCTFail("Could not get the subscribe key from the configuration")
     }
 
-    let queryItems = [
+    let stringState = try? AnyJSON(PubNubRouterTests.testState).jsonStringifyResult.get()
+
+    var queryItems = subscribeRouter.defaultQueryItems
+    queryItems.append(contentsOf: [
       URLQueryItem(name: "tt", value: "1111"),
       URLQueryItem(name: "channel-group", value: "TestGroup"),
-      URLQueryItem(name: "tr", value: "0")
-    ]
+      URLQueryItem(name: "tr", value: "0"),
+      URLQueryItem(name: "filter-expr", value: "Test Filter"),
+      URLQueryItem(name: "state", value: stringState),
+      URLQueryItem(name: "heartbeat", value: "300")
+    ])
 
     XCTAssertEqual(subscribeRouter.method, .get)
     XCTAssertEqual(subscribeRouter.keysRequired, .subscribe)
@@ -87,7 +96,13 @@ class PubNubRouterTests: XCTestCase {
   }
 
   func testSubscribe_MissingTimetoken() {
-    let subscribe = Endpoint.subscribe(channels: ["TestChannel"], groups: [], timetoken: 0, region: nil, state: nil)
+    let subscribe = Endpoint.subscribe(channels: ["TestChannel"],
+                                       groups: [],
+                                       timetoken: 0,
+                                       region: nil,
+                                       state: nil,
+                                       heartbeat: nil,
+                                       filter: nil)
     let subscribeRouter = PubNubRouter(configuration: PubNubRouterTests.config, endpoint: subscribe)
 
     let queryItems = [

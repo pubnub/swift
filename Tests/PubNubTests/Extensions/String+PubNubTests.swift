@@ -33,15 +33,15 @@ final class StringPubNubTests: XCTestCase {
     let channel = "channelName"
     let presece = "channelName-pnpres"
 
-    XCTAssertEqual(channel.presenceChannel, presece)
+    XCTAssertEqual(channel.presenceChannelName, presece)
   }
 
   func testIsPresenceChannel() {
     let channel = "channelName"
     let presece = "channelName-pnpres"
 
-    XCTAssertFalse(channel.isPresenceChannel)
-    XCTAssertTrue(presece.isPresenceChannel)
+    XCTAssertFalse(channel.isPresenceChannelName)
+    XCTAssertTrue(presece.isPresenceChannelName)
   }
 
   func testURLEncodeSlash() {

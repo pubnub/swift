@@ -58,7 +58,7 @@ struct SubscriptionResponsePayload: Codable {
   }
 }
 
-struct TimetokenResponse: Codable {
+struct TimetokenResponse: Codable, Hashable {
   public let timetoken: Timetoken
   public let region: Int
 
@@ -77,7 +77,7 @@ struct TimetokenResponse: Codable {
   }
 }
 
-struct MessageResponse: Codable {
+struct MessageResponse: Codable, Hashable {
   public let shard: String
   public let subscriptionMatch: String?
   public let channel: String
@@ -113,5 +113,34 @@ struct MessageResponse: Codable {
                            originTimetoken: originTimetoken,
                            publishTimetoken: publishTimetoken,
                            metadata: metadata)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    shard.hash(into: &hasher)
+    subscriptionMatch.hash(into: &hasher)
+    channel.hash(into: &hasher)
+//    payload: AnyJSON
+    flags.hash(into: &hasher)
+    issuer.hash(into: &hasher)
+    subscribeKey.hash(into: &hasher)
+    originTimetoken.hash(into: &hasher)
+    publishTimetoken.hash(into: &hasher)
+//    metadata: AnyJSON?
+  }
+}
+
+struct PresenceMessageResponse: Codable, Hashable {
+  var action: PresenceStateEvent
+  var uuid: String
+  var timestamp: Timetoken
+  var occupancy: Int
+  var data: AnyJSON
+
+  func hash(into hasher: inout Hasher) {
+    action.hash(into: &hasher)
+    uuid.hash(into: &hasher)
+    timestamp.hash(into: &hasher)
+    occupancy.hash(into: &hasher)
+//    data.hash(into: &hasher)
   }
 }

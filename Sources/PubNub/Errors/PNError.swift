@@ -31,12 +31,14 @@ public enum PNError: Error {
   // Request Errors
 
   // NON-Reason Failures
-  case unknown(message: String, Endpoint)
+  case unknown(String, Endpoint)
   case unknownError(Error, Endpoint)
   case missingRequiredParameter(Endpoint)
   case invalidEndpointType(Endpoint)
   case sessionDeinitialized(sessionID: UUID)
   case requestRetryFailed(Endpoint, URLRequest, dueTo: Error, withPreviousError: Error?)
+  case requestCancelled
+  case messageCountExceededMaximum
 
   public enum RequestCreationFailureReason {
     // URL Creation Errors
@@ -232,6 +234,17 @@ extension PNError {
       return endpoint
     case .sessionInvalidated:
       return .unknown
+    }
+  }
+
+  var urlError: URLError? {
+    switch self {
+    case let .requestTransmissionFailure(parameters):
+      return parameters.0.rawValue
+    case let .responseProcessingFailure(parameters):
+      return parameters.0.rawValue
+    default:
+      return nil
     }
   }
 

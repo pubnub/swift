@@ -36,6 +36,13 @@ import Foundation
 ///         enough to rely on when querying PubNub system APIs
 public typealias Timetoken = Int64
 
+/// Presence state JSON payload
+public typealias PresenceState = [String: Codable]
+
+/// A mapping of Presence State to channel names
+public typealias ChannelPresenceState = [String: PresenceState]
+typealias ChannelPresenceOptionalState = [String: PresenceState?]
+
 typealias AtomicInt = Atomic<Int32>
 
 // MARK: - Closures

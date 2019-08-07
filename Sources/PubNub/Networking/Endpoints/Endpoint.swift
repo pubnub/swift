@@ -71,7 +71,10 @@ public enum Endpoint {
   case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
 
   // Subscribe Endpoint
-  case subscribe(channels: [String], groups: [String], timetoken: Int, region: Int?, state: AnyJSON?)
+  case subscribe(
+    channels: [String], groups: [String], timetoken: Timetoken,
+    region: String?, state: ChannelPresenceState?, heartbeat: Int?, filter: String?
+  )
 
   // History
   case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
@@ -83,12 +86,10 @@ public enum Endpoint {
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
-  //  case heartbeat                            = "Heartbeat"
-  //  case setState                             = "SetState"
-  //  case getState                             = "GetState"
-  //  case stateForChannel                      = "StateForChannel"
-  //  case stateForChannelGroup                 = "StateForChannelGroup"
-  //  case unsubscribe                          = "Unsubscribe"
+  case heartbeat(uuid: String, channels: [String], groups: [String], state: [String: Codable]?, presenceTimeout: Int?)
+  case leave(channels: [String], groups: [String])
+  case getPresenceState(uuid: String, channels: [String], groups: [String])
+  case setPresenceState(uuid: String, channels: [String], groups: [String], state: [String: Codable])
 
   // Channel Groups
   case channelsForGroup(group: String)
@@ -116,6 +117,14 @@ public enum Endpoint {
       return .fire
     case .subscribe:
       return .subscribe
+    case .heartbeat:
+      return .heartbeat
+    case .leave:
+      return .leave
+    case .getPresenceState:
+      return .getPresenceState
+    case .setPresenceState:
+      return .setPresenceState
     case .hereNow:
       return .hereNow
     case .whereNow:
@@ -267,6 +276,14 @@ extension Endpoint: CustomStringConvertible {
       return "Fire"
     case .subscribe:
       return "Subscribe"
+    case .heartbeat:
+      return "Heartbeat"
+    case .leave:
+      return "Leave"
+    case .setPresenceState:
+      return "Set Presence State"
+    case .getPresenceState:
+      return "Get Presence State"
     case .hereNow:
       return "Here Now"
     case .whereNow:

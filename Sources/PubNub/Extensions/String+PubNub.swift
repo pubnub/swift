@@ -29,12 +29,12 @@ import Foundation
 
 extension String {
   /// A channel name conforming to PubNub presence channel naming conventions
-  var presenceChannel: String {
+  var presenceChannelName: String {
     return "\(self)-pnpres"
   }
 
   /// If the `String` conforms to PubNub presence channel naming conventions
-  var isPresenceChannel: Bool {
+  var isPresenceChannelName: Bool {
     return hasSuffix("-pnpres")
   }
 

@@ -1,5 +1,5 @@
 //
-//  Data+PubNub.swift
+//  PresenceEvent.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,33 +27,40 @@
 
 import Foundation
 
-extension Encodable {
-  func encode(from container: inout SingleValueEncodingContainer) throws {
-    try container.encode(self)
-  }
+public enum PresenceStateEvent: String, Codable {
+  case join
+  case leave
+  case timeout
+  case stateChange = "state-change"
+  case interval
+}
 
-  func encode(from container: inout UnkeyedEncodingContainer) throws {
-    try container.encode(self)
-  }
+public struct PresenceEventPayload: PresenceEvent {
+  public let event: PresenceStateEvent
+  public let uuid: String
+  public let occupancy: Int
+  public let subscriptionMatch: String?
+  public let channel: String
+  public let senderTimetoken: Timetoken
+  public let publishTimetoken: Timetoken
+  public let metadata: AnyJSON?
+}
 
-  func encode<T>(from container: inout KeyedEncodingContainer<T>, using key: T) throws where T: CodingKey {
-    try container.encode(self, forKey: key)
-  }
-
-  var encodableJSONData: Result<Data, Error> {
-    do {
-      return try .success(Constant.jsonEncoder.encode(self))
-    } catch {
-      return .failure(error)
-    }
-  }
-
-  var encodableJSONString: Result<String, Error> {
-    return encodableJSONData.flatMap { data -> Result<String, Error> in
-      if let string = String(data: data, encoding: .utf8) {
-        return .success(string)
-      }
-      return .failure(AnyJSONError.stringCreationFailure(nil))
-    }
-  }
+public protocol PresenceEvent {
+  /// The type of event
+  var event: PresenceStateEvent { get }
+  /// UUID for the event.
+  var uuid: String { get }
+  /// Current occupancy.
+  var occupancy: Int { get }
+  /// The channel group or wildcard subscription match (if exists).
+  var subscriptionMatch: String? { get }
+  /// The channel for which the message belongs
+  var channel: String { get }
+  /// Timetoken for the message
+  var senderTimetoken: Timetoken { get }
+  /// Timetoken for the message
+  var publishTimetoken: Timetoken { get }
+  /// User metadata
+  var metadata: AnyJSON? { get }
 }

@@ -35,7 +35,11 @@ extension Error {
 
   /// Instance cast as a `URLError`
   var urlError: URLError? {
-    return self as? URLError
+    return self as? URLError ?? pubNubError?.urlError
+  }
+
+  var isCancellationError: Bool {
+    return urlError?.code == .cancelled
   }
 
   /// Instance cast as a `EncodingError`

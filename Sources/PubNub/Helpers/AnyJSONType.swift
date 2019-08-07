@@ -467,25 +467,6 @@ extension AnyJSONType {
       return .failure(AnyJSONError.dataCreationFailure(nil))
     }
   }
-}
-
-extension Encodable {
-  fileprivate var encodableJSONData: Result<Data, Error> {
-    do {
-      return try .success(Constant.jsonEncoder.encode(self))
-    } catch {
-      return .failure(error)
-    }
-  }
-
-  fileprivate var encodableJSONString: Result<String, Error> {
-    return encodableJSONData.flatMap { data -> Result<String, Error> in
-      if let string = String(data: data, encoding: .utf8) {
-        return .success(string)
-      }
-      return .failure(AnyJSONError.stringCreationFailure(nil))
-    }
-  }
 
   // swiftlint:disable:next file_length
 }

@@ -111,6 +111,9 @@ public struct PubNubConfiguration: Hashable {
 
   // MARK: - Session Configuration
 
+  /// Reconnection policy which will be used if/when a request fails
+  public var automaticRetry: AutomaticRetry = .none
+
   public var urlSessionConfiguration: URLSessionConfiguration = .pubnub
 
   // MARK: - Presence Configurations (Presence Policy?)
@@ -118,20 +121,22 @@ public struct PubNubConfiguration: Hashable {
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  public var presenceTimeout: Int = 300 {
+  public var durationUntilTimeout: Int = 300 {
     didSet {
-      if presenceTimeout < 20 {
-        presenceTimeout = 20
+      if durationUntilTimeout < 20 {
+        durationUntilTimeout = 20
       }
     }
   }
 
   /// How often (in seconds) the client will announce itself to server
-  public var heartbeatInterval: Int = -1
+  ///
+  /// - NOTE: The minimum value this field can be is 0
+  public var heartbeatInterval: UInt = 0
   /// Whether to send out the leave requests
   public var supressLeaveEvents: Bool = false
   /// The number of messages into the payload before emitting `RequestMessageCountExceeded`
-  public var requestMessageCountThreshold: Int = 100
+  public var requestMessageCountThreshold: UInt = 100
 
   // MARK: - Subscription Configurations
 

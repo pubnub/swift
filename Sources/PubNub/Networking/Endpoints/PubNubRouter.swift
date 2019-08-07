@@ -76,6 +76,14 @@ extension PubNubRouter: Router {
       return .delete
     default:
       return .get
+    case .heartbeat:
+      return .get
+    case .leave:
+      return .get
+    case .getPresenceState:
+      return .get
+    case .setPresenceState:
+      return .get
     }
   }
 
@@ -99,6 +107,16 @@ extension PubNubRouter: Router {
       path = "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
     case let .subscribe(parameters):
       path = "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
+    case let .heartbeat(_, channels, _, _, _):
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)/heartbeat"
+    case let .leave(channels, _):
+      path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)/leave"
+    case let .getPresenceState(uuid, channels, _):
+      let channels = channels.csvString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(uuid.urlEncodeSlash)"
+    case let .setPresenceState(uuid, channels, _, _):
+      let channels = channels.csvString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(uuid.urlEncodeSlash)/data"
     case let .hereNow(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case let .whereNow(uuid):
@@ -136,6 +154,7 @@ extension PubNubRouter: Router {
     return .success(path)
   }
 
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   var queryItems: Result<[URLQueryItem], Error> {
     var query = [URLQueryItem]()
     switch endpoint {
@@ -149,6 +168,42 @@ extension PubNubRouter: Router {
       query.append(URLQueryItem(name: ttKey, value: parameters.timetoken.description))
       query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
       query.appendIfPresent(name: regionKey, value: parameters.region?.description)
+      if let filter = parameters.filter {
+        query.append(URLQueryItem(name: filterKey, value: filter))
+      }
+      if let state = parameters.state {
+        try query.append(URLQueryItem(name: stateKey,
+                                      value: AnyJSON(state).jsonStringifyResult.get()))
+      }
+      if let heartbeat = parameters.heartbeat {
+        query.append(URLQueryItem(name: heartbeatKey, value: heartbeat.description))
+      }
+    case let .heartbeat(parameters):
+      if !parameters.groups.isEmpty {
+        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.csvString))
+      }
+      if let state = parameters.state {
+        try query.append(URLQueryItem(name: stateKey,
+                                      value: AnyJSON(state).jsonStringifyResult.get()))
+      }
+      if let presenceTimeout = parameters.presenceTimeout {
+        query.append(URLQueryItem(name: heartbeatKey, value: presenceTimeout.description))
+      }
+    case let .leave(_, groups):
+      if !groups.isEmpty {
+        query.append(URLQueryItem(name: channelGroupsKey, value: groups.csvString))
+      }
+    case let .getPresenceState(parameters):
+      if !parameters.groups.isEmpty {
+        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.csvString))
+      }
+    case let .setPresenceState(parameters):
+      if !parameters.state.isEmpty {
+        try query.append(URLQueryItem(name: stateKey,
+                                      value: AnyJSON(parameters.state).jsonStringifyResult.get()))
+      } else {
+        query.append(URLQueryItem(name: stateKey, value: "{}"))
+      }
     case let .hereNow(_, groups, includeUUIDs, includeState):
       query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
       query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
@@ -220,6 +275,12 @@ extension PubNubRouter: Router {
       return .publishAndSubscribe
     default:
       return .subscribe
+    case .heartbeat:
+      return .subscribe
+    case .leave:
+      return .subscribe
+    case .getPresenceState, .setPresenceState:
+      return .subscribe
     }
   }
 
@@ -240,6 +301,12 @@ extension PubNubRouter: Router {
     case .removeAllPushChannels:
       return .none
     default:
+      return .version2
+    case .heartbeat:
+      return .none
+    case .leave:
+      return .none
+    case .getPresenceState, .setPresenceState:
       return .version2
     }
   }

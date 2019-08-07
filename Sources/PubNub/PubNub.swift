@@ -155,7 +155,7 @@ public struct PubNub {
     also includeState: Bool = false,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<HereNowResponsePayload, Error>) -> Void)?
+    completion: ((Result<HereNowPayload, Error>) -> Void)?
   ) {
     let client = networkConfiguration?.customSession ?? networkSession
 
@@ -175,7 +175,7 @@ public struct PubNub {
       ) { result in
         switch result {
         case let .success(response):
-          completion?(.success(response.payload))
+          completion?(.success(response.payload.payload))
         case let .failure(error):
           completion?(.failure(error))
         }

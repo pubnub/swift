@@ -52,9 +52,9 @@ final class HereNowTests: XCTestCase {
       .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertTrue(payload.payload.channels.isEmpty)
-          XCTAssertEqual(payload.payload.totalChannels, 0)
-          XCTAssertEqual(payload.payload.totalOccupancy, 0)
+          XCTAssertTrue(payload.channels.isEmpty)
+          XCTAssertEqual(payload.totalChannels, 0)
+          XCTAssertEqual(payload.totalOccupancy, 0)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -75,12 +75,12 @@ final class HereNowTests: XCTestCase {
       .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.payload.totalChannels, 1)
-          XCTAssertEqual(payload.payload.channels.count, payload.payload.totalChannels)
-          XCTAssertEqual(payload.payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.payload.channels.first?.value.occupancy, payload.payload.totalOccupancy)
-          XCTAssertEqual(payload.payload.channels.first?.value.uuids.count,
-                         payload.payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, self.channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+                         payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -103,11 +103,11 @@ final class HereNowTests: XCTestCase {
       .hereNow(on: [channelName], includeUUIDs: false, also: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.payload.totalChannels, 1)
-          XCTAssertEqual(payload.payload.channels.count, payload.payload.totalChannels)
-          XCTAssertEqual(payload.payload.channels.first?.key, channelName)
-          XCTAssertEqual(payload.payload.channels.first?.value.occupancy, payload.payload.totalOccupancy)
-          XCTAssertEqual(payload.payload.channels.first?.value.uuids.count, 0)
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count, 0)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }

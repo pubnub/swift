@@ -29,6 +29,7 @@ import UIKit
 
 import PubNub
 
+// swiftlint:disable:next type_body_length
 class MasterDetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
@@ -42,6 +43,7 @@ class MasterDetailTableViewController: UITableViewController {
     case pubnub = 0
     case endpoints = 1
     case presence = 2
+    case groups = 3
 
     var title: String {
       switch self {
@@ -51,6 +53,8 @@ class MasterDetailTableViewController: UITableViewController {
         return "Endpoints"
       case .presence:
         return "Presence Endpoints"
+      case .groups:
+        return "Channel Groups"
       }
     }
 
@@ -62,11 +66,13 @@ class MasterDetailTableViewController: UITableViewController {
         return EndpointRow.rowCount
       case .presence:
         return PresenceRow.rowCount
+      case .groups:
+        return ChannelGroupRow.rowCount
       }
     }
 
     static var sectionCount: Int {
-      return 3
+      return 4
     }
   }
 
@@ -121,6 +127,33 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  enum ChannelGroupRow: Int {
+    case listGroups = 0
+    case listChannels = 1
+    case addChannels = 2
+    case removeChannels = 3
+    case deleteGroup = 4
+
+    var title: String {
+      switch self {
+      case .listGroups:
+        return "List Groups"
+      case .listChannels:
+        return "List Channels"
+      case .addChannels:
+        return "Add Channels"
+      case .removeChannels:
+        return "Remove Channels"
+      case .deleteGroup:
+        return "Delete Group"
+      }
+    }
+
+    static var rowCount: Int {
+      return 5
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -163,6 +196,8 @@ class MasterDetailTableViewController: UITableViewController {
       cell.textLabel?.text = EndpointRow(rawValue: indexPath.row)?.title
     case .some(.presence):
       cell.textLabel?.text = PresenceRow(rawValue: indexPath.row)?.title
+    case .some(.groups):
+      cell.textLabel?.text = ChannelGroupRow(rawValue: indexPath.row)?.title
     default:
       break
     }
@@ -180,6 +215,8 @@ class MasterDetailTableViewController: UITableViewController {
       didSelectEndpointSection(at: indexPath.row)
     case .some(.presence):
       didSelectPresenceSection(at: indexPath.row)
+    case .some(.groups):
+      didSelectGroupsSection(at: indexPath.row)
     default:
       break
     }
@@ -211,6 +248,23 @@ class MasterDetailTableViewController: UITableViewController {
       performHereNowRequest()
     case .some(.whereNow):
       performWhereNowRequest()
+    case .none:
+      break
+    }
+  }
+
+  func didSelectGroupsSection(at row: Int) {
+    switch ChannelGroupRow(rawValue: row) {
+    case .some(.listGroups):
+      performListGroupsRequest()
+    case .some(.listChannels):
+      performListChannelsRequest()
+    case .some(.addChannels):
+      performAddChannelsRequest()
+    case .some(.removeChannels):
+      performRemoveChannelsRequest()
+    case .some(.deleteGroup):
+      performDeleteGroupRequest()
     case .none:
       break
     }
@@ -256,6 +310,61 @@ class MasterDetailTableViewController: UITableViewController {
         print("Successful HereNow Response: \(response)")
       case let .failure(error):
         print("Failed HereNow Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performListGroupsRequest() {
+    pubnub.listChannelGroups { result in
+      switch result {
+      case let .success(response):
+        print("Successful List Channel Groups Response: \(response)")
+      case let .failure(error):
+        print("Failed Channel Groups Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performListChannelsRequest() {
+    pubnub.listChannels(for: "SwiftGroup") { result in
+      switch result {
+      case let .success(response):
+        print("Successful List Channels Response: \(response)")
+      case let .failure(error):
+        print("Failed List Channels Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performAddChannelsRequest() {
+    pubnub.addChannels(["channelSwift", "otherChannel"], to: "SwiftGroup") { result in
+      switch result {
+      case let .success(response):
+        print("Successful Add Channels Response: \(response)")
+      case let .failure(error):
+        print("Failed Add Channels Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performRemoveChannelsRequest() {
+    pubnub.removeChannels(["channelSwift, otherChannel"], from: "SwiftGroup") { result in
+      switch result {
+      case let .success(response):
+        print("Successful Remove Channels Response: \(response)")
+      case let .failure(error):
+        print("Failed Remove Channels Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performDeleteGroupRequest() {
+    pubnub.deleteChannelGroup("SwiftGroup") { result in
+      switch result {
+      case let .success(response):
+        print("Successful Delete Group Response: \(response)")
+      case let .failure(error):
+        print("Failed Delete Group Response: \(error.localizedDescription)")
       }
     }
   }

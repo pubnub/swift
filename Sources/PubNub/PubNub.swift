@@ -147,7 +147,11 @@ public struct PubNub {
         }
       }
   }
+}
 
+// MARK: - Presence Management
+
+extension PubNub {
   public func hereNow(
     on channels: [String],
     and groups: [String] = [],
@@ -204,6 +208,151 @@ public struct PubNub {
         switch result {
         case let .success(response):
           completion?(.success(response.payload.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+}
+
+// MARK: - Channel Group Management
+
+extension PubNub {
+  public func listChannelGroups(
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GroupListPayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .channelGroups)
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func deleteChannelGroup(
+    _ group: String,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .deleteGroup(group: group))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: GenericServiceResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func listChannels(
+    for group: String,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ChannelListPayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .channelsForGroup(group: group))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func addChannels(
+    _ channels: [String],
+    to group: String,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .addChannelsForGroup(group: group, channels: channels))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: GenericServiceResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func removeChannels(
+    _ channels: [String],
+    from group: String,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .removeChannelsForGroup(group: group, channels: channels))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: GenericServiceResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
         case let .failure(error):
           completion?(.failure(error))
         }

@@ -41,6 +41,8 @@ struct PubNubRouter {
   private let heartbeatKey = "heartbeat"
   private let filterKey = "filter-expr"
   private let disableUUIDsKey = "disable_uuids"
+  private let removeGroupKey = "remove"
+  private let addGroupKey = "add"
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -63,9 +65,20 @@ extension PubNubRouter: Router {
       return .get
     case .whereNow:
       return .get
+    case .channelsForGroup:
+      return .get
+    case .addChannelsForGroup:
+      return .get
+    case .removeChannelsForGroup:
+      return .get
+    case .channelGroups:
+      return .get
+    case .deleteGroup:
+      return .get
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func path() throws -> String {
     let publishKey = configuration.publishKey?.urlEncodeSlash ?? ""
     let subscribeKey = configuration.subscribeKey?.urlEncodeSlash ?? ""
@@ -93,10 +106,20 @@ extension PubNubRouter: Router {
       return "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case let .whereNow(uuid):
       return "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
+    case let .channelsForGroup(group):
+      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+    case let .addChannelsForGroup(group, _):
+      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+    case let .removeChannelsForGroup(group, _):
+      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+    case .channelGroups:
+      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group"
+    case let .deleteGroup(group):
+      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)/remove"
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   func queryItems() throws -> [URLQueryItem] {
     var query = defaultQueryItems
     switch endpoint {
@@ -140,6 +163,16 @@ extension PubNubRouter: Router {
       query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
     case .whereNow:
       break
+    case .channelsForGroup:
+      break
+    case let .addChannelsForGroup(_, channels):
+      query.append(URLQueryItem(name: addGroupKey, value: channels.csvString))
+    case let .removeChannelsForGroup(_, channels):
+      query.append(URLQueryItem(name: removeGroupKey, value: channels.csvString))
+    case .channelGroups:
+      break
+    case .deleteGroup:
+      break
     }
     return query
   }
@@ -164,6 +197,16 @@ extension PubNubRouter: Router {
       return nil
     case .whereNow:
       return nil
+    case .channelsForGroup:
+      return nil
+    case .addChannelsForGroup:
+      return nil
+    case .removeChannelsForGroup:
+      return nil
+    case .channelGroups:
+      return nil
+    case .deleteGroup:
+      return nil
     }
   }
 
@@ -180,6 +223,16 @@ extension PubNubRouter: Router {
     case .hereNow:
       return .subscribe
     case .whereNow:
+      return .subscribe
+    case .channelsForGroup:
+      return .subscribe
+    case .addChannelsForGroup:
+      return .subscribe
+    case .removeChannelsForGroup:
+      return .subscribe
+    case .channelGroups:
+      return .subscribe
+    case .deleteGroup:
       return .subscribe
     }
   }
@@ -198,6 +251,16 @@ extension PubNubRouter: Router {
       return .none
     case .whereNow:
       return .none
+    case .channelsForGroup:
+      return .none
+    case .addChannelsForGroup:
+      return .version2
+    case .removeChannelsForGroup:
+      return .version2
+    case .channelGroups:
+      return .none
+    case .deleteGroup:
+      return .version2
     }
   }
 
@@ -206,7 +269,7 @@ extension PubNubRouter: Router {
     case .publish, .compressedPublish, .fire:
       return PublishResponseDecoder().decodeError(request: request, response: response, for: data)
     default:
-      return AmbiguousResponseDecoder().decodeError(request: request, response: response, for: data)
+      return AnyJSONResponseDecoder().decodeError(request: request, response: response, for: data)
     }
   }
 }

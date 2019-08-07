@@ -148,7 +148,8 @@ final class PubNubTests: XCTestCase {
         let invalidKeyError = PNError.convert(
           generalError: .init(message: .invalidPublishKey,
                               service: .publish,
-                              status: .badRequest),
+                              status: .badRequest,
+                              error: true),
           request: task.mockRequest,
           response: task.mockResponse
         )
@@ -181,7 +182,8 @@ final class PubNubTests: XCTestCase {
         let invalidKeyError = PNError.convert(
           generalError: .init(message: .requestURITooLong,
                               service: .balancer,
-                              status: .badRequest),
+                              status: .badRequest,
+                              error: true),
           request: task.mockRequest,
           response: task.mockResponse
         )

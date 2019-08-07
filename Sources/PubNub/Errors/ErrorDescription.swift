@@ -167,6 +167,14 @@ public struct ErrorDescription {
       "An error was thrown attempting to decode the response body"
     }()
 
+    public static let invalidCharacter: String = {
+      "The request sent contained one or more reserved characters"
+    }()
+
+    public static let maxChannelGroupCountExceeded: String = {
+      "The maximum number of channel groups has been reached"
+    }()
+
     public static let invalidSubscribeKey: String = {
       "The PubNub Subscribe key used for the request is invalid"
     }()

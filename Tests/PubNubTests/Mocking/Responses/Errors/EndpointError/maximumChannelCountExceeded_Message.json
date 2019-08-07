@@ -1,0 +1,8 @@
+{
+  "code": 400,
+  "body": {"status": 400, "message": "Maximum channel group count exceeded.", "service": "channel-registry", "error": true}
+}
+
+
+
+

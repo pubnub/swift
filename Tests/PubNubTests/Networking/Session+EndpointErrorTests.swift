@@ -32,7 +32,7 @@ final class SessionEndpointErrorTests: XCTestCase {
   let testBundle = Bundle(for: PubNubTests.self)
   var pubnub: PubNub!
 
-  func testEndpointError(payload: EndpointErrorPayload?, for resource: String) {
+  func testEndpointError(payload: GenericServicePayloadResponse?, for resource: String) {
     let expectation = self.expectation(description: "Endpoint Error \(resource) Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: [resource]) else {
@@ -65,28 +65,32 @@ final class SessionEndpointErrorTests: XCTestCase {
   func testCouldNotParseRequest() {
     testEndpointError(payload: .init(message: .couldNotParseRequest,
                                      service: .accessManager,
-                                     status: .badRequest),
+                                     status: .badRequest,
+                                     error: true),
                       for: "couldNotParseRequest")
   }
 
   func testInvalidSubscribeKey() {
     testEndpointError(payload: .init(message: .invalidSubscribeKey,
                                      service: .accessManager,
-                                     status: .badRequest),
+                                     status: .badRequest,
+                                     error: true),
                       for: "invalidSubscribeKey")
   }
 
   func testNotFound_Message() {
     testEndpointError(payload: .init(message: .notFound,
                                      service: .presence,
-                                     status: .notFound),
+                                     status: .notFound,
+                                     error: true),
                       for: "resourceNotFound_Message")
   }
 
   func testRequestURITooLong_Message() {
     testEndpointError(payload: .init(message: .requestURITooLong,
                                      service: .balancer,
-                                     status: .uriTooLong),
+                                     status: .uriTooLong,
+                                     error: true),
                       for: "requestURITooLong_Message")
   }
 
@@ -122,7 +126,8 @@ final class SessionEndpointErrorTests: XCTestCase {
   func testUnrecognizedErrorPayload() {
     testEndpointError(payload: .init(message: .unknown(message: "Some New Message"),
                                      service: .unknown(message: "New Endpoint"),
-                                     status: .unknown(code: 451)),
+                                     status: .unknown(code: 451),
+                                     error: true),
                       for: "unrecognizedEndpointError")
   }
 

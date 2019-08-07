@@ -82,8 +82,10 @@ public enum PNError: Error {
     case malformedResponseBody
     case jsonDataDecodeFailure(Data?, with: Error)
 
+    case invalidCharacter
     case invalidSubscribeKey
     case invalidPublishKey
+    case maxChannelGroupCountExceeded
     case couldNotParseRequest
     case requestContainedInvalidJSON
 
@@ -95,7 +97,7 @@ public enum PNError: Error {
     case malformedFilterExpression
     case internalServiceError
 
-    case unrecognizedErrorPayload(EndpointErrorPayload)
+    case unrecognizedErrorPayload(GenericServicePayloadResponse)
     case unknown(String)
   }
 
@@ -252,7 +254,7 @@ extension PNError {
   }
 
   static func convert(
-    generalError payload: EndpointErrorPayload?,
+    generalError payload: GenericServicePayloadResponse?,
     request: URLRequest,
     response: HTTPURLResponse?
   ) -> PNError {
@@ -268,44 +270,50 @@ extension PNError {
     }
 
     // Try to associate with a general status code error
-    let status = payload?.status ?? EndpointErrorPayload.Code(rawValue: response.statusCode)
+    let status = payload?.status ?? GenericServicePayloadResponse.Code(rawValue: response.statusCode)
     if let reason = PNError.lookupGeneralErrorStatus(using: status) {
       return PNError.endpointFailure(reason,
                                      forRequest: request,
                                      onResponse: response)
     }
-
-    if let payload = payload, !payload.isEmpty {
-      return PNError.endpointFailure(.unrecognizedErrorPayload(payload),
-                                     forRequest: request,
-                                     onResponse: response)
-    }
+//
+//    if let payload = payload, !payload.isEmpty {
+//      return PNError.endpointFailure(.unrecognizedErrorPayload(payload),
+//                                     forRequest: request,
+//                                     onResponse: response)
+//    }
 
     return PNError.endpointFailure(.unknown(ErrorDescription.UnknownErrorReason.noAppropriateEndpointError),
                                    forRequest: request,
                                    onResponse: response)
   }
 
-  static func lookupGeneralErrorMessage(using message: EndpointErrorPayload.Message?) -> EndpointFailureReason? {
+  static func lookupGeneralErrorMessage(
+    using message: GenericServicePayloadResponse.Message?
+  ) -> EndpointFailureReason? {
     switch message {
     case .couldNotParseRequest?:
       return .couldNotParseRequest
+    case .some(.invalidCharacter):
+      return .invalidCharacter
     case .invalidSubscribeKey?:
       return .invalidSubscribeKey
     case .invalidPublishKey?:
       return .invalidPublishKey
     case .invalidJSON?:
       return .requestContainedInvalidJSON
+    case .some(.maxChannelGroupCountExceeded):
+      return .maxChannelGroupCountExceeded
     case .notFound?:
       return .resourceNotFound
     case .requestURITooLong?:
       return .requestURITooLong
-    case .unknown?, .none:
+    case .unknown?, .acknowledge?, .none:
       return nil
     }
   }
 
-  static func lookupGeneralErrorStatus(using code: EndpointErrorPayload.Code) -> EndpointFailureReason? {
+  static func lookupGeneralErrorStatus(using code: GenericServicePayloadResponse.Code) -> EndpointFailureReason? {
     switch code {
     case .badRequest:
       return .badRequest
@@ -321,7 +329,7 @@ extension PNError {
       return .malformedFilterExpression
     case .internalServiceError:
       return .internalServiceError
-    case .unknown:
+    case .acknowledge, .unknown:
       return nil
     }
   }

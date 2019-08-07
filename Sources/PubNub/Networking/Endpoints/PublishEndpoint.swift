@@ -63,30 +63,32 @@ struct PublishResponseDecoder: ResponseDecoder {
                                      onResponse: response)
     }
 
-    // Check if we were provided a default error from the server
-    if let defaultError = decodeDefaultError(request: request, response: response, for: data) {
-      return defaultError
-    }
-
     // Publish Response pattern:  [Int, String, String]
     let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data).arrayOptional
 
     if let errorFlag = decodedPayload?.first as? Int, errorFlag == 0 {
-      let errorPayload: EndpointErrorPayload
+      let errorPayload: GenericServicePayloadResponse
       if let message = decodedPayload?[1] as? String {
-        errorPayload = EndpointErrorPayload(message: .init(rawValue: message),
-                                            service: .publish,
-                                            status: .init(rawValue: response.statusCode))
+        errorPayload = GenericServicePayloadResponse(message: .init(rawValue: message),
+                                                     service: .publish,
+                                                     status: .init(rawValue: response.statusCode),
+                                                     error: true)
 
       } else {
-        errorPayload = EndpointErrorPayload(
+        errorPayload = GenericServicePayloadResponse(
           message: .unknown(message: ErrorDescription.EndpointError.publishResponseMessageParseFailure),
           service: .presence,
-          status: .init(rawValue: response.statusCode)
+          status: .init(rawValue: response.statusCode),
+          error: true
         )
       }
 
       return PNError.convert(generalError: errorPayload, request: request, response: response)
+    }
+
+    // Check if we were provided a default error from the server
+    if let defaultError = decodeDefaultError(request: request, response: response, for: data) {
+      return defaultError
     }
 
     return nil

@@ -126,16 +126,16 @@ extension Endpoint: CustomStringConvertible {
       return "Here Now"
     case .whereNow:
       return "Where Now"
-    case .channelsForGroup:
-      return "List of Channels for Group"
-    case .addChannelsForGroup:
-      return "Add Channels to Group"
-    case .removeChannelsForGroup:
-      return "Remove Channels from Group"
     case .channelGroups:
-      return "List of Channel Groups"
+      return "Group List"
     case .deleteGroup:
-      return "Delete Channel Group"
+      return "Group Delete"
+    case .channelsForGroup:
+      return "Group Channels List"
+    case .addChannelsForGroup:
+      return "Group Channels Add"
+    case .removeChannelsForGroup:
+      return "Group Channels Remove"
     }
   }
 }

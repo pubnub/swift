@@ -171,6 +171,10 @@ public struct ErrorDescription {
       "The request sent contained one or more reserved characters"
     }()
 
+    public static let invalidDeviceToken: String = {
+      "The provided device token is not a valid push token"
+    }()
+
     public static let maxChannelGroupCountExceeded: String = {
       "The maximum number of channel groups has been reached"
     }()
@@ -187,8 +191,16 @@ public struct ErrorDescription {
       "The request contained a malformed JSON payload"
     }()
 
+    public static let serviceUnavailable: String = {
+      "The service is currently unavailable"
+    }()
+
     public static let couldNotParseRequest: String = {
       "The PubNub server was unable to parse the request"
+    }()
+
+    public static let pushNotEnabled: String = {
+      "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
     }()
 
     public static let badRequest: String = {

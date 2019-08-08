@@ -149,14 +149,20 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return ErrorDescription.EndpointFailureReason.jsonDataDecodeFailure
     case .invalidCharacter:
       return ErrorDescription.EndpointFailureReason.invalidCharacter
+    case .invalidDeviceToken:
+      return ErrorDescription.EndpointFailureReason.invalidDeviceToken
     case .invalidSubscribeKey:
       return ErrorDescription.EndpointFailureReason.invalidSubscribeKey
     case .invalidPublishKey:
       return ErrorDescription.EndpointFailureReason.invalidPublishKey
     case .maxChannelGroupCountExceeded:
       return ErrorDescription.EndpointFailureReason.maxChannelGroupCountExceeded
+    case .pushNotEnabled:
+      return ErrorDescription.EndpointFailureReason.pushNotEnabled
     case .requestContainedInvalidJSON:
       return ErrorDescription.EndpointFailureReason.requestContainedInvalidJSON
+    case .serviceUnavailable:
+      return ErrorDescription.EndpointFailureReason.serviceUnavailable
     case .couldNotParseRequest:
       return ErrorDescription.EndpointFailureReason.couldNotParseRequest
     case .badRequest:

@@ -24,7 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean
+// swiftlint:disable discouraged_optional_boolean file_length
 
 import Foundation
 
@@ -360,4 +360,98 @@ extension PubNub {
   }
 }
 
-// swiftlint:enable discouraged_optional_boolean
+extension PubNub {
+  public func listPushChannelRegistrations(
+    for deivceToken: Data,
+    of pushType: Endpoint.PushType = .apns,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .listPushChannels(pushToken: deivceToken, pushType: pushType))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: RegisteredPushChannelsResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func modifyPushChannelRegistrations(
+    byRemoving removals: [String],
+    thenAdding additions: [String],
+    for deivceToken: Data,
+    of pushType: Endpoint.PushType = .apns,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .modifyPushChannels(pushToken: deivceToken,
+                                                            pushType: pushType,
+                                                            addChannels: additions,
+                                                            removeChannels: removals))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: ModifyPushResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+
+  public func removeAllPushChannelRegistrations(
+    for deivceToken: Data,
+    of pushType: Endpoint.PushType = .apns,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .removeAllPushChannels(pushToken: deivceToken, pushType: pushType))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: ModifyPushResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
+}
+
+// swiftlint:enable discouraged_optional_boolean file_length

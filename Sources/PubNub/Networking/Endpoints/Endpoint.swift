@@ -46,20 +46,33 @@ public enum Endpoint {
     case removeChannelsForGroup
     case channelGroups
     case deleteGroup
+    case listPushProvisions
+    case modifyPushChannels
+    case removeAllPushChannels
+  }
+
+  public enum PushType: String, Codable {
+    case apns
+    case gcm
+    case mpns
   }
 
   // Time Endpoint
   case time
+
   // Publish Endpoint
   case publish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
   case compressedPublish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
   case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
+
   // Subscribe Endpoint
   case subscribe(channels: [String], groups: [String], timetoken: Int?, region: Int?, state: AnyJSON?)
+
   // History
   //  case history                              = "History"
   //  case historyForChannels                   = "HistoryForChannels"
   //  case deleteMessage                        = "DeleteMessage"
+
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
@@ -69,17 +82,18 @@ public enum Endpoint {
   //  case stateForChannel                      = "StateForChannel"
   //  case stateForChannelGroup                 = "StateForChannelGroup"
   //  case unsubscribe                          = "Unsubscribe"
+
   // Channel Groups
   case channelsForGroup(group: String)
   case addChannelsForGroup(group: String, channels: [String])
   case removeChannelsForGroup(group: String, channels: [String])
   case channelGroups
   case deleteGroup(group: String)
+
   // Push Notifications
-  //  case pushNotificationEnabledChannels      = "PushNotificationEnabledChannels"
-  //  case addPushNotificationsOnChannels       = "AddPushNotificationsOnChannels"
-  //  case removePushNotificationsFromChannels  = "RemovePushNotificationsFromChannels"
-  //  case removeAllPushNotifications           = "RemoveAllPushNotifications"
+  case listPushChannels(pushToken: Data, pushType: PushType)
+  case modifyPushChannels(pushToken: Data, pushType: PushType, addChannels: [String], removeChannels: [String])
+  case removeAllPushChannels(pushToken: Data, pushType: PushType)
 
   var rawValue: RawValue {
     switch self {
@@ -107,6 +121,12 @@ public enum Endpoint {
       return .channelGroups
     case .deleteGroup:
       return .deleteGroup
+    case .listPushChannels:
+      return .listPushProvisions
+    case .modifyPushChannels:
+      return .modifyPushChannels
+    case .removeAllPushChannels:
+      return .removeAllPushChannels
     }
   }
 }
@@ -126,16 +146,22 @@ extension Endpoint: CustomStringConvertible {
       return "Here Now"
     case .whereNow:
       return "Where Now"
-    case .channelsForGroup:
-      return "List of Channels for Group"
-    case .addChannelsForGroup:
-      return "Add Channels to Group"
-    case .removeChannelsForGroup:
-      return "Remove Channels from Group"
     case .channelGroups:
-      return "List of Channel Groups"
+      return "Group List"
     case .deleteGroup:
-      return "Delete Channel Group"
+      return "Group Delete"
+    case .channelsForGroup:
+      return "Group Channels List"
+    case .addChannelsForGroup:
+      return "Group Channels Add"
+    case .removeChannelsForGroup:
+      return "Group Channels Remove"
+    case .listPushChannels:
+      return "List Push Channels"
+    case .modifyPushChannels:
+      return "Modify Push Channels"
+    case .removeAllPushChannels:
+      return "Remove All Push Channels"
     }
   }
 }

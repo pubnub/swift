@@ -88,14 +88,18 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case acknowledge
     case couldNotParseRequest
     case invalidCharacter
+    case invalidDeviceToken
     case invalidSubscribeKey
     case invalidPublishKey
     case invalidJSON
     case maxChannelGroupCountExceeded
     case notFound
+    case pushNotEnabled
     case requestURITooLong
+    case serviceUnavailable
     case unknown(message: String)
 
+    // swiftlint:disable:next cyclomatic_complexity
     public init(rawValue: String) {
       switch rawValue {
       case "OK":
@@ -104,6 +108,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         self = .couldNotParseRequest
       case "Reserved character in input parameters.":
         self = .invalidCharacter
+      case "Expected 32 or 100 byte hex device token":
+        self = .invalidDeviceToken
       case "Invalid Subscribe Key":
         self = .invalidSubscribeKey
       case "Invalid Key":
@@ -114,12 +120,16 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         self = .maxChannelGroupCountExceeded
       case "Request URI Too Long":
         self = .requestURITooLong
+      case "Service Unavailable":
+        self = .serviceUnavailable
       default:
         if rawValue.starts(with: "Not Found ") {
           self = .notFound
+        } else if rawValue.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
+          self = .pushNotEnabled
+        } else {
+          self = .unknown(message: rawValue)
         }
-
-        self = .unknown(message: rawValue)
       }
     }
 
@@ -131,6 +141,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "Could Not Parse Request"
       case .invalidCharacter:
         return "Reserved character in input parameters."
+      case .invalidDeviceToken:
+        return "Expected 32 or 100 byte hex device token"
       case .invalidSubscribeKey:
         return "Invalid Subscribe Key"
       case .invalidPublishKey:
@@ -141,8 +153,12 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "Maximum channel group count exceeded."
       case .notFound:
         return "Resource Not Found"
+      case .pushNotEnabled:
+        return ErrorDescription.EndpointFailureReason.pushNotEnabled
       case .requestURITooLong:
         return "Request URI Too Long"
+      case .serviceUnavailable:
+        return "Service Unavailable"
       case let .unknown(message):
         return "Unknown: \(message)"
       }
@@ -159,6 +175,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case presence
     case publish
     case channelGroups
+    case push
     case unknown(message: String)
 
     public init(rawValue: String) {
@@ -171,6 +188,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         self = .presence
       case "Publish":
         self = .publish
+      case "Push":
+        self = .push
       case "channel-registry":
         self = .channelGroups
       default:
@@ -188,6 +207,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "Presence"
       case .publish:
         return "Publish"
+      case .push:
+        return "Push"
       case .channelGroups:
         return "channel-registry"
       case let .unknown(message):
@@ -209,6 +230,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case uriTooLong
     case malformedFilterExpression
     case internalServiceError
+    case serviceUnavailable
     case unknown(code: Int)
 
     public init(rawValue: Int) {
@@ -229,6 +251,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         self = .malformedFilterExpression
       case 500:
         self = .internalServiceError
+      case 504:
+        self = .serviceUnavailable
       default:
         self = .unknown(code: rawValue)
       }
@@ -252,6 +276,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return 481
       case .internalServiceError:
         return 500
+      case .serviceUnavailable:
+        return 504
       case let .unknown(code):
         return code
       }

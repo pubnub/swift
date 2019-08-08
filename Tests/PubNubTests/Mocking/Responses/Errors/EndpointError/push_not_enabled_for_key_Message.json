@@ -1,0 +1,8 @@
+{
+  "code": 403,
+  "body": {"error": "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key. Login to your PubNub Dashboard Account and enable Push Notifications. Contact support@pubnub.com if you require further assistance."}
+}
+
+
+
+

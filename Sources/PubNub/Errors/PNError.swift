@@ -83,11 +83,14 @@ public enum PNError: Error {
     case jsonDataDecodeFailure(Data?, with: Error)
 
     case invalidCharacter
+    case invalidDeviceToken
     case invalidSubscribeKey
     case invalidPublishKey
     case maxChannelGroupCountExceeded
+    case pushNotEnabled
     case couldNotParseRequest
     case requestContainedInvalidJSON
+    case serviceUnavailable
 
     case badRequest
     case unauthorized
@@ -288,6 +291,7 @@ extension PNError {
                                    onResponse: response)
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   static func lookupGeneralErrorMessage(
     using message: GenericServicePayloadResponse.Message?
   ) -> EndpointFailureReason? {
@@ -296,6 +300,8 @@ extension PNError {
       return .couldNotParseRequest
     case .some(.invalidCharacter):
       return .invalidCharacter
+    case .some(.invalidDeviceToken):
+      return .invalidDeviceToken
     case .invalidSubscribeKey?:
       return .invalidSubscribeKey
     case .invalidPublishKey?:
@@ -306,8 +312,12 @@ extension PNError {
       return .maxChannelGroupCountExceeded
     case .notFound?:
       return .resourceNotFound
+    case .some(.pushNotEnabled):
+      return .pushNotEnabled
     case .requestURITooLong?:
       return .requestURITooLong
+    case .some(.serviceUnavailable):
+      return .serviceUnavailable
     case .unknown?, .acknowledge?, .none:
       return nil
     }
@@ -329,6 +339,8 @@ extension PNError {
       return .malformedFilterExpression
     case .internalServiceError:
       return .internalServiceError
+    case .serviceUnavailable:
+      return .serviceUnavailable
     case .acknowledge, .unknown:
       return nil
     }

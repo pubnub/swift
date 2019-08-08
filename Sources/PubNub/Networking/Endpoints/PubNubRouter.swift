@@ -43,6 +43,7 @@ struct PubNubRouter {
   private let disableUUIDsKey = "disable_uuids"
   private let removeGroupKey = "remove"
   private let addGroupKey = "add"
+  private let typeKey = "type"
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -74,6 +75,12 @@ extension PubNubRouter: Router {
     case .channelGroups:
       return .get
     case .deleteGroup:
+      return .get
+    case .listPushChannels:
+      return .get
+    case .modifyPushChannels:
+      return .get
+    case .removeAllPushChannels:
       return .get
     }
   }
@@ -116,6 +123,12 @@ extension PubNubRouter: Router {
       return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group"
     case let .deleteGroup(group):
       return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)/remove"
+    case .listPushChannels(let token, _):
+      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
+    case .modifyPushChannels(let token, _, _, _):
+      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
+    case .removeAllPushChannels(let token, _):
+      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
     }
   }
 
@@ -173,6 +186,18 @@ extension PubNubRouter: Router {
       break
     case .deleteGroup:
       break
+    case let .listPushChannels(_, pushType):
+      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
+    case let .modifyPushChannels(_, pushType, addChannels, removeChannels):
+      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
+      if !addChannels.isEmpty {
+        query.append(URLQueryItem(name: typeKey, value: addChannels.csvString.urlEncodeSlash))
+      }
+      if !removeChannels.isEmpty {
+        query.append(URLQueryItem(name: typeKey, value: removeChannels.csvString.urlEncodeSlash))
+      }
+    case let .removeAllPushChannels(_, pushType):
+      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
     }
     return query
   }
@@ -207,6 +232,12 @@ extension PubNubRouter: Router {
       return nil
     case .deleteGroup:
       return nil
+    case .listPushChannels:
+      return nil
+    case .modifyPushChannels:
+      return nil
+    case .removeAllPushChannels:
+      return nil
     }
   }
 
@@ -233,6 +264,12 @@ extension PubNubRouter: Router {
     case .channelGroups:
       return .subscribe
     case .deleteGroup:
+      return .subscribe
+    case .listPushChannels:
+      return .subscribe
+    case .modifyPushChannels:
+      return .subscribe
+    case .removeAllPushChannels:
       return .subscribe
     }
   }
@@ -261,6 +298,12 @@ extension PubNubRouter: Router {
       return .none
     case .deleteGroup:
       return .version2
+    case .listPushChannels:
+      return .none
+    case .modifyPushChannels:
+      return .version2
+    case .removeAllPushChannels:
+      return .none
     }
   }
 

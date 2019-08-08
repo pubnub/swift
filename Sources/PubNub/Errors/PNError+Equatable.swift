@@ -135,7 +135,7 @@ extension PNError.ResponseProcessingFailureReason: Equatable {
 }
 
 extension PNError.EndpointFailureReason: Equatable {
-  // swiftlint:disable:next cyclomatic_complexity
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   public static func == (lhs: PNError.EndpointFailureReason, rhs: PNError.EndpointFailureReason) -> Bool {
     switch (lhs, rhs) {
     case (.malformedResponseBody, .malformedResponseBody):
@@ -144,13 +144,19 @@ extension PNError.EndpointFailureReason: Equatable {
       return lhsData == rhsData && lhsError.localizedDescription == rhsError.localizedDescription
     case (.invalidCharacter, .invalidCharacter):
       return true
+    case (.invalidDeviceToken, .invalidDeviceToken):
+      return true
     case (.invalidSubscribeKey, .invalidSubscribeKey):
       return true
     case (.invalidPublishKey, .invalidPublishKey):
       return true
     case (.maxChannelGroupCountExceeded, .maxChannelGroupCountExceeded):
       return true
+    case (.pushNotEnabled, .pushNotEnabled):
+      return true
     case (.requestContainedInvalidJSON, .requestContainedInvalidJSON):
+      return true
+    case (.serviceUnavailable, .serviceUnavailable):
       return true
     case (.couldNotParseRequest, .couldNotParseRequest):
       return true

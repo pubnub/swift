@@ -103,14 +103,25 @@ extension ResponseDecoder {
 
   func decodeDefaultError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     // Attempt to decode based on general system response payload
-    if let data = data,
-      let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data) {
-      let pnError = PNError.convert(generalError: generalErrorPayload,
-                                    request: request,
-                                    response: response)
+    if let data = data {
+      if let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data) {
+        let pnError = PNError.convert(generalError: generalErrorPayload,
+                                      request: request,
+                                      response: response)
 
-      return pnError
+        return pnError
+      } else if let errorMessage = try? Constant.jsonDecoder.decode(ErrorMessagePayloadResponse.self, from: data) {
+        let generalErrorPayload = GenericServicePayloadResponse(message: .init(rawValue: errorMessage.error),
+                                                                service: "No Service Received",
+                                                                status: .init(rawValue: response.statusCode),
+                                                                error: true)
+        return PNError.convert(generalError: generalErrorPayload,
+                               request: request,
+                               response: response)
+      }
     }
+
+    // Attempt to decode based on different Error type
 
     // Use the code to determine the error
     if !response.isSuccessful {

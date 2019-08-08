@@ -1,0 +1,8 @@
+{
+  "code": 400,
+  "body": {"error": "Expected 32 or 100 byte hex device token"}
+}
+
+
+
+

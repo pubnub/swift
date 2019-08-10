@@ -78,6 +78,12 @@ public final class Request {
     var retryCount = 0
 
     var responesData: Data?
+
+    mutating func purgeAll() {
+      tasks.removeAll()
+      urlRequests.removeAll()
+      previousErrors.removeAll()
+    }
   }
 
   public let requestID: UUID = UUID()
@@ -104,6 +110,10 @@ public final class Request {
     self.sessionStream = sessionStream
     self.requestOperator = requestOperator
     self.delegate = delegate
+  }
+
+  deinit {
+    atomicState.lockedWrite { $0.purgeAll() }
   }
 
   public var urlRequests: [URLRequest] {
@@ -139,7 +149,6 @@ public final class Request {
         if let error = $0.error {
           $0.previousErrors.append(error)
         }
-
         $0.error = newValue
       }
     }
@@ -163,7 +172,6 @@ public final class Request {
 
   func withTaskState(perform closure: (TaskState) -> Void) {
     atomicState.lockedWrite { closure($0.taskState) }
-//    atomicState.withTaskState(perform: closure)
   }
 
   // MARK: - Request Processing

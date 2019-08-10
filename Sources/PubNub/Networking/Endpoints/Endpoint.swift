@@ -29,6 +29,19 @@
 import Foundation
 
 public enum Endpoint {
+  public enum RawValue: Int {
+    case time
+    case publish
+    case compressedPublish
+    case fire
+    case subscribe
+    case heartbeat
+    case leave
+    case setPresenceState
+    case getPresenceState
+    case hereNow
+  }
+
   // Time Endpoint
   case time
   // Publish Endpoint
@@ -42,7 +55,7 @@ public enum Endpoint {
   //  case historyForChannels                   = "HistoryForChannels"
   //  case deleteMessage                        = "DeleteMessage"
   // Presence Endpoints
-  //  case whereNow                             = "WhereNow"
+  case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   //  case hereNowGlobal                        = "HereNowGlobal"
   //  case hereNowForChannel                    = "HereNowForChannel"
   //  case hereNowForChannelGroup               = "HereNowForChannelGroup"
@@ -63,6 +76,23 @@ public enum Endpoint {
   //  case addPushNotificationsOnChannels       = "AddPushNotificationsOnChannels"
   //  case removePushNotificationsFromChannels  = "RemovePushNotificationsFromChannels"
   //  case removeAllPushNotifications           = "RemoveAllPushNotifications"
+
+  var rawValue: RawValue {
+    switch self {
+    case .time:
+      return .time
+    case .publish:
+      return .publish
+    case .compressedPublish:
+      return .compressedPublish
+    case .fire:
+      return .fire
+    case .subscribe:
+      return .subscribe
+    case .hereNow:
+      return .hereNow
+    }
+  }
 }
 
 extension Endpoint: CustomStringConvertible {
@@ -76,7 +106,15 @@ extension Endpoint: CustomStringConvertible {
       return "Fire"
     case .subscribe:
       return "Subscribe"
+    case .hereNow:
+      return "Here Now"
     }
+  }
+}
+
+extension Endpoint: Equatable {
+  public static func == (lhs: Endpoint, rhs: Endpoint) -> Bool {
+    return lhs.rawValue == rhs.rawValue
   }
 }
 

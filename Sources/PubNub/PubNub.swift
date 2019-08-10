@@ -147,6 +147,40 @@ public struct PubNub {
         }
       }
   }
+
+  public func hereNow(
+    on channels: [String],
+    and groups: [String] = [],
+    includeUUIDs: Bool = true,
+    also includeState: Bool = false,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<HereNowPayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .hereNow(channels: channels,
+                                                 groups: groups,
+                                                 includeUUIDs: includeUUIDs,
+                                                 includeState: includeState))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: PresenceResponseDecoder<HereNowResponsePayload>(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        switch result {
+        case let .success(response):
+          completion?(.success(response.payload.payload))
+        case let .failure(error):
+          completion?(.failure(error))
+        }
+      }
+  }
 }
 
 // swiftlint:enable discouraged_optional_boolean

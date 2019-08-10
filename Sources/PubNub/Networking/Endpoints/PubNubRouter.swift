@@ -40,6 +40,7 @@ struct PubNubRouter {
   private let stateKey = "state"
   private let heartbeatKey = "heartbeat"
   private let filterKey = "filter-expr"
+  private let disableUUIDsKey = "disable_uuids"
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -57,6 +58,8 @@ extension PubNubRouter: Router {
     case .fire:
       return .get
     case .subscribe:
+      return .get
+    case .hereNow:
       return .get
     }
   }
@@ -76,14 +79,16 @@ extension PubNubRouter: Router {
                                   channel: parameters.channel,
                                   message: parameters.message)
     case let .compressedPublish(parameters):
-      return "/publish/\(publishKey)/\(subscribeKey)/0/\(urlEncodeSlash(path: parameters.channel))/0"
+      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
     case let .fire(parameters):
       return try parsePublishPath(publishKey: publishKey,
                                   subscribeKey: subscribeKey,
                                   channel: parameters.channel,
                                   message: parameters.message)
     case let .subscribe(parameters):
-      return "/v2/subscribe/\(subscribeKey)/\(urlEncodeSlash(path: parameters.channels.csvString))/0"
+      return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
+    case let .hereNow(channels, _, _, _):
+      return "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     }
   }
 
@@ -119,6 +124,15 @@ extension PubNubRouter: Router {
       if let region = parameters.region {
         query.append(URLQueryItem(name: regionKey, value: region.description))
       }
+    case let .hereNow(_, groups, includeUUIDs, includeState):
+      if !groups.isEmpty {
+        query.append(URLQueryItem(name: channelGroupsKey, value: groups.csvString))
+      }
+      if includeState, !includeUUIDs {
+        // includeUUIDs must be true when state is true
+      }
+      query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
     }
     return query
   }
@@ -139,6 +153,8 @@ extension PubNubRouter: Router {
       return parameters.message
     case .subscribe:
       return nil
+    case .hereNow:
+      return nil
     }
   }
 
@@ -152,6 +168,8 @@ extension PubNubRouter: Router {
       return .publishAndSubscribe
     case .subscribe:
       return .subscribe
+    case .hereNow:
+      return .subscribe
     }
   }
 
@@ -164,6 +182,8 @@ extension PubNubRouter: Router {
     case .fire:
       return .version2
     case .subscribe:
+      return .version2
+    case .hereNow:
       return .version2
     }
   }
@@ -181,9 +201,9 @@ extension PubNubRouter: Router {
 extension PubNubRouter {
   func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
     do {
-      let encodedChannel = urlEncodeSlash(path: channel)
+      let encodedChannel = channel.urlEncodeSlash
 
-      let encodedMessage = try urlEncodeSlash(path: message.jsonStringifyResult.get())
+      let encodedMessage = try message.jsonStringifyResult.get().urlEncodeSlash
       return "/publish/\(publishKey)/\(subscribeKey)/0/\(encodedChannel)/0/\(encodedMessage)"
     } catch {
       let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)

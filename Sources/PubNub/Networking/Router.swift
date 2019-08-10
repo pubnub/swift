@@ -174,11 +174,6 @@ extension Router {
 // MARK: - URLRequestConvertible
 
 extension Router {
-  /// Sanitizes attempts to include `/` characters inside path components
-  func urlEncodeSlash(path component: String) -> String {
-    return component.replacingOccurrences(of: "/", with: "%2F")
-  }
-
   public var asURL: Result<URL, Error> {
     if let invalidKeysError = keyValidationError {
       return .failure(invalidKeysError)

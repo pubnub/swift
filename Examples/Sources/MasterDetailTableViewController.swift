@@ -41,6 +41,7 @@ class MasterDetailTableViewController: UITableViewController {
   enum Section: Int {
     case pubnub = 0
     case endpoints = 1
+    case presence = 2
 
     var title: String {
       switch self {
@@ -48,6 +49,8 @@ class MasterDetailTableViewController: UITableViewController {
         return "PubNub"
       case .endpoints:
         return "Endpoints"
+      case .presence:
+        return "Presence Endpoints"
       }
     }
 
@@ -57,11 +60,13 @@ class MasterDetailTableViewController: UITableViewController {
         return PubNubRow.rowCount
       case .endpoints:
         return EndpointRow.rowCount
+      case .presence:
+        return PresenceRow.rowCount
       }
     }
 
     static var sectionCount: Int {
-      return 2
+      return 3
     }
   }
 
@@ -95,6 +100,21 @@ class MasterDetailTableViewController: UITableViewController {
 
     static var rowCount: Int {
       return 2
+    }
+  }
+
+  enum PresenceRow: Int {
+    case hereNow = 0
+
+    var title: String {
+      switch self {
+      case .hereNow:
+        return "Here Now"
+      }
+    }
+
+    static var rowCount: Int {
+      return 1
     }
   }
 
@@ -134,10 +154,12 @@ class MasterDetailTableViewController: UITableViewController {
     let cell = tableView.dequeueReusableCell(withIdentifier: masterDetailCellID, for: indexPath)
 
     switch Section(rawValue: indexPath.section) {
-    case .pubnub?:
+    case .some(.pubnub):
       cell.textLabel?.text = PubNubRow(rawValue: indexPath.row)?.title
-    case .endpoints?:
+    case .some(.endpoints):
       cell.textLabel?.text = EndpointRow(rawValue: indexPath.row)?.title
+    case .some(.presence):
+      cell.textLabel?.text = PresenceRow(rawValue: indexPath.row)?.title
     default:
       break
     }
@@ -149,10 +171,12 @@ class MasterDetailTableViewController: UITableViewController {
     tableView.deselectRow(at: indexPath, animated: true)
 
     switch Section(rawValue: indexPath.section) {
-    case .pubnub?:
+    case .some(.pubnub):
       didSelectPubNubSection(at: indexPath.row)
-    case .endpoints?:
+    case .some(.endpoints):
       didSelectEndpointSection(at: indexPath.row)
+    case .some(.presence):
+      didSelectPresenceSection(at: indexPath.row)
     default:
       break
     }
@@ -178,6 +202,15 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  func didSelectPresenceSection(at row: Int) {
+    switch PresenceRow(rawValue: row) {
+    case .some(.hereNow):
+      performHereNowRequest()
+    case .none:
+      break
+    }
+  }
+
   func performTimeRequest() {
     pubnub.time { result in
       switch result {
@@ -196,6 +229,17 @@ class MasterDetailTableViewController: UITableViewController {
         print("Successful Publish Response: \(response)")
       case let .failure(error):
         print("Failed Publish Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performHereNowRequest() {
+    pubnub.hereNow(on: ["channelSwift"], and: ["demo"], also: true) { result in
+      switch result {
+      case let .success(response):
+        print("Successful HereNow Response: \(response)")
+      case let .failure(error):
+        print("Failed HereNow Response: \(error.localizedDescription)")
       }
     }
   }

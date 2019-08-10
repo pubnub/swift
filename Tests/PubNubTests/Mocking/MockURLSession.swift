@@ -62,9 +62,7 @@ class MockURLSessionTask: URLSessionDataTask {
     (mockSession as? MockURLSession)?.resume(task: self)
   }
 
-  override func cancel() {
-    print("Cancel Called")
-  }
+  override func cancel() {}
 
   init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
     mockIdentifier = identifier

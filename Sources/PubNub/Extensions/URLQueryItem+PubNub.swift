@@ -53,3 +53,19 @@ public extension Array where Element == URLQueryItem {
     return firstIndex { $0.name == name }
   }
 }
+
+public extension Array where Element == URLQueryItem {
+  // Creates a new query item and appends only if the value is not nil
+  mutating func appendIfPresent(name: String, value: String?) {
+    if let value = value {
+      append(URLQueryItem(name: name, value: value))
+    }
+  }
+
+  // Creates a new query item with a csv string value and appends only if the value is not empty
+  mutating func appendIfNotEmpty(name: String, value: [String]) {
+    if !value.isEmpty {
+      append(URLQueryItem(name: name, value: value.csvString))
+    }
+  }
+}

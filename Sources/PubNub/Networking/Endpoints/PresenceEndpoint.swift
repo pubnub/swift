@@ -1,5 +1,5 @@
 //
-//  HereNowEndpoint.swift
+//  PresenceEndpoint.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -31,25 +31,6 @@ import Foundation
 
 struct PresenceResponseDecoder<PresencePayload>: ResponseDecoder where PresencePayload: Codable {
   typealias Payload = PresencePayload
-
-  func decode(response: Response<Data>) -> Result<Response<PresencePayload>, Error> {
-    do {
-      let decodedPayload = try Constant.jsonDecoder.decode(PresencePayload.self, from: response.payload)
-
-      let decodedResponse = Response<PresencePayload>(router: response.router,
-                                                      request: response.request,
-                                                      response: response.response,
-                                                      data: response.data,
-                                                      payload: decodedPayload)
-
-      return .success(decodedResponse)
-    } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
-    }
-  }
 }
 
 // MARK: - Generic Presence Response

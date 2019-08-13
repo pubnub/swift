@@ -36,8 +36,9 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
 
       guard let stringArray = anyJSONPayload.arrayOptional as? [String] else {
         return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                forRequest: response.request,
-                                                onResponse: response.response))
+                                                response.endpoint,
+                                                response.request,
+                                                response.response))
       }
 
       let pushListPayload = RegisteredPushChannelsPayloadResponse(channels: stringArray)
@@ -52,8 +53,9 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
     } catch {
       return .failure(PNError
         .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
+                         response.endpoint,
+                         response.request,
+                         response.response))
     }
   }
 }
@@ -66,8 +68,9 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
       guard let anyArray = anyJSONPayload.arrayOptional,
         anyArray.first as? Int != nil, anyArray.last as? String != nil else {
         return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                forRequest: response.request,
-                                                onResponse: response.response))
+                                                response.endpoint,
+                                                response.request,
+                                                response.response))
       }
 
       let decodedPayload = GenericServicePayloadResponse(message: .acknowledge,
@@ -85,8 +88,9 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
     } catch {
       return .failure(PNError
         .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
+                         response.endpoint,
+                         response.request,
+                         response.response))
     }
   }
 }

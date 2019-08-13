@@ -94,4 +94,30 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertEqual(newList[1].value, "NewValue")
     XCTAssertNotNil(newList.firstIndex(of: "fourth"))
   }
+
+  func testAppendIfPresent() {
+    var query = [URLQueryItem]()
+    let queryItem = URLQueryItem(name: "TestKey", value: "TestValue")
+    query.appendIfPresent(name: queryItem.name, value: queryItem.value)
+    XCTAssertEqual(query.first, queryItem)
+  }
+
+  func testAppendIfPresent_Nil() {
+    var query = [URLQueryItem]()
+    query.appendIfPresent(name: "TestKey", value: nil)
+    XCTAssertTrue(query.isEmpty)
+  }
+
+  func testAppendIfNotEmpty() {
+    var query = [URLQueryItem]()
+    let queryItems = ["TestValue", "OtherValue"]
+    query.appendIfNotEmpty(name: "TestKey", value: queryItems)
+    XCTAssertEqual(query.first?.value, queryItems.csvString)
+  }
+
+  func testAppendIfNotEmpty_Empty() {
+    var query = [URLQueryItem]()
+    query.appendIfNotEmpty(name: "TestKey", value: [])
+    XCTAssertTrue(query.isEmpty)
+  }
 }

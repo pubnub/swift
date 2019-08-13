@@ -89,52 +89,65 @@ public final class MultiplexResponseOperator: ResponseOperator {
 
 // MARK: - Response Decoder
 
-public protocol ResponseDecoder {
+public protocol ResponseDecoder where Payload: Codable {
   associatedtype Payload
 
   func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
 }
 
 extension ResponseDecoder {
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    return decodeDefaultError(request: request, response: response, for: data)
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+    return decodeDefaultError(endpoint: endpoint, request: request, response: response, for: data)
   }
 
-  func decodeDefaultError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    // Attempt to decode based on general system response payload
-    if let data = data {
-      if let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data) {
-        let pnError = PNError.convert(generalError: generalErrorPayload,
-                                      request: request,
-                                      response: response)
+  func decode(response: Response<Data>) -> Result<Response<Payload>, Error> {
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
 
-        return pnError
-      } else if let errorMessage = try? Constant.jsonDecoder.decode(ErrorMessagePayloadResponse.self, from: data) {
-        let generalErrorPayload = GenericServicePayloadResponse(message: .init(rawValue: errorMessage.error),
-                                                                service: "No Service Received",
-                                                                status: .init(rawValue: response.statusCode),
-                                                                error: true)
-        return PNError.convert(generalError: generalErrorPayload,
-                               request: request,
-                               response: response)
-      }
+      let decodedResponse = Response<Payload>(router: response.router,
+                                              request: response.request,
+                                              response: response.response,
+                                              data: response.data,
+                                              payload: decodedPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         response.endpoint,
+                         response.request,
+                         response.response))
     }
+  }
 
-    // Attempt to decode based on different Error type
+  func decodeDefaultError(
+    endpoint: Endpoint,
+    request: URLRequest,
+    response: HTTPURLResponse,
+    for data: Data?
+  ) -> PNError? {
+    // Attempt to decode based on general system response payload
+    if let data = data, !(data.isEmpty || String(bytes: data, encoding: .utf8) == "{}") {
+      let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self,
+                                                                           from: data)
+      let pnError = PNError.convert(endpoint: endpoint,
+                                    generalError: generalErrorPayload,
+                                    request: request,
+                                    response: response)
+
+      return pnError
+    }
 
     // Use the code to determine the error
-    if !response.isSuccessful {
-      let generalErrorPayload = GenericServicePayloadResponse(message: "No Message Received",
-                                                              service: "No Service Received",
-                                                              status: .init(rawValue: response.statusCode),
-                                                              error: true)
-      return PNError.convert(generalError: generalErrorPayload,
-                             request: request,
-                             response: response)
-    }
-
-    return nil
+    let generalErrorPayload = GenericServicePayloadResponse(message: "No Message Received",
+                                                            service: "No Service Received",
+                                                            status: .init(rawValue: response.statusCode),
+                                                            error: true)
+    return PNError.convert(endpoint: endpoint,
+                           generalError: generalErrorPayload,
+                           request: request,
+                           response: response)
   }
 }
 
@@ -148,12 +161,16 @@ extension Request {
     completion: @escaping (Result<Response<D.Payload>, Error>) -> Void
   ) {
     appendResponseCompletion { [weak self] in
+      guard let strongSelf = self else {
+        return
+      }
+
       switch self?.error {
       case let .some(error as PNError):
         queue.async { completion(.failure(error)) }
         return
       case let .some(error):
-        queue.async { completion(.failure(PNError.unknownError(error))) }
+        queue.async { completion(.failure(PNError.unknownError(error, strongSelf.endpoint))) }
         return
       default:
         break
@@ -163,8 +180,9 @@ extension Request {
       guard let urlRequest = self?.urlRequest,
         let urlResponse = self?.urlResponse,
         let router = self?.router else {
-        let message = "Request and/or Response nil w/o an underlying error"
-        queue.async { completion(.failure(PNError.unknown(message))) }
+        queue.async { completion(.failure(PNError
+            .unknown(message: ErrorDescription.PNError.missingRequestResponse,
+                     strongSelf.endpoint))) }
 
         return
       }

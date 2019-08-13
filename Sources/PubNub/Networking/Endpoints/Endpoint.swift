@@ -30,6 +30,7 @@ import Foundation
 
 public enum Endpoint {
   public enum RawValue: Int {
+    case unknown
     case time
     case publish
     case compressedPublish
@@ -46,9 +47,12 @@ public enum Endpoint {
     case removeChannelsForGroup
     case channelGroups
     case deleteGroup
-    case listPushProvisions
+    case listPushChannels
     case modifyPushChannels
     case removeAllPushChannels
+    case fetchMessageHistoryV2
+    case fetchMessageHistory
+    case deleteMessageHistory
   }
 
   public enum PushType: String, Codable {
@@ -66,12 +70,11 @@ public enum Endpoint {
   case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
 
   // Subscribe Endpoint
-  case subscribe(channels: [String], groups: [String], timetoken: Int?, region: Int?, state: AnyJSON?)
+  case subscribe(channels: [String], groups: [String], timetoken: Int, region: Int?, state: AnyJSON?)
 
   // History
-  //  case history                              = "History"
-  //  case historyForChannels                   = "HistoryForChannels"
-  //  case deleteMessage                        = "DeleteMessage"
+  case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+  case deleteMessageHistory(channel: String, start: Timetoken?, end: Timetoken?)
 
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
@@ -94,6 +97,8 @@ public enum Endpoint {
   case listPushChannels(pushToken: Data, pushType: PushType)
   case modifyPushChannels(pushToken: Data, pushType: PushType, addChannels: [String], removeChannels: [String])
   case removeAllPushChannels(pushToken: Data, pushType: PushType)
+
+  case unknown
 
   var rawValue: RawValue {
     switch self {
@@ -122,11 +127,105 @@ public enum Endpoint {
     case .deleteGroup:
       return .deleteGroup
     case .listPushChannels:
-      return .listPushProvisions
+      return .listPushChannels
     case .modifyPushChannels:
       return .modifyPushChannels
     case .removeAllPushChannels:
       return .removeAllPushChannels
+    case let .fetchMessageHistory(parameters):
+      // Deprecated: Remove v2 message history path when single group support added to v3
+      if parameters.channels.count == 1 {
+        return .fetchMessageHistoryV2
+      }
+      return .fetchMessageHistory
+    case .deleteMessageHistory:
+      return .deleteMessageHistory
+    case .unknown:
+      return .unknown
+    }
+  }
+}
+
+extension Endpoint: Validated {
+  public var validationError: Error? {
+    switch self {
+    case .time:
+      return nil
+    case let .publish(message, channel, _, _, _):
+      return isEndpointInvalid(message.isEmpty, channel.isEmpty)
+    case let .compressedPublish(message, channel, _, _, _):
+      return isEndpointInvalid(message.isEmpty, channel.isEmpty)
+    case let .fire(message, channel, _):
+      return isEndpointInvalid(message.isEmpty, channel.isEmpty)
+    case let .subscribe(channels, _, timetoken, _, _):
+      return isEndpointInvalid(channels.isEmpty, timetoken < 0)
+    case let .fetchMessageHistory(channels, max, _, _, _):
+      return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
+    case let .deleteMessageHistory(channel, _, _):
+      return isEndpointInvalid(channel.isEmpty)
+    case let .hereNow(channels, _, _, _):
+      return isEndpointInvalid(channels.isEmpty)
+    case let .whereNow(uuid):
+      return isEndpointInvalid(uuid.isEmpty)
+    case let .channelsForGroup(group):
+      return isEndpointInvalid(group.isEmpty)
+    case let .addChannelsForGroup(group, channels):
+      return isEndpointInvalid(group.isEmpty, channels.isEmpty)
+    case let .removeChannelsForGroup(group, channels):
+      return isEndpointInvalid(group.isEmpty, channels.isEmpty)
+    case .channelGroups:
+      return nil
+    case let .deleteGroup(group):
+      return isEndpointInvalid(group.isEmpty)
+    case .listPushChannels(let pushToken, _):
+      return isEndpointInvalid(pushToken.isEmpty)
+    case let .modifyPushChannels(pushToken, _, addChannels, removeChannels):
+      return isEndpointInvalid(pushToken.isEmpty, addChannels.isEmpty && removeChannels.isEmpty)
+    case .removeAllPushChannels(let pushToken, _):
+      return isEndpointInvalid(pushToken.isEmpty)
+    case .unknown:
+      return PNError.invalidEndpointType(self)
+    }
+  }
+
+  func isEndpointInvalid(_ values: Bool...) -> PNError? {
+    for invalidValue in values where invalidValue {
+      return PNError.missingRequiredParameter(self)
+    }
+    return nil
+  }
+}
+
+extension Endpoint {
+  public enum OperationType: String {
+    case publish = "Publish"
+    case subscribe = "Subscribe"
+    case history = "History"
+    case presence = "Presence"
+    case channelGroup = "ChannelGroup"
+    case push = "Push"
+    case time = "Time"
+    case unknown = "Unknown"
+  }
+
+  public var operationCategory: OperationType {
+    switch rawValue {
+    case .time:
+      return .time
+    case .publish, .compressedPublish, .fire:
+      return .publish
+    case .subscribe:
+      return .subscribe
+    case .hereNow, .whereNow, .heartbeat, .leave, .setPresenceState, .getPresenceState:
+      return .presence
+    case .channelGroups, .deleteGroup, .channelsForGroup, .addChannelsForGroup, .removeChannelsForGroup:
+      return .channelGroup
+    case .listPushChannels, .modifyPushChannels, .removeAllPushChannels:
+      return .push
+    case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory:
+      return .history
+    case .unknown:
+      return .unknown
     }
   }
 }
@@ -162,6 +261,12 @@ extension Endpoint: CustomStringConvertible {
       return "Modify Push Channels"
     case .removeAllPushChannels:
       return "Remove All Push Channels"
+    case .fetchMessageHistory:
+      return "Fetch Message History"
+    case .deleteMessageHistory:
+      return "Delete Message History"
+    case .unknown:
+      return "Unknown"
     }
   }
 }

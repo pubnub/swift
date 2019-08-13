@@ -45,19 +45,24 @@ class RouterTests: XCTestCase {
     var method: HTTPMethod = .get
 
     var testablePathPayload = AnyJSON(["Key": "Value"])
-    func path() throws -> String {
-      return try "some/path/\(testablePathPayload.jsonStringifyResult.get())"
+    var path: Result<String, Error> {
+      return testablePathPayload.jsonStringifyResult.map {
+        "some/path/\($0.urlEncodeSlash)"
+      }
     }
 
     var additionalHeaders: HTTPHeaders = []
-    func queryItems() throws -> [URLQueryItem] {
-      return []
+    var queryItems: Result<[URLQueryItem], Error> {
+      return .success([])
     }
 
     var body: AnyJSON?
     var keysRequired: PNKeyRequirement = .publish
     var pamVersion: PAMVersionRequirement = .version3
-    func decodeError(request _: URLRequest, response _: HTTPURLResponse, for _: Data?) -> PNError? {
+    func decodeError(endpoint _: Endpoint,
+                     request _: URLRequest,
+                     response _: HTTPURLResponse,
+                     for _: Data?) -> PNError? {
       return nil
     }
 
@@ -91,7 +96,7 @@ class RouterTests: XCTestCase {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
     let router = PublishOnlyRouter(config: config)
 
-    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingPublishKey))
+    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingPublishKey, router.endpoint))
   }
 
   func testKeyValidationError_SubscribeReq() {
@@ -105,7 +110,7 @@ class RouterTests: XCTestCase {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
     let router = PubNubRouter(configuration: config, endpoint: subscribe)
 
-    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingSubscribeKey))
+    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingSubscribeKey, router.endpoint))
   }
 
   func testAsURL_Error_Unknown() {
@@ -121,7 +126,7 @@ class RouterTests: XCTestCase {
     case .success:
       XCTFail("The URL Convertible should always fail")
     case let .failure(error):
-      let pnError = PNError.requestCreationFailure(.unknown(AnyJSONError.stringCreationFailure(nil)))
+      let pnError = PNError.requestCreationFailure(.unknown(AnyJSONError.stringCreationFailure(nil)), router.endpoint)
       XCTAssertEqual(error.pubNubError, pnError)
     }
   }

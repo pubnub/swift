@@ -1,5 +1,5 @@
 //
-//  Error+PubNubTests.swift
+//  Validated.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,21 +25,24 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
-    let error: Error = PNError.unknown(message: "Testing", .unknown)
+public protocol Validated {
+  /// The error resulting from an invlid object
+  ///
+  /// Required
+  var validationError: Error? { get }
+}
 
-    XCTAssertNotNil(error.pubNubError)
-    XCTAssertNil(error.urlError)
+extension Validated {
+  public var isValid: Bool {
+    return validationError == nil
   }
 
-  func testURLErrorCast() {
-    let error: Error = URLError(.unknown)
-
-    XCTAssertNotNil(error.urlError)
-    XCTAssertNil(error.pubNubError)
+  public var validResult: Result<Self, Error> {
+    if let error = validationError {
+      return .failure(error)
+    }
+    return .success(self)
   }
 }

@@ -73,30 +73,28 @@ class PubNubRouterTests: XCTestCase {
       return XCTFail("Could not get the subscribe key from the configuration")
     }
 
-    var queryItems = subscribeRouter.defaultQueryItems
-    queryItems.append(contentsOf: [
+    let queryItems = [
       URLQueryItem(name: "tt", value: "1111"),
       URLQueryItem(name: "channel-group", value: "TestGroup"),
       URLQueryItem(name: "tr", value: "0")
-    ])
+    ]
 
     XCTAssertEqual(subscribeRouter.method, .get)
     XCTAssertEqual(subscribeRouter.keysRequired, .subscribe)
-    XCTAssertEqual(try? subscribeRouter.path(), "/v2/subscribe/\(subscribeKey)/TestChannel/0")
-    XCTAssertEqual(try? subscribeRouter.queryItems(), queryItems)
+    XCTAssertEqual(try? subscribeRouter.path.get(), "/v2/subscribe/\(subscribeKey)/TestChannel/0")
+    XCTAssertEqual(try? subscribeRouter.queryItems.get(), queryItems)
     XCTAssertNil(subscribeRouter.body)
   }
 
   func testSubscribe_MissingTimetoken() {
-    let subscribe = Endpoint.subscribe(channels: ["TestChannel"], groups: [], timetoken: nil, region: nil, state: nil)
+    let subscribe = Endpoint.subscribe(channels: ["TestChannel"], groups: [], timetoken: 0, region: nil, state: nil)
     let subscribeRouter = PubNubRouter(configuration: PubNubRouterTests.config, endpoint: subscribe)
 
-    var queryItems = subscribeRouter.defaultQueryItems
-    queryItems.append(contentsOf: [
+    let queryItems = [
       URLQueryItem(name: "tt", value: "0")
-    ])
+    ]
 
-    XCTAssertEqual(try? subscribeRouter.queryItems(), queryItems)
+    XCTAssertEqual(try? subscribeRouter.queryItems.get(), queryItems)
   }
 
   // End Temporary Tests
@@ -149,8 +147,9 @@ class PubNubRouterTests: XCTestCase {
         debugDescription: ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
       )
       let creationError = PNError
-        .requestCreationFailure(.jsonStringCodingFailure(failedJSON,
-                                                         dueTo: EncodingError.invalidValue(nonCodable, context)))
+        .requestCreationFailure(
+          .jsonStringCodingFailure(failedJSON, dueTo: EncodingError.invalidValue(nonCodable, context)), .unknown
+        )
       XCTAssertEqual(error.pubNubError, creationError)
     }
 
@@ -165,10 +164,11 @@ class PubNubRouterTests: XCTestCase {
           XCTFail("Publish request should fail")
         case let .failure(error):
           XCTAssertNotNil(error.pubNubError)
-          let errorCategory = ErrorDescription.PNError.requestCreationFailure
-          let errorReason = ErrorDescription.RequestCreationFailureReason.jsonStringCodingFailure
 
-          XCTAssertEqual(error.pubNubError?.localizedDescription, "\(errorCategory) \(errorReason)")
+          let jsonStringError = PNError.requestCreationFailure(
+            .jsonStringCodingFailure(failedJSON, dueTo: AnyJSONError.stringCreationFailure(nil)), fireWithMeta
+          )
+          XCTAssertEqual(error.pubNubError, jsonStringError)
         }
         expectation.fulfill()
       }
@@ -202,8 +202,9 @@ class PubNubRouterTests: XCTestCase {
         debugDescription: ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
       )
       let creationError = PNError
-        .requestCreationFailure(.jsonStringCodingFailure(failedJSON,
-                                                         dueTo: EncodingError.invalidValue(nonCodable, context)))
+        .requestCreationFailure(
+          .jsonStringCodingFailure(failedJSON, dueTo: EncodingError.invalidValue(nonCodable, context)), .unknown
+        )
       XCTAssertEqual(error.pubNubError, creationError)
     }
 
@@ -220,10 +221,11 @@ class PubNubRouterTests: XCTestCase {
 
           XCTAssertNotNil(error.pubNubError)
 
-          let errorCategory = ErrorDescription.PNError.requestCreationFailure
-          let errorReason = ErrorDescription.RequestCreationFailureReason.jsonStringCodingFailure
+          let jsonStringError = PNError.requestCreationFailure(
+            .jsonStringCodingFailure(failedJSON, dueTo: AnyJSONError.stringCreationFailure(nil)), fireWithMeta
+          )
 
-          XCTAssertEqual(error.pubNubError?.localizedDescription, "\(errorCategory) \(errorReason)")
+          XCTAssertEqual(error.pubNubError, jsonStringError)
         }
         expectation.fulfill()
       }

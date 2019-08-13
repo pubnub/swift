@@ -120,7 +120,7 @@ class RequestMutatorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    let mutationError = PNError.unknown("Could not mutate request")
+    let mutationError = PNError.unknown(message: "Could not mutate request", .unknown)
 
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { _ in
@@ -137,7 +137,7 @@ class RequestMutatorTests: XCTestCase {
       XCTAssertEqual(request.urlRequest, initialURLRequest)
 
       XCTAssertEqual(error.pubNubError,
-                     PNError.requestCreationFailure(.requestMutatorFailure(initialURLRequest, mutationError)))
+                     PNError.requestCreationFailure(.requestMutatorFailure(initialURLRequest, mutationError), .time))
     }
 
     let totalExpectation = expectation(description: "Time Response Recieved")

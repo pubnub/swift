@@ -41,13 +41,15 @@ public struct AnyJSON {
 
   /// A Boolean value that indicates whether the underlying JSON Collection is empty.
   ///
-  /// Will also return `true` if the underlying value is not a JSON Collection type
+  /// Will also return `true` if the underlying value is not a JSON Collection type or nil
   public var isEmpty: Bool {
     switch value {
     case let .array(value):
       return value.isEmpty
     case let .dictionary(value):
       return value.isEmpty
+    case .null:
+      return true
     default:
       return false
     }
@@ -231,12 +233,20 @@ extension AnyJSON {
     return arrayOptional ?? []
   }
 
+  public var wrappedUnderlyingArray: [AnyJSON] {
+    return value.rawArray.map { AnyJSON($0) }
+  }
+
   public var dictionaryOptional: [String: Any]? {
     return underlyingValue as? [String: Any]
   }
 
   public var dictionaryValue: [String: Any] {
     return dictionaryOptional ?? [:]
+  }
+
+  public var wrappedUnderlyingDictionary: [String: AnyJSON] {
+    return value.rawDictionary.mapValues { AnyJSON($0) }
   }
 }
 

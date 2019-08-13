@@ -145,14 +145,13 @@ final class PubNubTests: XCTestCase {
         guard let task = sessions.mockSession.tasks.first else {
           return XCTFail("Could not get task")
         }
-        let invalidKeyError = PNError.convert(
-          generalError: .init(message: .invalidPublishKey,
-                              service: .publish,
-                              status: .badRequest,
-                              error: true),
-          request: task.mockRequest,
-          response: task.mockResponse
-        )
+        let invalidKeyError = PNError.convert(endpoint: .unknown,
+                                              generalError: .init(message: .invalidPublishKey,
+                                                                  service: .publish,
+                                                                  status: .badRequest,
+                                                                  error: true),
+                                              request: task.mockRequest,
+                                              response: task.mockResponse)
 
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError, invalidKeyError)
@@ -179,14 +178,13 @@ final class PubNubTests: XCTestCase {
         guard let task = sessions.mockSession.tasks.first else {
           return XCTFail("Could not get task")
         }
-        let invalidKeyError = PNError.convert(
-          generalError: .init(message: .requestURITooLong,
-                              service: .balancer,
-                              status: .badRequest,
-                              error: true),
-          request: task.mockRequest,
-          response: task.mockResponse
-        )
+        let invalidKeyError = PNError.convert(endpoint: .unknown,
+                                              generalError: .init(message: .requestURITooLong,
+                                                                  service: .balancer,
+                                                                  status: .badRequest,
+                                                                  error: true),
+                                              request: task.mockRequest,
+                                              response: task.mockResponse)
 
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError, invalidKeyError)
@@ -212,7 +210,7 @@ final class PubNubTests: XCTestCase {
       case .success:
         XCTFail("Publish request should fail")
       case let .failure(error):
-        let missingKey = PNError.requestCreationFailure(.missingPublishKey)
+        let missingKey = PNError.requestCreationFailure(.missingPublishKey, .unknown)
 
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError, missingKey)
@@ -238,7 +236,7 @@ final class PubNubTests: XCTestCase {
       case .success:
         XCTFail("Publish request should fail")
       case let .failure(error):
-        let missingKey = PNError.requestCreationFailure(.missingSubscribeKey)
+        let missingKey = PNError.requestCreationFailure(.missingSubscribeKey, .unknown)
 
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError, missingKey)
@@ -264,7 +262,7 @@ final class PubNubTests: XCTestCase {
       case .success:
         XCTFail("Publish request should fail")
       case let .failure(error):
-        let missingKey = PNError.requestCreationFailure(.missingPublishAndSubscribeKey)
+        let missingKey = PNError.requestCreationFailure(.missingPublishAndSubscribeKey, .unknown)
 
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError, missingKey)

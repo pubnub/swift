@@ -116,6 +116,10 @@ public final class Request {
     atomicState.lockedWrite { $0.purgeAll() }
   }
 
+  public var endpoint: Endpoint {
+    return router.endpoint
+  }
+
   public var urlRequests: [URLRequest] {
     return atomicState.lockedRead { $0.urlRequests }
   }
@@ -246,17 +250,13 @@ public final class Request {
 
   func didComplete(_ task: URLSessionTask) {
     atomicValidators.lockedRead { $0.forEach { $0() } }
-
     sessionStream?.emitRequest(self, didComplete: task)
-
     retryOrFinish(with: error)
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
     self.error = error
-
     sessionStream?.emitRequest(self, didComplete: task, with: error)
-
     retryOrFinish(with: error)
   }
 
@@ -305,7 +305,6 @@ public final class Request {
 
       requestQueue.async { self.didResume(task) }
     }
-
     return self
   }
 
@@ -331,21 +330,18 @@ public final class Request {
 
       self.requestQueue.async { self.didCancel(task) }
     }
-
     return self
   }
 
   func finish(error: Error? = nil) {
     if let error = error { self.error = error }
-
     processResponseCompletion()
-
     didFinish()
   }
 
   // MARK: - First-class Operators
 
-  public typealias ValidationClosure = (URLRequest, HTTPURLResponse, Data?) -> Error?
+  public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?
 
   func validate(_ closure: @escaping ValidationClosure) -> Self {
     let validator: () -> Void = { [unowned self] in
@@ -353,7 +349,7 @@ public final class Request {
         return
       }
 
-      if let validationError = closure(request, response, self.data) {
+      if let validationError = closure(self.endpoint, request, response, self.data) {
         self.error = validationError
       }
     }
@@ -365,9 +361,9 @@ public final class Request {
 
   public func validate() -> Self {
     let router = self.router
-    return validate { request, response, data in
+    return validate { endpoint, request, response, data in
       if !response.isSuccessful {
-        return router.decodeError(request: request, response: response, for: data)
+        return router.decodeError(endpoint: endpoint, request: request, response: response, for: data)
       }
       return nil
     }
@@ -395,6 +391,5 @@ public protocol RequestDelegate: AnyObject {
     andPrevious error: Error?,
     completion: @escaping (RetryResult) -> Void
   )
-
   func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?)
 }

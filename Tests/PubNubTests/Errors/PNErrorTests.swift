@@ -35,15 +35,16 @@ class PNErrorTests: XCTestCase {
     }
 
     let request = URLRequest(url: url)
-    let error = PNError.convert(generalError: nil, request: request, response: nil)
+    let error = PNError.convert(endpoint: .unknown, generalError: nil, request: request, response: nil)
 
-    let unknownError = PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse)
+    let unknownError = PNError
+      .unknown(message: ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, .unknown)
 
     XCTAssertEqual(error, unknownError)
     XCTAssertEqual(error.localizedDescription, unknownError.localizedDescription)
   }
 
   func testConvertURLError_MissingRequest() {
-    XCTAssertNil(PNError.convert(error: URLError(.timedOut), request: nil, response: nil))
+    XCTAssertNil(PNError.convert(endpoint: .unknown, error: URLError(.timedOut), request: nil, response: nil))
   }
 }

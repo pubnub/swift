@@ -52,7 +52,7 @@ class EndpointTests: XCTestCase {
   }
 
   func testCustomStringConvertible_Subscribe() {
-    let subscribe = Endpoint.subscribe(channels: ["Test"], groups: [], timetoken: nil, region: nil, state: nil)
+    let subscribe = Endpoint.subscribe(channels: ["Test"], groups: [], timetoken: 0, region: nil, state: nil)
     XCTAssertEqual(subscribe.description, "Subscribe")
   }
 }

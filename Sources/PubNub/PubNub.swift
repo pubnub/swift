@@ -59,12 +59,7 @@ public struct PubNub {
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(on: queue, decoder: TimeResponseDecoder(), operator: networkConfiguration?.responseOperator) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -107,12 +102,7 @@ public struct PubNub {
         decoder: PublishResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -139,12 +129,7 @@ public struct PubNub {
         decoder: PublishResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 }
@@ -177,12 +162,7 @@ extension PubNub {
         decoder: PresenceResponseDecoder<HereNowResponsePayload>(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload.payload })
       }
   }
 
@@ -205,12 +185,7 @@ extension PubNub {
         decoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload.payload })
       }
   }
 }
@@ -236,12 +211,7 @@ extension PubNub {
         decoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload.payload })
       }
   }
 
@@ -264,12 +234,7 @@ extension PubNub {
         decoder: GenericServiceResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -292,12 +257,7 @@ extension PubNub {
         decoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload.payload })
       }
   }
 
@@ -321,12 +281,7 @@ extension PubNub {
         decoder: GenericServiceResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -350,12 +305,7 @@ extension PubNub {
         decoder: GenericServiceResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 }
@@ -381,12 +331,7 @@ extension PubNub {
         decoder: RegisteredPushChannelsResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -415,12 +360,7 @@ extension PubNub {
         decoder: ModifyPushResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
       }
   }
 
@@ -444,12 +384,68 @@ extension PubNub {
         decoder: ModifyPushResponseDecoder(),
         operator: networkConfiguration?.responseOperator
       ) { result in
-        switch result {
-        case let .success(response):
-          completion?(.success(response.payload))
-        case let .failure(error):
-          completion?(.failure(error))
-        }
+        completion?(result.map { $0.payload })
+      }
+  }
+}
+
+// MARK: - History
+
+extension PubNub {
+  public func fetchMessageHistory(
+    for channels: [String],
+    max count: Int? = nil,
+    start stateTimetoken: Timetoken? = nil,
+    end endTimetoken: Timetoken? = nil,
+    metaInResponse: Bool = false,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .fetchMessageHistory(channels: channels,
+                                                             max: count,
+                                                             start: stateTimetoken,
+                                                             end: endTimetoken,
+                                                             includeMeta: metaInResponse))
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: MessageHistoryResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+        completion?(result.map { $0.payload.channels })
+      }
+  }
+
+  public func deleteMessageHistory(
+    from channel: String,
+    start stateTimetoken: Timetoken? = nil,
+    end endTimetoken: Timetoken? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .deleteMessageHistory(channel: channel,
+                                                              start: stateTimetoken,
+                                                              end: endTimetoken))
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: GenericServiceResponseDecoder(),
+        operator: networkConfiguration?.responseOperator
+      ) { result in
+
+        completion?(result.map { $0.payload })
       }
   }
 }

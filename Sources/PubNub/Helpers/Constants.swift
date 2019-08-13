@@ -88,6 +88,10 @@ struct Constant {
     "\(pubnubSwiftSDKName)-\(operatingSystemName)/\(pubnubSwiftSDKVersion)"
   }()
 
+  public static let pnSDKURLQueryItem: URLQueryItem = {
+    URLQueryItem(name: "pnsdk", value: pnSDKQueryParameterValue)
+  }()
+
   public static let defaultUserAgent: String = {
     let userAgent: String = {
       let appNameVersion: String = {

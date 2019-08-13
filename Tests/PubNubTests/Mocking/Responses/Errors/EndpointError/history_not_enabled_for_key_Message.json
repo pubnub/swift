@@ -1,0 +1,8 @@
+{
+  "code": 403,
+  "body": {"status": 403, "error": true, "error_message": "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key. Login to your PubNub Dashboard Account and enable both Storage & Playback and Storage Delete. Contact support@pubnub.com if you require further assistance."}
+}
+
+
+
+

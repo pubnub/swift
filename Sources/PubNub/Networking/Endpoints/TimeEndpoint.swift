@@ -36,8 +36,9 @@ struct TimeResponseDecoder: ResponseDecoder {
 
       guard let timetoken = decodedPayload.first else {
         return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                forRequest: response.request,
-                                                onResponse: response.response))
+                                                response.endpoint,
+                                                response.request,
+                                                response.response))
       }
 
       let decodedResponse = Response<TimeResponsePayload>(router: response.router,
@@ -50,8 +51,9 @@ struct TimeResponseDecoder: ResponseDecoder {
     } catch {
       return .failure(PNError
         .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
+                         response.endpoint,
+                         response.request,
+                         response.response))
     }
   }
 }

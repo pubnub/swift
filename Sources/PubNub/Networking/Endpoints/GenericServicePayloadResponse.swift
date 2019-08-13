@@ -28,61 +28,16 @@
 import Foundation
 
 struct GenericServiceResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>) -> Result<Response<GenericServicePayloadResponse>, Error> {
-    do {
-      let decodedPayload = try Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: response.payload)
-
-      let decodedResponse = Response<GenericServicePayloadResponse>(router: response.router,
-                                                                    request: response.request,
-                                                                    response: response.response,
-                                                                    data: response.data,
-                                                                    payload: decodedPayload)
-
-      return .success(decodedResponse)
-    } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
-    }
-  }
-
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    // Attempt to decode based on general system response payload
-    if let data = data,
-      let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data) {
-      let pnError = PNError.convert(generalError: generalErrorPayload,
-                                    request: request,
-                                    response: response)
-
-      return pnError
-    }
-
-    return nil
-  }
+  typealias Payload = GenericServicePayloadResponse
 }
 
 struct AnyJSONResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>) -> Result<Response<AnyJSON>, Error> {
-    do {
-      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
-
-      let decodedResponse = Response<AnyJSON>(router: response.router,
-                                              request: response.request,
-                                              response: response.response,
-                                              data: response.data,
-                                              payload: decodedPayload)
-
-      return .success(decodedResponse)
-    } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
-    }
-  }
+  typealias Payload = AnyJSON
 }
 
+// MARK: - Response Body
+
+// swiftlint:disable:next type_body_length
 public struct GenericServicePayloadResponse: Codable, Hashable {
   public enum Message: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
     case acknowledge
@@ -95,6 +50,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case maxChannelGroupCountExceeded
     case notFound
     case pushNotEnabled
+    case messageDeletionNotEnabled
     case requestURITooLong
     case serviceUnavailable
     case unknown(message: String)
@@ -123,13 +79,19 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
       case "Service Unavailable":
         self = .serviceUnavailable
       default:
-        if rawValue.starts(with: "Not Found ") {
-          self = .notFound
-        } else if rawValue.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
-          self = .pushNotEnabled
-        } else {
-          self = .unknown(message: rawValue)
-        }
+        self = Message.rawValueStartsWith(rawValue)
+      }
+    }
+
+    static func rawValueStartsWith(_ message: String) -> Message {
+      if message.starts(with: "Not Found ") {
+        return .notFound
+      } else if message.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
+        return .pushNotEnabled
+      } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled) {
+        return .messageDeletionNotEnabled
+      } else {
+        return .unknown(message: message)
       }
     }
 
@@ -155,6 +117,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "Resource Not Found"
       case .pushNotEnabled:
         return ErrorDescription.EndpointFailureReason.pushNotEnabled
+      case .messageDeletionNotEnabled:
+        return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
       case .requestURITooLong:
         return "Request URI Too Long"
       case .serviceUnavailable:
@@ -292,4 +256,65 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
   public let service: Service
   public let status: Code
   public let error: Bool
+
+  public init(
+    message: Message? = nil,
+    service: Service? = nil,
+    status: Code? = nil,
+    error: Bool = false
+  ) {
+    if !error, status == .some(.acknowledge) {
+      self.message = .acknowledge
+    } else {
+      self.message = message ?? "No Message Provided"
+    }
+
+    self.service = service ?? "No Service Provided"
+    self.status = status ?? -1
+    self.error = error
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case errorMessage = "error_message"
+    case message
+    case service
+    case status
+    case error
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    // Different 'error message' response structures
+    let errorMessage = try container.decodeIfPresent(Message.self, forKey: .errorMessage)
+    let message = try errorMessage ?? container.decodeIfPresent(Message.self, forKey: .message)
+
+    // Sometimes payload can be {"error": "Error Message"}
+    let error: Message?
+    let isError: Bool
+    // Use `decodeIfPresent` because it can sometiems be a Bool
+    if let errorAsMessage = try? container.decodeIfPresent(Message.self, forKey: .error) {
+      error = errorAsMessage
+      isError = true
+    } else {
+      error = nil
+      isError = try container.decodeIfPresent(Bool.self, forKey: .error) ?? false
+    }
+
+    let service = try container.decodeIfPresent(Service.self, forKey: .service)
+    let status = try container.decodeIfPresent(Code.self, forKey: .status)
+
+    self.init(message: message ?? error,
+              service: service,
+              status: status,
+              error: isError)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(message.rawValue, forKey: .message)
+    try container.encode(service.rawValue, forKey: .service)
+    try container.encode(status.rawValue, forKey: .status)
+    try container.encode(error, forKey: .error)
+  }
 }

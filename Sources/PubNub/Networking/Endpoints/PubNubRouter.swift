@@ -44,6 +44,15 @@ struct PubNubRouter {
   private let removeGroupKey = "remove"
   private let addGroupKey = "add"
   private let typeKey = "type"
+  private let startKey = "start"
+  private let endKey = "end"
+  private let channelKey = "channel"
+  private let countKey = "count"
+  private let maxKey = "max"
+  private let reverseKey = "reverse"
+  private let includeTokenKey = "include_token"
+  private let includeMetaKey = "include_meta"
+  private let stringtokenKey = "stringtoken"
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -52,154 +61,122 @@ struct PubNubRouter {
 extension PubNubRouter: Router {
   var method: HTTPMethod {
     switch endpoint {
-    case .time:
-      return .get
-    case .publish:
-      return .get
     case .compressedPublish:
       return .post
-    case .fire:
-      return .get
-    case .subscribe:
-      return .get
-    case .hereNow:
-      return .get
-    case .whereNow:
-      return .get
-    case .channelsForGroup:
-      return .get
-    case .addChannelsForGroup:
-      return .get
-    case .removeChannelsForGroup:
-      return .get
-    case .channelGroups:
-      return .get
-    case .deleteGroup:
-      return .get
-    case .listPushChannels:
-      return .get
-    case .modifyPushChannels:
-      return .get
-    case .removeAllPushChannels:
+    case .deleteMessageHistory:
+      return .delete
+    default:
       return .get
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
-  func path() throws -> String {
+  var path: Result<String, Error> {
     let publishKey = configuration.publishKey?.urlEncodeSlash ?? ""
     let subscribeKey = configuration.subscribeKey?.urlEncodeSlash ?? ""
 
-    // General Note: Only URL Encode slashes `/` for the channel(s) in the path.
-    // Everything else will be encoded by the URL object
+    // Note: URL Encode slashes `/` for inputs in path as they will be skipped
+    // by the URL Loader inside Foundation
+    let path: String
     switch endpoint {
     case .time:
-      return "/time/0"
+      path = "/time/0"
     case let .publish(parameters):
-      return try parsePublishPath(publishKey: publishKey,
-                                  subscribeKey: subscribeKey,
-                                  channel: parameters.channel,
-                                  message: parameters.message)
-    case let .compressedPublish(parameters):
-      return "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
+      return parsePublishPath(publishKey: publishKey,
+                              subscribeKey: subscribeKey,
+                              channel: parameters.channel,
+                              message: parameters.message)
     case let .fire(parameters):
-      return try parsePublishPath(publishKey: publishKey,
-                                  subscribeKey: subscribeKey,
-                                  channel: parameters.channel,
-                                  message: parameters.message)
+      return parsePublishPath(publishKey: publishKey,
+                              subscribeKey: subscribeKey,
+                              channel: parameters.channel,
+                              message: parameters.message)
+    case let .compressedPublish(parameters):
+      path = "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
     case let .subscribe(parameters):
-      return "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
+      path = "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
     case let .hereNow(channels, _, _, _):
-      return "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case let .whereNow(uuid):
-      return "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
+      path = "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
     case let .channelsForGroup(group):
-      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+      path = "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
     case let .addChannelsForGroup(group, _):
-      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+      path = "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
     case let .removeChannelsForGroup(group, _):
-      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
+      path = "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)"
     case .channelGroups:
-      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group"
+      path = "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group"
     case let .deleteGroup(group):
-      return "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)/remove"
+      path = "/v1/channel-registration/sub-key/\(subscribeKey)/channel-group/\(group.urlEncodeSlash)/remove"
     case .listPushChannels(let token, _):
-      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
     case .modifyPushChannels(let token, _, _, _):
-      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)"
     case .removeAllPushChannels(let token, _):
-      return "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
+    case let .fetchMessageHistory(parameters):
+      // Deprecated: Remove v2 message history path when single group support added to v3
+      if parameters.channels.count == 1, let channel = parameters.channels.first {
+        path = "/v2/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+      } else {
+        path = "/v3/history/sub-key/\(subscribeKey)/channel/\(parameters.channels.csvString.urlEncodeSlash)"
+      }
+    case .deleteMessageHistory(let channel, _, _):
+      path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+    case .unknown:
+      return .failure(PNError.unknown(message: endpoint.description, endpoint))
     }
+    return .success(path)
   }
 
-  // swiftlint:disable:next cyclomatic_complexity function_body_length
-  func queryItems() throws -> [URLQueryItem] {
-    var query = defaultQueryItems
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = [URLQueryItem]()
     switch endpoint {
-    case .time:
-      break
-    case let .publish(_, channel, shouldStore, ttl, meta):
-      try query.append(contentsOf: parsePublishQuery(channel: channel,
-                                                     shouldStore: shouldStore,
-                                                     ttl: ttl,
-                                                     meta: meta))
-    case let .compressedPublish(_, channel, shouldStore, ttl, meta):
-      try query.append(contentsOf: parsePublishQuery(channel: channel,
-                                                     shouldStore: shouldStore,
-                                                     ttl: ttl,
-                                                     meta: meta))
-    case let .fire(_, channel, meta):
-      try query.append(contentsOf: parsePublishQuery(channel: channel,
-                                                     shouldStore: false,
-                                                     ttl: 0,
-                                                     meta: meta))
-      query.append(contentsOf: [
-        URLQueryItem(name: noRepKey, value: "true"),
-        URLQueryItem(name: storedKey, value: "0")
-      ])
+    case let .publish(_, _, shouldStore, ttl, meta):
+      return parsePublish(query: &query, shouldStore: shouldStore, ttl: ttl, meta: meta)
+    case let .compressedPublish(_, _, shouldStore, ttl, meta):
+      return parsePublish(query: &query, shouldStore: shouldStore, ttl: ttl, meta: meta)
+    case let .fire(_, _, meta):
+      return parsePublish(query: &query, shouldStore: false, ttl: 0, meta: meta)
     case let .subscribe(parameters):
-      query.append(URLQueryItem(name: timetokenKey, value: parameters.timetoken?.description ?? "0"))
-      if !parameters.groups.isEmpty {
-        query.append(URLQueryItem(name: channelGroupsKey, value: parameters.groups.csvString))
-      }
-      if let region = parameters.region {
-        query.append(URLQueryItem(name: regionKey, value: region.description))
-      }
+      query.append(URLQueryItem(name: timetokenKey, value: parameters.timetoken.description))
+      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
+      query.appendIfPresent(name: regionKey, value: parameters.region?.description)
     case let .hereNow(_, groups, includeUUIDs, includeState):
-      if !groups.isEmpty {
-        query.append(URLQueryItem(name: channelGroupsKey, value: groups.csvString))
-      }
-      if includeState, !includeUUIDs {
-        // includeUUIDs must be true when state is true
-      }
+      query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
       query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
       query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
-    case .whereNow:
-      break
-    case .channelsForGroup:
-      break
     case let .addChannelsForGroup(_, channels):
       query.append(URLQueryItem(name: addGroupKey, value: channels.csvString))
     case let .removeChannelsForGroup(_, channels):
       query.append(URLQueryItem(name: removeGroupKey, value: channels.csvString))
-    case .channelGroups:
-      break
-    case .deleteGroup:
-      break
     case let .listPushChannels(_, pushType):
       query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
     case let .modifyPushChannels(_, pushType, addChannels, removeChannels):
       query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
-      if !addChannels.isEmpty {
-        query.append(URLQueryItem(name: typeKey, value: addChannels.csvString.urlEncodeSlash))
-      }
-      if !removeChannels.isEmpty {
-        query.append(URLQueryItem(name: typeKey, value: removeChannels.csvString.urlEncodeSlash))
-      }
+      query.appendIfNotEmpty(name: typeKey, value: addChannels)
+      query.appendIfNotEmpty(name: typeKey, value: removeChannels)
     case let .removeAllPushChannels(_, pushType):
       query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
+    case let .fetchMessageHistory(_, max, start, end, includeMeta):
+      // Deprecated: Remove `countKey` with v2 message history
+      query.appendIfPresent(name: countKey, value: max?.description)
+      query.appendIfPresent(name: stringtokenKey, value: false.description)
+      query.appendIfPresent(name: includeTokenKey, value: true.description)
+      query.appendIfPresent(name: reverseKey, value: false.description)
+      // End Deprecation Block
+
+      query.appendIfPresent(name: maxKey, value: max?.description)
+      query.appendIfPresent(name: startKey, value: start?.description)
+      query.appendIfPresent(name: endKey, value: end?.description)
+      query.appendIfPresent(name: includeMetaKey, value: includeMeta.description)
+    case let .deleteMessageHistory(_, startTimetoken, endTimetoken):
+      query.appendIfPresent(name: startKey, value: startTimetoken?.description)
+      query.appendIfPresent(name: endKey, value: endTimetoken?.description)
+    default:
+      break
     }
-    return query
+    return .success(query)
   }
 
   var additionalHeaders: HTTPHeaders {
@@ -208,35 +185,9 @@ extension PubNubRouter: Router {
 
   var body: AnyJSON? {
     switch endpoint {
-    case .time:
-      return nil
-    case .publish:
-      return nil
     case let .compressedPublish(parameters):
       return parameters.message
-    case let .fire(parameters):
-      return parameters.message
-    case .subscribe:
-      return nil
-    case .hereNow:
-      return nil
-    case .whereNow:
-      return nil
-    case .channelsForGroup:
-      return nil
-    case .addChannelsForGroup:
-      return nil
-    case .removeChannelsForGroup:
-      return nil
-    case .channelGroups:
-      return nil
-    case .deleteGroup:
-      return nil
-    case .listPushChannels:
-      return nil
-    case .modifyPushChannels:
-      return nil
-    case .removeAllPushChannels:
+    default:
       return nil
     }
   }
@@ -249,27 +200,7 @@ extension PubNubRouter: Router {
       return .publishAndSubscribe
     case .fire:
       return .publishAndSubscribe
-    case .subscribe:
-      return .subscribe
-    case .hereNow:
-      return .subscribe
-    case .whereNow:
-      return .subscribe
-    case .channelsForGroup:
-      return .subscribe
-    case .addChannelsForGroup:
-      return .subscribe
-    case .removeChannelsForGroup:
-      return .subscribe
-    case .channelGroups:
-      return .subscribe
-    case .deleteGroup:
-      return .subscribe
-    case .listPushChannels:
-      return .subscribe
-    case .modifyPushChannels:
-      return .subscribe
-    case .removeAllPushChannels:
+    default:
       return .subscribe
     }
   }
@@ -278,84 +209,66 @@ extension PubNubRouter: Router {
     switch endpoint {
     case .time:
       return .none
-    case .publish, .compressedPublish:
-      return .version2
-    case .fire:
-      return .version2
-    case .subscribe:
-      return .version2
     case .hereNow:
       return .none
     case .whereNow:
       return .none
     case .channelsForGroup:
       return .none
-    case .addChannelsForGroup:
-      return .version2
-    case .removeChannelsForGroup:
-      return .version2
     case .channelGroups:
       return .none
-    case .deleteGroup:
-      return .version2
     case .listPushChannels:
       return .none
-    case .modifyPushChannels:
-      return .version2
     case .removeAllPushChannels:
       return .none
+    default:
+      return .version2
     }
   }
 
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     switch endpoint {
     case .publish, .compressedPublish, .fire:
-      return PublishResponseDecoder().decodeError(request: request, response: response, for: data)
+      return PublishResponseDecoder().decodeError(endpoint: endpoint, request: request, response: response, for: data)
     default:
-      return AnyJSONResponseDecoder().decodeError(request: request, response: response, for: data)
+      return AnyJSONResponseDecoder().decodeError(endpoint: endpoint, request: request, response: response, for: data)
     }
   }
 }
 
 extension PubNubRouter {
-  func parsePublishPath(publishKey: String, subscribeKey: String, channel: String, message: AnyJSON) throws -> String {
-    do {
-      let encodedChannel = channel.urlEncodeSlash
-
-      let encodedMessage = try message.jsonStringifyResult.get().urlEncodeSlash
-      return "/publish/\(publishKey)/\(subscribeKey)/0/\(encodedChannel)/0/\(encodedMessage)"
-    } catch {
-      let reason = PNError.RequestCreationFailureReason.jsonStringCodingFailure(message, dueTo: error)
-      throw PNError.requestCreationFailure(reason)
+  func parsePublishPath(
+    publishKey: String,
+    subscribeKey: String,
+    channel: String,
+    message: AnyJSON
+  ) -> Result<String, Error> {
+    return message.jsonStringifyResult.map {
+      "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/\($0.urlEncodeSlash)"
+    }.mapError {
+      PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint)
     }
   }
 
-  func parsePublishQuery(
-    channel _: String,
+  func parsePublish(
+    query: inout [URLQueryItem],
     shouldStore: Bool?,
     ttl: Int?,
     meta: AnyJSON?
-  ) throws -> [URLQueryItem] {
-    var query = [URLQueryItem]()
+  ) -> Result<[URLQueryItem], Error> {
+    query.appendIfPresent(name: storedKey, value: shouldStore?.stringNumber)
+    query.appendIfPresent(name: ttlKey, value: ttl?.description)
 
-    if let shouldStore = shouldStore {
-      query.append(URLQueryItem(name: storedKey, value: shouldStore.stringNumber))
-    }
-    if let ttl = ttl {
-      query.append(URLQueryItem(name: ttlKey, value: ttl.description))
-    }
     if let meta = meta, !meta.isEmpty {
       do {
-        try query.append(URLQueryItem(name: metaKey,
-                                      value: meta.jsonStringifyResult.get()))
+        try query.append(URLQueryItem(name: metaKey, value: meta.jsonStringifyResult.get()))
+        return .success(query)
       } catch {
-        let reason = PNError
-          .RequestCreationFailureReason
-          .jsonStringCodingFailure(meta, dueTo: error)
-        throw PNError.requestCreationFailure(reason)
+        return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(meta, dueTo: error), endpoint))
       }
     }
-    return query
+
+    return .success(query)
   }
 }
 

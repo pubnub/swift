@@ -28,27 +28,32 @@
 import Foundation
 
 extension PNError: Equatable {
+  // swiftlint:disable:next cyclomatic_complexity
   public static func == (lhs: PNError, rhs: PNError) -> Bool {
     switch (lhs, rhs) {
-    case let (.unknown(lhsMessage), .unknown(rhsMessage)):
+    case let (.unknown(lhsMessage, _), .unknown(rhsMessage, _)):
       return lhsMessage == rhsMessage
-    case let (.unknownError(lhsError), .unknownError(rhsError)):
+    case let (.unknownError(lhsError, _), .unknownError(rhsError, _)):
       return lhsError.localizedDescription == rhsError.localizedDescription
+    case (.missingRequiredParameter, missingRequiredParameter):
+      return true
+    case (.invalidEndpointType, .invalidEndpointType):
+      return true
     case let (.sessionDeinitialized(lhsUUID), .sessionDeinitialized(rhsUUID)):
       return lhsUUID == rhsUUID
     case let (.requestRetryFailed(lhsParams), .requestRetryFailed(rhsParams)):
-      return lhsParams.0 == rhsParams.0 &&
+      return lhsParams.1 == rhsParams.1 &&
         lhsParams.dueTo.localizedDescription == rhsParams.dueTo.localizedDescription &&
         lhsParams.withPreviousError?.localizedDescription == rhsParams.withPreviousError?.localizedDescription
-    case let (.requestCreationFailure(lhsReason), .requestCreationFailure(rhsReason)):
+    case let (.requestCreationFailure(lhsReason, _), .requestCreationFailure(rhsReason, _)):
       return lhsReason == rhsReason
-    case let (.requestTransmissionFailure(lhsReason), .requestTransmissionFailure(rhsReason)):
+    case let (.requestTransmissionFailure(lhsReason, _, _), .requestTransmissionFailure(rhsReason, _, _)):
       return lhsReason == rhsReason
-    case let (.responseProcessingFailure(lhsReason), .responseProcessingFailure(rhsReason)):
+    case let (.responseProcessingFailure(lhsReason, _, _, _), .responseProcessingFailure(rhsReason, _, _, _)):
       return lhsReason == rhsReason
-    case let (.endpointFailure(lhsReason), .endpointFailure(rhsReason)):
+    case let (.endpointFailure(lhsReason, _, _, _), .endpointFailure(rhsReason, _, _, _)):
       return lhsReason == rhsReason
-    case let (.sessionInvalidated(lhsReason), .sessionInvalidated(rhsReason)):
+    case let (.sessionInvalidated(lhsReason, _), .sessionInvalidated(rhsReason, _)):
       return lhsReason == rhsReason
     default:
       return false
@@ -151,6 +156,8 @@ extension PNError.EndpointFailureReason: Equatable {
     case (.invalidPublishKey, .invalidPublishKey):
       return true
     case (.maxChannelGroupCountExceeded, .maxChannelGroupCountExceeded):
+      return true
+    case (.messageDeletionNotEnabled, .messageDeletionNotEnabled):
       return true
     case (.pushNotEnabled, .pushNotEnabled):
       return true

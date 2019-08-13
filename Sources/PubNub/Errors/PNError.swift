@@ -31,10 +31,12 @@ public enum PNError: Error {
   // Request Errors
 
   // NON-Reason Failures
-  case unknown(String)
-  case unknownError(Error)
-  case sessionDeinitialized(for: UUID)
-  case requestRetryFailed(URLRequest, dueTo: Error, withPreviousError: Error?)
+  case unknown(message: String, Endpoint)
+  case unknownError(Error, Endpoint)
+  case missingRequiredParameter(Endpoint)
+  case invalidEndpointType(Endpoint)
+  case sessionDeinitialized(sessionID: UUID)
+  case requestRetryFailed(Endpoint, URLRequest, dueTo: Error, withPreviousError: Error?)
 
   public enum RequestCreationFailureReason {
     // URL Creation Errors
@@ -49,11 +51,11 @@ public enum PNError: Error {
     case requestMutatorFailure(URLRequest, Error)
   }
 
-  case requestCreationFailure(RequestCreationFailureReason)
+  case requestCreationFailure(RequestCreationFailureReason, Endpoint)
 
   // MARK: - System Created Network Errors
 
-  public enum RequestTransmissionFailureReason {
+  public enum RequestTransmissionFailureReason: RawRepresentable {
     // Reasons why failed to transmit request
     case unknown(URLError)
     case cancelled(URLError)
@@ -65,18 +67,104 @@ public enum PNError: Error {
     case connectionLost(URLError)
     case secureConnectionFailure(URLError)
     case secureTrustFailure(URLError)
+
+    public var rawValue: URLError {
+      switch self {
+      case let .unknown(error):
+        return error
+      case let .cancelled(error):
+        return error
+      case let .timedOut(error):
+        return error
+      case let .nameResolutionFailure(error):
+        return error
+      case let .invalidURL(error):
+        return error
+      case let .connectionFailure(error):
+        return error
+      case let .connectionOverDataFailure(error):
+        return error
+      case let .connectionLost(error):
+        return error
+      case let .secureConnectionFailure(error):
+        return error
+      case let .secureTrustFailure(error):
+        return error
+      }
+    }
+
+    // swiftlint:disable:next cyclomatic_complexity
+    public init?(rawValue: URLError) {
+      switch rawValue.code {
+      case .cancelled:
+        self = .cancelled(rawValue)
+      case .unknown:
+        self = .unknown(rawValue)
+      case .timedOut:
+        self = .timedOut(rawValue)
+      case .cannotFindHost, .dnsLookupFailed:
+        self = .nameResolutionFailure(rawValue)
+      case .badURL, .unsupportedURL:
+        self = .invalidURL(rawValue)
+      case .cannotConnectToHost, .resourceUnavailable, .notConnectedToInternet:
+        self = .connectionFailure(rawValue)
+      case .internationalRoamingOff, .callIsActive, .dataNotAllowed:
+        self = .connectionOverDataFailure(rawValue)
+      case .networkConnectionLost:
+        self = .connectionLost(rawValue)
+      case .secureConnectionFailed:
+        self = .secureConnectionFailure(rawValue)
+      case .serverCertificateHasBadDate,
+           .serverCertificateUntrusted,
+           .serverCertificateHasUnknownRoot,
+           .serverCertificateNotYetValid,
+           .clientCertificateRejected,
+           .clientCertificateRequired:
+        self = .secureTrustFailure(rawValue)
+      default:
+        if #available(iOS 9.0, macOS 10.11, *), rawValue.code == .appTransportSecurityRequiresSecureConnection {
+          self = .secureTrustFailure(rawValue)
+        }
+
+        return nil
+      }
+    }
   }
 
-  case requestTransmissionFailure(RequestTransmissionFailureReason, forRequest: URLRequest)
+  case requestTransmissionFailure(RequestTransmissionFailureReason, Endpoint, URLRequest)
 
-  public enum ResponseProcessingFailureReason {
+  public enum ResponseProcessingFailureReason: RawRepresentable {
     // System Errors that were returned via URLSessionDelegate
     case receiveFailure(URLError)
     case responseDecodingFailure(URLError)
     case dataLengthExceedsMaximum(URLError)
+
+    public var rawValue: URLError {
+      switch self {
+      case let .receiveFailure(error):
+        return error
+      case let .responseDecodingFailure(error):
+        return error
+      case let .dataLengthExceedsMaximum(error):
+        return error
+      }
+    }
+
+    public init?(rawValue: URLError) {
+      switch rawValue.code {
+      case .badServerResponse, .zeroByteResource:
+        self = .receiveFailure(rawValue)
+      case .cannotDecodeRawData, .cannotDecodeContentData, .cannotParseResponse:
+        self = .responseDecodingFailure(rawValue)
+      case .dataLengthExceedsMaximum:
+        self = .dataLengthExceedsMaximum(rawValue)
+      default:
+        return nil
+      }
+    }
   }
 
-  case responseProcessingFailure(ResponseProcessingFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse?)
+  case responseProcessingFailure(ResponseProcessingFailureReason, Endpoint, URLRequest, HTTPURLResponse?)
 
   public enum EndpointFailureReason {
     case malformedResponseBody
@@ -88,6 +176,7 @@ public enum PNError: Error {
     case invalidPublishKey
     case maxChannelGroupCountExceeded
     case pushNotEnabled
+    case messageDeletionNotEnabled
     case couldNotParseRequest
     case requestContainedInvalidJSON
     case serviceUnavailable
@@ -105,7 +194,7 @@ public enum PNError: Error {
   }
 
   /// Indicates that the request/reponse was successfully sent, but the PubNub system returned an error
-  case endpointFailure(EndpointFailureReason, forRequest: URLRequest, onResponse: HTTPURLResponse)
+  case endpointFailure(EndpointFailureReason, Endpoint, URLRequest, HTTPURLResponse)
 
   // When Error Occurred
   public enum SessionInvalidationReason {
@@ -117,178 +206,77 @@ public enum PNError: Error {
 }
 
 extension PNError {
-  // swiftlint:disable:next cyclomatic_complexity function_body_length
-  static func convert(error: URLError, request: URLRequest?, response: HTTPURLResponse?) -> PNError? {
-    let errorCode = URLError.Code(rawValue: error.errorCode)
+  public var endpoint: Endpoint {
+    switch self {
+    case let .unknown(_, endpoint):
+      return endpoint
+    case let .unknownError(_, endpoint):
+      return endpoint
+    case let .missingRequiredParameter(endpoint):
+      return endpoint
+    case let .invalidEndpointType(endpoint):
+      return endpoint
+    case .sessionDeinitialized:
+      return .unknown
+    case let .requestRetryFailed(endpoint, _, _, _):
+      return endpoint
+    case let .requestCreationFailure(_, endpoint):
+      return endpoint
+    case let .requestTransmissionFailure(_, endpoint, _):
+      return endpoint
+    case let .responseProcessingFailure(_, endpoint, _, _):
+      return endpoint
+    case let .endpointFailure(_, endpoint, _, _):
+      return endpoint
+    case .sessionInvalidated:
+      return .unknown
+    }
+  }
 
+  static func convert(
+    endpoint: Endpoint,
+    error: URLError,
+    request: URLRequest?,
+    response: HTTPURLResponse?
+  ) -> PNError? {
     guard let request = request else {
       return nil
     }
 
-    switch errorCode {
-    // Unknown
-    case .unknown: // rawValue == -1
-      return .requestTransmissionFailure(.unknown(error), forRequest: request)
-
-    // Cancelled
-    case .cancelled, // rawValue == -999
-         .userCancelledAuthentication: // rawValue == -1012
-      return .requestTransmissionFailure(
-        .cancelled(error), forRequest: request
-      )
-
-    // Timed Out
-    case .timedOut: // rawValue == -1001
-      return .requestTransmissionFailure(
-        .timedOut(error), forRequest: request
-      )
-
-    // Name Resolution Failure
-    case .cannotFindHost, // rawValue == -1003
-         .dnsLookupFailed: // rawValue == -1006
-      return .requestTransmissionFailure(
-        .nameResolutionFailure(error), forRequest: request
-      )
-
-    // Invalid URL Issues
-    case .badURL, // rawValue == -1000
-         .unsupportedURL: // rawValue == -1002
-      return .requestTransmissionFailure(
-        .invalidURL(error), forRequest: request
-      )
-
-    // Connection Issues
-    case .cannotConnectToHost, // rawValue == -1004
-         .resourceUnavailable, // rawValue == -1008
-         .notConnectedToInternet: // rawValue == -1009
-      return .requestTransmissionFailure(
-        .connectionFailure(error), forRequest: request
-      )
-
-    // SIM Related
-    case .internationalRoamingOff, // rawValue == -1018
-         .callIsActive, // rawValue == -1019
-         .dataNotAllowed: // rawValue == -1020
-      return .requestTransmissionFailure(
-        .connectionOverDataFailure(error), forRequest: request
-      )
-
-    // Connection Closed
-    case .networkConnectionLost: // rawValue == -1005
-      return .requestTransmissionFailure(
-        .connectionLost(error), forRequest: request
-      )
-
-    // Secure Connection Failure
-    case .secureConnectionFailed: // rawValue == -1200
-      return .requestTransmissionFailure(
-        .secureConnectionFailure(error), forRequest: request
-      )
-
-    // Certificate Trust Failure
-    case .serverCertificateHasBadDate, // rawValue == -1201
-         .serverCertificateUntrusted, // rawValue == -1202
-         .serverCertificateHasUnknownRoot, // rawValue == -1203
-         .serverCertificateNotYetValid, // rawValue == -1204
-         .clientCertificateRejected, // rawValue == -1205
-         .clientCertificateRequired: // rawValue == -1206
-      return .requestTransmissionFailure(
-        .secureTrustFailure(error), forRequest: request
-      )
-
-    // Recieve Failure
-    case .badServerResponse, // rawValue == -1011
-         .zeroByteResource: // rawValue == -1014
-      return .responseProcessingFailure(
-        .receiveFailure(error),
-        forRequest: request,
-        onResponse: response
-      )
-
-    // Response Decoding Failure
-    case .cannotDecodeRawData, // rawValue == -1015
-         .cannotDecodeContentData, // rawValue == -1016
-         .cannotParseResponse: // rawValue == -1017
-      return .responseProcessingFailure(
-        .responseDecodingFailure(error),
-        forRequest: request,
-        onResponse: response
-      )
-
-    // Data Length Exceeded
-    case .dataLengthExceedsMaximum: // rawValue == -1103
-      return .responseProcessingFailure(
-        .dataLengthExceedsMaximum(error),
-        forRequest: request,
-        onResponse: response
-      )
-
-    // Not used but will retain reference for completeness
-//    case .httpTooManyRedirects: break
-//    case .redirectToNonExistentLocation: break
-//    case .userAuthenticationRequired: break
-//    case .cannotLoadFromNetwork: break
-//    case .cannotCreateFile: break
-//    case .cannotOpenFile: break
-//    case .cannotCloseFile: break
-//    case .cannotWriteToFile: break
-//    case .cannotRemoveFile: break
-//    case .cannotMoveFile: break
-//    case .downloadDecodingFailedMidStream: break
-//    case .downloadDecodingFailedToComplete: break
-//    case .fileDoesNotExist: break
-//    case .fileIsDirectory: break
-//    case .noPermissionsToReadFile: break
-//    case .requestBodyStreamExhausted: break
-//    case .backgroundSessionRequiresSharedContainer: break
-//    case .backgroundSessionInUseByAnotherProcess: break
-//    case .backgroundSessionWasDisconnected: break
-    default:
-      if #available(OSX 10.11, iOS 9.0, *) {
-        if errorCode == .appTransportSecurityRequiresSecureConnection { // rawValue == -1022
-          return .requestTransmissionFailure(
-            .secureTrustFailure(error), forRequest: request
-          )
-        }
-      }
+    if let transmissionErrorReason = RequestTransmissionFailureReason(rawValue: error) {
+      return .requestTransmissionFailure(transmissionErrorReason, endpoint, request)
+    } else if let responseErrorReason = ResponseProcessingFailureReason(rawValue: error) {
+      return .responseProcessingFailure(responseErrorReason, endpoint, request, response)
     }
 
-    return .unknownError(error)
+    return .unknownError(error, endpoint)
   }
 
   static func convert(
+    endpoint: Endpoint,
     generalError payload: GenericServicePayloadResponse?,
     request: URLRequest,
     response: HTTPURLResponse?
   ) -> PNError {
     guard let response = response else {
-      return PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse)
+      return PNError.unknown(message: ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, endpoint)
     }
 
     // Try to associate with a specific error message
     if let reason = PNError.lookupGeneralErrorMessage(using: payload?.message) {
-      return PNError.endpointFailure(reason,
-                                     forRequest: request,
-                                     onResponse: response)
+      return PNError.endpointFailure(reason, endpoint, request, response)
     }
 
     // Try to associate with a general status code error
     let status = payload?.status ?? GenericServicePayloadResponse.Code(rawValue: response.statusCode)
     if let reason = PNError.lookupGeneralErrorStatus(using: status) {
-      return PNError.endpointFailure(reason,
-                                     forRequest: request,
-                                     onResponse: response)
+      return PNError.endpointFailure(reason, endpoint, request, response)
     }
-//
-//    if let payload = payload, !payload.isEmpty {
-//      return PNError.endpointFailure(.unrecognizedErrorPayload(payload),
-//                                     forRequest: request,
-//                                     onResponse: response)
-//    }
 
     return PNError.endpointFailure(.unknown(ErrorDescription.UnknownErrorReason.noAppropriateEndpointError),
-                                   forRequest: request,
-                                   onResponse: response)
+                                   endpoint,
+                                   request,
+                                   response)
   }
 
   // swiftlint:disable:next cyclomatic_complexity
@@ -310,6 +298,8 @@ extension PNError {
       return .requestContainedInvalidJSON
     case .some(.maxChannelGroupCountExceeded):
       return .maxChannelGroupCountExceeded
+    case .some(.messageDeletionNotEnabled):
+      return .messageDeletionNotEnabled
     case .notFound?:
       return .resourceNotFound
     case .some(.pushNotEnabled):

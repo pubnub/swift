@@ -37,8 +37,9 @@ struct PublishResponseDecoder: ResponseDecoder {
 
       guard let timeString = decodedPayload?.last as? String, let timetoken = Int64(timeString) else {
         return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                forRequest: response.request,
-                                                onResponse: response.response))
+                                                response.endpoint,
+                                                response.request,
+                                                response.response))
       }
 
       let decodedResponse = Response<PublishResponsePayload>(router: response.router,
@@ -51,16 +52,18 @@ struct PublishResponseDecoder: ResponseDecoder {
     } catch {
       return .failure(PNError
         .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         forRequest: response.request,
-                         onResponse: response.response))
+                         response.endpoint,
+                         response.request,
+                         response.response))
     }
   }
 
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     guard let data = data else {
       return PNError.endpointFailure(.unknown(ErrorDescription.EndpointError.missingResponseData),
-                                     forRequest: request,
-                                     onResponse: response)
+                                     endpoint,
+                                     request,
+                                     response)
     }
 
     // Publish Response pattern:  [Int, String, String]
@@ -83,11 +86,11 @@ struct PublishResponseDecoder: ResponseDecoder {
         )
       }
 
-      return PNError.convert(generalError: errorPayload, request: request, response: response)
+      return PNError.convert(endpoint: endpoint, generalError: errorPayload, request: request, response: response)
     }
 
     // Check if we were provided a default error from the server
-    if let defaultError = decodeDefaultError(request: request, response: response, for: data) {
+    if let defaultError = decodeDefaultError(endpoint: endpoint, request: request, response: response, for: data) {
       return defaultError
     }
 

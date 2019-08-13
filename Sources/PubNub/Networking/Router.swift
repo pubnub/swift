@@ -104,20 +104,20 @@ public enum HTTPMethod: String {
 
 // MARK: - Router
 
-public protocol Router: URLRequestConvertible, CustomStringConvertible {
+public protocol Router: URLRequestConvertible, CustomStringConvertible, Validated {
   var endpoint: Endpoint { get }
   var configuration: RouterConfiguration { get }
   var method: HTTPMethod { get }
-  func path() throws -> String
+  var path: Result<String, Error> { get }
+  var queryItems: Result<[URLQueryItem], Error> { get }
   var additionalHeaders: HTTPHeaders { get }
-  func queryItems() throws -> [URLQueryItem]
   var body: AnyJSON? { get }
 
   var keysRequired: PNKeyRequirement { get }
   var pamVersion: PAMVersionRequirement { get }
 
   func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error>
-  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
 }
 
 extension Router {
@@ -129,7 +129,7 @@ extension Router {
   // Default Endpoint Values
   public var defaultQueryItems: [URLQueryItem] {
     var queryItems = [
-      URLQueryItem(name: "pnsdk", value: Constant.pnSDKQueryParameterValue),
+      Constant.pnSDKURLQueryItem,
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
     if let authKey = configuration.authKey {
@@ -148,26 +148,35 @@ extension Router {
       if configuration.subscribeKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingSubscribeKey)
+      return .requestCreationFailure(.missingSubscribeKey, endpoint)
 
     case .publish:
       if configuration.publishKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPublishKey)
+      return .requestCreationFailure(.missingPublishKey, endpoint)
 
     case .publishAndSubscribe:
       switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
       case (false, false):
-        return .requestCreationFailure(.missingPublishAndSubscribeKey)
+        return .requestCreationFailure(.missingPublishAndSubscribeKey, endpoint)
       case (true, false):
-        return .requestCreationFailure(.missingSubscribeKey)
+        return .requestCreationFailure(.missingSubscribeKey, endpoint)
       case (false, true):
-        return .requestCreationFailure(.missingPublishKey)
+        return .requestCreationFailure(.missingPublishKey, endpoint)
       case (true, true):
         return nil
       }
     }
+  }
+
+  var validationError: Error? {
+    if let invalidKeysError = keyValidationError {
+      return invalidKeysError
+    } else if let endpointValidationError = endpoint.validationError {
+      return endpointValidationError
+    }
+    return nil
   }
 }
 
@@ -175,36 +184,42 @@ extension Router {
 
 extension Router {
   public var asURL: Result<URL, Error> {
-    if let invalidKeysError = keyValidationError {
-      return .failure(invalidKeysError)
-    }
-
-    var urlComponents = URLComponents()
-    urlComponents.scheme = configuration.urlScheme
-    urlComponents.host = configuration.origin
-
-    do {
-      urlComponents.path = try path()
-      urlComponents.queryItems = try queryItems()
-    } catch let error as PNError {
+    if let error = validationError {
       return .failure(error)
-    } catch {
-      return .failure(PNError.requestCreationFailure(.unknown(error)))
     }
 
-    // URL will double encode our attempts to sanitize '/' inside path inputs
-    urlComponents.percentEncodedPath = urlComponents.percentEncodedPath
-      .replacingOccurrences(of: "%252F", with: "%2F")
+    return path.flatMap { path -> Result<URLComponents, Error> in
+      var urlComponents = URLComponents()
+      urlComponents.scheme = configuration.urlScheme
+      urlComponents.host = configuration.origin
 
-    // URL will not encode `+`, so we will do it manually
-    urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?
-      .replacingOccurrences(of: "+", with: "%2B")
+      urlComponents.path = path
+      // URL will double encode our attempts to sanitize '/' inside path inputs
+      urlComponents.percentEncodedPath = urlComponents.percentEncodedPath
+        .replacingOccurrences(of: "%252F", with: "%2F")
 
-    return urlComponents.asURL
+      urlComponents.queryItems = defaultQueryItems
+
+      do {
+        try urlComponents.queryItems?.append(contentsOf: queryItems.get())
+        // URL will not encode `+`, so we will do it manually
+        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?
+          .replacingOccurrences(of: "+", with: "%2B")
+      } catch {
+        return .failure(error)
+      }
+      return .success(urlComponents)
+    }.mapError { error in
+      if error.pubNubError != nil {
+        return error
+      } else {
+        return PNError.requestCreationFailure(.unknown(error), endpoint)
+      }
+    }.flatMap { $0.asURL }
   }
 
   public var asURLRequest: Result<URLRequest, Error> {
-    let requestResult = asURL.flatMap { url -> Result<URLRequest, Error> in
+    return asURL.flatMap { url -> Result<URLRequest, Error> in
       var request = URLRequest(url: url)
       request.headers = additionalHeaders
       request.httpMethod = method.rawValue
@@ -213,14 +228,11 @@ extension Router {
           request.httpBody = try body.jsonDataResult.get()
         } catch {
           return .failure(PNError
-            .requestCreationFailure(
-              .jsonDataCodingFailure(body, with: error)))
+            .requestCreationFailure(.jsonDataCodingFailure(body, with: error), endpoint))
         }
       }
       return .success(request)
     }
-
-    return requestResult
   }
 }
 

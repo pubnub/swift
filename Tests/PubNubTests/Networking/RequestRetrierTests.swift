@@ -160,15 +160,17 @@ class RequestRetrierTests: XCTestCase {
     for current: URLError.Code,
     and previous: URLError.Code
   ) -> PNError? {
-    guard let curError = PNError.convert(error: URLError(current),
+    guard let curError = PNError.convert(endpoint: .time,
+                                         error: URLError(current),
                                          request: task.mockRequest,
                                          response: task.mockResponse),
-      let prevError = PNError.convert(error: URLError(previous),
+      let prevError = PNError.convert(endpoint: .time,
+                                      error: URLError(previous),
                                       request: task.mockRequest,
                                       response: task.mockResponse) else {
       return nil
     }
-    return PNError.requestRetryFailed(task.mockRequest, dueTo: curError, withPreviousError: prevError)
+    return PNError.requestRetryFailed(.time, task.mockRequest, dueTo: curError, withPreviousError: prevError)
   }
 
   func testRetryRequest_Multiple_Success() {

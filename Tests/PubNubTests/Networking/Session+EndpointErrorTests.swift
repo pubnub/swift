@@ -48,7 +48,8 @@ final class SessionEndpointErrorTests: XCTestCase {
         guard let task = sessions.mockSession.tasks.first else {
           return XCTFail("Could not get task")
         }
-        let endpointError = PNError.convert(generalError: payload,
+        let endpointError = PNError.convert(endpoint: .time,
+                                            generalError: payload,
                                             request: task.mockRequest,
                                             response: task.mockResponse)
 

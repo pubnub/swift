@@ -48,7 +48,8 @@ final class SessionURLErrorTests: XCTestCase {
         guard let task = sessions.mockSession.tasks.first else {
           return XCTFail("Could not get task")
         }
-        let pnURLError = PNError.convert(error: URLError(code),
+        let pnURLError = PNError.convert(endpoint: .time,
+                                         error: URLError(code),
                                          request: task.mockRequest,
                                          response: task.mockResponse)
         XCTAssertNotNil(error.pubNubError)

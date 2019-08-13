@@ -88,7 +88,7 @@ public final class Session {
   }
 
   deinit {
-    taskToRequest.values.forEach { $0.finish(error: PNError.sessionDeinitialized(for: sessionID)) }
+    taskToRequest.values.forEach { $0.finish(error: PNError.sessionDeinitialized(sessionID: sessionID)) }
     taskToRequest.removeAll()
     session.invalidateAndCancel()
   }
@@ -153,8 +153,7 @@ public final class Session {
         case let .failure(error):
           self.sessionQueue.async {
             let requestCreationError = PNError
-              .requestCreationFailure(
-                .requestMutatorFailure(urlRequest, error))
+              .requestCreationFailure(.requestMutatorFailure(urlRequest, error), request.endpoint)
 
             request.didFailToMutate(urlRequest,
                                     with: requestCreationError)
@@ -241,7 +240,8 @@ extension Session: RequestDelegate {
           return
         }
 
-        completion(.doNotRetryWithError(PNError.requestRetryFailed(urlRequest,
+        completion(.doNotRetryWithError(PNError.requestRetryFailed(request.endpoint,
+                                                                   urlRequest,
                                                                    dueTo: retryResultError,
                                                                    withPreviousError: previous)))
       }

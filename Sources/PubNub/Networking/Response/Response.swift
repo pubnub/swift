@@ -37,6 +37,10 @@ public struct Response<Value> {
 }
 
 extension Response {
+  var endpoint: Endpoint {
+    return router.endpoint
+  }
+
   public func copy<T>(with value: T) -> Response<T> {
     return Response<T>(router: router, request: request, response: response, data: data, payload: value)
   }

@@ -24,6 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// swiftlint:disable file_length
 
 import UIKit
 
@@ -44,6 +45,8 @@ class MasterDetailTableViewController: UITableViewController {
     case endpoints = 1
     case presence = 2
     case groups = 3
+    case history = 4
+    case push = 5
 
     var title: String {
       switch self {
@@ -55,6 +58,10 @@ class MasterDetailTableViewController: UITableViewController {
         return "Presence Endpoints"
       case .groups:
         return "Channel Groups"
+      case .history:
+        return "Message History"
+      case .push:
+        return "Push Notifications"
       }
     }
 
@@ -68,11 +75,15 @@ class MasterDetailTableViewController: UITableViewController {
         return PresenceRow.rowCount
       case .groups:
         return ChannelGroupRow.rowCount
+      case .history:
+        return HistoryRow.rowCount
+      case .push:
+        return PushRow.rowCount
       }
     }
 
     static var sectionCount: Int {
-      return 4
+      return 6
     }
   }
 
@@ -154,6 +165,45 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  enum PushRow: Int {
+    case listPushChannels
+    case modifyPushChannels
+    case deletePushChannels
+
+    var title: String {
+      switch self {
+      case .listPushChannels:
+        return "Fetch Message History"
+      case .modifyPushChannels:
+        return "Delete Message History"
+      case .deletePushChannels:
+        return "Delete Message History"
+      }
+    }
+
+    static var rowCount: Int {
+      return 3
+    }
+  }
+
+  enum HistoryRow: Int {
+    case fetchMessageHistory
+    case deleteMessageHistory
+
+    var title: String {
+      switch self {
+      case .fetchMessageHistory:
+        return "Fetch Message History"
+      case .deleteMessageHistory:
+        return "Delete Message History"
+      }
+    }
+
+    static var rowCount: Int {
+      return 2
+    }
+  }
+
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -198,6 +248,10 @@ class MasterDetailTableViewController: UITableViewController {
       cell.textLabel?.text = PresenceRow(rawValue: indexPath.row)?.title
     case .some(.groups):
       cell.textLabel?.text = ChannelGroupRow(rawValue: indexPath.row)?.title
+    case .some(.history):
+      cell.textLabel?.text = HistoryRow(rawValue: indexPath.row)?.title
+    case .some(.push):
+      cell.textLabel?.text = PushRow(rawValue: indexPath.row)?.title
     default:
       break
     }
@@ -217,6 +271,10 @@ class MasterDetailTableViewController: UITableViewController {
       didSelectPresenceSection(at: indexPath.row)
     case .some(.groups):
       didSelectGroupsSection(at: indexPath.row)
+    case .some(.history):
+      didSelectHistorySection(at: indexPath.row)
+    case .some(.push):
+      didSelectPushSection(at: indexPath.row)
     default:
       break
     }
@@ -265,6 +323,31 @@ class MasterDetailTableViewController: UITableViewController {
       performRemoveChannelsRequest()
     case .some(.deleteGroup):
       performDeleteGroupRequest()
+    case .none:
+      break
+    }
+  }
+
+  func didSelectHistorySection(at row: Int) {
+    switch HistoryRow(rawValue: row) {
+    case .some(.fetchMessageHistory):
+      performHistoryFetch()
+    case .some(.deleteMessageHistory):
+      performHistoryDeletion()
+    case .none:
+      break
+    }
+  }
+
+  func didSelectPushSection(at row: Int) {
+    let deviceToken = UserDefaults.standard.value(forKey: "DeviceToken") as? Data ?? Data()
+    switch PushRow(rawValue: row) {
+    case .some(.listPushChannels):
+      performListPush(deviceToken)
+    case .some(.modifyPushChannels):
+      performModifyPush(deviceToken)
+    case .some(.deletePushChannels):
+      performDeletePush(deviceToken)
     case .none:
       break
     }
@@ -369,6 +452,70 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  func performHistoryFetch() {
+    pubnub.fetchMessageHistory(for: ["channelSwift"],
+                               max: 25,
+                               start: nil,
+                               end: nil) { result in
+      switch result {
+      case let .success(response):
+        print("Successful History Fetch Response: \(response)")
+      case let .failure(error):
+        print("Failed History Fetch Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performHistoryDeletion() {
+    pubnub.deleteMessageHistory(from: "channelSwift",
+                                start: nil,
+                                end: 15_652_926_945_047_792) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Message Deletion Response: \(response)")
+      case let .failure(error):
+        print("Failed Message Deletion Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performListPush(_ deviceToken: Data) {
+    pubnub.listPushChannelRegistrations(for: deviceToken) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Push List Response: \(response)")
+      case let .failure(error):
+        print("Failed Push List Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performModifyPush(_ deviceToken: Data) {
+    pubnub.modifyPushChannelRegistrations(
+      byRemoving: ["channelSwift"],
+      thenAdding: ["channelSwift"],
+      for: deviceToken
+    ) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Push Modification Response: \(response)")
+      case let .failure(error):
+        print("Failed Push Modification Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performDeletePush(_ deviceToken: Data) {
+    pubnub.removeAllPushChannelRegistrations(for: deviceToken) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Push Deletion Response: \(response)")
+      case let .failure(error):
+        print("Failed Push Deletion Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     super.prepare(for: segue, sender: sender)
 
@@ -381,3 +528,5 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 }
+
+// swiftlint:endable file_length

@@ -1,5 +1,5 @@
 //
-//  PushTests.swift
+//  PushEndpointTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 @testable import PubNub
 import XCTest
 
-final class PushTests: XCTestCase {
+final class PushEndpointTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
@@ -36,11 +36,24 @@ final class PushTests: XCTestCase {
 
   let hexString = "815ee724ccb0a6a84dc303be8ccbaa00d1c84dde6bcae6721b08f92100951113"
 
+  // MARK: - List Push Channels
+
   func testListPushProvisions_Endpoint() {
-    let endpoint = Endpoint.listPushChannels(pushToken: Data(), pushType: .apns)
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+    let endpoint = Endpoint.listPushChannels(pushToken: data, pushType: .apns)
 
     XCTAssertEqual(endpoint.description, "List Push Channels")
-    XCTAssertEqual(endpoint.rawValue, .listPushProvisions)
+    XCTAssertEqual(endpoint.rawValue, .listPushChannels)
+    XCTAssertEqual(endpoint.operationCategory, .push)
+    XCTAssertNil(endpoint.validationError)
+  }
+
+  func testListPushProvisions_Endpoint_ValidationError() {
+    let endpoint = Endpoint.listPushChannels(pushToken: Data(), pushType: .apns)
+
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
   func testListPushRegistration_Success() {
@@ -114,14 +127,13 @@ final class PushTests: XCTestCase {
             return XCTFail("Could not get task")
           }
 
-          let countExceededError = PNError.convert(
-            generalError: .init(message: .pushNotEnabled,
-                                service: .unknown(message: ""),
-                                status: .forbidden,
-                                error: true),
-            request: task.mockRequest,
-            response: task.mockResponse
-          )
+          let countExceededError = PNError.convert(endpoint: .unknown,
+                                                   generalError: .init(message: .pushNotEnabled,
+                                                                       service: .unknown(message: ""),
+                                                                       status: .forbidden,
+                                                                       error: true),
+                                                   request: task.mockRequest,
+                                                   response: task.mockResponse)
 
           XCTAssertEqual(error.pubNubError, countExceededError)
         }
@@ -134,13 +146,27 @@ final class PushTests: XCTestCase {
   // MARK: - Modify Push Channels Tests
 
   func testModifyPushChannels_Endpoint() {
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+    let endpoint = Endpoint.modifyPushChannels(pushToken: data,
+                                               pushType: .apns,
+                                               addChannels: testChannels,
+                                               removeChannels: [])
+
+    XCTAssertEqual(endpoint.description, "Modify Push Channels")
+    XCTAssertEqual(endpoint.rawValue, .modifyPushChannels)
+    XCTAssertEqual(endpoint.operationCategory, .push)
+    XCTAssertNil(endpoint.validationError)
+  }
+
+  func testListModifyPushChannels_Endpoint_ValidationError() {
     let endpoint = Endpoint.modifyPushChannels(pushToken: Data(),
                                                pushType: .apns,
                                                addChannels: [],
                                                removeChannels: [])
 
-    XCTAssertEqual(endpoint.description, "Modify Push Channels")
-    XCTAssertEqual(endpoint.rawValue, .modifyPushChannels)
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
   func testModifyPush_Success() {
@@ -189,14 +215,13 @@ final class PushTests: XCTestCase {
             return XCTFail("Could not get task")
           }
 
-          let countExceededError = PNError.convert(
-            generalError: .init(message: .pushNotEnabled,
-                                service: .unknown(message: ""),
-                                status: .forbidden,
-                                error: true),
-            request: task.mockRequest,
-            response: task.mockResponse
-          )
+          let countExceededError = PNError.convert(endpoint: .unknown,
+                                                   generalError: .init(message: .pushNotEnabled,
+                                                                       service: .unknown(message: ""),
+                                                                       status: .forbidden,
+                                                                       error: true),
+                                                   request: task.mockRequest,
+                                                   response: task.mockResponse)
 
           XCTAssertEqual(error.pubNubError, countExceededError)
         }
@@ -227,14 +252,13 @@ final class PushTests: XCTestCase {
             return XCTFail("Could not get task")
           }
 
-          let countExceededError = PNError.convert(
-            generalError: .init(message: .invalidDeviceToken,
-                                service: .unknown(message: ""),
-                                status: .badRequest,
-                                error: true),
-            request: task.mockRequest,
-            response: task.mockResponse
-          )
+          let countExceededError = PNError.convert(endpoint: .unknown,
+                                                   generalError: .init(message: .invalidDeviceToken,
+                                                                       service: .unknown(message: ""),
+                                                                       status: .badRequest,
+                                                                       error: true),
+                                                   request: task.mockRequest,
+                                                   response: task.mockResponse)
 
           XCTAssertEqual(error.pubNubError, countExceededError)
         }
@@ -246,11 +270,20 @@ final class PushTests: XCTestCase {
 
   // MARK: - Remove All Push Channels Tests
 
-  func testRemoveAllPushChannelsForDevice_Endpoint() {
-    let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
+  func testRemoveAllPushChannels_Endpoint() {
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+    let endpoint = Endpoint.removeAllPushChannels(pushToken: data, pushType: .apns)
 
     XCTAssertEqual(endpoint.description, "Remove All Push Channels")
     XCTAssertEqual(endpoint.rawValue, .removeAllPushChannels)
+  }
+
+  func testRemoveAllPushChannels_Endpoint_ValidationError() {
+    let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
+
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
   func testRemoveAllPush_Success() {

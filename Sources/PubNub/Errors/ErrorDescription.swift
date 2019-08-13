@@ -81,12 +81,24 @@ public struct ErrorDescription {
   }
 
   struct PNError {
+    public static let missingRequestResponse: String = {
+      "Request and/or Response nil w/o an underlying error"
+    }()
+
     public static let unknown: String = {
       "Unknown Error: An unknown error occurred with the supplied message:"
     }()
 
     public static let unknownError: String = {
       "Unknown Error: An unknown error occurred with the supplied error:"
+    }()
+
+    public static let missingRequiredParameter: String = {
+      "A required parameter was missing or empty"
+    }()
+
+    public static let invalidEndpointType: String = {
+      "A required parameter was missing or empty"
     }()
 
     public static let sessionInvalidated: String = {
@@ -168,7 +180,7 @@ public struct ErrorDescription {
     }()
 
     public static let invalidCharacter: String = {
-      "The request sent contained one or more reserved characters"
+      "One or more invalid characters were used in the request"
     }()
 
     public static let invalidDeviceToken: String = {
@@ -201,6 +213,11 @@ public struct ErrorDescription {
 
     public static let pushNotEnabled: String = {
       "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
+    }()
+
+    public static let messageDeletionNotEnabled: String = {
+      // swiftlint:disable:next line_length
+      "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
     }()
 
     public static let badRequest: String = {

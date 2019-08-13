@@ -48,17 +48,20 @@ extension SessionDelegate: URLSessionDataDelegate {
   // Called when the request fails.
   public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
-    let request = sessionBridge?.request(for: task)
+    guard let request = sessionBridge?.request(for: task) else {
+      return
+    }
 
     if let urlError = error?.urlError,
-      let pnError = PNError.convert(error: urlError,
-                                    request: request?.urlRequest,
+      let pnError = PNError.convert(endpoint: request.endpoint,
+                                    error: urlError,
+                                    request: request.urlRequest,
                                     response: task.response as? HTTPURLResponse) {
-      request?.didComplete(task, with: pnError)
+      request.didComplete(task, with: pnError)
     } else if let error = error {
-      request?.didComplete(task, with: PNError.unknownError(error))
+      request.didComplete(task, with: PNError.unknownError(error, request.endpoint))
     } else {
-      request?.didComplete(task)
+      request.didComplete(task)
     }
 
     // Remove request/task from list

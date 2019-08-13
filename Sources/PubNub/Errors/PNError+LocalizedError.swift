@@ -30,15 +30,19 @@ import Foundation
 extension PNError: LocalizedError {
   public var errorDescription: String? {
     switch self {
-    case let .unknown(message):
+    case let .unknown(message, _):
       return "\(ErrorDescription.PNError.unknown) \(message)"
     case let .unknownError(error):
       return "\(ErrorDescription.PNError.unknownError) \(error)"
-    case let .sessionInvalidated(reason, _):
+    case .missingRequiredParameter:
+      return ErrorDescription.PNError.missingRequiredParameter
+    case .invalidEndpointType:
+      return ErrorDescription.PNError.invalidEndpointType
+    case let .sessionInvalidated(reason, sessionID: _):
       return "\(ErrorDescription.PNError.sessionInvalidated) \(reason)"
     case .sessionDeinitialized:
       return ErrorDescription.PNError.sessionDeinitialized
-    case let .requestRetryFailed(_, error, _):
+    case let .requestRetryFailed(_, _, error, _):
       return "\(ErrorDescription.PNError.requestRetryFailed) \(error)"
     case let .requestCreationFailure(reason):
       return "\(ErrorDescription.PNError.requestCreationFailure) \(reason)"
@@ -46,7 +50,7 @@ extension PNError: LocalizedError {
       return "\(ErrorDescription.PNError.requestTransmissionFailure) \(reason)"
     case let .responseProcessingFailure(reason):
       return "\(ErrorDescription.PNError.responseProcessingFailure) \(reason)"
-    case let .endpointFailure(reason, _, _):
+    case let .endpointFailure(reason, _, _, _):
       return "\(ErrorDescription.PNError.endpointFailure) \(reason)"
     }
   }
@@ -159,6 +163,8 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return ErrorDescription.EndpointFailureReason.maxChannelGroupCountExceeded
     case .pushNotEnabled:
       return ErrorDescription.EndpointFailureReason.pushNotEnabled
+    case .messageDeletionNotEnabled:
+      return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
     case .requestContainedInvalidJSON:
       return ErrorDescription.EndpointFailureReason.requestContainedInvalidJSON
     case .serviceUnavailable:

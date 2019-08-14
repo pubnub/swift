@@ -415,7 +415,7 @@ extension AnyJSONType {
   var stringify: Result<String, Error> {
     switch self {
     case let .string(value):
-      return .success("\"\(value)\"")
+      return .success(value.jsonDescription)
     case let .integer(value):
       return .success(value.description)
     case let .double(value):

@@ -41,6 +41,7 @@ public protocol RouterConfiguration {
   var origin: String { get }
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   var authKey: String? { get }
+  var cipherKey: Crypto? { get }
 }
 
 extension RouterConfiguration {
@@ -111,7 +112,7 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible, Validate
   var path: Result<String, Error> { get }
   var queryItems: Result<[URLQueryItem], Error> { get }
   var additionalHeaders: HTTPHeaders { get }
-  var body: AnyJSON? { get }
+  var body: Result<Data?, Error> { get }
 
   var keysRequired: PNKeyRequirement { get }
   var pamVersion: PAMVersionRequirement { get }
@@ -223,15 +224,10 @@ extension Router {
       var request = URLRequest(url: url)
       request.headers = additionalHeaders
       request.httpMethod = method.rawValue
-      if let body = body {
-        do {
-          request.httpBody = try body.jsonDataResult.get()
-        } catch {
-          return .failure(PNError
-            .requestCreationFailure(.jsonDataCodingFailure(body, with: error), endpoint))
-        }
+      return body.flatMap { data in
+        request.httpBody = data
+        return .success(request)
       }
-      return .success(request)
     }
   }
 }

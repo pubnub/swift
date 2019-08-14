@@ -56,7 +56,7 @@ class RouterTests: XCTestCase {
       return .success([])
     }
 
-    var body: AnyJSON?
+    var body: Result<Data?, Error> = .success(nil)
     var keysRequired: PNKeyRequirement = .publish
     var pamVersion: PAMVersionRequirement = .version3
     func decodeError(endpoint _: Endpoint,
@@ -119,7 +119,7 @@ class RouterTests: XCTestCase {
     let config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: "TestKeyNotReal")
 
     var router = PublishOnlyRouter(config: config)
-    router.body = AnyJSON(payload)
+    router.body = AnyJSON(payload).jsonDataResult.map { .some($0) }
     router.testablePathPayload = AnyJSON(payload)
 
     switch router.asURL {

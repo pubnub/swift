@@ -207,7 +207,8 @@ class MasterDetailTableViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    let config = PubNubConfiguration()
+    var config = PubNubConfiguration()
+    config.cipherKey = Crypto(key: "MyCoolCipherKey")
 
     pubnub = PubNub(configuration: config)
   }

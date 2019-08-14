@@ -24,6 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// swiftlint:disable file_length
 
 @testable import PubNub
 import XCTest
@@ -56,7 +57,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -74,7 +75,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertFalse(channelMessages?.messages.isEmpty ?? true)
           XCTAssertNil(channelMessages?.messages.first?.meta)
         case let .failure(error):
-          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
         expectation.fulfill()
       }
@@ -83,7 +84,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_IncludeMeta() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_withMeta"]) else {
       return XCTFail("Could not create mock url session")
@@ -100,7 +101,98 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           XCTAssertNotNil(channelMessages?.messages.first?.meta)
         case let .failure(error):
-          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistoryV2_Success_Encrypted() {
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v2Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          XCTAssertEqual(channelMessages?.messages.first?.message.boolValue, true)
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistoryV2_Success_EncryptedWrongKey() {
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v2Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue,
+                         "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistoryV2_Success_MixedEncrypted() {
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_mixedEncrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v2Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          // Unencrypted Value
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue, "Hello")
+          // Encrypted Value
+          XCTAssertEqual(channelMessages?.messages.last?.message.boolValue, true)
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
         expectation.fulfill()
       }
@@ -121,16 +213,18 @@ final class MessageHistoryEndpointTests: XCTestCase {
         case let .success(payload):
           XCTAssertTrue(payload.isEmpty)
         case let .failure(error):
-          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Fetch History V3 (Multi Channel)
+// MARK: - Fetch History V3 (Multi Channel)
 
+extension MessageHistoryEndpointTests {
   func testFetchHistory_Endpoint() {
     let endpoint = Endpoint.fetchMessageHistory(channels: v3Channels,
                                                 max: nil, start: nil, end: nil, includeMeta: false)
@@ -219,6 +313,97 @@ final class MessageHistoryEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testFetchHistory_Success_Encrypted() {
+    let expectation = self.expectation(description: "HereNow Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v3Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          XCTAssertEqual(channelMessages?.messages.first?.message.boolValue, true)
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistory_Success_EncryptedWrongKey() {
+    let expectation = self.expectation(description: "HereNow Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v3Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue,
+                         "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistory_Success_MixedEncrypted() {
+    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_mixedEncrypted"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    var configWithCipher = config
+    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+
+    PubNub(configuration: configWithCipher, session: sessions.session)
+      .fetchMessageHistory(for: v3Channels) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.isEmpty)
+          let channelMessages = payload[self.testChannel]
+          XCTAssertNotNil(channelMessages)
+          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
+          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
+          // Unencrypted Value
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue, "Hello")
+          // Encrypted Value
+          XCTAssertEqual(channelMessages?.messages.last?.message.boolValue, true)
+        case let .failure(error):
+          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testFetchHistory_Success_EmptyMessages() {
     let expectation = self.expectation(description: "Fetch History V2 Recieved")
 
@@ -239,9 +424,11 @@ final class MessageHistoryEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Delete History
+// MARK: - Delete History
 
+extension MessageHistoryEndpointTests {
   func testDeleteHistory_Endpoint() {
     let endpoint = Endpoint.deleteMessageHistory(channel: testChannel, start: nil, end: nil)
 
@@ -309,3 +496,5 @@ final class MessageHistoryEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 }
+
+// swiftlint:enable file_length

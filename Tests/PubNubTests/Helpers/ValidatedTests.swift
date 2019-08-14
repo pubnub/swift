@@ -1,5 +1,5 @@
 //
-//  String+PubNub.swift
+//  ValidatedTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,31 +25,39 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-extension String {
-  /// A channel name conforming to PubNub presence channel naming conventions
-  var presenceChannel: String {
-    return "\(self)-pnpres"
+class ValidatedTests: XCTestCase {
+  struct TestValidated: Validated {
+    var mockError: Error?
+
+    var validationError: Error? {
+      return mockError
+    }
   }
 
-  /// If the `String` conforms to PubNub presence channel naming conventions
-  var isPresenceChannel: Bool {
-    return hasSuffix("-pnpres")
+  func testIsValid() {
+    let validTest = TestValidated()
+    XCTAssertNil(validTest.validationError)
+    XCTAssertTrue(validTest.isValid)
+
+    let error = PNError.invalidEndpointType(.time)
+    let invalidTest = TestValidated(mockError: error)
+    XCTAssertNotNil(invalidTest.validationError)
+    XCTAssertFalse(invalidTest.isValid)
   }
 
-  /// Sanitizes attempts to include `/` characters inside path components
-  var urlEncodeSlash: String {
-    return replacingOccurrences(of: "/", with: "%2F")
-  }
+  func testValidResult() {
+    let validTest = TestValidated()
+    XCTAssertNil(validTest.validationError)
+    XCTAssertNoThrow(try validTest.validResult.get())
 
-  /// The value of this `String` formatted for use inside a JSON payload
-  var jsonDescription: String {
-    return "\"\(description)\""
-  }
-
-  /// Trims the JSON string quotes at the ends of this `String`
-  var reverseJSONDescription: String {
-    return trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+    let testError = PNError.invalidEndpointType(.time)
+    let invalidTest = TestValidated(mockError: testError)
+    XCTAssertNotNil(invalidTest.validationError)
+    XCTAssertThrowsError(try invalidTest.validResult.get(), "An error should be thrown") { error in
+      XCTAssertEqual(error.pubNubError, testError)
+    }
   }
 }

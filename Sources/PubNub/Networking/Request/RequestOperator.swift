@@ -105,21 +105,39 @@ public struct MultiplexRequestOperaptor: RequestOperator {
   public let retriers: [RequestRetrier]
 
   public init(mutator: RequestMutator? = nil, retrier: RequestRetrier? = nil) {
-    if let mutator = mutator {
-      mutators = [mutator]
-    } else {
-      mutators = []
-    }
-    if let retrier = retrier {
-      retriers = [retrier]
-    } else {
-      retriers = []
+    switch (mutator, retrier) {
+    case let (.some(mutator), .some(retrier)):
+      self.init(mutators: [mutator], retriers: [retrier])
+    case let (.none, .some(retrier)):
+      self.init(mutators: [], retriers: [retrier])
+    case let (.some(mutator), .none):
+      self.init(mutators: [mutator], retriers: [])
+    case (.none, .none):
+      self.init(mutators: [], retriers: [])
     }
   }
 
   public init(mutators: [RequestMutator] = [], retriers: [RequestRetrier] = []) {
-    self.mutators = mutators
-    self.retriers = retriers
+    var allMutators = [RequestMutator]()
+    var allRetriers = [RequestRetrier]()
+    mutators.forEach { mutator in
+      if let multiplex = mutator as? MultiplexRequestOperaptor {
+        allMutators.append(contentsOf: multiplex.mutators)
+        allRetriers.append(contentsOf: multiplex.retriers)
+      } else {
+        allMutators.append(mutator)
+      }
+    }
+    retriers.forEach { retrier in
+      if let multiplex = retrier as? MultiplexRequestOperaptor {
+        allMutators.append(contentsOf: multiplex.mutators)
+        allRetriers.append(contentsOf: multiplex.retriers)
+      } else {
+        allRetriers.append(retrier)
+      }
+    }
+    self.mutators = allMutators
+    self.retriers = allRetriers
   }
 
   public func mutate(

@@ -31,6 +31,18 @@ import Foundation
 
 struct SubscribeResponseDecoder: ResponseDecoder {
   typealias Payload = SubscriptionResponsePayload
+
+  func decrypt(
+    response: Response<SubscriptionResponsePayload>,
+    completion _: @escaping (Result<Response<SubscriptionResponsePayload>, Error>) -> Void
+  ) {
+    var decryptedMessage = [MessageResponse]()
+    for message in response.payload.messages {
+      if let payload = message.payload.jsonData {
+        decryptedMessage.append(message.message(with: AnyJSON(payload)))
+      }
+    }
+  }
 }
 
 // MARK: - Response Body
@@ -88,5 +100,18 @@ struct MessageResponse: Codable {
     case originTimetoken = "o"
     case publishTimetoken = "p"
     case metadata = "u"
+  }
+
+  func message(with newPayload: AnyJSON) -> MessageResponse {
+    return MessageResponse(shard: shard,
+                           subscriptionMatch: subscriptionMatch,
+                           channel: channel,
+                           payload: newPayload,
+                           flags: flags,
+                           issuer: issuer,
+                           subscribeKey: subscribeKey,
+                           originTimetoken: originTimetoken,
+                           publishTimetoken: publishTimetoken,
+                           metadata: metadata)
   }
 }

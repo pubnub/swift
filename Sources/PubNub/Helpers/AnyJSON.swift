@@ -37,6 +37,24 @@ public struct AnyJSON {
     self.value = AnyJSONType(rawValue: value)
   }
 
+  public init(reverse stringify: String) {
+    let rawString = stringify.reverseJSONDescription
+    if let bool = Bool(rawString) {
+      value = AnyJSONType(rawValue: bool)
+    } else if let integer = Int(rawString) {
+      value = AnyJSONType(rawValue: integer)
+    } else if let double = Double(rawString) {
+      value = AnyJSONType(rawValue: double)
+    } else if stringify == Constant.jsonNull {
+      value = AnyJSONType(rawValue: NSNull())
+    } else if let jsonStringData = rawString.data(using: .utf8),
+      let decodedAny = try? Constant.jsonDecoder.decode(AnyJSON.self, from: jsonStringData) {
+      self = decodedAny
+    } else {
+      value = AnyJSONType(rawValue: rawString)
+    }
+  }
+
   // MARK: - Helpers
 
   /// A Boolean value that indicates whether the underlying JSON Collection is empty.
@@ -191,6 +209,10 @@ extension AnyJSON {
   /// The underlying `Any` stored inside the `AnyJSON`
   public var underlyingValue: Any {
     return value.rawValue
+  }
+
+  public var isNil: Bool {
+    return value == .null
   }
 
   public var stringOptional: String? {

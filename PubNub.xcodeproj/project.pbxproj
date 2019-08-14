@@ -90,6 +90,7 @@
 		3595120922FF7B4800C9D3AE /* messageHistory_Delete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */; };
 		3595120B22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120A22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json */; };
 		3595120D22FFA67300C9D3AE /* history_not_enabled_for_key_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120C22FFA67300C9D3AE /* history_not_enabled_for_key_Message.json */; };
+		359512102301DCAB00C9D3AE /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3595120F2301DCAB00C9D3AE /* Crypto.swift */; };
 		359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */; };
 		359C2C1622EE29ED009C3B4B /* time_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359C2C1522EE29E2009C3B4B /* time_success.json */; };
 		35A6C77D22FB159F00E97CC5 /* PresenceEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A6C77C22FB159F00E97CC5 /* PresenceEndpoint.swift */; };
@@ -139,6 +140,12 @@
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */; };
 		35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */; };
+		35D06150230351D700FDB2F9 /* messageHistory_FetchV2_success_encrypted.json in Resources */ = {isa = PBXBuildFile; fileRef = 35D0614F230351D600FDB2F9 /* messageHistory_FetchV2_success_encrypted.json */; };
+		35D0615223035E4300FDB2F9 /* CryptoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D0615123035E4300FDB2F9 /* CryptoTests.swift */; };
+		35D0615423037FB600FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json in Resources */ = {isa = PBXBuildFile; fileRef = 35D0615323037FB500FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json */; };
+		35D0615623039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json in Resources */ = {isa = PBXBuildFile; fileRef = 35D0615523039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json */; };
+		35D0615823039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json in Resources */ = {isa = PBXBuildFile; fileRef = 35D0615723039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json */; };
+		35D0615A2303A61500FDB2F9 /* ValidatedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D061592303A61500FDB2F9 /* ValidatedTests.swift */; };
 		35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FC22C2917C000EC334 /* AnyJSON.swift */; };
 		35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */; };
 		35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */; };
@@ -290,6 +297,7 @@
 		3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Delete_success.json; sourceTree = "<group>"; };
 		3595120A22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Fetch_success_multipleChannels.json; sourceTree = "<group>"; };
 		3595120C22FFA67300C9D3AE /* history_not_enabled_for_key_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = history_not_enabled_for_key_Message.json; sourceTree = "<group>"; };
+		3595120F2301DCAB00C9D3AE /* Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
 		359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNubTests.swift"; sourceTree = "<group>"; };
 		359C2C1522EE29E2009C3B4B /* time_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = time_success.json; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
@@ -340,6 +348,12 @@
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeadersTests.swift; sourceTree = "<group>"; };
 		35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTestResource.swift; sourceTree = "<group>"; };
+		35D0614F230351D600FDB2F9 /* messageHistory_FetchV2_success_encrypted.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_FetchV2_success_encrypted.json; sourceTree = "<group>"; };
+		35D0615123035E4300FDB2F9 /* CryptoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoTests.swift; sourceTree = "<group>"; };
+		35D0615323037FB500FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_FetchV2_success_mixedEncrypted.json; sourceTree = "<group>"; };
+		35D0615523039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Fetch_success_encrypted.json; sourceTree = "<group>"; };
+		35D0615723039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Fetch_success_mixedEncrypted.json; sourceTree = "<group>"; };
+		35D061592303A61500FDB2F9 /* ValidatedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedTests.swift; sourceTree = "<group>"; };
 		35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
 		35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNub.swift"; sourceTree = "<group>"; };
 		35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNub.swift"; sourceTree = "<group>"; };
@@ -460,7 +474,6 @@
 			children = (
 				350EFBDD22C9520400FA33AA /* Response.swift */,
 				354ADA9322DCBC350093EFFB /* ResponseOperator.swift */,
-				3567434422E0205200BF2639 /* Operators */,
 			);
 			path = Response;
 			sourceTree = "<group>";
@@ -481,6 +494,7 @@
 				35C6B6E522F51A060054F242 /* AnyJSONType.swift */,
 				350EFBE322C95FED00FA33AA /* Atomic.swift */,
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
+				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
 				35EE358922E2671600E3F081 /* HTTPHeaders.swift */,
 				355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */,
 				35304F8922FE5425006A02CA /* Validated.swift */,
@@ -512,13 +526,6 @@
 			sourceTree = "<group>";
 		};
 		3567434322E0203800BF2639 /* Operators */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Operators;
-			sourceTree = "<group>";
-		};
-		3567434422E0205200BF2639 /* Operators */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -589,8 +596,10 @@
 				355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */,
 				35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */,
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
+				35D0615123035E4300FDB2F9 /* CryptoTests.swift */,
 				35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */,
 				35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */,
+				35D061592303A61500FDB2F9 /* ValidatedTests.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -665,11 +674,15 @@
 			isa = PBXGroup;
 			children = (
 				359511FC22FF7AED00C9D3AE /* messageHistory_FetchV2_success.json */,
+				35D0614F230351D600FDB2F9 /* messageHistory_FetchV2_success_encrypted.json */,
+				35D0615323037FB500FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json */,
 				3595120222FF7B1600C9D3AE /* messageHistory_FetchV2_success_withMeta.json */,
 				3595120022FF7B0C00C9D3AE /* messageHistory_FetchV2_success_emptyList.json */,
 				359511FE22FF7AFC00C9D3AE /* messageHistory_Fetch_success.json */,
 				3595120622FF7B2D00C9D3AE /* messageHistory_Fetch_success_withMeta.json */,
 				3595120A22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json */,
+				35D0615523039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json */,
+				35D0615723039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json */,
 				3595120422FF7B2400C9D3AE /* messageHistory_Fetch_success_emptyList.json */,
 				3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */,
 			);
@@ -1040,6 +1053,7 @@
 				35FE93FA22EF93A90051C455 /* callIsActive.json in Resources */,
 				35FE93FE22EF93A90051C455 /* dataLengthExceedsMaximum.json in Resources */,
 				35FE93E522EF93A90051C455 /* badServerResponse.json in Resources */,
+				35D0615823039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json in Resources */,
 				35FE93FB22EF93A90051C455 /* serverCertificateNotYetValid.json in Resources */,
 				35A6C7BC22FC70EA00E97CC5 /* serviceUnavailable_Message.json in Resources */,
 				35FE93EC22EF93A90051C455 /* cannotFindHost.json in Resources */,
@@ -1049,9 +1063,11 @@
 				3595120B22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json in Resources */,
 				35A6C7AB22FBD81A00E97CC5 /* invalid_device_token_Message.json in Resources */,
 				3595120122FF7B0C00C9D3AE /* messageHistory_FetchV2_success_emptyList.json in Resources */,
+				35D06150230351D700FDB2F9 /* messageHistory_FetchV2_success_encrypted.json in Resources */,
 				35A6C7B122FBD8DC00E97CC5 /* push_modify_success.json in Resources */,
 				3595120D22FFA67300C9D3AE /* history_not_enabled_for_key_Message.json in Resources */,
 				35FE93F422EF93A90051C455 /* zeroByteResource.json in Resources */,
+				35D0615623039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json in Resources */,
 				35A6C78222FB2E9600E97CC5 /* herenow_success.json in Resources */,
 				35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */,
 				35FE93F122EF93A90051C455 /* serverCertificateUntrusted.json in Resources */,
@@ -1073,6 +1089,7 @@
 				35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */,
 				35A6C7B322FBD9D200E97CC5 /* push_remove_all_success.json in Resources */,
 				35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */,
+				35D0615423037FB600FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json in Resources */,
 				35FE93F822EF93A90051C455 /* clientCertificateRequired.json in Resources */,
 				35FE941022EFA30A0051C455 /* malformedFilterExpression_StatusCode.json in Resources */,
 				35FE93F022EF93A90051C455 /* resourceUnavailable.json in Resources */,
@@ -1159,6 +1176,7 @@
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
+				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
@@ -1207,8 +1225,10 @@
 				35FE93C322EF57FA0051C455 /* Session+URLErrorTests.swift in Sources */,
 				35FE940122EF983A0051C455 /* Session+EndpointErrorTests.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
+				35D0615223035E4300FDB2F9 /* CryptoTests.swift in Sources */,
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,
+				35D0615A2303A61500FDB2F9 /* ValidatedTests.swift in Sources */,
 				35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,

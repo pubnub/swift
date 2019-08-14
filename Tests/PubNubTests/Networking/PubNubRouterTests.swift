@@ -83,7 +83,7 @@ class PubNubRouterTests: XCTestCase {
     XCTAssertEqual(subscribeRouter.keysRequired, .subscribe)
     XCTAssertEqual(try? subscribeRouter.path.get(), "/v2/subscribe/\(subscribeKey)/TestChannel/0")
     XCTAssertEqual(try? subscribeRouter.queryItems.get(), queryItems)
-    XCTAssertNil(subscribeRouter.body)
+    XCTAssertNoThrow(try subscribeRouter.body.get())
   }
 
   func testSubscribe_MissingTimetoken() {

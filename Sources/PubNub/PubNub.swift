@@ -58,7 +58,7 @@ public struct PubNub {
     client
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
-      .response(on: queue, decoder: TimeResponseDecoder(), operator: networkConfiguration?.responseOperator) { result in
+      .response(on: queue, decoder: TimeResponseDecoder()) { result in
         completion?(result.map { $0.payload })
       }
   }
@@ -99,8 +99,7 @@ public struct PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: PublishResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: PublishResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -126,8 +125,7 @@ public struct PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: PublishResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: PublishResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -159,8 +157,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: PresenceResponseDecoder<HereNowResponsePayload>(),
-        operator: networkConfiguration?.responseOperator
+        decoder: PresenceResponseDecoder<HereNowResponsePayload>()
       ) { result in
         completion?(result.map { $0.payload.payload })
       }
@@ -182,8 +179,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
-        operator: networkConfiguration?.responseOperator
+        decoder: PresenceResponseDecoder<WhereNowResponsePayload>()
       ) { result in
         completion?(result.map { $0.payload.payload })
       }
@@ -208,8 +204,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
-        operator: networkConfiguration?.responseOperator
+        decoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>()
       ) { result in
         completion?(result.map { $0.payload.payload })
       }
@@ -231,8 +226,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: GenericServiceResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: GenericServiceResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -254,8 +248,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
-        operator: networkConfiguration?.responseOperator
+        decoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>()
       ) { result in
         completion?(result.map { $0.payload.payload })
       }
@@ -278,8 +271,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: GenericServiceResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: GenericServiceResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -302,8 +294,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: GenericServiceResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: GenericServiceResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -328,8 +319,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: RegisteredPushChannelsResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: RegisteredPushChannelsResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -357,8 +347,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: ModifyPushResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: ModifyPushResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -381,8 +370,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: ModifyPushResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: ModifyPushResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
       }
@@ -414,8 +402,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: MessageHistoryResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: MessageHistoryResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload.channels })
       }
@@ -441,8 +428,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: GenericServiceResponseDecoder(),
-        operator: networkConfiguration?.responseOperator
+        decoder: GenericServiceResponseDecoder()
       ) { result in
 
         completion?(result.map { $0.payload })

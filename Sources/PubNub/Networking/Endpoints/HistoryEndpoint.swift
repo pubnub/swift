@@ -39,6 +39,9 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
                                                                response: response.response,
                                                                data: response.data,
                                                                payload: version3Payload)
+
+        // Attempt to decode message response
+
         return .success(decodedResponse)
       }
 
@@ -93,6 +96,47 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
                                                            payload: historyResponse)
     return .success(decodedResponse)
     // End Deprecation Block
+  }
+
+  func decrypt(response: Response<MessageHistoryResponse>) -> Result<Response<MessageHistoryResponse>, Error> {
+    // End early if we don't have a cipher key
+    guard let crypto = response.router.configuration.cipherKey else {
+      return .success(response)
+    }
+
+    let channels = response.payload.channels.mapValues { channel -> MessageHistoryChannelPayload in
+      var messages = channel.messages
+      for (index, message) in messages.enumerated() {
+        // Convert base64 string into Data
+        if let messageText = message.message.stringOptional,
+          let base64Data = Data(base64Encoded: messageText, options: .ignoreUnknownCharacters) {
+          // If a message fails we just return the original and move on
+          if let decryptedPayload = try? crypto.decrypt(encrypted: base64Data).get(),
+            let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
+            messages[index] = MessageHistoryMessagesPayload(message: AnyJSON(reverse: decodedString),
+                                                            timetoken: message.timetoken,
+                                                            meta: message.meta)
+          } else {
+            print("The message failed to decrypt; returning original")
+          }
+        }
+      }
+      return MessageHistoryChannelPayload(messags: messages,
+                                          startTimetoken: channel.startTimetoken,
+                                          endTimetoken: channel.endTimetoken)
+    }
+
+    // Replace previous payload with decrypted one
+    let decryptedPayload = MessageHistoryResponse(status: response.payload.status,
+                                                  error: response.payload.error,
+                                                  responseMessage: response.payload.responseMessage,
+                                                  channels: channels)
+    let decryptedResponse = Response<MessageHistoryResponse>(router: response.router,
+                                                             request: response.request,
+                                                             response: response.response,
+                                                             data: response.data,
+                                                             payload: decryptedPayload)
+    return .success(decryptedResponse)
   }
 }
 

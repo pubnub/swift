@@ -28,8 +28,8 @@
 @testable import PubNub
 import XCTest
 
-struct SomeJSON: Codable {
-  var something: AnyJSON
+struct SomeCodable: Codable, Equatable {
+  var value: String
 }
 
 class AnyJSONTests: XCTestCase {
@@ -115,6 +115,94 @@ class AnyJSONTests: XCTestCase {
 
     XCTAssertEqual(json, AnyJSON(literal))
     XCTAssertNotNil(json.dictionaryValue)
+  }
+
+  // MARK: Stringify
+
+  func testStringifyRecode_Bool() {
+    let testValue = true
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).boolOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue, valueRecoded)
+  }
+
+  func testStringifyRecode_Int() {
+    let testValue = 10
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).intOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue, valueRecoded)
+  }
+
+  func testStringifyRecode_Double() {
+    let testValue = 145.502
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).doubleOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue, valueRecoded)
+  }
+
+  func testStringifyRecode_nil() {
+    let testValue = NSNull()
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    let valueRecoded = AnyJSON(reverse: valueString)
+    XCTAssertTrue(valueRecoded.isEmpty && valueRecoded.isNil)
+  }
+
+  func testStringifyRecode_Array() {
+    let testValue = [10, 22, 34]
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).arrayOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue.description, valueRecoded.description)
+  }
+
+  func testStringifyRecode_Dictionary() {
+    let testValue = ["TestKey": "TestValue"]
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).dictionaryOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue.description, valueRecoded.description)
+  }
+
+  func testStringifyRecode_Codable() {
+    let testValue = SomeCodable(value: "Hello")
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = try? AnyJSON(reverse: valueString).decode(SomeCodable.self) else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue, valueRecoded)
+  }
+
+  func testStringifyRecode_String() {
+    let testValue = "TestString"
+    guard let valueString = AnyJSON(testValue).jsonStringify else {
+      return XCTFail("Couldn't stringify value")
+    }
+    guard let valueRecoded = AnyJSON(reverse: valueString).stringOptional else {
+      return XCTFail("Couldn't stringify value")
+    }
+    XCTAssertEqual(testValue, valueRecoded)
   }
 
   // MARK: - Convertible

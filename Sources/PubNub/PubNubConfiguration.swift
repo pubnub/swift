@@ -83,9 +83,13 @@ public struct PubNubConfiguration: Hashable {
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   public var subscribeKey: String?
   /// If set, all communication will be encrypted with this key
-  public var cipherKey: String?
+  public var cipherKey: Crypto?
+  /// If set, this block is called to supply the encrypt/decrypt function with an auth key
+//  public var cipherBlock: (() -> (Crypto))?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
+  /// If set, this block is called to supply the request with a fresh auth key
+//  public var authKeyBlock: (() -> (String))?
   /// UUID to be used as a device identifier
   public var uuid: String = UUID().pubnubString
   /// If true, requests will be made over `https`, otherwise they will use 'http'
@@ -140,15 +144,12 @@ public struct PubNubConfiguration: Hashable {
 public struct NetworkConfiguration {
   public let customSession: SessionReplaceable?
   public let requestOperator: RequestOperator?
-  public let responseOperator: ResponseOperator?
 
   public init(
     customSession: SessionReplaceable? = nil,
-    requestOperator: RequestOperator? = nil,
-    responseOperator: ResponseOperator? = nil
+    requestOperator: RequestOperator? = nil
   ) {
     self.customSession = customSession
     self.requestOperator = requestOperator
-    self.responseOperator = responseOperator
   }
 }

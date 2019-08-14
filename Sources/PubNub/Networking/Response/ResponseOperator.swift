@@ -29,63 +29,64 @@ import Foundation
 
 // MARK: - Response Mutator
 
-public protocol DecodedResponseMutator {
-  func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void)
-}
-
-// MARK: - Response Operator
-
-public protocol ResponseOperator: DecodedResponseMutator {}
-
-extension ResponseOperator {
-  func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
-    completion(.success(response))
-  }
-}
-
-// MARK: - Multiplexor Operator
-
-public final class MultiplexResponseOperator: ResponseOperator {
-  public let decodedResponseMutators: [DecodedResponseMutator]
-
-  public init(decodedResponseMutator: DecodedResponseMutator) {
-    decodedResponseMutators = [decodedResponseMutator]
-  }
-
-  public init(decodedResponseMutators: [DecodedResponseMutator] = []) {
-    self.decodedResponseMutators = decodedResponseMutators
-  }
-
-  // Predecoded Response Processing
-  public func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
-    mutate(response: response, for: decodedResponseMutators, completion: completion)
-  }
-
-  func mutate<T>(
-    response: Response<T>,
-    for mutators: [DecodedResponseMutator],
-    completion: @escaping (Result<Response<T>, Error>) -> Void
-  ) {
-    var pendingMutators = mutators
-
-    // Base Case
-    guard !pendingMutators.isEmpty else {
-      completion(.success(response))
-      return
-    }
-
-    let mutator = pendingMutators.removeFirst()
-
-    mutator.mutate(response: response) { result in
-      switch result {
-      case let .success(mutatedResponse):
-        self.mutate(response: mutatedResponse, for: pendingMutators, completion: completion)
-      case .failure:
-        completion(result)
-      }
-    }
-  }
-}
+//
+// public protocol DecodedResponseMutator {
+//  func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void)
+// }
+//
+//// MARK: - Response Operator
+//
+// public protocol ResponseOperator: DecodedResponseMutator {}
+//
+// extension ResponseOperator {
+//  public func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
+//    completion(.success(response))
+//  }
+// }
+//
+//// MARK: - Multiplexor Operator
+//
+// public final class MultiplexResponseOperator: ResponseOperator {
+//  public let decodedResponseMutators: [DecodedResponseMutator]
+//
+//  public init(decodedResponseMutator: DecodedResponseMutator) {
+//    decodedResponseMutators = [decodedResponseMutator]
+//  }
+//
+//  public init(decodedResponseMutators: [DecodedResponseMutator] = []) {
+//    self.decodedResponseMutators = decodedResponseMutators
+//  }
+//
+//  // Predecoded Response Processing
+//  public func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
+//    mutate(response: response, for: decodedResponseMutators, completion: completion)
+//  }
+//
+//  func mutate<T>(
+//    response: Response<T>,
+//    for mutators: [DecodedResponseMutator],
+//    completion: @escaping (Result<Response<T>, Error>) -> Void
+//  ) {
+//    var pendingMutators = mutators
+//
+//    // Base Case
+//    guard !pendingMutators.isEmpty else {
+//      completion(.success(response))
+//      return
+//    }
+//
+//    let mutator = pendingMutators.removeFirst()
+//
+//    mutator.mutate(response: response) { result in
+//      switch result {
+//      case let .success(mutatedResponse):
+//        self.mutate(response: mutatedResponse, for: pendingMutators, completion: completion)
+//      case .failure:
+//        completion(result)
+//      }
+//    }
+//  }
+// }
 
 // MARK: - Response Decoder
 
@@ -94,6 +95,7 @@ public protocol ResponseDecoder where Payload: Codable {
 
   func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
   func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+  func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error>
 }
 
 extension ResponseDecoder {
@@ -121,6 +123,10 @@ extension ResponseDecoder {
     }
   }
 
+  func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error> {
+    return .success(response)
+  }
+
   func decodeDefaultError(
     endpoint: Endpoint,
     request: URLRequest,
@@ -130,7 +136,7 @@ extension ResponseDecoder {
     // Attempt to decode based on general system response payload
     if let data = data, !(data.isEmpty || String(bytes: data, encoding: .utf8) == "{}") {
       let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self,
-                                                                           from: data)
+                                                                 from: data)
       let pnError = PNError.convert(endpoint: endpoint,
                                     generalError: generalErrorPayload,
                                     request: request,
@@ -157,7 +163,6 @@ extension Request {
   public func response<D: ResponseDecoder>(
     on queue: DispatchQueue = .main,
     decoder responseDecoder: D,
-    operator responseOperator: ResponseOperator? = nil,
     completion: @escaping (Result<Response<D.Payload>, Error>) -> Void
   ) {
     appendResponseCompletion { [weak self] in
@@ -196,13 +201,9 @@ extension Request {
       switch dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) {
       case let .success(decodedResponse):
         self?.sessionStream?.emitDidDecode(dataResponse)
-        if let responseOperator = responseOperator {
-          // Mutate Opject
-          responseOperator.mutate(response: decodedResponse) { _ in
-            queue.async { completion(.success(decodedResponse)) }
-          }
-        } else {
-          queue.async { completion(.success(decodedResponse)) }
+
+        queue.async {
+          completion(responseDecoder.decrypt(response: decodedResponse))
         }
       case let .failure(decodeError):
         self?.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)

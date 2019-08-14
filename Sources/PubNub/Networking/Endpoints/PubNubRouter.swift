@@ -56,6 +56,13 @@ struct PubNubRouter {
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
+  let crypto: Crypto?
+
+  public init(configuration: RouterConfiguration, endpoint: Endpoint, crypto: Crypto? = nil) {
+    self.configuration = configuration
+    self.endpoint = endpoint
+    self.crypto = crypto
+  }
 }
 
 extension PubNubRouter: Router {
@@ -81,15 +88,11 @@ extension PubNubRouter: Router {
     case .time:
       path = "/time/0"
     case let .publish(parameters):
-      return parsePublishPath(publishKey: publishKey,
-                              subscribeKey: subscribeKey,
-                              channel: parameters.channel,
-                              message: parameters.message)
+      return append(message: parameters.message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
     case let .fire(parameters):
-      return parsePublishPath(publishKey: publishKey,
-                              subscribeKey: subscribeKey,
-                              channel: parameters.channel,
-                              message: parameters.message)
+      return append(message: parameters.message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
     case let .compressedPublish(parameters):
       path = "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
     case let .subscribe(parameters):
@@ -183,12 +186,19 @@ extension PubNubRouter: Router {
     return [:]
   }
 
-  var body: AnyJSON? {
+  var body: Result<Data?, Error> {
     switch endpoint {
     case let .compressedPublish(parameters):
-      return parameters.message
+      if let crypto = configuration.cipherKey {
+        return parameters.message.jsonStringifyResult.flatMap {
+          crypto.encrypt(plaintext: $0).map { $0.jsonDescription.data(using: .utf8) }
+        }.mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(parameters.message, with: $0), endpoint) }
+      }
+      return parameters.message.jsonDataResult
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(parameters.message, with: $0), endpoint) }
     default:
-      return nil
+      return .success(nil)
     }
   }
 
@@ -237,17 +247,16 @@ extension PubNubRouter: Router {
 }
 
 extension PubNubRouter {
-  func parsePublishPath(
-    publishKey: String,
-    subscribeKey: String,
-    channel: String,
-    message: AnyJSON
-  ) -> Result<String, Error> {
-    return message.jsonStringifyResult.map {
-      "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/\($0.urlEncodeSlash)"
-    }.mapError {
-      PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint)
+  func append(message: AnyJSON, to partialPath: String) -> Result<String, Error> {
+    if let crypto = configuration.cipherKey {
+      return message.jsonDataResult.flatMap { jsonData in
+        crypto.encrypt(plaintext: jsonData)
+          .flatMap { .success("\(partialPath)\($0.base64EncodedString().urlEncodeSlash.jsonDescription)") }
+      }.mapError { PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint) }
     }
+    return message.jsonStringifyResult
+      .map { "\(partialPath)\($0.urlEncodeSlash)" }
+      .mapError { PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint) }
   }
 
   func parsePublish(

@@ -30,7 +30,7 @@ import XCTest
 
 final class ErrorPubNubTests: XCTestCase {
   func testPubNubErrorCast() {
-    let error: Error = PNError.unknown(message: "Testing", .unknown)
+    let error: Error = PNError.unknown("Testing", .unknown)
 
     XCTAssertNotNil(error.pubNubError)
     XCTAssertNil(error.urlError)

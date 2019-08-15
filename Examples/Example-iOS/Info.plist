@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>PubNubPublishKey</key>
-	<string>demo</string>
+	<string>pub-c-18f7f2b6-1cb6-4659-81e8-43c971518b81</string>
 	<key>PubNubSubscribeKey</key>
-	<string>demo</string>
+	<string>sub-c-1c91d154-3b83-11e9-b221-7a660e69c40f</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

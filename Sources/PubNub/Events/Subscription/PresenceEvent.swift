@@ -36,31 +36,44 @@ public enum PresenceStateEvent: String, Codable {
 }
 
 public struct PresenceEventPayload: PresenceEvent {
-  public let event: PresenceStateEvent
-  public let uuid: String
-  public let occupancy: Int
-  public let subscriptionMatch: String?
   public let channel: String
+  public let subscriptionMatch: String?
   public let senderTimetoken: Timetoken
-  public let publishTimetoken: Timetoken
+  public let presenceTimetoken: Timetoken
   public let metadata: AnyJSON?
+
+  public let event: PresenceStateEvent
+  public let occupancy: Int
+  public let join: [String]
+  public let leave: [String]
+  public let timeout: [String]
+  public let stateChange: ChannelPresenceState
 }
 
 public protocol PresenceEvent {
-  /// The type of event
-  var event: PresenceStateEvent { get }
-  /// UUID for the event.
-  var uuid: String { get }
-  /// Current occupancy.
-  var occupancy: Int { get }
-  /// The channel group or wildcard subscription match (if exists).
-  var subscriptionMatch: String? { get }
+  // Common for all subscription responses
   /// The channel for which the message belongs
   var channel: String { get }
+  /// The channel group or wildcard subscription match (if exists).
+  var subscriptionMatch: String? { get }
   /// Timetoken for the message
   var senderTimetoken: Timetoken { get }
-  /// Timetoken for the message
-  var publishTimetoken: Timetoken { get }
+  /// Timetoken for the presence event
+  var presenceTimetoken: Timetoken { get }
   /// User metadata
   var metadata: AnyJSON? { get }
+
+  // Specific for presence responses
+  /// The type of event
+  var event: PresenceStateEvent { get }
+  /// Current occupancy.
+  var occupancy: Int { get }
+  /// List of UUIDs that joined the channel
+  var join: [String] { get }
+  /// List of UUIDs that left the channel
+  var leave: [String] { get }
+  /// List of UUIDs that timed out of the channel
+  var timeout: [String] { get }
+  /// User UUIDs and their new Presence States
+  var stateChange: ChannelPresenceState { get }
 }

@@ -28,6 +28,10 @@
 import Foundation
 
 struct Constant {
+  public static let presenceChannelSuffix: String = {
+    "-pnpres"
+  }()
+
   public static let operatingSystemName: String = {
     let osName: String = {
       #if os(iOS)

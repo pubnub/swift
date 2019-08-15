@@ -37,8 +37,8 @@ public enum PNError: Error {
   case invalidEndpointType(Endpoint)
   case sessionDeinitialized(sessionID: UUID)
   case requestRetryFailed(Endpoint, URLRequest, dueTo: Error, withPreviousError: Error?)
-  case requestCancelled
-  case messageCountExceededMaximum
+  case requestCancelled(Endpoint)
+  case messageCountExceededMaximum(Endpoint)
 
   public enum RequestCreationFailureReason {
     // URL Creation Errors
@@ -220,9 +220,13 @@ extension PNError {
       return endpoint
     case let .invalidEndpointType(endpoint):
       return endpoint
+    case let .messageCountExceededMaximum(endpoint):
+      return endpoint
     case .sessionDeinitialized:
       return .unknown
     case let .requestRetryFailed(endpoint, _, _, _):
+      return endpoint
+    case let .requestCancelled(endpoint):
       return endpoint
     case let .requestCreationFailure(_, endpoint):
       return endpoint
@@ -274,7 +278,7 @@ extension PNError {
     response: HTTPURLResponse?
   ) -> PNError {
     guard let response = response else {
-      return PNError.unknown(message: ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, endpoint)
+      return PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, endpoint)
     }
 
     // Try to associate with a specific error message

@@ -45,7 +45,7 @@ public protocol MessageEvent: CustomStringConvertible {
 // MARK: - CustomStringConvertible
 
 extension MessageEvent {
-  var description: String {
+  public var description: String {
     return "MessageEvent: User '\(publisher ?? "Unknown")' sent '\(message)' message on '\(channel)' at \(timetoken)"
   }
 }
@@ -53,12 +53,12 @@ extension MessageEvent {
 // MARK: - Implementation
 
 extension MessageResponse: MessageEvent {
-  var publisher: String? { return issuer }
-  var message: AnyJSON { return payload }
-  var subscription: String? { return subscriptionMatch }
-  var timetoken: Timetoken {
-    return publishTimetoken.timetoken ?? 0
+  public var publisher: String? { return issuer }
+  public var message: AnyJSON { return payload }
+  public var subscription: String? { return subscriptionMatch }
+  public var timetoken: Timetoken {
+    return publishTimetoken.timetoken
   }
 
-  var userMetadata: AnyJSON? { return metadata }
+  public var userMetadata: AnyJSON? { return metadata }
 }

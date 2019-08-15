@@ -186,7 +186,7 @@ extension Request {
         let urlResponse = self?.urlResponse,
         let router = self?.router else {
         queue.async { completion(.failure(PNError
-            .unknown(message: ErrorDescription.PNError.missingRequestResponse,
+            .unknown(ErrorDescription.PNError.missingRequestResponse,
                      strongSelf.endpoint))) }
 
         return

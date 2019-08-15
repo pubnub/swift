@@ -78,15 +78,14 @@ class PubNubRouterTests: XCTestCase {
 
     let stringState = try? AnyJSON(PubNubRouterTests.testState).jsonStringifyResult.get()
 
-    var queryItems = subscribeRouter.defaultQueryItems
-    queryItems.append(contentsOf: [
+    let queryItems = [
       URLQueryItem(name: "tt", value: "1111"),
       URLQueryItem(name: "channel-group", value: "TestGroup"),
       URLQueryItem(name: "tr", value: "0"),
       URLQueryItem(name: "filter-expr", value: "Test Filter"),
-      URLQueryItem(name: "state", value: stringState),
-      URLQueryItem(name: "heartbeat", value: "300")
-    ])
+      URLQueryItem(name: "heartbeat", value: "300"),
+      URLQueryItem(name: "state", value: stringState)
+    ]
 
     XCTAssertEqual(subscribeRouter.method, .get)
     XCTAssertEqual(subscribeRouter.keysRequired, .subscribe)

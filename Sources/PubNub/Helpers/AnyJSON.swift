@@ -31,7 +31,7 @@ import Foundation
 
 /// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
-  public let value: AnyJSONType
+  let value: AnyJSONType
 
   public init(_ value: Any) {
     self.value = AnyJSONType(rawValue: value)
@@ -221,6 +221,14 @@ extension AnyJSON {
 
   public var stringValue: String {
     return stringOptional ?? ""
+  }
+
+  public var dataOptional: Data? {
+    return Data(base64Encoded: stringValue)
+  }
+
+  public var dataValue: Data {
+    return dataOptional ?? Data()
   }
 
   public var boolOptional: Bool? {

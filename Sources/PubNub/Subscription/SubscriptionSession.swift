@@ -28,8 +28,6 @@
 import Foundation
 
 public class SubscriptionSession {
-  // MARK: Internal State
-
   struct InternalState {
     var isActive: Bool {
       switch state {
@@ -185,7 +183,7 @@ public class SubscriptionSession {
   }
 
   func stopSubscribeLoop() {
-    networkSession.cancelAllTasks(with: PNError.requestCancelled)
+    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -254,7 +252,7 @@ public class SubscriptionSession {
           }
 
           if response.payload.messages.count >= 100 {
-            self?.notify { $0.emitDidReceive(status: .failure(PNError.messageCountExceededMaximum)) }
+            self?.notify { $0.emitDidReceive(status: .failure(PNError.messageCountExceededMaximum(router.endpoint))) }
           }
 
           // Emit the event to the observers
@@ -263,16 +261,26 @@ public class SubscriptionSession {
 
             if let presenceMessage = try? message.payload.decode(PresenceMessageResponse.self) {
               let senderToken = message.originTimetoken?.timetoken ?? message.timetoken
-              let publishToken = message.publishTimetoken.timetoken ?? message.timetoken
 
-              let presenceEvent = PresenceEventPayload(event: presenceMessage.action,
-                                                       uuid: presenceMessage.uuid,
-                                                       occupancy: presenceMessage.occupancy,
-                                                       subscriptionMatch: message.subscriptionMatch,
-                                                       channel: message.channel,
-                                                       senderTimetoken: senderToken,
-                                                       publishTimetoken: publishToken,
-                                                       metadata: message.metadata)
+              let presenceEvent = PresenceEventPayload(
+                channel: message.channel.trimmingPresenceChannelSuffix,
+                subscriptionMatch: message.subscriptionMatch?.trimmingPresenceChannelSuffix,
+                senderTimetoken: senderToken,
+                presenceTimetoken: message.publishTimetoken.timetoken,
+                metadata: message.metadata,
+                event: presenceMessage.action,
+                occupancy: presenceMessage.occupancy,
+                join: presenceMessage.join,
+                leave: presenceMessage.leave,
+                timeout: presenceMessage.timeout,
+                stateChange: presenceMessage.channelState
+              )
+
+              // If the state chage is for this user we should update our internal cache
+              if presenceMessage.channelState.keys.contains(strongSelf.configuration.uuid) {
+                strongSelf.state.lockedWrite { $0.mergePresenceState(presenceMessage.channelState) }
+              }
+
               self?.notify { $0.emitDidRecieve(presence: presenceEvent) }
             } else {
               // Update Cache and notify if not a duplicate message
@@ -289,9 +297,7 @@ public class SubscriptionSession {
           }
 
           self?.previousTokenResponse = response.payload.token
-          if let token = response.payload.token.timetoken {
-            self?.currentTimetoken = token
-          }
+          self?.currentTimetoken = response.payload.token.timetoken
 
           // Repeat the request
           self?.performSubscribeLoop(at: strongSelf.currentTimetoken)
@@ -308,17 +314,16 @@ public class SubscriptionSession {
 
   // MARK: - Unsubscribe
 
-  public func unsubscribe(from channels: [String], and channelGroups: [String] = [], withPresence: Bool = false) {
+  public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
     stopSubscribeLoop()
 
     // Update Channel List
     let newCount = state.lockedWrite { mutableState -> Int in
       mutableState.channels.remove(contentsOf: channels)
       mutableState.channelGroups.remove(contentsOf: channelGroups)
-      if withPresence {
-        mutableState.channels.remove(contentsOf: channels.map { $0.presenceChannelName })
-        mutableState.channelGroups.remove(contentsOf: channelGroups.map { $0.presenceChannelName })
-      }
+
+      mutableState.channels.remove(contentsOf: channels.map { $0.presenceChannelName })
+      mutableState.channelGroups.remove(contentsOf: channelGroups.map { $0.presenceChannelName })
 
       return mutableState.totalChannelCount
     }

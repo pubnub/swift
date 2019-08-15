@@ -84,39 +84,3 @@ extension WeakSet: Collection {
     return elements.index(after: index)
   }
 }
-
-struct WeakDictionary<Key, Value> where Key: Hashable, Value: AnyObject, Value: Hashable {
-  private var underlyingDictionary: [Key: WeakBox<Value>] = [:]
-
-  subscript(key: Key) -> Value? {
-    get {
-      return underlyingDictionary[key]?.unbox
-    }
-    set {
-      if let value = newValue {
-        updateValue(value, forKey: key)
-      }
-    }
-  }
-
-  @discardableResult
-  mutating func updateValue(_ value: Value, forKey: Key) -> Value? {
-    return underlyingDictionary.updateValue(WeakBox(value), forKey: forKey)?.unbox
-  }
-}
-
-// swiftlint:disable syntactic_sugar
-extension WeakDictionary: Collection {
-  var startIndex: Dictionary<Key, WeakBox<Value>>.Index { return underlyingDictionary.startIndex }
-  var endIndex: Dictionary<Key, WeakBox<Value>>.Index { return underlyingDictionary.endIndex }
-
-  subscript(position: Dictionary<Key, WeakBox<Value>>.Index) -> Value? {
-    return underlyingDictionary[position].value.unbox
-  }
-
-  func index(after index: Dictionary<Key, WeakBox<Value>>.Index) -> Dictionary<Key, WeakBox<Value>>.Index {
-    return underlyingDictionary.index(after: index)
-  }
-}
-
-// swiftlint:enable syntactic_sugar

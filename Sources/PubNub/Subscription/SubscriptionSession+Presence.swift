@@ -67,8 +67,7 @@ extension SubscriptionSession {
 
     // Perform Heartbeat
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .heartbeat(uuid: configuration.uuid,
-                                                   channels: channels.allObjects,
+                              endpoint: .heartbeat(channels: channels.allObjects,
                                                    groups: groups.allObjects,
                                                    state: nil,
                                                    presenceTimeout: configuration.durationUntilTimeout))
@@ -76,7 +75,7 @@ extension SubscriptionSession {
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: PresenceLeaveResponseDecoder()) { result in
+      .response(decoder: GenericServiceResponseDecoder()) { result in
         switch result {
         case .success:
           if self.state.lockedRead({ $0.isActive }) {
@@ -107,7 +106,7 @@ extension SubscriptionSession {
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: PresenceLeaveResponseDecoder()) { result in
+      .response(decoder: GenericServiceResponseDecoder()) { result in
         switch result {
         case .success:
           completion(.success(true))
@@ -131,7 +130,7 @@ extension SubscriptionSession {
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: AmbiguousResponseDecoder()) { [weak self] result in
+      .response(decoder: AnyJSONResponseDecoder()) { [weak self] result in
         switch result {
         case let .success(response):
           let normalizedState: [String: [String: AnyJSON]]
@@ -141,7 +140,7 @@ extension SubscriptionSession {
           } else if let multiChannel = try? response.payload.decode(MultiPresenceStatePayload.self) {
             normalizedState = multiChannel.normalizedPayload
           } else {
-            completion(.failure(PNError.unknown("Could not decode payload")))
+            completion(.failure(PNError.unknown("Could not decode payload", router.endpoint)))
             return
           }
 
@@ -168,7 +167,7 @@ extension SubscriptionSession {
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
   ) {
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .setPresenceState(uuid: uuid, channels: channels, groups: groups, state: state))
+                              endpoint: .setPresenceState(channels: channels, groups: groups, state: state))
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)

@@ -120,7 +120,7 @@ class RequestMutatorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    let mutationError = PNError.unknown(message: "Could not mutate request", .unknown)
+    let mutationError = PNError.unknown("Could not mutate request", .unknown)
 
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { _ in

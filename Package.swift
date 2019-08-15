@@ -50,8 +50,8 @@ let package = Package(
   ],
   dependencies: [
     // Dependencies declare other packages that this package depends on.
-    .package(url: "https://github.com/realm/SwiftLint.git", .upToNextMinor(from: "0.33.0")),
-    .package(url: "https://github.com/nicklockwood/SwiftFormat.git", .upToNextMinor(from: "0.40.9"))
+    .package(url: "https://github.com/realm/SwiftLint.git", .upToNextMajor(from: "0.33.0")),
+    .package(url: "https://github.com/nicklockwood/SwiftFormat.git", .upToNextMajor(from: "0.40.9"))
   ],
   targets: [
     // Targets are the basic building blocks of a package. A target can define a module or a test suite.

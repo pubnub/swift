@@ -157,7 +157,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue,
+          XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
                          "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
@@ -361,7 +361,7 @@ extension MessageHistoryEndpointTests {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue,
+          XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
                          "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")

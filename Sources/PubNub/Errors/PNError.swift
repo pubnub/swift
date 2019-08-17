@@ -170,12 +170,14 @@ public enum PNError: Error {
     case malformedResponseBody
     case jsonDataDecodeFailure(Data?, with: Error)
 
+    case invalidArguments
     case invalidCharacter
     case invalidDeviceToken
     case invalidSubscribeKey
     case invalidPublishKey
     case maxChannelGroupCountExceeded
     case pushNotEnabled
+    case messageHistoryNotEnabled
     case messageDeletionNotEnabled
     case couldNotParseRequest
     case requestContainedInvalidJSON
@@ -286,6 +288,10 @@ extension PNError {
     switch message {
     case .couldNotParseRequest?:
       return .couldNotParseRequest
+    case .some(.forbidden):
+      return .forbidden
+    case .some(.invalidArguments):
+      return .invalidArguments
     case .some(.invalidCharacter):
       return .invalidCharacter
     case .some(.invalidDeviceToken):
@@ -298,6 +304,8 @@ extension PNError {
       return .requestContainedInvalidJSON
     case .some(.maxChannelGroupCountExceeded):
       return .maxChannelGroupCountExceeded
+    case .some(.messageHistoryNotEnabled):
+      return .messageHistoryNotEnabled
     case .some(.messageDeletionNotEnabled):
       return .messageDeletionNotEnabled
     case .notFound?:

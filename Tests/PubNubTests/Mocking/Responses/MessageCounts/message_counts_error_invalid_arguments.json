@@ -1,0 +1,5 @@
+{
+  "code": 400,
+  "body": {"status": 400, "error": true, "error_message": "Invalid Arguments", "channels": {}}
+}
+

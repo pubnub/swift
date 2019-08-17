@@ -75,6 +75,10 @@ public struct ErrorDescription {
       "Unable to parse publish payload message"
     }()
 
+    public static let messageCountsResponseMessageParseFailure: String = {
+      "Unable to parse message counts payload message"
+    }()
+
     public static let missingResponseData: String = {
       "Missing Response Data"
     }()
@@ -179,6 +183,10 @@ public struct ErrorDescription {
       "An error was thrown attempting to decode the response body"
     }()
 
+    public static let invalidArguments: String = {
+      "One or more `Request` arguments are invalid"
+    }()
+
     public static let invalidCharacter: String = {
       "One or more invalid characters were used in the request"
     }()
@@ -218,6 +226,10 @@ public struct ErrorDescription {
     public static let messageDeletionNotEnabled: String = {
       // swiftlint:disable:next line_length
       "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
+    }()
+
+    public static let messageHistoryNotEnabled: String = {
+      "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
     }()
 
     public static let badRequest: String = {

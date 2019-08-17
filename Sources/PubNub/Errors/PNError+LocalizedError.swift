@@ -151,6 +151,8 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return ErrorDescription.EndpointFailureReason.malformedResponseBody
     case .jsonDataDecodeFailure:
       return ErrorDescription.EndpointFailureReason.jsonDataDecodeFailure
+    case .invalidArguments:
+      return ErrorDescription.EndpointFailureReason.invalidArguments
     case .invalidCharacter:
       return ErrorDescription.EndpointFailureReason.invalidCharacter
     case .invalidDeviceToken:
@@ -163,6 +165,8 @@ extension PNError.EndpointFailureReason: LocalizedErrorReason {
       return ErrorDescription.EndpointFailureReason.maxChannelGroupCountExceeded
     case .pushNotEnabled:
       return ErrorDescription.EndpointFailureReason.pushNotEnabled
+    case .messageHistoryNotEnabled:
+      return ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled
     case .messageDeletionNotEnabled:
       return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
     case .requestContainedInvalidJSON:

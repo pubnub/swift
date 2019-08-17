@@ -42,6 +42,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
   public enum Message: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
     case acknowledge
     case couldNotParseRequest
+    case forbidden
+    case invalidArguments
     case invalidCharacter
     case invalidDeviceToken
     case invalidSubscribeKey
@@ -50,6 +52,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case maxChannelGroupCountExceeded
     case notFound
     case pushNotEnabled
+    case messageHistoryNotEnabled
     case messageDeletionNotEnabled
     case requestURITooLong
     case serviceUnavailable
@@ -62,6 +65,10 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         self = .acknowledge
       case "Could Not Parse Request":
         self = .couldNotParseRequest
+      case "Forbidden":
+        self = .forbidden
+      case "Invalid Arguments":
+        self = .invalidArguments
       case "Reserved character in input parameters.":
         self = .invalidCharacter
       case "Expected 32 or 100 byte hex device token":
@@ -90,6 +97,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return .pushNotEnabled
       } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled) {
         return .messageDeletionNotEnabled
+      } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled) {
+        return .messageHistoryNotEnabled
       } else {
         return .unknown(message: message)
       }
@@ -101,6 +110,10 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "OK"
       case .couldNotParseRequest:
         return "Could Not Parse Request"
+      case .forbidden:
+        return "Forbidden"
+      case .invalidArguments:
+        return "Invalid Arguments"
       case .invalidCharacter:
         return "Reserved character in input parameters."
       case .invalidDeviceToken:
@@ -117,6 +130,8 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
         return "Resource Not Found"
       case .pushNotEnabled:
         return ErrorDescription.EndpointFailureReason.pushNotEnabled
+      case .messageHistoryNotEnabled:
+        return ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled
       case .messageDeletionNotEnabled:
         return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
       case .requestURITooLong:
@@ -256,12 +271,14 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
   public let service: Service
   public let status: Code
   public let error: Bool
+  public let channels: [String: [String]]
 
   public init(
     message: Message? = nil,
     service: Service? = nil,
     status: Code? = nil,
-    error: Bool = false
+    error: Bool = false,
+    channels: [String: [String]] = [:]
   ) {
     if !error, status == .some(.acknowledge) {
       self.message = .acknowledge
@@ -272,6 +289,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     self.service = service ?? "No Service Provided"
     self.status = status ?? -1
     self.error = error
+    self.channels = channels
   }
 
   enum CodingKeys: String, CodingKey {
@@ -280,6 +298,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case service
     case status
     case error
+    case channels
   }
 
   public init(from decoder: Decoder) throws {
@@ -303,11 +322,13 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
 
     let service = try container.decodeIfPresent(Service.self, forKey: .service)
     let status = try container.decodeIfPresent(Code.self, forKey: .status)
+    let channels = try container.decodeIfPresent([String: [String]].self, forKey: .channels) ?? [:]
 
     self.init(message: message ?? error,
               service: service,
               status: status,
-              error: isError)
+              error: isError,
+              channels: channels)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -316,5 +337,6 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     try container.encode(service.rawValue, forKey: .service)
     try container.encode(status.rawValue, forKey: .status)
     try container.encode(error, forKey: .error)
+    try container.encode(channels, forKey: .channels)
   }
 }

@@ -173,11 +173,11 @@ class MasterDetailTableViewController: UITableViewController {
     var title: String {
       switch self {
       case .listPushChannels:
-        return "Fetch Message History"
+        return "List Push Channels"
       case .modifyPushChannels:
-        return "Delete Message History"
+        return "Modify Push Channels"
       case .deletePushChannels:
-        return "Delete Message History"
+        return "Delete Push Channels"
       }
     }
 
@@ -187,11 +187,14 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   enum HistoryRow: Int {
+    case messageCount
     case fetchMessageHistory
     case deleteMessageHistory
 
     var title: String {
       switch self {
+      case .messageCount:
+        return "Message Count"
       case .fetchMessageHistory:
         return "Fetch Message History"
       case .deleteMessageHistory:
@@ -200,7 +203,7 @@ class MasterDetailTableViewController: UITableViewController {
     }
 
     static var rowCount: Int {
-      return 2
+      return 3
     }
   }
 
@@ -331,6 +334,8 @@ class MasterDetailTableViewController: UITableViewController {
 
   func didSelectHistorySection(at row: Int) {
     switch HistoryRow(rawValue: row) {
+    case .some(.messageCount):
+      performMessageCount()
     case .some(.fetchMessageHistory):
       performHistoryFetch()
     case .some(.deleteMessageHistory):
@@ -449,6 +454,17 @@ class MasterDetailTableViewController: UITableViewController {
         print("Successful Delete Group Response: \(response)")
       case let .failure(error):
         print("Failed Delete Group Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performMessageCount() {
+    pubnub.messageCounts(channels: ["channelSwift"]) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Message Count Response: \(response)")
+      case let .failure(error):
+        print("Failed Message Count Response: \(error.localizedDescription)")
       }
     }
   }

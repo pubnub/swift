@@ -54,6 +54,9 @@
 		354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */; };
 		354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA9322DCBC350093EFFB /* ResponseOperator.swift */; };
 		354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */; };
+		3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */; };
+		3559978223079070000BCFD1 /* forbidden_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978023078F85000BCFD1 /* forbidden_Message.json */; };
+		355997852307966C000BCFD1 /* message_counts_error_serviceNotEnabled.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */; };
 		355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */; };
 		355F213122DE4D97004DEFBF /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213022DE4D97004DEFBF /* Endpoint.swift */; };
 		355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */; };
@@ -208,6 +211,8 @@
 		35FE941922EFE51F0051C455 /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355C47A122CBD6F2006C3EEE /* EventStream.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
+		D2635E02230344F00097CF64 /* MessageCountsEndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2635E01230344F00097CF64 /* MessageCountsEndpointTests.swift */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_38 /* Package.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_6 /* Package.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -254,6 +259,9 @@
 		354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+PubNub.swift"; sourceTree = "<group>"; };
 		354ADA9322DCBC350093EFFB /* ResponseOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseOperator.swift; sourceTree = "<group>"; };
 		354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+PubNub.swift"; sourceTree = "<group>"; };
+		3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_error_invalid_arguments.json; sourceTree = "<group>"; };
+		3559978023078F85000BCFD1 /* forbidden_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = forbidden_Message.json; sourceTree = "<group>"; };
+		3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_error_serviceNotEnabled.json; sourceTree = "<group>"; };
 		355BE9FC22C2917C000EC334 /* AnyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSON.swift; sourceTree = "<group>"; };
 		355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONTests.swift; sourceTree = "<group>"; };
 		355C47A122CBD6F2006C3EEE /* EventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStream.swift; sourceTree = "<group>"; };
@@ -411,6 +419,8 @@
 		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
+		D2635E01230344F00097CF64 /* MessageCountsEndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCountsEndpointTests.swift; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -506,6 +516,7 @@
 			isa = PBXGroup;
 			children = (
 				35A6C7A922FBD73500E97CC5 /* Push */,
+				D2635DF922FCCE7A0097CF64 /* MessageCounts */,
 				357AEB7B22E693C300C18250 /* Errors */,
 				35A6C79622FBC24D00E97CC5 /* Channel Groups */,
 				359511FB22FF7ABD00C9D3AE /* MessageHistory */,
@@ -630,7 +641,7 @@
 		3580A5A422F14D6000B12E5E /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				359511FA22FF769400C9D3AE /* Endpionts */,
+				359511FA22FF769400C9D3AE /* Endpoints */,
 				35FE941522EFC4920051C455 /* EndpointTests.swift */,
 				3580A59722F0F20A00B12E5E /* RouterTests.swift */,
 				35FE93C222EF57FA0051C455 /* Session+URLErrorTests.swift */,
@@ -659,15 +670,16 @@
 			path = Events;
 			sourceTree = "<group>";
 		};
-		359511FA22FF769400C9D3AE /* Endpionts */ = {
+		359511FA22FF769400C9D3AE /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
 				35A6C79222FB93FD00E97CC5 /* ChannelGroupEndpointTests.swift */,
 				35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */,
 				35A6C78C22FB409400E97CC5 /* PresenceEndpointTests.swift */,
 				35A6C7B622FBEA7200E97CC5 /* PushEndpointTests.swift */,
+				D2635E01230344F00097CF64 /* MessageCountsEndpointTests.swift */,
 			);
-			path = Endpionts;
+			path = Endpoints;
 			sourceTree = "<group>";
 		};
 		359511FB22FF7ABD00C9D3AE /* MessageHistory */ = {
@@ -847,6 +859,7 @@
 				35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */,
 				35FE940F22EFA30A0051C455 /* malformedFilterExpression_StatusCode.json */,
 				35FE940822EFA0040051C455 /* badRequest_StatusCode.json */,
+				3559978023078F85000BCFD1 /* forbidden_Message.json */,
 				35FE940422EFA0030051C455 /* forbidden_StatusCode.json */,
 				35FE940622EFA0030051C455 /* internalServiceError_StatusCode.json */,
 				35FE940722EFA0040051C455 /* requestURITooLong_StatusCode.json */,
@@ -864,6 +877,16 @@
 				357AEB7622E6920300C18250 /* couldNotParseRequest.json */,
 			);
 			path = EndpointError;
+			sourceTree = "<group>";
+		};
+		D2635DF922FCCE7A0097CF64 /* MessageCounts */ = {
+			isa = PBXGroup;
+			children = (
+				D2635DFA22FCCF080097CF64 /* message_counts_success.json */,
+				3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */,
+				3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */,
+			);
+			path = MessageCounts;
 			sourceTree = "<group>";
 		};
 		OBJ_12 /* Tests */ = {
@@ -1018,6 +1041,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				35A6C78922FB405E00E97CC5 /* wherenow_success.json in Resources */,
+				3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */,
 				35FE93F222EF93A90051C455 /* cannotDecodeContentData.json in Resources */,
 				35FE93BE22EE9C4A0051C455 /* couldNotParseRequest.json in Resources */,
 				35A6C7A422FBC59B00E97CC5 /* groups_channels_list_success_empty.json in Resources */,
@@ -1065,6 +1089,7 @@
 				3595120122FF7B0C00C9D3AE /* messageHistory_FetchV2_success_emptyList.json in Resources */,
 				35D06150230351D700FDB2F9 /* messageHistory_FetchV2_success_encrypted.json in Resources */,
 				35A6C7B122FBD8DC00E97CC5 /* push_modify_success.json in Resources */,
+				3559978223079070000BCFD1 /* forbidden_Message.json in Resources */,
 				3595120D22FFA67300C9D3AE /* history_not_enabled_for_key_Message.json in Resources */,
 				35FE93F422EF93A90051C455 /* zeroByteResource.json in Resources */,
 				35D0615623039F2C00FDB2F9 /* messageHistory_Fetch_success_encrypted.json in Resources */,
@@ -1083,6 +1108,7 @@
 				359511FD22FF7AED00C9D3AE /* messageHistory_FetchV2_success.json in Resources */,
 				35FE93ED22EF93A90051C455 /* unknown.json in Resources */,
 				35FE93BD22EE9C470051C455 /* requestURITooLong_Message.json in Resources */,
+				355997852307966C000BCFD1 /* message_counts_error_serviceNotEnabled.json in Resources */,
 				35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */,
 				35A6C79422FB96BE00E97CC5 /* maximumChannelCountExceeded_Message.json in Resources */,
 				35FE93EA22EF93A90051C455 /* cannotConnectToHost.json in Resources */,
@@ -1090,6 +1116,7 @@
 				35A6C7B322FBD9D200E97CC5 /* push_remove_all_success.json in Resources */,
 				35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */,
 				35D0615423037FB600FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json in Resources */,
+				D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */,
 				35FE93F822EF93A90051C455 /* clientCertificateRequired.json in Resources */,
 				35FE941022EFA30A0051C455 /* malformedFilterExpression_StatusCode.json in Resources */,
 				35FE93F022EF93A90051C455 /* resourceUnavailable.json in Resources */,
@@ -1229,6 +1256,7 @@
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,
 				35D0615A2303A61500FDB2F9 /* ValidatedTests.swift in Sources */,
+				D2635E02230344F00097CF64 /* MessageCountsEndpointTests.swift in Sources */,
 				35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,

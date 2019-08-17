@@ -147,6 +147,8 @@ extension PNError.EndpointFailureReason: Equatable {
       return true
     case let (.jsonDataDecodeFailure(lhsData, lhsError), .jsonDataDecodeFailure(rhsData, rhsError)):
       return lhsData == rhsData && lhsError.localizedDescription == rhsError.localizedDescription
+    case (.invalidArguments, .invalidArguments):
+      return true
     case (.invalidCharacter, .invalidCharacter):
       return true
     case (.invalidDeviceToken, .invalidDeviceToken):
@@ -156,6 +158,8 @@ extension PNError.EndpointFailureReason: Equatable {
     case (.invalidPublishKey, .invalidPublishKey):
       return true
     case (.maxChannelGroupCountExceeded, .maxChannelGroupCountExceeded):
+      return true
+    case (.messageHistoryNotEnabled, .messageHistoryNotEnabled):
       return true
     case (.messageDeletionNotEnabled, .messageDeletionNotEnabled):
       return true

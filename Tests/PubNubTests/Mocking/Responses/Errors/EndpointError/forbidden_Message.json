@@ -1,0 +1,5 @@
+{
+  "code": 403,
+  "body": {"message":"Forbidden","payload":{"channels":["channelSwift"]},"error":true,"service":"Access Manager","status":403}
+}
+

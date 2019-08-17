@@ -24,7 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean
+// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection
 
 import Foundation
 
@@ -53,6 +53,7 @@ public enum Endpoint {
     case fetchMessageHistoryV2
     case fetchMessageHistory
     case deleteMessageHistory
+    case messageCounts
   }
 
   public enum PushType: String, Codable {
@@ -75,6 +76,9 @@ public enum Endpoint {
   // History
   case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
   case deleteMessageHistory(channel: String, start: Timetoken?, end: Timetoken?)
+
+  // Message Counts
+  case messageCounts(channels: [String], timetoken: Timetoken?, channelsTimetoken: [Timetoken]?)
 
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
@@ -116,6 +120,8 @@ public enum Endpoint {
       return .hereNow
     case .whereNow:
       return .whereNow
+    case .messageCounts:
+      return .messageCounts
     case .channelsForGroup:
       return .channelsForGroup
     case .addChannelsForGroup:
@@ -167,6 +173,10 @@ extension Endpoint: Validated {
       return isEndpointInvalid(channels.isEmpty)
     case let .whereNow(uuid):
       return isEndpointInvalid(uuid.isEmpty)
+    case let .messageCounts(channels, timetoken, timetokens):
+      return isEndpointInvalid(!validMessageCount(channels: channels,
+                                                  timetokens: timetokens,
+                                                  timetoken: timetoken))
     case let .channelsForGroup(group):
       return isEndpointInvalid(group.isEmpty)
     case let .addChannelsForGroup(group, channels):
@@ -185,6 +195,22 @@ extension Endpoint: Validated {
       return isEndpointInvalid(pushToken.isEmpty)
     case .unknown:
       return PNError.invalidEndpointType(self)
+    }
+  }
+
+  func validMessageCount(channels: [String], timetokens: [Timetoken]?, timetoken: Timetoken?) -> Bool {
+    guard !channels.isEmpty else {
+      return false
+    }
+
+    switch (timetokens, timetoken) {
+    case let (.some(tokens), _):
+      // Ensure that each value of the timetokens is greater than zero
+      return tokens.count == channels.count && tokens.allSatisfy { $0 > 0 }
+    case let (.none, .some(token)):
+      return token > 0
+    case (.none, .none):
+      return false
     }
   }
 
@@ -222,7 +248,7 @@ extension Endpoint {
       return .channelGroup
     case .listPushChannels, .modifyPushChannels, .removeAllPushChannels:
       return .push
-    case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory:
+    case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory, .messageCounts:
       return .history
     case .unknown:
       return .unknown
@@ -245,6 +271,8 @@ extension Endpoint: CustomStringConvertible {
       return "Here Now"
     case .whereNow:
       return "Where Now"
+    case .messageCounts:
+      return "Message Counts"
     case .channelGroups:
       return "Group List"
     case .deleteGroup:
@@ -277,4 +305,4 @@ extension Endpoint: Equatable {
   }
 }
 
-// swiftlint:enable discouraged_optional_boolean
+// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection

@@ -25,7 +25,6 @@
 //  THE SOFTWARE.
 //
 // swiftlint:disable discouraged_optional_boolean file_length
-
 import Foundation
 
 /// An object that coordinates a group of related PubNub pub/sub network events
@@ -430,8 +429,60 @@ extension PubNub {
         on: queue,
         decoder: GenericServiceResponseDecoder()
       ) { result in
-
         completion?(result.map { $0.payload })
+      }
+  }
+
+  public func messageCounts(
+    channels: [String: Timetoken],
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<[String: Int], Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let endpoint = Endpoint.messageCounts(channels: channels.map { $0.key },
+                                          timetoken: nil,
+                                          channelsTimetoken: channels.map { $0.value })
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: endpoint)
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: MessageCountsResponseDecoder()
+      ) { result in
+        completion?(result.map { $0.payload.channels })
+      }
+  }
+
+  public func messageCounts(
+    channels: [String],
+    timetoken: Timetoken = 1,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<[String: Int], Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let endpoint = Endpoint.messageCounts(channels: channels,
+                                          timetoken: timetoken,
+                                          channelsTimetoken: nil)
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: endpoint)
+
+    client
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: MessageCountsResponseDecoder()
+      ) { result in
+        completion?(result.map { $0.payload.channels })
       }
   }
 }

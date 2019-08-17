@@ -35,7 +35,7 @@ struct PubNubRouter {
   private let ttlKey = "ttl"
   private let noRepKey = "norep"
   private let channelGroupsKey = "channel-group"
-  private let timetokenKey = "tt"
+  private let ttKey = "tt"
   private let regionKey = "tr"
   private let stateKey = "state"
   private let heartbeatKey = "heartbeat"
@@ -53,6 +53,8 @@ struct PubNubRouter {
   private let includeTokenKey = "include_token"
   private let includeMetaKey = "include_meta"
   private let stringtokenKey = "stringtoken"
+  private let timetokenKey = "timetoken"
+  private let channelsTimetokenKey = "channelsTimetoken"
 
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -126,6 +128,8 @@ extension PubNubRouter: Router {
       }
     case .deleteMessageHistory(let channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+    case let .messageCounts(channels, _, _):
+      path = "/v3/history/sub-key/\(subscribeKey)/message-counts/\(channels.csvString.urlEncodeSlash)"
     case .unknown:
       return .failure(PNError.unknown(message: endpoint.description, endpoint))
     }
@@ -142,7 +146,7 @@ extension PubNubRouter: Router {
     case let .fire(_, _, meta):
       return parsePublish(query: &query, shouldStore: false, ttl: 0, meta: meta)
     case let .subscribe(parameters):
-      query.append(URLQueryItem(name: timetokenKey, value: parameters.timetoken.description))
+      query.append(URLQueryItem(name: ttKey, value: parameters.timetoken.description))
       query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
       query.appendIfPresent(name: regionKey, value: parameters.region?.description)
     case let .hereNow(_, groups, includeUUIDs, includeState):
@@ -176,6 +180,10 @@ extension PubNubRouter: Router {
     case let .deleteMessageHistory(_, startTimetoken, endTimetoken):
       query.appendIfPresent(name: startKey, value: startTimetoken?.description)
       query.appendIfPresent(name: endKey, value: endTimetoken?.description)
+    case let .messageCounts(parameters):
+      query.appendIfPresent(name: timetokenKey, value: parameters.timetoken?.description)
+      query.appendIfPresent(name: channelsTimetokenKey,
+                            value: parameters.channelsTimetoken?.map { $0.description }.csvString)
     default:
       break
     }

@@ -238,3 +238,25 @@ public struct MessageHistoryMessagesPayload: Codable {
     }
   }
 }
+
+// MARK: - Message Count
+
+struct MessageCountsResponseDecoder: ResponseDecoder {
+  typealias Payload = MessageCountsResponsePayload
+}
+
+public struct MessageCountsResponsePayload: Codable {
+  let status: Int
+  let error: Bool
+  let errorMessage: String
+  let channels: [String: Int]
+  let more: [String: [String: AnyJSON]]
+
+  enum CodingKeys: String, CodingKey {
+    case status
+    case error
+    case errorMessage = "error_message"
+    case channels
+    case more
+  }
+}

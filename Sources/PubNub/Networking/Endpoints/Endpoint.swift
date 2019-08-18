@@ -71,7 +71,10 @@ public enum Endpoint {
   case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
 
   // Subscribe Endpoint
-  case subscribe(channels: [String], groups: [String], timetoken: Int, region: Int?, state: AnyJSON?)
+  case subscribe(
+    channels: [String], groups: [String], timetoken: Timetoken,
+    region: String?, state: ChannelPresenceState?, heartbeat: Int?, filter: String?
+  )
 
   // History
   case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
@@ -83,12 +86,10 @@ public enum Endpoint {
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
-  //  case heartbeat                            = "Heartbeat"
-  //  case setState                             = "SetState"
-  //  case getState                             = "GetState"
-  //  case stateForChannel                      = "StateForChannel"
-  //  case stateForChannelGroup                 = "StateForChannelGroup"
-  //  case unsubscribe                          = "Unsubscribe"
+  case heartbeat(channels: [String], groups: [String], state: [String: Codable]?, presenceTimeout: Int?)
+  case leave(channels: [String], groups: [String])
+  case getPresenceState(uuid: String, channels: [String], groups: [String])
+  case setPresenceState(channels: [String], groups: [String], state: [String: Codable])
 
   // Channel Groups
   case channelsForGroup(group: String)
@@ -116,6 +117,14 @@ public enum Endpoint {
       return .fire
     case .subscribe:
       return .subscribe
+    case .heartbeat:
+      return .heartbeat
+    case .leave:
+      return .leave
+    case .getPresenceState:
+      return .getPresenceState
+    case .setPresenceState:
+      return .setPresenceState
     case .hereNow:
       return .hereNow
     case .whereNow:
@@ -163,8 +172,9 @@ extension Endpoint: Validated {
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .fire(message, channel, _):
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
-    case let .subscribe(channels, _, timetoken, _, _):
-      return isEndpointInvalid(channels.isEmpty, timetoken < 0)
+    case let .subscribe(parameters):
+      return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty,
+                               parameters.timetoken < 0)
     case let .fetchMessageHistory(channels, max, _, _, _):
       return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
     case let .deleteMessageHistory(channel, _, _):
@@ -195,6 +205,14 @@ extension Endpoint: Validated {
       return isEndpointInvalid(pushToken.isEmpty)
     case .unknown:
       return PNError.invalidEndpointType(self)
+    case let .heartbeat(channels, _, _, presenceTimeout):
+      return isEndpointInvalid(channels.isEmpty, presenceTimeout ?? 0 < 0)
+    case let .leave(channels, groups):
+      return isEndpointInvalid(channels.isEmpty && groups.isEmpty)
+    case let .getPresenceState(parameters):
+      return isEndpointInvalid(parameters.uuid.isEmpty, parameters.channels.isEmpty && parameters.groups.isEmpty)
+    case .setPresenceState(let channels, _, _):
+      return isEndpointInvalid(channels.isEmpty)
     }
   }
 
@@ -267,6 +285,14 @@ extension Endpoint: CustomStringConvertible {
       return "Fire"
     case .subscribe:
       return "Subscribe"
+    case .heartbeat:
+      return "Heartbeat"
+    case .leave:
+      return "Leave"
+    case .setPresenceState:
+      return "Set Presence State"
+    case .getPresenceState:
+      return "Get Presence State"
     case .hereNow:
       return "Here Now"
     case .whereNow:

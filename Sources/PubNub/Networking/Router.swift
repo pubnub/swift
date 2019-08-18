@@ -133,7 +133,7 @@ extension Router {
       Constant.pnSDKURLQueryItem,
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
-    if let authKey = configuration.authKey {
+    if pamVersion != .none, let authKey = configuration.authKey {
       queryItems.append(URLQueryItem(name: "auth", value: authKey))
     }
     return queryItems

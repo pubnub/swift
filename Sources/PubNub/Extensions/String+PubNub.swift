@@ -29,13 +29,21 @@ import Foundation
 
 extension String {
   /// A channel name conforming to PubNub presence channel naming conventions
-  var presenceChannel: String {
-    return "\(self)-pnpres"
+  var presenceChannelName: String {
+    return "\(self)\(Constant.presenceChannelSuffix)"
   }
 
   /// If the `String` conforms to PubNub presence channel naming conventions
-  var isPresenceChannel: Bool {
-    return hasSuffix("-pnpres")
+  var isPresenceChannelName: Bool {
+    return hasSuffix(Constant.presenceChannelSuffix)
+  }
+
+  /// If the `String` conforms to PubNub presence channel naming conventions
+  var trimmingPresenceChannelSuffix: String {
+    if isPresenceChannelName {
+      return String(dropLast(Constant.presenceChannelSuffix.count))
+    }
+    return self
   }
 
   /// Sanitizes attempts to include `/` characters inside path components

@@ -1,10 +1,10 @@
 //
-//  Error+PubNubTests.swift
+//  MessageEvent.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
-//  https://www.pubnub.com/
-//  https://www.pubnub.com/terms
+//  http://www.pubnub.com/
+//  http://www.pubnub.com/terms
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -25,21 +25,40 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
-    let error: Error = PNError.unknown("Testing", .unknown)
+public protocol MessageEvent: CustomStringConvertible {
+  /// Message sender identifier
+  var publisher: String? { get }
+  /// The message sent on the channel
+  var message: AnyJSON { get }
+  /// The channel for which the message belongs
+  var channel: String { get }
+  /// The channel group or wildcard subscription match (if exists)
+  var subscription: String? { get }
+  /// Timetoken for the message
+  var timetoken: Timetoken { get }
+  /// User metadata
+  var userMetadata: AnyJSON? { get }
+}
 
-    XCTAssertNotNil(error.pubNubError)
-    XCTAssertNil(error.urlError)
+// MARK: - CustomStringConvertible
+
+extension MessageEvent {
+  public var description: String {
+    return "MessageEvent: User '\(publisher ?? "Unknown")' sent '\(message)' message on '\(channel)' at \(timetoken)"
+  }
+}
+
+// MARK: - Implementation
+
+extension MessageResponse: MessageEvent {
+  public var publisher: String? { return issuer }
+  public var message: AnyJSON { return payload }
+  public var subscription: String? { return subscriptionMatch }
+  public var timetoken: Timetoken {
+    return publishTimetoken.timetoken
   }
 
-  func testURLErrorCast() {
-    let error: Error = URLError(.unknown)
-
-    XCTAssertNotNil(error.urlError)
-    XCTAssertNil(error.pubNubError)
-  }
+  public var userMetadata: AnyJSON? { return metadata }
 }

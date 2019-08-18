@@ -38,7 +38,7 @@ class PNErrorTests: XCTestCase {
     let error = PNError.convert(endpoint: .unknown, generalError: nil, request: request, response: nil)
 
     let unknownError = PNError
-      .unknown(message: ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, .unknown)
+      .unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, .unknown)
 
     XCTAssertEqual(error, unknownError)
     XCTAssertEqual(error.localizedDescription, unknownError.localizedDescription)

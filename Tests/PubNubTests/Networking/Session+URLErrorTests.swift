@@ -159,7 +159,7 @@ final class SessionURLErrorTests: XCTestCase {
     testURLError(code: .clientCertificateRequired, for: "clientCertificateRequired")
   }
 
-  @available(OSX 10.11, iOS 9.0, *)
+  @available(iOS 9.0, macOS 10.11, *)
   func testAppTransportSecurityRequiresSecureConnection() {
     testURLError(code: .appTransportSecurityRequiresSecureConnection,
                  for: "appTransportSecurityRequiresSecureConnection")

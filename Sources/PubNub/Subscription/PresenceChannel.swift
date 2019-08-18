@@ -1,5 +1,5 @@
 //
-//  Error+PubNubTests.swift
+//  PresenceChannel.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,21 +25,57 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
-    let error: Error = PNError.unknown("Testing", .unknown)
-
-    XCTAssertNotNil(error.pubNubError)
-    XCTAssertNil(error.urlError)
+public struct PresenceChannel {
+  public enum State {
+    case initialized
+    case joined
+    case timedOut
+    case left
   }
 
-  func testURLErrorCast() {
-    let error: Error = URLError(.unknown)
+  public let name: String
+  public let presenceName: String
 
-    XCTAssertNotNil(error.urlError)
-    XCTAssertNil(error.pubNubError)
+  private var state: [String: Codable]
+  public var presenceState: State = .initialized
+
+  public var userState: [String: Codable] {
+    get {
+      return state
+    }
+    set {
+      state.merge(newValue) { $1 }
+    }
+  }
+
+  public init(_ name: String, with userState: [String: Codable] = [:], and presenceState: State = .initialized) {
+    self.name = name
+    presenceName = name.presenceChannelName
+    state = userState
+    self.presenceState = presenceState
+  }
+}
+
+extension PresenceChannel: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    name.hash(into: &hasher)
+  }
+
+  public static func == (lhs: PresenceChannel, rhs: PresenceChannel) -> Bool {
+    return lhs.name == rhs.name
+  }
+}
+
+extension PresenceChannel: CustomStringConvertible {
+  public var description: String {
+    return name
+  }
+}
+
+extension PresenceChannel: ExpressibleByStringLiteral {
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(value)
   }
 }

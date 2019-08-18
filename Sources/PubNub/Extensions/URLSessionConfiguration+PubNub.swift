@@ -51,7 +51,7 @@ public extension URLSessionConfiguration {
   static var subscription: URLSessionConfiguration {
     let configuration = URLSessionConfiguration.pubnub
     configuration.timeoutIntervalForRequest += Constant.minimumSubscribeRequestTimeout
-    configuration.httpMaximumConnectionsPerHost = 1
+//    configuration.httpMaximumConnectionsPerHost = 1
 
     return configuration
   }

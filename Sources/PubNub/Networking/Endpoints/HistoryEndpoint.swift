@@ -108,10 +108,9 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
       var messages = channel.messages
       for (index, message) in messages.enumerated() {
         // Convert base64 string into Data
-        if let messageText = message.message.stringOptional,
-          let base64Data = Data(base64Encoded: messageText, options: .ignoreUnknownCharacters) {
+        if let messageData = message.message.dataOptional {
           // If a message fails we just return the original and move on
-          if let decryptedPayload = try? crypto.decrypt(encrypted: base64Data).get(),
+          if let decryptedPayload = try? crypto.decrypt(encrypted: messageData).get(),
             let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
             messages[index] = MessageHistoryMessagesPayload(message: AnyJSON(reverse: decodedString),
                                                             timetoken: message.timetoken,

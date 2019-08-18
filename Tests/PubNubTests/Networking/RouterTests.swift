@@ -32,8 +32,9 @@ class RouterTests: XCTestCase {
   let subscribe = Endpoint.subscribe(channels: ["TestChannel"],
                                      groups: ["TestGroup"],
                                      timetoken: 1111,
-                                     region: 0,
-                                     state: AnyJSON([0]))
+                                     region: "0",
+                                     state: ["TestChannel": ["Value": AnyJSON([0])]],
+                                     heartbeat: nil, filter: nil)
 
   struct NonCodable: Equatable {
     var code = 0
@@ -71,11 +72,24 @@ class RouterTests: XCTestCase {
     }
   }
 
-  func testDefaultQueryItems_WithAuthKey() {
+  func testDefaultQueryItems_NoAuthKey() {
     var config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: "TestKeyNotReal")
     config.authKey = "SomeAuthKey"
 
     let router = PubNubRouter(configuration: config, endpoint: .time)
+    let queryItems = [
+      URLQueryItem(name: "pnsdk", value: Constant.pnSDKQueryParameterValue),
+      URLQueryItem(name: "uuid", value: config.uuid)
+    ]
+
+    XCTAssertEqual(router.defaultQueryItems, queryItems)
+  }
+
+  func testDefaultQueryItems_WithAuthKey() {
+    var config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: "TestKeyNotReal")
+    config.authKey = "SomeAuthKey"
+
+    let router = PubNubRouter(configuration: config, endpoint: .fire(message: AnyJSON([]), channel: "Test", meta: nil))
     let queryItems = [
       URLQueryItem(name: "pnsdk", value: Constant.pnSDKQueryParameterValue),
       URLQueryItem(name: "uuid", value: config.uuid),

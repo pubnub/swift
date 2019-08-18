@@ -55,12 +55,11 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
     defaultTimeout += URLSessionConfiguration
       .default.timeoutIntervalForRequest
 
-    let defaultConnections = 1
-
     XCTAssertEqual(config.headers.allHTTPHeaderFields,
                    defaultHeaders.allHTTPHeaderFields)
     XCTAssertEqual(config.timeoutIntervalForRequest, defaultTimeout)
-    XCTAssertEqual(config.httpMaximumConnectionsPerHost, defaultConnections)
+    XCTAssertEqual(config.httpMaximumConnectionsPerHost,
+                   URLSessionConfiguration.default.httpMaximumConnectionsPerHost)
   }
 
   func testHeaders_GetSetHeaders() {

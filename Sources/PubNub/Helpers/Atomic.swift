@@ -27,7 +27,7 @@
 
 import Foundation
 
-@available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *)
+@available(iOS 10.0, macOS 10.12, tvOS 10.0, watchOS 3.0, *)
 final class UnfairLock: NSLocking {
   private var unfairLock: UnsafeMutablePointer<os_unfair_lock>
 
@@ -57,7 +57,7 @@ final class Atomic<Locked> {
   private var value: Locked
 
   init(_ value: Locked, locker: NSLocking? = nil) {
-    if #available(iOS 10.0, OSX 10.12, tvOS 10.0, watchOS 3.0, *) {
+    if #available(iOS 10.0, macOS 10.12, tvOS 10.0, watchOS 3.0, *) {
       self.lock = locker ?? UnfairLock()
     } else {
       lock = locker ?? NSLock()

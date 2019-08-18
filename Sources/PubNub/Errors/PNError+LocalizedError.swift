@@ -44,6 +44,10 @@ extension PNError: LocalizedError {
       return ErrorDescription.PNError.sessionDeinitialized
     case let .requestRetryFailed(_, _, error, _):
       return "\(ErrorDescription.PNError.requestRetryFailed) \(error)"
+    case .requestCancelled:
+      return ErrorDescription.PNError.requestCancelled
+    case .messageCountExceededMaximum:
+      return ErrorDescription.PNError.messageCountExceededMaximum
     case let .requestCreationFailure(reason):
       return "\(ErrorDescription.PNError.requestCreationFailure) \(reason)"
     case let .requestTransmissionFailure(reason):

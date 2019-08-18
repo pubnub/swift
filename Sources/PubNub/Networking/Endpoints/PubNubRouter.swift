@@ -98,7 +98,19 @@ extension PubNubRouter: Router {
     case let .compressedPublish(parameters):
       path = "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
     case let .subscribe(parameters):
-      path = "/v2/subscribe/\(subscribeKey)/\(parameters.channels.csvString.urlEncodeSlash)/0"
+      let channels = parameters.channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/subscribe/\(subscribeKey)/\(channels)/0"
+    case let .heartbeat(channels, _, _, _):
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)/heartbeat"
+    case let .leave(channels, _):
+      let channels = channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels)/leave"
+    case let .getPresenceState(uuid, channels, _):
+      let channels = channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(uuid.urlEncodeSlash)"
+    case let .setPresenceState(channels, _, _):
+      let channels = channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(configuration.uuid.urlEncodeSlash)/data"
     case let .hereNow(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case let .whereNow(uuid):
@@ -131,7 +143,7 @@ extension PubNubRouter: Router {
     case let .messageCounts(channels, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/message-counts/\(channels.csvString.urlEncodeSlash)"
     case .unknown:
-      return .failure(PNError.unknown(message: endpoint.description, endpoint))
+      return .failure(PNError.unknown(endpoint.description, endpoint))
     }
     return .success(path)
   }
@@ -149,6 +161,23 @@ extension PubNubRouter: Router {
       query.append(URLQueryItem(name: ttKey, value: parameters.timetoken.description))
       query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
       query.appendIfPresent(name: regionKey, value: parameters.region?.description)
+      query.appendIfPresent(name: filterKey, value: parameters.filter)
+      query.appendIfPresent(name: heartbeatKey, value: parameters.heartbeat?.description)
+      return parseState(query: &query, state: parameters.state)
+    case let .heartbeat(parameters):
+      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
+      query.appendIfPresent(name: heartbeatKey, value: parameters.presenceTimeout?.description)
+      return parseState(query: &query, state: parameters.state)
+    case let .leave(_, groups):
+      query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
+    case let .getPresenceState(parameters):
+      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
+    case let .setPresenceState(parameters):
+      if !parameters.state.isEmpty {
+        return parseState(query: &query, state: parameters.state)
+      } else {
+        query.append(URLQueryItem(name: stateKey, value: "{}"))
+      }
     case let .hereNow(_, groups, includeUUIDs, includeState):
       query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
       query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
@@ -239,6 +268,10 @@ extension PubNubRouter: Router {
       return .none
     case .removeAllPushChannels:
       return .none
+    case .heartbeat:
+      return .none
+    case .leave:
+      return .none
     default:
       return .version2
     }
@@ -282,6 +315,20 @@ extension PubNubRouter {
         return .success(query)
       } catch {
         return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(meta, dueTo: error), endpoint))
+      }
+    }
+
+    return .success(query)
+  }
+
+  func parseState<T>(query: inout [URLQueryItem], state: T?) -> Result<[URLQueryItem], Error> {
+    if let state = state {
+      let stateJson = AnyJSON(state)
+      do {
+        try query.append(URLQueryItem(name: stateKey, value: stateJson.jsonStringifyResult.get()))
+        return .success(query)
+      } catch {
+        return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(stateJson, dueTo: error), endpoint))
       }
     }
 

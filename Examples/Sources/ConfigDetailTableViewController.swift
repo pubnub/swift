@@ -100,7 +100,7 @@ class ConfigDetailTableViewController: UITableViewController {
       case .origin:
         return config.origin
       case .presenceTimeout:
-        return config.presenceTimeout.description
+        return config.durationUntilTimeout.description
       case .heartbeatInterval:
         return config.heartbeatInterval.description
       case .supressLeaveEvents:

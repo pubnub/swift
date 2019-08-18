@@ -96,7 +96,7 @@ extension Session: SessionStateBridge {
 
   func didComplete(_ task: URLSessionTask) {
     // Cleanup the task/requst map
-    taskToRequest[task] = nil
+    taskToRequest.removeValue(forKey: task)
   }
 
   func cancelRequests(for invalidationError: PNError) {

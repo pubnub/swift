@@ -1,0 +1,4 @@
+{
+  "code": 400,
+  "body": {"status": 400, "error": 1, "message": "No state specified.", "service": "Presence"}
+}

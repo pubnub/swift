@@ -39,4 +39,21 @@ extension Encodable {
   func encode<T>(from container: inout KeyedEncodingContainer<T>, using key: T) throws where T: CodingKey {
     try container.encode(self, forKey: key)
   }
+
+  var encodableJSONData: Result<Data, Error> {
+    do {
+      return try .success(Constant.jsonEncoder.encode(self))
+    } catch {
+      return .failure(error)
+    }
+  }
+
+  var encodableJSONString: Result<String, Error> {
+    return encodableJSONData.flatMap { data -> Result<String, Error> in
+      if let string = String(data: data, encoding: .utf8) {
+        return .success(string)
+      }
+      return .failure(AnyJSONError.stringCreationFailure(nil))
+    }
+  }
 }

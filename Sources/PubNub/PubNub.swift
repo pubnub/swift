@@ -33,8 +33,10 @@ public struct PubNub {
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
   public let configuration: PubNubConfiguration
-  /// HTTP Session used for performing request/response REST calls
+  /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
+  /// Session used for performing subscription calls
+  public let subscription: SubscriptionSession
 
   /// Creates a session with the specified configuration
   public init(configuration: PubNubConfiguration = .default,
@@ -43,8 +45,12 @@ public struct PubNub {
     self.configuration = configuration
     let complexSessionStream = MultiplexSessionStream([])
     networkSession = session ?? Session(configuration: configuration.urlSessionConfiguration,
+                                        requestOperator: configuration.automaticRetry,
                                         sessionStream: complexSessionStream)
+    subscription = SubscribeSessionFactory.shared.getSession(from: configuration)
   }
+
+  // MARK: - Time
 
   public func time(
     with networkConfiguration: NetworkConfiguration? = nil,
@@ -61,6 +67,8 @@ public struct PubNub {
         completion?(result.map { $0.payload })
       }
   }
+
+  // MARK: - Publish
 
   public func publish(
     channel: String,

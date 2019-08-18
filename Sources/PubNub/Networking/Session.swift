@@ -173,6 +173,7 @@ public final class Session {
     // Leak inside URLSession; passing in copy to avoid passing in managed objects
     let urlRequestCopy = urlRequest
     let task = session.dataTask(with: urlRequestCopy)
+
     taskToRequest[task] = request
     request.didCreate(task)
 
@@ -214,8 +215,12 @@ public final class Session {
     }
   }
 
-  func cancelAllTasks(with cancellationError: PNError) {
-    taskToRequest.values.forEach { $0.cancel(with: cancellationError) }
+  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
+    taskToRequest.values.forEach { request in
+      if request.router.endpoint.rawValue == endpoint {
+        request.cancel(with: cancellationError)
+      }
+    }
   }
 }
 

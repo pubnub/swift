@@ -96,3 +96,60 @@ public typealias WhereNowResponsePayload = AnyPresencePayload<WhereNowPayload>
 public struct WhereNowPayload: Codable {
   public let channels: [String]
 }
+
+struct SetPresenceStateResponseDecoder: ResponseDecoder {
+  typealias Payload = SetPresenceStatePayload
+}
+
+// MARK: - Response Body
+
+public struct SetPresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+  public var payload: [String: AnyJSON]
+}
+
+extension SetPresenceStatePayload {
+  public func normalizedPayload(using channels: [String]) -> [String: [String: AnyJSON]] {
+    var normalizedPayload = [String: [String: AnyJSON]]()
+    channels.forEach { normalizedPayload[$0] = payload }
+    return normalizedPayload
+  }
+}
+
+// Get State Payloads
+
+public struct SinglePresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+  public var uuid: String
+
+  public var channel: String
+  public var payload: [String: AnyJSON]
+}
+
+extension SinglePresenceStatePayload {
+  public var normalizedPayload: [String: [String: AnyJSON]] {
+    return [channel: payload]
+  }
+}
+
+public struct MultiPresenceStatePayload: Codable {
+  public var status: Int
+  public var message: String
+  public var service: String
+
+  public var payload: PresenceChannelsPayload
+}
+
+extension MultiPresenceStatePayload {
+  public var normalizedPayload: [String: [String: AnyJSON]] {
+    return payload.channels
+  }
+}
+
+public struct PresenceChannelsPayload: Codable, Equatable {
+  public var channels: [String: [String: AnyJSON]]
+}

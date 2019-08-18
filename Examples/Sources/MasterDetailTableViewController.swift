@@ -34,6 +34,9 @@ import PubNub
 class MasterDetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
+  var token: ListenerToken?
+  var listener: SubscriptionListener?
+
   let masterDetailCellID = "MasterDetailCell"
 
   enum SegueId: String {
@@ -105,6 +108,10 @@ class MasterDetailTableViewController: UITableViewController {
   enum EndpointRow: Int {
     case time = 0
     case publish = 1
+    case subscribe = 2
+    case unsubscribe = 3
+    case getState = 4
+    case setState = 5
 
     var title: String {
       switch self {
@@ -112,11 +119,19 @@ class MasterDetailTableViewController: UITableViewController {
         return "Time"
       case .publish:
         return "Publish"
+      case .subscribe:
+        return "Subscribe"
+      case .unsubscribe:
+        return "Unsubscribe"
+      case .getState:
+        return "Get State"
+      case .setState:
+        return "Set State"
       }
     }
 
     static var rowCount: Int {
-      return 2
+      return 6
     }
   }
 
@@ -214,6 +229,22 @@ class MasterDetailTableViewController: UITableViewController {
     config.cipherKey = Crypto(key: "MyCoolCipherKey")
 
     pubnub = PubNub(configuration: config)
+
+    let listener = SubscriptionListener(queue: .main)
+    self.listener = listener
+    token = pubnub.subscription.add(listener)
+
+    self.listener?.didReceiveMessage = { message in
+      print("Message Received: \(message)")
+    }
+
+    self.listener?.didReceiveStatus = { result in
+      print("Status Received: \(result)")
+    }
+
+    self.listener?.didReceivePresence = { result in
+      print("Presence Received: \(result)")
+    }
   }
 
   override func viewWillAppear(_ animated: Bool) {
@@ -299,6 +330,14 @@ class MasterDetailTableViewController: UITableViewController {
       performTimeRequest()
     case .some(.publish):
       performPublishRequest()
+    case .some(.subscribe):
+      performSubscribeRequest()
+    case .some(.unsubscribe):
+      performUnsubscribeRequest()
+    case .some(.getState):
+      performGetState()
+    case .some(.setState):
+      performSetState()
     case .none:
       break
     }
@@ -377,6 +416,45 @@ class MasterDetailTableViewController: UITableViewController {
         print("Successful Publish Response: \(response)")
       case let .failure(error):
         print("Failed Publish Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performSubscribeRequest() {
+    pubnub.subscription.subscribe(to: ["channelSwift"], withPresence: true, setting: ["SubKey": "SubValue"])
+  }
+
+  func performUnsubscribeRequest() {
+    pubnub.subscription.unsubscribe(from: ["channelSwift"])
+  }
+
+  func performSetState() {
+    pubnub.subscription.setPresence(
+      state: ["New": "State"],
+      for: pubnub.configuration.uuid,
+      on: ["channelSwift"],
+      and: ["demo"]
+    ) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Set State Response: \(response)")
+      case let .failure(error):
+        print("Failed Set State Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performGetState() {
+    pubnub.subscription.getPresenceState(
+      for: pubnub.configuration.uuid,
+      on: ["channelSwift"],
+      and: ["demo"]
+    ) { result in
+      switch result {
+      case let .success(response):
+        print("Successful Get State Response: \(response)")
+      case let .failure(error):
+        print("Failed Get State Response: \(error.localizedDescription)")
       }
     }
   }

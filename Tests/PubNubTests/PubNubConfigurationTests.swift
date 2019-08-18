@@ -53,17 +53,17 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertNotNil(config.uuid)
     XCTAssertEqual(config.useSecureConnections, true)
     XCTAssertEqual(config.origin, "ps.pndsn.com")
-    XCTAssertEqual(config.presenceTimeout, 300)
-    XCTAssertEqual(config.heartbeatInterval, -1)
+    XCTAssertEqual(config.durationUntilTimeout, 300)
+    XCTAssertEqual(config.heartbeatInterval, 0)
     XCTAssertEqual(config.supressLeaveEvents, false)
     XCTAssertEqual(config.requestMessageCountThreshold, 100)
   }
 
-  func testPresenceTimeout_Floor() {
+  func testDurationUntilTimeout_Floor() {
     var config = PubNubConfiguration.default
-    config.presenceTimeout = 0
+    config.durationUntilTimeout = 0
 
-    XCTAssertEqual(config.presenceTimeout, 20)
+    XCTAssertEqual(config.durationUntilTimeout, 20)
   }
 
   func testInit_Bundle() {

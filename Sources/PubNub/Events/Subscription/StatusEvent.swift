@@ -1,5 +1,5 @@
 //
-//  Error+PubNubTests.swift
+//  StatusEvent.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,21 +25,26 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
+import Foundation
 
-final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
-    let error: Error = PNError.unknown("Testing", .unknown)
+public enum ConnectionStatus {
+  case initialized
+  case connecting
+  case connected
+  case reconnecting
+  case reconnected
+  case disconnected
+  case disconnectedUnexpectedly
+  case cancelled
 
-    XCTAssertNotNil(error.pubNubError)
-    XCTAssertNil(error.urlError)
-  }
-
-  func testURLErrorCast() {
-    let error: Error = URLError(.unknown)
-
-    XCTAssertNotNil(error.urlError)
-    XCTAssertNil(error.pubNubError)
+  var emitState: Bool {
+    switch self {
+    case .initialized, .connecting, .reconnecting:
+      return false
+    case .connected, .reconnected, .disconnected, .disconnectedUnexpectedly, .cancelled:
+      return true
+    }
   }
 }
+
+public typealias StatusEvent = Result<ConnectionStatus, PNError>

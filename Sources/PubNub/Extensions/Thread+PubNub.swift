@@ -1,5 +1,5 @@
 //
-//  DispatchQueue+PubNub.swift
+//  Thread+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,10 +27,14 @@
 
 import Foundation
 
-extension DispatchQueue {
-  /// The label of the current `DispatchQueue`
-  /// or `"Unknown Queue"` if no label was set
-  public static var currentLabel: String {
-    return String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? "Unknown Queue"
+public extension Thread {
+  static var currentName: String {
+    if Thread.isMainThread {
+      return "Thread.Main"
+    } else if let threadName = Thread.current.name, !threadName.isEmpty {
+      return threadName
+    } else {
+      return String(format: "%p", Thread.current).uppercased()
+    }
   }
 }

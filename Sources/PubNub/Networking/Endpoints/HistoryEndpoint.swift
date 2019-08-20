@@ -110,13 +110,18 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
         // Convert base64 string into Data
         if let messageData = message.message.dataOptional {
           // If a message fails we just return the original and move on
-          if let decryptedPayload = try? crypto.decrypt(encrypted: messageData).get(),
-            let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
-            messages[index] = MessageHistoryMessagesPayload(message: AnyJSON(reverse: decodedString),
-                                                            timetoken: message.timetoken,
-                                                            meta: message.meta)
-          } else {
-            print("The message failed to decrypt; returning original")
+          do {
+            let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
+            if let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
+              messages[index] = MessageHistoryMessagesPayload(message: AnyJSON(reverse: decodedString),
+                                                              timetoken: message.timetoken,
+                                                              meta: message.meta)
+            } else {
+              // swiftlint:disable:next line_length
+              PubNub.log.error("Decrypted History payload data failed to stringify for base64 encoded payload \(decryptedPayload.base64EncodedString())")
+            }
+          } catch {
+            PubNub.log.error("History message failed to decrypt due to \(error)")
           }
         }
       }

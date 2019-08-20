@@ -38,6 +38,11 @@ public struct PubNub {
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
 
+  /// Global log instance for the PubNub SDK
+  public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
+  // Global log instance for Logging issues/events
+  public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
+
   /// Creates a session with the specified configuration
   public init(configuration: PubNubConfiguration = .default,
               session: SessionReplaceable? = nil) {

@@ -43,4 +43,12 @@ public extension URL {
 
     return urlComponents?.url
   }
+
+  var sizeOf: Int {
+    if let fileResources = try? self.resourceValues(forKeys: [.fileSizeKey]),
+      let fileSize = fileResources.fileSize {
+      return fileSize
+    }
+    return 0
+  }
 }

@@ -51,6 +51,16 @@ extension String {
     return replacingOccurrences(of: "/", with: "%2F")
   }
 
+  /// Strips path and extension and returns filename
+  var absolutePathFilename: String {
+    var pathComponents = components(separatedBy: "/")
+    var filename = pathComponents.removeLast().components(separatedBy: ".")
+    if !filename.isEmpty {
+      return filename[0]
+    }
+    return self
+  }
+
   /// The value of this `String` formatted for use inside a JSON payload
   var jsonDescription: String {
     return "\"\(description)\""

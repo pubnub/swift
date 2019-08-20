@@ -35,6 +35,7 @@ extension NSLocking {
     return closure()
   }
 
+  @discardableResult
   @inline(__always)
   func synchronize<T>(_ closure: () -> T) -> T {
     lock()
@@ -42,6 +43,7 @@ extension NSLocking {
     return closure()
   }
 
+  @discardableResult
   @inline(__always)
   func synchronize<T>(_ closure: () throws -> T) throws -> T {
     lock()

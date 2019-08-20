@@ -38,8 +38,10 @@ public struct SubscribeSessionFactory {
                                   with _: Session = Session()) -> SubscriptionSession {
     let configHash = config.subscriptionHashValue
     if let session = sessions.lockedRead({ $0[configHash]?.unbox }) {
+      PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")
       return session
     } else {
+      PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
       return sessions.lockedWrite { dictionary in
 
         let session = SubscriptionSession(configuration: config,

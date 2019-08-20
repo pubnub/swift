@@ -110,9 +110,13 @@ public final class Request {
     self.sessionStream = sessionStream
     self.requestOperator = requestOperator
     self.delegate = delegate
+
+    PubNub.log.debug("Request Created \(requestID)")
   }
 
   deinit {
+    PubNub.log.debug("Request Destoryed \(requestID)")
+
     atomicState.lockedWrite { $0.purgeAll() }
   }
 
@@ -196,9 +200,7 @@ public final class Request {
 
   func prepareForRetry() {
     atomicState.lockedWrite { $0.retryCount += 1 }
-
     error = nil
-
     sessionStream?.emitRequestIsRetrying(self)
   }
 
@@ -206,15 +208,13 @@ public final class Request {
 
   func didCreate(_ urlRequest: URLRequest) {
     atomicState.lockedWrite { $0.urlRequests.append(urlRequest) }
-
+    PubNub.log.debug("Request \(requestID) performing \(urlRequest)")
     sessionStream?.emitRequest(self, didCreate: urlRequest)
   }
 
   func didFailToCreateURLRequest(with error: Error) {
     self.error = error
-
     sessionStream?.emitRequest(self, didFailToCreateURLRequestWith: error)
-
     retryOrFinish(with: error)
   }
 
@@ -236,7 +236,6 @@ public final class Request {
 
   func didCreate(_ task: URLSessionTask) {
     atomicState.lockedWrite { $0.tasks.append(task) }
-
     sessionStream?.emitRequest(self, didCreate: task)
   }
 
@@ -292,7 +291,6 @@ public final class Request {
       guard mutableState.taskState.canTransition(to: .resumed) else {
         return
       }
-
       mutableState.taskState = .resumed
 
       requestQueue.async { self.didResume() }
@@ -300,7 +298,6 @@ public final class Request {
       guard let task = mutableState.tasks.last, task.state != .completed else {
         return
       }
-
       task.resume()
 
       requestQueue.async { self.didResume(task) }
@@ -314,7 +311,6 @@ public final class Request {
       guard mutableState.taskState.canTransition(to: .cancelled) else {
         return
       }
-
       mutableState.taskState = .cancelled
 
       self.requestQueue.async { self.didCancel() }
@@ -325,7 +321,6 @@ public final class Request {
         self.requestQueue.async { self.finish() }
         return
       }
-
       task.cancel()
 
       self.requestQueue.async { self.didCancel(task) }
@@ -334,7 +329,14 @@ public final class Request {
   }
 
   func finish(error: Error? = nil) {
-    if let error = error { self.error = error }
+    if let error = error {
+      self.error = error
+    }
+
+    if let error = self.error {
+      PubNub.log.error("Request \(requestID) failed with error \(error) ")
+    }
+
     processResponseCompletion()
     didFinish()
   }

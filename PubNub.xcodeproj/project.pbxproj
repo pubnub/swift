@@ -43,10 +43,14 @@
 		354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */; };
 		354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA9322DCBC350093EFFB /* ResponseOperator.swift */; };
 		354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */; };
+		3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559977A23073D53000BCFD1 /* WeakBoxTests.swift */; };
 		3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */; };
 		3559978223079070000BCFD1 /* forbidden_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978023078F85000BCFD1 /* forbidden_Message.json */; };
 		355997852307966C000BCFD1 /* message_counts_error_serviceNotEnabled.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */; };
-		3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559977A23073D53000BCFD1 /* WeakBoxTests.swift */; };
+		3559978C230A02B7000BCFD1 /* PubNubLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559978B230A02B7000BCFD1 /* PubNubLogger.swift */; };
+		35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35599791230A3F11000BCFD1 /* Thread+PubNub.swift */; };
+		35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35599795230B6FFA000BCFD1 /* FileManager+PubNub.swift */; };
+		35599799230C5878000BCFD1 /* LogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35599798230C5878000BCFD1 /* LogWriter.swift */; };
 		355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */; };
 		355F213122DE4D97004DEFBF /* Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213022DE4D97004DEFBF /* Endpoint.swift */; };
 		355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */; };
@@ -254,10 +258,14 @@
 		354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DateFormatter+PubNub.swift"; sourceTree = "<group>"; };
 		354ADA9322DCBC350093EFFB /* ResponseOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseOperator.swift; sourceTree = "<group>"; };
 		354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+PubNub.swift"; sourceTree = "<group>"; };
+		3559977A23073D53000BCFD1 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
 		3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_error_invalid_arguments.json; sourceTree = "<group>"; };
 		3559978023078F85000BCFD1 /* forbidden_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = forbidden_Message.json; sourceTree = "<group>"; };
 		3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_error_serviceNotEnabled.json; sourceTree = "<group>"; };
-		3559977A23073D53000BCFD1 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
+		3559978B230A02B7000BCFD1 /* PubNubLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubLogger.swift; sourceTree = "<group>"; };
+		35599791230A3F11000BCFD1 /* Thread+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Thread+PubNub.swift"; sourceTree = "<group>"; };
+		35599795230B6FFA000BCFD1 /* FileManager+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FileManager+PubNub.swift"; sourceTree = "<group>"; };
+		35599798230C5878000BCFD1 /* LogWriter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogWriter.swift; sourceTree = "<group>"; };
 		355BE9FC22C2917C000EC334 /* AnyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSON.swift; sourceTree = "<group>"; };
 		355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONTests.swift; sourceTree = "<group>"; };
 		355C47A122CBD6F2006C3EEE /* EventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStream.swift; sourceTree = "<group>"; };
@@ -516,6 +524,8 @@
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
 				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
 				35EE358922E2671600E3F081 /* HTTPHeaders.swift */,
+				3559978B230A02B7000BCFD1 /* PubNubLogger.swift */,
+				35599798230C5878000BCFD1 /* LogWriter.swift */,
 				355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */,
 				35304F8922FE5425006A02CA /* Validated.swift */,
 				35A66A7522F861BA00AC67A9 /* WeakBox.swift */,
@@ -823,6 +833,7 @@
 				354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */,
 				35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */,
 				35089A0822E3C08D002BCC94 /* Error+PubNub.swift */,
+				35599795230B6FFA000BCFD1 /* FileManager+PubNub.swift */,
 				35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */,
 				35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */,
 				350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */,
@@ -830,6 +841,7 @@
 				3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */,
 				3585033122CD138300A11D9A /* Set+PubNub.swift */,
 				3585033322CD139400A11D9A /* String+PubNub.swift */,
+				35599791230A3F11000BCFD1 /* Thread+PubNub.swift */,
 				35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */,
 				35CDFEAE22E7664D00F3B9F2 /* URLQueryItem+PubNub.swift */,
 				3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */,
@@ -1228,12 +1240,14 @@
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
 				35F0259422BBE822007BD7D3 /* UUID+PubNub.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
+				35599799230C5878000BCFD1 /* LogWriter.swift in Sources */,
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
 				35FE93C522EF5C880051C455 /* PNError+Equatable.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* Router.swift in Sources */,
 				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
 				350EFBDA22C9487B00FA33AA /* PNError.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
+				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
@@ -1242,6 +1256,7 @@
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				35A66A9222F9169400AC67A9 /* PresenceEvent.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
+				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* Session.swift in Sources */,
 				35A6C7BE22FCCBF900E97CC5 /* HistoryEndpoint.swift in Sources */,
@@ -1257,6 +1272,7 @@
 				35A6C7B522FBDD9300E97CC5 /* Data+PubNub.swift in Sources */,
 				35A6C78F22FB4F0500E97CC5 /* ChannelGroups.swift in Sources */,
 				354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */,
+				3559978C230A02B7000BCFD1 /* PubNubLogger.swift in Sources */,
 				35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */,
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishEndpoint.swift in Sources */,

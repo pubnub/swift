@@ -61,6 +61,8 @@ public final class Session {
     self.delegate = delegate
     self.sessionStream = sessionStream
 
+    PubNub.log.debug("Session created \(sessionID)")
+
     delegate.sessionBridge = self
   }
 
@@ -88,6 +90,8 @@ public final class Session {
   }
 
   deinit {
+    PubNub.log.debug("Session Destoryed \(sessionID)")
+
     taskToRequest.values.forEach { $0.finish(error: PNError.sessionDeinitialized(sessionID: sessionID)) }
     taskToRequest.removeAll()
     session.invalidateAndCancel()
@@ -237,6 +241,8 @@ extension Session: RequestDelegate {
       sessionQueue.async { completion(.doNotRetry) }
       return
     }
+
+    PubNub.log.warn("Retrying request \(request.requestID) due to error \(error)")
 
     retrier.retry(request, for: self, dueTo: error) { retryResult in
       self.sessionQueue.async {

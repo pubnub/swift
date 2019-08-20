@@ -224,7 +224,10 @@ extension AnyJSON {
   }
 
   public var dataOptional: Data? {
-    return Data(base64Encoded: stringValue)
+    if let stringData = stringOptional {
+      return Data(base64Encoded: stringData)
+    }
+    return nil
   }
 
   public var dataValue: Data {

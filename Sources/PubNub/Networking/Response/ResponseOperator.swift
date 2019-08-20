@@ -27,67 +27,6 @@
 
 import Foundation
 
-// MARK: - Response Mutator
-
-//
-// public protocol DecodedResponseMutator {
-//  func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void)
-// }
-//
-//// MARK: - Response Operator
-//
-// public protocol ResponseOperator: DecodedResponseMutator {}
-//
-// extension ResponseOperator {
-//  public func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
-//    completion(.success(response))
-//  }
-// }
-//
-//// MARK: - Multiplexor Operator
-//
-// public final class MultiplexResponseOperator: ResponseOperator {
-//  public let decodedResponseMutators: [DecodedResponseMutator]
-//
-//  public init(decodedResponseMutator: DecodedResponseMutator) {
-//    decodedResponseMutators = [decodedResponseMutator]
-//  }
-//
-//  public init(decodedResponseMutators: [DecodedResponseMutator] = []) {
-//    self.decodedResponseMutators = decodedResponseMutators
-//  }
-//
-//  // Predecoded Response Processing
-//  public func mutate<T>(response: Response<T>, completion: @escaping (Result<Response<T>, Error>) -> Void) {
-//    mutate(response: response, for: decodedResponseMutators, completion: completion)
-//  }
-//
-//  func mutate<T>(
-//    response: Response<T>,
-//    for mutators: [DecodedResponseMutator],
-//    completion: @escaping (Result<Response<T>, Error>) -> Void
-//  ) {
-//    var pendingMutators = mutators
-//
-//    // Base Case
-//    guard !pendingMutators.isEmpty else {
-//      completion(.success(response))
-//      return
-//    }
-//
-//    let mutator = pendingMutators.removeFirst()
-//
-//    mutator.mutate(response: response) { result in
-//      switch result {
-//      case let .success(mutatedResponse):
-//        self.mutate(response: mutatedResponse, for: pendingMutators, completion: completion)
-//      case .failure:
-//        completion(result)
-//      }
-//    }
-//  }
-// }
-
 // MARK: - Response Decoder
 
 public protocol ResponseDecoder where Payload: Codable {

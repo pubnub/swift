@@ -25,14 +25,14 @@
 //  THE SOFTWARE.
 //
 
-import XCTest
 @testable import PubNub
+import XCTest
 
 class SubscribeSessionFactoryTests: XCTestCase {
   func testLoggingSameInstance() {
     let config = PubNubConfiguration.default
-    let first = SubscribeSessionFactory.shared.getSession(from:config)
-    let second = SubscribeSessionFactory.shared.getSession(from:config)
+    let first = SubscribeSessionFactory.shared.getSession(from: config)
+    let second = SubscribeSessionFactory.shared.getSession(from: config)
 
     XCTAssertEqual(first.uuid, second.uuid)
   }
@@ -42,7 +42,7 @@ class SubscribeSessionFactoryTests: XCTestCase {
     var newConfig = PubNubConfiguration()
     newConfig.authKey = "SomeNewKey"
 
-    let first = SubscribeSessionFactory.shared.getSession(from:config)
+    let first = SubscribeSessionFactory.shared.getSession(from: config)
     let third = SubscribeSessionFactory.shared.getSession(from: newConfig)
 
     XCTAssertNotEqual(first.uuid, third.uuid)

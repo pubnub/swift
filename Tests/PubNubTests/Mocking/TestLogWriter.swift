@@ -34,7 +34,7 @@ class TestSyncLogWriter: LogWriter {
 
   var logClosure: ((String) -> Void)?
 
-  func send(message: String) {}
+  func send(message _: String) {}
 }
 
 class TestAsyncLogWriter: LogWriter {
@@ -43,6 +43,5 @@ class TestAsyncLogWriter: LogWriter {
 
   var logClosure: ((String) -> Void)?
 
-  func send(message: String) {}
+  func send(message _: String) {}
 }
-

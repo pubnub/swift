@@ -1,0 +1,4 @@
+{
+  "code": 200,
+  "body": {"status": 200, "payload": {"namespace": "", "groups": ["3", "88e5b367-47a8-4de5-b131-7256de27521c", "Channel-2f68xhutu", "SwiftGroup"]}, "service": "channel-registry", "error": false}
+}

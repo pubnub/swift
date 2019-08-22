@@ -1,0 +1,4 @@
+{
+  "code": 200,
+  "body": {"status": 200, "message": "OK", "payload": {"channels": []}, "service": "Presence"}
+}

@@ -1,0 +1,9 @@
+# format options
+--indent 2
+--commas inline
+
+# file options
+--exclude .build
+
+# Swift Version
+--swiftversion 5.0

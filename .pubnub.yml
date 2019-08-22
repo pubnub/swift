@@ -1,0 +1,73 @@
+---
+name: swift
+scm: github.com/pubnub/swift
+version: "1.0.0"
+schema: 1
+changelog:
+  -
+    changes:
+      -
+        text: "Initial release of native Swift PubNub SDK"
+        type: feature
+    date: 2019-08-23
+    version: v1.0.0
+features:
+  channel-groups:
+    - CHANNEL-GROUPS-ADD-CHANNELS
+    - CHANNEL-GROUPS-REMOVE-CHANNELS
+    - CHANNEL-GROUPS-REMOVE-GROUPS
+    - CHANNEL-GROUPS-LIST-CHANNELS-IN-GROUP
+  notify:
+    - REQUEST-MESSAGE-COUNT-EXCEEDED
+  push:
+    - PUSH-ADD-DEVICE-TO-CHANNELS
+    - PUSH-REMOVE-DEVICE-FROM-CHANNELS
+    - PUSH-LIST-CHANNELS-FROM-DEVICE
+    - PUSH-REMOVE-DEVICE
+  presence:
+    - PRESENCE-HERE-NOW
+    - PRESENCE-WHERE-NOW
+    - PRESENCE-SET-STATE
+    - PRESENCE-GET-STATE
+    - PRESENCE-HEARTBEAT
+    - PRESENCE-DELTAS
+  publish:
+    - PUBLISH-STORE-FLAG
+    - PUBLISH-RAW-JSON
+    - PUBLISH-WITH-METADATA
+    - PUBLISH-GET
+    - PUBLISH-COMPRESS-MESSAGE
+    - PUBLISH-ASYNC
+    - PUBLISH-FIRE
+    - PUBLISH-REPLICATION-FLAG
+    - PUBLISH-MESSAGE-TTL
+  storage:
+    - STORAGE-REVERSE
+    - STORAGE-INCLUDE-TIMETOKEN
+    - STORAGE-START-END
+    - STORAGE-COUNT
+    - HISTORY-DELETE
+    - STORAGE-MESSAGE-COUNT
+  time:
+    - TIME-TIME
+  subscribe:
+    - SUBSCRIBE-CHANNELS
+    - SUBSCRIBE-CHANNEL-GROUPS
+    - SUBSCRIBE-PRESENCE-CHANNELS
+    - SUBSCRIBE-PRESENCE-CHANNELS-GROUPS
+    - SUBSCRIBE-WITH-TIMETOKEN
+    - SUBSCRIBE-WILDCARD
+    - SUBSCRIBE-FILTER-EXPRESSION
+    - SUBSCRIBE-PUBLISHER-UUID
+    - SUBSCRIBE-MESSAGE-DEDUPE
+    - SUBSCRIBE-SIGNAL-LISTENER
+  unsubscribe:
+    - UNSUBSCRIBE-ALL
+supported-platforms:
+  -
+    version: PubNub Swift SDK
+    platforms:
+      - iOS 8.0 or higher
+      - macOS 10.10 or higher
+      - tvOS 9.0 or higher
+      - watchOS 2.0 or higher

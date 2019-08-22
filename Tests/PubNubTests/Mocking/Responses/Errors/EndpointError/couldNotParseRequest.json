@@ -1,0 +1,4 @@
+{
+  "code": 400,
+  "body": {"message":"Could Not Parse Request","error":true,"service":"Access Manager","status":400}
+}

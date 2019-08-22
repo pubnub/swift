@@ -1,0 +1,22 @@
+excluded:
+  - .build
+  - bundle
+  - .bundle
+  - fastlane
+opt_in_rules:
+  - force_unwrapping
+  - overridden_super_call
+  - prohibited_super_call
+  - first_where
+  - closure_spacing
+  - unneeded_parentheses_in_closure_argument
+  - redundant_nil_coalescing
+  - pattern_matching_keywords
+  - explicit_init
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - discouraged_optional_collection
+  - empty_parentheses_with_trailing_closure
+  - empty_string
+  - sorted_first_last
+  - anyobject_protocol

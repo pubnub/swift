@@ -1,0 +1,4 @@
+{
+  "code": 200,
+  "body": {"status": 200, "payload": {"channels": ["TestChannel", "AnotherChannel", "aaaa"], "group": "TestGroup"}, "service": "channel-registry", "error": false}
+}

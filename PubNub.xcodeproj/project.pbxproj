@@ -37,6 +37,9 @@
 		3534D4E422C57659008E89FA /* PublishEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E322C57659008E89FA /* PublishEndpoint.swift */; };
 		3534D4E622C67CCA008E89FA /* Router.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E522C67CCA008E89FA /* Router.swift */; };
 		3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */; };
+		35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */; };
+		35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
+		35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
 		354ADA8822D909A30093EFFB /* Convertibles+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8722D909A30093EFFB /* Convertibles+PubNub.swift */; };
 		354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8B22D923F20093EFFB /* Replaceables+PubNub.swift */; };
 		354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA8D22DA7F280093EFFB /* SessionStream.swift */; };
@@ -252,6 +255,9 @@
 		3534D4E322C57659008E89FA /* PublishEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishEndpoint.swift; sourceTree = "<group>"; };
 		3534D4E522C67CCA008E89FA /* Router.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Router.swift; sourceTree = "<group>"; };
 		3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNub.swift"; sourceTree = "<group>"; };
+		35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeSessionFactoryTests.swift; sourceTree = "<group>"; };
+		35458BA4230D8E500085B502 /* TestLogWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLogWriter.swift; sourceTree = "<group>"; };
+		35458BA6230D91BB0085B502 /* TestSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSetup.swift; sourceTree = "<group>"; };
 		354ADA8722D909A30093EFFB /* Convertibles+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Convertibles+PubNub.swift"; sourceTree = "<group>"; };
 		354ADA8B22D923F20093EFFB /* Replaceables+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Replaceables+PubNub.swift"; sourceTree = "<group>"; };
 		354ADA8D22DA7F280093EFFB /* SessionStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStream.swift; sourceTree = "<group>"; };
@@ -441,7 +447,6 @@
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		OBJ_22 /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		OBJ_23 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		OBJ_24 /* PubNubSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = PubNubSwift.podspec; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
@@ -484,6 +489,14 @@
 				3534D4E122C56533008E89FA /* TimeEndpoint.swift */,
 			);
 			path = Endpoints;
+			sourceTree = "<group>";
+		};
+		35458BA1230CB32F0085B502 /* Subscription */ = {
+			isa = PBXGroup;
+			children = (
+				35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */,
+			);
+			path = Subscription;
 			sourceTree = "<group>";
 		};
 		354ADA9122DCB9F00093EFFB /* Request */ = {
@@ -657,6 +670,8 @@
 				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
 				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
 				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
+				35458BA4230D8E500085B502 /* TestLogWriter.swift */,
+				35458BA6230D91BB0085B502 /* TestSetup.swift */,
 			);
 			path = Mocking;
 			sourceTree = "<group>";
@@ -818,7 +833,6 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_23 /* README.md */,
-				OBJ_22 /* CHANGELOG.md */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
@@ -946,6 +960,7 @@
 				OBJ_15 /* PubNubTests.swift */,
 				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
 				3580A5A522F14DA700B12E5E /* Errors */,
+				35458BA1230CB32F0085B502 /* Subscription */,
 				3580A5A422F14D6000B12E5E /* Networking */,
 				3580A5A622F14DB700B12E5E /* Events */,
 				357AEB7F22E6940000C18250 /* Extensions */,
@@ -1322,11 +1337,14 @@
 				35A6C7B822FBEB0F00E97CC5 /* PushEndpointTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 				35FE941622EFC4920051C455 /* EndpointTests.swift in Sources */,
+				35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */,
 				3580A5A222F13C6500B12E5E /* SessionStreamAwait.swift in Sources */,
 				35304F9222FF7073006A02CA /* MessageHistoryEndpointTests.swift in Sources */,
 				357AEB8622E6979D00C18250 /* DateFormatter+PubNubTests.swift in Sources */,
 				357AEB8222E6949300C18250 /* Bool+PubNubTests.swift in Sources */,
+				35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */,
 				3580A5A822F1583900B12E5E /* MockRequestOperators.swift in Sources */,
+				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
 				35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */,

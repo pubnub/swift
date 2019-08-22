@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>PubNubSubscribeKey</key>
-	<string>TEST_SUB_KEY</string>
-	<key>PubNubPublishKey</key>
-	<string>TEST_PUB_KEY</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
@@ -25,6 +21,10 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSPrincipalClass</key>
-	<string></string>
+	<string>PubNubTests.TestSetup</string>
+	<key>PubNubPublishKey</key>
+	<string>TEST_PUB_KEY</string>
+	<key>PubNubSubscribeKey</key>
+	<string>TEST_SUB_KEY</string>
 </dict>
 </plist>

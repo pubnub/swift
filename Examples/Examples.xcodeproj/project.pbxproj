@@ -7,16 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35458B9C230C995C0085B502 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 359F77C522B804E500B6B46F /* PubNub.framework */; };
+		35458B9D230C995C0085B502 /* PubNub.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 359F77C522B804E500B6B46F /* PubNub.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779722B7FEF600B6B46F /* AppDelegate.swift */; };
 		359F779D22B7FEF700B6B46F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F779B22B7FEF700B6B46F /* Main.storyboard */; };
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
-		359F77C822B804EF00B6B46F /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 359F77C522B804E500B6B46F /* PubNub.framework */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		35458B9E230C995C0085B502 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 359F77BD22B804E500B6B46F /* PubNub.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = "PubNub::PubNub";
+			remoteInfo = PubNub;
+		};
 		359F77C422B804E500B6B46F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 359F77BD22B804E500B6B46F /* PubNub.xcodeproj */;
@@ -31,16 +39,20 @@
 			remoteGlobalIDString = "PubNub::PubNubTests::Product";
 			remoteInfo = PubNubTests;
 		};
-		359F77C922B804F800B6B46F /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 359F77BD22B804E500B6B46F /* PubNub.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = "PubNub::PubNub";
-			remoteInfo = PubNub;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		35458BA0230C995C0085B502 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				35458B9D230C995C0085B502 /* PubNub.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		359F782022B808C700B6B46F /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -72,7 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				359F77C822B804EF00B6B46F /* PubNub.framework in Frameworks */,
+				35458B9C230C995C0085B502 /* PubNub.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -157,11 +169,12 @@
 				359F779122B7FEF600B6B46F /* Frameworks */,
 				359F779222B7FEF600B6B46F /* Resources */,
 				359F782022B808C700B6B46F /* Embed Watch Content */,
+				35458BA0230C995C0085B502 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				359F77CA22B804F800B6B46F /* PBXTargetDependency */,
+				35458B9F230C995C0085B502 /* PBXTargetDependency */,
 			);
 			name = "iOS Example";
 			productName = swiftSdkiOS;
@@ -256,10 +269,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		359F77CA22B804F800B6B46F /* PBXTargetDependency */ = {
+		35458B9F230C995C0085B502 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = PubNub;
-			targetProxy = 359F77C922B804F800B6B46F /* PBXContainerItemProxy */;
+			targetProxy = 35458B9E230C995C0085B502 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -408,6 +421,7 @@
 		359F77A722B7FEF700B6B46F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -427,6 +441,7 @@
 		359F77A822B7FEF700B6B46F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;

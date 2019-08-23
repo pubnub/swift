@@ -56,7 +56,7 @@ public struct SubscribeSessionFactory {
 // MARK: - SubscriptionConfiguration
 
 public protocol SubscriptionConfiguration: RouterConfiguration {
-  var automaticRetry: AutomaticRetry { get }
+  var automaticRetry: AutomaticRetry? { get }
   var durationUntilTimeout: Int { get }
   var heartbeatInterval: UInt { get }
   var supressLeaveEvents: Bool { get }

@@ -84,12 +84,8 @@ public struct PubNubConfiguration: Hashable {
   public var subscribeKey: String?
   /// If set, all communication will be encrypted with this key
   public var cipherKey: Crypto?
-  /// If set, this block is called to supply the encrypt/decrypt function with an auth key
-//  public var cipherBlock: (() -> (Crypto))?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
-  /// If set, this block is called to supply the request with a fresh auth key
-//  public var authKeyBlock: (() -> (String))?
   /// UUID to be used as a device identifier
   public var uuid: String = UUID().pubnubString
   /// If true, requests will be made over `https`, otherwise they will use 'http'
@@ -105,15 +101,16 @@ public struct PubNubConfiguration: Hashable {
 
   // MARK: - Debug Configuration
 
+  /// Whether a PubNub object instanceId should be included on outgoing requests
   public var useInstanceId: Bool = false
+  /// Whether a request identifier should be included on outgoing requests
   public var useRequestId: Bool = false
-  // URLSessionReplaceable?
 
   // MARK: - Session Configuration
 
   /// Reconnection policy which will be used if/when a request fails
-  public var automaticRetry: AutomaticRetry = .none
-
+  public var automaticRetry: AutomaticRetry?
+  /// URLSessionConfiguration used for URLSession network events
   public var urlSessionConfiguration: URLSessionConfiguration = .pubnub
 
   // MARK: - Presence Configurations (Presence Policy?)
@@ -142,19 +139,21 @@ public struct PubNubConfiguration: Hashable {
 
   /// PSV2 feature to subscribe with a custom filter expression.
   public var filterExpression: String?
-  //  public var subscriptionSessionConfiguration: URLSessionConfiguration? = nil
 }
 
 /// A Configuration Object that behavior and policies for a Network tasks.
 public struct NetworkConfiguration {
   public let customSession: SessionReplaceable?
+  public let retryPolicy: AutomaticRetry?
   public let requestOperator: RequestOperator?
 
   public init(
     customSession: SessionReplaceable? = nil,
+    customRetryPolicy: AutomaticRetry? = nil,
     requestOperator: RequestOperator? = nil
   ) {
     self.customSession = customSession
+    retryPolicy = customRetryPolicy
     self.requestOperator = requestOperator
   }
 }

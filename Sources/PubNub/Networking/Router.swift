@@ -41,7 +41,10 @@ public protocol RouterConfiguration {
   var origin: String { get }
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   var authKey: String? { get }
+  /// If set, all communication will be encrypted with this key
   var cipherKey: Crypto? { get }
+  /// Whether a request identifier should be included on outgoing requests
+  var useRequestId: Bool { get }
 }
 
 extension RouterConfiguration {

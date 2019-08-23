@@ -42,6 +42,12 @@ public struct ErrorDescription {
     }()
   }
 
+  public struct CryptoError {
+    public static let missingCryptoKey: String = {
+      "Missing cipher key from `PubNubConfiguration`"
+    }()
+  }
+
   struct DecodingError {
     public static let invalidRootLevelErrorDescription: String = {
       "AnyJSON could not decode invalid root-level JSON object"

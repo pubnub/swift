@@ -37,7 +37,7 @@ public final class Session {
 
   weak var delegate: SessionDelegate?
   let sessionStream: SessionStream?
-  let sessionRequestOperator: RequestOperator?
+  var defaultRequestOperator: RequestOperator?
 
   // Internal
   var taskToRequest: [URLSessionTask: Request] = [:]
@@ -47,7 +47,6 @@ public final class Session {
     delegate: SessionDelegate,
     sessionQueue: DispatchQueue,
     requestQueue: DispatchQueue? = nil,
-    requestOperator: RequestOperator? = nil,
     sessionStream: SessionStream? = nil
   ) {
     precondition(session.delegateQueue.underlyingQueue === sessionQueue,
@@ -56,7 +55,6 @@ public final class Session {
     self.session = session
     self.sessionQueue = sessionQueue
     self.requestQueue = requestQueue ?? DispatchQueue(label: "com.pubnub.session.requestQueue", target: sessionQueue)
-    sessionRequestOperator = requestOperator
 
     self.delegate = delegate
     self.sessionStream = sessionStream
@@ -71,7 +69,6 @@ public final class Session {
     delegate: SessionDelegate = SessionDelegate(),
     sessionQueue: DispatchQueue = DispatchQueue(label: "com.pubnub.session.sessionQueue"),
     requestQueue: DispatchQueue? = nil,
-    requestOperator: RequestOperator? = nil,
     sessionStream: SessionStream? = nil
   ) {
     let delegateQueue = OperationQueue(maxConcurrentOperationCount: 1,
@@ -85,7 +82,6 @@ public final class Session {
               delegate: delegate,
               sessionQueue: sessionQueue,
               requestQueue: requestQueue,
-              requestOperator: requestOperator,
               sessionStream: sessionStream)
   }
 
@@ -97,7 +93,14 @@ public final class Session {
     session.invalidateAndCancel()
   }
 
-  // MARK: -
+  // MARK: - Self Operators
+
+  public func usingDefault(requestOperator: RequestOperator?) -> Self {
+    defaultRequestOperator = requestOperator
+    return self
+  }
+
+  // MARK: - Perform Request
 
   public func request(
     with router: Router,
@@ -113,6 +116,8 @@ public final class Session {
 
     return request
   }
+
+  // MARK: Internal Methods
 
   func perform(_ request: Request) {
     requestQueue.async {
@@ -204,18 +209,18 @@ public final class Session {
   }
 
   func mutator(for request: Request) -> RequestMutator? {
-    if let requestInterceptor = request.requestOperator, let sessionInterceptor = sessionRequestOperator {
-      return MultiplexRequestOperaptor(mutators: [requestInterceptor, sessionInterceptor])
+    if let requestOperator = request.requestOperator, let sessionOperator = defaultRequestOperator {
+      return MultiplexRequestOperator(operators: [requestOperator, sessionOperator])
     } else {
-      return request.requestOperator ?? sessionRequestOperator
+      return request.requestOperator ?? defaultRequestOperator
     }
   }
 
   func retrier(for request: Request) -> RequestRetrier? {
-    if let requestOperator = request.requestOperator, let sessionInterceptor = sessionRequestOperator {
-      return MultiplexRequestOperaptor(retriers: [requestOperator, sessionInterceptor])
+    if let requestOperator = request.requestOperator, let sessionOperator = defaultRequestOperator {
+      return MultiplexRequestOperator(operators: [requestOperator, sessionOperator])
     } else {
-      return request.requestOperator ?? sessionRequestOperator
+      return request.requestOperator ?? defaultRequestOperator
     }
   }
 

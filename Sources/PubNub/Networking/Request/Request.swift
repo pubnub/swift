@@ -108,7 +108,16 @@ public final class Request {
     self.router = router
     self.requestQueue = requestQueue
     self.sessionStream = sessionStream
-    self.requestOperator = requestOperator
+
+    var operators = [RequestOperator]()
+    if let requestOperator = requestOperator {
+      operators.append(requestOperator)
+    }
+    if router.configuration.useRequestId {
+      let requestIdOperator = RequestIdOperator(requestID: requestID.description)
+      operators.append(requestIdOperator)
+    }
+    self.requestOperator = MultiplexRequestOperator(operators: operators)
     self.delegate = delegate
 
     PubNub.log.debug("Request Created \(requestID)")
@@ -283,8 +292,23 @@ public final class Request {
     }
   }
 
-  // MARK: - URLSessionTask State Actions
+  func finish(error: Error? = nil) {
+    if let error = error {
+      self.error = error
+    }
 
+    if let error = self.error {
+      PubNub.log.error("Request \(requestID) failed with error \(error) ")
+    }
+
+    processResponseCompletion()
+    didFinish()
+  }
+}
+
+// MARK: Self operators
+
+extension Request {
   @discardableResult
   public func resume() -> Self {
     atomicState.lockedWrite { mutableState in
@@ -327,23 +351,6 @@ public final class Request {
     }
     return self
   }
-
-  func finish(error: Error? = nil) {
-    if let error = error {
-      self.error = error
-    }
-
-    if let error = self.error {
-      PubNub.log.error("Request \(requestID) failed with error \(error) ")
-    }
-
-    processResponseCompletion()
-    didFinish()
-  }
-
-  // MARK: - First-class Operators
-
-  public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?
 
   func validate(_ closure: @escaping ValidationClosure) -> Self {
     let validator: () -> Void = { [unowned self] in
@@ -395,3 +402,5 @@ public protocol RequestDelegate: AnyObject {
   )
   func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?)
 }
+
+// swiftlint:disable:this file_length

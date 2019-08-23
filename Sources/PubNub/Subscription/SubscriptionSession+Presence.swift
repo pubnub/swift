@@ -161,7 +161,6 @@ extension SubscriptionSession {
 
   public func setPresence(
     state: [String: Codable],
-    for uuid: String,
     on channels: [String],
     and groups: [String],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
@@ -182,13 +181,11 @@ extension SubscriptionSession {
           // Get mapping of channels/groups to new state
           let normalizedState = response.payload.normalizedPayload(using: channels + groups)
 
-          if uuid == self?.configuration.uuid {
-            // Update state cache for channel(s) & group(s)
-            self?.state.lockedWrite { $0.mergePresenceState(normalizedState) }
+          // Update state cache for channel(s) & group(s)
+          self?.state.lockedWrite { $0.mergePresenceState(normalizedState) }
 
-            // Stop the subscription loop to pick up the new state
-            self?.reconnect(at: strongSelf.currentTimetoken)
-          }
+          // Stop the subscription loop to pick up the new state
+          self?.reconnect(at: strongSelf.currentTimetoken)
 
           // Return State that matches current user
           completion(.success(normalizedState))

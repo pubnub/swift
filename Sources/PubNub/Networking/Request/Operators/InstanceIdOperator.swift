@@ -1,5 +1,5 @@
 //
-//  Replaceables+PubNub.swift
+//  InstanceIdOperator.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,28 +27,25 @@
 
 import Foundation
 
-// MARK: - URLSession
+/// Attaches a PubNub object instance ID query parameters to requests
+public struct InstanceIdOperator: RequestOperator {
+  static let instanceIDKey = "instanceid"
+  public let instanceID: String
 
-public protocol URLSessionReplaceable {
-  init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
+  init(instanceID: String) {
+    self.instanceID = instanceID
+  }
 
-  var sessionDescription: String? { get set }
-  var delegateQueue: OperationQueue { get }
-  var configuration: URLSessionConfiguration { get }
+  public func mutate(
+    _ urlRequest: URLRequest,
+    for _: Session,
+    completion: @escaping (Result<URLRequest, Error>) -> Void
+  ) {
+    var mutatedRequest = urlRequest
+    mutatedRequest.url = mutatedRequest.url?
+      .appending(queryItems: [URLQueryItem(name: InstanceIdOperator.instanceIDKey,
+                                           value: instanceID)])
 
-  func dataTask(with: URLRequest) -> URLSessionDataTask
-  func invalidateAndCancel()
+    completion(.success(mutatedRequest))
+  }
 }
-
-extension URLSession: URLSessionReplaceable {}
-
-// MARK: - Session
-
-public protocol SessionReplaceable {
-  var sessionID: UUID { get }
-  var session: URLSessionReplaceable { get }
-  func usingDefault(requestOperator: RequestOperator?) -> Self
-  func request(with router: Router, requestOperator: RequestOperator?) -> Request
-}
-
-extension Session: SessionReplaceable {}

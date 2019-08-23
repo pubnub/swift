@@ -105,7 +105,7 @@ public struct Crypto: Hashable {
 
   public func encrypt(plaintext stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
     if let error = cipher.validate(keySize: key.count) {
-      print("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
+      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 
@@ -125,7 +125,7 @@ public struct Crypto: Hashable {
 
   public func encrypt(plaintext dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
     if let error = cipher.validate(keySize: key.count) {
-      print("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
+      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 
@@ -139,7 +139,7 @@ public struct Crypto: Hashable {
 
   public func decrypt(encrypted dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
     if let error = cipher.validate(keySize: key.count) {
-      print("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
+      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 
@@ -151,7 +151,7 @@ public struct Crypto: Hashable {
 
   public func decrypt(base64Encoded stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
     if let error = cipher.validate(keySize: key.count) {
-      print("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
+      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 

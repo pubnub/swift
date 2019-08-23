@@ -467,6 +467,6 @@ extension AnyJSONType {
       return .failure(AnyJSONError.dataCreationFailure(nil))
     }
   }
-
-  // swiftlint:disable:next file_length
 }
+
+// swiftlint:disable:this file_length

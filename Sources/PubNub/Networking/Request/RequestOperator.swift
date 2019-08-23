@@ -96,48 +96,45 @@ extension RequestOperator {
   ) {
     completion(.doNotRetry)
   }
+
+  public func merge(operators: [RequestOperator]) -> RequestOperator {
+    var mergedOperators: [RequestOperator] = [self]
+    mergedOperators.append(contentsOf: operators)
+    return MultiplexRequestOperator(operators: mergedOperators)
+  }
+
+  public func merge(requestOperator: RequestOperator?) -> RequestOperator {
+    if let requestOperator = requestOperator {
+      return merge(operators: [requestOperator])
+    }
+    return self
+  }
 }
 
 // MARK: - Multiplexor Operator
 
-public struct MultiplexRequestOperaptor: RequestOperator {
-  public let mutators: [RequestMutator]
-  public let retriers: [RequestRetrier]
+public struct MultiplexRequestOperator: RequestOperator {
+  public let operators: [RequestOperator]
 
-  public init(mutator: RequestMutator? = nil, retrier: RequestRetrier? = nil) {
-    switch (mutator, retrier) {
-    case let (.some(mutator), .some(retrier)):
-      self.init(mutators: [mutator], retriers: [retrier])
-    case let (.none, .some(retrier)):
-      self.init(mutators: [], retriers: [retrier])
-    case let (.some(mutator), .none):
-      self.init(mutators: [mutator], retriers: [])
-    case (.none, .none):
-      self.init(mutators: [], retriers: [])
+  public init(requestOperator: RequestOperator? = nil) {
+    if let requestOperator = requestOperator {
+      self.init(operators: [requestOperator])
+    } else {
+      self.init(operators: [])
     }
   }
 
-  public init(mutators: [RequestMutator] = [], retriers: [RequestRetrier] = []) {
-    var allMutators = [RequestMutator]()
-    var allRetriers = [RequestRetrier]()
-    mutators.forEach { mutator in
-      if let multiplex = mutator as? MultiplexRequestOperaptor {
-        allMutators.append(contentsOf: multiplex.mutators)
-        allRetriers.append(contentsOf: multiplex.retriers)
+  public init(operators: [RequestOperator] = []) {
+    var flatOperators = [RequestOperator]()
+    // Flatten out any nested multiplex operators
+    operators.forEach { requestOperator in
+      if let multiplex = requestOperator as? MultiplexRequestOperator {
+        flatOperators.append(contentsOf: multiplex.operators)
       } else {
-        allMutators.append(mutator)
+        flatOperators.append(requestOperator)
       }
     }
-    retriers.forEach { retrier in
-      if let multiplex = retrier as? MultiplexRequestOperaptor {
-        allMutators.append(contentsOf: multiplex.mutators)
-        allRetriers.append(contentsOf: multiplex.retriers)
-      } else {
-        allRetriers.append(retrier)
-      }
-    }
-    self.mutators = allMutators
-    self.retriers = allRetriers
+    self.operators = operators
   }
 
   public func mutate(
@@ -145,13 +142,13 @@ public struct MultiplexRequestOperaptor: RequestOperator {
     for session: Session,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
-    mutate(urlRequest, for: session, using: mutators, completion: completion)
+    mutate(urlRequest, for: session, using: operators, completion: completion)
   }
 
   private func mutate(
     _ urlRequest: URLRequest,
     for session: Session,
-    using mutators: [RequestMutator],
+    using mutators: [RequestOperator],
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     var pendingMutators = mutators
@@ -179,14 +176,14 @@ public struct MultiplexRequestOperaptor: RequestOperator {
     dueTo error: Error,
     completion: @escaping (RetryResult) -> Void
   ) {
-    retry(request, for: session, dueTo: error, using: retriers, completion: completion)
+    retry(request, for: session, dueTo: error, using: operators, completion: completion)
   }
 
   private func retry(
     _ request: Request,
     for session: Session,
     dueTo error: Error,
-    using retriers: [RequestRetrier],
+    using retriers: [RequestOperator],
     completion: @escaping (RetryResult) -> Void
   ) {
     var pendingRetriers = retriers

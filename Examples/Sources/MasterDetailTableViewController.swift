@@ -421,17 +421,16 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performSubscribeRequest() {
-    pubnub.subscription.subscribe(to: ["channelSwift"], withPresence: true, setting: ["SubKey": "SubValue"])
+    pubnub.subscribe(to: ["channelSwift"], withPresence: true, setting: ["SubKey": "SubValue"])
   }
 
   func performUnsubscribeRequest() {
-    pubnub.subscription.unsubscribe(from: ["channelSwift"])
+    pubnub.unsubscribe(from: ["channelSwift"])
   }
 
   func performSetState() {
-    pubnub.subscription.setPresence(
+    pubnub.setPresence(
       state: ["New": "State"],
-      for: pubnub.configuration.uuid,
       on: ["channelSwift"],
       and: ["demo"]
     ) { result in
@@ -445,7 +444,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performGetState() {
-    pubnub.subscription.getPresenceState(
+    pubnub.getPresenceState(
       for: pubnub.configuration.uuid,
       on: ["channelSwift"],
       and: ["demo"]
@@ -463,9 +462,9 @@ class MasterDetailTableViewController: UITableViewController {
     pubnub.hereNow(on: ["channelSwift"], and: ["demo"], also: true) { result in
       switch result {
       case let .success(response):
-        print("Successful WhereNow Response: \(response)")
+        print("Successful HereNow Response: \(response)")
       case let .failure(error):
-        print("Failed WhereNow Response: \(error.localizedDescription)")
+        print("Failed HereNow Response: \(error.localizedDescription)")
       }
     }
   }
@@ -474,9 +473,9 @@ class MasterDetailTableViewController: UITableViewController {
     pubnub.whereNow(for: "db9c5e39-7c95-40f5-8d71-125765b6f561") { result in
       switch result {
       case let .success(response):
-        print("Successful HereNow Response: \(response)")
+        print("Successful WhereNow Response: \(response)")
       case let .failure(error):
-        print("Failed HereNow Response: \(error.localizedDescription)")
+        print("Failed WhereNow Response: \(error.localizedDescription)")
       }
     }
   }
@@ -562,9 +561,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performHistoryDeletion() {
-    pubnub.deleteMessageHistory(from: "channelSwift",
-                                start: nil,
-                                end: 15_652_926_945_047_792) { result in
+    pubnub.deleteMessageHistory(from: "channelSwift") { result in
       switch result {
       case let .success(response):
         print("Successful Message Deletion Response: \(response)")

@@ -101,7 +101,7 @@ struct PublishResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct PublishResponsePayload: Codable, Hashable {
-  let timetoken: Timetoken
+  public let timetoken: Timetoken
 }
 
 public struct ErrorResponse: Codable, Hashable {

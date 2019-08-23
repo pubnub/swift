@@ -32,7 +32,6 @@ import PubNub
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
   var window: UIWindow?
-  var pubnub: PubNub?
 
   // swiftlint:disable:next discouraged_optional_collection
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {

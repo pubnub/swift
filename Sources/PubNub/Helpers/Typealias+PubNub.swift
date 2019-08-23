@@ -47,3 +47,5 @@ typealias AtomicInt = Atomic<Int32>
 // MARK: - Closures
 
 public typealias EmptyClosure = () -> Void
+
+public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?

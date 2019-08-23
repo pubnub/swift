@@ -37,6 +37,8 @@ public struct PubNub {
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
+  // Default Request Operator attached to every request
+  public let defaultRequestOperator: RequestOperator
 
   /// Global log instance for the PubNub SDK
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
@@ -48,15 +50,26 @@ public struct PubNub {
               session: SessionReplaceable? = nil) {
     instanceID = UUID()
     self.configuration = configuration
-    let complexSessionStream = MultiplexSessionStream([])
-    networkSession = session ?? Session(configuration: configuration.urlSessionConfiguration,
-                                        requestOperator: configuration.automaticRetry,
-                                        sessionStream: complexSessionStream)
+
+    var operators = [RequestOperator]()
+    if let retryOperator = configuration.automaticRetry {
+      operators.append(retryOperator)
+    }
+    if configuration.useInstanceId {
+      let instanceIdOperator = InstanceIdOperator(instanceID: instanceID.description)
+      operators.append(instanceIdOperator)
+    }
+
+    defaultRequestOperator = MultiplexRequestOperator(operators: operators)
+    networkSession = session ?? Session(configuration: configuration.urlSessionConfiguration)
+
     subscription = SubscribeSessionFactory.shared.getSession(from: configuration)
   }
+}
 
-  // MARK: - Time
+// MARK: - Time
 
+extension PubNub {
   public func time(
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -65,16 +78,21 @@ public struct PubNub {
     let client = networkConfiguration?.customSession ?? networkSession
     let router = PubNubRouter(configuration: configuration, endpoint: .time)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(on: queue, decoder: TimeResponseDecoder()) { result in
         completion?(result.map { $0.payload })
       }
   }
+}
 
-  // MARK: - Publish
+// MARK: - Publish
 
+extension PubNub {
   public func publish(
     channel: String,
     message: AnyJSON,
@@ -106,7 +124,10 @@ public struct PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -132,7 +153,10 @@ public struct PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -144,9 +168,53 @@ public struct PubNub {
   }
 }
 
+// MARK: Subscription
+
+extension PubNub {
+  public func subscribe(
+    to channels: [String],
+    and channelGroups: [String] = [],
+    at timetoken: Timetoken = 0,
+    withPresence: Bool = false,
+    setting presenceState: [String: Codable] = [:]
+  ) {
+    subscription.subscribe(to: channels,
+                           and: channelGroups,
+                           at: timetoken,
+                           withPresence: withPresence,
+                           setting: presenceState)
+  }
+
+  public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
+    subscription.unsubscribe(from: channels, and: channelGroups)
+  }
+
+  public func unsubscribeAll() {
+    subscription.unsubscribeAll()
+  }
+}
+
 // MARK: - Presence Management
 
 extension PubNub {
+  public func setPresence(
+    state: [String: Codable],
+    on channels: [String],
+    and groups: [String],
+    completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
+  ) {
+    subscription.setPresence(state: state, on: channels, and: groups, completion: completion)
+  }
+
+  public func getPresenceState(
+    for uuid: String,
+    on channels: [String],
+    and groups: [String],
+    completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
+  ) {
+    subscription.getPresenceState(for: uuid, on: channels, and: groups, completion: completion)
+  }
+
   public func hereNow(
     on channels: [String],
     and groups: [String] = [],
@@ -164,7 +232,10 @@ extension PubNub {
                                                  includeUUIDs: includeUUIDs,
                                                  includeState: includeState))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -186,7 +257,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .whereNow(uuid: uuid))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -211,7 +285,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .channelGroups)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -233,7 +310,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .deleteGroup(group: group))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -255,7 +335,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .channelsForGroup(group: group))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -278,7 +361,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .addChannelsForGroup(group: group, channels: channels))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -301,7 +387,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .removeChannelsForGroup(group: group, channels: channels))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -312,6 +401,8 @@ extension PubNub {
       }
   }
 }
+
+// MARK: - Push
 
 extension PubNub {
   public func listPushChannelRegistrations(
@@ -326,7 +417,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .listPushChannels(pushToken: deivceToken, pushType: pushType))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -354,7 +448,10 @@ extension PubNub {
                                                             addChannels: additions,
                                                             removeChannels: removals))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -377,7 +474,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: .removeAllPushChannels(pushToken: deivceToken, pushType: pushType))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -409,7 +509,10 @@ extension PubNub {
                                                              start: stateTimetoken,
                                                              end: endTimetoken,
                                                              includeMeta: metaInResponse))
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -435,7 +538,10 @@ extension PubNub {
                                                               start: stateTimetoken,
                                                               end: endTimetoken))
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -461,7 +567,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -488,7 +597,10 @@ extension PubNub {
     let router = PubNubRouter(configuration: configuration,
                               endpoint: endpoint)
 
-    client
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
       .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
@@ -497,6 +609,30 @@ extension PubNub {
       ) { result in
         completion?(result.map { $0.payload.channels })
       }
+  }
+}
+
+extension PubNub {
+  func encrypt(message: String) -> Result<Data, Error> {
+    guard let crypto = configuration.cipherKey else {
+      PubNub.log.error(ErrorDescription.CryptoError.missingCryptoKey)
+      return .failure(CryptoError.invalidKey)
+    }
+
+    guard let dataMessage = message.data(using: .utf8) else {
+      return .failure(CryptoError.decodeError)
+    }
+
+    return crypto.encrypt(plaintext: dataMessage)
+  }
+
+  func decrypt(data: Data) -> Result<Data, Error> {
+    guard let crypto = configuration.cipherKey else {
+      PubNub.log.error(ErrorDescription.CryptoError.missingCryptoKey)
+      return .failure(CryptoError.invalidKey)
+    }
+
+    return crypto.decrypt(encrypted: data)
   }
 }
 

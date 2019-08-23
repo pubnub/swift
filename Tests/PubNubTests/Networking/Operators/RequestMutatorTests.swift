@@ -34,19 +34,13 @@ class RequestMutatorTests: XCTestCase {
 
   func testMultiplexOperation_Init() {
     let mutator = DefaultOperator()
-    let retrier = DefaultOperator()
 
-    let multiplex = MultiplexRequestOperaptor(mutator: mutator, retrier: retrier)
+    let multiplex = MultiplexRequestOperator(requestOperator: mutator)
+    XCTAssertEqual(multiplex.operators.count, 1)
+    XCTAssertEqual(multiplex.operators.first as? DefaultOperator, mutator)
 
-    XCTAssertEqual(multiplex.mutators.count, 1)
-    XCTAssertEqual(multiplex.retriers.count, 1)
-
-    XCTAssertEqual(multiplex.mutators.first as? DefaultOperator, mutator)
-    XCTAssertEqual(multiplex.retriers.first as? DefaultOperator, retrier)
-
-    let emptyMultiplex = MultiplexRequestOperaptor(mutator: nil, retrier: nil)
-    XCTAssertEqual(emptyMultiplex.mutators.count, 0)
-    XCTAssertEqual(emptyMultiplex.retriers.count, 0)
+    let emptyMultiplex = MultiplexRequestOperator(requestOperator: nil)
+    XCTAssertEqual(emptyMultiplex.operators.count, 0)
   }
 
   func testMutateRequest_Success() {
@@ -71,7 +65,7 @@ class RequestMutatorTests: XCTestCase {
     }
 
     let networkConfig = NetworkConfiguration(
-      requestOperator: MultiplexRequestOperaptor(mutators: [DefaultOperator(), mutator], retriers: [])
+      requestOperator: MultiplexRequestOperator(operators: [DefaultOperator(), mutator])
     )
 
     let sessionExpector = SessionExpector(session: sessionListener)
@@ -128,7 +122,7 @@ class RequestMutatorTests: XCTestCase {
     }
 
     let networkConfig = NetworkConfiguration(
-      requestOperator: MultiplexRequestOperaptor(mutators: [mutator, DefaultOperator()], retriers: [])
+      requestOperator: MultiplexRequestOperator(operators: [mutator, DefaultOperator()])
     )
 
     let sessionExpector = SessionExpector(session: sessionListener)

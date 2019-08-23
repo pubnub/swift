@@ -73,15 +73,6 @@ lane :code_coverage do
     verbose: true,
     ignore: "Tests/**/*"
   )
-
-  codacy_code_coverage
-end
-
-desc "Sends code coverage to Codacy"
-lane :codacy_code_coverage do
-  Dir.chdir("..") do
-    Action.sh('java -jar codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml')
-  end
 end
 
 desc "Executes Linting for Framework releasing"

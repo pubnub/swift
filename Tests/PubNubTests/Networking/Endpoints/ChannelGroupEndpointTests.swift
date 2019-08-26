@@ -47,7 +47,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupList_Success() {
-    let expectation = self.expectation(description: "Group List Response Recieved")
+    let expectation = self.expectation(description: "Group List Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_list_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -67,7 +67,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupList_Success_EmptyClasses() {
-    let expectation = self.expectation(description: "Group List Response Recieved")
+    let expectation = self.expectation(description: "Group List Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_list_success_empty"]) else {
       return XCTFail("Could not create mock url session")
@@ -104,7 +104,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupDelete_Success() {
-    let expectation = self.expectation(description: "Group Delete Response Recieved")
+    let expectation = self.expectation(description: "Group Delete Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_delete_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -142,7 +142,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupChannelsList_Success() {
-    let expectation = self.expectation(description: "Group Channels List Response Recieved")
+    let expectation = self.expectation(description: "Group Channels List Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_list_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -164,7 +164,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupChannelsList_EmptyClasses() {
-    let expectation = self.expectation(description: "Group Channels List Response Recieved")
+    let expectation = self.expectation(description: "Group Channels List Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_list_success_empty"]) else {
       return XCTFail("Could not create mock url session")
@@ -203,7 +203,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupChannels_Add_Success() {
-    let expectation = self.expectation(description: "Group Channels Add Response Recieved")
+    let expectation = self.expectation(description: "Group Channels Add Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_add_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -224,7 +224,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testAddChannels_Error_ExceedGroupCount() {
-    let expectation = self.expectation(description: "Add Channel Response Recieved")
+    let expectation = self.expectation(description: "Add Channel Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["maximumChannelCountExceeded_Message"]) else {
       return XCTFail("Could not create mock url session")
@@ -257,7 +257,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testAddChannels_Error_InvalidCharacter() {
-    let expectation = self.expectation(description: "Add Channel Response Recieved")
+    let expectation = self.expectation(description: "Add Channel Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["invalidCharacter_Message"]) else {
       return XCTFail("Could not create mock url session")
@@ -306,7 +306,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   }
 
   func testGroupChannels_Remove_Success() {
-    let expectation = self.expectation(description: "Group Channels Remove Response Recieved")
+    let expectation = self.expectation(description: "Group Channels Remove Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_remove_success"]) else {
       return XCTFail("Could not create mock url session")

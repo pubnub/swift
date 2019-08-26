@@ -78,7 +78,7 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     let networkConfig = NetworkConfiguration(requestOperator: MultiplexRequestOperator(requestOperator: retrier))
     PubNub(configuration: .default, session: sessions.session).time(with: networkConfig) { result in
       switch result {
@@ -131,7 +131,7 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     let networkConfig = NetworkConfiguration(requestOperator: retrier)
     PubNub(configuration: .default, session: sessions.session).time(with: networkConfig) { result in
       switch result {
@@ -208,7 +208,7 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     let networkConfig = NetworkConfiguration(
       requestOperator: MultiplexRequestOperator(operators: [DefaultOperator(), retrier])
     )

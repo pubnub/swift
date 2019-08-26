@@ -59,7 +59,7 @@ extension SubscriptionSession {
 
   @objc func peformHeartbeatLoop() {
     // Get non-presence channels and groups
-    let (channels, groups) = state.lockedRead { ($0.nonPresenceChannels, $0.nonPresenceChannelGroups) }
+    let (channels, groups) = internalState.lockedRead { ($0.nonPresenceChannels, $0.nonPresenceChannelGroups) }
 
     if channels.isEmpty, groups.isEmpty {
       return
@@ -78,7 +78,7 @@ extension SubscriptionSession {
       .response(decoder: GenericServiceResponseDecoder()) { result in
         switch result {
         case .success:
-          if self.state.lockedRead({ $0.isActive }) {
+          if self.internalState.lockedRead({ $0.isActive }) {
             self.registerHeartbeatTimer()
           } else {
             self.stopHeartbeatTimer()
@@ -146,7 +146,7 @@ extension SubscriptionSession {
 
           // Update internal state for user
           if uuid == self?.configuration.uuid {
-            self?.state.lockedWrite {
+            self?.internalState.lockedWrite {
               $0.mergePresenceState(normalizedState)
             }
           }
@@ -182,7 +182,7 @@ extension SubscriptionSession {
           let normalizedState = response.payload.normalizedPayload(using: channels + groups)
 
           // Update state cache for channel(s) & group(s)
-          self?.state.lockedWrite { $0.mergePresenceState(normalizedState) }
+          self?.internalState.lockedWrite { $0.mergePresenceState(normalizedState) }
 
           // Stop the subscription loop to pick up the new state
           self?.reconnect(at: strongSelf.currentTimetoken)

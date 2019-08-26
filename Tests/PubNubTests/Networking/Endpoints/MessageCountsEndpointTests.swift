@@ -57,7 +57,7 @@ final class MessageCountsEndpointTests: XCTestCase {
   }
 
   func testMessageCounts_Success() {
-    let expectation = self.expectation(description: "Message Counts Response Recieved")
+    let expectation = self.expectation(description: "Message Counts Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -81,7 +81,7 @@ final class MessageCountsEndpointTests: XCTestCase {
   }
 
   func testMessageCounts_Success_ChannelsDictionary() {
-    let expectation = self.expectation(description: "Message Counts Response Recieved")
+    let expectation = self.expectation(description: "Message Counts Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -105,7 +105,7 @@ final class MessageCountsEndpointTests: XCTestCase {
   }
 
   func testMessageCounts_Error_InvalidArguments() {
-    let expectation = self.expectation(description: "Message Counts Response Recieved")
+    let expectation = self.expectation(description: "Message Counts Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_error_invalid_arguments"]) else {
       return XCTFail("Could not create mock url session")
@@ -138,7 +138,7 @@ final class MessageCountsEndpointTests: XCTestCase {
   }
 
   func testMessageCounts_Error_ServiceNotEnabled() {
-    let expectation = self.expectation(description: "Message Counts Response Recieved")
+    let expectation = self.expectation(description: "Message Counts Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_error_serviceNotEnabled"]) else {
       return XCTFail("Could not create mock url session")

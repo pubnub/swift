@@ -113,6 +113,8 @@ class PubNubRouterTests: XCTestCase {
 
   // End Temporary Tests
 
+  // MARK: - Special Encoding Tests
+
   func testPathContainsForwardSlash() {
     let testMessage = AnyJSON(["/test/message/with/slashes/"])
     let testChannel = "/test/channel/"
@@ -137,6 +139,28 @@ class PubNubRouterTests: XCTestCase {
     // url.path with print without being percent encoded, but will in fact be percent encoded
     XCTAssertFalse(url.description.contains(url.path))
     XCTAssertTrue(url.description.contains(testPath))
+  }
+
+  func testQueryContainsSpecialCharacters() {
+    let uuid = "UUID+With+Questions?"
+    let encodedUUID = "UUID%2BWith%2BQuestions%3F"
+    var config = PubNubConfiguration(publishKey: "demo", subscribeKey: "demo")
+    config.uuid = uuid
+
+    let publish = Endpoint.publish(message: "TestMessage", channel: "Test", shouldStore: nil, ttl: nil, meta: nil)
+    let publishRouter = PubNubRouter(configuration: config, endpoint: publish)
+
+    guard let url = try? publishRouter.asURL.get(),
+      let comps = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+      return XCTFail("Could not create url")
+    }
+
+    guard let encodedQuery = comps.percentEncodedQuery else {
+      return XCTFail("Could not get query from url")
+    }
+
+    XCTAssertFalse(encodedQuery.contains(uuid))
+    XCTAssertTrue(encodedQuery.contains(encodedUUID))
   }
 
   func testInvalidMeta() {
@@ -167,7 +191,7 @@ class PubNubRouterTests: XCTestCase {
       XCTAssertEqual(error.pubNubError, creationError)
     }
 
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
     sessions
       .session?
       .request(with: metaErrorRouter)
@@ -222,7 +246,7 @@ class PubNubRouterTests: XCTestCase {
       XCTAssertEqual(error.pubNubError, creationError)
     }
 
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
     sessions
       .session?
       .request(with: metaErrorRouter)

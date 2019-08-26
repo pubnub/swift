@@ -72,7 +72,7 @@ public enum Endpoint {
 
   // Subscribe Endpoint
   case subscribe(
-    channels: [String], groups: [String], timetoken: Timetoken,
+    channels: [String], groups: [String], timetoken: Timetoken?,
     region: String?, state: ChannelPresenceState?, heartbeat: Int?, filter: String?
   )
 
@@ -173,8 +173,7 @@ extension Endpoint: Validated {
     case let .fire(message, channel, _):
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .subscribe(parameters):
-      return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty,
-                               parameters.timetoken < 0)
+      return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty)
     case let .fetchMessageHistory(channels, max, _, _, _):
       return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
     case let .deleteMessageHistory(channel, _, _):

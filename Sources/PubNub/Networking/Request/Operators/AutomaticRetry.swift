@@ -34,21 +34,21 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   public static var none = AutomaticRetry(policy: .none)
   public static var connectionLost = AutomaticRetry(policy: .immediately,
                                                     retryableURLErrorCodes: [.networkConnectionLost])
-  public static var noInternet = AutomaticRetry(policy: .defaultExponential(),
+  public static var noInternet = AutomaticRetry(policy: .defaultExponential,
                                                 retryableURLErrorCodes: [.notConnectedToInternet])
 
   public enum ReconnectionPolicy: Hashable {
-    public static func defaultExponential(base: UInt = 2, scale: Double = 2) -> ReconnectionPolicy {
-      return .exponential(base: base, scale: scale)
-    }
+    public static let defaultExponential: ReconnectionPolicy = {
+      .exponential(base: 2, scale: 2, maxDelay: 300)
+    }()
 
-    public static func defaultLinear(delay: Double = 3.0) -> ReconnectionPolicy {
-      return .linear(delay: delay)
-    }
+    public static let defaultLinear: ReconnectionPolicy = {
+      .linear(delay: 3)
+    }()
 
     case none
     case immediately
-    case exponential(base: UInt, scale: Double)
+    case exponential(base: UInt, scale: Double, maxDelay: UInt)
     case linear(delay: Double)
   }
 
@@ -80,22 +80,38 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   public let whiltelistedURLErrorCodes: Set<URLError.Code>
 
   public init(retryLimit: UInt = 2,
-              policy: ReconnectionPolicy = .defaultExponential(),
+              policy: ReconnectionPolicy = .defaultExponential,
               retryableHTTPStatusCodes: Set<Int> = [500],
               retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes,
               whiltelistedURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultURLErrorCodesWhitelist) {
     switch policy {
-    case .none, .immediately:
-      break
-    case let .exponential(base, scale):
-      precondition(base >= 2, "The `exponential.base` must be a minimum of 2.")
-      precondition(scale >= 0.0, "The `exponential.scale` must be a positive value.")
+    case let .exponential(base, scale, max):
+      switch (true, true) {
+      case (base < 2, scale < 0):
+        PubNub.log.warn("The `exponential.base` must be a minimum of 2.")
+        PubNub.log.warn("The `exponential.scale` must be a positive value.")
+        self.policy = .exponential(base: 2, scale: 0, maxDelay: max)
+      case (base < 2, scale >= 0):
+        PubNub.log.warn("The `exponential.base` must be a minimum of 2.")
+        self.policy = .exponential(base: 2, scale: scale, maxDelay: max)
+      case (base >= 2, scale < 0):
+        PubNub.log.warn("The `exponential.scale` must be a positive value.")
+        self.policy = .exponential(base: base, scale: 0, maxDelay: max)
+      default:
+        self.policy = policy
+      }
     case let .linear(delay):
-      precondition(delay >= 0, "The `linear.delay` must be a positive value.")
+      if delay < 0 {
+        PubNub.log.warn("The `linear.delay` must be a positive value.")
+        self.policy = .linear(delay: 0)
+      } else {
+        self.policy = policy
+      }
+    default:
+      self.policy = policy
     }
 
     self.retryLimit = retryLimit
-    self.policy = policy
     self.retryableHTTPStatusCodes = retryableHTTPStatusCodes
     self.retryableURLErrorCodes = retryableURLErrorCodes
     self.whiltelistedURLErrorCodes = whiltelistedURLErrorCodes
@@ -123,9 +139,10 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       completion(.retryWithDelay(0))
     case let .linear(timeDelay):
       completion(.retryWithDelay(timeDelay))
-    case let .exponential(base, scale):
+    case let .exponential(base, scale, max):
       let timeDelay = exponentialBackoffDelay(for: base,
                                               scale: scale,
+                                              maxDelay: max,
                                               current: request.retryCount)
       completion(.retryWithDelay(timeDelay))
     }
@@ -141,7 +158,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     return false
   }
 
-  func exponentialBackoffDelay(for base: UInt, scale: Double, current retryCount: Int) -> Double {
-    return pow(Double(base), Double(retryCount)) * scale
+  func exponentialBackoffDelay(for base: UInt, scale: Double, maxDelay: UInt, current retryCount: Int) -> Double {
+    return min(pow(Double(base), Double(retryCount)) * scale, Double(maxDelay))
   }
 }

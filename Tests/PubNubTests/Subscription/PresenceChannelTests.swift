@@ -1,5 +1,5 @@
 //
-//  Typealias+PubNub.swift
+//  PresenceChannelTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,30 +25,42 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-// MARK: - Types
+class PresenceChannelTests: XCTestCase {
+  let testState = ["StateKey": "StateValue"]
+  let state = PresenceChannel("TestChannel",
+                              with: ["StateKey": "StateValue"],
+                              and: .initialized)
+  var mutableState = PresenceChannel("TestChannel",
+                                     with: ["StateKey": "StateValue"],
+                                     and: .initialized)
 
-/// 17-digit precision unix time (UTC) since 1970
-///
-/// - important: A 64-bit `Double` has a max precision of 15-digits, so
-///         any value derived from a `TimeInterval` will not be precise
-///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = Int64
+  func testUserState_Get() {
+    XCTAssertEqual(state.userState as? [String: String], testState)
+  }
 
-/// Presence state JSON payload
-public typealias PresenceState = [String: Codable]
+  func testUserState_Set() {
+    let newState = ["StateKey": "NewValue"]
+    mutableState.userState = newState
+    XCTAssertEqual(mutableState.userState as? [String: String], newState)
+  }
 
-/// A mapping of Presence State to channel names
-public typealias ChannelPresenceState = [String: PresenceState]
+  func testEquatable() {
+    XCTAssertEqual(state, PresenceChannel("TestChannel"))
+  }
 
-/// Event emitted from a Subscription Stream
-public typealias StatusEvent = Result<ConnectionStatus, PNError>
+  func testHashable() {
+    XCTAssertEqual(state.hashValue, state.name.hashValue)
+  }
 
-typealias AtomicInt = Atomic<Int32>
+  func testCustomStringConvertible() {
+    XCTAssertEqual(state.description, state.name.description)
+  }
 
-// MARK: - Closures
-
-public typealias EmptyClosure = () -> Void
-
-public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?
+  func testExpressibleByStringLiteral() {
+    let literalState = PresenceChannel("StateName")
+    XCTAssertEqual(literalState.name, "StateName")
+  }
+}

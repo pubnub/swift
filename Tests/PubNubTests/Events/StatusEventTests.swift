@@ -1,5 +1,5 @@
 //
-//  Typealias+PubNub.swift
+//  StatusEventTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,30 +25,22 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
+@testable import PubNub
+import XCTest
 
-// MARK: - Types
+class StatusEventTests: XCTestCase {
+  func testStatusEvent_EmitState_True() {
+    let event: StatusEvent = .success(ConnectionStatus.connected)
+    XCTAssertTrue(event.emitState)
+  }
 
-/// 17-digit precision unix time (UTC) since 1970
-///
-/// - important: A 64-bit `Double` has a max precision of 15-digits, so
-///         any value derived from a `TimeInterval` will not be precise
-///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = Int64
+  func testStatusEvent_EmitState_False() {
+    let event: StatusEvent = .success(ConnectionStatus.initialized)
+    XCTAssertFalse(event.emitState)
+  }
 
-/// Presence state JSON payload
-public typealias PresenceState = [String: Codable]
-
-/// A mapping of Presence State to channel names
-public typealias ChannelPresenceState = [String: PresenceState]
-
-/// Event emitted from a Subscription Stream
-public typealias StatusEvent = Result<ConnectionStatus, PNError>
-
-typealias AtomicInt = Atomic<Int32>
-
-// MARK: - Closures
-
-public typealias EmptyClosure = () -> Void
-
-public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?
+  func testStatusEvent_EmitState_Error() {
+    let event: StatusEvent = .failure(PNError.requestCancelled(.time))
+    XCTAssertFalse(event.emitState)
+  }
+}

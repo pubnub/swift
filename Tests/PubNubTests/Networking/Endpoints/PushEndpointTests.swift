@@ -57,7 +57,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testListPushRegistration_Success() {
-    let expectation = self.expectation(description: "Push List Response Recieved")
+    let expectation = self.expectation(description: "Push List Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -82,7 +82,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testListPushRegistration_Success_Empty() {
-    let expectation = self.expectation(description: "Push List Response Recieved")
+    let expectation = self.expectation(description: "Push List Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -107,7 +107,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testListPushRegistration_Fail_NotEnabled() {
-    let expectation = self.expectation(description: "Push List Response Recieved")
+    let expectation = self.expectation(description: "Push List Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -170,7 +170,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testModifyPush_Success() {
-    let expectation = self.expectation(description: "Modify Push Response Recieved")
+    let expectation = self.expectation(description: "Modify Push Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -195,7 +195,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testModifyPush_Fail_NotEnabled() {
-    let expectation = self.expectation(description: "Modify Push Response Recieved")
+    let expectation = self.expectation(description: "Modify Push Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -232,7 +232,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testModifyPush_Fail_InvalidToken() {
-    let expectation = self.expectation(description: "Modify Push Response Recieved")
+    let expectation = self.expectation(description: "Modify Push Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")
@@ -287,7 +287,7 @@ final class PushEndpointTests: XCTestCase {
   }
 
   func testRemoveAllPush_Success() {
-    let expectation = self.expectation(description: "Group List Response Recieved")
+    let expectation = self.expectation(description: "Group List Response Received")
 
     guard let hexData = Data(hexEncodedString: hexString) else {
       return XCTFail("Could not conver hex string to data")

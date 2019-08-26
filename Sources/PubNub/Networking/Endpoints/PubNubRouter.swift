@@ -158,7 +158,7 @@ extension PubNubRouter: Router {
     case let .fire(_, _, meta):
       return parsePublish(query: &query, shouldStore: false, ttl: 0, meta: meta)
     case let .subscribe(parameters):
-      query.append(URLQueryItem(name: ttKey, value: parameters.timetoken.description))
+      query.appendIfPresent(name: ttKey, value: parameters.timetoken?.description)
       query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
       query.appendIfPresent(name: regionKey, value: parameters.region?.description)
       query.appendIfPresent(name: filterKey, value: parameters.filter)

@@ -224,12 +224,16 @@ public final class Session {
     }
   }
 
-  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
+  @discardableResult
+  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) -> Bool {
+    var tasksCancelled = false
     taskToRequest.values.forEach { request in
       if request.router.endpoint.rawValue == endpoint {
+        tasksCancelled = true
         request.cancel(with: cancellationError)
       }
     }
+    return tasksCancelled
   }
 }
 

@@ -147,8 +147,8 @@ extension PNError.EndpointFailureReason: Equatable {
     switch (lhs, rhs) {
     case (.malformedResponseBody, .malformedResponseBody):
       return true
-    case let (.jsonDataDecodeFailure(lhsData, lhsError), .jsonDataDecodeFailure(rhsData, rhsError)):
-      return lhsData == rhsData && lhsError.localizedDescription == rhsError.localizedDescription
+    case (.jsonDataDecodeFailure, .jsonDataDecodeFailure):
+      return true
     case (.invalidArguments, .invalidArguments):
       return true
     case (.invalidCharacter, .invalidCharacter):

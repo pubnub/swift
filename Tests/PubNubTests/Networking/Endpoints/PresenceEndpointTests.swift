@@ -52,7 +52,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   func testHereNow_Success_EmptyClasses() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_empty"]) else {
       return XCTFail("Could not create mock url session")
@@ -75,7 +75,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   func testHereNow_Success() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -101,7 +101,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   func testHereNow_Success_DisableUUID() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_disableUUID"]) else {
       return XCTFail("Could not create mock url session")
@@ -145,7 +145,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   func testWhereNow_Success_EmptyClasses() {
-    let expectation = self.expectation(description: "WhereNow Response Recieved")
+    let expectation = self.expectation(description: "WhereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["wherenow_success_empty"]) else {
       return XCTFail("Could not create mock url session")
@@ -166,7 +166,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   func testWhereNow_Success() {
-    let expectation = self.expectation(description: "WhereNow Response Recieved")
+    let expectation = self.expectation(description: "WhereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["wherenow_success"]) else {
       return XCTFail("Could not create mock url session")

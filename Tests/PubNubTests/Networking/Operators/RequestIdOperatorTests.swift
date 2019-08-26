@@ -54,7 +54,7 @@ class RequestIdOperatorTests: XCTestCase {
       XCTAssertTrue(mutatedURL.absoluteString.contains(RequestIdOperator.requestIDKey))
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     config.useRequestId = true
     pubnub = PubNub(configuration: config, session: sessions.session)
 

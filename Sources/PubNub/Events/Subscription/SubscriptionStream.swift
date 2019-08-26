@@ -28,15 +28,15 @@
 import Foundation
 
 public protocol SubscriptionStream: EventStream {
-  func emitDidRecieve(message event: MessageEvent)
+  func emitDidReceive(message event: MessageEvent)
   func emitDidReceive(status event: StatusEvent)
-  func emitDidRecieve(presence event: PresenceEvent)
+  func emitDidReceive(presence event: PresenceEvent)
 }
 
 extension SubscriptionStream {
-  func emitDidRecieve(message _: MessageEvent) { /* no-op */ }
+  func emitDidReceive(message _: MessageEvent) { /* no-op */ }
   func emitDidReceive(status _: StatusEvent) { /* no-op */ }
-  func emitDidRecieve(presence _: PresenceEvent) { /* no-op */ }
+  func emitDidReceive(presence _: PresenceEvent) { /* no-op */ }
 }
 
 public final class SubscriptionListener: SubscriptionStream, Hashable {
@@ -52,7 +52,7 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   public var didReceivePresence: ((PresenceEvent) -> Void)?
 
-  public func emitDidRecieve(message event: MessageEvent) {
+  public func emitDidReceive(message event: MessageEvent) {
     queue.async { self.didReceiveMessage?(event) }
   }
 
@@ -60,7 +60,7 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     queue.async { self.didReceiveStatus?(event) }
   }
 
-  public func emitDidRecieve(presence event: PresenceEvent) {
+  public func emitDidReceive(presence event: PresenceEvent) {
     queue.async { self.didReceivePresence?(event) }
   }
 

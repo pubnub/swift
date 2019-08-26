@@ -52,14 +52,19 @@ lane :test do
         device: device,
         code_coverage: true
       )
-
-      code_coverage if ENV['PLATFORM'] == 'ios' && runtime == '12'
     end
   end
 end
 
 desc "Generates Code Coverage Files"
 lane :code_coverage do
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_SDK'],
+    device: ENV['COVERAGE'],
+    code_coverage: true
+  )
+
   # Generate code coverage files
   slather(
     travis: ENV["TRAVIS_CI"],
@@ -73,24 +78,6 @@ lane :code_coverage do
     verbose: true,
     ignore: "Tests/**/*"
   )
-
-  codacy_code_coverage
-end
-
-desc "Sends code coverage to Codacy"
-lane :codacy_code_coverage do
-  Dir.chdir("..") do
-    Action.sh('java -jar codacy-coverage-reporter-assembly.jar report -l swift -r fastlane/test_output/cobertura.xml')
-  end
-end
-
-desc "Executes Linting for Framework releasing"
-lane :release_verification do
-  lint_cocoapods
-
-  lint_swift_package_manager
-
-  build_example
 end
 
 desc "Lints a release using Cocoapods"
@@ -130,7 +117,6 @@ end
 
 desc "Builds the SDK Example app"
 lane :build_example do
-# xcodebuild -workspace "$WORKSPACE" -scheme "$SCHEME" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO build | xcpretty;
   xcodebuild(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_EXAMPLE'],

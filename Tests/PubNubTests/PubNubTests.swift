@@ -46,7 +46,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testTime_Success() {
-    let expectation = self.expectation(description: "Time Response Recieved")
+    let expectation = self.expectation(description: "Time Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["time_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -67,7 +67,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Success() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -88,7 +88,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testCompressedPublish_Success() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -109,7 +109,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testFire_Success() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -130,7 +130,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Error_InvalidKey() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
       return XCTFail("Could not create mock url session")
@@ -163,7 +163,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Error_SystemSupplied() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["requestURITooLong_Message"]) else {
       return XCTFail("Could not create mock url session")
@@ -196,7 +196,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Error_MissingPublishKey() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
       return XCTFail("Could not create mock url session")
@@ -222,7 +222,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Error_MissingSubscribeKey() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
       return XCTFail("Could not create mock url session")
@@ -248,7 +248,7 @@ final class PubNubTests: XCTestCase {
   }
 
   func testPublish_Error_MissingPublishAndSubscribeKey() {
-    let expectation = self.expectation(description: "Publish Response Recieved")
+    let expectation = self.expectation(description: "Publish Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
       return XCTFail("Could not create mock url session")

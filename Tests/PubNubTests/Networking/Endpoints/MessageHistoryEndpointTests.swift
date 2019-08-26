@@ -57,7 +57,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -84,7 +84,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_IncludeMeta() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_withMeta"]) else {
       return XCTFail("Could not create mock url session")
@@ -110,7 +110,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_Encrypted() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -139,7 +139,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_EncryptedWrongKey() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -169,7 +169,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_MixedEncrypted() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_mixedEncrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -201,7 +201,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Success_EmptyMessages() {
-    let expectation = self.expectation(description: "Fetch History V2 Recieved")
+    let expectation = self.expectation(description: "Fetch History V2 Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_emptyList"]) else {
       return XCTFail("Could not create mock url session")
@@ -236,7 +236,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success() {
-    let expectation = self.expectation(description: "Fetch History  Response Recieved")
+    let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -262,7 +262,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_IncludeMeta() {
-    let expectation = self.expectation(description: "Fetch History  Response Recieved")
+    let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_withMeta"]) else {
       return XCTFail("Could not create mock url session")
@@ -288,7 +288,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_MultipleChannels() {
-    let expectation = self.expectation(description: "Fetch History  Response Recieved")
+    let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_multipleChannels"]) else {
       return XCTFail("Could not create mock url session")
@@ -314,7 +314,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_Encrypted() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -343,7 +343,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_EncryptedWrongKey() {
-    let expectation = self.expectation(description: "HereNow Response Recieved")
+    let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -373,7 +373,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_MixedEncrypted() {
-    let expectation = self.expectation(description: "FetchHistory Response Recieved")
+    let expectation = self.expectation(description: "FetchHistory Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_mixedEncrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -405,7 +405,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Success_EmptyMessages() {
-    let expectation = self.expectation(description: "Fetch History V2 Recieved")
+    let expectation = self.expectation(description: "Fetch History V2 Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_emptyList"]) else {
       return XCTFail("Could not create mock url session")
@@ -445,7 +445,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testDeleteHistory_Success() {
-    let expectation = self.expectation(description: "Delete History Recieved")
+    let expectation = self.expectation(description: "Delete History Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Delete_success"]) else {
       return XCTFail("Could not create mock url session")
@@ -465,7 +465,7 @@ extension MessageHistoryEndpointTests {
   }
 
   func testHistory_Error_HistoryNotEnabled() {
-    let expectation = self.expectation(description: "History Not Enabled Recieved")
+    let expectation = self.expectation(description: "History Not Enabled Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["history_not_enabled_for_key_Message"]) else {
       return XCTFail("Could not create mock url session")
@@ -494,6 +494,65 @@ extension MessageHistoryEndpointTests {
     }
 
     wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK: - Response Decoder
+
+extension MessageHistoryEndpointTests {
+  func testResponseDecoder_Decode_Failure() {
+    guard let url = URL(string: "http://example.com") else {
+      return XCTFail("Could not create URL")
+    }
+
+    let router = PubNubRouter(configuration: PubNubConfiguration.default, endpoint: .time)
+    let request = URLRequest(url: url)
+    let urlResponse = HTTPURLResponse(url: url, mimeType: nil, expectedContentLength: 200, textEncodingName: nil)
+    let response = Response<Data>(router: router,
+                                  request: request,
+                                  response: urlResponse,
+                                  payload: Data())
+    do {
+      _ = try MessageHistoryResponseDecoder().decode(response: response).get()
+      XCTFail("This should throw an error")
+    } catch {
+      let decodeError = PNError.endpointFailure(.jsonDataDecodeFailure(nil, with: error),
+                                                router.endpoint,
+                                                request,
+                                                urlResponse)
+
+      XCTAssertEqual(error.pubNubError, decodeError)
+    }
+  }
+
+  func testDecodeMessageHistoryV2_WrongEndpoint() {
+    guard let url = URL(string: "http://example.com") else {
+      return XCTFail("Could not create URL")
+    }
+
+    let router = PubNubRouter(configuration: PubNubConfiguration.default, endpoint: .time)
+    let request = URLRequest(url: url)
+    let urlResponse = HTTPURLResponse(url: url, mimeType: nil, expectedContentLength: 200, textEncodingName: nil)
+
+    guard let responseData = "[]".data(using: .utf8) else {
+      return XCTFail("Could not create data from string json")
+    }
+
+    let response = Response<Data>(router: router,
+                                  request: request,
+                                  response: urlResponse,
+                                  payload: responseData)
+    do {
+      _ = try MessageHistoryResponseDecoder().decodeMessageHistoryV2(response: response).get()
+      XCTFail("This should throw an error")
+    } catch {
+      let decodeError = PNError.endpointFailure(.malformedResponseBody,
+                                                router.endpoint,
+                                                request,
+                                                urlResponse)
+
+      XCTAssertEqual(error.pubNubError, decodeError)
+    }
   }
 }
 

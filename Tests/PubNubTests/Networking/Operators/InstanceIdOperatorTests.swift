@@ -54,7 +54,7 @@ class InstanceIdOperatorTests: XCTestCase {
       XCTAssertTrue(mutatedURL.absoluteString.contains(InstanceIdOperator.instanceIDKey))
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     config.useInstanceId = true
     pubnub = PubNub(configuration: config, session: sessions.session)
 

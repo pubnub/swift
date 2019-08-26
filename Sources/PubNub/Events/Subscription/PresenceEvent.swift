@@ -35,7 +35,7 @@ public enum PresenceStateEvent: String, Codable {
   case interval
 }
 
-public struct PresenceEventPayload: PresenceEvent {
+public struct PresenceEventPayload: PresenceEvent, Equatable {
   public let channel: String
   public let subscriptionMatch: String?
   public let senderTimetoken: Timetoken
@@ -48,6 +48,20 @@ public struct PresenceEventPayload: PresenceEvent {
   public let leave: [String]
   public let timeout: [String]
   public let stateChange: ChannelPresenceState
+
+  public static func == (lhs: PresenceEventPayload, rhs: PresenceEventPayload) -> Bool {
+    return lhs.channel == rhs.channel &&
+      lhs.subscriptionMatch == rhs.subscriptionMatch &&
+      lhs.senderTimetoken == rhs.senderTimetoken &&
+      lhs.presenceTimetoken == rhs.presenceTimetoken &&
+      lhs.metadata == rhs.metadata &&
+      lhs.event == rhs.event &&
+      lhs.occupancy == rhs.occupancy &&
+      lhs.join == rhs.join &&
+      lhs.leave == rhs.leave &&
+      lhs.timeout == rhs.timeout &&
+      AnyJSON(lhs.stateChange) == AnyJSON(rhs.stateChange)
+  }
 }
 
 public protocol PresenceEvent {

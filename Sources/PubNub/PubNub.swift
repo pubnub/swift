@@ -168,7 +168,7 @@ extension PubNub {
   }
 }
 
-// MARK: Subscription
+// MARK: - Subscription
 
 extension PubNub {
   public func subscribe(
@@ -183,6 +183,10 @@ extension PubNub {
                            at: timetoken,
                            withPresence: withPresence,
                            setting: presenceState)
+  }
+
+  public func add(_ listener: SubscriptionListener) -> ListenerToken {
+    return subscription.add(listener)
   }
 
   public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {

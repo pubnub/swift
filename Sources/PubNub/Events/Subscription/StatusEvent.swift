@@ -47,4 +47,13 @@ public enum ConnectionStatus {
   }
 }
 
-public typealias StatusEvent = Result<ConnectionStatus, PNError>
+extension StatusEvent {
+  public var emitState: Bool {
+    switch self {
+    case let .success(status):
+      return status.emitState
+    case .failure:
+      return false
+    }
+  }
+}

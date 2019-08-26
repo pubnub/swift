@@ -199,16 +199,14 @@ extension Router {
 
       urlComponents.path = path
       // URL will double encode our attempts to sanitize '/' inside path inputs
-      urlComponents.percentEncodedPath = urlComponents.percentEncodedPath
-        .replacingOccurrences(of: "%252F", with: "%2F")
+      urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
 
       urlComponents.queryItems = defaultQueryItems
 
       do {
         try urlComponents.queryItems?.append(contentsOf: queryItems.get())
-        // URL will not encode `+`, so we will do it manually
-        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?
-          .replacingOccurrences(of: "+", with: "%2B")
+        // URL will not encode `+` or `?`, so we will do it manually
+        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.additionalQueryEncoding
       } catch {
         return .failure(error)
       }

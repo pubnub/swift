@@ -165,7 +165,7 @@ final class SessionURLErrorTests: XCTestCase {
                  for: "appTransportSecurityRequiresSecureConnection")
   }
 
-  // Recieve Failure
+  // Receive Failure
   func testBadServerResponse() {
     testURLError(code: .badServerResponse, for: "badServerResponse")
   }

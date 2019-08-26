@@ -66,20 +66,21 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
       channel = nil
     }
 
-    guard version2Payload.count == 3, let channelName = channel else {
+    guard version2Payload.count == 3,
+      let channelName = channel,
+      let encodedMessages = version2Payload.first,
+      let startTimetoken = version2Payload[1].underlyingValue as? Timetoken,
+      let endTimetoken = version2Payload.last?.underlyingValue as? Timetoken else {
       return .failure(PNError.endpointFailure(.malformedResponseBody,
                                               response.endpoint,
                                               response.request,
                                               response.response))
     }
 
-    let messages = try version2Payload.first?.decode([MessageHistoryMessagesPayload].self) ?? []
+    let messages = try encodedMessages.decode([MessageHistoryMessagesPayload].self)
 
     let channels: [String: MessageHistoryChannelPayload]
     if !messages.isEmpty {
-      let startTimetoken = version2Payload[1].underlyingValue as? Timetoken ?? 0
-      let endTimetoken = version2Payload.last?.underlyingValue as? Timetoken ?? 0
-
       let channelPayload = MessageHistoryChannelPayload(messags: messages,
                                                         startTimetoken: startTimetoken,
                                                         endTimetoken: endTimetoken)
@@ -152,7 +153,6 @@ public struct MessageHistoryResponse: Codable {
   public let status: Int
   public let error: Bool
   public let responseMessage: String
-//  public let channels: [String: [MessageHistoryChannelPayload]]
   public let channels: MessageHistoryChannelsPayload
 
   enum CodingKeys: String, CodingKey {

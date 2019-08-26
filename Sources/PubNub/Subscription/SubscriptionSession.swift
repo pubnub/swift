@@ -28,71 +28,6 @@
 import Foundation
 
 public class SubscriptionSession {
-  struct InternalState {
-    var isActive: Bool {
-      switch state {
-      case .initialized, .disconnected, .disconnectedUnexpectedly, .cancelled:
-        return false
-      case .connected, .connecting, .reconnected, .reconnecting:
-        return true
-      }
-    }
-
-    var state: ConnectionStatus = .initialized
-
-    var channels: Set<String> = []
-    var channelGroups: Set<String> = []
-
-    var nonPresenceChannels: Set<String> {
-      return channels.filter { !$0.isPresenceChannelName }
-    }
-
-    var nonPresenceChannelGroups: Set<String> {
-      return channelGroups.filter { !$0.isPresenceChannelName }
-    }
-
-    var totalChannelCount: Int {
-      return channels.count + channelGroups.count
-    }
-
-    // Nil values will be ignored and empty values will become nil after the next subscription loop/setState call
-    private(set) var presenceState: ChannelPresenceState = [:]
-
-    mutating func cleanPresenceState(removeNil _: Bool = true, removeEmpty: Bool = true) {
-      presenceState = presenceState.filter { channelState in
-        if removeEmpty, channelState.value.isEmpty {
-          return false
-        }
-        return true
-      }
-    }
-
-    mutating func mergePresenceState(
-      _ other: ChannelPresenceState,
-      removingEmpty: Bool = true,
-      addingChannels: Bool = false
-    ) {
-      // Clean List before processing
-      cleanPresenceState()
-
-      // Get all the empty values and remove them from the existing state list
-      other.forEach { channelState in
-        if removingEmpty, channelState.value.isEmpty {
-          // Remove empty lists from our cached list
-          presenceState.removeValue(forKey: channelState.key)
-        } else if addingChannels, presenceState[channelState.key] == nil {
-          // Only update channels that we're actively subscribed to
-          presenceState.updateValue(channelState.value, forKey: channelState.key)
-        } else if presenceState[channelState.key] != nil {
-          // Update any tracked values
-          presenceState.updateValue(channelState.value, forKey: channelState.key)
-        }
-      }
-    }
-  }
-
-  // MARK: - Instance Properties
-
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
   public let uuid = UUID()
@@ -108,7 +43,20 @@ public class SubscriptionSession {
   var currentTimetoken: Timetoken = 0
   var previousTokenResponse: TimetokenResponse?
 
-  var state = Atomic<InternalState>(InternalState())
+  public private(set) var connectionStatus: ConnectionStatus {
+    get {
+      return internalState.lockedRead { $0.state }
+    }
+    set {
+      // Set internal state
+      internalState.lockedWrite { $0.state = newValue }
+
+      // Update any listeners
+      notify { $0.emitDidReceive(status: .success(newValue)) }
+    }
+  }
+
+  var internalState = Atomic<SubscriptionSessionState>(SubscriptionSessionState())
 
   internal init(configuration: SubscriptionConfiguration, network session: Session) {
     self.configuration = configuration
@@ -135,7 +83,7 @@ public class SubscriptionSession {
     }
 
     // Don't attempt to start subscription if there are no changes
-    let hasChanges = state.lockedWrite { mutableState -> Bool in
+    let hasChanges = internalState.lockedWrite { mutableState -> Bool in
       let oldCount = mutableState.totalChannelCount
 
       mutableState.channels.update(with: channels)
@@ -155,15 +103,15 @@ public class SubscriptionSession {
       channelGroups.forEach { incomingState?[$0] = presenceState }
     }
 
-    if hasChanges, state.lockedRead({ !$0.isActive }) {
+    if hasChanges, internalState.lockedRead({ !$0.isActive }) {
       reconnect(at: timetoken, setting: incomingState)
     }
   }
 
   public func reconnect(at timetoken: Timetoken, setting incomingState: ChannelPresenceState? = nil) {
     // Start subscription loop
-    if state.lockedRead({ !$0.isActive }) {
-      state.lockedWrite { $0.state = .connecting }
+    if internalState.lockedRead({ !$0.isActive }) {
+      connectionStatus = .connecting
     }
 
     // Start subscribe loop
@@ -178,20 +126,20 @@ public class SubscriptionSession {
     stopHeartbeatTimer()
 
     // Update Connection State and Notify
-    state.lockedWrite { $0.state = .disconnected }
-    notify { $0.emitDidReceive(status: .success(.disconnected)) }
+    connectionStatus = .disconnected
   }
 
-  func stopSubscribeLoop() {
-    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
+  @discardableResult
+  func stopSubscribeLoop() -> Bool {
+    return networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
-  func performSubscribeLoop(at timetoken: Timetoken, setting incomingState: ChannelPresenceState? = nil) {
+  func performSubscribeLoop(at timetoken: Timetoken?, setting incomingState: ChannelPresenceState? = nil) {
     // Ensure we don't have multiple subscribe loops
     stopSubscribeLoop()
 
-    let (channels, groups, storedState) = state
+    let (channels, groups, storedState) = internalState
       .lockedWrite { mutableState -> ([String], [String], ChannelPresenceState?) in
         var subscribeState: ChannelPresenceState?
 
@@ -230,7 +178,6 @@ public class SubscriptionSession {
       .response(decoder: SubscribeResponseDecoder()) { [weak self] result in
         switch result {
         case let .success(response):
-
           guard let strongSelf = self else {
             return
           }
@@ -238,17 +185,12 @@ public class SubscriptionSession {
           // Reset heartbeat timer
           self?.registerHeartbeatTimer()
 
-          let shouldNotifyConnected = strongSelf.state.lockedWrite { mutableState -> Bool in
-            mutableState.cleanPresenceState()
-            if mutableState.state != .connected {
-              mutableState.state = .connected
-              return true
-            }
-            return false
-          }
+          // Clean up Presence Channel State
+          self?.internalState.lockedWrite { $0.cleanPresenceState() }
 
-          if shouldNotifyConnected {
-            self?.notify { $0.emitDidReceive(status: .success(.connected)) }
+          // If we were in the process of connecting, notify connected
+          if strongSelf.connectionStatus == .connecting {
+            self?.connectionStatus = .connected
           }
 
           if response.payload.messages.count >= 100 {
@@ -278,14 +220,14 @@ public class SubscriptionSession {
 
               // If the state chage is for this user we should update our internal cache
               if presenceMessage.channelState.keys.contains(strongSelf.configuration.uuid) {
-                strongSelf.state.lockedWrite { $0.mergePresenceState(presenceMessage.channelState) }
+                strongSelf.internalState.lockedWrite { $0.mergePresenceState(presenceMessage.channelState) }
               }
 
-              self?.notify { $0.emitDidRecieve(presence: presenceEvent) }
+              self?.notify { $0.emitDidReceive(presence: presenceEvent) }
             } else {
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
-                self?.notify { $0.emitDidRecieve(message: message) }
+                self?.notify { $0.emitDidReceive(message: message) }
                 self?.messageCache.append(message)
               }
 
@@ -303,10 +245,15 @@ public class SubscriptionSession {
           self?.performSubscribeLoop(at: strongSelf.currentTimetoken)
         case let .failure(error):
           if error.isCancellationError {
-            self?.notify { $0.emitDidReceive(status: .success(.cancelled)) }
+            self?.connectionStatus = .cancelled
+          } else if let pubnubError = error.pubNubError {
+            self?.connectionStatus = .disconnectedUnexpectedly
+            self?.notify { $0.emitDidReceive(status: .failure(pubnubError)) }
           } else {
-            self?.state.lockedWrite { $0.state = .disconnectedUnexpectedly }
-            self?.notify { $0.emitDidReceive(status: .success(.disconnectedUnexpectedly)) }
+            self?.connectionStatus = .disconnectedUnexpectedly
+            self?.notify {
+              $0.emitDidReceive(status: .failure(PNError.unknownError(error, router.endpoint)))
+            }
           }
         }
       }
@@ -315,10 +262,10 @@ public class SubscriptionSession {
   // MARK: - Unsubscribe
 
   public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
-    stopSubscribeLoop()
+    let loopStopped = stopSubscribeLoop()
 
     // Update Channel List
-    let newCount = state.lockedWrite { mutableState -> Int in
+    let newCount = internalState.lockedWrite { mutableState -> Int in
       mutableState.channels.remove(contentsOf: channels)
       mutableState.channelGroups.remove(contentsOf: channelGroups)
 
@@ -328,14 +275,31 @@ public class SubscriptionSession {
       return mutableState.totalChannelCount
     }
 
-    // Call Leave on channels/groups
-    if !configuration.supressLeaveEvents {
-      presenceLeave(for: configuration.uuid, on: channels, and: channelGroups) { _ in
-//        notify { $0.emitDidReceive(status: .success()) }
-      }
+    unsubscribeCleanup(channels: channels, groups: channelGroups, newCount: newCount, restart: loopStopped)
+  }
+
+  public func unsubscribeAll() {
+    let loopStopped = stopSubscribeLoop()
+
+    // Remove All Channels & Groups
+    let (channels, groups) = internalState.lockedWrite { mutableState -> ([String], [String]) in
+      let channels = mutableState.removeAllChannels()
+      let groups = mutableState.removeAllChannelGroups()
+
+      return (channels, groups)
     }
 
-    // Clear state for unsubscribing channels
+    // Call unsubscribe to cleanup remaining state items
+    unsubscribeCleanup(channels: channels, groups: groups, newCount: 0, restart: loopStopped)
+  }
+
+  public func unsubscribeCleanup(channels: [String], groups: [String], newCount: Int, restart: Bool) {
+    // Call Leave on channels/groups
+    if !configuration.supressLeaveEvents {
+      presenceLeave(for: configuration.uuid, on: channels, and: groups) { result in
+        print("Presence Leave: \(result)")
+      }
+    }
 
     // Reset all timetokens and regions if we've unsubscribed from all channels/groups
     if newCount == 0 {
@@ -343,21 +307,9 @@ public class SubscriptionSession {
     }
 
     currentTimetoken = 0
-    reconnect(at: 0)
-  }
-
-  public func unsubscribeAll() {
-    // Remove All Groups
-    state.lockedWrite { mutableState in
-      mutableState.channels.removeAll()
-      mutableState.channelGroups.removeAll()
+    if restart {
+      reconnect(at: 0)
     }
-
-    // Remove timetoken and region so we start fresh
-    previousTokenResponse = nil
-    currentTimetoken = 0
-
-    reconnect(at: 0)
   }
 }
 

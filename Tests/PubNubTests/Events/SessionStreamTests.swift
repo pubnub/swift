@@ -104,7 +104,7 @@ class SessionStreamTests: XCTestCase {
       XCTAssertNil(error)
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     pubnub = PubNub(configuration: .default, session: sessions.session)
     pubnub.time { result in
       switch result {

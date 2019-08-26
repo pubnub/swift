@@ -83,7 +83,7 @@ class RequestMutatorTests: XCTestCase {
       XCTAssertTrue(mutatedURLComp?.queryItems?.contains(newAuth) ?? false)
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     pubnub = PubNub(configuration: .default, session: sessions.session)
     pubnub.time(with: networkConfig) { result in
       switch result {
@@ -134,7 +134,7 @@ class RequestMutatorTests: XCTestCase {
                      PNError.requestCreationFailure(.requestMutatorFailure(initialURLRequest, mutationError), .time))
     }
 
-    let totalExpectation = expectation(description: "Time Response Recieved")
+    let totalExpectation = expectation(description: "Time Response Received")
     pubnub = PubNub(configuration: .default, session: sessions.session)
     pubnub.time(with: networkConfig) { result in
       switch result {

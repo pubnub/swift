@@ -51,6 +51,17 @@ extension String {
     return replacingOccurrences(of: "/", with: "%2F")
   }
 
+  /// URLDeocdes double encoded slasshes `%252F` -> `%2F` (-> `/`)
+  var decodeDoubleEncodedSlash: String {
+    return replacingOccurrences(of: "%252F", with: "%2F")
+  }
+
+  /// Sanitizes attempts to include `+` and `?` inside query componetns
+  var additionalQueryEncoding: String {
+    return replacingOccurrences(of: "+", with: "%2B")
+      .replacingOccurrences(of: "?", with: "%3F")
+  }
+
   /// Strips path and extension and returns filename
   var absolutePathFilename: String {
     var pathComponents = components(separatedBy: "/")

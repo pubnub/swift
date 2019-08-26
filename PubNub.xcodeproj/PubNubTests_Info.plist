@@ -23,8 +23,8 @@
 	<key>NSPrincipalClass</key>
 	<string>PubNubTests.TestSetup</string>
 	<key>PubNubPublishKey</key>
-	<string>TEST_PUB_KEY</string>
+	<string>demo</string>
 	<key>PubNubSubscribeKey</key>
-	<string>TEST_SUB_KEY</string>
+	<string>demo</string>
 </dict>
 </plist>

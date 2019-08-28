@@ -108,10 +108,11 @@ class MasterDetailTableViewController: UITableViewController {
   enum EndpointRow: Int {
     case time = 0
     case publish = 1
-    case subscribe = 2
-    case unsubscribe = 3
-    case getState = 4
-    case setState = 5
+    case signal = 2
+    case subscribe = 3
+    case unsubscribe = 4
+    case getState = 5
+    case setState = 6
 
     var title: String {
       switch self {
@@ -119,6 +120,8 @@ class MasterDetailTableViewController: UITableViewController {
         return "Time"
       case .publish:
         return "Publish"
+      case .signal:
+        return "Signal"
       case .subscribe:
         return "Subscribe"
       case .unsubscribe:
@@ -131,7 +134,7 @@ class MasterDetailTableViewController: UITableViewController {
     }
 
     static var rowCount: Int {
-      return 6
+      return 7
     }
   }
 
@@ -330,6 +333,8 @@ class MasterDetailTableViewController: UITableViewController {
       performTimeRequest()
     case .some(.publish):
       performPublishRequest()
+    case .some(.signal):
+      performSignalRequest()
     case .some(.subscribe):
       performSubscribeRequest()
     case .some(.unsubscribe):
@@ -416,6 +421,17 @@ class MasterDetailTableViewController: UITableViewController {
         print("Successful Publish Response: \(response)")
       case let .failure(error):
         print("Failed Publish Response: \(error.localizedDescription)")
+      }
+    }
+  }
+
+  func performSignalRequest() {
+    pubnub.signal(channel: "channelSwift", message: "Test Signal") { (result) in
+      switch result {
+      case let .success(response):
+        print("Successful Signal Response: \(response)")
+      case let .failure(error):
+        print("Failed Signal Response: \(error.localizedDescription)")
       }
     }
   }

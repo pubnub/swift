@@ -166,6 +166,32 @@ extension PubNub {
         completion?(result.map { $0.payload })
       }
   }
+
+  public func signal(
+    channel: String,
+    message: AnyJSON,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+  ) {
+    let client = networkConfiguration?.customSession ?? networkSession
+
+    let router = PubNubRouter(configuration: configuration,
+                              endpoint: .signal(message: message, channel: channel))
+
+    let defaultOperators = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    client.usingDefault(requestOperator: defaultOperators)
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: PublishResponseDecoder()
+      ) { result in
+        completion?(result.map { $0.payload })
+    }
+  }
 }
 
 // MARK: - Subscription

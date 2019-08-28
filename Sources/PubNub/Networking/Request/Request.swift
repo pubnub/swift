@@ -353,13 +353,17 @@ extension Request {
   }
 
   func validate(_ closure: @escaping ValidationClosure) -> Self {
-    let validator: () -> Void = { [unowned self] in
-      guard self.error == nil, let request = self.urlRequest, let response = self.urlResponse else {
+    let validator: () -> Void = { [weak self] in
+      guard self?.error == nil,
+        let request = self?.urlRequest,
+        let response = self?.urlResponse,
+        let endpoint = self?.endpoint,
+        let data = self?.data else {
         return
       }
 
-      if let validationError = closure(self.endpoint, request, response, self.data) {
-        self.error = validationError
+      if let validationError = closure(endpoint, request, response, data) {
+        self?.error = validationError
       }
     }
 

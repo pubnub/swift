@@ -28,15 +28,6 @@
 import Foundation
 
 struct SubscriptionSessionState {
-  var isActive: Bool {
-    switch state {
-    case .initialized, .disconnected, .disconnectedUnexpectedly, .cancelled:
-      return false
-    case .connected, .connecting, .reconnected, .reconnecting:
-      return true
-    }
-  }
-
   var state: ConnectionStatus = .initialized
 
   var channels: Set<String> = []

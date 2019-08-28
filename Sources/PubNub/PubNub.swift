@@ -627,7 +627,7 @@ extension PubNub {
       return .failure(CryptoError.decodeError)
     }
 
-    return crypto.encrypt(plaintext: dataMessage)
+    return crypto.encrypt(utf8Encoded: dataMessage)
   }
 
   func decrypt(data: Data) -> Result<Data, Error> {

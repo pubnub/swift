@@ -117,7 +117,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: v2Channels) { result in
@@ -158,7 +158,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
-                         "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
+                         "s3+CcEE2QZ/Lh9CaPieJnQ==")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -176,7 +176,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: v2Channels) { result in
@@ -321,7 +321,7 @@ extension MessageHistoryEndpointTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: v3Channels) { result in
@@ -362,7 +362,7 @@ extension MessageHistoryEndpointTests {
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
-                         "f+gmda/WjcO3CWnq7dDrrEsRaMITLm8k+yLvGdrkMsg=")
+                         "s3+CcEE2QZ/Lh9CaPieJnQ==")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -380,7 +380,7 @@ extension MessageHistoryEndpointTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "MyCoolCipherKey")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: v3Channels) { result in

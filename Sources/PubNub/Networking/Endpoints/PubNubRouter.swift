@@ -291,7 +291,7 @@ extension PubNubRouter {
   func append(message: AnyJSON, to partialPath: String) -> Result<String, Error> {
     if let crypto = configuration.cipherKey {
       return message.jsonDataResult.flatMap { jsonData in
-        crypto.encrypt(plaintext: jsonData)
+        crypto.encrypt(utf8Encoded: jsonData)
           .flatMap { .success("\(partialPath)\($0.base64EncodedString().urlEncodeSlash.jsonDescription)") }
       }.mapError { PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint) }
     }

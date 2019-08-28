@@ -27,15 +27,15 @@
 
 import Foundation
 
-public struct SubscribeSessionFactory {
+public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
   public static var shared = SubscribeSessionFactory()
   private let sessions = Atomic<SessionMap>([:])
   private init() {}
 
-  public mutating func getSession(from config: SubscriptionConfiguration,
-                                  with _: Session = Session()) -> SubscriptionSession {
+  public func getSession(from config: SubscriptionConfiguration,
+                         with _: Session = Session()) -> SubscriptionSession {
     let configHash = config.subscriptionHashValue
     if let session = sessions.lockedRead({ $0[configHash]?.unbox }) {
       PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")

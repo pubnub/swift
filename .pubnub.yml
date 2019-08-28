@@ -7,6 +7,12 @@ changelog:
   -
     changes:
         -
+          text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
+          type: bug
+        -
+          text: "Default Encryption/Decryption methodology now properly aligns with other SDKs"
+          type: bug
+        -
           text: "Exposed add(listener:) to be called by PubNub instance directly"
           type: improvement
         -

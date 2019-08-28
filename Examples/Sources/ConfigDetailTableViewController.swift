@@ -90,7 +90,7 @@ class ConfigDetailTableViewController: UITableViewController {
       case .subscribeKey:
         return config.subscribeKey
       case .cipherKey:
-        return config.cipherKey?.key.description
+        return config.cipherKey?.key?.description ?? "Key Not Found"
       case .authKey:
         return config.authKey
       case .uuid:

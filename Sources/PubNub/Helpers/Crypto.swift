@@ -29,7 +29,7 @@ import CommonCrypto
 import Foundation
 
 public struct Crypto: Hashable {
-  public let key: Data
+  public let key: Data?
   public let cipher: Cipher
 
   public init?(key: String, cipher: Cipher = .aes) {
@@ -50,7 +50,7 @@ public struct Crypto: Hashable {
 
     public init?(rawValue: CCAlgorithm) {
       switch Int(rawValue) {
-      case kCCAlgorithmAES:
+      case kCCAlgorithmAES128:
         self = .aes
       default:
         return nil
@@ -60,7 +60,7 @@ public struct Crypto: Hashable {
     public var rawValue: CCAlgorithm {
       switch self {
       case .aes:
-        return UInt32(kCCAlgorithmAES)
+        return UInt32(kCCAlgorithmAES128)
       }
     }
 
@@ -84,129 +84,128 @@ public struct Crypto: Hashable {
   }
 
   public struct SHA256 {
-    public static func hash(data: Data) -> Data {
+    public static func hash(data: Data) -> Data? {
       var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
       data.withUnsafeBytes {
         _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
       }
-      return Data(hash)
+      return hexFrom(Data(hash)).lowercased(with: .current).data(using: .utf8)
+    }
+
+    static func hexFrom(_ data: Data) -> String {
+      let midpoint = data.count / 2
+      return data[..<midpoint].map { String(format: "%02lX", UInt($0)) }.joined()
     }
   }
 
-  public static func randomGenerateBytes(count: Int) -> Result<Data, Error> {
-    let bytes = UnsafeMutableRawPointer.allocate(byteCount: count, alignment: 1)
-    defer { bytes.deallocate() }
-    let status = CCRandomGenerateBytes(bytes, count)
-    if let error = CryptoError(rawValue: status) {
-      return .failure(error)
+  static var initializationVector: Result<Data, Error> {
+    guard let initializationVector = "0123456789012345".data(using: .utf8) else {
+      return .failure(CryptoError.rngFailure)
     }
-    return .success(Data(bytes: bytes, count: count))
+    return .success(initializationVector)
   }
 
-  public func encrypt(plaintext stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
+  // MARK: - Encrypt
+
+  public func encrypt(plaintext stringIn: String) -> Result<String, Error> {
+    guard let messageData = stringIn.data(using: .utf8) else {
+      return .failure(CryptoError.illegalParameter)
+    }
+
+    return encrypt(utf8Encoded: messageData).map { $0.base64EncodedString() }
+  }
+
+  public func encrypt(utf8Encoded dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
+    guard let key = key else {
+      return .failure(CryptoError.keySizeError)
+    }
+
     if let error = cipher.validate(keySize: key.count) {
       PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 
-    guard let dataIn = stringIn.data(using: .utf8) else {
-      return .failure(CryptoError.decodeError)
-    }
-
-    let initializationVector = Crypto.randomGenerateBytes(count: cipher.blockSize)
     let messageData = dataIn
 
-    return initializationVector.flatMap { ivData in
+    return Crypto.initializationVector.flatMap { ivData in
       crypt(operation: CCOperation(kCCEncrypt), key: key, messageData: messageData, ivData: ivData)
-        .map { ivData + $0 }
-        .flatMap { .success($0.base64EncodedString()) }
     }
   }
 
-  public func encrypt(plaintext dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
-    if let error = cipher.validate(keySize: key.count) {
-      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
-      return .failure(error)
+  // MARK: - Decrypt
+
+  public func decrypt(base64Encoded stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
+    guard let messageData = Data(base64Encoded: stringIn) else {
+      return .failure(CryptoError.illegalParameter)
     }
 
-    let initializationVector = Crypto.randomGenerateBytes(count: cipher.blockSize)
-    let messageData = dataIn
-
-    return initializationVector.flatMap { ivData in
-      crypt(operation: CCOperation(kCCEncrypt), key: key, messageData: messageData, ivData: ivData).map { ivData + $0 }
+    return decrypt(encrypted: messageData).flatMap { data in
+      guard let decodedString = String(bytes: data, encoding: .utf8) else {
+        return .failure(CryptoError.decodeError)
+      }
+      return .success(decodedString)
     }
   }
 
   public func decrypt(encrypted dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
+    guard let key = key else {
+      return .failure(CryptoError.keySizeError)
+    }
+
     if let error = cipher.validate(keySize: key.count) {
       PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
       return .failure(error)
     }
 
-    let initializationVector = dataIn.prefix(cipher.blockSize)
-    let messageData = dataIn.suffix(from: cipher.blockSize)
+    let messageData = dataIn
 
-    return crypt(operation: CCOperation(kCCDecrypt), key: key, messageData: messageData, ivData: initializationVector)
-  }
-
-  public func decrypt(base64Encoded stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
-    if let error = cipher.validate(keySize: key.count) {
-      PubNub.log.error("Key size not valid for algorithm: \(key.count) not in \(cipher.keySizeRange)")
-      return .failure(error)
+    return Crypto.initializationVector.flatMap { ivData in
+      crypt(operation: CCOperation(kCCDecrypt), key: key, messageData: messageData, ivData: ivData)
     }
-
-    guard let dataIn = Data(base64Encoded: stringIn, options: .ignoreUnknownCharacters) else {
-      return .failure(CryptoError.decodeError)
-    }
-
-    let initializationVector = dataIn.prefix(cipher.blockSize)
-    let messageData = dataIn.suffix(from: cipher.blockSize)
-
-    return crypt(operation: CCOperation(kCCDecrypt),
-                 key: key, messageData: messageData,
-                 ivData: initializationVector)
-      .flatMap { data in
-        guard let decodedString = String(bytes: data, encoding: .utf8) else {
-          return .failure(CryptoError.decodeError)
-        }
-        return .success(decodedString)
-      }
   }
 
   func crypt(
     operation: CCOperation,
     key: Data,
-    messageData: Data,
+    messageData dataIn: Data,
     ivData: Data,
     dataMovedOut: Int = 0
   ) -> Result<Data, Error> {
-    return key.withUnsafeBytes { keyUnsafeRawBufferPointer in
-      messageData.withUnsafeBytes { messageDataUnsafeRawBufferPointer in
+    let paddingSize = operation == kCCEncrypt ? cipher.blockSize : 0
+
+    let dataOutAvailable = dataIn.count + paddingSize
+    var dataOut = Data(count: dataOutAvailable)
+    var dataOutMoved = dataMovedOut
+
+    let status = key.withUnsafeBytes { keyUnsafeRawBufferPointer in
+      dataIn.withUnsafeBytes { dataInUnsafeRawBufferPointer in
         ivData.withUnsafeBytes { ivUnsafeRawBufferPointer in
-          let dataOutBufferSize: Int = messageData.count + cipher.blockSize
-          let dataOut = UnsafeMutableRawPointer.allocate(byteCount: dataOutBufferSize, alignment: 1)
-          defer { dataOut.deallocate() }
-          var dataMovedOutResult: Int = dataMovedOut
-          let status = CCCrypt(operation, cipher.rawValue, CCOptions(kCCOptionPKCS7Padding),
-                               keyUnsafeRawBufferPointer.baseAddress, key.count,
-                               ivUnsafeRawBufferPointer.baseAddress,
-                               messageDataUnsafeRawBufferPointer.baseAddress, messageData.count,
-                               dataOut, dataOutBufferSize,
-                               &dataMovedOutResult)
-          if let error = CryptoError(rawValue: status) {
-            if error == .bufferTooSmall {
-              return crypt(operation: operation,
-                           key: key,
-                           messageData: messageData,
-                           ivData: ivData,
-                           dataMovedOut: dataMovedOut)
-            }
-            return .failure(error)
+          dataOut.withUnsafeMutableBytes { dataOutPointer in
+            CCCrypt(operation, cipher.rawValue, CCOptions(kCCOptionPKCS7Padding),
+                    keyUnsafeRawBufferPointer.baseAddress, key.count,
+                    ivUnsafeRawBufferPointer.baseAddress,
+                    dataInUnsafeRawBufferPointer.baseAddress, dataIn.count,
+                    dataOutPointer.baseAddress, dataOutAvailable,
+                    &dataOutMoved)
           }
-          return .success(Data(bytes: dataOut, count: dataMovedOutResult))
         }
       }
     }
+    if let error = CryptoError(rawValue: status) {
+      if error == .bufferTooSmall {
+        return crypt(operation: operation,
+                     key: key,
+                     messageData: dataIn,
+                     ivData: ivData,
+                     dataMovedOut: dataOutMoved)
+      }
+      return .failure(error)
+    }
+
+    // Resize to dataOutMoved
+    dataOut.count = dataOutMoved
+
+    return .success(dataOut)
   }
 }
 

@@ -35,7 +35,11 @@ extension SessionDelegate: URLSessionDataDelegate {
   // MARK: - URLSessionDelegate
 
   // Task was invalidated by the session directly
-  public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
+  public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+    // Set invalidated in case this happened unexpectedly
+    sessionBridge?.isInvalidated = true
+    PubNub.log.warn("Session \(session.sessionDescription ?? session.description) has become invalid")
+
     if let error = error {
       sessionBridge?.cancelRequests(for: .sessionInvalidated(.implicit(dueTo: error),
                                                              sessionID: sessionBridge?.sessionID))
@@ -84,6 +88,7 @@ extension SessionDelegate: URLSessionDataDelegate {
 protocol SessionStateBridge: AnyObject {
   var sessionID: UUID { get }
   var sessionStream: SessionStream? { get }
+  var isInvalidated: Bool { get set }
   func request(for task: URLSessionTask) -> Request?
   func didComplete(_ task: URLSessionTask)
   func cancelRequests(for invalidationError: PNError)

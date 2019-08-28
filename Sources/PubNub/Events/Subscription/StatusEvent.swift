@@ -32,16 +32,28 @@ public enum ConnectionStatus {
   case connecting
   case connected
   case reconnecting
-  case reconnected
   case disconnected
   case disconnectedUnexpectedly
   case cancelled
+
+  var isActive: Bool {
+    switch self {
+    case .connecting, .connected, .reconnecting:
+      return true
+    default:
+      return false
+    }
+  }
+
+  var isConnected: Bool {
+    return self == .connected
+  }
 
   var emitState: Bool {
     switch self {
     case .initialized, .connecting, .reconnecting:
       return false
-    case .connected, .reconnected, .disconnected, .disconnectedUnexpectedly, .cancelled:
+    case .connected, .disconnected, .disconnectedUnexpectedly, .cancelled:
       return true
     }
   }

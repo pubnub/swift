@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   LastUpgradeVersion = "1030"
+   version = "1.7">
+   <BuildAction
+      parallelizeBuildables = "YES"
+      buildImplicitDependencies = "YES">
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      systemAttachmentLifetime = "keepNever"
+      shouldUseLaunchSchemeArgsEnv = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3558069D23145749005CDD92"
+               BuildableName = "PubNubTests.xctest"
+               BlueprintName = "PubNubIntegration"
+               ReferencedContainer = "container:PubNub.xcodeproj">
+            </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "AnyJSONCodableTests">
+               </Test>
+               <Test
+                  Identifier = "AnyJSONTests">
+               </Test>
+               <Test
+                  Identifier = "AtomicTests">
+               </Test>
+               <Test
+                  Identifier = "AutomaticRetryTests">
+               </Test>
+               <Test
+                  Identifier = "BoolPubNubTests">
+               </Test>
+               <Test
+                  Identifier = "ChannelGroupsEndpointTests">
+               </Test>
+               <Test
+                  Identifier = "CollectionPubNubTests">
+               </Test>
+               <Test
+                  Identifier = "ConstantsTests">
+               </Test>
+               <Test
+                  Identifier = "CryptoTests">
+               </Test>
+               <Test
+                  Identifier = "DataPubNubTests">
+               </Test>
+               <Test
+                  Identifier = "DateFormatterPubNubTests">
+               </Test>
+               <Test
+                  Identifier = "DispatchQueuePubNubTests">
+               </Test>
+               <Test
+                  Identifier = "EndpointTests">
+               </Test>
+               <Test
+                  Identifier = "ErrorPubNubTests">
+               </Test>
+               <Test
+                  Identifier = "EventStreamTests">
+               </Test>
+               <Test
+                  Identifier = "HTTPHeaderTests">
+               </Test>
+               <Test
+                  Identifier = "HTTPHeadersTests">
+               </Test>
+               <Test
+                  Identifier = "HTTPURLResponsePubNubTests">
+               </Test>
+               <Test
+                  Identifier = "InstanceIdOperatorTests">
+               </Test>
+               <Test
+                  Identifier = "IntTests">
+               </Test>
+               <Test
+                  Identifier = "MessageCountsEndpointTests">
+               </Test>
+               <Test
+                  Identifier = "MessageEventTests">
+               </Test>
+               <Test
+                  Identifier = "MessageHistoryEndpointTests">
+               </Test>
+               <Test
+                  Identifier = "OperationQueuePubNubTests">
+               </Test>
+               <Test
+                  Identifier = "PNErrorEquatableTests">
+               </Test>
+               <Test
+                  Identifier = "PNErrorTests">
+               </Test>
+               <Test
+                  Identifier = "PNError_LocalizedErrorTests">
+               </Test>
+               <Test
+                  Identifier = "PresenceChannelTests">
+               </Test>
+            </SkippedTests>
+            <LocationScenarioReference
+               identifier = "com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier"
+               referenceType = "1">
+            </LocationScenarioReference>
+         </TestableReference>
+      </Testables>
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </TestAction>
+   <LaunchAction
+      buildConfiguration = "Debug"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      launchStyle = "0"
+      useCustomWorkingDirectory = "NO"
+      ignoresPersistentStateOnLaunch = "NO"
+      debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
+      allowLocationSimulation = "YES">
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      savedToolIdentifier = ""
+      useCustomWorkingDirectory = "NO"
+      debugDocumentVersioning = "YES">
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      buildConfiguration = "Release"
+      revealArchiveInOrganizer = "YES">
+   </ArchiveAction>
+</Scheme>

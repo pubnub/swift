@@ -51,7 +51,7 @@ extension String {
     return replacingOccurrences(of: "/", with: "%2F")
   }
 
-  /// URLDeocdes double encoded slasshes `%252F` -> `%2F` (-> `/`)
+  /// URLDecodes double encoded slasshes `%252F` -> `%2F` (-> `/`)
   var decodeDoubleEncodedSlash: String {
     return replacingOccurrences(of: "%252F", with: "%2F")
   }

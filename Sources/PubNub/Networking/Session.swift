@@ -34,6 +34,7 @@ public final class Session {
   public let session: URLSessionReplaceable
   public let sessionQueue: DispatchQueue
   public let requestQueue: DispatchQueue
+  let invalidationState = AtomicInt(0)
 
   weak var delegate: SessionDelegate?
   let sessionStream: SessionStream?
@@ -90,7 +91,8 @@ public final class Session {
 
     taskToRequest.values.forEach { $0.finish(error: PNError.sessionDeinitialized(sessionID: sessionID)) }
     taskToRequest.removeAll()
-    session.invalidateAndCancel()
+
+    invalidateAndCancel()
   }
 
   // MARK: - Self Operators
@@ -152,15 +154,15 @@ public final class Session {
 
     // Perform any provided request mutations
     if let mutator = self.mutator(for: request) {
-      mutator.mutate(urlRequest, for: self) { result in
+      mutator.mutate(urlRequest, for: self) { [weak self] result in
         switch result {
         case let .success(mutatedRequest):
-          self.sessionQueue.async {
+          self?.sessionQueue.async {
             request.didMutate(urlRequest, to: mutatedRequest)
-            self.didCreateURLRequest(urlRequest, for: request)
+            self?.didCreateURLRequest(urlRequest, for: request)
           }
         case let .failure(error):
-          self.sessionQueue.async {
+          self?.sessionQueue.async {
             let requestCreationError = PNError
               .requestCreationFailure(.requestMutatorFailure(urlRequest, error), request.endpoint)
 
@@ -176,17 +178,34 @@ public final class Session {
     }
   }
 
+  public internal(set) var isInvalidated: Bool {
+    get {
+      return invalidationState.isEqual(to: 1)
+    }
+    set {
+      invalidationState.bitwiseOrAssignemnt(newValue ? 1 : 0)
+    }
+  }
+
   func didCreateURLRequest(_ urlRequest: URLRequest, for request: Request) {
     if request.isCancelled { return }
 
     // Leak inside URLSession; passing in copy to avoid passing in managed objects
     let urlRequestCopy = urlRequest
-    let task = session.dataTask(with: urlRequestCopy)
 
-    taskToRequest[task] = request
-    request.didCreate(task)
+    // URLSession doesn't provide a way to check if it's invalidated,
+    // so we lock to avoid crashes from creating tasks while invalidated
 
-    updateStatesForTask(task, request: request)
+    if !isInvalidated {
+      let task = session.dataTask(with: urlRequestCopy)
+      taskToRequest[task] = request
+
+      request.didCreate(task)
+
+      updateStatesForTask(task, request: request)
+    } else {
+      PubNub.log.warn("Attempted to create task from invalidated session: \(sessionID)")
+    }
   }
 
   func updateStatesForTask(_ task: URLSessionTask, request: Request) {
@@ -224,16 +243,21 @@ public final class Session {
     }
   }
 
-  @discardableResult
-  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) -> Bool {
-    var tasksCancelled = false
-    taskToRequest.values.forEach { request in
-      if request.router.endpoint.rawValue == endpoint {
-        tasksCancelled = true
-        request.cancel(with: cancellationError)
+  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
+    sessionQueue.async { [weak self] in
+      self?.taskToRequest.values.forEach { request in
+        if request.router.endpoint.rawValue == endpoint {
+          request.cancel(with: cancellationError)
+        }
       }
     }
-    return tasksCancelled
+  }
+
+  func invalidateAndCancel() {
+    // Ensure that we lock out task creation prior to invalidating
+    isInvalidated = true
+
+    session.invalidateAndCancel()
   }
 }
 
@@ -253,8 +277,8 @@ extension Session: RequestDelegate {
 
     PubNub.log.warn("Retrying request \(request.requestID) due to error \(error)")
 
-    retrier.retry(request, for: self, dueTo: error) { retryResult in
-      self.sessionQueue.async {
+    retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in
+      self?.sessionQueue.async {
         guard let retryResultError = retryResult.error, let urlRequest = request.urlRequest else {
           completion(retryResult)
           return

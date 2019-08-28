@@ -49,10 +49,16 @@ public class SubscriptionSession {
     }
     set {
       // Set internal state
-      internalState.lockedWrite { $0.state = newValue }
+      let oldState = internalState.lockedWrite { state -> ConnectionStatus in
+        let oldState = state.state
+        state.state = newValue
+        return oldState
+      }
 
-      // Update any listeners
-      notify { $0.emitDidReceive(status: .success(newValue)) }
+      // Update any listeners if value changed
+      if oldState != newValue {
+        notify { $0.emitDidReceive(status: .success(newValue)) }
+      }
     }
   }
 
@@ -66,7 +72,7 @@ public class SubscriptionSession {
   }
 
   deinit {
-    self.networkSession.session.invalidateAndCancel()
+    self.networkSession.invalidateAndCancel()
   }
 
   // MARK: - Subscription Loop
@@ -103,14 +109,14 @@ public class SubscriptionSession {
       channelGroups.forEach { incomingState?[$0] = presenceState }
     }
 
-    if hasChanges, internalState.lockedRead({ !$0.isActive }) {
+    if hasChanges, !connectionStatus.isActive {
       reconnect(at: timetoken, setting: incomingState)
     }
   }
 
   public func reconnect(at timetoken: Timetoken, setting incomingState: ChannelPresenceState? = nil) {
     // Start subscription loop
-    if internalState.lockedRead({ !$0.isActive }) {
+    if !connectionStatus.isActive {
       connectionStatus = .connecting
     }
 
@@ -131,7 +137,9 @@ public class SubscriptionSession {
 
   @discardableResult
   func stopSubscribeLoop() -> Bool {
-    return networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
+    // Cancel subscription requests
+    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
+    return connectionStatus.isActive
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -297,7 +305,7 @@ public class SubscriptionSession {
     // Call Leave on channels/groups
     if !configuration.supressLeaveEvents {
       presenceLeave(for: configuration.uuid, on: channels, and: groups) { result in
-        print("Presence Leave: \(result)")
+        PubNub.log.info("Presence Leave: \(result)")
       }
     }
 

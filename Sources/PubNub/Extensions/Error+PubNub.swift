@@ -29,26 +29,26 @@ import Foundation
 
 extension Error {
   /// Instance cast as a `PNError`
-  var pubNubError: PNError? {
+  public var pubNubError: PNError? {
     return self as? PNError
   }
 
   /// Instance cast as a `URLError`
-  var urlError: URLError? {
+  public var urlError: URLError? {
     return self as? URLError ?? pubNubError?.urlError
   }
 
-  var isCancellationError: Bool {
+  public var isCancellationError: Bool {
     return urlError?.code == .cancelled
   }
 
   /// Instance cast as a `EncodingError`
-  var encodingError: EncodingError? {
+  public var encodingError: EncodingError? {
     return self as? EncodingError
   }
 
   /// Instance cast as a `DecodingError`
-  var decodingError: DecodingError? {
+  public var decodingError: DecodingError? {
     return self as? DecodingError
   }
 }

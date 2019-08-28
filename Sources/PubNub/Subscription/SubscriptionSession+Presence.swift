@@ -78,7 +78,7 @@ extension SubscriptionSession {
       .response(decoder: GenericServiceResponseDecoder()) { result in
         switch result {
         case .success:
-          if self.internalState.lockedRead({ $0.isActive }) {
+          if self.connectionStatus.isActive {
             self.registerHeartbeatTimer()
           } else {
             self.stopHeartbeatTimer()

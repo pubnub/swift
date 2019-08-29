@@ -41,7 +41,7 @@ struct SubscribeResponseDecoder: ResponseDecoder {
     var messages = response.payload.messages
     for (index, message) in messages.enumerated() {
       // Convert base64 string into Data
-      if let messageData = message.message.dataOptional {
+      if let messageData = message.payload.dataOptional {
         // If a message fails we just return the original and move on
         do {
           let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
@@ -102,10 +102,18 @@ public struct TimetokenResponse: Codable, Hashable {
   }
 }
 
+public enum MessageType: Int, Codable {
+  case message = 0
+  case signal = 1
+  case object = 2
+  case presence = 3
+}
+
 public struct MessageResponse: Codable, Hashable {
   public let shard: String
   public let subscriptionMatch: String?
   public let channel: String
+  public let messageType: MessageType
   public let payload: AnyJSON
   public let flags: Int
   public let issuer: String?
@@ -119,6 +127,7 @@ public struct MessageResponse: Codable, Hashable {
     case subscriptionMatch = "b"
     case channel = "c"
     case payload = "d"
+    case messageType = "e"
     case flags = "f"
     case issuer = "i"
     case subscribeKey = "k"
@@ -127,10 +136,62 @@ public struct MessageResponse: Codable, Hashable {
     case metadata = "u"
   }
 
+  public init(
+    shard: String,
+    subscriptionMatch: String?,
+    channel: String,
+    messageType: MessageType,
+    payload: AnyJSON,
+    flags: Int,
+    issuer: String?,
+    subscribeKey: String,
+    originTimetoken: TimetokenResponse?,
+    publishTimetoken: TimetokenResponse,
+    metadata: AnyJSON?
+  ) {
+    self.shard = shard
+    self.subscriptionMatch = subscriptionMatch
+    self.channel = channel
+    self.messageType = messageType
+    self.payload = payload
+    self.flags = flags
+    self.issuer = issuer
+    self.subscribeKey = subscribeKey
+    self.originTimetoken = originTimetoken
+    self.publishTimetoken = publishTimetoken
+    self.metadata = metadata
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    shard = try container.decode(String.self, forKey: .shard)
+    subscriptionMatch = try container.decodeIfPresent(String.self, forKey: .subscriptionMatch)
+    channel = try container.decode(String.self, forKey: .channel)
+    payload = try container.decode(AnyJSON.self, forKey: .payload)
+    flags = try container.decode(Int.self, forKey: .flags)
+    issuer = try container.decodeIfPresent(String.self, forKey: .issuer)
+    subscribeKey = try container.decode(String.self, forKey: .subscribeKey)
+    originTimetoken = try container.decodeIfPresent(TimetokenResponse.self, forKey: .originTimetoken)
+    publishTimetoken = try container.decode(TimetokenResponse.self, forKey: .publishTimetoken)
+    metadata = try container.decodeIfPresent(AnyJSON.self, forKey: .metadata)
+
+    let messageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
+    switch messageType {
+    case .some(1):
+      self.messageType = .signal
+    case .some(2):
+      self.messageType = .object
+    default:
+      self.messageType = .message
+    }
+  }
+
   func message(with newPayload: AnyJSON) -> MessageResponse {
     return MessageResponse(shard: shard,
                            subscriptionMatch: subscriptionMatch,
                            channel: channel,
+                           messageType: messageType,
                            payload: newPayload,
                            flags: flags,
                            issuer: issuer,
@@ -144,13 +205,14 @@ public struct MessageResponse: Codable, Hashable {
     shard.hash(into: &hasher)
     subscriptionMatch.hash(into: &hasher)
     channel.hash(into: &hasher)
-//    payload: AnyJSON
+    messageType.hash(into: &hasher)
+    //    payload: AnyJSON
     flags.hash(into: &hasher)
     issuer.hash(into: &hasher)
     subscribeKey.hash(into: &hasher)
     originTimetoken.hash(into: &hasher)
     publishTimetoken.hash(into: &hasher)
-//    metadata: AnyJSON?
+    //    metadata: AnyJSON?
   }
 }
 

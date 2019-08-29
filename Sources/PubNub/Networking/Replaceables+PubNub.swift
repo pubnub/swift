@@ -49,6 +49,8 @@ public protocol SessionReplaceable {
   var session: URLSessionReplaceable { get }
   func usingDefault(requestOperator: RequestOperator?) -> Self
   func request(with router: Router, requestOperator: RequestOperator?) -> Request
+  func cancelAllTasks(with: PNError, for: Endpoint.RawValue)
+  func invalidateAndCancel()
 }
 
 extension Session: SessionReplaceable {}

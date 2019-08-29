@@ -31,7 +31,7 @@ public class SubscriptionSession {
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
   public let uuid = UUID()
-  let networkSession: Session
+  let networkSession: SessionReplaceable
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
@@ -42,6 +42,10 @@ public class SubscriptionSession {
 
   var currentTimetoken: Timetoken = 0
   var previousTokenResponse: TimetokenResponse?
+
+  var subscribedChannels: Set<String> {
+    return internalState.lockedRead { $0.nonPresenceChannels }
+  }
 
   public private(set) var connectionStatus: ConnectionStatus {
     get {
@@ -64,7 +68,7 @@ public class SubscriptionSession {
 
   var internalState = Atomic<SubscriptionSessionState>(SubscriptionSessionState())
 
-  internal init(configuration: SubscriptionConfiguration, network session: Session) {
+  internal init(configuration: SubscriptionConfiguration, network session: SessionReplaceable) {
     self.configuration = configuration
     networkSession = session
     responseQueue = DispatchQueue(label: "com.pubnub.subscription.response", qos: .default)
@@ -109,7 +113,7 @@ public class SubscriptionSession {
       channelGroups.forEach { incomingState?[$0] = presenceState }
     }
 
-    if hasChanges, !connectionStatus.isActive {
+    if hasChanges || connectionStatus != .connected {
       reconnect(at: timetoken, setting: incomingState)
     }
   }
@@ -138,7 +142,7 @@ public class SubscriptionSession {
   @discardableResult
   func stopSubscribeLoop() -> Bool {
     // Cancel subscription requests
-    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown))
+    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown), for: .subscribe)
     return connectionStatus.isActive
   }
 
@@ -235,7 +239,15 @@ public class SubscriptionSession {
             } else {
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
-                self?.notify { $0.emitDidReceive(message: message) }
+                switch message.messageType {
+                case .message:
+                  self?.notify { $0.emitDidReceive(message: message) }
+                case .signal:
+                  self?.notify { $0.emitDidReceive(signal: message) }
+                default:
+                  break
+                }
+
                 self?.messageCache.append(message)
               }
 

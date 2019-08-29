@@ -8,6 +8,7 @@ changelog:
     changes:
         -
           text: "Add support for Signal publish API"
+          text: "Add support for Signal Subscription Listener"
           type: feature
         -
           text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
@@ -23,6 +24,9 @@ changelog:
           type: bug
       date: 2019-XX-XX
       version: v1.1.0
+    date: 2019-XX-XX
+    version: v1.1.0
+  -
     changes:
       -
         text: "Initial release of native Swift PubNub SDK"
@@ -81,6 +85,8 @@ features:
     - SUBSCRIBE-SIGNAL-LISTENER
   unsubscribe:
     - UNSUBSCRIBE-ALL
+  signal:
+    - SIGNAL-SEND
 supported-platforms:
   -
     version: PubNub Swift SDK

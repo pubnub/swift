@@ -50,8 +50,9 @@ class SubscriptionListenerTests: XCTestCase {
   }
 
   struct MockMessageEvent: MessageEvent, Equatable {
+    var messageType: MessageType = .message
     var publisher: String? = "Sender"
-    var message: AnyJSON = "Message"
+    var payload: AnyJSON = "Message"
     var channel: String = "Channel"
     var subscription: String? = "Channel"
     var timetoken: Timetoken = 0

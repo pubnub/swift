@@ -53,7 +53,7 @@ class OnboardingSnippets: XCTestCase {
     // Add Listener
     let listener = SubscriptionListener()
     listener.didReceiveMessage = { event in
-      print("Received \(event.message) from \(event.publisher ?? "_Unknown_")")
+      print("Received \(event.payload) from \(event.publisher ?? "_Unknown_")")
       messageExpect.fulfill()
     }
     listener.didReceivePresence = { event in

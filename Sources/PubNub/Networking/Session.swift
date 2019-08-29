@@ -243,7 +243,7 @@ public final class Session {
     }
   }
 
-  func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
+  public func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
     sessionQueue.async { [weak self] in
       self?.taskToRequest.values.forEach { request in
         if request.router.endpoint.rawValue == endpoint {
@@ -253,7 +253,7 @@ public final class Session {
     }
   }
 
-  func invalidateAndCancel() {
+  public func invalidateAndCancel() {
     // Ensure that we lock out task creation prior to invalidating
     isInvalidated = true
 

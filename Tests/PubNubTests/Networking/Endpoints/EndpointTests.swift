@@ -50,15 +50,4 @@ class EndpointTests: XCTestCase {
     let fire = Endpoint.fire(message: AnyJSON([1]), channel: "Test", meta: nil)
     XCTAssertEqual(fire.description, "Fire")
   }
-
-  func testCustomStringConvertible_Subscribe() {
-    let subscribe = Endpoint.subscribe(channels: ["Test"],
-                                       groups: [],
-                                       timetoken: 0,
-                                       region: nil,
-                                       state: nil,
-                                       heartbeat: nil,
-                                       filter: nil)
-    XCTAssertEqual(subscribe.description, "Subscribe")
-  }
 }

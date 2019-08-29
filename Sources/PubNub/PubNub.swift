@@ -190,7 +190,7 @@ extension PubNub {
         decoder: PublishResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload })
-    }
+      }
   }
 }
 

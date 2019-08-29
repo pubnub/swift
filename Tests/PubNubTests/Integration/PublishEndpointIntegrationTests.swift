@@ -43,7 +43,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       switch result {
       case .success:
         break
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       publishExpect.fulfill()
@@ -62,12 +62,11 @@ class PublishEndpointIntegrationTests: XCTestCase {
     // Publish a simple message to the demo_tutorial channel
     client.publish(channel: "SwiftITest",
                    message: "TestCompressedPublish",
-                   shouldCompress: true)
-    { result in
+                   shouldCompress: true) { result in
       switch result {
       case .success:
         break
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       compressedPublishExpect.fulfill()
@@ -88,7 +87,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       switch result {
       case .success:
         break
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       fireExpect.fulfill()
@@ -109,7 +108,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       switch result {
       case .success:
         break
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       signalExpect.fulfill()

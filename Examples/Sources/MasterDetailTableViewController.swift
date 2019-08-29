@@ -426,7 +426,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performSignalRequest() {
-    pubnub.signal(channel: "channelSwift", message: "Test Signal") { (result) in
+    pubnub.signal(channel: "channelSwift", message: "Test Signal") { result in
       switch result {
       case let .success(response):
         print("Successful Signal Response: \(response)")

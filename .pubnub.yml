@@ -1,11 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "1.0.1"
+version: "1.1.0"
 schema: 1
 changelog:
   -
     changes:
+        -
+          text: "Add support for Signal publish API"
+          type: feature
         -
           text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
           type: bug
@@ -19,7 +22,7 @@ changelog:
           text: "`?` characters inside URL query parameters will now be properly url encoded"
           type: bug
       date: 2019-XX-XX
-      version: v1.0.1
+      version: v1.1.0
     changes:
       -
         text: "Initial release of native Swift PubNub SDK"

@@ -97,6 +97,9 @@ extension PubNubRouter: Router {
                     to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
     case let .compressedPublish(parameters):
       path = "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0"
+    case let .signal(message, channel):
+      return append(message: message,
+                    to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
     case let .subscribe(parameters):
       let channels = parameters.channels.commaOrCSVString.urlEncodeSlash
       path = "/v2/subscribe/\(subscribeKey)/\(channels)/0"
@@ -279,7 +282,7 @@ extension PubNubRouter: Router {
 
   func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
     switch endpoint {
-    case .publish, .compressedPublish, .fire:
+    case .publish, .compressedPublish, .fire, .signal:
       return PublishResponseDecoder().decodeError(endpoint: endpoint, request: request, response: response, for: data)
     default:
       return AnyJSONResponseDecoder().decodeError(endpoint: endpoint, request: request, response: response, for: data)

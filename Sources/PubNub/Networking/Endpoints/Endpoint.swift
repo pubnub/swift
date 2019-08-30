@@ -35,6 +35,7 @@ public enum Endpoint {
     case publish
     case compressedPublish
     case fire
+    case signal
     case subscribe
     case heartbeat
     case leave
@@ -69,6 +70,7 @@ public enum Endpoint {
   case publish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
   case compressedPublish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
   case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
+  case signal(message: AnyJSON, channel: String)
 
   // Subscribe Endpoint
   case subscribe(
@@ -115,6 +117,8 @@ public enum Endpoint {
       return .compressedPublish
     case .fire:
       return .fire
+    case .signal:
+      return .signal
     case .subscribe:
       return .subscribe
     case .heartbeat:
@@ -171,6 +175,8 @@ extension Endpoint: Validated {
     case let .compressedPublish(message, channel, _, _, _):
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .fire(message, channel, _):
+      return isEndpointInvalid(message.isEmpty, channel.isEmpty)
+    case let .signal(message, channel):
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .subscribe(parameters):
       return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty)
@@ -255,7 +261,7 @@ extension Endpoint {
     switch rawValue {
     case .time:
       return .time
-    case .publish, .compressedPublish, .fire:
+    case .publish, .compressedPublish, .fire, .signal:
       return .publish
     case .subscribe:
       return .subscribe
@@ -282,6 +288,8 @@ extension Endpoint: CustomStringConvertible {
       return "Publish"
     case .fire:
       return "Fire"
+    case .signal:
+      return "Signal"
     case .subscribe:
       return "Subscribe"
     case .heartbeat:

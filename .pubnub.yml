@@ -7,8 +7,10 @@ changelog:
   -
     changes:
         -
-          text: "Add support for Signal publish API"
           text: "Add support for Signal Subscription Listener"
+          type: feature
+        -
+          text: "Add support for Signal publish API"
           type: feature
         -
           text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
@@ -22,8 +24,6 @@ changelog:
         -
           text: "`?` characters inside URL query parameters will now be properly url encoded"
           type: bug
-      date: 2019-XX-XX
-      version: v1.1.0
     date: 2019-XX-XX
     version: v1.1.0
   -

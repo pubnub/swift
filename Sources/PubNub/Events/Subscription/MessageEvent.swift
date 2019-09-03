@@ -31,7 +31,7 @@ public protocol MessageEvent: CustomStringConvertible {
   /// Message sender identifier
   var publisher: String? { get }
   /// The message sent on the channel
-  var message: AnyJSON { get }
+  var payload: AnyJSON { get }
   /// The channel for which the message belongs
   var channel: String { get }
   /// The channel group or wildcard subscription match (if exists)
@@ -40,13 +40,15 @@ public protocol MessageEvent: CustomStringConvertible {
   var timetoken: Timetoken { get }
   /// User metadata
   var userMetadata: AnyJSON? { get }
+  /// The type of message that was received
+  var messageType: MessageType { get }
 }
 
 // MARK: - CustomStringConvertible
 
 extension MessageEvent {
   public var description: String {
-    return "MessageEvent: User '\(publisher ?? "Unknown")' sent '\(message)' message on '\(channel)' at \(timetoken)"
+    return "User '\(publisher ?? "Unknown")' sent '\(payload)' message on '\(channel)' at \(timetoken)"
   }
 }
 
@@ -54,7 +56,6 @@ extension MessageEvent {
 
 extension MessageResponse: MessageEvent {
   public var publisher: String? { return issuer }
-  public var message: AnyJSON { return payload }
   public var subscription: String? { return subscriptionMatch }
   public var timetoken: Timetoken {
     return publishTimetoken.timetoken

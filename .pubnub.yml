@@ -7,6 +7,9 @@ changelog:
   -
     changes:
         -
+          text: "Add support for Signal Subscription Listener"
+          type: feature
+        -
           text: "Add support for Signal publish API"
           type: feature
         -
@@ -21,8 +24,9 @@ changelog:
         -
           text: "`?` characters inside URL query parameters will now be properly url encoded"
           type: bug
-      date: 2019-XX-XX
-      version: v1.1.0
+    date: 2019-XX-XX
+    version: v1.1.0
+  -
     changes:
       -
         text: "Initial release of native Swift PubNub SDK"
@@ -81,6 +85,8 @@ features:
     - SUBSCRIBE-SIGNAL-LISTENER
   unsubscribe:
     - UNSUBSCRIBE-ALL
+  signal:
+    - SIGNAL-SEND
 supported-platforms:
   -
     version: PubNub Swift SDK

@@ -136,28 +136,28 @@ final class PubNubTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case .success:
-        XCTFail("Publish request should fail")
-      case let .failure(error):
-        guard let task = sessions.mockSession.tasks.first else {
-          return XCTFail("Could not get task")
-        }
-        let invalidKeyError = PNError.convert(endpoint: .unknown,
-                                              generalError: .init(message: .invalidPublishKey,
-                                                                  service: .publish,
-                                                                  status: .badRequest,
-                                                                  error: true),
-                                              request: task.mockRequest,
-                                              response: task.mockResponse)
+    PubNub(configuration: config, session: sessions.session)
+      .publish(channel: "Test", message: ["text": "Hello"]) { result in
+        switch result {
+        case .success:
+          XCTFail("Publish request should fail")
+        case let .failure(error):
+          guard let task = sessions.mockSession.tasks.first else {
+            return XCTFail("Could not get task")
+          }
+          let invalidKeyError = PNError.convert(endpoint: .unknown,
+                                                generalError: .init(message: .invalidPublishKey,
+                                                                    service: .publish,
+                                                                    status: .badRequest,
+                                                                    error: true),
+                                                request: task.mockRequest,
+                                                response: task.mockResponse)
 
-        XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, invalidKeyError)
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, invalidKeyError)
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }

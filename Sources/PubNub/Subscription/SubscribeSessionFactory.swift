@@ -35,7 +35,7 @@ public class SubscribeSessionFactory {
   private init() {}
 
   public func getSession(from config: SubscriptionConfiguration,
-                         with _: Session = Session()) -> SubscriptionSession {
+                         with session: SessionReplaceable? = nil) -> SubscriptionSession {
     let configHash = config.subscriptionHashValue
     if let session = sessions.lockedRead({ $0[configHash]?.unbox }) {
       PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")
@@ -44,11 +44,11 @@ public class SubscribeSessionFactory {
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     return sessions.lockedWrite { dictionary in
-
-      let session = SubscriptionSession(configuration: config,
-                                        network: Session(configuration: URLSessionConfiguration.subscription))
-      dictionary.updateValue(WeakBox(session), forKey: configHash)
-      return session
+      let sessionReplaceable = session ?? Session(configuration: URLSessionConfiguration.subscription)
+      let subscriptionSession = SubscriptionSession(configuration: config,
+                                                    network: sessionReplaceable)
+      dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)
+      return subscriptionSession
     }
   }
 }

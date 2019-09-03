@@ -241,6 +241,10 @@ class MasterDetailTableViewController: UITableViewController {
       print("Message Received: \(message)")
     }
 
+    self.listener?.didReceiveSignal = { signal in
+      print("Signal Received: \(signal)")
+    }
+
     self.listener?.didReceiveStatus = { result in
       print("Status Received: \(result)")
     }

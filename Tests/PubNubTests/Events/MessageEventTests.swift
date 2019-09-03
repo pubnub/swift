@@ -78,7 +78,7 @@ class MessageEventTests: XCTestCase {
     }
 
     XCTAssertEqual(event.publisher, "db9c5e39-7c95-40f5-8d71-125765b6f561")
-    XCTAssertEqual(event.message, AnyJSON(["message": "Hello"]))
+    XCTAssertEqual(event.payload, AnyJSON(["message": "Hello"]))
     XCTAssertEqual(event.subscription, "channelSwift")
     XCTAssertEqual(event.timetoken, 15_614_814_456_537_442)
     XCTAssertEqual(event.userMetadata, AnyJSON(["metaKey": "metaValue"]))
@@ -94,7 +94,7 @@ class MessageEventTests: XCTestCase {
     let user = "User 'db9c5e39-7c95-40f5-8d71-125765b6f561'"
     let message = "'{\"message\":\"Hello\"}' message"
 
-    let description = "MessageEvent: \(user) sent \(message) on 'channelSwift' at 15614814456537442"
+    let description = "\(user) sent \(message) on 'channelSwift' at 15614814456537442"
 
     XCTAssertEqual(event.description, description)
   }
@@ -109,7 +109,7 @@ class MessageEventTests: XCTestCase {
     let user = "User 'Unknown'"
     let message = "'{\"message\":\"Hello\"}' message"
 
-    let description = "MessageEvent: \(user) sent \(message) on 'channelSwift' at 15614814456537442"
+    let description = "\(user) sent \(message) on 'channelSwift' at 15614814456537442"
 
     XCTAssertEqual(event.description, description)
   }

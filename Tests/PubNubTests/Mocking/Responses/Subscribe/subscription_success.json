@@ -13,7 +13,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": {
         "message": "Hello"
       }
@@ -27,7 +27,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": [1, "Hello", {"Key": "Value"}]
     },
     {
@@ -39,7 +39,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": "Test Message"
     },
     {
@@ -51,7 +51,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": 323525.234234
     },
     {
@@ -63,7 +63,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": true
     },
     {
@@ -75,7 +75,7 @@
         "r": 2
       },
       "k": "demo",
-      "c": "channelSwift",
+      "c": "TestChannel",
       "d": 100
     }
   ]

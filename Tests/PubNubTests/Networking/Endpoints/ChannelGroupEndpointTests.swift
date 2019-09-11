@@ -46,6 +46,12 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     XCTAssertNil(endpoint.validationError)
   }
 
+  func testGroupList_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.channelGroups
+
+    XCTAssertTrue(endpoint.associatedValues.isEmpty)
+  }
+
   func testGroupList_Success() {
     let expectation = self.expectation(description: "Group List Response Received")
 
@@ -103,6 +109,12 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
+  func testGroupDelete_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.deleteGroup(group: "Some Group")
+
+    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "Some Group")
+  }
+
   func testGroupDelete_Success() {
     let expectation = self.expectation(description: "Group Delete Response Received")
 
@@ -126,7 +138,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
 
   // MARK: - List Group Channels
 
-  func testGroupChannelsList_Endpoint() {
+  func testChannelsForGroup_Endpoint() {
     let endpoint = Endpoint.channelsForGroup(group: testGroupName)
 
     XCTAssertEqual(endpoint.description, "Group Channels List")
@@ -135,10 +147,16 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     XCTAssertNil(endpoint.validationError)
   }
 
-  func testListGroupChannelsEndpoint_ValidationError() {
+  func testChannelsForGroup_Endpoint_ValidationError() {
     let endpoint = Endpoint.channelsForGroup(group: "")
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testChannelsForGroup_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.channelsForGroup(group: "Some Group")
+
+    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "Some Group")
   }
 
   func testGroupChannelsList_Success() {
@@ -200,6 +218,13 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.addChannelsForGroup(group: "", channels: [])
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testAddChannelsForGroup_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.addChannelsForGroup(group: "GroupName", channels: ["Channels"])
+
+    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "GroupName")
+    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["Channels"])
   }
 
   func testGroupChannels_Add_Success() {
@@ -303,6 +328,13 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.removeChannelsForGroup(group: "", channels: [])
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testGroupChannelRemove_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.removeChannelsForGroup(group: "GroupName", channels: ["ChannelName"])
+
+    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "GroupName")
+    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["ChannelName"])
   }
 
   func testGroupChannels_Remove_Success() {

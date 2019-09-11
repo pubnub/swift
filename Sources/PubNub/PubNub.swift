@@ -256,11 +256,18 @@ extension PubNub {
   ) {
     let client = networkConfiguration?.customSession ?? networkSession
 
+    let endpoint: Endpoint
+    if channels.isEmpty, groups.isEmpty {
+      endpoint = Endpoint.hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState)
+    } else {
+      endpoint = Endpoint.hereNow(channels: channels,
+                                  groups: groups,
+                                  includeUUIDs: includeUUIDs,
+                                  includeState: includeState)
+    }
+
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .hereNow(channels: channels,
-                                                 groups: groups,
-                                                 includeUUIDs: includeUUIDs,
-                                                 includeState: includeState))
+                              endpoint: endpoint)
 
     let defaultOperators = defaultRequestOperator
       .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
@@ -270,7 +277,7 @@ extension PubNub {
       .validate()
       .response(
         on: queue,
-        decoder: PresenceResponseDecoder<HereNowResponsePayload>()
+        decoder: HereNowResponseDecoder()
       ) { result in
         completion?(result.map { $0.payload.payload })
       }

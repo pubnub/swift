@@ -116,6 +116,8 @@ extension PubNubRouter: Router {
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(configuration.uuid.urlEncodeSlash)/data"
     case let .hereNow(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+    case .hereNowGlobal:
+      path = "/v2/presence/sub-key/\(subscribeKey)"
     case let .whereNow(uuid):
       path = "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
     case let .channelsForGroup(group):
@@ -183,6 +185,9 @@ extension PubNubRouter: Router {
       }
     case let .hereNow(_, groups, includeUUIDs, includeState):
       query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
+      query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
+    case let .hereNowGlobal(includeUUIDs, includeState):
       query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
       query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
     case let .addChannelsForGroup(_, channels):

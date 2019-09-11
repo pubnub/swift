@@ -1,0 +1,4 @@
+{
+  "code": 200,
+  "body": {"status": 200, "message": "OK", "occupancy": 0, "uuids": [], "service": "Presence"}
+}

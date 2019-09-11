@@ -28,11 +28,13 @@
 @testable import PubNub
 import XCTest
 
+// swiftlint:disable:next type_body_length
 final class PresenceEndpointTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
   let channelName = "TestChannel"
+  let otherChannel = "OtherTestChannel"
 
   // MARK: - HereNow Tests
 
@@ -48,23 +50,37 @@ final class PresenceEndpointTests: XCTestCase {
   func testHereNow_Endpoint_ValidationError() {
     let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
+                      PNError.invalidEndpointType(endpoint))
   }
 
-  func testHereNow_Success_EmptyClasses() {
+  func testHereNow_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
+
+    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], [])
+    XCTAssertEqual(endpoint.associatedValues["groups"] as? [String], [])
+    XCTAssertEqual(endpoint.associatedValues["includeUUIDs"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValues["includeState"] as? Bool, true)
+  }
+
+  // Single Channel
+  func testHereNow_Success_SingleChannel() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_empty"]) else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success"]) else {
       return XCTFail("Could not create mock url session")
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [channelName]) { result in
         switch result {
         case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
-          XCTAssertEqual(payload.totalChannels, 0)
-          XCTAssertEqual(payload.totalOccupancy, 0)
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, self.channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+                         payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -74,10 +90,10 @@ final class PresenceEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success() {
+  func testHereNow_Success_SingleChannel_Stateful() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success_stateful"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -100,6 +116,105 @@ final class PresenceEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testHereNow_Success_SingleChannel_EmptyPresence() {
+    let expectation = self.expectation(description: "HereNow Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertTrue(payload.channels.isEmpty)
+          XCTAssertEqual(payload.totalChannels, 0)
+          XCTAssertEqual(payload.totalOccupancy, 0)
+        case let .failure(error):
+          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  // Multi Channel
+  func testHereNow_Success() {
+    let expectation = self.expectation(description: "HereNow Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, self.channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+                         payload.channels.first?.value.occupancy)
+        case let .failure(error):
+          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testHereNow_Success_Stateful() {
+    let expectation = self.expectation(description: "HereNow Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_stateful"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, self.channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+                         payload.channels.first?.value.occupancy)
+        case let .failure(error):
+          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testHereNow_Success_EmptyPresence() {
+    let expectation = self.expectation(description: "HereNow Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertTrue(payload.channels.isEmpty)
+          XCTAssertEqual(payload.totalChannels, 0)
+          XCTAssertEqual(payload.totalOccupancy, 0)
+        case let .failure(error):
+          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testHereNow_Success_DisableUUID() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
@@ -110,7 +225,7 @@ final class PresenceEndpointTests: XCTestCase {
     let channelName = "TestChannel"
 
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName], includeUUIDs: false, also: true) { result in
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: false, also: true) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.totalChannels, 1)
@@ -118,6 +233,56 @@ final class PresenceEndpointTests: XCTestCase {
           XCTAssertEqual(payload.channels.first?.key, channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
           XCTAssertEqual(payload.channels.first?.value.uuids.count, 0)
+        case let .failure(error):
+          XCTFail("Here Now request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  // MARK: - Global HereNow Tests
+
+  func testHereNowGlobal_Endpoint() {
+    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+
+    XCTAssertEqual(endpoint.description, "Global Here Now")
+    XCTAssertEqual(endpoint.rawValue, .hereNowGlobal)
+    XCTAssertEqual(endpoint.operationCategory, .presence)
+    XCTAssertNil(endpoint.validationError)
+  }
+
+  func testHereNowGlobal_Endpoint_ValidationError() {
+    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+
+    XCTAssertNil(endpoint.validationError?.pubNubError)
+  }
+
+  func testHereNowGlobal_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+
+    XCTAssertEqual(endpoint.associatedValues["includeUUIDs"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValues["includeState"] as? Bool, true)
+  }
+
+  func testHereNowGlobal_Success() {
+    let expectation = self.expectation(description: "HereNowGlobal Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .hereNow(on: [], includeUUIDs: true, also: true) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.totalChannels, 1)
+          XCTAssertEqual(payload.channels.count, payload.totalChannels)
+          XCTAssertEqual(payload.channels.first?.key, self.channelName)
+          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
+          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+                         payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -142,6 +307,12 @@ final class PresenceEndpointTests: XCTestCase {
     let endpoint = Endpoint.whereNow(uuid: "")
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testWhereNow_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.whereNow(uuid: "SomeUUID")
+
+    XCTAssertEqual(endpoint.associatedValues["uuid"] as? String, "SomeUUID")
   }
 
   func testWhereNow_Success_EmptyClasses() {

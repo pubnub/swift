@@ -114,8 +114,7 @@ class OnboardingSnippets: XCTestCase {
 
     client.publish(channel: "pubnub_onboarding_channel",
                    message: ["sender": configuration.uuid,
-                             "content": "Hello From SDK_NAME SDK"])
-    { result in
+                             "content": "Hello From SDK_NAME SDK"]) { _ in
       performMessageFetch()
       publishExpect.fulfill()
     }

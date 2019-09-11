@@ -128,7 +128,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
   // MARK: - Here Now Mutlti Channel
 
-  func testHereNow_MultieChannel_Stateless() {
+  func testHereNow_MultiChannel_Stateless() {
     let hereNowExpect = expectation(description: "Here Now Response")
 
     let configuration = PubNubConfiguration(from: testsBundle)
@@ -162,7 +162,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
-  func testHereNow_MultieChannel_State() {
+  func testHereNow_MultiChannel_State() {
     let hereNowExpect = expectation(description: "Here Now Response")
 
     let configuration = PubNubConfiguration(from: testsBundle)
@@ -198,7 +198,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
-  func testHereNow_MultieChannel_EmptyPresence() {
+  func testHereNow_MultiChannel_EmptyPresence() {
     let hereNowExpect = expectation(description: "Here Now Response")
 
     let configuration = PubNubConfiguration(from: testsBundle)

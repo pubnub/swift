@@ -85,30 +85,40 @@ class OnboardingSnippets: XCTestCase {
   // Publish 10 messages, History of 10 messages, Delete 10 messages
   func testFetchChannelHistory() {
     let historyExpect = expectation(description: "Message Response")
+    let publishExpect = expectation(description: "Publish Response")
 
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
     // Fetch last 10 messages
-    client.fetchMessageHistory(for: ["pubnub_onboarding_channel"], max: 10) { result in
-      switch result {
-      case let .success(response):
-        XCTAssertNotNil(response["pubnub_onboarding_channel"])
-        if let channelMessages = response["pubnub_onboarding_channel"] {
-          print("Start timetoken: \(channelMessages.startTimetoken)")
-          print("Start timetoken: \(channelMessages.endTimetoken)")
-          for message in channelMessages.messages {
-            print("Message content: \(message.message)")
+    let performMessageFetch = {
+      client.fetchMessageHistory(for: ["pubnub_onboarding_channel"], max: 10) { result in
+        switch result {
+        case let .success(response):
+          XCTAssertNotNil(response["pubnub_onboarding_channel"])
+          if let channelMessages = response["pubnub_onboarding_channel"] {
+            print("Start timetoken: \(channelMessages.startTimetoken)")
+            print("Start timetoken: \(channelMessages.endTimetoken)")
+            for message in channelMessages.messages {
+              print("Message content: \(message.message)")
+            }
           }
+        case let .failure(error):
+          print("Message History error received: \(error.localizedDescription)")
+          XCTFail("Message History returned an error")
         }
-      case let .failure(error):
-        print("Message History error received: \(error.localizedDescription)")
-        XCTFail("Message History returned an error")
+        historyExpect.fulfill()
       }
-      historyExpect.fulfill()
     }
 
-    wait(for: [historyExpect], timeout: 10.0)
+    client.publish(channel: "pubnub_onboarding_channel",
+                   message: ["sender": configuration.uuid,
+                             "content": "Hello From SDK_NAME SDK"]) { _ in
+      performMessageFetch()
+      publishExpect.fulfill()
+    }
+
+    wait(for: [publishExpect, historyExpect], timeout: 10.0)
   }
 }

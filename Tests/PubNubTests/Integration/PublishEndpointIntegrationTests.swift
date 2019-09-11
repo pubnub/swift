@@ -29,7 +29,7 @@ import PubNub
 import XCTest
 
 class PublishEndpointIntegrationTests: XCTestCase {
-  let testsBundle = Bundle(for: OnboardingSnippets.self)
+  let testsBundle = Bundle(for: PublishEndpointIntegrationTests.self)
 
   func testPublishEndpoint() {
     let publishExpect = expectation(description: "Publish Response")

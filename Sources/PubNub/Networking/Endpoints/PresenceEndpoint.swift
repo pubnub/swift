@@ -44,17 +44,114 @@ public struct AnyPresencePayload<Payload>: Codable where Payload: Codable {
 
 // MARK: - Heree Now Response
 
-public typealias HereNowResponsePayload = AnyPresencePayload<HereNowPayload>
+struct HereNowResponseDecoder: ResponseDecoder {
+  typealias Payload = HereNowResponsePayload
+
+  func decode(response: Response<Data>) -> Result<Response<Payload>, Error> {
+    do {
+      let hereNowPayload: HereNowResponsePayload
+
+      // Single Channel w/o Group
+      if let channels = response.endpoint.associatedValues["channels"] as? [String],
+        channels.count == 1,
+        let channel = channels.first,
+        let groups = response.endpoint.associatedValues["groups"] as? [String],
+        groups.isEmpty {
+        hereNowPayload = try HereNowResponsePayload.response(for: channel,
+                                                             from: response.payload,
+                                                             using: Constant.jsonDecoder)
+      } else {
+        // Multi-Channel HereNow
+        hereNowPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
+      }
+
+      let decodedResponse = Response<Payload>(router: response.router,
+                                              request: response.request,
+                                              response: response.response,
+                                              data: response.data,
+                                              payload: hereNowPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      return .failure(PNError
+        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
+                         response.endpoint,
+                         response.request,
+                         response.response))
+    }
+  }
+}
+
+public struct HereNowSingleResponsePayload: Codable {
+  public let status: Int
+  public let message: String
+  public let service: String
+  public let occupancy: Int
+  public let uuids: [HereNowUUIDPayload]
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: HereNowSingleResponsePayload.CodingKeys.self)
+
+    status = try container.decode(Int.self, forKey: .status)
+    message = try container.decode(String.self, forKey: .message)
+    service = try container.decode(String.self, forKey: .service)
+
+    occupancy = try container.decode(Int.self, forKey: .occupancy)
+
+    if let stringList = try? container.decodeIfPresent([String].self, forKey: .uuids) {
+      uuids = stringList.map { HereNowUUIDPayload(uuid: $0) }
+    } else {
+      uuids = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .uuids) ?? []
+    }
+  }
+}
+
+public struct HereNowResponsePayload: Codable {
+  public let status: Int
+  public let message: String
+  public let service: String
+  public let payload: HereNowPayload
+
+  static func response(
+    for channel: String,
+    from data: Data,
+    using decoder: JSONDecoder
+  ) throws -> HereNowResponsePayload {
+    let payload = try decoder.decode(HereNowSingleResponsePayload.self, from: data)
+
+    let channels: [String: HereNowChannelsPayload]
+    if payload.occupancy == 0 {
+      channels = [:]
+    } else {
+      channels = [channel: HereNowChannelsPayload(occupancy: payload.occupancy, uuids: payload.uuids)]
+    }
+
+    let hereNowPayload = HereNowPayload(channels: channels,
+                                        totalOccupancy: payload.occupancy,
+                                        totalChannels: channels.count)
+
+    return HereNowResponsePayload(status: payload.status,
+                                  message: payload.message,
+                                  service: payload.service,
+                                  payload: hereNowPayload)
+  }
+}
 
 public struct HereNowPayload: Codable {
+  public let channels: [String: HereNowChannelsPayload]
   public let totalOccupancy: Int
   public let totalChannels: Int
-  public let channels: [String: HereNowChannelsPayload]
 
   enum CodingKeys: String, CodingKey {
     case totalOccupancy = "total_occupancy"
     case totalChannels = "total_channels"
     case channels
+  }
+
+  public init(channels: [String: HereNowChannelsPayload], totalOccupancy: Int, totalChannels: Int) {
+    self.channels = channels
+    self.totalOccupancy = totalOccupancy
+    self.totalChannels = totalChannels
   }
 
   public init(from decoder: Decoder) throws {
@@ -76,10 +173,21 @@ public struct HereNowChannelsPayload: Codable {
   public let occupancy: Int
   public let uuids: [HereNowUUIDPayload]
 
+  public init(occupancy: Int, uuids: [HereNowUUIDPayload]) {
+    self.occupancy = occupancy
+    self.uuids = uuids
+  }
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: HereNowChannelsPayload.CodingKeys.self)
-    occupancy = try container.decodeIfPresent(Int.self, forKey: .occupancy) ?? 0
-    uuids = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .uuids) ?? []
+
+    occupancy = try container.decode(Int.self, forKey: .occupancy)
+
+    if let stringList = try? container.decodeIfPresent([String].self, forKey: .uuids) {
+      uuids = stringList.map { HereNowUUIDPayload(uuid: $0) }
+    } else {
+      uuids = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .uuids) ?? []
+    }
   }
 }
 
@@ -87,6 +195,12 @@ public struct HereNowUUIDPayload: Codable {
   public let uuid: String
   // swiftlint:disable:next discouraged_optional_collection
   public let state: [String: AnyJSON]?
+
+  // swiftlint:disable:next discouraged_optional_collection
+  public init(uuid: String, state: [String: AnyJSON]? = nil) {
+    self.uuid = uuid
+    self.state = state
+  }
 }
 
 // MARK: Where Now Response

@@ -235,6 +235,16 @@ extension MessageHistoryEndpointTests {
     XCTAssertNil(endpoint.validationError)
   }
 
+  func testFetchHistory_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.fetchMessageHistory(channels: ["SomeChannel"], max: 1, start: 0, end: 1, includeMeta: true)
+
+    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValues["max"] as? Int, 1)
+    XCTAssertEqual(endpoint.associatedValues["start"] as? Timetoken, 0)
+    XCTAssertEqual(endpoint.associatedValues["end"] as? Timetoken, 1)
+    XCTAssertEqual(endpoint.associatedValues["includeMeta"] as? Bool, true)
+  }
+
   func testFetchHistory_Success() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
@@ -442,6 +452,14 @@ extension MessageHistoryEndpointTests {
     let endpoint = Endpoint.deleteMessageHistory(channel: "", start: nil, end: nil)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testDeleteHistory_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.deleteMessageHistory(channel: "SomeChannel", start: 0, end: 1)
+
+    XCTAssertEqual(endpoint.associatedValues["channel"] as? String, "SomeChannel")
+    XCTAssertEqual(endpoint.associatedValues["start"] as? Timetoken, 0)
+    XCTAssertEqual(endpoint.associatedValues["end"] as? Timetoken, 1)
   }
 
   func testDeleteHistory_Success() {

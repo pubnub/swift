@@ -61,6 +61,24 @@ final class SubscribeEndpointTests: XCTestCase {
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
+  func testSubscribe_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.subscribe(channels: ["SomeChannel"],
+                                      groups: ["SomeGroup"],
+                                      timetoken: 0,
+                                      region: "1",
+                                      state: ["Channel": [:]],
+                                      heartbeat: 2,
+                                      filter: "Filter")
+
+    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValues["groups"] as? [String], ["SomeGroup"])
+    XCTAssertEqual(endpoint.associatedValues["timetoken"] as? Timetoken, 0)
+    XCTAssertEqual(endpoint.associatedValues["region"] as? String, "1")
+    XCTAssertNotNil(endpoint.associatedValues["state"] as? ChannelPresenceState)
+    XCTAssertEqual(endpoint.associatedValues["heartbeat"] as? Int, 2)
+    XCTAssertEqual(endpoint.associatedValues["filter"] as? String, "Filter")
+  }
+
   // MARK: - Message Response
 
   func testSubscribe_Message() {

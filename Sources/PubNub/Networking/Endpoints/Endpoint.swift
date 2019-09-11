@@ -24,7 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection
+// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection file_length
 
 import Foundation
 
@@ -42,6 +42,7 @@ public enum Endpoint {
     case setPresenceState
     case getPresenceState
     case hereNow
+    case hereNowGlobal
     case whereNow
     case channelsForGroup
     case addChannelsForGroup
@@ -87,6 +88,7 @@ public enum Endpoint {
 
   // Presence Endpoints
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
+  case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
   case heartbeat(channels: [String], groups: [String], state: [String: Codable]?, presenceTimeout: Int?)
   case leave(channels: [String], groups: [String])
@@ -131,6 +133,8 @@ public enum Endpoint {
       return .setPresenceState
     case .hereNow:
       return .hereNow
+    case .hereNowGlobal:
+      return .hereNowGlobal
     case .whereNow:
       return .whereNow
     case .messageCounts:
@@ -184,8 +188,10 @@ extension Endpoint: Validated {
       return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
     case let .deleteMessageHistory(channel, _, _):
       return isEndpointInvalid(channel.isEmpty)
-    case let .hereNow(channels, _, _, _):
-      return isEndpointInvalid(channels.isEmpty)
+    case let .hereNow(channels, groups, _, _):
+      return isEndpointInvalid(channels.isEmpty && groups.isEmpty)
+    case .hereNowGlobal:
+      return nil
     case let .whereNow(uuid):
       return isEndpointInvalid(uuid.isEmpty)
     case let .messageCounts(channels, timetoken, timetokens):
@@ -265,7 +271,7 @@ extension Endpoint {
       return .publish
     case .subscribe:
       return .subscribe
-    case .hereNow, .whereNow, .heartbeat, .leave, .setPresenceState, .getPresenceState:
+    case .hereNow, .hereNowGlobal, .whereNow, .heartbeat, .leave, .setPresenceState, .getPresenceState:
       return .presence
     case .channelGroups, .deleteGroup, .channelsForGroup, .addChannelsForGroup, .removeChannelsForGroup:
       return .channelGroup
@@ -302,6 +308,8 @@ extension Endpoint: CustomStringConvertible {
       return "Get Presence State"
     case .hereNow:
       return "Here Now"
+    case .hereNowGlobal:
+      return "Global Here Now"
     case .whereNow:
       return "Where Now"
     case .messageCounts:
@@ -338,4 +346,70 @@ extension Endpoint: Equatable {
   }
 }
 
-// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection
+extension Endpoint {
+  public var associatedValues: [String: Any?] {
+    switch self {
+    case .time:
+      return [:]
+    case let .publish(message, channel, shouldStore, ttl, meta):
+      return ["message": message, "channel": channel, "shouldStore": shouldStore, "ttl": ttl, "meta": meta]
+    case let .compressedPublish(message, channel, shouldStore, ttl, meta):
+      return ["message": message, "channel": channel, "shouldStore": shouldStore, "ttl": ttl, "meta": meta]
+    case let .fire(message, channel, meta):
+      return ["message": message, "channel": channel, "meta": meta]
+    case let .signal(message, channel):
+      return ["message": message, "channel": channel]
+    case let .subscribe(channels, groups, timetoken, region, state, heartbeat, filter):
+      return ["channels": channels,
+              "groups": groups,
+              "timetoken": timetoken,
+              "region": region,
+              "state": state,
+              "heartbeat": heartbeat,
+              "filter": filter]
+    case let .fetchMessageHistory(channels, max, start, end, includeMeta):
+      return ["channels": channels, "max": max, "start": start, "end": end, "includeMeta": includeMeta]
+    case let .deleteMessageHistory(channel, start, end):
+      return ["channel": channel, "start": start, "end": end]
+    case let .messageCounts(channels, timetoken, channelsTimetoken):
+      return ["channels": channels, "timetoken": timetoken, "channelsTimetoken": channelsTimetoken]
+    case let .hereNow(channels, groups, includeUUIDs, includeState):
+      return ["channels": channels, "groups": groups, "includeUUIDs": includeUUIDs, "includeState": includeState]
+    case let .hereNowGlobal(includeUUIDs, includeState):
+      return ["includeUUIDs": includeUUIDs, "includeState": includeState]
+    case let .whereNow(uuid):
+      return ["uuid": uuid]
+    case let .heartbeat(channels, groups, state, presenceTimeout):
+      return ["channels": channels, "groups": groups, "state": state, "presenceTimeout": presenceTimeout]
+    case let .leave(channels, groups):
+      return ["channels": channels, "groups": groups]
+    case let .getPresenceState(uuid, channels, groups):
+      return ["uuid": uuid, "channels": channels, "groups": groups]
+    case let .setPresenceState(channels, groups, state):
+      return ["channels": channels, "groups": groups, "state": state]
+    case let .channelsForGroup(group):
+      return ["group": group]
+    case let .addChannelsForGroup(group, channels):
+      return ["group": group, "channels": channels]
+    case let .removeChannelsForGroup(group, channels):
+      return ["group": group, "channels": channels]
+    case .channelGroups:
+      return [:]
+    case let .deleteGroup(group):
+      return ["group": group]
+    case let .listPushChannels(pushToken, pushType):
+      return ["pushToken": pushToken, "pushType": pushType]
+    case let .modifyPushChannels(pushToken, pushType, addChannels, removeChannels):
+      return ["pushToken": pushToken,
+              "pushType": pushType,
+              "addChannels": addChannels,
+              "removeChannels": removeChannels]
+    case let .removeAllPushChannels(pushToken, pushType):
+      return ["pushToken": pushToken, "pushType": pushType]
+    case .unknown:
+      return [:]
+    }
+  }
+}
+
+// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection file_length

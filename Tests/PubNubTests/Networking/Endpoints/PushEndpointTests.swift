@@ -56,6 +56,16 @@ final class PushEndpointTests: XCTestCase {
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
   }
 
+  func testListPushProvisions_Endpoint_AssociatedValues() {
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+    let endpoint = Endpoint.listPushChannels(pushToken: data, pushType: .apns)
+
+    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, data)
+    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
+  }
+
   func testListPushRegistration_Success() {
     let expectation = self.expectation(description: "Push List Response Received")
 
@@ -167,6 +177,18 @@ final class PushEndpointTests: XCTestCase {
                                                removeChannels: [])
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testListModifyPushChannels_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.modifyPushChannels(pushToken: Data(),
+                                               pushType: .apns,
+                                               addChannels: ["SomeChannel"],
+                                               removeChannels: ["OtherChannel"])
+
+    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, Data())
+    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertEqual(endpoint.associatedValues["addChannels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValues["removeChannels"] as? [String], ["OtherChannel"])
   }
 
   func testModifyPush_Success() {
@@ -284,6 +306,13 @@ final class PushEndpointTests: XCTestCase {
     let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+  }
+
+  func testRemoveAllPushChannels_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
+
+    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, Data())
+    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
   }
 
   func testRemoveAllPush_Success() {

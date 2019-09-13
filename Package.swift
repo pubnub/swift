@@ -36,7 +36,7 @@ import PackageDescription
 let package = Package(
   name: "PubNub",
   platforms: [
-    .iOS(.v10),
+    .iOS(.v8),
     .macOS(.v10_10),
     .tvOS(.v9),
     .watchOS(.v2)
@@ -62,7 +62,7 @@ let package = Package(
     ),
     .testTarget(
       name: "PubNubTests",
-      dependencies: ["PubNub"]
+      dependencies: ["PubNub", "swiftlint", "swiftformat"]
     )
   ],
   swiftLanguageVersions: [.v5]

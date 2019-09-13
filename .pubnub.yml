@@ -7,6 +7,9 @@ changelog:
   -
     changes:
       -
+        text: "Fixed typo in PubNub.Push method parameters"
+        type: bug
+      -
         text: "Add support for Global HereNow"
         type: bug
       -

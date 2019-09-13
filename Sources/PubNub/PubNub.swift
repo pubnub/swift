@@ -443,7 +443,7 @@ extension PubNub {
 
 extension PubNub {
   public func listPushChannelRegistrations(
-    for deivceToken: Data,
+    for deviceToken: Data,
     of pushType: Endpoint.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -452,7 +452,7 @@ extension PubNub {
     let client = networkConfiguration?.customSession ?? networkSession
 
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .listPushChannels(pushToken: deivceToken, pushType: pushType))
+                              endpoint: .listPushChannels(pushToken: deviceToken, pushType: pushType))
 
     let defaultOperators = defaultRequestOperator
       .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
@@ -471,7 +471,7 @@ extension PubNub {
   public func modifyPushChannelRegistrations(
     byRemoving removals: [String],
     thenAdding additions: [String],
-    for deivceToken: Data,
+    for deviceToken: Data,
     of pushType: Endpoint.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -480,7 +480,7 @@ extension PubNub {
     let client = networkConfiguration?.customSession ?? networkSession
 
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .modifyPushChannels(pushToken: deivceToken,
+                              endpoint: .modifyPushChannels(pushToken: deviceToken,
                                                             pushType: pushType,
                                                             addChannels: additions,
                                                             removeChannels: removals))
@@ -500,7 +500,7 @@ extension PubNub {
   }
 
   public func removeAllPushChannelRegistrations(
-    for deivceToken: Data,
+    for deviceToken: Data,
     of pushType: Endpoint.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
@@ -509,7 +509,7 @@ extension PubNub {
     let client = networkConfiguration?.customSession ?? networkSession
 
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .removeAllPushChannels(pushToken: deivceToken, pushType: pushType))
+                              endpoint: .removeAllPushChannels(pushToken: deviceToken, pushType: pushType))
 
     let defaultOperators = defaultRequestOperator
       .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)

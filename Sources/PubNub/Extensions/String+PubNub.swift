@@ -65,7 +65,7 @@ extension String {
   /// Strips path and extension and returns filename
   var absolutePathFilename: String {
     var pathComponents = components(separatedBy: "/")
-    var filename = pathComponents.removeLast().components(separatedBy: ".")
+    let filename = pathComponents.removeLast().components(separatedBy: ".")
     if !filename.isEmpty {
       return filename[0]
     }

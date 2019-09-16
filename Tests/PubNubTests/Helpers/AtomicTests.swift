@@ -70,7 +70,7 @@ class AtomicTests: XCTestCase {
     let invalidJson = 0
     let atomic = Atomic(invalidJson)
 
-    XCTAssertThrowsError(try atomic.lockedTry { try Constant.jsonEncoder.encode($0) })
+    XCTAssertThrowsError(try atomic.lockedTry { _ in throw PNError.unknown("Test", .time) })
   }
 
   func testLockedTry_NoThrows() {

@@ -39,6 +39,13 @@
 			remoteGlobalIDString = "PubNub::PubNubTests::Product";
 			remoteInfo = PubNubTests;
 		};
+		35E46046234AC780005D04AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 359F77BD22B804E500B6B46F /* PubNub.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3558073723145749005CDD92;
+			remoteInfo = PubNubIntegration;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -133,6 +140,7 @@
 			children = (
 				359F77C522B804E500B6B46F /* PubNub.framework */,
 				359F77C722B804E500B6B46F /* PubNubTests.xctest */,
+				35E46047234AC780005D04AE /* PubNubTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -177,6 +185,8 @@
 				35458B9F230C995C0085B502 /* PBXTargetDependency */,
 			);
 			name = "iOS Example";
+			packageProductDependencies = (
+			);
 			productName = swiftSdkiOS;
 			productReference = 359F779422B7FEF600B6B46F /* iOS Example.app */;
 			productType = "com.apple.product-type.application";
@@ -210,6 +220,8 @@
 				Base,
 			);
 			mainGroup = 359F778B22B7FEF600B6B46F;
+			packageReferences = (
+			);
 			productRefGroup = 359F779522B7FEF600B6B46F /* Products */;
 			projectDirPath = "";
 			projectReferences = (
@@ -238,6 +250,13 @@
 			fileType = wrapper.cfbundle;
 			path = PubNubTests.xctest;
 			remoteRef = 359F77C622B804E500B6B46F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		35E46047234AC780005D04AE /* PubNubTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = PubNubTests.xctest;
+			remoteRef = 35E46046234AC780005D04AE /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

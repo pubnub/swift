@@ -106,7 +106,6 @@ public enum MessageType: Int, Codable {
   case message = 0
   case signal = 1
   case object = 2
-  case presence = 3
 }
 
 public struct MessageResponse: Codable, Hashable {

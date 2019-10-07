@@ -183,6 +183,14 @@ extension PNError.EndpointFailureReason: Equatable {
       return true
     case (.requestURITooLong, .requestURITooLong):
       return true
+    case (.conflict, .conflict):
+      return true
+    case (.preconditionFailed, .preconditionFailed):
+      return true
+    case (.tooManyRequests, .tooManyRequests):
+      return true
+    case (.unsupportedType, .unsupportedType):
+      return true
     case let (.unrecognizedErrorPayload(lhsPayload), .unrecognizedErrorPayload(rhsPayload)):
       return lhsPayload == rhsPayload
     case (.malformedFilterExpression, .malformedFilterExpression):

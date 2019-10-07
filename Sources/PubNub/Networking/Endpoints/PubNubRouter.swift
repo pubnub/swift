@@ -28,34 +28,37 @@
 
 import Foundation
 
-struct PubNubRouter {
-  // URL Param Keys
-  private let metaKey = "meta"
-  private let storedKey = "store"
-  private let ttlKey = "ttl"
-  private let noRepKey = "norep"
-  private let channelGroupsKey = "channel-group"
-  private let ttKey = "tt"
-  private let regionKey = "tr"
-  private let stateKey = "state"
-  private let heartbeatKey = "heartbeat"
-  private let filterKey = "filter-expr"
-  private let disableUUIDsKey = "disable_uuids"
-  private let removeGroupKey = "remove"
-  private let addGroupKey = "add"
-  private let typeKey = "type"
-  private let startKey = "start"
-  private let endKey = "end"
-  private let channelKey = "channel"
-  private let countKey = "count"
-  private let maxKey = "max"
-  private let reverseKey = "reverse"
-  private let includeTokenKey = "include_token"
-  private let includeMetaKey = "include_meta"
-  private let stringtokenKey = "stringtoken"
-  private let timetokenKey = "timetoken"
-  private let channelsTimetokenKey = "channelsTimetoken"
+enum QueryKey: String {
+  case meta
+  case store
+  case ttl
+  case norep
+  case channelGroup = "channel-group"
+  case timetokenShort = "tt"
+  case regionShort = "tr"
+  case state
+  case heartbeat
+  case filter = "filter-expr"
+  case disableUUIDs = "disable_uuids"
+  case remove
+  case add
+  case type
+  case start
+  case end
+  case channel
+  case count
+  case max
+  case reverse
+  case includeToken = "include_token"
+  case includeMeta = "include_meta"
+  case stringtoken
+  case timetoken
+  case channelsTimetoken
+  case include
+  case limit
+}
 
+struct PubNubRouter {
   let configuration: RouterConfiguration
   let endpoint: Endpoint
   let crypto: Crypto?
@@ -74,6 +77,22 @@ extension PubNubRouter: Router {
       return .post
     case .deleteMessageHistory:
       return .delete
+    case .objectsUserCreate:
+      return .post
+    case .objectsUserUpdate:
+      return .patch
+    case .objectsUserDelete:
+      return .delete
+    case .objectsSpaceCreate:
+      return .post
+    case .objectsSpaceUpdate:
+      return .patch
+    case .objectsSpaceDelete:
+      return .delete
+    case .objectsUserMembershipsUpdate:
+      return .patch
+    case .objectsSpaceMembershipsUpdate:
+      return .patch
     default:
       return .get
     }
@@ -147,6 +166,38 @@ extension PubNubRouter: Router {
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
     case let .messageCounts(channels, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/message-counts/\(channels.csvString.urlEncodeSlash)"
+
+    case .objectsUserFetch(let userID, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID)"
+    case .objectsUserFetchAll:
+      path = "/v1/objects/\(subscribeKey)/users"
+    case .objectsUserCreate:
+      path = "/v1/objects/\(subscribeKey)/users"
+    case let .objectsUserUpdate(user, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(user.id)"
+    case let .objectsUserDelete(userID, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID)"
+
+    case .objectsSpaceFetch(let spaceID, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID)"
+    case .objectsSpaceFetchAll:
+      path = "/v1/objects/\(subscribeKey)/spaces"
+    case .objectsSpaceCreate:
+      path = "/v1/objects/\(subscribeKey)/spaces"
+    case let .objectsSpaceUpdate(space, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(space.id)"
+    case let .objectsSpaceDelete(spaceID, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID)"
+
+    case let .objectsUserMemberships(parameters):
+      path = "/v1/objects/demo/users/\(parameters.userID)/spaces"
+    case let .objectsUserMembershipsUpdate(parameters):
+      path = "/v1/objects/demo/users/\(parameters.userID)/spaces"
+    case let .objectsSpaceMemberships(parameters):
+      path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
+    case let .objectsSpaceMembershipsUpdate(parameters):
+      path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
+
     case .unknown:
       return .failure(PNError.unknown(endpoint.description, endpoint))
     }
@@ -163,64 +214,118 @@ extension PubNubRouter: Router {
     case let .fire(_, _, meta):
       return parsePublish(query: &query, shouldStore: false, ttl: 0, meta: meta)
     case let .subscribe(parameters):
-      query.appendIfPresent(name: ttKey, value: parameters.timetoken?.description)
-      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
-      query.appendIfPresent(name: regionKey, value: parameters.region?.description)
-      query.appendIfPresent(name: filterKey, value: parameters.filter)
-      query.appendIfPresent(name: heartbeatKey, value: parameters.heartbeat?.description)
+      query.appendIfPresent(key: .timetokenShort, value: parameters.timetoken?.description)
+      query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
+      query.appendIfPresent(key: .regionShort, value: parameters.region?.description)
+      query.appendIfPresent(key: .filter, value: parameters.filter)
+      query.appendIfPresent(key: .heartbeat, value: parameters.heartbeat?.description)
       return parseState(query: &query, state: parameters.state)
     case let .heartbeat(parameters):
-      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
-      query.appendIfPresent(name: heartbeatKey, value: parameters.presenceTimeout?.description)
+      query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
+      query.appendIfPresent(key: .heartbeat, value: parameters.presenceTimeout?.description)
       return parseState(query: &query, state: parameters.state)
     case let .leave(_, groups):
-      query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
     case let .getPresenceState(parameters):
-      query.appendIfNotEmpty(name: channelGroupsKey, value: parameters.groups)
+      query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
     case let .setPresenceState(parameters):
       if !parameters.state.isEmpty {
         return parseState(query: &query, state: parameters.state)
       } else {
-        query.append(URLQueryItem(name: stateKey, value: "{}"))
+        query.append(URLQueryItem(key: .state, value: "{}"))
       }
     case let .hereNow(_, groups, includeUUIDs, includeState):
-      query.appendIfNotEmpty(name: channelGroupsKey, value: groups)
-      query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
-      query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
     case let .hereNowGlobal(includeUUIDs, includeState):
-      query.append(URLQueryItem(name: disableUUIDsKey, value: (!includeUUIDs).stringNumber))
-      query.append(URLQueryItem(name: stateKey, value: includeState.stringNumber))
+      query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
     case let .addChannelsForGroup(_, channels):
-      query.append(URLQueryItem(name: addGroupKey, value: channels.csvString))
+      query.append(URLQueryItem(key: .add, value: channels.csvString))
     case let .removeChannelsForGroup(_, channels):
-      query.append(URLQueryItem(name: removeGroupKey, value: channels.csvString))
+      query.append(URLQueryItem(key: .remove, value: channels.csvString))
     case let .listPushChannels(_, pushType):
-      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
+      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
     case let .modifyPushChannels(_, pushType, addChannels, removeChannels):
-      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
-      query.appendIfNotEmpty(name: typeKey, value: addChannels)
-      query.appendIfNotEmpty(name: typeKey, value: removeChannels)
+      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
+      query.appendIfNotEmpty(key: .type, value: addChannels)
+      query.appendIfNotEmpty(key: .type, value: removeChannels)
     case let .removeAllPushChannels(_, pushType):
-      query.append(URLQueryItem(name: typeKey, value: pushType.rawValue))
+      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
     case let .fetchMessageHistory(_, max, start, end, includeMeta):
-      // Deprecated: Remove `countKey` with v2 message history
-      query.appendIfPresent(name: countKey, value: max?.description)
-      query.appendIfPresent(name: stringtokenKey, value: false.description)
-      query.appendIfPresent(name: includeTokenKey, value: true.description)
-      query.appendIfPresent(name: reverseKey, value: false.description)
+      // Deprecated: Remove `count` with v2 message history
+      query.appendIfPresent(key: .count, value: max?.description)
+      query.appendIfPresent(key: .stringtoken, value: false.description)
+      query.appendIfPresent(key: .includeToken, value: true.description)
+      query.appendIfPresent(key: .reverse, value: false.description)
       // End Deprecation Block
 
-      query.appendIfPresent(name: maxKey, value: max?.description)
-      query.appendIfPresent(name: startKey, value: start?.description)
-      query.appendIfPresent(name: endKey, value: end?.description)
-      query.appendIfPresent(name: includeMetaKey, value: includeMeta.description)
+      query.appendIfPresent(key: .max, value: max?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
     case let .deleteMessageHistory(_, startTimetoken, endTimetoken):
-      query.appendIfPresent(name: startKey, value: startTimetoken?.description)
-      query.appendIfPresent(name: endKey, value: endTimetoken?.description)
+      query.appendIfPresent(key: .start, value: startTimetoken?.description)
+      query.appendIfPresent(key: .end, value: endTimetoken?.description)
     case let .messageCounts(parameters):
-      query.appendIfPresent(name: timetokenKey, value: parameters.timetoken?.description)
-      query.appendIfPresent(name: channelsTimetokenKey,
+      query.appendIfPresent(key: .timetoken, value: parameters.timetoken?.description)
+      query.appendIfPresent(key: .channelsTimetoken,
                             value: parameters.channelsTimetoken?.map { $0.description }.csvString)
+
+    case let .objectsUserFetch(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsUserFetchAll(include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .objectsUserCreate(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsUserUpdate(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsUserDelete(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+
+    case let .objectsSpaceFetch(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsSpaceFetchAll(include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .objectsSpaceCreate(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsSpaceUpdate(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsSpaceDelete(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .objectsUserMemberships(parameters):
+      query.appendIfPresent(key: .include, value: parameters.include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: parameters.limit?.description)
+      query.appendIfPresent(key: .start, value: parameters.start?.description)
+      query.appendIfPresent(key: .end, value: parameters.end?.description)
+      query.appendIfPresent(key: .count, value: parameters.count?.description)
+    case let .objectsUserMembershipsUpdate(parameters):
+      query.appendIfPresent(key: .include, value: parameters.include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: parameters.limit?.description)
+      query.appendIfPresent(key: .start, value: parameters.start?.description)
+      query.appendIfPresent(key: .end, value: parameters.end?.description)
+      query.appendIfPresent(key: .count, value: parameters.count?.description)
+    case let .objectsSpaceMemberships(parameters):
+      query.appendIfPresent(key: .include, value: parameters.include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: parameters.limit?.description)
+      query.appendIfPresent(key: .start, value: parameters.start?.description)
+      query.appendIfPresent(key: .end, value: parameters.end?.description)
+      query.appendIfPresent(key: .count, value: parameters.count?.description)
+    case let .objectsSpaceMembershipsUpdate(parameters):
+      query.appendIfPresent(key: .include, value: parameters.include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: parameters.limit?.description)
+      query.appendIfPresent(key: .start, value: parameters.start?.description)
+      query.appendIfPresent(key: .end, value: parameters.end?.description)
+      query.appendIfPresent(key: .count, value: parameters.count?.description)
     default:
       break
     }
@@ -242,6 +347,36 @@ extension PubNubRouter: Router {
       return parameters.message.jsonDataResult
         .map { .some($0) }
         .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(parameters.message, with: $0), endpoint) }
+    case let .objectsUserCreate(user, _):
+      return user.jsonDataResult
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(user.codableValue, with: $0), endpoint) }
+    case let .objectsUserUpdate(user, _):
+      return user.jsonDataResult
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(user.codableValue, with: $0), endpoint) }
+    case let .objectsSpaceCreate(space, _):
+      return space.jsonDataResult
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(space.codableValue, with: $0), endpoint) }
+    case let .objectsSpaceUpdate(space, _):
+      return space.jsonDataResult
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(space.codableValue, with: $0), endpoint) }
+    case let .objectsUserMembershipsUpdate(parameters):
+      let changeset = ObjectIdentifiableChangeset(add: parameters.add,
+                                                  update: parameters.update,
+                                                  remove: parameters.remove)
+      return changeset.encodableJSONData
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(AnyJSON(changeset), with: $0), endpoint) }
+    case let .objectsSpaceMembershipsUpdate(parameters):
+      let changeset = ObjectIdentifiableChangeset(add: parameters.add,
+                                                  update: parameters.update,
+                                                  remove: parameters.remove)
+      return changeset.encodableJSONData
+        .map { .some($0) }
+        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(AnyJSON(changeset), with: $0), endpoint) }
     default:
       return .success(nil)
     }
@@ -280,6 +415,13 @@ extension PubNubRouter: Router {
       return .none
     case .leave:
       return .none
+    case .objectsUserFetch, .objectsUserFetchAll, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
+      return .version3
+    case .objectsSpaceFetch, .objectsSpaceFetchAll, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
+      return .version3
+    case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
+         .objectsSpaceMembershipsUpdate:
+      return .version3
     default:
       return .version2
     }
@@ -314,12 +456,12 @@ extension PubNubRouter {
     ttl: Int?,
     meta: AnyJSON?
   ) -> Result<[URLQueryItem], Error> {
-    query.appendIfPresent(name: storedKey, value: shouldStore?.stringNumber)
-    query.appendIfPresent(name: ttlKey, value: ttl?.description)
+    query.appendIfPresent(key: .store, value: shouldStore?.stringNumber)
+    query.appendIfPresent(key: .ttl, value: ttl?.description)
 
     if let meta = meta, !meta.isEmpty {
       do {
-        try query.append(URLQueryItem(name: metaKey, value: meta.jsonStringifyResult.get()))
+        try query.append(URLQueryItem(key: .meta, value: meta.jsonStringifyResult.get()))
         return .success(query)
       } catch {
         return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(meta, dueTo: error), endpoint))
@@ -333,7 +475,7 @@ extension PubNubRouter {
     if let state = state {
       let stateJson = AnyJSON(state)
       do {
-        try query.append(URLQueryItem(name: stateKey, value: stateJson.jsonStringifyResult.get()))
+        try query.append(URLQueryItem(key: .state, value: stateJson.jsonStringifyResult.get()))
         return .success(query)
       } catch {
         return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(stateJson, dueTo: error), endpoint))
@@ -344,4 +486,5 @@ extension PubNubRouter {
   }
 }
 
+// swiftlint:disable:next file_length
 // swiftlint:enable discouraged_optional_boolean

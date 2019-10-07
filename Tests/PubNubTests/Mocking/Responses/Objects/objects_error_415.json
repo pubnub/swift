@@ -1,0 +1,10 @@
+{
+  "code": 415,
+  "body": {
+    "status": 415,
+    "error": {
+      "message": "Request payload must be in JSON format.",
+      "source": "objects"
+    }
+  }
+}

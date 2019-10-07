@@ -85,7 +85,9 @@ extension AnyJSONType: Codable {
 
   // swiftlint:disable:next cyclomatic_complexity
   private static func decode(from container: inout SingleValueDecodingContainer) throws -> AnyJSONType {
-    if let val = try? container.decode(Bool.self) {
+    if container.decodeNil() {
+      return .null
+    } else if let val = try? container.decode(Bool.self) {
       return .boolean(val)
     } else if let val = try? container.decode(Int.self) {
       return .integer(val as NSNumber)
@@ -120,12 +122,14 @@ extension AnyJSONType: Codable {
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   private static func decode(from container: UnkeyedDecodingContainer) throws -> AnyJSONType {
     var container = container
     var jsonArray = [AnyJSONType]()
     while !container.isAtEnd {
-      if let keyed = try? container.nestedContainer(keyedBy: AnyJSONTypeCodingKey.self) {
+      if try container.decodeNil() {
+        jsonArray.append(.null)
+      } else if let keyed = try? container.nestedContainer(keyedBy: AnyJSONTypeCodingKey.self) {
         jsonArray.append(try AnyJSONType.decode(from: keyed))
       } else if let unkeyed = try? container.nestedUnkeyedContainer() {
         jsonArray.append(try AnyJSONType.decode(from: unkeyed))
@@ -170,11 +174,12 @@ extension AnyJSONType: Codable {
   private static func decode(from container: KeyedDecodingContainer<AnyJSONTypeCodingKey>) throws -> AnyJSONType {
     var json = [String: AnyJSONType]()
     for key in container.allKeys {
-      if let keyed = try? container.nestedContainer(keyedBy: AnyJSONTypeCodingKey.self, forKey: key) {
+      if try container.decodeNil(forKey: key) {
+        json[key.stringValue] = .null
+      } else if let keyed = try? container.nestedContainer(keyedBy: AnyJSONTypeCodingKey.self, forKey: key) {
         json[key.stringValue] = try AnyJSONType.decode(from: keyed)
       } else if let unkeyed = try? container.nestedUnkeyedContainer(forKey: key) {
         json[key.stringValue] = try AnyJSONType.decode(from: unkeyed)
-
       } else if let val = try? container.decode(Bool.self, forKey: key) {
         json[key.stringValue] = .boolean(val)
       } else if let val = try? container.decode(Int.self, forKey: key) {
@@ -304,6 +309,8 @@ extension AnyJSONType: RawRepresentable {
   // swiftlint:disable:next cyclomatic_complexity function_body_length
   public init(rawValue: Any) {
     switch rawValue {
+    case let value as AnyJSON:
+      self = value.value
     case let value as AnyJSONType:
       self = value
     case let value as String:
@@ -361,6 +368,7 @@ extension AnyJSONType: RawRepresentable {
 // MARK: - Equatable
 
 extension AnyJSONType: Equatable {
+  // swiftlint:disable:next cyclomatic_complexity
   public static func == (lhs: AnyJSONType, rhs: AnyJSONType) -> Bool {
     switch (lhs, rhs) {
     case let (.string(lhsString), .string(rhsString)):
@@ -373,10 +381,22 @@ extension AnyJSONType: Equatable {
       return lhsBool == rhsBool
     case (.null, .null):
       return true
-    case (.array, .array):
-      return lhs.rawArray == rhs.rawArray
-    case (.dictionary, .dictionary):
-      return lhs.rawDictionary == rhs.rawDictionary
+    case let (.array(lhsArray), .array(rhsArray)):
+      if lhsArray.count == rhsArray.count {
+        for (index, lhsValue) in lhsArray.enumerated() {
+          if AnyJSONType(rawValue: lhsValue) != AnyJSONType(rawValue: rhsArray[index]) {
+            return false
+          }
+        }
+        return true
+      }
+      return false
+//      return lhs.rawArray == rhs.rawArray
+    case let (.dictionary(lhsDict), .dictionary(rhsDict)):
+      return lhsDict.allSatisfy {
+        rhsDict[$0] == $1
+      }
+//      return lhs.rawDictionary == rhs.rawDictionary
     case let (.codable(lhsCodable), .codable(rhsCodable)):
       return (try? lhsCodable.encodableJSONData.get() == rhsCodable.encodableJSONData.get()) ?? false
     case (.unknown, .unknown):

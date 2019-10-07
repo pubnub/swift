@@ -129,15 +129,6 @@ struct Constant {
     return iso8601DateFormatter
   }()
 
-  static let iso8601WithoutMillisecondsDateFormatter: DateFormatter = {
-    let enUSPOSIXLocale = Locale(identifier: "en_US_POSIX")
-    let iso8601DateFormatter = DateFormatter()
-    iso8601DateFormatter.locale = enUSPOSIXLocale
-    iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    iso8601DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-    return iso8601DateFormatter
-  }()
-
   static let positiveInfinty = {
     "Infinity"
   }()
@@ -160,8 +151,8 @@ struct Constant {
 
   public static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
-    decoder.dataDecodingStrategy = .deferredToData
-    decoder.dateDecodingStrategy = .deferredToDate
+    decoder.dataDecodingStrategy = .base64
+    decoder.dateDecodingStrategy = .formatted(Constant.iso8601DateFormatter)
     decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty,
                                                                     negativeInfinity: negativeInfinty,
                                                                     nan: notANumber)
@@ -170,8 +161,8 @@ struct Constant {
 
   public static let jsonEncoder: JSONEncoder = {
     let encoder = JSONEncoder()
-    encoder.dateEncodingStrategy = .deferredToDate
-    encoder.dataEncodingStrategy = .deferredToData
+    encoder.dataEncodingStrategy = .base64
+    encoder.dateEncodingStrategy = .formatted(Constant.iso8601DateFormatter)
     encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty,
                                                                   negativeInfinity: negativeInfinty,
                                                                   nan: notANumber)

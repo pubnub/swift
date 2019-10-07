@@ -1,0 +1,35 @@
+{
+  "code": 200,
+  "body": {
+      "status": 200,
+      "data": [
+          {
+              "id": "FirstSpace",
+              "custom": null,
+              "space": {
+                  "id": "FirstSpace",
+                  "name": "First Space",
+                  "description": "Space Description",
+                  "created": "2019-09-29T13:07:45.807503Z",
+                  "updated": "2019-09-29T13:07:45.807503Z",
+                  "eTag": "SpaceETag"
+              },
+              "created": "2019-09-29T13:07:57.589822Z",
+              "updated": "2019-10-02T18:07:52.858703Z",
+              "eTag": "FirstETag"
+          },
+          {
+              "id": "LastSpace",
+              "custom": {
+                  "starred": true
+              },
+              "space": null,
+              "created": "2019-09-29T19:13:43.964451Z",
+              "updated": "2019-09-29T19:46:28.84402Z",
+              "eTag": "LastETag"
+          }
+      ],
+      "totalCount": 2,
+      "next": "NextPage"
+  }
+}

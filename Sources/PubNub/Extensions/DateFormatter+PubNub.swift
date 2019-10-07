@@ -38,10 +38,6 @@ extension DateFormatter {
       return dateWithMilliseconds
     }
 
-    if let dateWithoutMilliseconds = Constant.iso8601WithoutMillisecondsDateFormatter.date(from: string) {
-      return dateWithoutMilliseconds
-    }
-
     return nil
   }
 }

@@ -27,18 +27,43 @@
 
 import Foundation
 
+public enum SubscriptionEvent {
+  case messageReceived(MessageEvent)
+  case signalReceived(MessageEvent)
+  case connectionStatusChanged(ConnectionStatus)
+  case presenceChanged(PresenceEvent)
+  case userUpdated(UserEvent)
+  case userDeleted(IdentifierEvent)
+  case spaceUpdated(SpaceEvent)
+  case spaceDeleted(IdentifierEvent)
+  case membershipAdded(MembershipEvent)
+  case membershipUpdated(MembershipEvent)
+  case membershipDeleted(MembershipIdentifiable)
+  case subscribeError(PNError)
+}
+
+public enum UserEvents {
+  case updated(UserEvent)
+  case deleted(IdentifierEvent)
+}
+
+public enum SpaceEvents {
+  case updated(SpaceEvent)
+  case deleted(IdentifierEvent)
+}
+
+public enum MembershipEvents {
+  case userAddedOnSpace(MembershipEvent)
+  case userUpdatedOnSpace(MembershipEvent)
+  case userDeletedFromSpace(MembershipIdentifiable)
+}
+
 public protocol SubscriptionStream: EventStream {
-  func emitDidReceive(message event: MessageEvent)
-  func emitDidReceive(status event: StatusEvent)
-  func emitDidReceive(presence event: PresenceEvent)
-  func emitDidReceive(signal event: MessageEvent)
+  func emitDidReceive(subscription event: SubscriptionEvent)
 }
 
 extension SubscriptionStream {
-  func emitDidReceive(message _: MessageEvent) { /* no-op */ }
-  func emitDidReceive(status _: StatusEvent) { /* no-op */ }
-  func emitDidReceive(presence _: PresenceEvent) { /* no-op */ }
-  func emitDidReceive(signal _: MessageEvent) { /* no-op */ }
+  func emitDidReceive(subscription _: SubscriptionEvent) { /* no-op */ }
 }
 
 public final class SubscriptionListener: SubscriptionStream, Hashable {
@@ -50,25 +75,51 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     self.queue = queue
   }
 
+  public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
+
   public var didReceiveMessage: ((MessageEvent) -> Void)?
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   public var didReceivePresence: ((PresenceEvent) -> Void)?
   public var didReceiveSignal: ((MessageEvent) -> Void)?
 
-  public func emitDidReceive(message event: MessageEvent) {
-    queue.async { self.didReceiveMessage?(event) }
-  }
+  public var didReceiveUserEvent: ((UserEvents) -> Void)?
+  public var didReceiveSpaceEvent: ((SpaceEvents) -> Void)?
+  public var didReceiveMembershipEvent: ((MembershipEvents) -> Void)?
 
-  public func emitDidReceive(status event: StatusEvent) {
-    queue.async { self.didReceiveStatus?(event) }
-  }
+  // swiftlint:disable:next cyclomatic_complexity
+  public func emitDidReceive(subscription event: SubscriptionEvent) {
+    queue.async {
+      // Emit Master Event
+      self.didReceiveSubscription?(event)
 
-  public func emitDidReceive(presence event: PresenceEvent) {
-    queue.async { self.didReceivePresence?(event) }
-  }
-
-  public func emitDidReceive(signal event: MessageEvent) {
-    queue.async { self.didReceiveSignal?(event) }
+      // Emit Granular Event
+      switch event {
+      case let .messageReceived(message):
+        self.didReceiveMessage?(message)
+      case let .signalReceived(signal):
+        self.didReceiveSignal?(signal)
+      case let .connectionStatusChanged(status):
+        self.didReceiveStatus?(.success(status))
+      case let .presenceChanged(presence):
+        self.didReceivePresence?(presence)
+      case let .userUpdated(user):
+        self.didReceiveUserEvent?(.updated(user))
+      case let .userDeleted(user):
+        self.didReceiveUserEvent?(.deleted(user))
+      case let .spaceUpdated(space):
+        self.didReceiveSpaceEvent?(.updated(space))
+      case let .spaceDeleted(space):
+        self.didReceiveSpaceEvent?(.deleted(space))
+      case let .membershipAdded(membership):
+        self.didReceiveMembershipEvent?(.userAddedOnSpace(membership))
+      case let .membershipUpdated(membership):
+        self.didReceiveMembershipEvent?(.userUpdatedOnSpace(membership))
+      case let .membershipDeleted(membership):
+        self.didReceiveMembershipEvent?(.userDeletedFromSpace(membership))
+      case let .subscribeError(error):
+        self.didReceiveStatus?(.failure(error))
+      }
+    }
   }
 
   public static func == (lhs: SubscriptionListener, rhs: SubscriptionListener) -> Bool {

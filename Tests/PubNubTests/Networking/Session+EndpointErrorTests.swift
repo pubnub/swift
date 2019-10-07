@@ -90,7 +90,7 @@ final class SessionEndpointErrorTests: XCTestCase {
   func testRequestURITooLong_Message() {
     testEndpointError(payload: .init(message: .requestURITooLong,
                                      service: .balancer,
-                                     status: .uriTooLong,
+                                     status: .requestURITooLong,
                                      error: true),
                       for: "requestURITooLong_Message")
   }

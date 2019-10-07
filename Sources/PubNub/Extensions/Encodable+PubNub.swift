@@ -56,4 +56,14 @@ extension Encodable {
       return .failure(AnyJSONError.stringCreationFailure(nil))
     }
   }
+
+  func encodableJSONRawType<T>() -> Result<T, Error> where T: Decodable {
+    return encodableJSONData.flatMap { data -> Result<T, Error> in
+      do {
+        return try .success(Constant.jsonDecoder.decode(T.self, from: data))
+      } catch {
+        return .failure(error)
+      }
+    }
+  }
 }

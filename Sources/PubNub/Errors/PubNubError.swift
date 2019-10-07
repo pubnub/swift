@@ -1,5 +1,5 @@
 //
-//  PNError+LocalizedErrorTests.swift
+//  PubNubError.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -25,7 +25,4 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNub
-import XCTest
-
-class PNErrorLocalizedErrorTests: XCTestCase {}
+import Foundation

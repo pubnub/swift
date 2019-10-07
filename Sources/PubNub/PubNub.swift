@@ -65,6 +65,28 @@ public struct PubNub {
 
     subscription = SubscribeSessionFactory.shared.getSession(from: configuration)
   }
+
+  func route<Decoder>(
+    _ endpoint: Endpoint,
+    networkConfiguration: NetworkConfiguration?,
+    responseDecoder: Decoder,
+    respondOn queue: DispatchQueue = .main,
+    completion: @escaping (Result<Response<Decoder.Payload>, Error>) -> Void
+  ) where Decoder: ResponseDecoder {
+//    let session = networkConfiguration?.customSession ?? networkSession
+    let defaultOperator = defaultRequestOperator
+      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+
+    networkSession.usingDefault(requestOperator: defaultOperator)
+      .request(with: PubNubRouter(configuration: configuration, endpoint: endpoint),
+               requestOperator: networkConfiguration?.requestOperator)
+      .validate()
+      .response(
+        on: queue,
+        decoder: responseDecoder,
+        completion: completion
+      )
+  }
 }
 
 // MARK: - Time
@@ -75,18 +97,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<TimeResponsePayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-    let router = PubNubRouter(configuration: configuration, endpoint: .time)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(on: queue, decoder: TimeResponseDecoder()) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.time,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: TimeResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 }
 
@@ -104,38 +120,24 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
+    let endpoint: Endpoint = shouldCompress ?
+      .compressedPublish(message: message,
+                         channel: channel,
+                         shouldStore: shouldStore,
+                         ttl: storeTTL,
+                         meta: meta) :
+      .publish(message: message,
+               channel: channel,
+               shouldStore: shouldStore,
+               ttl: storeTTL,
+               meta: meta)
 
-    let endpoint: Endpoint
-    if shouldCompress {
-      endpoint = .compressedPublish(message: message,
-                                    channel: channel,
-                                    shouldStore: shouldStore,
-                                    ttl: storeTTL,
-                                    meta: meta)
-    } else {
-      endpoint = .publish(message: message,
-                          channel: channel,
-                          shouldStore: shouldStore,
-                          ttl: storeTTL,
-                          meta: meta)
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: PublishResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
     }
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: endpoint)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: PublishResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
   }
 
   public func fire(
@@ -146,25 +148,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let endpoint = Endpoint.fire(message: message, channel: channel, meta: meta)
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: endpoint)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: PublishResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.fire(message: message, channel: channel, meta: meta),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: PublishResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func signal(
@@ -174,23 +163,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .signal(message: message, channel: channel))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: PublishResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.signal(message: message, channel: channel),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: PublishResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 }
 
@@ -230,7 +208,7 @@ extension PubNub {
   public func setPresence(
     state: [String: Codable],
     on channels: [String],
-    and groups: [String],
+    and groups: [String] = [],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
   ) {
     subscription.setPresence(state: state, on: channels, and: groups, completion: completion)
@@ -254,8 +232,6 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<HereNowPayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
     let endpoint: Endpoint
     if channels.isEmpty, groups.isEmpty {
       endpoint = Endpoint.hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState)
@@ -266,21 +242,12 @@ extension PubNub {
                                   includeState: includeState)
     }
 
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: endpoint)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: HereNowResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload.payload })
-      }
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: HereNowResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.payload })
+    }
   }
 
   public func whereNow(
@@ -289,23 +256,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<WhereNowPayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .whereNow(uuid: uuid))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: PresenceResponseDecoder<WhereNowResponsePayload>()
-      ) { result in
-        completion?(result.map { $0.payload.payload })
-      }
+    route(.whereNow(uuid: uuid),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.payload })
+    }
   }
 }
 
@@ -317,23 +273,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GroupListPayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .channelGroups)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>()
-      ) { result in
-        completion?(result.map { $0.payload.payload })
-      }
+    route(.channelGroups,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.payload })
+    }
   }
 
   public func deleteChannelGroup(
@@ -342,23 +287,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .deleteGroup(group: group))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: GenericServiceResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.deleteGroup(group: group),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func listChannels(
@@ -367,23 +301,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ChannelListPayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .channelsForGroup(group: group))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>()
-      ) { result in
-        completion?(result.map { $0.payload.payload })
-      }
+    route(.channelsForGroup(group: group),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.payload })
+    }
   }
 
   public func addChannels(
@@ -393,23 +316,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .addChannelsForGroup(group: group, channels: channels))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: GenericServiceResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.addChannelsForGroup(group: group, channels: channels),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func removeChannels(
@@ -419,23 +331,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .removeChannelsForGroup(group: group, channels: channels))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: GenericServiceResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.removeChannelsForGroup(group: group, channels: channels),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 }
 
@@ -449,23 +350,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .listPushChannels(pushToken: deviceToken, pushType: pushType))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: RegisteredPushChannelsResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.listPushChannels(pushToken: deviceToken, pushType: pushType),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: RegisteredPushChannelsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func modifyPushChannelRegistrations(
@@ -477,26 +367,16 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .modifyPushChannels(pushToken: deviceToken,
-                                                            pushType: pushType,
-                                                            addChannels: additions,
-                                                            removeChannels: removals))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: ModifyPushResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    let endpoint: Endpoint = .modifyPushChannels(pushToken: deviceToken,
+                                                 pushType: pushType,
+                                                 addChannels: additions,
+                                                 removeChannels: removals)
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ModifyPushResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func removeAllPushChannelRegistrations(
@@ -506,23 +386,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .removeAllPushChannels(pushToken: deviceToken, pushType: pushType))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: ModifyPushResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ModifyPushResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 }
 
@@ -539,25 +408,18 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .fetchMessageHistory(channels: channels,
-                                                             max: count,
-                                                             start: stateTimetoken,
-                                                             end: endTimetoken,
-                                                             includeMeta: metaInResponse))
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
+    let endpoint: Endpoint = .fetchMessageHistory(channels: channels,
+                                                  max: count,
+                                                  start: stateTimetoken,
+                                                  end: endTimetoken,
+                                                  includeMeta: metaInResponse)
 
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: MessageHistoryResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload.channels })
-      }
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageHistoryResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.channels })
+    }
   }
 
   public func deleteMessageHistory(
@@ -568,25 +430,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .deleteMessageHistory(channel: channel,
-                                                              start: stateTimetoken,
-                                                              end: endTimetoken))
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: GenericServiceResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload })
-      }
+    route(.deleteMessageHistory(channel: channel, start: stateTimetoken, end: endTimetoken),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
   }
 
   public func messageCounts(
@@ -595,27 +444,16 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
+    let endpoint: Endpoint = .messageCounts(channels: channels.map { $0.key },
+                                            timetoken: nil,
+                                            channelsTimetoken: channels.map { $0.value })
 
-    let endpoint = Endpoint.messageCounts(channels: channels.map { $0.key },
-                                          timetoken: nil,
-                                          channelsTimetoken: channels.map { $0.value })
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: endpoint)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: MessageCountsResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload.channels })
-      }
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageCountsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.channels })
+    }
   }
 
   public func messageCounts(
@@ -625,29 +463,281 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
-    let client = networkConfiguration?.customSession ?? networkSession
+    let endpoint: Endpoint = .messageCounts(channels: channels,
+                                            timetoken: timetoken,
+                                            channelsTimetoken: nil)
 
-    let endpoint = Endpoint.messageCounts(channels: channels,
-                                          timetoken: timetoken,
-                                          channelsTimetoken: nil)
-
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: endpoint)
-
-    let defaultOperators = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    client.usingDefault(requestOperator: defaultOperators)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
-      .validate()
-      .response(
-        on: queue,
-        decoder: MessageCountsResponseDecoder()
-      ) { result in
-        completion?(result.map { $0.payload.channels })
-      }
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageCountsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.channels })
+    }
   }
 }
+
+// MARK: - User Objects
+
+extension PubNub {
+  public func fetchUsers(
+    include field: Endpoint.IncludeField? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserObjectsResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsUserFetchAll(include: field, limit: limit, start: start, end: end, count: count),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func fetch(
+    userID: String,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsUserFetch(userID: userID, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func create(
+    user: PubNubUser,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsUserCreate(user: user, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func update(
+    user: PubNubUser,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsUserUpdate(user: user, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func delete(
+    userID: String,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    route(.objectsUserDelete(userID: userID, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func fetchMemberships(
+    userID: String,
+    include fields: [Endpoint.IncludeField]? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsUserMemberships(userID: userID, include: fields, limit: limit, start: start, end: end, count: count),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserMembershipsObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func updateMemberships(
+    userID: String,
+    adding addedSpaceIDs: [ObjectIdentifiable] = [],
+    updating updateSpaceIDs: [ObjectIdentifiable] = [],
+    removing removeSpaceIDs: [ObjectIdentifiable] = [],
+    include fields: [Endpoint.IncludeField]? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
+  ) {
+    let endpoint = Endpoint.objectsUserMembershipsUpdate(
+      userID: userID,
+      add: addedSpaceIDs, update: updateSpaceIDs, remove: removeSpaceIDs,
+      include: fields,
+      limit: limit, start: start, end: end, count: count
+    )
+
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: UserMembershipsObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+}
+
+// MARK: - Space Objects
+
+extension PubNub {
+  public func fetchSpaces(
+    include field: Endpoint.IncludeField? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceObjectsResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceFetchAll(include: field, limit: limit, start: start, end: end, count: count),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func fetch(
+    spaceID: String,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceFetch(spaceID: spaceID, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func create(
+    space: PubNubSpace,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceCreate(space: space, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func update(
+    space: PubNubSpace,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceObjectResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceUpdate(space: space, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceObjectResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func delete(
+    spaceID: String,
+    include field: Endpoint.IncludeField? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceDelete(spaceID: spaceID, include: field),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: GenericServiceResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func fetchMemberships(
+    spaceID: String,
+    include fields: [Endpoint.IncludeField]? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
+  ) {
+    route(.objectsSpaceMemberships(spaceID: spaceID,
+                                   include: fields, limit: limit, start: start, end: end, count: count),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceMembershipsObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  public func updateMemberships(
+    spaceID: String,
+    adding addedUserIDs: [ObjectIdentifiable] = [],
+    updating updateUserIDs: [ObjectIdentifiable] = [],
+    removing removeUserIDs: [ObjectIdentifiable] = [],
+    include fields: [Endpoint.IncludeField]? = nil,
+    limit: Int? = nil,
+    start: String? = nil,
+    end: String? = nil,
+    count: Bool? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
+  ) {
+    let endpoint = Endpoint.objectsSpaceMembershipsUpdate(
+      spaceID: spaceID,
+      add: addedUserIDs, update: updateUserIDs, remove: removeUserIDs,
+      include: fields,
+      limit: limit, start: start, end: end, count: count
+    )
+
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: SpaceMembershipsObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+}
+
+// MARK: - Crypto
 
 extension PubNub {
   func encrypt(message: String) -> Result<Data, Error> {

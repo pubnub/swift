@@ -274,6 +274,8 @@ public final class Request {
     // Set the data value
     if self.data == nil {
       atomicState.lockedWrite { $0.responesData = data }
+    } else {
+      atomicState.lockedWrite { $0.responesData?.append(data) }
     }
   }
 

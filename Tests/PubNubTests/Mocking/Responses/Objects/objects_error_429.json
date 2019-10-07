@@ -1,0 +1,10 @@
+{
+  "code": 429,
+  "body": {
+    "status": 429,
+    "error": {
+      "message": "You have exceeded the maximum number of requests per second allowed for your subscriber key.",
+      "source": "objects"
+    }
+  }
+}

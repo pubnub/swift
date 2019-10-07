@@ -151,6 +151,14 @@ extension PNError.ResponseProcessingFailureReason: LocalizedErrorReason {
 extension PNError.EndpointFailureReason: LocalizedErrorReason {
   public var errorDescription: String {
     switch self {
+    case .conflict:
+      return ""
+    case .preconditionFailed:
+      return ""
+    case .tooManyRequests:
+      return ""
+    case .unsupportedType:
+      return ""
     case .malformedResponseBody:
       return ErrorDescription.EndpointFailureReason.malformedResponseBody
     case .jsonDataDecodeFailure:

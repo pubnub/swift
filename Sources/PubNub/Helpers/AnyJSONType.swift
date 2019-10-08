@@ -391,12 +391,10 @@ extension AnyJSONType: Equatable {
         return true
       }
       return false
-//      return lhs.rawArray == rhs.rawArray
     case let (.dictionary(lhsDict), .dictionary(rhsDict)):
       return lhsDict.allSatisfy {
         rhsDict[$0] == $1
       }
-//      return lhs.rawDictionary == rhs.rawDictionary
     case let (.codable(lhsCodable), .codable(rhsCodable)):
       return (try? lhsCodable.encodableJSONData.get() == rhsCodable.encodableJSONData.get()) ?? false
     case (.unknown, .unknown):

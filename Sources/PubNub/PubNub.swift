@@ -701,7 +701,7 @@ extension PubNub {
     route(.objectsSpaceMemberships(spaceID: spaceID,
                                    include: fields, limit: limit, start: start, end: end, count: count),
           networkConfiguration: networkConfiguration,
-          responseDecoder: SpaceMembershipsObjectsResponseDecoder(),
+          responseDecoder: SpaceMembershipObjectsResponseDecoder(),
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -730,7 +730,7 @@ extension PubNub {
 
     route(endpoint,
           networkConfiguration: networkConfiguration,
-          responseDecoder: SpaceMembershipsObjectsResponseDecoder(),
+          responseDecoder: SpaceMembershipObjectsResponseDecoder(),
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }

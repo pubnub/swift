@@ -30,44 +30,53 @@ import Foundation
 public typealias UserEvent = UpdatableUser
 public typealias SpaceEvent = UpdatableSpace
 
-// MARK: - CustomStringConvertible
+public enum ObjectAction: String, Codable, Hashable {
+  case add = "create"
+  case update
+  case delete
+}
 
-extension UserEvent {
-  public var description: String {
-    return ""
+public enum ObjectType: String, Codable, Hashable {
+  case user
+  case space
+  case membership
+}
+
+public struct ObjectSubscribePayload: Codable {
+  public let source: String
+  public let version: String
+  public let event: ObjectAction
+  public let type: ObjectType
+  public let data: AnyJSON
+}
+
+public struct IdentifierEvent: Codable, Hashable {
+  public let id: String
+}
+
+// MARK: - Membership
+
+public protocol MembershipIdentifiable {
+  var userId: String { get }
+  var spaceId: String { get }
+}
+
+public struct MembershipEvent: MembershipIdentifiable, Codable, Equatable {
+  public let userId: String
+  public let spaceId: String
+
+  public let custom: [String: JSONCodableScalarType]
+  public let updated: Date
+  public let eTag: String
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    userId = try container.decode(String.self, forKey: .userId)
+    spaceId = try container.decode(String.self, forKey: .spaceId)
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) ?? [:]
+    updated = try container.decodeIfPresent(Date.self, forKey: .updated) ?? Date.distantPast
+    eTag = try container.decodeIfPresent(String.self, forKey: .eTag) ?? ""
   }
 }
 
-extension SpaceEvent {
-  public var description: String {
-    return ""
-  }
-}
-
-extension MembershipEvent {
-  public var description: String {
-    return ""
-  }
-}
-
-// MARK: - Implementation
-
-// extension MessageResponse: MessageEvent {
-//  public var publisher: String? { return issuer }
-//  public var subscription: String? { return subscriptionMatch }
-//  public var timetoken: Timetoken {
-//    return publishTimetoken.timetoken
-//  }
-//
-//  public var userMetadata: AnyJSON? { return metadata }
-// }
-//
-// extension MessageResponse: MessageEvent {
-//  public var publisher: String? { return issuer }
-//  public var subscription: String? { return subscriptionMatch }
-//  public var timetoken: Timetoken {
-//    return publishTimetoken.timetoken
-//  }
-//
-//  public var userMetadata: AnyJSON? { return metadata }
-// }

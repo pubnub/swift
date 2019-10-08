@@ -82,7 +82,7 @@ struct SpaceObjectsResponseDecoder: ResponseDecoder {
 
 // MARK: - Membership Response Decoder
 
-struct SpaceMembershipsObjectsResponseDecoder: ResponseDecoder {
+struct SpaceMembershipObjectsResponseDecoder: ResponseDecoder {
   typealias Payload = SpaceMembershipResponsePayload
 }
 

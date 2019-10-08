@@ -30,7 +30,6 @@
 		35059784234964AC007DC06E /* subscription_spaceUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35059783234964AC007DC06E /* subscription_spaceUpdate_success.json */; };
 		35059786234964B8007DC06E /* subscription_spaceDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35059785234964B8007DC06E /* subscription_spaceDelete_success.json */; };
 		35059787234964CF007DC06E /* subscription_membershipDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3505977E2349617C007DC06E /* subscription_membershipDelete_success.json */; };
-		3505978A23498F6F007DC06E /* SubscribeEndpoint+Objects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350597882349849A007DC06E /* SubscribeEndpoint+Objects.swift */; };
 		35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35089A0822E3C08D002BCC94 /* Error+PubNub.swift */; };
 		35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35089A0A22E56F1F002BCC94 /* Constants.swift */; };
 		350BC40F233952F400011262 /* objects_users_fetchAll_success_empty.json in Resources */ = {isa = PBXBuildFile; fileRef = 350BC40E2339520500011262 /* objects_users_fetchAll_success_empty.json */; };
@@ -189,7 +188,6 @@
 		35A6C7BE22FCCBF900E97CC5 /* HistoryEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A6C7BD22FCCBF900E97CC5 /* HistoryEndpoint.swift */; };
 		35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */; };
 		35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B38249233AAB8C0028803F /* JSONCodable.swift */; };
-		35B38250233AB1AF0028803F /* JSONCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B3824C233AB01E0028803F /* JSONCodable.swift */; };
 		35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */; };
 		35C6B6DD22F501780054F242 /* Encodable+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */; };
 		35C6B6E322F515760054F242 /* SubscribeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBD722C926C300FA33AA /* SubscribeEndpoint.swift */; };
@@ -316,7 +314,6 @@
 		35059781234964A0007DC06E /* subscription_userDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_userDelete_success.json; sourceTree = "<group>"; };
 		35059783234964AC007DC06E /* subscription_spaceUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_spaceUpdate_success.json; sourceTree = "<group>"; };
 		35059785234964B8007DC06E /* subscription_spaceDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_spaceDelete_success.json; sourceTree = "<group>"; };
-		350597882349849A007DC06E /* SubscribeEndpoint+Objects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeEndpoint+Objects.swift"; sourceTree = "<group>"; };
 		35089A0822E3C08D002BCC94 /* Error+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+PubNub.swift"; sourceTree = "<group>"; };
 		35089A0A22E56F1F002BCC94 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		350BC40523393E5900011262 /* objects_error_400.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_error_400.json; sourceTree = "<group>"; };
@@ -488,7 +485,6 @@
 		35A6C7BD22FCCBF900E97CC5 /* HistoryEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEndpoint.swift; sourceTree = "<group>"; };
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
 		35B38249233AAB8C0028803F /* JSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCodable.swift; sourceTree = "<group>"; };
-		35B3824C233AB01E0028803F /* JSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCodable.swift; sourceTree = "<group>"; };
 		35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSNumber+PubNub.swift"; sourceTree = "<group>"; };
 		35B6FBB122F357A7005EE490 /* publish_invalid_json.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = publish_invalid_json.json; sourceTree = "<group>"; };
 		35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PubNub.swift"; sourceTree = "<group>"; };
@@ -638,7 +634,6 @@
 				35A6C7A722FBCC8B00E97CC5 /* PushEndpoint.swift */,
 				3534D4E322C57659008E89FA /* PublishEndpoint.swift */,
 				350EFBD722C926C300FA33AA /* SubscribeEndpoint.swift */,
-				350597882349849A007DC06E /* SubscribeEndpoint+Objects.swift */,
 				3534D4E122C56533008E89FA /* TimeEndpoint.swift */,
 			);
 			path = Endpoints;
@@ -836,7 +831,6 @@
 			children = (
 				355BE9FE22C2B74A000EC334 /* AnyJSONTests.swift */,
 				35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */,
-				35B3824C233AB01E0028803F /* JSONCodable.swift */,
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
 				35D0615123035E4300FDB2F9 /* CryptoTests.swift */,
 				35CDFEBD22E7985C00F3B9F2 /* HTTPHeadersTests.swift */,
@@ -1319,11 +1313,10 @@
 			attributes = {
 				LastSwiftMigration = 9999;
 				LastSwiftUpdateCheck = 1020;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1110;
 				TargetAttributes = {
 					3558069D23145749005CDD92 = {
-						DevelopmentTeam = 8XP4D6N55Z;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 					"PubNub::PubNub" = {
 						ProvisioningStyle = Manual;
@@ -1593,7 +1586,6 @@
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
-				3505978A23498F6F007DC06E /* SubscribeEndpoint+Objects.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				35A66A9222F9169400AC67A9 /* PresenceEvent.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
@@ -1645,7 +1637,6 @@
 				35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */,
 				35FE93C322EF57FA0051C455 /* Session+URLErrorTests.swift in Sources */,
 				35FE940122EF983A0051C455 /* Session+EndpointErrorTests.swift in Sources */,
-				35B38250233AB1AF0028803F /* JSONCodable.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				35E381FF23149BBA00A17549 /* PresenceChannelTests.swift in Sources */,
 				359287BD23173D490046F7A2 /* SubscribeEndpointTests.swift in Sources */,
@@ -1717,8 +1708,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8XP4D6N55Z;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
@@ -1742,8 +1733,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8XP4D6N55Z;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
@@ -1808,7 +1799,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = NO;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_TESTABILITY = YES;

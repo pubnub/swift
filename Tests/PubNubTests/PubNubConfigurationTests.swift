@@ -52,7 +52,7 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertNil(config.authKey)
     XCTAssertNotNil(config.uuid)
     XCTAssertEqual(config.useSecureConnections, true)
-    XCTAssertEqual(config.origin, "ps.pubnub.com")
+    XCTAssertEqual(config.origin, "ps.pndsn.com")
     XCTAssertEqual(config.durationUntilTimeout, 300)
     XCTAssertEqual(config.heartbeatInterval, 0)
     XCTAssertEqual(config.supressLeaveEvents, false)

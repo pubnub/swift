@@ -74,7 +74,6 @@ public struct PubNubConfiguration: Hashable {
   public init(publishKey: String?, subscribeKey: String?) {
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey
-    subdomain = subscribeKey
   }
 
   // MARK: - Router Configurations
@@ -97,17 +96,8 @@ public struct PubNubConfiguration: Hashable {
   /// [documentation](https://developer.apple.com/documentation/security/preventing_insecure_network_connections)
   /// for further details.
   public var useSecureConnections: Bool = true
-  /// Full origin used for requests `subdomain`.`domain`
-  public var origin: String {
-    guard let sub = subdomain else {
-      return "ps.\(domain)"
-    }
-
-    return "\(sub).\(domain)"
-  }
-
-  public var subdomain: String?
-  public var domain: String = "pubnub.com"
+  /// Full origin (`subdomain`.`domain`) used for requests
+  public var origin: String = "ps.pndsn.com"
 
   // MARK: - Debug Configuration
 

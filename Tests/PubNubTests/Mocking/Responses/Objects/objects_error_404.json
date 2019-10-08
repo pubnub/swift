@@ -1,0 +1,10 @@
+{
+  "code": 404,
+  "body": {
+    "status": 404,
+    "error": {
+      "message": "Requested object was not found.",
+      "source": "objects"
+    }
+  }
+}

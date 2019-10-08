@@ -27,6 +27,12 @@
 
 import Foundation
 
+public extension URLQueryItem {
+  internal init(key: QueryKey, value: String?) {
+    self.init(name: key.rawValue, value: value)
+  }
+}
+
 public extension Array where Element == URLQueryItem {
   /// Returns new list of query items replaces any existing
   func merging(_ other: [URLQueryItem]) -> [URLQueryItem] {
@@ -52,9 +58,7 @@ public extension Array where Element == URLQueryItem {
   func firstIndex(of name: String) -> Int? {
     return firstIndex { $0.name == name }
   }
-}
 
-public extension Array where Element == URLQueryItem {
   // Creates a new query item and appends only if the value is not nil
   mutating func appendIfPresent(name: String, value: String?) {
     if let value = value {
@@ -62,10 +66,20 @@ public extension Array where Element == URLQueryItem {
     }
   }
 
+  // Creates a new query item and appends only if the value is not nil
+  internal mutating func appendIfPresent(key: QueryKey, value: String?) {
+    appendIfPresent(name: key.rawValue, value: value)
+  }
+
   // Creates a new query item with a csv string value and appends only if the value is not empty
   mutating func appendIfNotEmpty(name: String, value: [String]) {
     if !value.isEmpty {
       append(URLQueryItem(name: name, value: value.csvString))
     }
+  }
+
+  // Creates a new query item with a csv string value and appends only if the value is not empty
+  internal mutating func appendIfNotEmpty(key: QueryKey, value: [String]) {
+    appendIfNotEmpty(name: key.rawValue, value: value)
   }
 }

@@ -57,10 +57,10 @@ final class PresenceEndpointTests: XCTestCase {
   func testHereNow_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
 
-    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], [])
-    XCTAssertEqual(endpoint.associatedValues["groups"] as? [String], [])
-    XCTAssertEqual(endpoint.associatedValues["includeUUIDs"] as? Bool, true)
-    XCTAssertEqual(endpoint.associatedValues["includeState"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], [])
+    XCTAssertEqual(endpoint.associatedValue["groups"] as? [String], [])
+    XCTAssertEqual(endpoint.associatedValue["includeUUIDs"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValue["includeState"] as? Bool, true)
   }
 
   // Single Channel
@@ -262,8 +262,8 @@ final class PresenceEndpointTests: XCTestCase {
   func testHereNowGlobal_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
 
-    XCTAssertEqual(endpoint.associatedValues["includeUUIDs"] as? Bool, true)
-    XCTAssertEqual(endpoint.associatedValues["includeState"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValue["includeUUIDs"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValue["includeState"] as? Bool, true)
   }
 
   func testHereNowGlobal_Success() {
@@ -312,7 +312,7 @@ final class PresenceEndpointTests: XCTestCase {
   func testWhereNow_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.whereNow(uuid: "SomeUUID")
 
-    XCTAssertEqual(endpoint.associatedValues["uuid"] as? String, "SomeUUID")
+    XCTAssertEqual(endpoint.associatedValue["uuid"] as? String, "SomeUUID")
   }
 
   func testWhereNow_Success_EmptyClasses() {

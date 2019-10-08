@@ -1,0 +1,10 @@
+{
+  "code": 409,
+  "body": {
+    "status": 409,
+    "error": {
+      "message": "Object with the requested identifier already exists.",
+      "source": "objects"
+    }
+  }
+}

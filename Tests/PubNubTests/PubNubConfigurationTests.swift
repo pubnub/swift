@@ -92,11 +92,4 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.publishKey, publishKeyValue)
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)
   }
-
-  func testNetworkConfiguration() {
-    let session = Session()
-    let networkConfig = NetworkConfiguration(customSession: session)
-
-    XCTAssertEqual(networkConfig.customSession?.sessionID, session.sessionID)
-  }
 }

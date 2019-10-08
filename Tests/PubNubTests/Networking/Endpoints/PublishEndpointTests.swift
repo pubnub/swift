@@ -36,11 +36,11 @@ final class PublishEndpointTests: XCTestCase {
   func testPublish_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.publish(message: "Hello", channel: "SomeChannel", shouldStore: true, ttl: 1, meta: "Meta")
 
-    XCTAssertEqual(endpoint.associatedValues["message"] as? AnyJSON, AnyJSON("Hello"))
-    XCTAssertEqual(endpoint.associatedValues["channel"] as? String, "SomeChannel")
-    XCTAssertEqual(endpoint.associatedValues["shouldStore"] as? Bool, true)
-    XCTAssertEqual(endpoint.associatedValues["ttl"] as? Int, 1)
-    XCTAssertEqual(endpoint.associatedValues["meta"] as? AnyJSON, AnyJSON("Meta"))
+    XCTAssertEqual(endpoint.associatedValue["message"] as? AnyJSON, AnyJSON("Hello"))
+    XCTAssertEqual(endpoint.associatedValue["channel"] as? String, "SomeChannel")
+    XCTAssertEqual(endpoint.associatedValue["shouldStore"] as? Bool, true)
+    XCTAssertEqual(endpoint.associatedValue["ttl"] as? Int, 1)
+    XCTAssertEqual(endpoint.associatedValue["meta"] as? AnyJSON, AnyJSON("Meta"))
   }
 
   // MARK: - Signal
@@ -65,8 +65,8 @@ final class PublishEndpointTests: XCTestCase {
   func testSignal_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.signal(message: "Hello", channel: "SomeChannel")
 
-    XCTAssertEqual(endpoint.associatedValues["message"] as? AnyJSON, AnyJSON("Hello"))
-    XCTAssertEqual(endpoint.associatedValues["channel"] as? String, "SomeChannel")
+    XCTAssertEqual(endpoint.associatedValue["message"] as? AnyJSON, AnyJSON("Hello"))
+    XCTAssertEqual(endpoint.associatedValue["channel"] as? String, "SomeChannel")
   }
 
   func testSignal_Success() {

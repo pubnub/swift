@@ -7,6 +7,18 @@ changelog:
   -
     changes:
       -
+        text: "Removed development dependencies from being included in Swift Package imports"
+        type: improvement
+      -
+        text: "Added meta event listener covering all event types"
+        type: improvement
+      -
+        text: "Support for Objects added"
+        type: feature
+      -
+        text: "Changed `ConnectionStatus.isActive` and `ConnectionStatus.isConnected` access control to public"
+        type: bug
+      -
         text: "Fixed typo in PubNub.Push method parameters"
         type: bug
       -
@@ -103,6 +115,21 @@ features:
     - UNSUBSCRIBE-ALL
   signal:
     - SIGNAL-SEND
+  objects:
+    - OBJECTS-CREATE-USER
+    - OBJECTS-UPDATE-USER
+    - OBJECTS-DELETE-USER
+    - OBJECTS-GET-USER
+    - OBJECTS-GET-USERS
+    - OBJECTS-CREATE-SPACE
+    - OBJECTS-UPDATE-SPACE
+    - OBJECTS-DELETE-SPACE
+    - OBJECTS-GET-SPACE
+    - OBJECTS-GET-SPACES
+    - OBJECTS-GET-MEMBERSHIPS
+    - OBJECTS-MANAGE-MEMBERSHIPS
+    - OBJECTS-GET-MEMBERS
+    - OBJECTS-MANAGE-MEMBERS
 supported-platforms:
   -
     version: PubNub Swift SDK

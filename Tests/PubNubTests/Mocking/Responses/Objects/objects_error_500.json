@@ -1,0 +1,10 @@
+{
+  "code": 500,
+  "body": {
+    "status": 500,
+    "error": {
+      "message": "An unexpected error ocurred while processing the request.",
+      "source": "objects"
+    }
+  }
+}

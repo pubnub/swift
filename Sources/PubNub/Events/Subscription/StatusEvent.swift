@@ -36,7 +36,7 @@ public enum ConnectionStatus {
   case disconnectedUnexpectedly
   case cancelled
 
-  var isActive: Bool {
+  public var isActive: Bool {
     switch self {
     case .connecting, .connected, .reconnecting:
       return true
@@ -45,7 +45,7 @@ public enum ConnectionStatus {
     }
   }
 
-  var isConnected: Bool {
+  public var isConnected: Bool {
     return self == .connected
   }
 

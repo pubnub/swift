@@ -186,6 +186,10 @@ public enum PNError: Error {
     case serviceUnavailable
 
     case badRequest
+    case conflict
+    case preconditionFailed
+    case tooManyRequests
+    case unsupportedType
     case unauthorized
     case forbidden
     case resourceNotFound
@@ -281,14 +285,9 @@ extension PNError {
       return PNError.unknown(ErrorDescription.UnknownErrorReason.endpointErrorMissingResponse, endpoint)
     }
 
-    // Try to associate with a specific error message
-    if let reason = PNError.lookupGeneralErrorMessage(using: payload?.message) {
-      return PNError.endpointFailure(reason, endpoint, request, response)
-    }
-
-    // Try to associate with a general status code error
-    let status = payload?.status ?? GenericServicePayloadResponse.Code(rawValue: response.statusCode)
-    if let reason = PNError.lookupGeneralErrorStatus(using: status) {
+    // Try to associate with a specific error message or use the response status code directly
+    if let reason = payload?.message.knownFailureReason ??
+      HTTPStatus(rawValue: response.statusCode).endpointFailureReason {
       return PNError.endpointFailure(reason, endpoint, request, response)
     }
 
@@ -296,68 +295,5 @@ extension PNError {
                                    endpoint,
                                    request,
                                    response)
-  }
-
-  // swiftlint:disable:next cyclomatic_complexity
-  static func lookupGeneralErrorMessage(
-    using message: GenericServicePayloadResponse.Message?
-  ) -> EndpointFailureReason? {
-    switch message {
-    case .couldNotParseRequest?:
-      return .couldNotParseRequest
-    case .some(.forbidden):
-      return .forbidden
-    case .some(.invalidArguments):
-      return .invalidArguments
-    case .some(.invalidCharacter):
-      return .invalidCharacter
-    case .some(.invalidDeviceToken):
-      return .invalidDeviceToken
-    case .invalidSubscribeKey?:
-      return .invalidSubscribeKey
-    case .invalidPublishKey?:
-      return .invalidPublishKey
-    case .invalidJSON?:
-      return .requestContainedInvalidJSON
-    case .some(.maxChannelGroupCountExceeded):
-      return .maxChannelGroupCountExceeded
-    case .some(.messageHistoryNotEnabled):
-      return .messageHistoryNotEnabled
-    case .some(.messageDeletionNotEnabled):
-      return .messageDeletionNotEnabled
-    case .notFound?:
-      return .resourceNotFound
-    case .some(.pushNotEnabled):
-      return .pushNotEnabled
-    case .requestURITooLong?:
-      return .requestURITooLong
-    case .some(.serviceUnavailable):
-      return .serviceUnavailable
-    case .unknown?, .acknowledge?, .none:
-      return nil
-    }
-  }
-
-  static func lookupGeneralErrorStatus(using code: GenericServicePayloadResponse.Code) -> EndpointFailureReason? {
-    switch code {
-    case .badRequest:
-      return .badRequest
-    case .unauthorized:
-      return .unauthorized
-    case .forbidden:
-      return .forbidden
-    case .notFound:
-      return .resourceNotFound
-    case .uriTooLong:
-      return .requestURITooLong
-    case .malformedFilterExpression:
-      return .malformedFilterExpression
-    case .internalServiceError:
-      return .internalServiceError
-    case .serviceUnavailable:
-      return .serviceUnavailable
-    case .acknowledge, .unknown:
-      return nil
-    }
   }
 }

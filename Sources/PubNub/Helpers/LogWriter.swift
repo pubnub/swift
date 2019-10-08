@@ -63,7 +63,7 @@ public struct ConsoleLogWriter: LogWriter {
   public var executor: LogExecutable
   public var prefix: LogPrefix
 
-  init(
+  public init(
     sendToNSLog: Bool = false,
     prefix: LogPrefix = .all,
     executor: LogExecutionType = .sync(lock: NSRecursiveLock())

@@ -62,8 +62,8 @@ final class PushEndpointTests: XCTestCase {
     }
     let endpoint = Endpoint.listPushChannels(pushToken: data, pushType: .apns)
 
-    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, data)
-    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, data)
+    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
   }
 
   func testListPushRegistration_Success() {
@@ -185,10 +185,10 @@ final class PushEndpointTests: XCTestCase {
                                                addChannels: ["SomeChannel"],
                                                removeChannels: ["OtherChannel"])
 
-    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, Data())
-    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
-    XCTAssertEqual(endpoint.associatedValues["addChannels"] as? [String], ["SomeChannel"])
-    XCTAssertEqual(endpoint.associatedValues["removeChannels"] as? [String], ["OtherChannel"])
+    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, Data())
+    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertEqual(endpoint.associatedValue["addChannels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValue["removeChannels"] as? [String], ["OtherChannel"])
   }
 
   func testModifyPush_Success() {
@@ -311,8 +311,8 @@ final class PushEndpointTests: XCTestCase {
   func testRemoveAllPushChannels_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
 
-    XCTAssertEqual(endpoint.associatedValues["pushToken"] as? Data, Data())
-    XCTAssertEqual(endpoint.associatedValues["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, Data())
+    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
   }
 
   func testRemoveAllPush_Success() {

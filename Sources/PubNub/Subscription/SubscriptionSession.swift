@@ -27,6 +27,7 @@
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 public class SubscriptionSession {
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
@@ -61,7 +62,7 @@ public class SubscriptionSession {
 
       // Update any listeners if value changed
       if oldState != newValue {
-        notify { $0.emitDidReceive(status: .success(newValue)) }
+        notify { $0.emitDidReceive(subscription: .connectionStatusChanged(newValue)) }
       }
     }
   }
@@ -206,7 +207,10 @@ public class SubscriptionSession {
           }
 
           if response.payload.messages.count >= 100 {
-            self?.notify { $0.emitDidReceive(status: .failure(PNError.messageCountExceededMaximum(router.endpoint))) }
+            self?.notify {
+              $0.emitDidReceive(subscription:
+                .subscribeError(PNError.messageCountExceededMaximum(router.endpoint)))
+            }
           }
 
           // Emit the event to the observers
@@ -235,15 +239,53 @@ public class SubscriptionSession {
                 strongSelf.internalState.lockedWrite { $0.mergePresenceState(presenceMessage.channelState) }
               }
 
-              self?.notify { $0.emitDidReceive(presence: presenceEvent) }
+              self?.notify { $0.emitDidReceive(subscription: .presenceChanged(presenceEvent)) }
+            } else if message.messageType == .object {
+              do {
+                // Decode upper object payload
+                let payload = try message.payload.decode(ObjectSubscribePayload.self)
+
+                // Determine the event type
+                switch (payload.type, payload.event) {
+                case (.user, .update):
+                  let event: UserEvent = try payload.data.decode(UserObject.self)
+                  self?.notify { $0.emitDidReceive(subscription: .userUpdated(event)) }
+                case (.user, .delete):
+                  let event = try payload.data.decode(IdentifierEvent.self)
+                  self?.notify { $0.emitDidReceive(subscription: .userDeleted(event)) }
+                case (.space, .update):
+                  let event: SpaceEvent = try payload.data.decode(SpaceObject.self)
+                  self?.notify { $0.emitDidReceive(subscription: .spaceUpdated(event)) }
+                case (.space, .delete):
+                  let event = try payload.data.decode(IdentifierEvent.self)
+                  self?.notify { $0.emitDidReceive(subscription: .spaceDeleted(event)) }
+                case (.membership, .add):
+                  let event = try payload.data.decode(MembershipEvent.self)
+                  self?.notify { $0.emitDidReceive(subscription: .membershipAdded(event)) }
+                case (.membership, .update):
+                  let event = try payload.data.decode(MembershipEvent.self)
+                  self?.notify { $0.emitDidReceive(subscription: .membershipUpdated(event)) }
+                case (.membership, .delete):
+                  let event: MembershipIdentifiable = try payload.data.decode(MembershipEvent.self)
+                  self?.notify { $0.emitDidReceive(subscription: .membershipDeleted(event)) }
+                default:
+                  break
+                }
+              } catch {
+                let error = PNError.endpointFailure(.malformedResponseBody,
+                                                    response.endpoint,
+                                                    response.request,
+                                                    response.response)
+                self?.notify { $0.emitDidReceive(subscription: .subscribeError(error)) }
+              }
             } else {
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
                 switch message.messageType {
                 case .message:
-                  self?.notify { $0.emitDidReceive(message: message) }
+                  self?.notify { $0.emitDidReceive(subscription: .messageReceived(message)) }
                 case .signal:
-                  self?.notify { $0.emitDidReceive(signal: message) }
+                  self?.notify { $0.emitDidReceive(subscription: .signalReceived(message)) }
                 default:
                   break
                 }
@@ -268,12 +310,11 @@ public class SubscriptionSession {
             self?.connectionStatus = .cancelled
           } else if let pubnubError = error.pubNubError {
             self?.connectionStatus = .disconnectedUnexpectedly
-            self?.notify { $0.emitDidReceive(status: .failure(pubnubError)) }
+            self?.notify { $0.emitDidReceive(subscription: .subscribeError(pubnubError)) }
           } else {
             self?.connectionStatus = .disconnectedUnexpectedly
-            self?.notify {
-              $0.emitDidReceive(status: .failure(PNError.unknownError(error, router.endpoint)))
-            }
+            self?.notify { $0.emitDidReceive(subscription:
+              .subscribeError(PNError.unknownError(error, router.endpoint))) }
           }
         }
       }
@@ -368,4 +409,6 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
   public var description: String {
     return uuid.uuidString
   }
+
+  // swiftlint:disable:next file_length
 }

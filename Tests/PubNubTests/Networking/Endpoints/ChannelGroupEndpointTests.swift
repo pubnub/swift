@@ -49,7 +49,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupList_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.channelGroups
 
-    XCTAssertTrue(endpoint.associatedValues.isEmpty)
+    XCTAssertTrue(endpoint.associatedValue.isEmpty)
   }
 
   func testGroupList_Success() {
@@ -112,7 +112,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupDelete_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.deleteGroup(group: "Some Group")
 
-    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "Some Group")
+    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "Some Group")
   }
 
   func testGroupDelete_Success() {
@@ -126,7 +126,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
       .deleteChannelGroup(testGroupName) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.message, GenericServicePayloadResponse.Message.acknowledge)
+          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
         case let .failure(error):
           XCTFail("Group Delete request failed with error: \(error.localizedDescription)")
         }
@@ -156,7 +156,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testChannelsForGroup_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.channelsForGroup(group: "Some Group")
 
-    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "Some Group")
+    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "Some Group")
   }
 
   func testGroupChannelsList_Success() {
@@ -223,8 +223,8 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testAddChannelsForGroup_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.addChannelsForGroup(group: "GroupName", channels: ["Channels"])
 
-    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "GroupName")
-    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["Channels"])
+    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "GroupName")
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["Channels"])
   }
 
   func testGroupChannels_Add_Success() {
@@ -238,7 +238,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
       .addChannels(testChannels, to: testGroupName) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.message, GenericServicePayloadResponse.Message.acknowledge)
+          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
         case let .failure(error):
           XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")
         }
@@ -333,8 +333,8 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupChannelRemove_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.removeChannelsForGroup(group: "GroupName", channels: ["ChannelName"])
 
-    XCTAssertEqual(endpoint.associatedValues["group"] as? String, "GroupName")
-    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["ChannelName"])
+    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "GroupName")
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["ChannelName"])
   }
 
   func testGroupChannels_Remove_Success() {
@@ -348,7 +348,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
       .removeChannels(testChannels, from: testGroupName) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.message, GenericServicePayloadResponse.Message.acknowledge)
+          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
         case let .failure(error):
           XCTFail("Group Channels Remove request failed with error: \(error.localizedDescription)")
         }

@@ -1,0 +1,10 @@
+{
+  "code": 503,
+  "body": {
+    "status": 503,
+    "error": {
+      "message": "The server took longer to respond than the maximum allowed processing time.",
+      "source": "objects"
+    }
+  }
+}

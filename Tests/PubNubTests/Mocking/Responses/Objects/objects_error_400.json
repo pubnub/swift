@@ -1,0 +1,17 @@
+{
+  "code": 400,
+  "body": {
+    "status": 400,
+    "error": {
+      "message": "Request payload contained invalid input.",
+      "source": "objects",
+      "details": [
+        {
+          "message": "User email must be a valid email address.",
+          "location": "user.email",
+          "locationType": "body"
+        }
+      ]
+    }
+  }
+}

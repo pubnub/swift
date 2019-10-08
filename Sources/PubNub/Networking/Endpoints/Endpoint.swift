@@ -56,12 +56,36 @@ public enum Endpoint {
     case fetchMessageHistory
     case deleteMessageHistory
     case messageCounts
+
+    case objectsUserFetchAll
+    case objectsUserFetch
+    case objectsUserCreate
+    case objectsUserUpdate
+    case objectsUserDelete
+    case objectsUserMemberships
+    case objectsUserMembershipsUpdate
+
+    case objectsSpaceFetchAll
+    case objectsSpaceFetch
+    case objectsSpaceCreate
+    case objectsSpaceUpdate
+    case objectsSpaceDelete
+    case objectsSpaceMemberships
+    case objectsSpaceMembershipsUpdate
   }
 
   public enum PushType: String, Codable {
     case apns
     case gcm
     case mpns
+  }
+
+  public enum IncludeField: String, Codable {
+    case custom
+    case user
+    case customUser = "user.custom"
+    case space
+    case customSpace = "space.custom"
   }
 
   // Time Endpoint
@@ -107,9 +131,45 @@ public enum Endpoint {
   case modifyPushChannels(pushToken: Data, pushType: PushType, addChannels: [String], removeChannels: [String])
   case removeAllPushChannels(pushToken: Data, pushType: PushType)
 
+  // User Objects
+  case objectsUserFetchAll(include: IncludeField?, limit: Int?, start: String?, end: String?, count: Bool?)
+  case objectsUserFetch(userID: String, include: IncludeField?)
+  case objectsUserCreate(user: PubNubUser, include: IncludeField?)
+  case objectsUserUpdate(user: PubNubUser, include: IncludeField?)
+  case objectsUserDelete(userID: String, include: IncludeField?)
+  case objectsUserMemberships(
+    userID: String,
+    include: [IncludeField]?,
+    limit: Int?, start: String?, end: String?, count: Bool?
+  )
+  case objectsUserMembershipsUpdate(
+    userID: String,
+    add: [ObjectIdentifiable], update: [ObjectIdentifiable], remove: [ObjectIdentifiable],
+    include: [IncludeField]?,
+    limit: Int?, start: String?, end: String?, count: Bool?
+  )
+
+  // Space Objects
+  case objectsSpaceFetchAll(include: IncludeField?, limit: Int?, start: String?, end: String?, count: Bool?)
+  case objectsSpaceFetch(spaceID: String, include: IncludeField?)
+  case objectsSpaceCreate(space: PubNubSpace, include: IncludeField?)
+  case objectsSpaceUpdate(space: PubNubSpace, include: IncludeField?)
+  case objectsSpaceDelete(spaceID: String, include: IncludeField?)
+  case objectsSpaceMemberships(
+    spaceID: String,
+    include: [IncludeField]?,
+    limit: Int?, start: String?, end: String?, count: Bool?
+  )
+  case objectsSpaceMembershipsUpdate(
+    spaceID: String,
+    add: [ObjectIdentifiable], update: [ObjectIdentifiable], remove: [ObjectIdentifiable],
+    include: [IncludeField]?,
+    limit: Int?, start: String?, end: String?, count: Bool?
+  )
+
   case unknown
 
-  var rawValue: RawValue {
+  public var rawValue: RawValue {
     switch self {
     case .time:
       return .time
@@ -163,6 +223,35 @@ public enum Endpoint {
       return .fetchMessageHistory
     case .deleteMessageHistory:
       return .deleteMessageHistory
+    case .objectsUserFetch:
+      return .objectsUserFetch
+    case .objectsUserFetchAll:
+      return .objectsUserFetchAll
+    case .objectsUserCreate:
+      return .objectsUserCreate
+    case .objectsUserUpdate:
+      return .objectsUserUpdate
+    case .objectsUserDelete:
+      return .objectsUserDelete
+    case .objectsSpaceFetch:
+      return .objectsSpaceFetch
+    case .objectsSpaceFetchAll:
+      return .objectsSpaceFetchAll
+    case .objectsSpaceCreate:
+      return .objectsSpaceCreate
+    case .objectsSpaceUpdate:
+      return .objectsSpaceUpdate
+    case .objectsSpaceDelete:
+      return .objectsSpaceDelete
+    case .objectsUserMemberships:
+      return .objectsUserMemberships
+    case .objectsUserMembershipsUpdate:
+      return .objectsUserMembershipsUpdate
+    case .objectsSpaceMemberships:
+      return .objectsSpaceMemberships
+    case .objectsSpaceMembershipsUpdate:
+      return .objectsSpaceMembershipsUpdate
+
     case .unknown:
       return .unknown
     }
@@ -224,6 +313,41 @@ extension Endpoint: Validated {
       return isEndpointInvalid(parameters.uuid.isEmpty, parameters.channels.isEmpty && parameters.groups.isEmpty)
     case .setPresenceState(let channels, _, _):
       return isEndpointInvalid(channels.isEmpty)
+    case .objectsUserFetch(let userID, _):
+      return isEndpointInvalid(userID.isEmpty)
+    case .objectsUserFetchAll:
+      return nil
+    case let .objectsUserCreate(user, _):
+      return isEndpointInvalid(!user.isValid)
+    case let .objectsUserUpdate(user, _):
+      return isEndpointInvalid(!user.isValid)
+    case let .objectsUserDelete(userID, _):
+      return isEndpointInvalid(userID.isEmpty)
+
+    case .objectsSpaceFetch(let spaceID, _):
+      return isEndpointInvalid(spaceID.isEmpty)
+    case .objectsSpaceFetchAll:
+      return nil
+    case let .objectsSpaceCreate(space, _):
+      return isEndpointInvalid(!space.isValid)
+    case let .objectsSpaceUpdate(space, _):
+      return isEndpointInvalid(!space.isValid)
+    case let .objectsSpaceDelete(spaceID, _):
+      return isEndpointInvalid(spaceID.isEmpty)
+    case let .objectsUserMemberships(parameters):
+      return isEndpointInvalid(parameters.userID.isEmpty)
+    case let .objectsUserMembershipsUpdate(parameters):
+      return isEndpointInvalid(parameters.userID.isEmpty,
+                               !parameters.add.allSatisfy { $0.isValid },
+                               !parameters.update.allSatisfy { $0.isValid },
+                               !parameters.remove.allSatisfy { $0.isValid })
+    case let .objectsSpaceMemberships(parameters):
+      return isEndpointInvalid(parameters.spaceID.isEmpty)
+    case let .objectsSpaceMembershipsUpdate(parameters):
+      return isEndpointInvalid(parameters.spaceID.isEmpty,
+                               !parameters.add.allSatisfy { $0.isValid },
+                               !parameters.update.allSatisfy { $0.isValid },
+                               !parameters.remove.allSatisfy { $0.isValid })
     }
   }
 
@@ -253,12 +377,13 @@ extension Endpoint: Validated {
 
 extension Endpoint {
   public enum OperationType: String {
-    case publish = "Publish"
-    case subscribe = "Subscribe"
+    case channelGroup = "Channel Group"
     case history = "History"
+    case objects = "Objects"
     case presence = "Presence"
-    case channelGroup = "ChannelGroup"
+    case publish = "Publish"
     case push = "Push"
+    case subscribe = "Subscribe"
     case time = "Time"
     case unknown = "Unknown"
   }
@@ -279,6 +404,13 @@ extension Endpoint {
       return .push
     case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory, .messageCounts:
       return .history
+    case .objectsUserFetchAll, .objectsUserFetch, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
+      return .objects
+    case .objectsSpaceFetchAll, .objectsSpaceFetch, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
+      return .objects
+    case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
+         .objectsSpaceMembershipsUpdate:
+      return .objects
     case .unknown:
       return .unknown
     }
@@ -334,6 +466,36 @@ extension Endpoint: CustomStringConvertible {
       return "Fetch Message History"
     case .deleteMessageHistory:
       return "Delete Message History"
+    case .objectsUserFetch:
+      return "Fetch User Object"
+    case .objectsUserFetchAll:
+      return "Fetch All User Objects"
+    case .objectsUserCreate:
+      return "Create User Object"
+    case .objectsUserUpdate:
+      return "Update User Object"
+    case .objectsUserDelete:
+      return "Delete User Object"
+    case .objectsUserMemberships:
+      return "Fetch User's Memberships"
+    case .objectsUserMembershipsUpdate:
+      return "Update User's Memberships"
+
+    case .objectsSpaceFetch:
+      return "Fetch Space Object"
+    case .objectsSpaceFetchAll:
+      return "Fetch All Space Objects"
+    case .objectsSpaceCreate:
+      return "Create Space Object"
+    case .objectsSpaceUpdate:
+      return "Update Space Object"
+    case .objectsSpaceDelete:
+      return "Delete Space Object"
+    case .objectsSpaceMemberships:
+      return "Fetch Space's Memberships"
+    case .objectsSpaceMembershipsUpdate:
+      return "Update Space's Memberships"
+
     case .unknown:
       return "Unknown"
     }
@@ -347,7 +509,7 @@ extension Endpoint: Equatable {
 }
 
 extension Endpoint {
-  public var associatedValues: [String: Any?] {
+  public var associatedValue: [String: Any?] {
     switch self {
     case .time:
       return [:]
@@ -406,6 +568,48 @@ extension Endpoint {
               "removeChannels": removeChannels]
     case let .removeAllPushChannels(pushToken, pushType):
       return ["pushToken": pushToken, "pushType": pushType]
+
+    case let .objectsUserFetchAll(include, limit, start, end, count):
+      return ["include": include, "limit": limit, "start": start, "end": end, "count": count]
+    case let .objectsUserFetch(userID, include):
+      return ["userID": userID, "include": include]
+    case let .objectsUserCreate(user, include):
+      return ["user": user, "include": include]
+    case let .objectsUserUpdate(user, include):
+      return ["user": user, "include": include]
+    case let .objectsUserDelete(userID, include):
+      return ["userID": userID, "include": include]
+
+    case let .objectsSpaceFetchAll(include, limit, start, end, count):
+      return ["include": include, "limit": limit, "start": start, "end": end, "count": count]
+    case let .objectsSpaceFetch(spaceID, include):
+      return ["spaceID": spaceID, "include": include]
+    case let .objectsSpaceCreate(space, include):
+      return ["space": space, "include": include]
+    case let .objectsSpaceUpdate(space, include):
+      return ["space": space, "include": include]
+    case let .objectsSpaceDelete(spaceID, include):
+      return ["spaceID": spaceID, "include": include]
+
+    case let .objectsUserMemberships(parameters):
+      return ["userID": parameters.userID,
+              "include": parameters.include,
+              "limit": parameters.limit, "start": parameters.start, "end": parameters.end, "count": parameters.count]
+    case let .objectsUserMembershipsUpdate(parameters):
+      return ["userID": parameters.userID,
+              "add": parameters.add, "update": parameters.update, "remove": parameters.remove,
+              "include": parameters.include,
+              "limit": parameters.limit, "start": parameters.start, "end": parameters.end, "count": parameters.count]
+    case let .objectsSpaceMemberships(parameters):
+      return ["spaceID": parameters.spaceID,
+              "include": parameters.include,
+              "limit": parameters.limit, "start": parameters.start, "end": parameters.end, "count": parameters.count]
+    case let .objectsSpaceMembershipsUpdate(parameters):
+      return ["spaceID": parameters.spaceID,
+              "add": parameters.add, "update": parameters.update, "remove": parameters.remove,
+              "include": parameters.include,
+              "limit": parameters.limit, "start": parameters.start, "end": parameters.end, "count": parameters.count]
+
     case .unknown:
       return [:]
     }

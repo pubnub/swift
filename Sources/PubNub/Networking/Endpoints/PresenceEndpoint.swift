@@ -52,10 +52,10 @@ struct HereNowResponseDecoder: ResponseDecoder {
       let hereNowPayload: HereNowResponsePayload
 
       // Single Channel w/o Group
-      if let channels = response.endpoint.associatedValues["channels"] as? [String],
+      if let channels = response.endpoint.associatedValue["channels"] as? [String],
         channels.count == 1,
         let channel = channels.first,
-        let groups = response.endpoint.associatedValues["groups"] as? [String],
+        let groups = response.endpoint.associatedValue["groups"] as? [String],
         groups.isEmpty {
         hereNowPayload = try HereNowResponsePayload.response(for: channel,
                                                              from: response.payload,

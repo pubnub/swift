@@ -73,7 +73,7 @@ extension String {
   }
 
   /// The value of this `String` formatted for use inside a JSON payload
-  var jsonDescription: String {
+  public var jsonDescription: String {
     return "\"\(description)\""
   }
 

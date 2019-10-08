@@ -37,246 +37,284 @@ struct AnyJSONResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-// swiftlint:disable:next type_body_length
+/// Service on the `Endpoint` responsible for processing request
+public enum EndpointResponseService: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
+  case accessManager
+  case balancer
+  case channelGroups
+  case objects
+  case presence
+  case publish
+  case push
+  case unknown(message: String)
+
+  public init(rawValue: String) {
+    switch rawValue {
+    case "Access Manager":
+      self = .accessManager
+    case "Balancer":
+      self = .balancer
+    case "channel-registry":
+      self = .channelGroups
+    case "objects":
+      self = .objects
+    case "Presence":
+      self = .presence
+    case "Publish":
+      self = .publish
+    case "Push":
+      self = .push
+
+    default:
+      self = .unknown(message: rawValue)
+    }
+  }
+
+  public var rawValue: String {
+    switch self {
+    case .accessManager:
+      return "Access Manager"
+    case .balancer:
+      return "Balancer"
+    case .channelGroups:
+      return "channel-registry"
+    case .objects:
+      return "Objects"
+    case .presence:
+      return "Presence"
+    case .publish:
+      return "Publish"
+    case .push:
+      return "Push"
+    case let .unknown(message):
+      return "Unknown: \(message)"
+    }
+  }
+
+  public init(stringLiteral value: String) {
+    self.init(rawValue: value)
+  }
+}
+
+/// The codified message returned by the `Endpoint`
+public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
+  case acknowledge
+  case badRequest
+  case conflict
+  case couldNotParseRequest
+  case forbidden
+  case internalServiceError
+  case invalidArguments
+  case invalidCharacter
+  case invalidDeviceToken
+  case invalidSubscribeKey
+  case invalidPublishKey
+  case invalidJSON
+  case maxChannelGroupCountExceeded
+  case notFound
+  case preconditionFailed
+  case pushNotEnabled
+  case messageHistoryNotEnabled
+  case messageDeletionNotEnabled
+  case requestURITooLong
+  case serviceUnavailable
+  case tooManyRequests
+  case unsupportedType
+  case unknown(message: String)
+
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
+  public init(rawValue: String) {
+    switch rawValue {
+    case "OK":
+      self = .acknowledge
+    case "Could Not Parse Request":
+      self = .couldNotParseRequest
+    case "Forbidden":
+      self = .forbidden
+    case "Invalid Arguments":
+      self = .invalidArguments
+    case "Reserved character in input parameters.":
+      self = .invalidCharacter
+    case "Expected 32 or 100 byte hex device token":
+      self = .invalidDeviceToken
+    case "Invalid Subscribe Key":
+      self = .invalidSubscribeKey
+    case "Invalid Key":
+      self = .invalidPublishKey
+    case "Invalid JSON":
+      self = .invalidJSON
+    case "Maximum channel group count exceeded.":
+      self = .maxChannelGroupCountExceeded
+    case "Request URI Too Long":
+      self = .requestURITooLong
+    case "Service Unavailable":
+      self = .serviceUnavailable
+    case "Request payload contained invalid input.":
+      self = .badRequest
+    case "Supplied authorization key does not have the permissions required to perform this operation.":
+      self = .forbidden
+    case "Requested object was not found.":
+      self = .notFound
+    case "Object with the requested identifier already exists.":
+      self = .conflict
+    case "Object already changed by another request since last retrieval.":
+      self = .preconditionFailed
+    case "Request payload must be in JSON format.":
+      self = .unsupportedType
+    case "You have exceeded the maximum number of requests per second allowed for your subscriber key.":
+      self = .tooManyRequests
+    case "An unexpected error ocurred while processing the request.":
+      self = .internalServiceError
+    case "The server took longer to respond than the maximum allowed processing time.":
+      self = .serviceUnavailable
+    default:
+      self = EndpointResponseMessage.rawValueStartsWith(rawValue)
+    }
+  }
+
+  static func rawValueStartsWith(_ message: String) -> EndpointResponseMessage {
+    if message.starts(with: "Not Found ") {
+      return .notFound
+    } else if message.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
+      return .pushNotEnabled
+    } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled) {
+      return .messageDeletionNotEnabled
+    } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled) {
+      return .messageHistoryNotEnabled
+    } else {
+      return .unknown(message: message)
+    }
+  }
+
+  public var rawValue: String {
+    switch self {
+    case .acknowledge:
+      return "OK"
+    case .badRequest:
+      return "Request payload contained invalid input."
+    case .conflict:
+      return "Object with the requested identifier already exists."
+    case .couldNotParseRequest:
+      return "Could Not Parse Request"
+    case .forbidden:
+      return "Supplied authorization key does not have the permissions required to perform this operation."
+    case .internalServiceError:
+      return "An unexpected error ocurred while processing the request."
+    case .invalidArguments:
+      return "Invalid Arguments"
+    case .invalidCharacter:
+      return "Reserved character in input parameters."
+    case .invalidDeviceToken:
+      return "Expected 32 or 100 byte hex device token"
+    case .invalidSubscribeKey:
+      return "Invalid Subscribe Key"
+    case .invalidPublishKey:
+      return "Invalid Publish Key"
+    case .invalidJSON:
+      return "Invalid JSON"
+    case .maxChannelGroupCountExceeded:
+      return "Maximum channel group count exceeded."
+    case .notFound:
+      return "Requested object was not found."
+    case .preconditionFailed:
+      return "Object already changed by another request since last retrieval."
+    case .pushNotEnabled:
+      return ErrorDescription.EndpointFailureReason.pushNotEnabled
+    case .messageHistoryNotEnabled:
+      return ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled
+    case .messageDeletionNotEnabled:
+      return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
+    case .requestURITooLong:
+      return "Request URI Too Long"
+    case .serviceUnavailable:
+      return "The server took longer to respond than the maximum allowed processing time."
+    case .tooManyRequests:
+      return "You have exceeded the maximum number of requests per second allowed for your subscriber key."
+    case .unsupportedType:
+      return "Request payload must be in JSON format."
+    case let .unknown(message):
+      return "Unknown: \(message)"
+    }
+  }
+
+  var knownFailureReason: PNError.EndpointFailureReason? {
+    switch self {
+    case .unknown:
+      return nil
+    default:
+      return endpointFailureReason
+    }
+  }
+
+  var endpointFailureReason: PNError.EndpointFailureReason? {
+    switch self {
+    case .couldNotParseRequest:
+      return .couldNotParseRequest
+    case .forbidden:
+      return .forbidden
+    case .invalidArguments:
+      return .invalidArguments
+    case .invalidCharacter:
+      return .invalidCharacter
+    case .invalidDeviceToken:
+      return .invalidDeviceToken
+    case .invalidSubscribeKey:
+      return .invalidSubscribeKey
+    case .invalidPublishKey:
+      return .invalidPublishKey
+    case .invalidJSON:
+      return .requestContainedInvalidJSON
+    case .maxChannelGroupCountExceeded:
+      return .maxChannelGroupCountExceeded
+    case .messageHistoryNotEnabled:
+      return .messageHistoryNotEnabled
+    case .messageDeletionNotEnabled:
+      return .messageDeletionNotEnabled
+    case .notFound:
+      return .resourceNotFound
+    case .pushNotEnabled:
+      return .pushNotEnabled
+    case .requestURITooLong:
+      return .requestURITooLong
+    case .serviceUnavailable:
+      return .serviceUnavailable
+    case .badRequest:
+      return .badRequest
+    case .conflict:
+      return .conflict
+    case .internalServiceError:
+      return .internalServiceError
+    case .preconditionFailed:
+      return .preconditionFailed
+    case .tooManyRequests:
+      return .tooManyRequests
+    case .unsupportedType:
+      return .unsupportedType
+    case let .unknown(message):
+      return .unknown(message)
+    case .acknowledge:
+      return nil
+    }
+  }
+
+  public init(stringLiteral value: String) {
+    self.init(rawValue: value)
+  }
+}
+
 public struct GenericServicePayloadResponse: Codable, Hashable {
-  public enum Message: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
-    case acknowledge
-    case couldNotParseRequest
-    case forbidden
-    case invalidArguments
-    case invalidCharacter
-    case invalidDeviceToken
-    case invalidSubscribeKey
-    case invalidPublishKey
-    case invalidJSON
-    case maxChannelGroupCountExceeded
-    case notFound
-    case pushNotEnabled
-    case messageHistoryNotEnabled
-    case messageDeletionNotEnabled
-    case requestURITooLong
-    case serviceUnavailable
-    case unknown(message: String)
-
-    // swiftlint:disable:next cyclomatic_complexity
-    public init(rawValue: String) {
-      switch rawValue {
-      case "OK":
-        self = .acknowledge
-      case "Could Not Parse Request":
-        self = .couldNotParseRequest
-      case "Forbidden":
-        self = .forbidden
-      case "Invalid Arguments":
-        self = .invalidArguments
-      case "Reserved character in input parameters.":
-        self = .invalidCharacter
-      case "Expected 32 or 100 byte hex device token":
-        self = .invalidDeviceToken
-      case "Invalid Subscribe Key":
-        self = .invalidSubscribeKey
-      case "Invalid Key":
-        self = .invalidPublishKey
-      case "Invalid JSON":
-        self = .invalidJSON
-      case "Maximum channel group count exceeded.":
-        self = .maxChannelGroupCountExceeded
-      case "Request URI Too Long":
-        self = .requestURITooLong
-      case "Service Unavailable":
-        self = .serviceUnavailable
-      default:
-        self = Message.rawValueStartsWith(rawValue)
-      }
-    }
-
-    static func rawValueStartsWith(_ message: String) -> Message {
-      if message.starts(with: "Not Found ") {
-        return .notFound
-      } else if message.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
-        return .pushNotEnabled
-      } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled) {
-        return .messageDeletionNotEnabled
-      } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled) {
-        return .messageHistoryNotEnabled
-      } else {
-        return .unknown(message: message)
-      }
-    }
-
-    public var rawValue: String {
-      switch self {
-      case .acknowledge:
-        return "OK"
-      case .couldNotParseRequest:
-        return "Could Not Parse Request"
-      case .forbidden:
-        return "Forbidden"
-      case .invalidArguments:
-        return "Invalid Arguments"
-      case .invalidCharacter:
-        return "Reserved character in input parameters."
-      case .invalidDeviceToken:
-        return "Expected 32 or 100 byte hex device token"
-      case .invalidSubscribeKey:
-        return "Invalid Subscribe Key"
-      case .invalidPublishKey:
-        return "Invalid Publish Key"
-      case .invalidJSON:
-        return "Invalid JSON"
-      case .maxChannelGroupCountExceeded:
-        return "Maximum channel group count exceeded."
-      case .notFound:
-        return "Resource Not Found"
-      case .pushNotEnabled:
-        return ErrorDescription.EndpointFailureReason.pushNotEnabled
-      case .messageHistoryNotEnabled:
-        return ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled
-      case .messageDeletionNotEnabled:
-        return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
-      case .requestURITooLong:
-        return "Request URI Too Long"
-      case .serviceUnavailable:
-        return "Service Unavailable"
-      case let .unknown(message):
-        return "Unknown: \(message)"
-      }
-    }
-
-    public init(stringLiteral value: String) {
-      self.init(rawValue: value)
-    }
-  }
-
-  public enum Service: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
-    case accessManager
-    case balancer
-    case presence
-    case publish
-    case channelGroups
-    case push
-    case unknown(message: String)
-
-    public init(rawValue: String) {
-      switch rawValue {
-      case "Access Manager":
-        self = .accessManager
-      case "Balancer":
-        self = .balancer
-      case "Presence":
-        self = .presence
-      case "Publish":
-        self = .publish
-      case "Push":
-        self = .push
-      case "channel-registry":
-        self = .channelGroups
-      default:
-        self = .unknown(message: rawValue)
-      }
-    }
-
-    public var rawValue: String {
-      switch self {
-      case .accessManager:
-        return "Access Manager"
-      case .balancer:
-        return "Balancer"
-      case .presence:
-        return "Presence"
-      case .publish:
-        return "Publish"
-      case .push:
-        return "Push"
-      case .channelGroups:
-        return "channel-registry"
-      case let .unknown(message):
-        return "Unknown: \(message)"
-      }
-    }
-
-    public init(stringLiteral value: String) {
-      self.init(rawValue: value)
-    }
-  }
-
-  public enum Code: RawRepresentable, Codable, Hashable, ExpressibleByIntegerLiteral {
-    case acknowledge
-    case badRequest
-    case unauthorized
-    case forbidden
-    case notFound
-    case uriTooLong
-    case malformedFilterExpression
-    case internalServiceError
-    case serviceUnavailable
-    case unknown(code: Int)
-
-    public init(rawValue: Int) {
-      switch rawValue {
-      case 200:
-        self = .acknowledge
-      case 400:
-        self = .badRequest
-      case 401:
-        self = .unauthorized
-      case 403:
-        self = .forbidden
-      case 404:
-        self = .notFound
-      case 414:
-        self = .uriTooLong
-      case 481:
-        self = .malformedFilterExpression
-      case 500:
-        self = .internalServiceError
-      case 504:
-        self = .serviceUnavailable
-      default:
-        self = .unknown(code: rawValue)
-      }
-    }
-
-    public var rawValue: Int {
-      switch self {
-      case .acknowledge:
-        return 200
-      case .badRequest:
-        return 400
-      case .unauthorized:
-        return 401
-      case .forbidden:
-        return 403
-      case .notFound:
-        return 404
-      case .uriTooLong:
-        return 414
-      case .malformedFilterExpression:
-        return 481
-      case .internalServiceError:
-        return 500
-      case .serviceUnavailable:
-        return 504
-      case let .unknown(code):
-        return code
-      }
-    }
-
-    public init(integerLiteral value: Int) {
-      self.init(rawValue: value)
-    }
-  }
-
-  public let message: Message
-  public let service: Service
-  public let status: Code
+  public let message: EndpointResponseMessage
+  public let details: [ErrorDetail]
+  public let service: EndpointResponseService
+  public let status: HTTPStatus
   public let error: Bool
   public let channels: [String: [String]]
 
   public init(
-    message: Message? = nil,
-    service: Service? = nil,
-    status: Code? = nil,
+    message: EndpointResponseMessage? = nil,
+    details: [ErrorDetail] = [],
+    service: EndpointResponseService? = nil,
+    status: HTTPStatus? = nil,
     error: Bool = false,
     channels: [String: [String]] = [:]
   ) {
@@ -286,6 +324,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
       self.message = message ?? "No Message Provided"
     }
 
+    self.details = details
     self.service = service ?? "No Service Provided"
     self.status = status ?? -1
     self.error = error
@@ -305,26 +344,35 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Different 'error message' response structures
-    let errorMessage = try container.decodeIfPresent(Message.self, forKey: .errorMessage)
-    let message = try errorMessage ?? container.decodeIfPresent(Message.self, forKey: .message)
+    let errorMessage = try container.decodeIfPresent(EndpointResponseMessage.self, forKey: .errorMessage)
+    let message = try errorMessage ?? container.decodeIfPresent(EndpointResponseMessage.self, forKey: .message)
 
     // Sometimes payload can be {"error": "Error Message"}
-    let error: Message?
+    let error: EndpointResponseMessage?
+    var details: [ErrorDetail] = []
     let isError: Bool
+    let service: EndpointResponseService?
     // Use `decodeIfPresent` because it can sometiems be a Bool
-    if let errorAsMessage = try? container.decodeIfPresent(Message.self, forKey: .error) {
+    if let errorPayload = try? container.decodeIfPresent(ErrorPayload.self, forKey: .error) {
+      error = errorPayload.message
+      service = errorPayload.source
+      details = errorPayload.details
+      isError = true
+    } else if let errorAsMessage = try? container.decodeIfPresent(EndpointResponseMessage.self, forKey: .error) {
+      service = try container.decodeIfPresent(EndpointResponseService.self, forKey: .service)
       error = errorAsMessage
       isError = true
     } else {
+      service = try container.decodeIfPresent(EndpointResponseService.self, forKey: .service)
       error = nil
       isError = try container.decodeIfPresent(Bool.self, forKey: .error) ?? false
     }
 
-    let service = try container.decodeIfPresent(Service.self, forKey: .service)
-    let status = try container.decodeIfPresent(Code.self, forKey: .status)
+    let status = try container.decodeIfPresent(HTTPStatus.self, forKey: .status)
     let channels = try container.decodeIfPresent([String: [String]].self, forKey: .channels) ?? [:]
 
     self.init(message: message ?? error,
+              details: details,
               service: service,
               status: status,
               error: isError,
@@ -339,4 +387,24 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     try container.encode(error, forKey: .error)
     try container.encode(channels, forKey: .channels)
   }
+
+  public var endpointFailureReasson: PNError.EndpointFailureReason? {
+    return message.endpointFailureReason ?? status.endpointFailureReason
+  }
+}
+
+// MARK: - Object Error Response
+
+struct ErrorPayload: Codable {
+  let message: EndpointResponseMessage
+  let source: EndpointResponseService
+  let details: [ErrorDetail]
+}
+
+public struct ErrorDetail: Codable, Hashable {
+  let message: String
+  let location: String
+  let locationType: String
+
+  // swiftlint:disable:next file_length
 }

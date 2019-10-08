@@ -1,0 +1,10 @@
+{
+  "code": 412,
+  "body": {
+    "status": 412,
+    "error": {
+      "message": "Object already changed by another request since last retrieval.",
+      "source": "objects"
+    }
+  }
+}

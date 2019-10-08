@@ -59,9 +59,9 @@ final class MessageCountsEndpointTests: XCTestCase {
   func testFetchHistory_Endpoint_AssociatedValues() {
     let endpoint = Endpoint.messageCounts(channels: ["SomeChannel"], timetoken: 0, channelsTimetoken: [1])
 
-    XCTAssertEqual(endpoint.associatedValues["channels"] as? [String], ["SomeChannel"])
-    XCTAssertEqual(endpoint.associatedValues["timetoken"] as? Timetoken, 0)
-    XCTAssertEqual(endpoint.associatedValues["channelsTimetoken"] as? [Timetoken], [1])
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValue["timetoken"] as? Timetoken, 0)
+    XCTAssertEqual(endpoint.associatedValue["channelsTimetoken"] as? [Timetoken], [1])
   }
 
   func testMessageCounts_Success() {

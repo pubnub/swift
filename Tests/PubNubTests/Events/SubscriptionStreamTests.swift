@@ -60,6 +60,7 @@ class SubscriptionListenerTests: XCTestCase {
   }
 
   let messageEvent: MessageEvent = MockMessageEvent()
+  let connectionEvent: ConnectionStatus = .connected
   let statusEvent: StatusEvent = .success(.connected)
   let presenceEvent: PresenceEvent = PresenceEventPayload(channel: "Channel",
                                                           subscriptionMatch: "Channel",
@@ -81,9 +82,9 @@ class SubscriptionListenerTests: XCTestCase {
       XCTAssertEqual(event, self?.statusEvent)
     }
 
-    stream.emitDidReceive(status: statusEvent)
-    stream.emitDidReceive(message: messageEvent)
-    stream.emitDidReceive(presence: presenceEvent)
+    stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
+    stream.emitDidReceive(subscription: .messageReceived(messageEvent))
+    stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
 
   func testSessionStream_Default_StatusPresence() {
@@ -92,9 +93,9 @@ class SubscriptionListenerTests: XCTestCase {
       XCTAssertEqual(event as? MockMessageEvent, self?.messageEvent as? MockMessageEvent)
     }
 
-    stream.emitDidReceive(status: statusEvent)
-    stream.emitDidReceive(message: messageEvent)
-    stream.emitDidReceive(presence: presenceEvent)
+    stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
+    stream.emitDidReceive(subscription: .messageReceived(messageEvent))
+    stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
 
   func testEmitDidReceiveMessage() {
@@ -107,7 +108,7 @@ class SubscriptionListenerTests: XCTestCase {
       expectation.fulfill()
     }
 
-    listener.emitDidReceive(message: messageEvent)
+    listener.emitDidReceive(subscription: .messageReceived(messageEvent))
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -122,7 +123,7 @@ class SubscriptionListenerTests: XCTestCase {
       expectation.fulfill()
     }
 
-    listener.emitDidReceive(status: statusEvent)
+    listener.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -136,7 +137,7 @@ class SubscriptionListenerTests: XCTestCase {
       expectation.fulfill()
     }
 
-    listener.emitDidReceive(presence: presenceEvent)
+    listener.emitDidReceive(subscription: .presenceChanged(presenceEvent))
 
     wait(for: [expectation], timeout: 1.0)
   }

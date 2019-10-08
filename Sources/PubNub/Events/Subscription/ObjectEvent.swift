@@ -79,4 +79,3 @@ public struct MembershipEvent: MembershipIdentifiable, Codable, Equatable {
     eTag = try container.decodeIfPresent(String.self, forKey: .eTag) ?? ""
   }
 }
-

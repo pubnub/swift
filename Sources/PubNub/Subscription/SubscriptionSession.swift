@@ -381,15 +381,15 @@ extension SubscriptionSession: EventStreamListener {
     return privateListeners.allObjects
   }
 
-  public func add(_ listener: ListenerType) -> ListenerToken {
-    privateListeners.update(listener)
-    return ListenerToken { [weak self] in
-      self?.remove(listener)
-    }
-  }
+  public func add(_ listener: ListenerType) {
+    // Ensure that we cancel the previously attached token
+    listener.token?.cancel()
 
-  public func remove(_ listener: ListenerType) {
-    privateListeners.remove(listener)
+    // Add new token to the listener
+    listener.token = ListenerToken { [weak self] in
+      self?.privateListeners.remove(listener)
+    }
+    privateListeners.update(listener)
   }
 
   public func notify(listeners closure: (ListenerType) -> Void) {

@@ -34,7 +34,6 @@ import PubNub
 class MasterDetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
-  var token: ListenerToken?
   var listener: SubscriptionListener?
 
   let masterDetailCellID = "MasterDetailCell"
@@ -235,7 +234,7 @@ class MasterDetailTableViewController: UITableViewController {
 
     let listener = SubscriptionListener(queue: .main)
     self.listener = listener
-    token = pubnub.subscription.add(listener)
+    pubnub.subscription.add(listener)
 
     self.listener?.didReceiveMessage = { message in
       print("Message Received: \(message)")

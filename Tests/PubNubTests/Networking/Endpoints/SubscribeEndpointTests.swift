@@ -105,13 +105,13 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [messageExpect, statusExpect], timeout: 1.0)
   }
 
@@ -140,13 +140,13 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [presenceExpect, statusExpect], timeout: 1.0)
   }
 
@@ -178,13 +178,13 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [signalExpect, statusExpect], timeout: 1.0)
   }
 
@@ -233,13 +233,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -278,13 +278,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -329,13 +329,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -374,13 +374,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -425,13 +425,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -475,13 +475,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -522,13 +522,13 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTFail("Incorrect Event Received")
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
@@ -569,13 +569,13 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
 
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [signalExpect, statusExpect], timeout: 1.0)
   }
 
@@ -596,7 +596,7 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel])
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
@@ -604,7 +604,7 @@ final class SubscribeEndpointTests: XCTestCase {
     subscription.unsubscribe(from: [testChannel])
     XCTAssertEqual(subscription.subscribedChannels, [])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [statusExpect], timeout: 1.0)
   }
 
@@ -623,7 +623,7 @@ final class SubscribeEndpointTests: XCTestCase {
         statusExpect.fulfill()
       }
     }
-    let token = subscription.add(listener)
+    subscription.add(listener)
 
     subscription.subscribe(to: [testChannel, "OtherChannel"])
     let diff = subscription.subscribedChannels
@@ -633,7 +633,7 @@ final class SubscribeEndpointTests: XCTestCase {
     subscription.unsubscribeAll()
     XCTAssertEqual(subscription.subscribedChannels, [])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [statusExpect], timeout: 1.0)
   }
 

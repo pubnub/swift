@@ -7,6 +7,13 @@ changelog:
   -
     changes:
       -
+        text: "Made the subscription token a property on the listener for cleaner setup"
+        type: improvement
+    date: 2019-XX-XX
+    version: v1.2.1
+  -
+    changes:
+      -
         text: "Removed development dependencies from being included in Swift Package imports"
         type: improvement
       -
@@ -30,7 +37,7 @@ changelog:
       -
         text: "Fixed HereNow single channel response decoding"
         type: bug
-    date: 2019-XX-XX
+    date: 2019-10-08
     version: v1.2.0
   -
     changes:

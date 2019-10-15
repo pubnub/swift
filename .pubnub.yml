@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "1.2.0"
+version: "1.2.1"
 schema: 1
 changelog:
+  -
+    changes:
+      -
+        text: "Made the subscription token a property on the listener for cleaner setup"
+        type: improvement
+    date: 2019-10-15
+    version: v1.2.1
   -
     changes:
       -
@@ -30,7 +37,7 @@ changelog:
       -
         text: "Fixed HereNow single channel response decoding"
         type: bug
-    date: 2019-XX-XX
+    date: 2019-10-08
     version: v1.2.0
   -
     changes:

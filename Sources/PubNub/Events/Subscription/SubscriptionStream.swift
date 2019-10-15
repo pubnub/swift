@@ -66,13 +66,18 @@ extension SubscriptionStream {
   func emitDidReceive(subscription _: SubscriptionEvent) { /* no-op */ }
 }
 
-public final class SubscriptionListener: SubscriptionStream, Hashable {
-  public var uuid: UUID
+public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellable {
+  public let uuid: UUID
   public var queue: DispatchQueue
+
+  var token: ListenerToken?
 
   public init(queue: DispatchQueue = .main) {
     uuid = UUID()
     self.queue = queue
+  }
+  deinit {
+    cancel()
   }
 
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
@@ -124,5 +129,13 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
 
   public static func == (lhs: SubscriptionListener, rhs: SubscriptionListener) -> Bool {
     return lhs.uuid == rhs.uuid
+  }
+
+  public var isCancelled: Bool {
+    return token?.isCancelled ?? true
+  }
+
+  public func cancel() {
+    token?.cancel()
   }
 }

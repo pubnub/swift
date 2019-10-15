@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'PubNubSwift'
-  s.version  = '1.2.0'
+  s.version  = '1.2.1'
   s.homepage = 'https://github.com/pubnub/swift'
   s.documentation_url = 'https://pubnub.com/docs/swift/pubnub-swift-sdk'
   s.authors = { 'PubNub, Inc.' => 'support@pubnub.com' }

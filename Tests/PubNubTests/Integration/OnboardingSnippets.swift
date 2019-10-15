@@ -72,13 +72,13 @@ class OnboardingSnippets: XCTestCase {
         XCTFail("Publish returned an error")
       }
     }
-    let token = client.add(listener)
+    client.add(listener)
 
     // Subscribe to the demo_tutorial channel
     client.subscribe(to: ["pubnub_onboarding_channel"], withPresence: true)
 
     // Cleanup
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [messageExpect, publishExpect], timeout: 10.0)
   }
 

@@ -73,7 +73,6 @@ public struct PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: @escaping (Result<Response<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
-//    let session = networkConfiguration?.customSession ?? networkSession
     let defaultOperator = defaultRequestOperator
       .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
 
@@ -189,8 +188,8 @@ extension PubNub {
                            setting: presenceState)
   }
 
-  public func add(_ listener: SubscriptionListener) -> ListenerToken {
-    return subscription.add(listener)
+  public func add(_ listener: SubscriptionListener) {
+    subscription.add(listener)
   }
 
   public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {

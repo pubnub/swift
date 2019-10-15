@@ -63,11 +63,11 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         performHereNow()
       }
     }
-    let token = client.add(listener)
+    client.add(listener)
 
     client.subscribe(to: [channel], withPresence: true)
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
@@ -99,11 +99,11 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         performHereNow()
       }
     }
-    let token = client.add(listener)
+    client.add(listener)
 
     client.subscribe(to: [channel], withPresence: true, setting: ["StateKey": "StateValue"])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
@@ -154,11 +154,11 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         performHereNow()
       }
     }
-    let token = client.add(listener)
+    client.add(listener)
 
     client.subscribe(to: [channel], withPresence: true)
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
@@ -190,11 +190,11 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         performHereNow()
       }
     }
-    let token = client.add(listener)
+    client.add(listener)
 
     client.subscribe(to: [channel], withPresence: true, setting: ["StateKey": "StateValue"])
 
-    defer { token.cancel() }
+    defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 

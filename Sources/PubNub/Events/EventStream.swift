@@ -42,15 +42,26 @@ public extension EventStream {
   }
 }
 
-public protocol EventStreamListener: AnyObject {
+public protocol Cancellable {
+  var isCancelled: Bool { get }
+  func cancel()
+}
+
+public protocol EventStreamListener: AnyObject where ListenerType: Cancellable {
   associatedtype ListenerType
 
   var listeners: [ListenerType] { get }
 
-  func add(_ listener: ListenerType) -> ListenerToken
+  func add(_ listener: ListenerType)
   func remove(_ listener: ListenerType)
 
   func notify(listeners closure: (ListenerType) -> Void)
+}
+
+extension EventStreamListener {
+  public func remove(_ listener: ListenerType) {
+    listener.cancel()
+  }
 }
 
 public class ListenerToken: CustomStringConvertible {

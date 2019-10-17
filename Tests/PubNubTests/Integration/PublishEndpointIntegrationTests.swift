@@ -130,7 +130,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     client.publish(channel: "SwiftITest", message: message) { result in
       switch result {
       case .success:
-         XCTFail("Publish should fail")
+        XCTFail("Publish should fail")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason,
                        PubNubError.Reason.requestContainedInvalidJSON)

@@ -52,7 +52,7 @@ class CryptoTests: XCTestCase {
     guard let encryptedString = try? crypto?.encrypt(plaintext: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
-    print(encryptedString)
+
     guard let decryptedString = try? crypto?.decrypt(base64Encoded: encryptedString).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }

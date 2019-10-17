@@ -144,6 +144,7 @@ final class SessionExpector {
   }
 
   func expectDidRetryRequest(fullfil count: Int = 1, closure: @escaping (Request) -> Void) {
+    print("expectDidRetryRequest")
     let expectation = XCTestExpectation(description: "didRetryRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didRetryRequest = { request in
@@ -169,27 +170,6 @@ final class SessionExpector {
     expectation.expectedFulfillmentCount = count
     sessionListener.didFailToMutateRequest = { request, initialURLRequest, error in
       closure(request, initialURLRequest, error)
-      expectation.fulfill()
-    }
-    expectations.append(expectation)
-  }
-
-  // HTTPResponse
-  func expectDidDecodeResponse(fullfil count: Int = 1, closure: @escaping (Response<Data>) -> Void) {
-    let expectation = XCTestExpectation(description: "didDecodeResponse")
-    expectation.expectedFulfillmentCount = count
-    sessionListener.didDecodeResponse = { initialResponse in
-      closure(initialResponse)
-      expectation.fulfill()
-    }
-    expectations.append(expectation)
-  }
-
-  func expectDidFailToDecodeResponse(fullfil count: Int = 1, closure: @escaping (Response<Data>, Error) -> Void) {
-    let expectation = XCTestExpectation(description: "didFailToDecodeResponse")
-    expectation.expectedFulfillmentCount = count
-    sessionListener.failedToDecodeResponse = { initialResponse, error in
-      closure(initialResponse, error)
       expectation.fulfill()
     }
     expectations.append(expectation)

@@ -24,7 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean file_length
+
 import Foundation
 
 /// An object that coordinates a group of related PubNub pub/sub network events
@@ -110,26 +110,26 @@ extension PubNub {
 extension PubNub {
   public func publish(
     channel: String,
-    message: AnyJSON,
+    message: JSONCodable,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
-    meta: AnyJSON? = nil,
+    meta: JSONCodable? = nil,
     shouldCompress: Bool = false,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
     let endpoint: Endpoint = shouldCompress ?
-      .compressedPublish(message: message,
+      .compressedPublish(message: message.codableValue,
                          channel: channel,
                          shouldStore: shouldStore,
                          ttl: storeTTL,
-                         meta: meta) :
-      .publish(message: message,
+                         meta: meta?.codableValue) :
+      .publish(message: message.codableValue,
                channel: channel,
                shouldStore: shouldStore,
                ttl: storeTTL,
-               meta: meta)
+               meta: meta?.codableValue)
 
     route(endpoint,
           networkConfiguration: networkConfiguration,
@@ -141,13 +141,13 @@ extension PubNub {
 
   public func fire(
     channel: String,
-    message: AnyJSON,
-    meta: AnyJSON? = nil,
+    message: JSONCodable,
+    meta: JSONCodable? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    route(.fire(message: message, channel: channel, meta: meta),
+    route(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
           networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
           respondOn: queue) { result in
@@ -157,12 +157,12 @@ extension PubNub {
 
   public func signal(
     channel: String,
-    message: AnyJSON,
+    message: JSONCodable,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    route(.signal(message: message, channel: channel),
+    route(.signal(message: message.codableValue, channel: channel),
           networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
           respondOn: queue) { result in
@@ -179,7 +179,7 @@ extension PubNub {
     and channelGroups: [String] = [],
     at timetoken: Timetoken = 0,
     withPresence: Bool = false,
-    setting presenceState: [String: Codable] = [:]
+    setting presenceState: [String: [String: JSONCodable]] = [:]
   ) {
     subscription.subscribe(to: channels,
                            and: channelGroups,
@@ -192,12 +192,20 @@ extension PubNub {
     subscription.add(listener)
   }
 
-  public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
-    subscription.unsubscribe(from: channels, and: channelGroups)
+  public func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
+    subscription.unsubscribe(from: channels, and: channelGroups, presenceOnly: presenceOnly)
   }
 
   public func unsubscribeAll() {
     subscription.unsubscribeAll()
+  }
+
+  public var subscribedChannels: [String] {
+    return subscription.subscribedChannels
+  }
+
+  public var subscribedChannelGroups: [String] {
+    return subscription.subscribedChannelGroups
   }
 }
 
@@ -205,7 +213,7 @@ extension PubNub {
 
 extension PubNub {
   public func setPresence(
-    state: [String: Codable],
+    state: [String: JSONCodable],
     on channels: [String],
     and groups: [String] = [],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
@@ -741,7 +749,7 @@ extension PubNub {
 extension PubNub {
   func encrypt(message: String) -> Result<Data, Error> {
     guard let crypto = configuration.cipherKey else {
-      PubNub.log.error(ErrorDescription.CryptoError.missingCryptoKey)
+      PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
     }
 
@@ -754,12 +762,12 @@ extension PubNub {
 
   func decrypt(data: Data) -> Result<Data, Error> {
     guard let crypto = configuration.cipherKey else {
-      PubNub.log.error(ErrorDescription.CryptoError.missingCryptoKey)
+      PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
     }
 
     return crypto.decrypt(encrypted: data)
   }
-}
 
-// swiftlint:enable discouraged_optional_boolean file_length
+  // swiftlint:disable:next file_length
+}

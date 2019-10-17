@@ -1,9 +1,33 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "1.2.1"
+version: "2.0.0"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Subscribe/Unsubscribe will now properly cancel/restart the subscribe loop when completely stoppping cycle"
+        type: bug
+      - test: "Fixed memory leak inside Hearthbeat response handler"
+        type: bug
+      - test: "Fixed memory leak inside SubscriptionSessionFactory"
+        type: bug
+      - test: "PNError enum has been replaced by PubNubError struct to allow for greater flexibility in error handling and recognition"
+        type: improvement
+      -
+        text: "AnyJSON as been replaced by the JSONCodable protocol for method parameters allowing any conforming object to be passed"
+        type: improvement
+      -
+        text: "Removed initialized and cancelled as ConnectionsStatus options"
+        type: improvement
+      -
+        text: "Response error events due to cancellations will now be suppresed by default by the SubscriptionListener.  They can be toggled on using a the `supressCancellationErrors` property"
+        type: improvement
+      -
+        text: "Added subscription event listener for subscribe/unsubscribe changes"
+        type: feature
+    date: 2019-10-17
+    version: v2.0.0
   -
     changes:
       -

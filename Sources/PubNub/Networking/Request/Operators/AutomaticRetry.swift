@@ -153,6 +153,9 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       return true
     } else if let errorCode = error.urlError?.code, retryableURLErrorCodes.contains(errorCode) {
       return true
+    } else if let errorCode = error.pubNubError?.underlying?.urlError?.code,
+      retryableURLErrorCodes.contains(errorCode) {
+      return true
     }
 
     return false

@@ -116,4 +116,28 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
     wait(for: [signalExpect], timeout: 10.0)
   }
+
+  func testPushblishEscapedString() {
+    let message = "{\"text\": \"bob\", \"duckName\": \"swiftduck\"}"
+
+    let publishExpect = expectation(description: "Publish Response")
+
+    // Instantiate PubNub
+    let configuration = PubNubConfiguration(from: testsBundle)
+    let client = PubNub(configuration: configuration)
+
+    // Publish a simple message to the demo_tutorial channel
+    client.publish(channel: "SwiftITest", message: message) { result in
+      switch result {
+      case .success:
+         XCTFail("Publish should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason,
+                       PubNubError.Reason.requestContainedInvalidJSON)
+      }
+      publishExpect.fulfill()
+    }
+
+    wait(for: [publishExpect], timeout: 10.0)
+  }
 }

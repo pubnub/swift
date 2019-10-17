@@ -45,15 +45,9 @@ final class SessionURLErrorTests: XCTestCase {
       case .success:
         XCTFail("Publish request should fail")
       case let .failure(error):
-        guard let task = sessions.mockSession.tasks.first else {
-          return XCTFail("Could not get task")
-        }
-        let pnURLError = PNError.convert(endpoint: .time,
-                                         error: URLError(code),
-                                         request: task.mockRequest,
-                                         response: task.mockResponse)
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, pnURLError)
+        XCTAssertEqual(error.pubNubError,
+                       PubNubError(reason: URLError(code).pubnubReason ?? .unknown))
       }
       expectation.fulfill()
     }
@@ -69,10 +63,6 @@ final class SessionURLErrorTests: XCTestCase {
   // Cancelled
   func testCancelled() {
     testURLError(code: .cancelled, for: "cancelled")
-  }
-
-  func testUserCancelledAuthentication() {
-    testURLError(code: .userCancelledAuthentication, for: "userCancelledAuthentication")
   }
 
   // Timed Out

@@ -51,6 +51,13 @@ public class SubscribeSessionFactory {
       return subscriptionSession
     }
   }
+
+  /// Clean-up method that can be used to poke each weakbox to see if its nil
+  func sessionDestroyed() {
+    sessions.lockedWrite { sessionMap in
+      sessionMap.keys.forEach { if sessionMap[$0]?.unbox == nil { sessionMap.removeValue(forKey: $0) } }
+    }
+  }
 }
 
 // MARK: - SubscriptionConfiguration

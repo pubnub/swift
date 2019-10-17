@@ -28,268 +28,178 @@
 import Foundation
 
 public struct ErrorDescription {
-  public static let defaultFailureReason: String = {
-    "No failure reason was provied."
+  public static let stringEncodingFailure: String = {
+    "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
   }()
 
   public static let defaultRecoverySuggestion: String = {
     "No recover suggestion was provided."
   }()
 
-  public struct AnyJSONError {
-    public static let stringCreationFailure: String = {
-      "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
-    }()
+  public static let missingCryptoKey: String = {
+    "Missing cipher key from `PubNubConfiguration`"
+  }()
+
+  public static let rootLevelDecoding: String = {
+    "AnyJSON could not decode invalid root-level JSON object"
+  }()
+
+  public static let keyedContainerDecoding: String = {
+    "AnyJSON could not decode value inside `KeyedDecodingContainer`"
+  }()
+
+  public static let unkeyedContainerDecoding: String = {
+    "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
+  }()
+
+  public static let rootLevelEncoding: String = {
+    "AnyJSON could not encode invalid root-level JSON object"
+  }()
+
+  public static let pushNotEnabled: String = {
+    "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
+  }()
+
+  public static let messageDeletionNotEnabled: String = {
+    // swiftlint:disable:next line_length
+    "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
+  }()
+
+  public static let messageHistoryNotEnabled: String = {
+    "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
+  }()
+}
+
+extension PubNubError: LocalizedError, CustomStringConvertible {
+  public var description: String {
+    return reason.description
   }
 
-  public struct CryptoError {
-    public static let missingCryptoKey: String = {
-      "Missing cipher key from `PubNubConfiguration`"
-    }()
-  }
-
-  struct DecodingError {
-    public static let invalidRootLevelErrorDescription: String = {
-      "AnyJSON could not decode invalid root-level JSON object"
-    }()
-
-    public static let invalidKeyedContainerErrorDescription: String = {
-      "AnyJSON could not decode value inside `KeyedDecodingContainer`"
-    }()
-
-    public static let invalidUnkeyedContainerErrorDescription: String = {
-      "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
-    }()
-  }
-
-  struct EncodingError {
-    public static let invalidRootLevelErrorDescription: String = {
-      "AnyJSON could not encode invalid root-level JSON object"
-    }()
-
-    public static let invalidKeyedContainerErrorDescription: String = {
-      "AnyJSON could not encode value inside `KeyedEncodingContainer`"
-    }()
-
-    public static let invalidUnkeyedContainerErrorDescription: String = {
-      "AnyJSON could not encode value inside `UnkeyedEncodingContainer`"
-    }()
-  }
-
-  struct EndpointError {
-    public static let publishResponseMessageParseFailure: String = {
-      "Unable to parse publish payload message"
-    }()
-
-    public static let messageCountsResponseMessageParseFailure: String = {
-      "Unable to parse message counts payload message"
-    }()
-
-    public static let missingResponseData: String = {
-      "Missing Response Data"
-    }()
-  }
-
-  struct PNError {
-    public static let missingRequestResponse: String = {
-      "Request and/or Response nil w/o an underlying error"
-    }()
-
-    public static let unknown: String = {
-      "Unknown Error: An unknown error occurred with the supplied message:"
-    }()
-
-    public static let unknownError: String = {
-      "Unknown Error: An unknown error occurred with the supplied error:"
-    }()
-
-    public static let missingRequiredParameter: String = {
-      "A required parameter was missing or empty"
-    }()
-
-    public static let invalidEndpointType: String = {
-      "A required parameter was missing or empty"
-    }()
-
-    public static let sessionInvalidated: String = {
-      "Session Invalidated: This Session's underlying `URLSession` was invalidated: "
-    }()
-
-    public static let sessionDeinitialized: String = {
-      "Session Deinitialized: This `Session` was deinitialized while tasks were still executing."
-    }()
-
-    public static let requestRetryFailed: String = {
-      "Request Retry Failed: Request reached max retry count with final error:"
-    }()
-
-    public static let requestCancelled: String = {
-      "The request was explicitly cancelled without error"
-    }()
-
-    public static let messageCountExceededMaximum: String = {
-      "The amount of messages returned exceeded the maximum allowed"
-    }()
-
-    public static let requestCreationFailure: String = {
-      "Request Creation Failed:"
-    }()
-
-    public static let requestTransmissionFailure: String = {
-      "Transmission Failure:"
-    }()
-
-    public static let responseProcessingFailure: String = {
-      "Response Failure:"
-    }()
-
-    public static let endpointFailure: String = {
-      "Endpoint Error:"
-    }()
-  }
-
-  struct UnknownErrorReason {
-    public static let endpointErrorMissingResponse: String = {
-      "EndpointError could not be created due to missing HTTPURLResponse"
-    }()
-
-    public static let noAppropriateEndpointError: String = {
-      "Could not determine appropriate endpoint error"
-    }()
-  }
-
-  struct RequestCreationFailureReason {
-    public static let jsonStringCodingFailure: String = {
-      "The JSON object could not be serialized into a `String`"
-    }()
-
-    public static let missingPublishKey: String = {
-      "Required PubNub Publish key is missing"
-    }()
-
-    public static let missingSubscribeKey: String = {
-      "Required PubNub Subscribe key is missing"
-    }()
-
-    public static let missingPublishAndSubscribeKey: String = {
-      "Required PubNub Publish & Subscribe keys are missing"
-    }()
-
-    public static let unknown: String = {
-      "An unknown error occured"
-    }()
-
-    public static let jsonDataCodingFailure: String = {
-      "The JSON object could be serialized into a `Data` object."
-    }()
-
-    public static let requestMutatorFailure: String = {
-      "The request mutation failed resulting in an error"
-    }()
-  }
-
-  struct EndpointFailureReason {
-    public static let malformedResponseBody: String = {
-      "Unable to decode the response body"
-    }()
-
-    public static let jsonDataDecodeFailure: String = {
-      "An error was thrown attempting to decode the response body"
-    }()
-
-    public static let invalidArguments: String = {
-      "One or more `Request` arguments are invalid"
-    }()
-
-    public static let invalidCharacter: String = {
-      "One or more invalid characters were used in the request"
-    }()
-
-    public static let invalidDeviceToken: String = {
-      "The provided device token is not a valid push token"
-    }()
-
-    public static let maxChannelGroupCountExceeded: String = {
-      "The maximum number of channel groups has been reached"
-    }()
-
-    public static let invalidSubscribeKey: String = {
-      "The PubNub Subscribe key used for the request is invalid"
-    }()
-
-    public static let invalidPublishKey: String = {
-      "The PubNub Publish key used for the request is invalid"
-    }()
-
-    public static let requestContainedInvalidJSON: String = {
-      "The request contained a malformed JSON payload"
-    }()
-
-    public static let serviceUnavailable: String = {
-      "The service is currently unavailable"
-    }()
-
-    public static let couldNotParseRequest: String = {
-      "The PubNub server was unable to parse the request"
-    }()
-
-    public static let pushNotEnabled: String = {
-      "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
-    }()
-
-    public static let messageDeletionNotEnabled: String = {
-      // swiftlint:disable:next line_length
-      "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
-    }()
-
-    public static let messageHistoryNotEnabled: String = {
-      "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
-    }()
-
-    public static let badRequest: String = {
-      "Bad request on that endpoint"
-    }()
-
-    public static let unauthorized: String = {
-      "Access was denied due to insufficient authorization"
-    }()
-
-    public static let forbidden: String = {
-      "Operation forbidden on that endpoint"
-    }()
-
-    public static let resourceNotFound: String = {
-      "Resource not found at that endpoint"
-    }()
-
-    public static let requestURITooLong: String = {
-      "URI of the request was too long to be processed"
-    }()
-
-    public static let malformedFilterExpression: String = {
-      "The supplied filter expression was malformed"
-    }()
-
-    public static let internalServiceError: String = {
-      "The server encountered an unforseen error while processing the request"
-    }()
-
-    public static let unrecognizedErrorPayload: String = {
-      "A payload not matching any known reason was received"
-    }()
-
-    public static let unknown: String = {
-      "Unknown Reason"
-    }()
-  }
-
-  struct SessionInvalidationReason {
-    public static let explicit: String = {
-      "Explicitly"
-    }()
-
-    public static let implicit: String = {
-      "Implicitly"
-    }()
+  public var errorDescription: String? {
+    return reason.errorDescription
   }
 }
+
+extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
+  public var description: String {
+    switch self {
+    case .missingRequiredParameter:
+      return "A required parameter was missing or empty"
+    case .invalidEndpointType:
+      return "A required parameter was missing or empty"
+    case .missingPublishKey:
+      return "Required PubNub Publish key is missing"
+    case .missingSubscribeKey:
+      return "Required PubNub Subscribe key is missing"
+    case .missingPublishAndSubscribeKey:
+      return "Required PubNub Publish & Subscribe keys are missing"
+    case .jsonStringEncodingFailure:
+      return "The object could not be encoded into strinigified JSON"
+    case .jsonStringDecodingFailure:
+      return "The strinigified JSON could not be decoded into the requested object"
+    case .jsonDataEncodingFailure:
+      return "The object could not be encoded into JSON data"
+    case .jsonDataDecodingFailure:
+      return "The JSON data could not be decoded into the requested object"
+    case .sessionDeinitialized:
+      return "Session Deinitialized: This `Session` was deinitialized while tasks were still executing."
+    case .sessionInvalidated:
+      return "This Session's underlying `URLSession` was invalidated"
+    case .missingCryptoKey:
+      return "Missing cipher key from `PubNubConfiguration`"
+    case .requestMutatorFailure:
+      return "The request mutation failed"
+    case .requestRetryFailed:
+      return "The request reached max retry count"
+    case .clientCancelled:
+      return "The request was cancelled by the system/user without error"
+    case .longPollingRestart:
+      return "The long polling request needed to be cancelled to restart with new data"
+    case .timedOut:
+      return "An asynchronous operation timed out"
+    case .nameResolutionFailure:
+      return "The host name for a URL could not be resolved"
+    case .invalidURL:
+      return "A malformed/unsupported URL prevented a URL request from being initiated"
+    case .connectionFailure:
+      // swiftlint:disable line_length
+      return "A network resource was requested, but an internet connection hasn’t been established and can’t be established automatically"
+    case .connectionOverDataFailure:
+      return "The request couldn't be completed due to issues with the cellular network"
+    case .connectionLost:
+      return "A client or server connection was severed in the middle of a request"
+    case .secureConnectionFailure:
+      return "An attempt to establish a secure connection failed for reasons that can’t be expressed more specifically"
+    case .certificateTrustFailure:
+      return "There was an issue with the secure server certificate"
+    case .badServerResponse:
+      return "The URL Loading system received bad data from the server"
+    case .responseDecodingFailure:
+      return "Client system could not parse network response"
+    case .dataLengthExceedsMaximum:
+      return "The length of the resource data exceeds the maximum allowed"
+    case .missingCriticalResponseData:
+      return "Request and/or Response nil w/o an underlying error"
+    case .unrecognizedStatusCode:
+      return "An unrecognized response error code was received and couldn't be categorized"
+    case .malformedResponseBody:
+      return "Response is valid JSON but not formatted as expected"
+    case .badRequest:
+      return "An unexpected error ocurred while processing the request"
+    case .unauthorized:
+      return "Access was denied due to insufficient authentication/authorization"
+    case .forbidden:
+      return "Authorization key is missing or does not have the permissions required to perform this operation"
+    case .resourceNotFound:
+      return "Requested resource not found at that endpoint"
+    case .conflict:
+      return "Object already changed by another request since last retrieval"
+    case .preconditionFailed:
+      return "Request payload must be in JSON format"
+    case .requestURITooLong:
+      return "URI of the request was too long to be processed"
+    case .tooManyRequests:
+      return "You have exceeded the maximum number of requests per second allowed for your subscriber key"
+    case .unsupportedType:
+      return "There was an unsupported object sent to the server"
+    case .malformedFilterExpression:
+      return "The supplied filter expression was malformed"
+    case .internalServiceError:
+      return "An unexpected error ocurred while processing the request"
+    case .serviceUnavailable:
+      return "The server took longer to respond than the maximum allowed processing time"
+    case .invalidArguments:
+      return "One or more `Request` arguments are invalid"
+    case .invalidCharacter:
+      return "One or more invalid characters were used in the request"
+    case .invalidDevicePushToken:
+      return "The provided device token is not a valid push token"
+    case .invalidSubscribeKey:
+      return "The PubNub Subscribe key used for the request is invalid"
+    case .invalidPublishKey:
+      return "The PubNub Publish key used for the request is invalid"
+    case .maxChannelGroupCountExceeded:
+      return "The maximum number of channel groups has been reached"
+    case .pushNotEnabled:
+      return "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
+    case .messageHistoryNotEnabled:
+      return "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
+    case .messageDeletionNotEnabled:
+      return "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
+    case .couldNotParseRequest:
+      return "The PubNub server was unable to parse the request"
+    case .requestContainedInvalidJSON:
+      return "The request contained a malformed JSON payload"
+    case .messageCountExceededMaximum:
+      return "The amount of messages returned exceeded the maximum allowed"
+    case .unknown:
+      return "Reason unknown"
+    }
+  }
+
+  public var errorDescription: String? {
+    return description
+  }
+}
+
+// swiftlint:enable line_length

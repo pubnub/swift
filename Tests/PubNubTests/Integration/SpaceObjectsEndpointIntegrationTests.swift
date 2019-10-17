@@ -29,7 +29,7 @@ import PubNub
 import XCTest
 
 class SpaceObjectsEndpointIntegrationTests: XCTestCase {
-  let testsBundle = Bundle(for: UserObjectsEndpointIntegrationTests.self)
+  let testsBundle = Bundle(for: SpaceObjectsEndpointIntegrationTests.self)
 
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")

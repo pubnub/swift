@@ -66,8 +66,7 @@ public final class Request {
   struct InternalState {
     var taskState: TaskState = .initialized
 
-    var responseProcessingFinished = false
-    var responseCompletionClosure: (() -> Void)?
+    var responseCompletionClosure: ((Result<Response<Data>, Error>) -> Void)?
 
     var tasks: [URLSessionTask] = []
 
@@ -86,6 +85,7 @@ public final class Request {
     }
   }
 
+  public let sessionID: UUID
   public let requestID: UUID = UUID()
   public let router: Router
   public let requestQueue: DispatchQueue
@@ -103,11 +103,13 @@ public final class Request {
     requestQueue: DispatchQueue,
     sessionStream: SessionStream?,
     requestOperator: RequestOperator? = nil,
-    delegate: RequestDelegate
+    delegate: RequestDelegate,
+    createdBy sessionID: UUID
   ) {
     self.router = router
     self.requestQueue = requestQueue
     self.sessionStream = sessionStream
+    self.sessionID = sessionID
 
     var operators = [RequestOperator]()
     if let requestOperator = requestOperator {
@@ -157,6 +159,8 @@ public final class Request {
     return atomicState.lockedRead { $0.responesData }
   }
 
+  var cancellationReason: PubNubError.Reason?
+
   public private(set) var error: Error? {
     get {
       return atomicState.lockedRead { $0.error }
@@ -199,7 +203,7 @@ public final class Request {
     sessionStream?.emitRequest(self, didMutate: initialRequest, to: mutatedRequest)
   }
 
-  func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: PNError) {
+  func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
     error = mutatorError
 
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
@@ -217,13 +221,13 @@ public final class Request {
 
   func didCreate(_ urlRequest: URLRequest) {
     atomicState.lockedWrite { $0.urlRequests.append(urlRequest) }
-    PubNub.log.debug("Request \(requestID) performing \(urlRequest)")
     sessionStream?.emitRequest(self, didCreate: urlRequest)
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    self.error = error
-    sessionStream?.emitRequest(self, didFailToCreateURLRequestWith: error)
+    let pubnubError = PubNubError.urlCreation(error, router: router)
+    self.error = pubnubError
+    sessionStream?.emitRequest(self, didFailToCreateURLRequestWith: pubnubError)
     retryOrFinish(with: error)
   }
 
@@ -257,13 +261,20 @@ public final class Request {
   }
 
   func didComplete(_ task: URLSessionTask) {
+    // Process the Validators for any additional errors
     atomicValidators.lockedRead { $0.forEach { $0() } }
-    sessionStream?.emitRequest(self, didComplete: task)
-    retryOrFinish(with: error)
+
+    if let error = self.error {
+      sessionStream?.emitRequest(self, didComplete: task, with: error)
+      retryOrFinish(with: error)
+    } else {
+      sessionStream?.emitRequest(self, didComplete: task)
+      finish()
+    }
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
-    self.error = error
+    self.error = PubNubError.sessionDelegate(error, router: router)
     sessionStream?.emitRequest(self, didComplete: task, with: error)
     retryOrFinish(with: error)
   }
@@ -279,31 +290,48 @@ public final class Request {
     }
   }
 
-  func retryOrFinish(with error: Error?) {
-    guard let error = error, let delegate = delegate else {
-      finish()
+  func retryOrFinish(with error: Error) {
+    guard let delegate = delegate else {
+      finish(error: error)
       return
     }
 
     delegate.retryResult(for: self, dueTo: error, andPrevious: previousError) { retryResult in
       if retryResult.isRequired {
         delegate.retryRequest(self, withDelay: retryResult.delay)
+      } else if let error = retryResult.error {
+        self.finish(error: PubNubError.retry(error, router: self.router))
       } else {
-        self.finish(error: retryResult.error)
+        self.finish()
       }
     }
   }
 
   func finish(error: Error? = nil) {
-    if let error = error {
-      self.error = error
-    }
-
-    if let error = self.error {
+    if let error = self.error, !error.isCancellationError {
       PubNub.log.error("Request \(requestID) failed with error \(error) ")
     }
 
-    processResponseCompletion()
+    if let error = error {
+      processResponseCompletion(.failure(error))
+      return
+    }
+
+    processResponseCompletion(atomicState.lockedRead { state -> Result<Response<Data>, Error> in
+
+      if let error = state.error {
+        return .failure(error)
+      }
+
+      if let request = state.urlRequests.last,
+        let response = state.tasks.last?.response as? HTTPURLResponse,
+        let data = state.responesData {
+        return .success(Response(router: router, request: request, response: response, payload: data))
+      }
+
+      return .failure(PubNubError(.missingCriticalResponseData, endpoint: router.endpoint.category))
+    })
+
     didFinish()
   }
 }
@@ -332,7 +360,10 @@ extension Request {
   }
 
   @discardableResult
-  public func cancel(with cancellationError: Error) -> Self {
+  public func cancel(_ error: Error? = nil) -> Self {
+    let cancellationError = PubNubError.cancellation(cancellationReason,
+                                                     error: error, router: router)
+
     atomicState.lockedWrite { mutableState in
       guard mutableState.taskState.canTransition(to: .cancelled) else {
         return
@@ -343,13 +374,17 @@ extension Request {
 
       mutableState.error = cancellationError
 
-      guard let task = mutableState.tasks.last, task.state != .completed else {
+      guard let task = mutableState.tasks.last else {
         self.requestQueue.async { self.finish() }
         return
       }
-      task.cancel()
 
-      self.requestQueue.async { self.didCancel(task) }
+      if task.state != .completed || task.state != .canceling {
+        self.requestQueue.async { self.didCancel(task) }
+      }
+
+      // We skip the retry attempt due to the cancellation
+      self.requestQueue.async { self.finish(error: cancellationError) }
     }
     return self
   }
@@ -359,12 +394,12 @@ extension Request {
       guard self?.error == nil,
         let request = self?.urlRequest,
         let response = self?.urlResponse,
-        let endpoint = self?.endpoint,
+        let router = self?.router,
         let data = self?.data else {
         return
       }
 
-      if let validationError = closure(endpoint, request, response, data) {
+      if let validationError = closure(router, request, response, data) {
         self?.error = validationError
       }
     }
@@ -375,10 +410,12 @@ extension Request {
   }
 
   public func validate() -> Self {
-    let router = self.router
-    return validate { endpoint, request, response, data in
+    return validate { router, request, response, data in
       if !response.isSuccessful {
-        return router.decodeError(endpoint: endpoint, request: request, response: response, for: data)
+        if let data = data, !data.trulyEmpty {
+          return router.decodeError(endpoint: router.endpoint, request: request, response: response, for: data)
+        }
+        return PubNubError(router: router, request: request, response: response)
       }
       return nil
     }

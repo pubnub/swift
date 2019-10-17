@@ -45,7 +45,7 @@ final class MessageCountsEndpointTests: XCTestCase {
                                           channelsTimetoken: testChannelTimetoken)
 
     XCTAssertEqual(endpoint.description, "Message Counts")
-    XCTAssertEqual(endpoint.rawValue, .messageCounts)
+    XCTAssertEqual(endpoint.category, .messageCounts)
     XCTAssertEqual(endpoint.operationCategory, .history)
     XCTAssertNil(endpoint.validationError)
   }
@@ -53,7 +53,7 @@ final class MessageCountsEndpointTests: XCTestCase {
   func testMessageCounts_Endpoint_ValidationError() {
     let endpoint = Endpoint.messageCounts(channels: [], timetoken: nil, channelsTimetoken: [])
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testFetchHistory_Endpoint_AssociatedValues() {
@@ -125,24 +125,12 @@ final class MessageCountsEndpointTests: XCTestCase {
         case .success:
           XCTFail("This should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-
-          let countExceededError = PNError.convert(endpoint: .unknown,
-                                                   generalError: .init(message: .invalidArguments,
-                                                                       service: .unknown(message: "Unknown"),
-                                                                       status: .badRequest,
-                                                                       error: true),
-                                                   request: task.mockRequest,
-                                                   response: task.mockResponse)
-
-          XCTAssertEqual(error.pubNubError, countExceededError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .invalidArguments))
         }
         expectation.fulfill()
       }
 
-    wait(for: [expectation], timeout: 1.0)
+    wait(for: [expectation], timeout: 100.0)
   }
 
   func testMessageCounts_Error_ServiceNotEnabled() {
@@ -158,19 +146,7 @@ final class MessageCountsEndpointTests: XCTestCase {
         case .success:
           XCTFail("This should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-
-          let countExceededError = PNError.convert(endpoint: .unknown,
-                                                   generalError: .init(message: .messageHistoryNotEnabled,
-                                                                       service: .unknown(message: "Unknown"),
-                                                                       status: .badRequest,
-                                                                       error: true),
-                                                   request: task.mockRequest,
-                                                   response: task.mockResponse)
-
-          XCTAssertEqual(error.pubNubError, countExceededError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .messageHistoryNotEnabled))
         }
         expectation.fulfill()
       }

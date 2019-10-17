@@ -27,7 +27,6 @@
 
 import Foundation
 
-// swiftlint:disable:next type_body_length
 public class SubscriptionSession {
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
@@ -36,27 +35,38 @@ public class SubscriptionSession {
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
-  var messageCache = [MessageResponse?].init(repeating: nil, count: 100)
+  var messageCache = [MessageResponse<AnyJSON>?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
+
+  // These allow for better tracking of outstanding subscribe loop request status
+  var longPolling: Bool = false
+  var request: Request?
 
   let responseQueue: DispatchQueue
 
-  var currentTimetoken: Timetoken = 0
   var previousTokenResponse: TimetokenResponse?
 
-  var subscribedChannels: Set<String> {
-    return internalState.lockedRead { $0.nonPresenceChannels }
+  public var subscribedChannels: [String] {
+    return internalState.lockedRead { $0.subscribedChannels }
+  }
+
+  public var subscribedChannelGroups: [String] {
+    return internalState.lockedRead { $0.subscribedGroups }
+  }
+
+  public var subscriptionCount: Int {
+    return internalState.lockedRead { $0.totalSubscribedCount }
   }
 
   public private(set) var connectionStatus: ConnectionStatus {
     get {
-      return internalState.lockedRead { $0.state }
+      return internalState.lockedRead { $0.connectionState }
     }
     set {
       // Set internal state
       let oldState = internalState.lockedWrite { state -> ConnectionStatus in
-        let oldState = state.state
-        state.state = newValue
+        let oldState = state.connectionState
+        state.connectionState = newValue
         return oldState
       }
 
@@ -67,7 +77,7 @@ public class SubscriptionSession {
     }
   }
 
-  var internalState = Atomic<SubscriptionSessionState>(SubscriptionSessionState())
+  var internalState = Atomic<SubscriptionState>(SubscriptionState())
 
   internal init(configuration: SubscriptionConfiguration, network session: SessionReplaceable) {
     self.configuration = configuration
@@ -77,97 +87,92 @@ public class SubscriptionSession {
   }
 
   deinit {
-    self.networkSession.invalidateAndCancel()
+    PubNub.log.debug("SubscriptionSession Destoryed")
+    networkSession.invalidateAndCancel()
+    // Poke the session factory to clean up nil values
+    SubscribeSessionFactory.shared.sessionDestroyed()
   }
 
   // MARK: - Subscription Loop
 
   public func subscribe(
     to channels: [String],
-    and channelGroups: [String] = [],
+    and groups: [String] = [],
     at timetoken: Timetoken = 0,
     withPresence: Bool = false,
-    setting presenceState: [String: Codable] = [:]
+    setting presenceState: [String: [String: JSONCodable]] = [:]
   ) {
-    if channels.isEmpty, channelGroups.isEmpty {
+    if channels.isEmpty, groups.isEmpty {
       return
     }
 
+    let channelObject = channels.map { PubNubChannel(id: $0, state: presenceState[$0], withPresence: withPresence) }
+    let groupObjects = groups.map { PubNubChannel(id: $0, state: presenceState[$0], withPresence: withPresence) }
+
     // Don't attempt to start subscription if there are no changes
-    let hasChanges = internalState.lockedWrite { mutableState -> Bool in
-      let oldCount = mutableState.totalChannelCount
+    let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
 
-      mutableState.channels.update(with: channels)
-      mutableState.channelGroups.update(with: channelGroups)
-      if withPresence {
-        mutableState.channels.update(with: channels.map { $0.presenceChannelName })
-        mutableState.channelGroups.update(with: channelGroups.map { $0.presenceChannelName })
-      }
-      return oldCount != mutableState.totalChannelCount
+      let newChannels = channelObject.filter { state.channels.insert($0) }
+      let newGroups = groupObjects.filter { state.groups.insert($0) }
+
+      return .subscribed(channels: newChannels, groups: newGroups)
     }
 
-    // Create a mapping of the state to the subscribing groups
-    var incomingState: ChannelPresenceState?
-    if !presenceState.isEmpty {
-      incomingState = ChannelPresenceState()
-      channels.forEach { incomingState?[$0] = presenceState }
-      channelGroups.forEach { incomingState?[$0] = presenceState }
+    if subscribeChange.didChange {
+      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
     }
 
-    if hasChanges || connectionStatus != .connected {
-      reconnect(at: timetoken, setting: incomingState)
+    if subscribeChange.didChange || connectionStatus != .connected {
+      reconnect(at: timetoken)
     }
   }
 
-  public func reconnect(at timetoken: Timetoken, setting incomingState: ChannelPresenceState? = nil) {
-    // Start subscription loop
+  public func reconnect(at timetoken: Timetoken?) {
     if !connectionStatus.isActive {
       connectionStatus = .connecting
+
+      // Start subscribe loop
+      performSubscribeLoop(at: timetoken)
+
+      // Start presence heartbeat
+      registerHeartbeatTimer()
+    } else if longPolling {
+      // Stop current task so it can restart
+      stopSubscribeLoop(.longPollingRestart)
+
+      // Start subscribe loop
+      performSubscribeLoop(at: timetoken)
+    } else {
+      // Start subscribe loop
+      performSubscribeLoop(at: timetoken)
     }
-
-    // Start subscribe loop
-    performSubscribeLoop(at: timetoken, setting: incomingState)
-
-    // Start presence heartbeat
-    registerHeartbeatTimer()
   }
 
   public func disconnect() {
-    stopSubscribeLoop()
+    stopSubscribeLoop(.clientCancelled)
     stopHeartbeatTimer()
-
-    // Update Connection State and Notify
-    connectionStatus = .disconnected
   }
 
   @discardableResult
-  func stopSubscribeLoop() -> Bool {
+  func stopSubscribeLoop(_ reason: PubNubError.Reason) -> Bool {
     // Cancel subscription requests
-    networkSession.cancelAllTasks(with: PNError.requestCancelled(.unknown), for: .subscribe)
+    request?.cancellationReason = reason
+    request?.cancel()
+
+    networkSession.cancelAllTasks(reason, for: .subscribe)
     return connectionStatus.isActive
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
-  func performSubscribeLoop(at timetoken: Timetoken?, setting incomingState: ChannelPresenceState? = nil) {
-    // Ensure we don't have multiple subscribe loops
-    stopSubscribeLoop()
+  func performSubscribeLoop(at timetoken: Timetoken?) {
+    longPolling = true
 
     let (channels, groups, storedState) = internalState
-      .lockedWrite { mutableState -> ([String], [String], ChannelPresenceState?) in
-        var subscribeState: ChannelPresenceState?
+      .lockedWrite { state -> ([String], [String], [String: [String: JSONCodable]]?) in
 
-        if let incomingState = incomingState {
-          mutableState.mergePresenceState(incomingState, removingEmpty: false, addingChannels: true)
-          subscribeState = mutableState.presenceState
-        } else if mutableState.presenceState.isEmpty {
-          subscribeState = nil
-        } else {
-          subscribeState = mutableState.presenceState
-        }
-
-        return (mutableState.channels.allObjects,
-                mutableState.channelGroups.allObjects,
-                subscribeState)
+        (state.allSubscribedChannels,
+         state.allSubscribedGroups,
+         state.subscribedState)
       }
 
     // Don't start subscription if there no channels/groups
@@ -185,10 +190,14 @@ public class SubscriptionSession {
                                                    heartbeat: configuration.durationUntilTimeout,
                                                    filter: configuration.filterExpression))
 
-    networkSession
+    request = networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
+
+    request?
       .validate()
       .response(decoder: SubscribeResponseDecoder()) { [weak self] result in
+        self?.longPolling = false
+
         switch result {
         case let .success(response):
           guard let strongSelf = self else {
@@ -198,9 +207,6 @@ public class SubscriptionSession {
           // Reset heartbeat timer
           self?.registerHeartbeatTimer()
 
-          // Clean up Presence Channel State
-          self?.internalState.lockedWrite { $0.cleanPresenceState() }
-
           // If we were in the process of connecting, notify connected
           if strongSelf.connectionStatus == .connecting {
             self?.connectionStatus = .connected
@@ -209,112 +215,72 @@ public class SubscriptionSession {
           if response.payload.messages.count >= 100 {
             self?.notify {
               $0.emitDidReceive(subscription:
-                .subscribeError(PNError.messageCountExceededMaximum(router.endpoint)))
+                .subscribeError(PubNubError(.messageCountExceededMaximum, endpoint: router.endpoint.category)))
             }
           }
 
           // Emit the event to the observers
           for message in response.payload.messages {
-            let message = message
-
-            if let presenceMessage = try? message.payload.decode(PresenceMessageResponse.self) {
-              let senderToken = message.originTimetoken?.timetoken ?? message.timetoken
-
-              let presenceEvent = PresenceEventPayload(
-                channel: message.channel.trimmingPresenceChannelSuffix,
-                subscriptionMatch: message.subscriptionMatch?.trimmingPresenceChannelSuffix,
-                senderTimetoken: senderToken,
-                presenceTimetoken: message.publishTimetoken.timetoken,
-                metadata: message.metadata,
-                event: presenceMessage.action,
-                occupancy: presenceMessage.occupancy,
-                join: presenceMessage.join,
-                leave: presenceMessage.leave,
-                timeout: presenceMessage.timeout,
-                stateChange: presenceMessage.channelState
-              )
-
-              // If the state chage is for this user we should update our internal cache
-              if presenceMessage.channelState.keys.contains(strongSelf.configuration.uuid) {
-                strongSelf.internalState.lockedWrite { $0.mergePresenceState(presenceMessage.channelState) }
-              }
-
-              self?.notify { $0.emitDidReceive(subscription: .presenceChanged(presenceEvent)) }
-            } else if message.messageType == .object {
-              do {
-                // Decode upper object payload
-                let payload = try message.payload.decode(ObjectSubscribePayload.self)
-
-                // Determine the event type
-                switch (payload.type, payload.event) {
-                case (.user, .update):
-                  let event: UserEvent = try payload.data.decode(UserObject.self)
-                  self?.notify { $0.emitDidReceive(subscription: .userUpdated(event)) }
-                case (.user, .delete):
-                  let event = try payload.data.decode(IdentifierEvent.self)
-                  self?.notify { $0.emitDidReceive(subscription: .userDeleted(event)) }
-                case (.space, .update):
-                  let event: SpaceEvent = try payload.data.decode(SpaceObject.self)
-                  self?.notify { $0.emitDidReceive(subscription: .spaceUpdated(event)) }
-                case (.space, .delete):
-                  let event = try payload.data.decode(IdentifierEvent.self)
-                  self?.notify { $0.emitDidReceive(subscription: .spaceDeleted(event)) }
-                case (.membership, .add):
-                  let event = try payload.data.decode(MembershipEvent.self)
-                  self?.notify { $0.emitDidReceive(subscription: .membershipAdded(event)) }
-                case (.membership, .update):
-                  let event = try payload.data.decode(MembershipEvent.self)
-                  self?.notify { $0.emitDidReceive(subscription: .membershipUpdated(event)) }
-                case (.membership, .delete):
-                  let event: MembershipIdentifiable = try payload.data.decode(MembershipEvent.self)
-                  self?.notify { $0.emitDidReceive(subscription: .membershipDeleted(event)) }
-                default:
-                  break
-                }
-              } catch {
-                let error = PNError.endpointFailure(.malformedResponseBody,
-                                                    response.endpoint,
-                                                    response.request,
-                                                    response.response)
-                self?.notify { $0.emitDidReceive(subscription: .subscribeError(error)) }
-              }
-            } else {
+            switch message {
+            case let .message(message):
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
-                switch message.messageType {
-                case .message:
-                  self?.notify { $0.emitDidReceive(subscription: .messageReceived(message)) }
-                case .signal:
-                  self?.notify { $0.emitDidReceive(subscription: .signalReceived(message)) }
-                default:
-                  break
-                }
-
+                self?.notify { $0.emitDidReceive(subscription: .messageReceived(message)) }
                 self?.messageCache.append(message)
               }
-
               // Remove oldest value if we're at max capacity
               if strongSelf.messageCache.count >= 100 {
                 self?.messageCache.remove(at: 0)
+              }
+            case let .signal(signal):
+              // Update Cache and notify if not a duplicate message
+              if !strongSelf.messageCache.contains(signal) {
+                self?.notify { $0.emitDidReceive(subscription: .signalReceived(signal)) }
+                self?.messageCache.append(signal)
+              }
+              // Remove oldest value if we're at max capacity
+              if strongSelf.messageCache.count >= 100 {
+                self?.messageCache.remove(at: 0)
+              }
+            case let .presence(presence):
+              // If the state chage is for this user we should update our internal cache
+              if presence.payload.channelState.keys.contains(strongSelf.configuration.uuid) {
+                self?.internalState.lockedWrite { $0.findAndUpdate(presence.channel.trimmingPresenceChannelSuffix,
+                                                                   state: presence.payload.channelState) }
+              }
+
+              self?.notify { $0.emitDidReceive(subscription: .presenceChanged(presence)) }
+            case let .object(object):
+              do {
+                let event = try object.payload.decodedEvent()
+                self?.notify { $0.emitDidReceive(subscription: event) }
+              } catch {
+                self?.notify {
+                  $0.emitDidReceive(subscription: .subscribeError(PubNubError(.jsonDataDecodingFailure,
+                                                                              response: response, error: error)))
+                }
               }
             }
           }
 
           self?.previousTokenResponse = response.payload.token
-          self?.currentTimetoken = response.payload.token.timetoken
 
           // Repeat the request
-          self?.performSubscribeLoop(at: strongSelf.currentTimetoken)
+          self?.performSubscribeLoop(at: response.payload.token.timetoken)
         case let .failure(error):
-          if error.isCancellationError {
-            self?.connectionStatus = .cancelled
-          } else if let pubnubError = error.pubNubError {
-            self?.connectionStatus = .disconnectedUnexpectedly
-            self?.notify { $0.emitDidReceive(subscription: .subscribeError(pubnubError)) }
+          self?.notify {
+            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, endpoint: .subscribe)))
+          }
+
+          if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
+            if self?.subscriptionCount == 0 {
+              self?.connectionStatus = .disconnected
+            } else {
+              self?.reconnect(at: self?.previousTokenResponse?.timetoken)
+            }
           } else {
             self?.connectionStatus = .disconnectedUnexpectedly
-            self?.notify { $0.emitDidReceive(subscription:
-              .subscribeError(PNError.unknownError(error, router.endpoint))) }
+            self?.reconnect(at: self?.previousTokenResponse?.timetoken)
           }
         }
       }
@@ -322,54 +288,82 @@ public class SubscriptionSession {
 
   // MARK: - Unsubscribe
 
-  public func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
-    let loopStopped = stopSubscribeLoop()
-
+  public func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
     // Update Channel List
-    let newCount = internalState.lockedWrite { mutableState -> Int in
-      mutableState.channels.remove(contentsOf: channels)
-      mutableState.channelGroups.remove(contentsOf: channelGroups)
+    let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
+      if presenceOnly {
+        let presenceChannelsRemoved = channels.compactMap { state.channels.unsubscribePresence($0) }
+        let presenceGroupsRemoved = groups.compactMap { state.groups.unsubscribePresence($0) }
 
-      mutableState.channels.remove(contentsOf: channels.map { $0.presenceChannelName })
-      mutableState.channelGroups.remove(contentsOf: channelGroups.map { $0.presenceChannelName })
+        return .unsubscribed(channels: presenceChannelsRemoved, groups: presenceGroupsRemoved)
+      } else {
+        let removedChannels = channels.compactMap { state.channels.removeValue(forKey: $0) }
+        let removedGroups = groups.compactMap { state.groups.removeValue(forKey: $0) }
 
-      return mutableState.totalChannelCount
+        return .unsubscribed(channels: removedChannels, groups: removedGroups)
+      }
     }
 
-    unsubscribeCleanup(channels: channels, groups: channelGroups, newCount: newCount, restart: loopStopped)
+    if subscribeChange.didChange {
+      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
+      // Call unsubscribe to cleanup remaining state items
+      unsubscribeCleanup(subscribeChange: subscribeChange)
+    }
   }
 
   public func unsubscribeAll() {
-    let loopStopped = stopSubscribeLoop()
-
     // Remove All Channels & Groups
-    let (channels, groups) = internalState.lockedWrite { mutableState -> ([String], [String]) in
-      let channels = mutableState.removeAllChannels()
-      let groups = mutableState.removeAllChannelGroups()
+    let subscribeChange = internalState.lockedWrite { mutableState -> SubscriptionChangeEvent in
 
-      return (channels, groups)
+      let removedChannels = mutableState.channels
+      mutableState.channels.removeAll(keepingCapacity: true)
+
+      let removedGroups = mutableState.groups
+      mutableState.groups.removeAll(keepingCapacity: true)
+
+      return .unsubscribed(channels: removedChannels.map { $0.value }, groups: removedGroups.map { $0.value })
     }
 
-    // Call unsubscribe to cleanup remaining state items
-    unsubscribeCleanup(channels: channels, groups: groups, newCount: 0, restart: loopStopped)
+    if subscribeChange.didChange {
+      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
+      // Call unsubscribe to cleanup remaining state items
+      unsubscribeCleanup(subscribeChange: subscribeChange)
+    }
   }
 
-  public func unsubscribeCleanup(channels: [String], groups: [String], newCount: Int, restart: Bool) {
+  func unsubscribeCleanup(subscribeChange: SubscriptionChangeEvent) {
     // Call Leave on channels/groups
     if !configuration.supressLeaveEvents {
-      presenceLeave(for: configuration.uuid, on: channels, and: groups) { result in
-        PubNub.log.info("Presence Leave: \(result)")
+      switch subscribeChange {
+      case let .unsubscribed(channels, groups):
+        presenceLeave(for: configuration.uuid,
+                      on: channels.map { $0.id },
+                      and: groups.map { $0.id }) { [weak self] result in
+          switch result {
+          case .success:
+            if !channels.isEmpty {
+              PubNub.log.info("Presence Leave Successful on channels \(channels.map { $0.id })")
+            }
+            if !groups.isEmpty {
+              PubNub.log.info("Presence Leave Successful on groups \(groups.map { $0.id })")
+            }
+          case let .failure(error):
+            self?.notify {
+              $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, endpoint: .leave)))
+            }
+          }
+        }
+      default:
+        break
       }
     }
 
     // Reset all timetokens and regions if we've unsubscribed from all channels/groups
-    if newCount == 0 {
+    if internalState.lockedRead({ $0.totalSubscribedCount == 0 }) {
       previousTokenResponse = nil
-    }
-
-    currentTimetoken = 0
-    if restart {
-      reconnect(at: 0)
+      disconnect()
+    } else {
+      reconnect(at: previousTokenResponse?.timetoken)
     }
   }
 }

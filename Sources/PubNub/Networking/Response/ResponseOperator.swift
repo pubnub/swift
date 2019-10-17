@@ -33,12 +33,12 @@ public protocol ResponseDecoder where Payload: Codable {
   associatedtype Payload
 
   func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
   func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error>
 }
 
 extension ResponseDecoder {
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     return decodeDefaultError(endpoint: endpoint, request: request, response: response, for: data)
   }
 
@@ -54,11 +54,7 @@ extension ResponseDecoder {
 
       return .success(decodedResponse)
     } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         response.endpoint,
-                         response.request,
-                         response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 
@@ -70,29 +66,13 @@ extension ResponseDecoder {
     endpoint: Endpoint,
     request: URLRequest,
     response: HTTPURLResponse,
-    for data: Data?
-  ) -> PNError? {
+    for data: Data
+  ) -> PubNubError? {
     // Attempt to decode based on general system response payload
-    if let data = data, !(data.isEmpty || String(bytes: data, encoding: .utf8) == "{}") {
-      let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self,
-                                                                 from: data)
-      let pnError = PNError.convert(endpoint: endpoint,
-                                    generalError: generalErrorPayload,
-                                    request: request,
-                                    response: response)
+    let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data)
 
-      return pnError
-    }
-
-    // Use the code to determine the error
-    let generalErrorPayload = GenericServicePayloadResponse(message: "No Message Received",
-                                                            service: "No Service Received",
-                                                            status: .init(rawValue: response.statusCode),
-                                                            error: true)
-    return PNError.convert(endpoint: endpoint,
-                           generalError: generalErrorPayload,
-                           request: request,
-                           response: response)
+    return PubNubError(reason: generalErrorPayload?.pubnubReason,
+                       endpoint: endpoint, request: request, response: response)
   }
 }
 
@@ -104,82 +84,40 @@ extension Request {
     decoder responseDecoder: D,
     completion: @escaping (Result<Response<D.Payload>, Error>) -> Void
   ) {
-    appendResponseCompletion { [weak self] in
-      guard let strongSelf = self else {
-        return
-      }
-
-      switch self?.error {
-      case let .some(error as PNError):
-        queue.async { completion(.failure(error)) }
-        return
-      case let .some(error):
-        queue.async { completion(.failure(PNError.unknownError(error, strongSelf.endpoint))) }
-        return
-      default:
-        break
-      }
-
-      // Ensure that we have valid request, response, and data
-      guard let urlRequest = self?.urlRequest,
-        let urlResponse = self?.urlResponse,
-        let router = self?.router else {
-        queue.async { completion(.failure(PNError
-            .unknown(ErrorDescription.PNError.missingRequestResponse,
-                     strongSelf.endpoint))) }
-
-        return
-      }
-
-      let dataResponse = Response<Data>(router: router,
-                                        request: urlRequest,
-                                        response: urlResponse,
-                                        payload: self?.data ?? Data())
-
-      // Decode the Response
-      switch dataResponse.router.decode(response: dataResponse, decoder: responseDecoder) {
-      case let .success(decodedResponse):
-        self?.sessionStream?.emitDidDecode(dataResponse)
-
-        queue.async {
-          completion(responseDecoder.decrypt(response: decodedResponse))
-        }
-      case let .failure(decodeError):
-        self?.sessionStream?.emitFailedToDecode(dataResponse, with: decodeError)
-        queue.async { completion(.failure(decodeError)) }
+    appendResponseCompletion { result in
+      queue.async {
+        completion(
+          result.flatMap { response in
+            // Decode the data response into the correct data type
+            response.router.decode(response: response, decoder: responseDecoder).flatMap { decoded in
+              // Do any decryption of the decoded data result
+              responseDecoder.decrypt(response: decoded)
+            }
+          }
+        )
       }
     }
   }
 
-  func appendResponseCompletion(_ closure: @escaping EmptyClosure) {
+  func appendResponseCompletion(_ closure: @escaping (Result<Response<Data>, Error>) -> Void) {
     // Add the completion closure to the request and wait for it to complete
     atomicState.lockedWrite { mutableState in
       mutableState.responseCompletionClosure = closure
-
-      if mutableState.taskState == .finished {
-        mutableState.taskState = .resumed
-      }
-
-      if mutableState.responseProcessingFinished {
-        requestQueue.async { self.processResponseCompletion() }
-      }
     }
   }
 
-  func processResponseCompletion() {
+  func processResponseCompletion(_ result: Result<Response<Data>, Error>) {
     // Request is now complete, so fire the stored completion closure
-    var responseCompletion: (() -> Void)?
+    var responseCompletion: ((Result<Response<Data>, Error>) -> Void)?
 
-    atomicState.lockedWrite { mutableState in
-      responseCompletion = mutableState.responseCompletionClosure
+    atomicState.lockedWrite { state in
+      responseCompletion = state.responseCompletionClosure
 
-      if mutableState.taskState.canTransition(to: .finished) {
-        mutableState.taskState = .finished
+      if state.taskState.canTransition(to: .finished) {
+        state.taskState = .finished
       }
-
-      mutableState.responseProcessingFinished = true
     }
 
-    responseCompletion?()
+    responseCompletion?(result)
   }
 }

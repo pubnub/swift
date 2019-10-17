@@ -44,8 +44,8 @@ final class MessageHistoryEndpointTests: XCTestCase {
     let endpoint = Endpoint.fetchMessageHistory(channels: v2Channels,
                                                 max: nil, start: nil, end: nil, includeMeta: false)
 
-    XCTAssertEqual(endpoint.description, "Fetch Message History")
-    XCTAssertEqual(endpoint.rawValue, .fetchMessageHistoryV2)
+    XCTAssertEqual(endpoint.description, "Fetch Message History V2")
+    XCTAssertEqual(endpoint.category, .fetchMessageHistoryV2)
     XCTAssertEqual(endpoint.operationCategory, .history)
     XCTAssertNil(endpoint.validationError)
   }
@@ -53,7 +53,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
   func testFetchHistoryV2_Endpoint_ValidationError() {
     let endpoint = Endpoint.fetchMessageHistory(channels: [], max: nil, start: nil, end: nil, includeMeta: false)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testFetchHistoryV2_Success() {
@@ -230,7 +230,7 @@ extension MessageHistoryEndpointTests {
                                                 max: nil, start: nil, end: nil, includeMeta: false)
 
     XCTAssertEqual(endpoint.description, "Fetch Message History")
-    XCTAssertEqual(endpoint.rawValue, .fetchMessageHistory)
+    XCTAssertEqual(endpoint.category, .fetchMessageHistory)
     XCTAssertEqual(endpoint.operationCategory, .history)
     XCTAssertNil(endpoint.validationError)
   }
@@ -443,7 +443,7 @@ extension MessageHistoryEndpointTests {
     let endpoint = Endpoint.deleteMessageHistory(channel: testChannel, start: nil, end: nil)
 
     XCTAssertEqual(endpoint.description, "Delete Message History")
-    XCTAssertEqual(endpoint.rawValue, .deleteMessageHistory)
+    XCTAssertEqual(endpoint.category, .deleteMessageHistory)
     XCTAssertEqual(endpoint.operationCategory, .history)
     XCTAssertNil(endpoint.validationError)
   }
@@ -451,7 +451,7 @@ extension MessageHistoryEndpointTests {
   func testDeleteHistory_Endpoint_ValidationError() {
     let endpoint = Endpoint.deleteMessageHistory(channel: "", start: nil, end: nil)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testDeleteHistory_Endpoint_AssociatedValues() {
@@ -485,7 +485,7 @@ extension MessageHistoryEndpointTests {
   func testHistory_Error_HistoryNotEnabled() {
     let expectation = self.expectation(description: "History Not Enabled Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["history_not_enabled_for_key_Message"]) else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["history_delete_not_enabled_for_key_Message"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -494,19 +494,7 @@ extension MessageHistoryEndpointTests {
       case let .success(payload):
         XCTAssertEqual(payload.message, .acknowledge)
       case let .failure(error):
-        guard let task = sessions.mockSession.tasks.first else {
-          return XCTFail("Could not get task")
-        }
-
-        let countExceededError = PNError.convert(endpoint: .unknown,
-                                                 generalError: .init(message: .messageDeletionNotEnabled,
-                                                                     service: .unknown(message: ""),
-                                                                     status: .forbidden,
-                                                                     error: true),
-                                                 request: task.mockRequest,
-                                                 response: task.mockResponse)
-
-        XCTAssertEqual(error.pubNubError, countExceededError)
+        XCTAssertEqual(error.pubNubError, PubNubError(reason: .messageDeletionNotEnabled))
       }
       expectation.fulfill()
     }
@@ -534,12 +522,7 @@ extension MessageHistoryEndpointTests {
       _ = try MessageHistoryResponseDecoder().decode(response: response).get()
       XCTFail("This should throw an error")
     } catch {
-      let decodeError = PNError.endpointFailure(.jsonDataDecodeFailure(nil, with: error),
-                                                router.endpoint,
-                                                request,
-                                                urlResponse)
-
-      XCTAssertEqual(error.pubNubError, decodeError)
+      XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonDataDecodingFailure))
     }
   }
 
@@ -564,12 +547,7 @@ extension MessageHistoryEndpointTests {
       _ = try MessageHistoryResponseDecoder().decodeMessageHistoryV2(response: response).get()
       XCTFail("This should throw an error")
     } catch {
-      let decodeError = PNError.endpointFailure(.malformedResponseBody,
-                                                router.endpoint,
-                                                request,
-                                                urlResponse)
-
-      XCTAssertEqual(error.pubNubError, decodeError)
+      XCTAssertEqual(error.pubNubError, PubNubError(reason: .malformedResponseBody))
     }
   }
 }

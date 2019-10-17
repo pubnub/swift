@@ -92,22 +92,22 @@ class ConstantsTests: XCTestCase {
   }
 
   func testErrorDescription_AnyJSON_StringCreationFailure() {
-    XCTAssertEqual(ErrorDescription.AnyJSONError.stringCreationFailure,
+    XCTAssertEqual(ErrorDescription.stringEncodingFailure,
                    "`String(data:encoding:)` returned nil when converting JSON Data to a `String`")
   }
 
   func testErrorDescription_DecodingError_RootLeve() {
-    XCTAssertEqual(ErrorDescription.DecodingError.invalidRootLevelErrorDescription,
+    XCTAssertEqual(ErrorDescription.rootLevelDecoding,
                    "AnyJSON could not decode invalid root-level JSON object")
   }
 
   func testErrorDescription_DecodingError_KeyedContainer() {
-    XCTAssertEqual(ErrorDescription.DecodingError.invalidKeyedContainerErrorDescription,
+    XCTAssertEqual(ErrorDescription.keyedContainerDecoding,
                    "AnyJSON could not decode value inside `KeyedDecodingContainer`")
   }
 
   func testErrorDescription_DecodingError_UnkeyedContainer() {
-    XCTAssertEqual(ErrorDescription.DecodingError.invalidUnkeyedContainerErrorDescription,
+    XCTAssertEqual(ErrorDescription.unkeyedContainerDecoding,
                    "AnyJSON could not decode value inside `UnkeyedDecodingContainer`")
   }
 }

@@ -77,7 +77,7 @@ extension AnyJSONType: Codable {
     } else {
       let context = DecodingError.Context(
         codingPath: decoder.codingPath,
-        debugDescription: ErrorDescription.DecodingError.invalidRootLevelErrorDescription
+        debugDescription: ErrorDescription.rootLevelDecoding
       )
       throw DecodingError.dataCorrupted(context)
     }
@@ -116,7 +116,7 @@ extension AnyJSONType: Codable {
     } else {
       let context = DecodingError.Context(
         codingPath: container.codingPath,
-        debugDescription: ErrorDescription.DecodingError.invalidRootLevelErrorDescription
+        debugDescription: ErrorDescription.rootLevelDecoding
       )
       throw DecodingError.dataCorrupted(context)
     }
@@ -163,7 +163,7 @@ extension AnyJSONType: Codable {
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,
-                   debugDescription: ErrorDescription.DecodingError.invalidUnkeyedContainerErrorDescription)
+                   debugDescription: ErrorDescription.unkeyedContainerDecoding)
         throw DecodingError.dataCorrupted(context)
       }
     }
@@ -209,7 +209,7 @@ extension AnyJSONType: Codable {
       } else {
         let context = DecodingError
           .Context(codingPath: container.codingPath,
-                   debugDescription: ErrorDescription.DecodingError.invalidKeyedContainerErrorDescription)
+                   debugDescription: ErrorDescription.keyedContainerDecoding)
         throw DecodingError.dataCorrupted(context)
       }
     }
@@ -240,7 +240,7 @@ extension AnyJSONType: Codable {
     default:
       let context = EncodingError.Context(
         codingPath: encoder.codingPath,
-        debugDescription: ErrorDescription.EncodingError.invalidRootLevelErrorDescription
+        debugDescription: ErrorDescription.rootLevelEncoding
       )
       throw EncodingError.invalidValue(self, context)
     }
@@ -365,9 +365,9 @@ extension AnyJSONType: RawRepresentable {
   }
 }
 
-// MARK: - Equatable
+// MARK: - Hashable
 
-extension AnyJSONType: Equatable {
+extension AnyJSONType: Hashable {
   // swiftlint:disable:next cyclomatic_complexity
   public static func == (lhs: AnyJSONType, rhs: AnyJSONType) -> Bool {
     switch (lhs, rhs) {
@@ -401,6 +401,25 @@ extension AnyJSONType: Equatable {
       return false
     default:
       return false
+    }
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    switch self {
+    case let .string(value):
+      value.hash(into: &hasher)
+    case let .integer(value):
+      value.hash(into: &hasher)
+    case let .double(value):
+      value.hash(into: &hasher)
+    case let .boolean(value):
+      value.hash(into: &hasher)
+    case let .array(value):
+      value.hash(into: &hasher)
+    case let .dictionary(value):
+      value.hash(into: &hasher)
+    default:
+      break
     }
   }
 }

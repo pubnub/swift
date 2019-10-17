@@ -27,14 +27,15 @@
 
 import Foundation
 
+/// Event emitted from a Subscription Stream
+public typealias StatusEvent = Result<ConnectionStatus, PubNubError>
+
 public enum ConnectionStatus {
-  case initialized
   case connecting
   case connected
   case reconnecting
   case disconnected
   case disconnectedUnexpectedly
-  case cancelled
 
   public var isActive: Bool {
     switch self {
@@ -47,25 +48,5 @@ public enum ConnectionStatus {
 
   public var isConnected: Bool {
     return self == .connected
-  }
-
-  var emitState: Bool {
-    switch self {
-    case .initialized, .connecting, .reconnecting:
-      return false
-    case .connected, .disconnected, .disconnectedUnexpectedly, .cancelled:
-      return true
-    }
-  }
-}
-
-extension StatusEvent {
-  public var emitState: Bool {
-    switch self {
-    case let .success(status):
-      return status.emitState
-    case .failure:
-      return false
-    }
   }
 }

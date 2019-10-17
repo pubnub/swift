@@ -42,7 +42,7 @@ final class PresenceEndpointTests: XCTestCase {
     let endpoint = Endpoint.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true)
 
     XCTAssertEqual(endpoint.description, "Here Now")
-    XCTAssertEqual(endpoint.rawValue, .hereNow)
+    XCTAssertEqual(endpoint.category, .hereNow)
     XCTAssertEqual(endpoint.operationCategory, .presence)
     XCTAssertNil(endpoint.validationError)
   }
@@ -51,7 +51,7 @@ final class PresenceEndpointTests: XCTestCase {
     let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testHereNow_Endpoint_AssociatedValues() {
@@ -248,7 +248,7 @@ final class PresenceEndpointTests: XCTestCase {
     let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
 
     XCTAssertEqual(endpoint.description, "Global Here Now")
-    XCTAssertEqual(endpoint.rawValue, .hereNowGlobal)
+    XCTAssertEqual(endpoint.category, .hereNowGlobal)
     XCTAssertEqual(endpoint.operationCategory, .presence)
     XCTAssertNil(endpoint.validationError)
   }
@@ -298,7 +298,7 @@ final class PresenceEndpointTests: XCTestCase {
     let endpoint = Endpoint.whereNow(uuid: "Soemthing")
 
     XCTAssertEqual(endpoint.description, "Where Now")
-    XCTAssertEqual(endpoint.rawValue, .whereNow)
+    XCTAssertEqual(endpoint.category, .whereNow)
     XCTAssertEqual(endpoint.operationCategory, .presence)
     XCTAssertNil(endpoint.validationError)
   }
@@ -306,7 +306,7 @@ final class PresenceEndpointTests: XCTestCase {
   func testWhereNow_Endpoint_ValidationError() {
     let endpoint = Endpoint.whereNow(uuid: "")
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testWhereNow_Endpoint_AssociatedValues() {

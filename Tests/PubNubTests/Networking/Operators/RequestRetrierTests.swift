@@ -138,12 +138,8 @@ class RequestRetrierTests: XCTestCase {
       case .success:
         XCTFail("Time request should fail")
       case let .failure(error):
-        guard let task = sessions.mockSession.tasks.last else {
-          return XCTFail("Could not get task")
-        }
-
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, self.getRetryError(from: task, for: .cannotFindHost, and: .timedOut))
+        XCTAssertEqual(error.pubNubError, PubNubError(reason: .nameResolutionFailure))
       }
       totalExpectation.fulfill()
     }
@@ -156,21 +152,11 @@ class RequestRetrierTests: XCTestCase {
   }
 
   func getRetryError(
-    from task: MockURLSessionTask,
-    for current: URLError.Code,
-    and previous: URLError.Code
-  ) -> PNError? {
-    guard let curError = PNError.convert(endpoint: .time,
-                                         error: URLError(current),
-                                         request: task.mockRequest,
-                                         response: task.mockResponse),
-      let prevError = PNError.convert(endpoint: .time,
-                                      error: URLError(previous),
-                                      request: task.mockRequest,
-                                      response: task.mockResponse) else {
-      return nil
-    }
-    return PNError.requestRetryFailed(.time, task.mockRequest, dueTo: curError, withPreviousError: prevError)
+    from _: MockURLSessionTask,
+    for _: URLError.Code,
+    and _: URLError.Code
+  ) -> Error? {
+    return PubNubError(reason: .requestRetryFailed)
   }
 
   func testRetryRequest_Multiple_Success() {
@@ -184,6 +170,7 @@ class RequestRetrierTests: XCTestCase {
 
     let retrier = RetryExpector(all: &expectations)
     retrier.shouldRetry = { _, _, _, retryCount in
+      print("Hitting this")
       switch retryCount {
       case 0:
         return .retry

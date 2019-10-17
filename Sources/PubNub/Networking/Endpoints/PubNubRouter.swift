@@ -24,7 +24,6 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean
 
 import Foundation
 
@@ -122,7 +121,7 @@ extension PubNubRouter: Router {
     case let .subscribe(parameters):
       let channels = parameters.channels.commaOrCSVString.urlEncodeSlash
       path = "/v2/subscribe/\(subscribeKey)/\(channels)/0"
-    case let .heartbeat(channels, _, _, _):
+    case let .heartbeat(channels, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)/heartbeat"
     case let .leave(channels, _):
       let channels = channels.commaOrCSVString.urlEncodeSlash
@@ -199,7 +198,7 @@ extension PubNubRouter: Router {
       path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
 
     case .unknown:
-      return .failure(PNError.unknown(endpoint.description, endpoint))
+      return .failure(PubNubError(.invalidEndpointType, endpoint: endpoint))
     }
     return .success(path)
   }
@@ -208,29 +207,28 @@ extension PubNubRouter: Router {
     var query = [URLQueryItem]()
     switch endpoint {
     case let .publish(_, _, shouldStore, ttl, meta):
-      return parsePublish(query: &query, shouldStore: shouldStore, ttl: ttl, meta: meta)
+      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
     case let .compressedPublish(_, _, shouldStore, ttl, meta):
-      return parsePublish(query: &query, shouldStore: shouldStore, ttl: ttl, meta: meta)
+      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
     case let .fire(_, _, meta):
-      return parsePublish(query: &query, shouldStore: false, ttl: 0, meta: meta)
+      return parsePublish(query: &query, store: false, ttl: 0, meta: meta)
     case let .subscribe(parameters):
       query.appendIfPresent(key: .timetokenShort, value: parameters.timetoken?.description)
       query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
       query.appendIfPresent(key: .regionShort, value: parameters.region?.description)
       query.appendIfPresent(key: .filter, value: parameters.filter)
       query.appendIfPresent(key: .heartbeat, value: parameters.heartbeat?.description)
-      return parseState(query: &query, state: parameters.state)
-    case let .heartbeat(parameters):
-      query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
-      query.appendIfPresent(key: .heartbeat, value: parameters.presenceTimeout?.description)
-      return parseState(query: &query, state: parameters.state)
+      return parseState(query: &query, state: parameters.state?.codableValue)
+    case let .heartbeat(_, groups, presenceTimeout):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.appendIfPresent(key: .heartbeat, value: presenceTimeout?.description)
     case let .leave(_, groups):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
     case let .getPresenceState(parameters):
       query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
     case let .setPresenceState(parameters):
       if !parameters.state.isEmpty {
-        return parseState(query: &query, state: parameters.state)
+        return parseState(query: &query, state: parameters.state.codableValue)
       } else {
         query.append(URLQueryItem(key: .state, value: "{}"))
       }
@@ -342,41 +340,27 @@ extension PubNubRouter: Router {
       if let crypto = configuration.cipherKey {
         return parameters.message.jsonStringifyResult.flatMap {
           crypto.encrypt(plaintext: $0).map { $0.jsonDescription.data(using: .utf8) }
-        }.mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(parameters.message, with: $0), endpoint) }
+        }
       }
-      return parameters.message.jsonDataResult
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(parameters.message, with: $0), endpoint) }
+      return parameters.message.jsonDataResult.map { .some($0) }
     case let .objectsUserCreate(user, _):
-      return user.jsonDataResult
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(user.codableValue, with: $0), endpoint) }
+      return user.jsonDataResult.map { .some($0) }
     case let .objectsUserUpdate(user, _):
-      return user.jsonDataResult
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(user.codableValue, with: $0), endpoint) }
+      return user.jsonDataResult.map { .some($0) }
     case let .objectsSpaceCreate(space, _):
-      return space.jsonDataResult
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(space.codableValue, with: $0), endpoint) }
+      return space.jsonDataResult.map { .some($0) }
     case let .objectsSpaceUpdate(space, _):
-      return space.jsonDataResult
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(space.codableValue, with: $0), endpoint) }
+      return space.jsonDataResult.map { .some($0) }
     case let .objectsUserMembershipsUpdate(parameters):
       let changeset = ObjectIdentifiableChangeset(add: parameters.add,
                                                   update: parameters.update,
                                                   remove: parameters.remove)
-      return changeset.encodableJSONData
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(AnyJSON(changeset), with: $0), endpoint) }
+      return changeset.encodableJSONData.map { .some($0) }
     case let .objectsSpaceMembershipsUpdate(parameters):
       let changeset = ObjectIdentifiableChangeset(add: parameters.add,
                                                   update: parameters.update,
                                                   remove: parameters.remove)
-      return changeset.encodableJSONData
-        .map { .some($0) }
-        .mapError { PNError.requestCreationFailure(.jsonDataCodingFailure(AnyJSON(changeset), with: $0), endpoint) }
+      return changeset.encodableJSONData.map { .some($0) }
     default:
       return .success(nil)
     }
@@ -427,7 +411,7 @@ extension PubNubRouter: Router {
     }
   }
 
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     switch endpoint {
     case .publish, .compressedPublish, .fire, .signal:
       return PublishResponseDecoder().decodeError(endpoint: endpoint, request: request, response: response, for: data)
@@ -443,48 +427,30 @@ extension PubNubRouter {
       return message.jsonDataResult.flatMap { jsonData in
         crypto.encrypt(utf8Encoded: jsonData)
           .flatMap { .success("\(partialPath)\($0.base64EncodedString().urlEncodeSlash.jsonDescription)") }
-      }.mapError { PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint) }
+      }
     }
-    return message.jsonStringifyResult
-      .map { "\(partialPath)\($0.urlEncodeSlash)" }
-      .mapError { PNError.requestCreationFailure(.jsonStringCodingFailure(message, dueTo: $0), endpoint) }
+    return message.jsonStringifyResult.map { "\(partialPath)\($0.urlEncodeSlash)" }
   }
 
-  func parsePublish(
-    query: inout [URLQueryItem],
-    shouldStore: Bool?,
-    ttl: Int?,
-    meta: AnyJSON?
-  ) -> Result<[URLQueryItem], Error> {
-    query.appendIfPresent(key: .store, value: shouldStore?.stringNumber)
+  func parsePublish(query: inout [URLQueryItem], store: Bool?, ttl: Int?, meta: AnyJSON?) -> QueryResult {
+    query.appendIfPresent(key: .store, value: store?.stringNumber)
     query.appendIfPresent(key: .ttl, value: ttl?.description)
 
     if let meta = meta, !meta.isEmpty {
-      do {
-        try query.append(URLQueryItem(key: .meta, value: meta.jsonStringifyResult.get()))
-        return .success(query)
-      } catch {
-        return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(meta, dueTo: error), endpoint))
+      return meta.jsonStringifyResult.map { json -> [URLQueryItem] in
+        query.append(URLQueryItem(key: .meta, value: json))
+        return query
       }
     }
-
     return .success(query)
   }
 
-  func parseState<T>(query: inout [URLQueryItem], state: T?) -> Result<[URLQueryItem], Error> {
-    if let state = state {
-      let stateJson = AnyJSON(state)
-      do {
-        try query.append(URLQueryItem(key: .state, value: stateJson.jsonStringifyResult.get()))
-        return .success(query)
-      } catch {
-        return .failure(PNError.requestCreationFailure(.jsonStringCodingFailure(stateJson, dueTo: error), endpoint))
-      }
-    }
-
-    return .success(query)
+  func parseState<T: Codable>(query: inout [URLQueryItem], state: T?) -> QueryResult {
+    return state?.encodableJSONString.map { json in
+      query.append(URLQueryItem(key: .state, value: json))
+      return query
+    } ?? .success(query)
   }
+
+  // swiftlint:disable:next file_length
 }
-
-// swiftlint:disable:next file_length
-// swiftlint:enable discouraged_optional_boolean

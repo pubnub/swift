@@ -101,7 +101,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     }
     client.add(listener)
 
-    client.subscribe(to: [channel], withPresence: true, setting: ["StateKey": "StateValue"])
+    client.subscribe(to: [channel], withPresence: true, setting: [channel: ["StateKey": "StateValue"]])
 
     defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)
@@ -192,7 +192,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     }
     client.add(listener)
 
-    client.subscribe(to: [channel], withPresence: true, setting: ["StateKey": "StateValue"])
+    client.subscribe(to: [channel], withPresence: true, setting: [channel: ["StateKey": "StateValue"]])
 
     defer { listener.cancel() }
     wait(for: [hereNowExpect], timeout: 10.0)

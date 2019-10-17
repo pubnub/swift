@@ -54,7 +54,7 @@ extension MessageEvent {
 
 // MARK: - Implementation
 
-extension MessageResponse: MessageEvent {
+extension MessageResponse: MessageEvent, CustomStringConvertible where Payload == AnyJSON {
   public var publisher: String? { return issuer }
   public var subscription: String? { return subscriptionMatch }
   public var timetoken: Timetoken {

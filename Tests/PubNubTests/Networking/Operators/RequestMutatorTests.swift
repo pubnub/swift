@@ -114,11 +114,9 @@ class RequestMutatorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    let mutationError = PNError.unknown("Could not mutate request", .unknown)
-
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { _ in
-      .failure(mutationError)
+      .failure(PubNubError(reason: .requestMutatorFailure))
     }
 
     let networkConfig = NetworkConfiguration(
@@ -129,9 +127,7 @@ class RequestMutatorTests: XCTestCase {
     sessionExpector.expectDidFailToMutateRequest { request, initialURLRequest, error in
 
       XCTAssertEqual(request.urlRequest, initialURLRequest)
-
-      XCTAssertEqual(error.pubNubError,
-                     PNError.requestCreationFailure(.requestMutatorFailure(initialURLRequest, mutationError), .time))
+      XCTAssertEqual(error.pubNubError, PubNubError(reason: .requestMutatorFailure))
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
@@ -141,10 +137,7 @@ class RequestMutatorTests: XCTestCase {
       case .success:
         XCTFail("Time request should fail")
       case let .failure(error):
-        let errorCategory = ErrorDescription.PNError.requestCreationFailure
-        let errorReason = ErrorDescription.RequestCreationFailureReason.requestMutatorFailure
-
-        XCTAssertNotNil(error.localizedDescription, "\(errorCategory) \(errorReason)")
+        XCTAssertEqual(error.pubNubError, PubNubError(reason: .requestMutatorFailure))
       }
       totalExpectation.fulfill()
     }

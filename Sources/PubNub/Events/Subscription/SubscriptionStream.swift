@@ -27,10 +27,25 @@
 
 import Foundation
 
+public enum SubscriptionChangeEvent {
+  case subscribed(channels: [PubNubChannel], groups: [PubNubChannel])
+  case unsubscribed(channels: [PubNubChannel], groups: [PubNubChannel])
+
+  var didChange: Bool {
+    switch self {
+    case let .subscribed(channels, groups):
+      return !channels.isEmpty || !groups.isEmpty
+    case let .unsubscribed(channels, groups):
+      return !channels.isEmpty || !groups.isEmpty
+    }
+  }
+}
+
 public enum SubscriptionEvent {
   case messageReceived(MessageEvent)
   case signalReceived(MessageEvent)
   case connectionStatusChanged(ConnectionStatus)
+  case subscriptionChanged(SubscriptionChangeEvent)
   case presenceChanged(PresenceEvent)
   case userUpdated(UserEvent)
   case userDeleted(IdentifierEvent)
@@ -39,23 +54,16 @@ public enum SubscriptionEvent {
   case membershipAdded(MembershipEvent)
   case membershipUpdated(MembershipEvent)
   case membershipDeleted(MembershipIdentifiable)
-  case subscribeError(PNError)
-}
+  case subscribeError(PubNubError)
 
-public enum UserEvents {
-  case updated(UserEvent)
-  case deleted(IdentifierEvent)
-}
-
-public enum SpaceEvents {
-  case updated(SpaceEvent)
-  case deleted(IdentifierEvent)
-}
-
-public enum MembershipEvents {
-  case userAddedOnSpace(MembershipEvent)
-  case userUpdatedOnSpace(MembershipEvent)
-  case userDeletedFromSpace(MembershipIdentifiable)
+  var isCancellationError: Bool {
+    switch self {
+    case let .subscribeError(error):
+      return error.isCancellationError
+    default:
+      return false
+    }
+  }
 }
 
 public protocol SubscriptionStream: EventStream {
@@ -71,11 +79,13 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
   public var queue: DispatchQueue
 
   var token: ListenerToken?
+  public var supressCancellationErrors: Bool = true
 
   public init(queue: DispatchQueue = .main) {
     uuid = UUID()
     self.queue = queue
   }
+
   deinit {
     cancel()
   }
@@ -86,6 +96,7 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   public var didReceivePresence: ((PresenceEvent) -> Void)?
   public var didReceiveSignal: ((MessageEvent) -> Void)?
+  public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
 
   public var didReceiveUserEvent: ((UserEvents) -> Void)?
   public var didReceiveSpaceEvent: ((SpaceEvents) -> Void)?
@@ -93,6 +104,10 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
 
   // swiftlint:disable:next cyclomatic_complexity
   public func emitDidReceive(subscription event: SubscriptionEvent) {
+    if event.isCancellationError, supressCancellationErrors {
+      return
+    }
+
     queue.async {
       // Emit Master Event
       self.didReceiveSubscription?(event)
@@ -105,6 +120,8 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
         self.didReceiveSignal?(signal)
       case let .connectionStatusChanged(status):
         self.didReceiveStatus?(.success(status))
+      case let .subscriptionChanged(change):
+        self.didReceiveSubscriptionChange?(change)
       case let .presenceChanged(presence):
         self.didReceivePresence?(presence)
       case let .userUpdated(user):

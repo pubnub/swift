@@ -59,7 +59,7 @@ extension SubscriptionSession {
 
   @objc func peformHeartbeatLoop() {
     // Get non-presence channels and groups
-    let (channels, groups) = internalState.lockedRead { ($0.nonPresenceChannels, $0.nonPresenceChannelGroups) }
+    let (channels, groups) = internalState.lockedRead { ($0.subscribedChannels, $0.subscribedGroups) }
 
     if channels.isEmpty, groups.isEmpty {
       return
@@ -67,24 +67,20 @@ extension SubscriptionSession {
 
     // Perform Heartbeat
     let router = PubNubRouter(configuration: configuration,
-                              endpoint: .heartbeat(channels: channels.allObjects,
-                                                   groups: groups.allObjects,
-                                                   state: nil,
+                              endpoint: .heartbeat(channels: channels,
+                                                   groups: groups,
                                                    presenceTimeout: configuration.durationUntilTimeout))
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: GenericServiceResponseDecoder()) { result in
+      .response(decoder: GenericServiceResponseDecoder()) { [weak self] result in
         switch result {
         case .success:
-          if self.connectionStatus.isActive {
-            self.registerHeartbeatTimer()
-          } else {
-            self.stopHeartbeatTimer()
-          }
+          // If the connection is active register a new heartbeat otherwise stop the timer
+          self?.connectionStatus.isActive ?? false ? self?.registerHeartbeatTimer() : self?.stopHeartbeatTimer()
         case .failure:
-          self.stopHeartbeatTimer()
+          self?.stopHeartbeatTimer()
         }
       }
 
@@ -131,36 +127,35 @@ extension SubscriptionSession {
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(decoder: AnyJSONResponseDecoder()) { [weak self] result in
-        switch result {
-        case let .success(response):
+
+        completion(result.flatMap { response in
           let normalizedState: [String: [String: AnyJSON]]
-          // Received back multiple channel/group states
-          if let singleChannel = try? response.payload.decode(SinglePresenceStatePayload.self) {
-            normalizedState = singleChannel.normalizedPayload
-          } else if let multiChannel = try? response.payload.decode(MultiPresenceStatePayload.self) {
-            normalizedState = multiChannel.normalizedPayload
-          } else {
-            completion(.failure(PNError.unknown("Could not decode payload", router.endpoint)))
-            return
+
+          do {
+            if let singleChannel = try? response.payload.decode(SinglePresenceStatePayload.self) {
+              normalizedState = singleChannel.normalizedPayload
+            } else {
+              let multiChannel = try response.payload.decode(MultiPresenceStatePayload.self)
+              normalizedState = multiChannel.normalizedPayload
+            }
+          } catch {
+            return .failure(error)
           }
 
           // Update internal state for user
           if uuid == self?.configuration.uuid {
-            self?.internalState.lockedWrite {
-              $0.mergePresenceState(normalizedState)
+            self?.internalState.lockedWrite { state in
+              normalizedState.forEach { state.findAndUpdate($0.key, state: $0.value) }
             }
           }
 
-          // Return Callback response
-          completion(.success(normalizedState))
-        case let .failure(error):
-          completion(.failure(error))
-        }
+          return .success(normalizedState)
+        })
       }
   }
 
   public func setPresence(
-    state: [String: Codable],
+    state: [String: JSONCodable],
     on channels: [String],
     and groups: [String],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
@@ -172,26 +167,21 @@ extension SubscriptionSession {
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(decoder: SetPresenceStateResponseDecoder()) { [weak self] result in
-        switch result {
-        case let .success(response):
-          guard let strongSelf = self else {
-            return
-          }
-
+        completion(result.map { response in
           // Get mapping of channels/groups to new state
           let normalizedState = response.payload.normalizedPayload(using: channels + groups)
 
           // Update state cache for channel(s) & group(s)
-          self?.internalState.lockedWrite { $0.mergePresenceState(normalizedState) }
+          self?.internalState.lockedWrite { state in
+            normalizedState.forEach { state.findAndUpdate($0.key, state: $0.value) }
+          }
 
           // Stop the subscription loop to pick up the new state
-          self?.reconnect(at: strongSelf.currentTimetoken)
+          self?.reconnect(at: self?.previousTokenResponse?.timetoken)
 
           // Return State that matches current user
-          completion(.success(normalizedState))
-        case let .failure(error):
-          completion(.failure(error))
-        }
+          return normalizedState
+        })
       }
   }
 }

@@ -69,30 +69,30 @@ extension MessageResponse: PresenceEvent where Payload == PresenceResponse {
   }
 
   public var presenceTimetoken: Timetoken {
-    publishTimetoken.timetoken
+    return publishTimetoken.timetoken
   }
 
   public var event: PresenceStateEvent {
-    payload.action
+    return payload.action
   }
 
   public var occupancy: Int {
-    payload.occupancy
+    return payload.occupancy
   }
 
   public var join: [String] {
-    payload.join
+    return payload.join
   }
 
   public var leave: [String] {
-    payload.leave
+    return payload.leave
   }
 
   public var timeout: [String] {
-    payload.timeout
+    return payload.timeout
   }
 
   public var stateChange: [String: [String: Codable]] {
-    payload.channelState
+    return payload.channelState
   }
 }

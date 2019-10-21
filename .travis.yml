@@ -19,14 +19,17 @@ jobs:
   include:
     - stage: "Unit Tests"
       name: iOS
+      before_script: xcrun simctl list -j
       script: bundle exec fastlane test --env ios
     - name: macOS
       script: bundle exec fastlane test --env macos
     - name: tvOS
+      before_script: xcrun simctl list -j
       script: bundle exec fastlane test --env tvos
     - name: Legacy
       osx_image: xcode10.2
       before_script:
+      - xcrun simctl list -j
       # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
       - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"

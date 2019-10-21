@@ -232,7 +232,7 @@ public struct PubNubLogger {
       prefixString = "\(level.description) "
     }
     if prefix.contains(.date) {
-      prefixString = "\(prefixString)\(Constant.iso8601DateFormatter.string(from: date)) "
+      prefixString = "\(prefixString)\(DateFormatter.iso8601.string(from: date)) "
     }
     if prefix.contains(.queue) || prefix.contains(.thread) {
       prefixString = "\(prefixString)(\(queue)#\(thread)) "

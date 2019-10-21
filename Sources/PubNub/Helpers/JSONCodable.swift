@@ -215,7 +215,7 @@ public struct JSONCodableScalarType: Codable, Hashable {
   }
 
   init(dateValue: Date) {
-    value = .string(Constant.iso8601DateFormatter.string(from: dateValue))
+    value = .string(DateFormatter.iso8601.string(from: dateValue))
   }
 
   // Note: Research why decoding collections containing this object fails when using the synthesized

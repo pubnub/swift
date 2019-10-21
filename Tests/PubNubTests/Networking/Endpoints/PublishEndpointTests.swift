@@ -51,7 +51,7 @@ final class PublishEndpointTests: XCTestCase {
     let endpoint = Endpoint.signal(message: AnyJSON(message), channel: channel)
 
     XCTAssertEqual(endpoint.description, "Signal")
-    XCTAssertEqual(endpoint.rawValue, .signal)
+    XCTAssertEqual(endpoint.category, .signal)
     XCTAssertEqual(endpoint.operationCategory, .publish)
     XCTAssertNil(endpoint.validationError)
   }
@@ -59,7 +59,7 @@ final class PublishEndpointTests: XCTestCase {
   func testSignal_Endpoint_ValidationError() {
     let endpoint = Endpoint.signal(message: "", channel: "")
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testSignal_Endpoint_AssociatedValues() {
@@ -103,19 +103,8 @@ final class PublishEndpointTests: XCTestCase {
         case .success:
           XCTFail("Signal request should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-          let invalidKeyError = PNError.convert(endpoint: .unknown,
-                                                generalError: .init(message: .invalidPublishKey,
-                                                                    service: .publish,
-                                                                    status: .badRequest,
-                                                                    error: true),
-                                                request: task.mockRequest,
-                                                response: task.mockResponse)
-
           XCTAssertNotNil(error.pubNubError)
-          XCTAssertEqual(error.pubNubError, invalidKeyError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .invalidPublishKey))
         }
         expectation.fulfill()
       }
@@ -136,19 +125,8 @@ final class PublishEndpointTests: XCTestCase {
         case .success:
           XCTFail("Signal request should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-          let invalidKeyError = PNError.convert(endpoint: .unknown,
-                                                generalError: .init(message: .requestURITooLong,
-                                                                    service: .balancer,
-                                                                    status: .badRequest,
-                                                                    error: true),
-                                                request: task.mockRequest,
-                                                response: task.mockResponse)
-
           XCTAssertNotNil(error.pubNubError)
-          XCTAssertEqual(error.pubNubError, invalidKeyError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .requestURITooLong))
         }
         expectation.fulfill()
       }

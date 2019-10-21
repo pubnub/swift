@@ -180,15 +180,7 @@ class PubNubRouterTests: XCTestCase {
     }
 
     sessionExpector.expectDidFailToCreateURLRequestWithError { _, error in
-      let context = EncodingError.Context(
-        codingPath: [],
-        debugDescription: ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
-      )
-      let creationError = PNError
-        .requestCreationFailure(
-          .jsonStringCodingFailure(failedJSON, dueTo: EncodingError.invalidValue(nonCodable, context)), .unknown
-        )
-      XCTAssertEqual(error.pubNubError, creationError)
+      XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonStringEncodingFailure))
     }
 
     let expectation = self.expectation(description: "Publish Response Received")
@@ -202,11 +194,7 @@ class PubNubRouterTests: XCTestCase {
           XCTFail("Publish request should fail")
         case let .failure(error):
           XCTAssertNotNil(error.pubNubError)
-
-          let jsonStringError = PNError.requestCreationFailure(
-            .jsonStringCodingFailure(failedJSON, dueTo: AnyJSONError.stringCreationFailure(nil)), fireWithMeta
-          )
-          XCTAssertEqual(error.pubNubError, jsonStringError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonStringEncodingFailure))
         }
         expectation.fulfill()
       }
@@ -235,15 +223,7 @@ class PubNubRouterTests: XCTestCase {
     }
 
     sessionExpector.expectDidFailToCreateURLRequestWithError { _, error in
-      let context = EncodingError.Context(
-        codingPath: [],
-        debugDescription: ErrorDescription.EncodingError.invalidUnkeyedContainerErrorDescription
-      )
-      let creationError = PNError
-        .requestCreationFailure(
-          .jsonStringCodingFailure(failedJSON, dueTo: EncodingError.invalidValue(nonCodable, context)), .unknown
-        )
-      XCTAssertEqual(error.pubNubError, creationError)
+      XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonStringEncodingFailure))
     }
 
     let expectation = self.expectation(description: "Publish Response Received")
@@ -256,14 +236,8 @@ class PubNubRouterTests: XCTestCase {
         case .success:
           XCTFail("Publish request should fail")
         case let .failure(error):
-
           XCTAssertNotNil(error.pubNubError)
-
-          let jsonStringError = PNError.requestCreationFailure(
-            .jsonStringCodingFailure(failedJSON, dueTo: AnyJSONError.stringCreationFailure(nil)), fireWithMeta
-          )
-
-          XCTAssertEqual(error.pubNubError, jsonStringError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonStringEncodingFailure))
         }
         expectation.fulfill()
       }

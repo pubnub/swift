@@ -32,6 +32,26 @@ import Foundation
 struct SubscribeResponseDecoder: ResponseDecoder {
   typealias Payload = SubscriptionResponsePayload
 
+  func decrypt(_ crypto: Crypto, message: MessageResponse<AnyJSON>) -> MessageResponse<AnyJSON> {
+    // Convert base64 string into Data
+    if let messageData = message.payload.dataOptional {
+      // If a message fails we just return the original and move on
+      do {
+        let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
+        if let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
+          return message.message(with: AnyJSON(reverse: decodedString))
+        } else {
+          // swiftlint:disable:next line_length
+          PubNub.log.error("Decrypted subscribe payload data failed to stringify for base64 encoded payload \(decryptedPayload.base64EncodedString())")
+        }
+      } catch {
+        PubNub.log.error("Subscribe message failed to decrypt due to \(error)")
+      }
+    }
+
+    return message
+  }
+
   func decrypt(response: SubscriptionResponse) -> Result<SubscriptionResponse, Error> {
     // End early if we don't have a cipher key
     guard let crypto = response.router.configuration.cipherKey else {
@@ -39,21 +59,14 @@ struct SubscribeResponseDecoder: ResponseDecoder {
     }
 
     var messages = response.payload.messages
-    for (index, message) in messages.enumerated() {
-      // Convert base64 string into Data
-      if let messageData = message.payload.dataOptional {
-        // If a message fails we just return the original and move on
-        do {
-          let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
-          if let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
-            messages[index] = message.message(with: AnyJSON(reverse: decodedString))
-          } else {
-            // swiftlint:disable:next line_length
-            PubNub.log.error("Decrypted subscribe payload data failed to stringify for base64 encoded payload \(decryptedPayload.base64EncodedString())")
-          }
-        } catch {
-          PubNub.log.error("Subscribe message failed to decrypt due to \(error)")
-        }
+    for (index, messageType) in messages.enumerated() {
+      switch messageType {
+      case let .message(message):
+        messages[index] = .message(decrypt(crypto, message: message))
+      case let .signal(signal):
+        messages[index] = .signal(decrypt(crypto, message: signal))
+      default:
+        messages[index] = messageType
       }
     }
 
@@ -75,13 +88,15 @@ public typealias SubscriptionResponse = Response<SubscriptionResponsePayload>
 public struct SubscriptionResponsePayload: Codable {
   // Root Level
   public let token: TimetokenResponse
-  public let messages: [MessageResponse]
+  public let messages: [SubscriptionPayload]
 
   enum CodingKeys: String, CodingKey {
     case token = "t"
     case messages = "m"
   }
 }
+
+// MARK: - Timetoken Response
 
 public struct TimetokenResponse: Codable, Hashable {
   public let timetoken: Timetoken
@@ -90,6 +105,11 @@ public struct TimetokenResponse: Codable, Hashable {
   enum CodingKeys: String, CodingKey {
     case timetoken = "t"
     case region = "r"
+  }
+
+  public init(timetoken: Timetoken, region: Int) {
+    self.timetoken = timetoken
+    self.region = region
   }
 
   // We want the timetoken as a Int instead of a String
@@ -102,18 +122,63 @@ public struct TimetokenResponse: Codable, Hashable {
   }
 }
 
+// MARK: - Payload Responses
+
+public enum SubscriptionPayload: Codable {
+  case message(MessageResponse<AnyJSON>)
+  case presence(MessageResponse<PresenceResponse>)
+  case signal(MessageResponse<AnyJSON>)
+  case object(MessageResponse<ObjectSubscribePayload>)
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+
+    switch self {
+    case let .message(value):
+      try container.encode(value)
+    case let .presence(value):
+      try container.encode(value)
+    case let .signal(value):
+      try container.encode(value)
+    case let .object(value):
+      try container.encode(value)
+    }
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+
+    if let presencePayload = try? container.decode(MessageResponse<PresenceResponse>.self) {
+      self = .presence(presencePayload)
+    } else if let objectPayload = try? container.decode(MessageResponse<ObjectSubscribePayload>.self) {
+      self = .object(objectPayload)
+    } else {
+      let payload = try container.decode(MessageResponse<AnyJSON>.self)
+
+      if payload.messageType == .message {
+        self = .message(payload)
+      } else {
+        self = .signal(payload)
+      }
+    }
+  }
+}
+
+// MARK: Message Response
+
 public enum MessageType: Int, Codable {
   case message = 0
   case signal = 1
   case object = 2
+  case presence = 99
 }
 
-public struct MessageResponse: Codable, Hashable {
+public struct MessageResponse<Payload>: Codable, Hashable where Payload: Codable, Payload: Hashable {
   public let shard: String
   public let subscriptionMatch: String?
   public let channel: String
   public let messageType: MessageType
-  public let payload: AnyJSON
+  public let payload: Payload
   public let flags: Int
   public let issuer: String?
   public let subscribeKey: String
@@ -140,7 +205,7 @@ public struct MessageResponse: Codable, Hashable {
     subscriptionMatch: String?,
     channel: String,
     messageType: MessageType,
-    payload: AnyJSON,
+    payload: Payload,
     flags: Int,
     issuer: String?,
     subscribeKey: String,
@@ -165,9 +230,10 @@ public struct MessageResponse: Codable, Hashable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     shard = try container.decode(String.self, forKey: .shard)
-    subscriptionMatch = try container.decodeIfPresent(String.self, forKey: .subscriptionMatch)
-    channel = try container.decode(String.self, forKey: .channel)
-    payload = try container.decode(AnyJSON.self, forKey: .payload)
+    subscriptionMatch = try container
+      .decodeIfPresent(String.self, forKey: .subscriptionMatch)?.trimmingPresenceChannelSuffix
+    channel = try container.decode(String.self, forKey: .channel).trimmingPresenceChannelSuffix
+    payload = try container.decode(Payload.self, forKey: .payload)
     flags = try container.decode(Int.self, forKey: .flags)
     issuer = try container.decodeIfPresent(String.self, forKey: .issuer)
     subscribeKey = try container.decode(String.self, forKey: .subscribeKey)
@@ -182,11 +248,15 @@ public struct MessageResponse: Codable, Hashable {
     case .some(2):
       self.messageType = .object
     default:
-      self.messageType = .message
+      if payload is PresenceResponse {
+        self.messageType = .presence
+      } else {
+        self.messageType = .message
+      }
     }
   }
 
-  func message(with newPayload: AnyJSON) -> MessageResponse {
+  func message(with newPayload: Payload) -> MessageResponse {
     return MessageResponse(shard: shard,
                            subscriptionMatch: subscriptionMatch,
                            channel: channel,
@@ -199,23 +269,66 @@ public struct MessageResponse: Codable, Hashable {
                            publishTimetoken: publishTimetoken,
                            metadata: metadata)
   }
+}
 
-  public func hash(into hasher: inout Hasher) {
-    shard.hash(into: &hasher)
-    subscriptionMatch.hash(into: &hasher)
-    channel.hash(into: &hasher)
-    messageType.hash(into: &hasher)
-    //    payload: AnyJSON
-    flags.hash(into: &hasher)
-    issuer.hash(into: &hasher)
-    subscribeKey.hash(into: &hasher)
-    originTimetoken.hash(into: &hasher)
-    publishTimetoken.hash(into: &hasher)
-    //    metadata: AnyJSON?
+// MARK: Object Response
+
+public enum ObjectAction: String, Codable, Hashable {
+  case add = "create"
+  case update
+  case delete
+}
+
+public enum ObjectType: String, Codable, Hashable {
+  case user
+  case space
+  case membership
+}
+
+public struct ObjectSubscribePayload: Codable, Hashable {
+  public let source: String
+  public let version: String
+  public let event: ObjectAction
+  public let type: ObjectType
+  public let data: AnyJSON
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    source = try container.decode(String.self, forKey: .source)
+    version = try container.decode(String.self, forKey: .version)
+    event = try container.decode(ObjectAction.self, forKey: .event)
+    type = try container.decode(ObjectType.self, forKey: .type)
+    data = try container.decode(AnyJSON.self, forKey: .data)
+  }
+
+  func decodedEvent() throws -> SubscriptionEvent {
+    switch (type, event) {
+    case (.user, .update):
+      return .userUpdated(try data.decode(UserObject.self))
+    case (.user, .delete):
+      return .userDeleted(try data.decode(IdentifierEvent.self))
+    case (.space, .update):
+      return .spaceUpdated(try data.decode(SpaceObject.self))
+    case (.space, .delete):
+      return .spaceDeleted(try data.decode(IdentifierEvent.self))
+    case (.membership, .add):
+      return .membershipAdded(try data.decode(MembershipEvent.self))
+    case (.membership, .update):
+      return .membershipUpdated(try data.decode(MembershipEvent.self))
+    case (.membership, .delete):
+      return .membershipDeleted(try data.decode(MembershipEvent.self))
+    default:
+      throw DecodingError.typeMismatch(SubscriptionEvent.self,
+                                       .init(codingPath: [],
+                                             debugDescription: "Could not match payload with any known type"))
+    }
   }
 }
 
-public struct PresenceMessageResponse: Codable, Hashable {
+// MARK: Presence Response
+
+public struct PresenceResponse: Codable, Hashable {
   public let action: PresenceStateEvent
   public let timetoken: Timetoken
   public let occupancy: Int
@@ -223,7 +336,7 @@ public struct PresenceMessageResponse: Codable, Hashable {
   public let join: [String]
   public let leave: [String]
   public let timeout: [String]
-  public let channelState: ChannelPresenceState
+  public let channelState: [String: [String: AnyJSON]]
 
   enum CodingKeys: String, CodingKey {
     case action
@@ -239,14 +352,22 @@ public struct PresenceMessageResponse: Codable, Hashable {
     case data
   }
 
-  public func hash(into hasher: inout Hasher) {
-    action.hash(into: &hasher)
-    timetoken.hash(into: &hasher)
-    occupancy.hash(into: &hasher)
-//    data.hash(into: &hasher)
-    join.hash(into: &hasher)
-    leave.hash(into: &hasher)
-    timeout.hash(into: &hasher)
+  public init(
+    action: PresenceStateEvent,
+    timetoken: Timetoken,
+    occupancy: Int,
+    join: [String],
+    leave: [String],
+    timeout: [String],
+    channelState: [String: [String: JSONCodable]]
+  ) {
+    self.action = action
+    self.timetoken = timetoken
+    self.occupancy = occupancy
+    self.join = join
+    self.leave = leave
+    self.timeout = timeout
+    self.channelState = channelState.mapValues { $0.mapValues { $0.codableValue } }
   }
 
   // We want the timetoken as a Int instead of a String
@@ -324,13 +445,5 @@ public struct PresenceMessageResponse: Codable, Hashable {
     }
   }
 
-  public static func == (lhs: PresenceMessageResponse, rhs: PresenceMessageResponse) -> Bool {
-    return lhs.action == rhs.action &&
-      lhs.timetoken == rhs.timetoken &&
-      lhs.occupancy == rhs.occupancy &&
-      lhs.join == rhs.join &&
-      lhs.leave == rhs.leave &&
-      lhs.timeout == rhs.timeout &&
-      lhs.channelState.mapValues { AnyJSON($0) } == rhs.channelState.mapValues { AnyJSON($0) }
-  }
+  // swiftlint:disable:next file_length
 }

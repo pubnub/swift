@@ -42,7 +42,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
 
     XCTAssertEqual(endpoint.description, "Fetch All Space Objects")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceFetchAll)
+    XCTAssertEqual(endpoint.category, .objectsSpaceFetchAll)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -93,7 +93,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         expectation.fulfill()
       }
 
-    wait(for: [expectation], timeout: 100.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func testFetchAll_Success_empty() {
@@ -132,14 +132,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchAllSpaces, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -160,14 +153,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchAllSpaces, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -188,17 +174,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError,
-                                                    self.fetchAllSpaces,
-                                                    task.mockRequest,
-                                                    response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -219,17 +195,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable,
-                                                    self.fetchAllSpaces,
-                                                    task.mockRequest,
-                                                    response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -243,7 +209,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceFetch(spaceID: "OtherSpace", include: .custom)
 
     XCTAssertEqual(endpoint.description, "Fetch Space Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceFetch)
+    XCTAssertEqual(endpoint.category, .objectsSpaceFetch)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -252,7 +218,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceFetch(spaceID: "", include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testFetch_Endpoint_AssociatedValues() {
@@ -304,14 +270,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -332,14 +291,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.resourceNotFound, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .resourceNotFound))
         }
         expectation.fulfill()
       }
@@ -360,14 +312,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -388,14 +333,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -416,14 +354,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -437,7 +368,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceCreate(space: testSpace, include: .custom)
 
     XCTAssertEqual(endpoint.description, "Create Space Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceCreate)
+    XCTAssertEqual(endpoint.category, .objectsSpaceCreate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -446,7 +377,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceCreate(space: invalidSpace, include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testCreate_Endpoint_AssociatedValues() {
@@ -503,14 +434,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.badRequest, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
         }
         expectation.fulfill()
       }
@@ -536,14 +460,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -569,14 +486,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.conflict, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
         }
         expectation.fulfill()
       }
@@ -602,14 +512,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.unsupportedType, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
         }
         expectation.fulfill()
       }
@@ -635,14 +538,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -668,14 +564,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -701,14 +590,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -722,7 +604,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceUpdate(space: testSpace, include: .custom)
 
     XCTAssertEqual(endpoint.description, "Update Space Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceUpdate)
+    XCTAssertEqual(endpoint.category, .objectsSpaceUpdate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -731,7 +613,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceUpdate(space: invalidSpace, include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testUpdate_Endpoint_AssociatedValues() {
@@ -788,14 +670,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.badRequest, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
         }
         expectation.fulfill()
       }
@@ -821,14 +696,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -854,14 +722,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.conflict, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
         }
         expectation.fulfill()
       }
@@ -887,14 +748,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.preconditionFailed, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -920,14 +774,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.unsupportedType, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
         }
         expectation.fulfill()
       }
@@ -953,14 +800,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -986,14 +826,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -1019,14 +852,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -1040,7 +866,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace", include: .custom)
 
     XCTAssertEqual(endpoint.description, "Delete Space Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceDelete)
+    XCTAssertEqual(endpoint.category, .objectsSpaceDelete)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1049,7 +875,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsSpaceFetch(spaceID: "", include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testDelete_Endpoint_AssociatedValues() {
@@ -1093,14 +919,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -1121,14 +940,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.preconditionFailed, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -1149,14 +961,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -1177,14 +982,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -1205,14 +1003,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchSpace, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -1228,7 +1019,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
                                                     limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertEqual(endpoint.description, "Fetch Space's Memberships")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceMemberships)
+    XCTAssertEqual(endpoint.category, .objectsSpaceMemberships)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1239,7 +1030,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
                                                     limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testMembershipFetch_Endpoint_AssociatedValues() {
@@ -1329,7 +1120,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
                                                           limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertEqual(endpoint.description, "Update Space's Memberships")
-    XCTAssertEqual(endpoint.rawValue, .objectsSpaceMembershipsUpdate)
+    XCTAssertEqual(endpoint.category, .objectsSpaceMembershipsUpdate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1341,7 +1132,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
                                                           limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testMembershipUpdate_Endpoint_AssociatedValues() {

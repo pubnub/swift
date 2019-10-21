@@ -34,24 +34,4 @@ final class SetPubNubTests: XCTestCase {
 
     XCTAssertEqual(set.allObjects, Array(set))
   }
-
-  func testUpdateContents() {
-    let compare = Set(["one", "two", "three", "four", "five"])
-    var set = Set(["one", "two", "three"])
-
-    let updated = set.update(with: ["three", "four", "five"])
-
-    XCTAssertEqual(set, compare)
-    XCTAssertEqual(updated, ["three"])
-  }
-
-  func testRemoveContents() {
-    let compare = Set(["one", "two"])
-    var set = Set(["one", "two", "three"])
-
-    let removed = set.remove(contentsOf: ["three", "four"])
-
-    XCTAssertEqual(set, compare)
-    XCTAssertEqual(removed, ["three"])
-  }
 }

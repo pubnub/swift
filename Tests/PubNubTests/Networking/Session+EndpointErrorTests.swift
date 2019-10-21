@@ -45,16 +45,18 @@ final class SessionEndpointErrorTests: XCTestCase {
       case .success:
         XCTFail("Publish request should fail")
       case let .failure(error):
-        guard let task = sessions.mockSession.tasks.first else {
+        guard let task = sessions.mockSession.tasks.first,
+          let response = task.mockResponse else {
           return XCTFail("Could not get task")
         }
-        let endpointError = PNError.convert(endpoint: .time,
-                                            generalError: payload,
-                                            request: task.mockRequest,
-                                            response: task.mockResponse)
+
+        let pubnubError = PubNubError(reason: payload?.pubnubReason,
+                                      endpoint: .time,
+                                      request: task.mockRequest,
+                                      response: response)
 
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, endpointError)
+        XCTAssertEqual(error.pubNubError, pubnubError)
       }
       expectation.fulfill()
     }
@@ -65,32 +67,32 @@ final class SessionEndpointErrorTests: XCTestCase {
   // Contains Server Response Message
   func testCouldNotParseRequest() {
     testEndpointError(payload: .init(message: .couldNotParseRequest,
-                                     service: .accessManager,
-                                     status: .badRequest,
+                                     service: "access manager",
+                                     status: 400,
                                      error: true),
                       for: "couldNotParseRequest")
   }
 
   func testInvalidSubscribeKey() {
     testEndpointError(payload: .init(message: .invalidSubscribeKey,
-                                     service: .accessManager,
-                                     status: .badRequest,
+                                     service: "access manager",
+                                     status: 400,
                                      error: true),
                       for: "invalidSubscribeKey")
   }
 
   func testNotFound_Message() {
     testEndpointError(payload: .init(message: .notFound,
-                                     service: .presence,
-                                     status: .notFound,
+                                     service: "presence",
+                                     status: 404,
                                      error: true),
                       for: "resourceNotFound_Message")
   }
 
   func testRequestURITooLong_Message() {
     testEndpointError(payload: .init(message: .requestURITooLong,
-                                     service: .balancer,
-                                     status: .requestURITooLong,
+                                     service: "balancer",
+                                     status: 414,
                                      error: true),
                       for: "requestURITooLong_Message")
   }
@@ -126,14 +128,9 @@ final class SessionEndpointErrorTests: XCTestCase {
 
   func testUnrecognizedErrorPayload() {
     testEndpointError(payload: .init(message: .unknown(message: "Some New Message"),
-                                     service: .unknown(message: "New Endpoint"),
-                                     status: .unknown(code: 451),
+                                     service: "New Endpoint",
+                                     status: 451,
                                      error: true),
                       for: "unrecognizedEndpointError")
-  }
-
-  func testUnknownErrorPayload() {
-    testEndpointError(payload: nil,
-                      for: "unknownEndpointError")
   }
 }

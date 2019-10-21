@@ -41,7 +41,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.channelGroups
 
     XCTAssertEqual(endpoint.description, "Group List")
-    XCTAssertEqual(endpoint.rawValue, .channelGroups)
+    XCTAssertEqual(endpoint.category, .channelGroups)
     XCTAssertEqual(endpoint.operationCategory, .channelGroup)
     XCTAssertNil(endpoint.validationError)
   }
@@ -98,7 +98,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.deleteGroup(group: testGroupName)
 
     XCTAssertEqual(endpoint.description, "Group Delete")
-    XCTAssertEqual(endpoint.rawValue, .deleteGroup)
+    XCTAssertEqual(endpoint.category, .deleteGroup)
     XCTAssertEqual(endpoint.operationCategory, .channelGroup)
     XCTAssertNil(endpoint.validationError)
   }
@@ -106,7 +106,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupDelete_Endpoint_ValidationError() {
     let endpoint = Endpoint.deleteGroup(group: "")
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testGroupDelete_Endpoint_AssociatedValues() {
@@ -142,7 +142,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.channelsForGroup(group: testGroupName)
 
     XCTAssertEqual(endpoint.description, "Group Channels List")
-    XCTAssertEqual(endpoint.rawValue, .channelsForGroup)
+    XCTAssertEqual(endpoint.category, .channelsForGroup)
     XCTAssertEqual(endpoint.operationCategory, .channelGroup)
     XCTAssertNil(endpoint.validationError)
   }
@@ -150,7 +150,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testChannelsForGroup_Endpoint_ValidationError() {
     let endpoint = Endpoint.channelsForGroup(group: "")
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testChannelsForGroup_Endpoint_AssociatedValues() {
@@ -209,7 +209,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.addChannelsForGroup(group: testGroupName, channels: testChannels)
 
     XCTAssertEqual(endpoint.description, "Group Channels Add")
-    XCTAssertEqual(endpoint.rawValue, .addChannelsForGroup)
+    XCTAssertEqual(endpoint.category, .addChannelsForGroup)
     XCTAssertEqual(endpoint.operationCategory, .channelGroup)
     XCTAssertNil(endpoint.validationError)
   }
@@ -217,7 +217,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupChannelAdd_Endpoint_ValidationError() {
     let endpoint = Endpoint.addChannelsForGroup(group: "", channels: [])
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testAddChannelsForGroup_Endpoint_AssociatedValues() {
@@ -261,19 +261,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Add Channel request should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-
-          let countExceededError = PNError.convert(endpoint: .unknown,
-                                                   generalError: .init(message: .maxChannelGroupCountExceeded,
-                                                                       service: .channelGroups,
-                                                                       status: .badRequest,
-                                                                       error: true),
-                                                   request: task.mockRequest,
-                                                   response: task.mockResponse)
-
-          XCTAssertEqual(error.pubNubError, countExceededError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .maxChannelGroupCountExceeded))
         }
         expectation.fulfill()
       }
@@ -290,22 +278,12 @@ final class ChannelGroupsEndpointTests: XCTestCase {
 
     PubNub(configuration: config, session: sessions.session)
       .addChannels(testChannels, to: testGroupName) { result in
+        print("Result: \(result)")
         switch result {
         case .success:
           XCTFail("Add Channel request should fail")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first else {
-            return XCTFail("Could not get task")
-          }
-
-          let invalidCharacterError = PNError.convert(endpoint: .unknown,
-                                                      generalError: .init(message: .invalidCharacter,
-                                                                          service: .channelGroups,
-                                                                          status: .badRequest,
-                                                                          error: true),
-                                                      request: task.mockRequest,
-                                                      response: task.mockResponse)
-          XCTAssertEqual(error.pubNubError, invalidCharacterError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .invalidCharacter))
         }
         expectation.fulfill()
       }
@@ -319,7 +297,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     let endpoint = Endpoint.removeChannelsForGroup(group: testGroupName, channels: testChannels)
 
     XCTAssertEqual(endpoint.description, "Group Channels Remove")
-    XCTAssertEqual(endpoint.rawValue, .removeChannelsForGroup)
+    XCTAssertEqual(endpoint.category, .removeChannelsForGroup)
     XCTAssertEqual(endpoint.operationCategory, .channelGroup)
     XCTAssertNil(endpoint.validationError)
   }
@@ -327,7 +305,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
   func testGroupChannelRemove_Endpoint_ValidationError() {
     let endpoint = Endpoint.removeChannelsForGroup(group: "", channels: [])
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PNError.invalidEndpointType(endpoint))
+    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testGroupChannelRemove_Endpoint_AssociatedValues() {

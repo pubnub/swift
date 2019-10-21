@@ -42,7 +42,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
 
     XCTAssertEqual(endpoint.description, "Fetch All User Objects")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserFetchAll)
+    XCTAssertEqual(endpoint.category, .objectsUserFetchAll)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -127,14 +127,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchAllUsers, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -155,14 +148,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchAllUsers, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -183,17 +169,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError,
-                                                    self.fetchAllUsers,
-                                                    task.mockRequest,
-                                                    response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -214,14 +190,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchAllUsers, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -235,7 +204,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserFetch(userID: "OtherUser", include: .custom)
 
     XCTAssertEqual(endpoint.description, "Fetch User Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserFetch)
+    XCTAssertEqual(endpoint.category, .objectsUserFetch)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -244,7 +213,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserFetch(userID: "", include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testFetch_Endpoint_AssociatedValues() {
@@ -295,14 +264,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -323,14 +285,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.resourceNotFound, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .resourceNotFound))
         }
         expectation.fulfill()
       }
@@ -351,14 +306,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -379,14 +327,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -407,14 +348,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -428,7 +362,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserCreate(user: testUser, include: .custom)
 
     XCTAssertEqual(endpoint.description, "Create User Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserCreate)
+    XCTAssertEqual(endpoint.category, .objectsUserCreate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -437,7 +371,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserCreate(user: invalidUser, include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testCreate_Endpoint_AssociatedValues() {
@@ -491,14 +425,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.badRequest, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
         }
         expectation.fulfill()
       }
@@ -522,14 +449,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -553,14 +473,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.conflict, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
         }
         expectation.fulfill()
       }
@@ -584,14 +497,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.unsupportedType, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
         }
         expectation.fulfill()
       }
@@ -615,14 +521,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -646,14 +545,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -677,14 +569,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -698,7 +583,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserUpdate(user: testUser, include: .custom)
 
     XCTAssertEqual(endpoint.description, "Update User Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserUpdate)
+    XCTAssertEqual(endpoint.category, .objectsUserUpdate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -707,7 +592,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserUpdate(user: invalidUser, include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testUpdate_Endpoint_AssociatedValues() {
@@ -761,14 +646,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.badRequest, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
         }
         expectation.fulfill()
       }
@@ -792,14 +670,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -823,14 +694,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.conflict, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
         }
         expectation.fulfill()
       }
@@ -854,14 +718,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.preconditionFailed, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -885,14 +742,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.unsupportedType, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
         }
         expectation.fulfill()
       }
@@ -916,14 +766,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -947,14 +790,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -978,14 +814,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -999,7 +828,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserDelete(userID: "TestUser", include: .custom)
 
     XCTAssertEqual(endpoint.description, "Delete User Object")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserDelete)
+    XCTAssertEqual(endpoint.category, .objectsUserDelete)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1008,7 +837,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let endpoint = Endpoint.objectsUserFetch(userID: "", include: .custom)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testDelete_Endpoint_AssociatedValues() {
@@ -1052,14 +881,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.forbidden, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
         }
         expectation.fulfill()
       }
@@ -1080,14 +902,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.preconditionFailed, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -1108,14 +923,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.tooManyRequests, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -1136,14 +944,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.internalServiceError, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
         }
         expectation.fulfill()
       }
@@ -1164,14 +965,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          guard let task = sessions.mockSession.tasks.first,
-            let response = task.mockResponse else {
-            return XCTFail("Could not get task")
-          }
-
-          let pubNubError = PNError.endpointFailure(.serviceUnavailable, self.fetchUser, task.mockRequest, response)
-
-          XCTAssertEqual(error.pubNubError, pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
         }
         expectation.fulfill()
       }
@@ -1187,7 +981,7 @@ final class UserObjectsEndpointTests: XCTestCase {
                                                    limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertEqual(endpoint.description, "Fetch User's Memberships")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserMemberships)
+    XCTAssertEqual(endpoint.category, .objectsUserMemberships)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1198,7 +992,7 @@ final class UserObjectsEndpointTests: XCTestCase {
                                                    limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testMembershipFetch_Endpoint_AssociatedValues() {
@@ -1292,7 +1086,7 @@ final class UserObjectsEndpointTests: XCTestCase {
                                                          limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertEqual(endpoint.description, "Update User's Memberships")
-    XCTAssertEqual(endpoint.rawValue, .objectsUserMembershipsUpdate)
+    XCTAssertEqual(endpoint.category, .objectsUserMembershipsUpdate)
     XCTAssertEqual(endpoint.operationCategory, .objects)
     XCTAssertNil(endpoint.validationError)
   }
@@ -1304,7 +1098,7 @@ final class UserObjectsEndpointTests: XCTestCase {
                                                          limit: nil, start: nil, end: nil, count: nil)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PNError.invalidEndpointType(endpoint))
+                      PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
 
   func testMembershipUpdate_Endpoint_AssociatedValues() {

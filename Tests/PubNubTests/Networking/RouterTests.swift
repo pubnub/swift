@@ -63,7 +63,7 @@ class RouterTests: XCTestCase {
     func decodeError(endpoint _: Endpoint,
                      request _: URLRequest,
                      response _: HTTPURLResponse,
-                     for _: Data?) -> PNError? {
+                     for _: Data) -> PubNubError? {
       return nil
     }
 
@@ -110,7 +110,7 @@ class RouterTests: XCTestCase {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
     let router = PublishOnlyRouter(config: config)
 
-    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingPublishKey, router.endpoint))
+    XCTAssertEqual(router.keyValidationError, PubNubError(reason: .missingPublishKey))
   }
 
   func testKeyValidationError_SubscribeReq() {
@@ -124,7 +124,7 @@ class RouterTests: XCTestCase {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
     let router = PubNubRouter(configuration: config, endpoint: subscribe)
 
-    XCTAssertEqual(router.keyValidationError, PNError.requestCreationFailure(.missingSubscribeKey, router.endpoint))
+    XCTAssertEqual(router.keyValidationError, PubNubError(reason: .missingSubscribeKey))
   }
 
   func testAsURL_Error_Unknown() {
@@ -140,8 +140,7 @@ class RouterTests: XCTestCase {
     case .success:
       XCTFail("The URL Convertible should always fail")
     case let .failure(error):
-      let pnError = PNError.requestCreationFailure(.unknown(AnyJSONError.stringCreationFailure(nil)), router.endpoint)
-      XCTAssertEqual(error.pubNubError, pnError)
+      XCTAssertEqual(error.anyJSON, AnyJSONError.stringCreationFailure(nil))
     }
   }
 }

@@ -31,26 +31,4 @@ extension Set {
   var allObjects: [Element] {
     return Array(self)
   }
-
-  /// Updates the `Set` with the contents of another `Collection`
-  /// - parameters:
-  ///   - with: The `Collection` that will be added to this `Set`
-  /// - returns: For ordinary sets, an element equal to newMember if the set
-  ///   already contained such a member; otherwise, nil. In some cases, the returned
-  ///   element may be distinguishable from newMember by identity comparison or some other means.
-  @discardableResult
-  @inlinable mutating func update<C>(with contentsOf: C) -> [Element] where C: Collection, Element == C.Element {
-    return contentsOf.compactMap { self.update(with: $0) }
-  }
-
-  /// Remove elements from the `Set` matching conents of supplied `Collection`
-  /// - parameters:
-  ///   - with: The `Collection` of items that will be removed from this `Set`
-  /// - returns: For ordinary sets, an element equal to member if member is contained
-  ///   in the set; otherwise, nil. In some cases, a returned element may be
-  ///   distinguishable from newMember by identity comparison or some other means.
-  @discardableResult
-  @inlinable mutating func remove<C>(contentsOf: C) -> [Element] where C: Collection, Element == C.Element {
-    return contentsOf.compactMap { self.remove($0) }
-  }
 }

@@ -73,11 +73,7 @@ struct HereNowResponseDecoder: ResponseDecoder {
 
       return .success(decodedResponse)
     } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         response.endpoint,
-                         response.request,
-                         response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 }
@@ -193,10 +189,8 @@ public struct HereNowChannelsPayload: Codable {
 
 public struct HereNowUUIDPayload: Codable {
   public let uuid: String
-  // swiftlint:disable:next discouraged_optional_collection
   public let state: [String: AnyJSON]?
 
-  // swiftlint:disable:next discouraged_optional_collection
   public init(uuid: String, state: [String: AnyJSON]? = nil) {
     self.uuid = uuid
     self.state = state

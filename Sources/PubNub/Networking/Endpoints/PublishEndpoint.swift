@@ -36,10 +36,7 @@ struct PublishResponseDecoder: ResponseDecoder {
       let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload).arrayOptional
 
       guard let timeString = decodedPayload?.last as? String, let timetoken = Int64(timeString) else {
-        return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                response.endpoint,
-                                                response.request,
-                                                response.response))
+        return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
       let decodedResponse = Response<PublishResponsePayload>(router: response.router,
@@ -50,43 +47,20 @@ struct PublishResponseDecoder: ResponseDecoder {
 
       return .success(decodedResponse)
     } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         response.endpoint,
-                         response.request,
-                         response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError? {
-    guard let data = data else {
-      return PNError.endpointFailure(.unknown(ErrorDescription.EndpointError.missingResponseData),
-                                     endpoint,
-                                     request,
-                                     response)
-    }
-
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     // Publish Response pattern:  [Int, String, String]
     let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data).arrayOptional
 
     if let errorFlag = decodedPayload?.first as? Int, errorFlag == 0 {
-      let errorPayload: GenericServicePayloadResponse
-      if let message = decodedPayload?[1] as? String {
-        errorPayload = GenericServicePayloadResponse(message: .init(rawValue: message),
-                                                     service: .publish,
-                                                     status: .init(rawValue: response.statusCode),
-                                                     error: true)
-
-      } else {
-        errorPayload = GenericServicePayloadResponse(
-          message: .unknown(message: ErrorDescription.EndpointError.publishResponseMessageParseFailure),
-          service: .presence,
-          status: .init(rawValue: response.statusCode),
-          error: true
-        )
+      if let message = decodedPayload?[1] as? String,
+        let reason = EndpointResponseMessage(rawValue: message).pubnubReason {
+        return PubNubError(reason: reason, endpoint: endpoint, request: request, response: response)
       }
-
-      return PNError.convert(endpoint: endpoint, generalError: errorPayload, request: request, response: response)
+      return PubNubError(reason: .unknown, endpoint: endpoint, request: request, response: response)
     }
 
     // Check if we were provided a default error from the server

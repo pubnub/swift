@@ -87,10 +87,11 @@ public final class Session {
   }
 
   deinit {
-    PubNub.log.debug("Session Destoryed \(sessionID)")
+    PubNub.log.debug("Session Destoryed \(sessionID) with active requests \(taskToRequest.values.map { $0.requestID })")
 
-    taskToRequest.values.forEach { $0.finish(error: PNError.sessionDeinitialized(sessionID: sessionID)) }
-    taskToRequest.removeAll()
+    taskToRequest.values.forEach {
+      $0.cancel(PubNubError(.sessionDeinitialized, endpoint: $0.router.endpoint.category))
+    }
 
     invalidateAndCancel()
   }
@@ -112,7 +113,8 @@ public final class Session {
                           requestQueue: sessionQueue,
                           sessionStream: sessionStream,
                           requestOperator: requestOperator,
-                          delegate: self)
+                          delegate: self,
+                          createdBy: sessionID)
 
     perform(request)
 
@@ -163,11 +165,7 @@ public final class Session {
           }
         case let .failure(error):
           self?.sessionQueue.async {
-            let requestCreationError = PNError
-              .requestCreationFailure(.requestMutatorFailure(urlRequest, error), request.endpoint)
-
-            request.didFailToMutate(urlRequest,
-                                    with: requestCreationError)
+            request.didFailToMutate(urlRequest, with: error)
           }
         }
       }
@@ -195,11 +193,9 @@ public final class Session {
 
     // URLSession doesn't provide a way to check if it's invalidated,
     // so we lock to avoid crashes from creating tasks while invalidated
-
     if !isInvalidated {
       let task = session.dataTask(with: urlRequestCopy)
       taskToRequest[task] = request
-
       request.didCreate(task)
 
       updateStatesForTask(task, request: request)
@@ -243,11 +239,13 @@ public final class Session {
     }
   }
 
-  public func cancelAllTasks(with cancellationError: PNError, for endpoint: Endpoint.RawValue = .subscribe) {
+  public func cancelAllTasks(_ reason: PubNubError.Reason, for endpoint: Endpoint.Category = .subscribe) {
     sessionQueue.async { [weak self] in
-      self?.taskToRequest.values.forEach { request in
-        if request.router.endpoint.rawValue == endpoint {
-          request.cancel(with: cancellationError)
+      self?.taskToRequest.forEach { task, request in
+        if request.router.endpoint.category == endpoint {
+          request.cancellationReason = reason
+          PubNub.log.debug("Cancelling Task for request \(request.requestID)")
+          task.cancel()
         }
       }
     }
@@ -267,7 +265,7 @@ extension Session: RequestDelegate {
   public func retryResult(
     for request: Request,
     dueTo error: Error,
-    andPrevious previous: Error?,
+    andPrevious _: Error?,
     completion: @escaping (RetryResult) -> Void
   ) {
     guard let retrier = retrier(for: request) else {
@@ -275,19 +273,15 @@ extension Session: RequestDelegate {
       return
     }
 
-    PubNub.log.warn("Retrying request \(request.requestID) due to error \(error)")
+    PubNub.log.info("Retrying request \(request.requestID) due to error \(error)")
 
     retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in
       self?.sessionQueue.async {
-        guard let retryResultError = retryResult.error, let urlRequest = request.urlRequest else {
+        guard let retryResultError = retryResult.error else {
           completion(retryResult)
           return
         }
-
-        completion(.doNotRetryWithError(PNError.requestRetryFailed(request.endpoint,
-                                                                   urlRequest,
-                                                                   dueTo: retryResultError,
-                                                                   withPreviousError: previous)))
+        completion(.doNotRetryWithError(retryResultError))
       }
     }
   }

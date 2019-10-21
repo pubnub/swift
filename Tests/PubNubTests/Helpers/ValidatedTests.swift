@@ -42,7 +42,7 @@ class ValidatedTests: XCTestCase {
     XCTAssertNil(validTest.validationError)
     XCTAssertTrue(validTest.isValid)
 
-    let error = PNError.invalidEndpointType(.time)
+    let error = PubNubError(reason: .invalidEndpointType)
     let invalidTest = TestValidated(mockError: error)
     XCTAssertNotNil(invalidTest.validationError)
     XCTAssertFalse(invalidTest.isValid)
@@ -53,7 +53,7 @@ class ValidatedTests: XCTestCase {
     XCTAssertNil(validTest.validationError)
     XCTAssertNoThrow(try validTest.validResult.get())
 
-    let testError = PNError.invalidEndpointType(.time)
+    let testError = PubNubError(reason: .invalidEndpointType)
     let invalidTest = TestValidated(mockError: testError)
     XCTAssertNotNil(invalidTest.validationError)
     XCTAssertThrowsError(try invalidTest.validResult.get(), "An error should be thrown") { error in

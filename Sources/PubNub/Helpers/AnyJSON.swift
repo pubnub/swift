@@ -27,8 +27,6 @@
 
 import Foundation
 
-// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection
-
 /// A `Codable` representation of Any inside a JSON structure
 public struct AnyJSON {
   let value: AnyJSONType
@@ -177,9 +175,13 @@ extension AnyJSON: Collection {
 
 // MARK: - Equatable
 
-extension AnyJSON: Equatable {
+extension AnyJSON: Hashable {
   public static func == (lhs: AnyJSON, rhs: AnyJSON) -> Bool {
     return lhs.value == rhs.value
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    value.hash(into: &hasher)
   }
 }
 
@@ -355,17 +357,30 @@ enum AnyJSONError: Error {
   case dataCreationFailure(Error?)
 }
 
+extension AnyJSONError: Equatable {
+  static func == (lhs: AnyJSONError, rhs: AnyJSONError) -> Bool {
+    switch (lhs, rhs) {
+    case (.unknownCoding, .unknownCoding):
+      return true
+    case (.stringCreationFailure, .stringCreationFailure):
+      return true
+    case (.dataCreationFailure, .dataCreationFailure):
+      return true
+    default:
+      return false
+    }
+  }
+}
+
 extension AnyJSONError: LocalizedError {
   var localizedDescription: String {
     switch self {
     case .unknownCoding:
       return "An unknown error occurred while performing `Codable` functions"
     case .stringCreationFailure:
-      return ErrorDescription.AnyJSONError.stringCreationFailure
+      return ErrorDescription.stringEncodingFailure
     case .dataCreationFailure:
       return "Failed to create JSONEncoded data"
     }
   }
 }
-
-// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection

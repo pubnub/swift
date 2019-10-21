@@ -35,10 +35,7 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
       guard let stringArray = anyJSONPayload.arrayOptional as? [String] else {
-        return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                response.endpoint,
-                                                response.request,
-                                                response.response))
+        return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
       let pushListPayload = RegisteredPushChannelsPayloadResponse(channels: stringArray)
@@ -51,11 +48,7 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
 
       return .success(decodedResponse)
     } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         response.endpoint,
-                         response.request,
-                         response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 }
@@ -67,15 +60,12 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 
       guard let anyArray = anyJSONPayload.arrayOptional,
         anyArray.first as? Int != nil, anyArray.last as? String != nil else {
-        return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                                response.endpoint,
-                                                response.request,
-                                                response.response))
+        return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
       let decodedPayload = GenericServicePayloadResponse(message: .acknowledge,
-                                                         service: .push,
-                                                         status: .acknowledge,
+                                                         service: "push",
+                                                         status: 200,
                                                          error: false)
 
       let decodedResponse = Response<GenericServicePayloadResponse>(router: response.router,
@@ -86,11 +76,7 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 
       return .success(decodedResponse)
     } catch {
-      return .failure(PNError
-        .endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                         response.endpoint,
-                         response.request,
-                         response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 }

@@ -259,7 +259,7 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
 }
 
 public struct UserObjectResponsePayload: Codable {
-  public let status: HTTPStatus
+  public let status: Int
   public let user: UserObject
 
   enum CodingKeys: String, CodingKey {
@@ -270,7 +270,7 @@ public struct UserObjectResponsePayload: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    status = try container.decode(HTTPStatus.self, forKey: .status)
+    status = try container.decode(Int.self, forKey: .status)
     user = try container.decode(UserObject.self, forKey: .user)
   }
 
@@ -283,7 +283,7 @@ public struct UserObjectResponsePayload: Codable {
 }
 
 public struct UserObjectsResponsePayload: Codable {
-  public let status: HTTPStatus
+  public let status: Int
   public let users: [UserObject]
   public let totalCount: Int?
   public let next: String?
@@ -300,7 +300,7 @@ public struct UserObjectsResponsePayload: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
-    status = try container.decode(HTTPStatus.self, forKey: .status)
+    status = try container.decode(Int.self, forKey: .status)
     users = try container.decode([UserObject].self, forKey: .users)
     totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
     next = try container.decodeIfPresent(String.self, forKey: .next)
@@ -366,7 +366,7 @@ public struct SpaceMembership: Codable, Equatable {
 }
 
 public struct UserMembershipsResponsePayload: Codable {
-  public let status: HTTPStatus
+  public let status: Int
   public let memberships: [SpaceMembership]
   public let totalCount: Int?
   public let next: String?

@@ -28,18 +28,24 @@
 import Foundation
 
 extension Error {
-  /// Instance cast as a `PNError`
-  public var pubNubError: PNError? {
-    return self as? PNError
+  /// Instance cast as a `PubNubError`
+  public var pubNubError: PubNubError? {
+    return self as? PubNubError
   }
 
   /// Instance cast as a `URLError`
   public var urlError: URLError? {
-    return self as? URLError ?? pubNubError?.urlError
+    return self as? URLError
+  }
+
+  /// Instance cast as a `AnyJSONError`
+  var anyJSON: AnyJSONError? {
+    return self as? AnyJSONError
   }
 
   public var isCancellationError: Bool {
-    return urlError?.code == .cancelled
+    return urlError?.code == .cancelled ||
+      pubNubError?.subdomain == .cancellation
   }
 
   /// Instance cast as a `EncodingError`

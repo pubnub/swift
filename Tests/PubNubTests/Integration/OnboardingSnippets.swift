@@ -68,7 +68,7 @@ class OnboardingSnippets: XCTestCase {
         print("Status changed to \(status)")
         if status == .connected { performPublish() }
       case let .failure(error):
-        print("Error received on endpoint \(error.endpoint): \(error.localizedDescription)")
+        print("Error received on endpoint \(error.localizedDescription)")
         XCTFail("Publish returned an error")
       }
     }

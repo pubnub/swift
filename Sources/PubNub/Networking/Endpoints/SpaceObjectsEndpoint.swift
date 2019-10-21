@@ -163,7 +163,7 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
 }
 
 public struct SpaceObjectResponsePayload: Codable, Equatable {
-  public let status: HTTPStatus
+  public let status: Int
   public let space: SpaceObject
 
   enum CodingKeys: String, CodingKey {
@@ -173,7 +173,7 @@ public struct SpaceObjectResponsePayload: Codable, Equatable {
 }
 
 public struct SpaceObjectsResponsePayload: Codable {
-  public let status: HTTPStatus
+  public let status: Int
   public let spaces: [SpaceObject]
   public let totalCount: Int?
   public let next: String?
@@ -236,7 +236,7 @@ public struct UserMembership: Codable, Equatable {
 }
 
 public struct SpaceMembershipResponsePayload: Codable {
-  public let status: HTTPStatus
+  public let status: Int
   public let memberships: [UserMembership]
   public let totalCount: Int?
   public let next: String?

@@ -24,54 +24,94 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable discouraged_optional_boolean discouraged_optional_collection file_length
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 public enum Endpoint {
-  public enum RawValue: Int {
-    case unknown
-    case time
-    case publish
-    case compressedPublish
-    case fire
-    case signal
-    case subscribe
-    case heartbeat
-    case leave
-    case setPresenceState
-    case getPresenceState
-    case hereNow
-    case hereNowGlobal
-    case whereNow
-    case channelsForGroup
-    case addChannelsForGroup
-    case removeChannelsForGroup
-    case channelGroups
-    case deleteGroup
-    case listPushChannels
-    case modifyPushChannels
-    case removeAllPushChannels
-    case fetchMessageHistoryV2
-    case fetchMessageHistory
-    case deleteMessageHistory
-    case messageCounts
+  public enum OperationType: String {
+    case channelGroup = "Channel Group"
+    case history = "History"
+    case objects = "Objects"
+    case presence = "Presence"
+    case publish = "Publish"
+    case push = "Push"
+    case subscribe = "Subscribe"
+    case time = "Time"
+    case unknown = "Unknown"
+  }
 
-    case objectsUserFetchAll
-    case objectsUserFetch
-    case objectsUserCreate
-    case objectsUserUpdate
-    case objectsUserDelete
-    case objectsUserMemberships
-    case objectsUserMembershipsUpdate
+  public enum Category: String {
+    case unknown = "Unknown"
+    case time = "Time"
+    case publish = "Publish"
+    case compressedPublish = "Compressed Publish"
+    case fire = "Fire"
+    case signal = "Signal"
+    case subscribe = "Subscribe"
+    case heartbeat = "Heartbeat"
+    case leave = "Leave"
+    case setPresenceState = "Set Presence State"
+    case getPresenceState = "Get Presence State"
+    case hereNow = "Here Now"
+    case hereNowGlobal = "Global Here Now"
+    case whereNow = "Where Now"
+    case channelsForGroup = "Group Channels List"
+    case addChannelsForGroup = "Group Channels Add"
+    case removeChannelsForGroup = "Group Channels Remove"
+    case channelGroups = "Group List"
+    case deleteGroup = "Group Delete"
+    case listPushChannels = "List Push Channels"
+    case modifyPushChannels = "Modify Push Channels"
+    case removeAllPushChannels = "Remove All Push Channels"
+    case fetchMessageHistoryV2 = "Fetch Message History V2"
+    case fetchMessageHistory = "Fetch Message History"
+    case deleteMessageHistory = "Delete Message History"
+    case messageCounts = "Message Counts"
 
-    case objectsSpaceFetchAll
-    case objectsSpaceFetch
-    case objectsSpaceCreate
-    case objectsSpaceUpdate
-    case objectsSpaceDelete
-    case objectsSpaceMemberships
-    case objectsSpaceMembershipsUpdate
+    case objectsUserFetchAll = "Fetch All User Objects"
+    case objectsUserFetch = "Fetch User Object"
+    case objectsUserCreate = "Create User Object"
+    case objectsUserUpdate = "Update User Object"
+    case objectsUserDelete = "Delete User Object"
+    case objectsUserMemberships = "Fetch User's Memberships"
+    case objectsUserMembershipsUpdate = "Update User's Memberships"
+
+    case objectsSpaceFetchAll = "Fetch All Space Objects"
+    case objectsSpaceFetch = "Fetch Space Object"
+    case objectsSpaceCreate = "Create Space Object"
+    case objectsSpaceUpdate = "Update Space Object"
+    case objectsSpaceDelete = "Delete Space Object"
+    case objectsSpaceMemberships = "Fetch Space's Memberships"
+    case objectsSpaceMembershipsUpdate = "Update Space's Memberships"
+
+    public var operationCategory: Endpoint.OperationType {
+      switch self {
+      case .time:
+        return .time
+      case .publish, .compressedPublish, .fire, .signal:
+        return .publish
+      case .subscribe:
+        return .subscribe
+      case .hereNow, .hereNowGlobal, .whereNow, .heartbeat, .leave, .setPresenceState, .getPresenceState:
+        return .presence
+      case .channelGroups, .deleteGroup, .channelsForGroup, .addChannelsForGroup, .removeChannelsForGroup:
+        return .channelGroup
+      case .listPushChannels, .modifyPushChannels, .removeAllPushChannels:
+        return .push
+      case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory, .messageCounts:
+        return .history
+      case .objectsUserFetchAll, .objectsUserFetch, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
+        return .objects
+      case .objectsSpaceFetchAll, .objectsSpaceFetch, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
+        return .objects
+      case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
+           .objectsSpaceMembershipsUpdate:
+        return .objects
+      case .unknown:
+        return .unknown
+      }
+    }
   }
 
   public enum PushType: String, Codable {
@@ -100,7 +140,7 @@ public enum Endpoint {
   // Subscribe Endpoint
   case subscribe(
     channels: [String], groups: [String], timetoken: Timetoken?,
-    region: String?, state: ChannelPresenceState?, heartbeat: Int?, filter: String?
+    region: String?, state: [String: [String: JSONCodable]]?, heartbeat: Int?, filter: String?
   )
 
   // History
@@ -114,10 +154,10 @@ public enum Endpoint {
   case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
   case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
   case whereNow(uuid: String)
-  case heartbeat(channels: [String], groups: [String], state: [String: Codable]?, presenceTimeout: Int?)
+  case heartbeat(channels: [String], groups: [String], presenceTimeout: Int?)
   case leave(channels: [String], groups: [String])
   case getPresenceState(uuid: String, channels: [String], groups: [String])
-  case setPresenceState(channels: [String], groups: [String], state: [String: Codable])
+  case setPresenceState(channels: [String], groups: [String], state: [String: JSONCodable])
 
   // Channel Groups
   case channelsForGroup(group: String)
@@ -169,7 +209,11 @@ public enum Endpoint {
 
   case unknown
 
-  public var rawValue: RawValue {
+  public var operationCategory: OperationType {
+    return category.operationCategory
+  }
+
+  public var category: Category {
     switch self {
     case .time:
       return .time
@@ -304,8 +348,8 @@ extension Endpoint: Validated {
     case .removeAllPushChannels(let pushToken, _):
       return isEndpointInvalid(pushToken.isEmpty)
     case .unknown:
-      return PNError.invalidEndpointType(self)
-    case let .heartbeat(channels, _, _, presenceTimeout):
+      return PubNubError(.invalidEndpointType, endpoint: self)
+    case let .heartbeat(channels, _, presenceTimeout):
       return isEndpointInvalid(channels.isEmpty, presenceTimeout ?? 0 < 0)
     case let .leave(channels, groups):
       return isEndpointInvalid(channels.isEmpty && groups.isEmpty)
@@ -367,144 +411,27 @@ extension Endpoint: Validated {
     }
   }
 
-  func isEndpointInvalid(_ values: Bool...) -> PNError? {
+  func isEndpointInvalid(_ values: Bool...) -> PubNubError? {
     for invalidValue in values where invalidValue {
-      return PNError.missingRequiredParameter(self)
+      return PubNubError(.missingRequiredParameter, endpoint: category)
     }
     return nil
   }
 }
 
-extension Endpoint {
-  public enum OperationType: String {
-    case channelGroup = "Channel Group"
-    case history = "History"
-    case objects = "Objects"
-    case presence = "Presence"
-    case publish = "Publish"
-    case push = "Push"
-    case subscribe = "Subscribe"
-    case time = "Time"
-    case unknown = "Unknown"
-  }
-
-  public var operationCategory: OperationType {
-    switch rawValue {
-    case .time:
-      return .time
-    case .publish, .compressedPublish, .fire, .signal:
-      return .publish
-    case .subscribe:
-      return .subscribe
-    case .hereNow, .hereNowGlobal, .whereNow, .heartbeat, .leave, .setPresenceState, .getPresenceState:
-      return .presence
-    case .channelGroups, .deleteGroup, .channelsForGroup, .addChannelsForGroup, .removeChannelsForGroup:
-      return .channelGroup
-    case .listPushChannels, .modifyPushChannels, .removeAllPushChannels:
-      return .push
-    case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory, .messageCounts:
-      return .history
-    case .objectsUserFetchAll, .objectsUserFetch, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
-      return .objects
-    case .objectsSpaceFetchAll, .objectsSpaceFetch, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
-      return .objects
-    case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
-         .objectsSpaceMembershipsUpdate:
-      return .objects
-    case .unknown:
-      return .unknown
-    }
-  }
-}
-
 extension Endpoint: CustomStringConvertible {
   public var description: String {
-    switch self {
-    case .time:
-      return "Time"
-    case .publish, .compressedPublish:
-      return "Publish"
-    case .fire:
-      return "Fire"
-    case .signal:
-      return "Signal"
-    case .subscribe:
-      return "Subscribe"
-    case .heartbeat:
-      return "Heartbeat"
-    case .leave:
-      return "Leave"
-    case .setPresenceState:
-      return "Set Presence State"
-    case .getPresenceState:
-      return "Get Presence State"
-    case .hereNow:
-      return "Here Now"
-    case .hereNowGlobal:
-      return "Global Here Now"
-    case .whereNow:
-      return "Where Now"
-    case .messageCounts:
-      return "Message Counts"
-    case .channelGroups:
-      return "Group List"
-    case .deleteGroup:
-      return "Group Delete"
-    case .channelsForGroup:
-      return "Group Channels List"
-    case .addChannelsForGroup:
-      return "Group Channels Add"
-    case .removeChannelsForGroup:
-      return "Group Channels Remove"
-    case .listPushChannels:
-      return "List Push Channels"
-    case .modifyPushChannels:
-      return "Modify Push Channels"
-    case .removeAllPushChannels:
-      return "Remove All Push Channels"
-    case .fetchMessageHistory:
-      return "Fetch Message History"
-    case .deleteMessageHistory:
-      return "Delete Message History"
-    case .objectsUserFetch:
-      return "Fetch User Object"
-    case .objectsUserFetchAll:
-      return "Fetch All User Objects"
-    case .objectsUserCreate:
-      return "Create User Object"
-    case .objectsUserUpdate:
-      return "Update User Object"
-    case .objectsUserDelete:
-      return "Delete User Object"
-    case .objectsUserMemberships:
-      return "Fetch User's Memberships"
-    case .objectsUserMembershipsUpdate:
-      return "Update User's Memberships"
-
-    case .objectsSpaceFetch:
-      return "Fetch Space Object"
-    case .objectsSpaceFetchAll:
-      return "Fetch All Space Objects"
-    case .objectsSpaceCreate:
-      return "Create Space Object"
-    case .objectsSpaceUpdate:
-      return "Update Space Object"
-    case .objectsSpaceDelete:
-      return "Delete Space Object"
-    case .objectsSpaceMemberships:
-      return "Fetch Space's Memberships"
-    case .objectsSpaceMembershipsUpdate:
-      return "Update Space's Memberships"
-
-    case .unknown:
-      return "Unknown"
-    }
+    return category.rawValue
   }
 }
 
-extension Endpoint: Equatable {
+extension Endpoint: Hashable {
   public static func == (lhs: Endpoint, rhs: Endpoint) -> Bool {
-    return lhs.rawValue == rhs.rawValue
+    return lhs.category == rhs.category
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    category.rawValue.hash(into: &hasher)
   }
 }
 
@@ -541,8 +468,8 @@ extension Endpoint {
       return ["includeUUIDs": includeUUIDs, "includeState": includeState]
     case let .whereNow(uuid):
       return ["uuid": uuid]
-    case let .heartbeat(channels, groups, state, presenceTimeout):
-      return ["channels": channels, "groups": groups, "state": state, "presenceTimeout": presenceTimeout]
+    case let .heartbeat(channels, groups, presenceTimeout):
+      return ["channels": channels, "groups": groups, "presenceTimeout": presenceTimeout]
     case let .leave(channels, groups):
       return ["channels": channels, "groups": groups]
     case let .getPresenceState(uuid, channels, groups):
@@ -614,6 +541,6 @@ extension Endpoint {
       return [:]
     }
   }
-}
 
-// swiftlint:enable discouraged_optional_boolean discouraged_optional_collection file_length
+  // swiftlint:disable:next file_length
+}

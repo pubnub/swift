@@ -62,17 +62,25 @@ class SubscriptionListenerTests: XCTestCase {
   let messageEvent: MessageEvent = MockMessageEvent()
   let connectionEvent: ConnectionStatus = .connected
   let statusEvent: StatusEvent = .success(.connected)
-  let presenceEvent: PresenceEvent = PresenceEventPayload(channel: "Channel",
-                                                          subscriptionMatch: "Channel",
-                                                          senderTimetoken: 0,
-                                                          presenceTimetoken: 0,
-                                                          metadata: "Metadata",
-                                                          event: .join,
-                                                          occupancy: 1,
-                                                          join: ["User"],
-                                                          leave: [],
-                                                          timeout: [],
-                                                          stateChange: ["Channel": ["StateKey": "StateValue"]])
+  let presenceEvent: PresenceEvent = MessageResponse(
+    shard: "0",
+    subscriptionMatch: "Channel",
+    channel: "Channel",
+    messageType: .presence,
+    payload: PresenceResponse(action: .join,
+                              timetoken: 0,
+                              occupancy: 1,
+                              join: ["User"],
+                              leave: [],
+                              timeout: [],
+                              channelState: ["Channel": ["StateKey": "StateValue"]]),
+    flags: 0,
+    issuer: "Someone",
+    subscribeKey: "SomeKey",
+    originTimetoken: TimetokenResponse(timetoken: 0, region: 0),
+    publishTimetoken: TimetokenResponse(timetoken: 0, region: 0),
+    metadata: "Metadata"
+  )
 
   // MARK: - Subscription Stream Defaults
 
@@ -132,8 +140,9 @@ class SubscriptionListenerTests: XCTestCase {
     let expectation = XCTestExpectation(description: "didReceivePresence")
     let listener = SubscriptionListener()
     listener.didReceivePresence = { [weak self] event in
-      XCTAssertNotNil(event as? PresenceEventPayload)
-      XCTAssertEqual(event as? PresenceEventPayload, self?.presenceEvent as? PresenceEventPayload)
+      XCTAssertNotNil(event as? MessageResponse<PresenceResponse>)
+      XCTAssertEqual(event as? MessageResponse<PresenceResponse>,
+                     self?.presenceEvent as? MessageResponse<PresenceResponse>)
       expectation.fulfill()
     }
 

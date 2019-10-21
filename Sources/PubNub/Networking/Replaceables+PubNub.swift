@@ -49,7 +49,7 @@ public protocol SessionReplaceable {
   var session: URLSessionReplaceable { get }
   func usingDefault(requestOperator: RequestOperator?) -> Self
   func request(with router: Router, requestOperator: RequestOperator?) -> Request
-  func cancelAllTasks(with: PNError, for: Endpoint.RawValue)
+  func cancelAllTasks(_ reason: PubNubError.Reason, for: Endpoint.Category)
   func invalidateAndCancel()
 }
 

@@ -47,7 +47,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       fetchAllExpect.fulfill()
     }
 
-    wait(for: [fetchAllExpect], timeout: 1000.0)
+    wait(for: [fetchAllExpect], timeout: 10.0)
   }
 
   func testUserCreateAndFetchEndpoint() {

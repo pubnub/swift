@@ -42,8 +42,4 @@ extension HTTPURLResponse {
   public static let successfulStatusCodes: Range<Int> = {
     200 ..< 300
   }()
-
-  public var status: HTTPStatus {
-    return HTTPStatus(rawValue: statusCode)
-  }
 }

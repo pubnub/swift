@@ -27,41 +27,42 @@
 
 import Foundation
 
-public typealias UserEvent = UpdatableUser
-public typealias SpaceEvent = UpdatableSpace
-
-public enum ObjectAction: String, Codable, Hashable {
-  case add = "create"
-  case update
-  case delete
-}
-
-public enum ObjectType: String, Codable, Hashable {
-  case user
-  case space
-  case membership
-}
-
-public struct ObjectSubscribePayload: Codable {
-  public let source: String
-  public let version: String
-  public let event: ObjectAction
-  public let type: ObjectType
-  public let data: AnyJSON
-}
-
 public struct IdentifierEvent: Codable, Hashable {
   public let id: String
 }
 
+// MARK: - User Events
+
+public typealias UserEvent = UpdatableUser
+
+public enum UserEvents {
+  case updated(UserEvent)
+  case deleted(IdentifierEvent)
+}
+
+// MARK: - Space Events
+
+public typealias SpaceEvent = UpdatableSpace
+
+public enum SpaceEvents {
+  case updated(SpaceEvent)
+  case deleted(IdentifierEvent)
+}
+
 // MARK: - Membership
+
+public enum MembershipEvents {
+  case userAddedOnSpace(MembershipEvent)
+  case userUpdatedOnSpace(MembershipEvent)
+  case userDeletedFromSpace(MembershipIdentifiable)
+}
 
 public protocol MembershipIdentifiable {
   var userId: String { get }
   var spaceId: String { get }
 }
 
-public struct MembershipEvent: MembershipIdentifiable, Codable, Equatable {
+public struct MembershipEvent: MembershipIdentifiable, Codable, Hashable {
   public let userId: String
   public let spaceId: String
 

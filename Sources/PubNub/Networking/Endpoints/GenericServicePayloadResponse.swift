@@ -37,65 +37,6 @@ struct AnyJSONResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-/// Service on the `Endpoint` responsible for processing request
-public enum EndpointResponseService: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
-  case accessManager
-  case balancer
-  case channelGroups
-  case objects
-  case presence
-  case publish
-  case push
-  case unknown(message: String)
-
-  public init(rawValue: String) {
-    switch rawValue {
-    case "Access Manager":
-      self = .accessManager
-    case "Balancer":
-      self = .balancer
-    case "channel-registry":
-      self = .channelGroups
-    case "objects":
-      self = .objects
-    case "Presence":
-      self = .presence
-    case "Publish":
-      self = .publish
-    case "Push":
-      self = .push
-
-    default:
-      self = .unknown(message: rawValue)
-    }
-  }
-
-  public var rawValue: String {
-    switch self {
-    case .accessManager:
-      return "Access Manager"
-    case .balancer:
-      return "Balancer"
-    case .channelGroups:
-      return "channel-registry"
-    case .objects:
-      return "Objects"
-    case .presence:
-      return "Presence"
-    case .publish:
-      return "Publish"
-    case .push:
-      return "Push"
-    case let .unknown(message):
-      return "Unknown: \(message)"
-    }
-  }
-
-  public init(stringLiteral value: String) {
-    self.init(rawValue: value)
-  }
-}
-
 /// The codified message returned by the `Endpoint`
 public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
   case acknowledge
@@ -129,7 +70,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .acknowledge
     case "Could Not Parse Request":
       self = .couldNotParseRequest
-    case "Forbidden":
+    case "Forbidden",
+         "Supplied authorization key does not have the permissions required to perform this operation.":
       self = .forbidden
     case "Invalid Arguments":
       self = .invalidArguments
@@ -151,8 +93,6 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .serviceUnavailable
     case "Request payload contained invalid input.":
       self = .badRequest
-    case "Supplied authorization key does not have the permissions required to perform this operation.":
-      self = .forbidden
     case "Requested object was not found.":
       self = .notFound
     case "Object with the requested identifier already exists.":
@@ -175,11 +115,11 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   static func rawValueStartsWith(_ message: String) -> EndpointResponseMessage {
     if message.starts(with: "Not Found ") {
       return .notFound
-    } else if message.starts(with: ErrorDescription.EndpointFailureReason.pushNotEnabled) {
+    } else if message.starts(with: ErrorDescription.pushNotEnabled) {
       return .pushNotEnabled
-    } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled) {
+    } else if message.starts(with: ErrorDescription.messageDeletionNotEnabled) {
       return .messageDeletionNotEnabled
-    } else if message.starts(with: ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled) {
+    } else if message.starts(with: ErrorDescription.messageHistoryNotEnabled) {
       return .messageHistoryNotEnabled
     } else {
       return .unknown(message: message)
@@ -219,11 +159,11 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
     case .preconditionFailed:
       return "Object already changed by another request since last retrieval."
     case .pushNotEnabled:
-      return ErrorDescription.EndpointFailureReason.pushNotEnabled
+      return ErrorDescription.pushNotEnabled
     case .messageHistoryNotEnabled:
-      return ErrorDescription.EndpointFailureReason.messageHistoryNotEnabled
+      return ErrorDescription.messageHistoryNotEnabled
     case .messageDeletionNotEnabled:
-      return ErrorDescription.EndpointFailureReason.messageDeletionNotEnabled
+      return ErrorDescription.messageDeletionNotEnabled
     case .requestURITooLong:
       return "Request URI Too Long"
     case .serviceUnavailable:
@@ -237,66 +177,6 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
     }
   }
 
-  var knownFailureReason: PNError.EndpointFailureReason? {
-    switch self {
-    case .unknown:
-      return nil
-    default:
-      return endpointFailureReason
-    }
-  }
-
-  var endpointFailureReason: PNError.EndpointFailureReason? {
-    switch self {
-    case .couldNotParseRequest:
-      return .couldNotParseRequest
-    case .forbidden:
-      return .forbidden
-    case .invalidArguments:
-      return .invalidArguments
-    case .invalidCharacter:
-      return .invalidCharacter
-    case .invalidDeviceToken:
-      return .invalidDeviceToken
-    case .invalidSubscribeKey:
-      return .invalidSubscribeKey
-    case .invalidPublishKey:
-      return .invalidPublishKey
-    case .invalidJSON:
-      return .requestContainedInvalidJSON
-    case .maxChannelGroupCountExceeded:
-      return .maxChannelGroupCountExceeded
-    case .messageHistoryNotEnabled:
-      return .messageHistoryNotEnabled
-    case .messageDeletionNotEnabled:
-      return .messageDeletionNotEnabled
-    case .notFound:
-      return .resourceNotFound
-    case .pushNotEnabled:
-      return .pushNotEnabled
-    case .requestURITooLong:
-      return .requestURITooLong
-    case .serviceUnavailable:
-      return .serviceUnavailable
-    case .badRequest:
-      return .badRequest
-    case .conflict:
-      return .conflict
-    case .internalServiceError:
-      return .internalServiceError
-    case .preconditionFailed:
-      return .preconditionFailed
-    case .tooManyRequests:
-      return .tooManyRequests
-    case .unsupportedType:
-      return .unsupportedType
-    case let .unknown(message):
-      return .unknown(message)
-    case .acknowledge:
-      return nil
-    }
-  }
-
   public init(stringLiteral value: String) {
     self.init(rawValue: value)
   }
@@ -305,20 +185,20 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
 public struct GenericServicePayloadResponse: Codable, Hashable {
   public let message: EndpointResponseMessage
   public let details: [ErrorDetail]
-  public let service: EndpointResponseService
-  public let status: HTTPStatus
+  public let service: String
+  public let status: Int
   public let error: Bool
   public let channels: [String: [String]]
 
   public init(
     message: EndpointResponseMessage? = nil,
     details: [ErrorDetail] = [],
-    service: EndpointResponseService? = nil,
-    status: HTTPStatus? = nil,
+    service: String? = nil,
+    status: Int? = nil,
     error: Bool = false,
     channels: [String: [String]] = [:]
   ) {
-    if !error, status == .some(.acknowledge) {
+    if !error, HTTPURLResponse.successfulStatusCodes.contains(status ?? 0) {
       self.message = .acknowledge
     } else {
       self.message = message ?? "No Message Provided"
@@ -351,7 +231,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     let error: EndpointResponseMessage?
     var details: [ErrorDetail] = []
     let isError: Bool
-    let service: EndpointResponseService?
+    let service: String?
     // Use `decodeIfPresent` because it can sometiems be a Bool
     if let errorPayload = try? container.decodeIfPresent(ErrorPayload.self, forKey: .error) {
       error = errorPayload.message
@@ -359,16 +239,16 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
       details = errorPayload.details
       isError = true
     } else if let errorAsMessage = try? container.decodeIfPresent(EndpointResponseMessage.self, forKey: .error) {
-      service = try container.decodeIfPresent(EndpointResponseService.self, forKey: .service)
+      service = try container.decodeIfPresent(String.self, forKey: .service)
       error = errorAsMessage
       isError = true
     } else {
-      service = try container.decodeIfPresent(EndpointResponseService.self, forKey: .service)
+      service = try container.decodeIfPresent(String.self, forKey: .service)
       error = nil
       isError = try container.decodeIfPresent(Bool.self, forKey: .error) ?? false
     }
 
-    let status = try container.decodeIfPresent(HTTPStatus.self, forKey: .status)
+    let status = try container.decodeIfPresent(Int.self, forKey: .status)
     let channels = try container.decodeIfPresent([String: [String]].self, forKey: .channels) ?? [:]
 
     self.init(message: message ?? error,
@@ -382,14 +262,14 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(message.rawValue, forKey: .message)
-    try container.encode(service.rawValue, forKey: .service)
-    try container.encode(status.rawValue, forKey: .status)
+    try container.encode(service, forKey: .service)
+    try container.encode(status, forKey: .status)
     try container.encode(error, forKey: .error)
     try container.encode(channels, forKey: .channels)
   }
 
-  public var endpointFailureReasson: PNError.EndpointFailureReason? {
-    return message.endpointFailureReason ?? status.endpointFailureReason
+  public var pubnubReason: PubNubError.Reason? {
+    return message.pubnubReason ?? PubNubError.Reason(rawValue: status)
   }
 }
 
@@ -397,7 +277,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
 
 struct ErrorPayload: Codable {
   let message: EndpointResponseMessage
-  let source: EndpointResponseService
+  let source: String
   let details: [ErrorDetail]
 }
 
@@ -405,6 +285,4 @@ public struct ErrorDetail: Codable, Hashable {
   let message: String
   let location: String
   let locationType: String
-
-  // swiftlint:disable:next file_length
 }

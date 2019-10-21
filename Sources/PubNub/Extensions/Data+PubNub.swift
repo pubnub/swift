@@ -28,6 +28,11 @@
 import Foundation
 
 extension Data {
+  /// A Boolean value indicating whether the collection is empty and also not a stringified empty collection
+  public var trulyEmpty: Bool {
+    return isEmpty || String(bytes: self, encoding: .utf8) == "{}"
+  }
+
   /// A `String` of the Hexidecimal representation of this `Data` object
   public var hexEncodedString: String {
     // Reserver enough memory to hold all the elements

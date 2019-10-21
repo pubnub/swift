@@ -84,13 +84,6 @@ class SessionStreamTests: XCTestCase {
       XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.mockRequest)
     }
 
-    sessionExpector.expectDidDecodeResponse { dataResponse in
-      let mockTask = sessions.mockSession.tasks.first
-      XCTAssertEqual(dataResponse.request, mockTask?.mockRequest)
-      XCTAssertEqual(dataResponse.response, mockTask?.mockResponse)
-      XCTAssertEqual(dataResponse.data, mockTask?.mockData)
-    }
-
     sessionExpector.expectDidReceiveURLSessionData { urlSession, task, data in
       let mockTask = sessions.mockSession.tasks.first
       XCTAssertEqual(urlSession.sessionDescription, sessions.mockSession.sessionDescription)
@@ -117,7 +110,7 @@ class SessionStreamTests: XCTestCase {
     }
     expectations.append(totalExpectation)
 
-    XCTAssertEqual(sessionExpector.expectations.count, 9)
+    XCTAssertEqual(sessionExpector.expectations.count, 8)
     expectations.append(contentsOf: sessionExpector.expectations)
 
     wait(for: expectations, timeout: 1.0)

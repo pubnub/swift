@@ -36,19 +36,12 @@ import Foundation
 ///         enough to rely on when querying PubNub system APIs
 public typealias Timetoken = Int64
 
-/// Presence state JSON payload
-public typealias PresenceState = [String: Codable]
-
-/// A mapping of Presence State to channel names
-public typealias ChannelPresenceState = [String: PresenceState]
-
-/// Event emitted from a Subscription Stream
-public typealias StatusEvent = Result<ConnectionStatus, PNError>
-
 typealias AtomicInt = Atomic<Int32>
+
+typealias QueryResult = Result<[URLQueryItem], Error>
 
 // MARK: - Closures
 
 public typealias EmptyClosure = () -> Void
 
-public typealias ValidationClosure = (Endpoint, URLRequest, HTTPURLResponse, Data?) -> Error?
+public typealias ValidationClosure = (Router, URLRequest, HTTPURLResponse, Data?) -> Error?

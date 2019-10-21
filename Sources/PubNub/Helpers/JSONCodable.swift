@@ -66,17 +66,24 @@ extension JSONCodable {
 
 extension JSONCodable where Self: Equatable {
   func isEqual(_ other: JSONCodable?) -> Bool {
-    print("JSONCodable Equatable")
     guard let otherSelf = other as? Self else {
       return false
     }
-    print("JSONCodable Equatable: \(self == otherSelf)")
     return self == otherSelf
   }
 }
 
 extension Array: JSONCodable {}
 extension Dictionary: JSONCodable where Key == String {}
+extension AnyJSON: JSONCodable {
+  public var codableValue: AnyJSON {
+    return self
+  }
+
+  public var rawValue: Any {
+    return underlyingValue
+  }
+}
 
 // MARK: JSONCodableScalar
 
@@ -188,7 +195,7 @@ extension JSONCodableScalarType: JSONCodableScalar {
 
 // MARK: JSONCodableScalarType
 
-public struct JSONCodableScalarType: Codable, Equatable {
+public struct JSONCodableScalarType: Codable, Hashable {
   let value: AnyJSONType
 
   init(stringValue: String) {

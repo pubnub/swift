@@ -121,7 +121,7 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible, Validate
   var pamVersion: PAMVersionRequirement { get }
 
   func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error>
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data?) -> PNError?
+  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
 }
 
 extension Router {
@@ -143,7 +143,7 @@ extension Router {
   }
 
   // Endpoint Validators
-  public var keyValidationError: PNError? {
+  public var keyValidationError: PubNubError? {
     switch keysRequired {
     case .none:
       return nil
@@ -152,22 +152,21 @@ extension Router {
       if configuration.subscribeKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingSubscribeKey, endpoint)
-
+      return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
     case .publish:
       if configuration.publishKeyExists {
         return nil
       }
-      return .requestCreationFailure(.missingPublishKey, endpoint)
+      return PubNubError(.missingPublishKey, endpoint: endpoint.category)
 
     case .publishAndSubscribe:
       switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
       case (false, false):
-        return .requestCreationFailure(.missingPublishAndSubscribeKey, endpoint)
+        return PubNubError(.missingPublishAndSubscribeKey, endpoint: endpoint.category)
       case (true, false):
-        return .requestCreationFailure(.missingSubscribeKey, endpoint)
+        return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
       case (false, true):
-        return .requestCreationFailure(.missingPublishKey, endpoint)
+        return PubNubError(.missingPublishKey, endpoint: endpoint.category)
       case (true, true):
         return nil
       }
@@ -193,39 +192,31 @@ extension Router {
     }
 
     return path.flatMap { path -> Result<URLComponents, Error> in
-      var urlComponents = URLComponents()
-      urlComponents.scheme = configuration.urlScheme
-      urlComponents.host = configuration.origin
+      queryItems.map { query -> URLComponents in
+        var urlComponents = URLComponents()
+        urlComponents.scheme = configuration.urlScheme
+        urlComponents.host = configuration.origin
 
-      urlComponents.path = path
-      // URL will double encode our attempts to sanitize '/' inside path inputs
-      urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
+        urlComponents.path = path
+        // URL will double encode our attempts to sanitize '/' inside path inputs
+        urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
 
-      urlComponents.queryItems = defaultQueryItems
-
-      do {
-        try urlComponents.queryItems?.append(contentsOf: queryItems.get())
+        urlComponents.queryItems = defaultQueryItems
+        urlComponents.queryItems?.append(contentsOf: query)
         // URL will not encode `+` or `?`, so we will do it manually
         urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.additionalQueryEncoding
-      } catch {
-        return .failure(error)
-      }
-      return .success(urlComponents)
-    }.mapError { error in
-      if error.pubNubError != nil {
-        return error
-      } else {
-        return PNError.requestCreationFailure(.unknown(error), endpoint)
+
+        return urlComponents
       }
     }.flatMap { $0.asURL }
   }
 
   public var asURLRequest: Result<URLRequest, Error> {
     return asURL.flatMap { url -> Result<URLRequest, Error> in
-      var request = URLRequest(url: url)
-      request.headers = additionalHeaders
-      request.httpMethod = method.rawValue
-      return body.flatMap { data in
+      body.flatMap { data in
+        var request = URLRequest(url: url)
+        request.headers = additionalHeaders
+        request.httpMethod = method.rawValue
         request.httpBody = data
         return .success(request)
       }

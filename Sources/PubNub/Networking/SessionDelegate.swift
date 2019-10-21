@@ -35,18 +35,13 @@ extension SessionDelegate: URLSessionDataDelegate {
   // MARK: - URLSessionDelegate
 
   // Task was invalidated by the session directly
-  public func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+  public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
+    PubNub.log.warn("Session Invalidated \(String(describing: sessionBridge?.sessionID))")
+
     // Set invalidated in case this happened unexpectedly
     sessionBridge?.isInvalidated = true
-    PubNub.log.warn("Session \(session.sessionDescription ?? session.description) has become invalid")
 
-    if let error = error {
-      sessionBridge?.cancelRequests(for: .sessionInvalidated(.implicit(dueTo: error),
-                                                             sessionID: sessionBridge?.sessionID))
-    } else {
-      sessionBridge?.cancelRequests(for: .sessionInvalidated(.explicit,
-                                                             sessionID: sessionBridge?.sessionID))
-    }
+    sessionBridge?.sessionInvalidated(with: error)
   }
 
   // Called when the request fails.
@@ -56,14 +51,12 @@ extension SessionDelegate: URLSessionDataDelegate {
       return
     }
 
-    if let urlError = error?.urlError,
-      let pnError = PNError.convert(endpoint: request.endpoint,
-                                    error: urlError,
-                                    request: request.urlRequest,
-                                    response: task.response as? HTTPURLResponse) {
-      request.didComplete(task, with: pnError)
-    } else if let error = error {
-      request.didComplete(task, with: PNError.unknownError(error, request.endpoint))
+    if let error = error {
+      if error.isCancellationError {
+        request.cancel(error)
+      } else {
+        request.didComplete(task, with: error)
+      }
     } else {
       request.didComplete(task)
     }
@@ -91,7 +84,7 @@ protocol SessionStateBridge: AnyObject {
   var isInvalidated: Bool { get set }
   func request(for task: URLSessionTask) -> Request?
   func didComplete(_ task: URLSessionTask)
-  func cancelRequests(for invalidationError: PNError)
+  func sessionInvalidated(with error: Error?)
 }
 
 extension Session: SessionStateBridge {
@@ -104,9 +97,15 @@ extension Session: SessionStateBridge {
     taskToRequest.removeValue(forKey: task)
   }
 
-  func cancelRequests(for invalidationError: PNError) {
+  func sessionInvalidated(with error: Error?) {
+    // Notify the requests that the tasks have been invalidated
     taskToRequest.values.forEach {
-      $0.retryOrFinish(with: invalidationError)
+      $0.cancel(PubNubError(.sessionInvalidated,
+                            endpoint: $0.router.endpoint,
+                            error: error))
     }
+
+    // Clean up the task dictionary
+    taskToRequest.removeAll()
   }
 }

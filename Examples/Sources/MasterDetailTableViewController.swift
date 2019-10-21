@@ -440,7 +440,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performSubscribeRequest() {
-    pubnub.subscribe(to: ["channelSwift"], withPresence: true, setting: ["SubKey": "SubValue"])
+    pubnub.subscribe(to: ["channelSwift"], withPresence: true, setting: ["channelSwift": ["SubKey": "SubValue"]])
   }
 
   func performUnsubscribeRequest() {

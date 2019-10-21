@@ -47,10 +47,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
 
       return try decodeMessageHistoryV2(response: response)
     } catch {
-      return .failure(PNError.endpointFailure(.jsonDataDecodeFailure(response.data, with: error),
-                                              response.router.endpoint,
-                                              response.request,
-                                              response.response))
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
   }
 
@@ -71,10 +68,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
       let encodedMessages = version2Payload.first,
       let startTimetoken = version2Payload[1].underlyingValue as? Timetoken,
       let endTimetoken = version2Payload.last?.underlyingValue as? Timetoken else {
-      return .failure(PNError.endpointFailure(.malformedResponseBody,
-                                              response.endpoint,
-                                              response.request,
-                                              response.response))
+      return .failure(PubNubError(.malformedResponseBody, response: response))
     }
 
     let messages = try encodedMessages.decode([MessageHistoryMessagesPayload].self)

@@ -257,6 +257,18 @@ public struct PubNubError: Error {
   }
 }
 
+// MARK: - Hashable
+
+extension PubNubError: Hashable {
+  public static func == (lhs: PubNubError, rhs: PubNubError) -> Bool {
+    return lhs.reason == rhs.reason
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    reason.rawValue.hash(into: &hasher)
+  }
+}
+
 // MARK: - Error Coersion Helpers
 
 extension PubNubError {
@@ -315,17 +327,25 @@ extension PubNubError {
   }
 }
 
-extension PubNubError {
-  static func missingSubscribeKey(_: Endpoint.Category) {}
-}
+// MARK: - Cross-Type Equatable
 
-extension PubNubError: Hashable {
-  public static func == (lhs: PubNubError, rhs: PubNubError) -> Bool {
-    return lhs.reason == rhs.reason
+extension Optional where Wrapped == PubNubError {
+  public static func == (lhs: Self, rhs: PubNubError.Reason?) -> Bool {
+    return lhs?.reason == rhs
   }
 
-  public func hash(into hasher: inout Hasher) {
-    reason.rawValue.hash(into: &hasher)
+  public static func != (lhs: Self, rhs: PubNubError.Reason?) -> Bool {
+    return lhs?.reason != rhs
+  }
+}
+
+extension Optional where Wrapped == PubNubError.Reason {
+  public static func == (lhs: Self, rhs: PubNubError?) -> Bool {
+    return lhs == rhs?.reason
+  }
+
+  public static func != (lhs: Self, rhs: PubNubError?) -> Bool {
+    return lhs != rhs?.reason
   }
 }
 

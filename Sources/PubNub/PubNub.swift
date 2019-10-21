@@ -188,10 +188,6 @@ extension PubNub {
                            setting: presenceState)
   }
 
-  public func add(_ listener: SubscriptionListener) {
-    subscription.add(listener)
-  }
-
   public func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
     subscription.unsubscribe(from: channels, and: channelGroups, presenceOnly: presenceOnly)
   }
@@ -200,12 +196,29 @@ extension PubNub {
     subscription.unsubscribeAll()
   }
 
+  /// Add a listener to enable the receiving of subscription events
+  public func add(_ listener: SubscriptionListener) {
+    subscription.add(listener)
+  }
+
+  /// List of currently subscribed channels
   public var subscribedChannels: [String] {
     return subscription.subscribedChannels
   }
 
+  /// List of currently subscribed channel groups
   public var subscribedChannelGroups: [String] {
     return subscription.subscribedChannelGroups
+  }
+
+  /// The total number of channels and channel groups that are currently subscribed to
+  public var subscriptionCount: Int {
+    return subscription.subscriptionCount
+  }
+
+  /// The current state of the subscription connection
+  public var connectionStatus: ConnectionStatus {
+    return subscription.connectionStatus
   }
 }
 

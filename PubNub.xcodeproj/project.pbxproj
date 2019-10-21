@@ -104,6 +104,7 @@
 		357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8722E69B0800C18250 /* DispatchQueue+PubNub.swift */; };
 		357AEB8A22E6A02F00C18250 /* Error+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8922E6A02F00C18250 /* Error+PubNubTests.swift */; };
 		357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8B22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift */; };
+		357BC346235E0CC7009C2A67 /* PubNubErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */; };
 		357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */; };
 		3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A59322F0C74100B12E5E /* RequestMutatorTests.swift */; };
 		3580A59622F0DBC000B12E5E /* PubNubRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A59522F0DBC000B12E5E /* PubNubRouterTests.swift */; };
@@ -389,6 +390,7 @@
 		357AEB8722E69B0800C18250 /* DispatchQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+PubNub.swift"; sourceTree = "<group>"; };
 		357AEB8922E6A02F00C18250 /* Error+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+PubNubTests.swift"; sourceTree = "<group>"; };
 		357AEB8B22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+PubNubTests.swift"; sourceTree = "<group>"; };
+		357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubErrorTests.swift; sourceTree = SOURCE_ROOT; };
 		357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+PubNub.swift"; sourceTree = "<group>"; };
 		3580A59322F0C74100B12E5E /* RequestMutatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestMutatorTests.swift; sourceTree = "<group>"; };
 		3580A59522F0DBC000B12E5E /* PubNubRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubRouterTests.swift; sourceTree = "<group>"; };
@@ -863,6 +865,7 @@
 		3580A5A522F14DA700B12E5E /* Errors */ = {
 			isa = PBXGroup;
 			children = (
+				357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */,
 			);
 			path = Errors;
 			sourceTree = "<group>";
@@ -1617,6 +1620,7 @@
 				35CDFEBE22E7985C00F3B9F2 /* HTTPHeadersTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,
+				357BC346235E0CC7009C2A67 /* PubNubErrorTests.swift in Sources */,
 				35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */,
 				35A6C78D22FB409400E97CC5 /* PresenceEndpointTests.swift in Sources */,
 				35CDFEAD22E7655700F3B9F2 /* URL+PubNubTests.swift in Sources */,

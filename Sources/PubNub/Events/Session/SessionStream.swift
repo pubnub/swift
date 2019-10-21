@@ -49,10 +49,6 @@ public protocol SessionStream: EventStream {
   func emitRequest(_ request: Request, didMutate initialURLRequest: URLRequest, to mutatedURLRequest: URLRequest)
   func emitRequest(_ request: Request, didFailToMutate initialURLRequest: URLRequest, with error: Error)
 
-  // HTTPResponse
-//  func emitDidDecode(_ initialResponse: Response<Data>)
-//  func emitFailedToDecode(_ initialResponse: Response<Data>, with error: Error)
-
   // URLSessionDelegate
   func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
   func emitURLSession(_ session: URLSession, task: URLSessionTask, didCompleteWith error: Error?)
@@ -167,14 +163,6 @@ public final class MultiplexSessionStream: SessionStream, Hashable {
     performEvent { $0.emitRequest(request, didFailToMutate: initialURLRequest, with: error) }
   }
 
-//  public func emitDidDecode(_ initialResponse: Response<Data>) {
-//    performEvent { $0.emitDidDecode(initialResponse) }
-//  }
-//
-//  public func emitFailedToDecode(_ response: Response<Data>, with error: Error) {
-//    performEvent { $0.emitFailedToDecode(response, with: error) }
-//  }
-
   public func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
     performEvent { $0.emitURLSession(session, dataTask: dataTask, didReceive: data) }
   }
@@ -218,9 +206,6 @@ final class SessionListener: SessionStream, Hashable {
 
   var didMutateRequest: ((Request, URLRequest, URLRequest) -> Void)?
   var didFailToMutateRequest: ((Request, URLRequest, Error) -> Void)?
-
-//  var didDecodeResponse: ((Response<Data>) -> Void)?
-//  var failedToDecodeResponse: ((Response<Data>, Error) -> Void)?
 
   var sessionTaskDidReceiveData: ((URLSession, URLSessionDataTask, Data) -> Void)?
   var sessionTaskDidComplete: ((URLSession, URLSessionTask, Error?) -> Void)?
@@ -281,15 +266,6 @@ final class SessionListener: SessionStream, Hashable {
   func emitRequest(_ request: Request, didFailToMutate initialURLRequest: URLRequest, with error: Error) {
     queue.async { self.didFailToMutateRequest?(request, initialURLRequest, error) }
   }
-
-  // HTTPResponse
-//  func emitDidDecode(_ initialResponse: Response<Data>) {
-//    queue.async { self.didDecodeResponse?(initialResponse) }
-//  }
-//
-//  func emitFailedToDecode(_ initialResponse: Response<Data>, with error: Error) {
-//    queue.async { self.failedToDecodeResponse?(initialResponse, error) }
-//  }
 
   // URLSessionDelegate
   func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {

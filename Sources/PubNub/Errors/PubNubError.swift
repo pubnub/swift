@@ -330,21 +330,21 @@ extension PubNubError {
 // MARK: - Cross-Type Equatable
 
 extension Optional where Wrapped == PubNubError {
-  public static func == (lhs: Self, rhs: PubNubError.Reason?) -> Bool {
+  public static func == (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason == rhs
   }
 
-  public static func != (lhs: Self, rhs: PubNubError.Reason?) -> Bool {
+  public static func != (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason != rhs
   }
 }
 
 extension Optional where Wrapped == PubNubError.Reason {
-  public static func == (lhs: Self, rhs: PubNubError?) -> Bool {
+  public static func == (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs == rhs?.reason
   }
 
-  public static func != (lhs: Self, rhs: PubNubError?) -> Bool {
+  public static func != (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs != rhs?.reason
   }
 }

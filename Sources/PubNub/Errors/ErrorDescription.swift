@@ -66,17 +66,30 @@ public struct ErrorDescription {
   }()
 
   public static let messageHistoryNotEnabled: String = {
-    "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
+    "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
   }()
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {
   public var description: String {
-    return reason.description
+    return errorDescription ?? reason.description
   }
 
   public var errorDescription: String? {
-    return reason.errorDescription
+    switch (reason.errorDescription, failureReason) {
+    case let (.some(description), .some(reason)):
+      return "\(description): \(reason)"
+    case let (.some(description), nil):
+      return description
+    case let (nil, .some(reason)):
+      return "\(reason.description): \(reason)"
+    case (nil, nil):
+      return reason.description
+    }
+  }
+
+  public var failureReason: String? {
+    return details.isEmpty ? nil : details.joined(separator: ", ")
   }
 }
 
@@ -183,7 +196,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .pushNotEnabled:
       return "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
     case .messageHistoryNotEnabled:
-      return "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key."
+      return "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
     case .messageDeletionNotEnabled:
       return "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
     case .couldNotParseRequest:

@@ -28,11 +28,11 @@
 import Foundation
 
 struct Constant {
-  public static let presenceChannelSuffix: String = {
+  static let presenceChannelSuffix: String = {
     "-pnpres"
   }()
 
-  public static let operatingSystemName: String = {
+  static let operatingSystemName: String = {
     let osName: String = {
       #if os(iOS)
         return "iOS"
@@ -52,16 +52,16 @@ struct Constant {
     return osName
   }()
 
-  public static let operatingSystemVersion: String = {
+  static let operatingSystemVersion: String = {
     let version = ProcessInfo.processInfo.operatingSystemVersion
     return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
   }()
 
-  public static let pubnubSwiftSDKName: String = {
+  static let pubnubSwiftSDKName: String = {
     "PubNubSwift"
   }()
 
-  public static let pubnubSwiftSDKVersion: String = {
+  static let pubnubSwiftSDKVersion: String = {
     guard let pubnubInfo = Bundle(for: Session.self).infoDictionary,
       let build = pubnubInfo["CFBundleShortVersionString"] else {
       return "?.?.?"
@@ -70,7 +70,7 @@ struct Constant {
     return "\(build)"
   }()
 
-  public static let appBundleId: String = {
+  static let appBundleId: String = {
     if let info = Bundle.main.infoDictionary,
       let bundleId = info[kCFBundleIdentifierKey as String] as? String {
       return bundleId
@@ -79,7 +79,7 @@ struct Constant {
     return "<Unknown BundleID>"
   }()
 
-  public static let appVersion: String = {
+  static let appVersion: String = {
     if let info = Bundle.main.infoDictionary,
       let bundleVersion = info["CFBundleShortVersionString"] as? String {
       return bundleVersion
@@ -88,15 +88,15 @@ struct Constant {
     return "?.?.?"
   }()
 
-  public static let pnSDKQueryParameterValue: String = {
+  static let pnSDKQueryParameterValue: String = {
     "\(pubnubSwiftSDKName)-\(operatingSystemName)/\(pubnubSwiftSDKVersion)"
   }()
 
-  public static let pnSDKURLQueryItem: URLQueryItem = {
+  static let pnSDKURLQueryItem: URLQueryItem = {
     URLQueryItem(name: "pnsdk", value: pnSDKQueryParameterValue)
   }()
 
-  public static let defaultUserAgent: String = {
+  static let defaultUserAgent: String = {
     let userAgent: String = {
       let appNameVersion: String = {
         "\(Constant.appBundleId)/\(Constant.appVersion)"
@@ -120,15 +120,6 @@ struct Constant {
     280
   }()
 
-  static let iso8601DateFormatter: DateFormatter = {
-    let enUSPOSIXLocale = Locale(identifier: "en_US_POSIX")
-    let iso8601DateFormatter = DateFormatter()
-    iso8601DateFormatter.locale = enUSPOSIXLocale
-    iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-    iso8601DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-    return iso8601DateFormatter
-  }()
-
   static let positiveInfinty = {
     "Infinity"
   }()
@@ -149,20 +140,20 @@ struct Constant {
     NSNull()
   }()
 
-  public static let jsonDecoder: JSONDecoder = {
+  static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.dataDecodingStrategy = .base64
-    decoder.dateDecodingStrategy = .formatted(Constant.iso8601DateFormatter)
+    decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601)
     decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty,
                                                                     negativeInfinity: negativeInfinty,
                                                                     nan: notANumber)
     return decoder
   }()
 
-  public static let jsonEncoder: JSONEncoder = {
+  static let jsonEncoder: JSONEncoder = {
     let encoder = JSONEncoder()
     encoder.dataEncodingStrategy = .base64
-    encoder.dateEncodingStrategy = .formatted(Constant.iso8601DateFormatter)
+    encoder.dateEncodingStrategy = .formatted(DateFormatter.iso8601)
     encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty,
                                                                   negativeInfinity: negativeInfinty,
                                                                   nan: notANumber)

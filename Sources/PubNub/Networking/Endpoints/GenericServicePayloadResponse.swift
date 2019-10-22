@@ -281,8 +281,12 @@ struct ErrorPayload: Codable {
   let details: [ErrorDetail]
 }
 
-public struct ErrorDetail: Codable, Hashable {
-  let message: String
-  let location: String
-  let locationType: String
+public struct ErrorDetail: Codable, Hashable, CustomStringConvertible {
+  public let message: String
+  public let location: String
+  public let locationType: String
+
+  public var description: String {
+    return message
+  }
 }

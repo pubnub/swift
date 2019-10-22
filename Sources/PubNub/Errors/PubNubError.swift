@@ -32,9 +32,11 @@ public struct PubNubError: Error {
 
   public let reason: Reason
 
-  public let coorelation: [CorrelationIdentifier]
-  public let affected: [AffectedValue]
+  public let details: [String]
   public let underlying: Error?
+
+  let coorelation: [CorrelationIdentifier]
+  let affected: [AffectedValue]
 
   public let endpointCategory: Endpoint.Category
   public var endpointDomain: Endpoint.OperationType {
@@ -48,14 +50,14 @@ public struct PubNubError: Error {
 
   // MARK: - Nested Objects
 
-  public enum CorrelationIdentifier: Hashable {
+  enum CorrelationIdentifier: Hashable {
     case pubnub(UUID)
     case session(UUID)
     case request(UUID)
     case urlTask(Int)
   }
 
-  public enum AffectedValue: Hashable {
+  enum AffectedValue: Hashable {
     case uuid(UUID)
     case string(String)
     case data(Data)
@@ -199,26 +201,14 @@ public struct PubNubError: Error {
     endpoint category: Endpoint.Category,
     coorelation identifiers: [CorrelationIdentifier] = [],
     underlying error: Error? = nil,
+    additional details: [String] = [],
     affected values: [AffectedValue] = []
   ) {
     endpointCategory = category
     self.reason = reason
     coorelation = identifiers
     underlying = error
-    affected = values
-  }
-
-  init(
-    _ reason: Reason,
-    endpoint: Endpoint,
-    coorelation identifiers: [CorrelationIdentifier] = [],
-    underlying error: Error? = nil,
-    affected values: [AffectedValue] = []
-  ) {
-    endpointCategory = endpoint.category
-    self.reason = reason
-    coorelation = identifiers
-    underlying = error
+    self.details = details
     affected = values
   }
 
@@ -230,11 +220,18 @@ public struct PubNubError: Error {
     self.init(reason, endpoint: endpoint.category, underlying: error)
   }
 
-  init(reason: Reason?, endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse) {
+  init(
+    reason: Reason?,
+    endpoint: Endpoint,
+    request: URLRequest,
+    response: HTTPURLResponse,
+    affected details: [ErrorDetail]? = nil
+  ) {
     let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
 
     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
               endpoint: endpoint.category,
+              additional: details?.compactMap { $0.message } ?? [],
               affected: [.request(request), .response(response)])
   }
 

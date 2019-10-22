@@ -72,7 +72,8 @@ extension ResponseDecoder {
     let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data)
 
     return PubNubError(reason: generalErrorPayload?.pubnubReason,
-                       endpoint: endpoint, request: request, response: response)
+                       endpoint: endpoint, request: request, response: response,
+                       affected: generalErrorPayload?.details)
   }
 }
 

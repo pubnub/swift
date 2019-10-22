@@ -29,15 +29,17 @@ import Foundation
 
 extension DateFormatter {
   /// Returns a string representation of the current `date` formatted using the receiver’s current settings.
-  var currentDateString: String {
+  public var currentDateString: String {
     return string(from: Date())
   }
 
-  static func date(fromISO8601String string: String) -> Date? {
-    if let dateWithMilliseconds = Constant.iso8601DateFormatter.date(from: string) {
-      return dateWithMilliseconds
-    }
-
-    return nil
-  }
+  /// DateFormatter class that generates and parses string representations of dates following the ISO 8601 standard
+  public static let iso8601: DateFormatter = {
+    let enUSPOSIXLocale = Locale(identifier: "en_US_POSIX")
+    let iso8601DateFormatter = DateFormatter()
+    iso8601DateFormatter.locale = enUSPOSIXLocale
+    iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+    iso8601DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    return iso8601DateFormatter
+  }()
 }

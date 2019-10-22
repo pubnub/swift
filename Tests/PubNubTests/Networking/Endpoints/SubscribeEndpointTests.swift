@@ -226,7 +226,7 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(user.profileURL, nil)
         XCTAssertEqual(user.email, nil)
         XCTAssertEqual(user.custom.isEmpty, true)
-        XCTAssertEqual(user.updated, Constant.iso8601DateFormatter.date(from: "2019-10-06T01:55:50.645685Z"))
+        XCTAssertEqual(user.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
         XCTAssertEqual(user.eTag, "UserUpdateEtag")
 
         objectExpect.fulfill()
@@ -343,7 +343,7 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(space.name, "Test Name")
         XCTAssertEqual(space.spaceDescription, nil)
         XCTAssertEqual(space.custom.isEmpty, true)
-        XCTAssertEqual(space.updated, Constant.iso8601DateFormatter.date(from: "2019-10-06T01:55:50.645685Z"))
+        XCTAssertEqual(space.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
         XCTAssertEqual(space.eTag, "SpaceUpdateEtag")
 
         objectExpect.fulfill()
@@ -459,7 +459,8 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(membership.userId, "TestUserID")
         XCTAssertEqual(membership.spaceId, "TestSpaceID")
         XCTAssertEqual(membership.custom["something"]?.boolValue, true)
-        XCTAssertEqual(membership.updated, Constant.iso8601DateFormatter.date(from: "2019-10-05T23:35:38.457823306Z"))
+        XCTAssertEqual(membership.updated,
+                       DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
         XCTAssertEqual(membership.eTag, "TestETag")
 
         objectExpect.fulfill()
@@ -522,7 +523,8 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(membership.userId, "TestUserID")
         XCTAssertEqual(membership.spaceId, "TestSpaceID")
         XCTAssertEqual(membership.custom.isEmpty, true)
-        XCTAssertEqual(membership.updated, Constant.iso8601DateFormatter.date(from: "2019-10-05T23:35:38.457823306Z"))
+        XCTAssertEqual(membership.updated,
+                       DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
         XCTAssertEqual(membership.eTag, "TestETag")
         objectExpect.fulfill()
       case let .subscriptionChanged(change):

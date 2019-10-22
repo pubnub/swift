@@ -61,8 +61,8 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetchAll_success"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-08-18T11:25:55.44977Z"),
-      let lastCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-08-18T11:25:59.326105Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
+      let lastCreatedDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -227,7 +227,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetch_success"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -385,7 +385,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetch_success"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -413,7 +413,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_400"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -437,7 +437,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -461,7 +461,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "409 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_409"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -485,7 +485,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "415 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_415"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -509,7 +509,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -533,7 +533,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -557,7 +557,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -606,7 +606,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Update Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetch_success"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -634,7 +634,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_400"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -658,7 +658,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -682,7 +682,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "409 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_409"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -706,7 +706,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "412 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_412"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -730,7 +730,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "415 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_415"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -754,7 +754,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -778,7 +778,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -802,7 +802,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]),
-      let firstCreatedDate = Constant.iso8601DateFormatter.date(from: "2019-09-03T02:47:38.609257Z") else {
+      let firstCreatedDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -1013,7 +1013,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetchMemberships_success"]),
-      let spaceDate = Constant.iso8601DateFormatter.date(from: "2019-09-29T13:07:45.807503Z") else {
+      let spaceDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -1035,14 +1035,14 @@ final class UserObjectsEndpointTests: XCTestCase {
           XCTAssertEqual(payload.memberships.first?.customType.isEmpty, true)
           XCTAssertEqual(payload.memberships.first?.eTag, "FirstETag")
           XCTAssertEqual(payload.memberships.first?.created,
-                         Constant.iso8601DateFormatter.date(from: "2019-09-29T13:07:57.589822Z"))
+                         DateFormatter.iso8601.date(from: "2019-09-29T13:07:57.589822Z"))
           XCTAssertTrue(firstSpace.isEqual(payload.memberships.first?.space))
 
           XCTAssertEqual(payload.memberships.last?.id, "LastSpace")
           XCTAssertEqual(payload.memberships.last?.customType, ["starred": .init(boolValue: true)])
           XCTAssertEqual(payload.memberships.last?.eTag, "LastETag")
           XCTAssertEqual(payload.memberships.last?.created,
-                         Constant.iso8601DateFormatter.date(from: "2019-09-29T19:13:43.964451Z"))
+                         DateFormatter.iso8601.date(from: "2019-09-29T19:13:43.964451Z"))
           XCTAssertNil(payload.memberships.last?.space)
 
         case let .failure(error):
@@ -1123,7 +1123,7 @@ final class UserObjectsEndpointTests: XCTestCase {
     let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_users_fetchMemberships_success"]),
-      let spaceDate = Constant.iso8601DateFormatter.date(from: "2019-09-29T13:07:45.807503Z") else {
+      let spaceDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z") else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -1145,14 +1145,14 @@ final class UserObjectsEndpointTests: XCTestCase {
           XCTAssertEqual(payload.memberships.first?.customType.isEmpty, true)
           XCTAssertEqual(payload.memberships.first?.eTag, "FirstETag")
           XCTAssertEqual(payload.memberships.first?.created,
-                         Constant.iso8601DateFormatter.date(from: "2019-09-29T13:07:57.589822Z"))
+                         DateFormatter.iso8601.date(from: "2019-09-29T13:07:57.589822Z"))
           XCTAssertTrue(firstSpace.isEqual(payload.memberships.first?.space))
 
           XCTAssertEqual(payload.memberships.last?.id, "LastSpace")
           XCTAssertEqual(payload.memberships.last?.customType, ["starred": .init(boolValue: true)])
           XCTAssertEqual(payload.memberships.last?.eTag, "LastETag")
           XCTAssertEqual(payload.memberships.last?.created,
-                         Constant.iso8601DateFormatter.date(from: "2019-09-29T19:13:43.964451Z"))
+                         DateFormatter.iso8601.date(from: "2019-09-29T19:13:43.964451Z"))
           XCTAssertNil(payload.memberships.last?.space)
 
         case let .failure(error):

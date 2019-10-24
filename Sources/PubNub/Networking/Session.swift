@@ -29,18 +29,25 @@ import Foundation
 
 // MARK: - PubNub Networking
 
+/// An object that coordinates a group of related network data transfer tasks.
 public final class Session {
+  /// The unique identifier for this object
   public let sessionID: UUID = UUID()
+  /// The underlying `URLSession` used to execute the network tasks
   public let session: URLSessionReplaceable
+  /// The dispatch queue used to execute session operations
   public let sessionQueue: DispatchQueue
+  /// The dispatch queue used to execute request operations
   public let requestQueue: DispatchQueue
+  /// The state that tracks the validity of the underlying `URLSessionReplaceable`
   let invalidationState = AtomicInt(0)
-
+  /// The delegate that receives incoming network transmissions
   weak var delegate: SessionDelegate?
+  /// The event stream that session activity status will emit to
   let sessionStream: SessionStream?
+  /// The `RequestOperator` that is attached to every request
   var defaultRequestOperator: RequestOperator?
-
-  // Internal
+  /// The collection of associations between `URLSessionTask` and their corresponding `Request`
   var taskToRequest: [URLSessionTask: Request] = [:]
 
   public init(
@@ -98,6 +105,10 @@ public final class Session {
 
   // MARK: - Self Operators
 
+  /// The method used to set the default `RequestOperator`
+  ///
+  /// - parameter requestOperator: The default `RequestOperator`
+  /// - returns: This `Session` object
   public func usingDefault(requestOperator: RequestOperator?) -> Self {
     defaultRequestOperator = requestOperator
     return self
@@ -105,6 +116,12 @@ public final class Session {
 
   // MARK: - Perform Request
 
+  /// Creates and performs a request using the provided router
+  ///
+  /// - parameters:
+  ///   -  with: The `Router` used to create the `Request`
+  ///   -  requestOperator: The operator specific to this `Request`
+  /// - returns: This created `Request`
   public func request(
     with router: Router,
     requestOperator: RequestOperator? = nil
@@ -132,7 +149,6 @@ public final class Session {
     }
   }
 
-  // This could also be called from retrier, so we don't want to consolidate
   func perform(_ request: Request, urlRequest convertible: URLRequestConvertible) {
     // Perform the request.  (SessionDelegate will emit the response)
     let urlRequest: URLRequest
@@ -176,6 +192,7 @@ public final class Session {
     }
   }
 
+  /// True if the underlying session is invalidated and can no longer perform requests
   public internal(set) var isInvalidated: Bool {
     get {
       return invalidationState.isEqual(to: 1)
@@ -239,6 +256,11 @@ public final class Session {
     }
   }
 
+  /// Cancels all requests on a given `Endpoint` returning the provided error reason
+  ///
+  /// - Parameters:
+  ///   - reason: The reason for the cancellation
+  ///   - for: The endpoint whose requests will be cancelled
   public func cancelAllTasks(_ reason: PubNubError.Reason, for endpoint: Endpoint.Category = .subscribe) {
     sessionQueue.async { [weak self] in
       self?.taskToRequest.forEach { task, request in
@@ -251,6 +273,11 @@ public final class Session {
     }
   }
 
+  /// Cancels all outstanding tasks and then invalidates the session.
+  ///
+  /// Once invalidated, references to the delegate and callback objects are broken.
+  /// After invalidation, session objects cannot be reused.
+  /// - Important: Calling this method on the session returned by the shared method has no effect.
   public func invalidateAndCancel() {
     // Ensure that we lock out task creation prior to invalidating
     isInvalidated = true
@@ -266,10 +293,11 @@ extension Session: RequestDelegate {
     for request: Request,
     dueTo error: Error,
     andPrevious _: Error?,
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
+    // Immediately return error if we don't have any retry logic
     guard let retrier = retrier(for: request) else {
-      sessionQueue.async { completion(.doNotRetry) }
+      sessionQueue.async { completion(.failure(error)) }
       return
     }
 
@@ -277,11 +305,7 @@ extension Session: RequestDelegate {
 
     retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in
       self?.sessionQueue.async {
-        guard let retryResultError = retryResult.error else {
-          completion(retryResult)
-          return
-        }
-        completion(.doNotRetryWithError(retryResultError))
+        completion(retryResult)
       }
     }
   }

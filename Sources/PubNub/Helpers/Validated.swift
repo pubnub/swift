@@ -35,10 +35,12 @@ public protocol Validated {
 }
 
 extension Validated {
+  /// If this is a valid instance of the object
   public var isValid: Bool {
     return validationError == nil
   }
 
+  /// A `Result` that is either the concrete value or an `Error`
   public var validResult: Result<Self, Error> {
     if let error = validationError {
       return .failure(error)

@@ -29,11 +29,33 @@ import Foundation
 
 // MARK: - Response Decoder
 
+/// The object responsible for decoding the raw response data
 public protocol ResponseDecoder where Payload: Codable {
   associatedtype Payload
 
+  /// The method called when attempting to decode the response data for a given Endpoint
+  ///
+  /// - Parameters:
+  ///   - response: The raw `Response` to be decoded
+  ///   - decoder: The `ResponseDecoder` used to decode the raw response data
+  /// - Returns: The decoded payload or the error that occurred during the decoding process
   func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
+
+  /// The method called when attempting to decode the response error data for a given Endpoint
+  ///
+  /// - Parameters:
+  ///   - endpoint: The endpoint that was requested
+  ///   - request: The `URLRequest` that failed
+  ///   - response: The `HTTPURLResponse` that was returned
+  ///   - for: The `ResponseDecoder` used to decode the raw response data
+  /// - Returns: The `PubNubError` that represents the response error
   func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
+
+  /// The method called when attempting to decode the response error data for a given Endpoint
+  ///
+  /// - Parameters:
+  ///   - response: The response to be decrypted
+  /// - Returns: The decrypted Payload or an Error
   func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error>
 }
 
@@ -80,6 +102,12 @@ extension ResponseDecoder {
 // MARK: - Request: Response Handling
 
 extension Request {
+  /// The directions on how to process the response when it comes back from the `Endpoint`
+  ///
+  /// - Parameters:
+  ///   - on: The queue the completion block will be returned on
+  ///   - decoder: The decoder used to determine the response type
+  ///   - completion: The completion block being returned with the decode response data or the error that occurred
   public func response<D: ResponseDecoder>(
     on queue: DispatchQueue = .main,
     decoder responseDecoder: D,
@@ -90,7 +118,7 @@ extension Request {
         completion(
           result.flatMap { response in
             // Decode the data response into the correct data type
-            response.router.decode(response: response, decoder: responseDecoder).flatMap { decoded in
+            responseDecoder.decode(response: response).flatMap { decoded in
               // Do any decryption of the decoded data result
               responseDecoder.decrypt(response: decoded)
             }

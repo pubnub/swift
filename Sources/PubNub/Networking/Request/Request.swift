@@ -297,12 +297,11 @@ public final class Request {
     }
 
     delegate.retryResult(for: self, dueTo: error, andPrevious: previousError) { retryResult in
-      if retryResult.isRequired {
-        delegate.retryRequest(self, withDelay: retryResult.delay)
-      } else if let error = retryResult.error {
+      switch retryResult {
+      case let .success(retryAfter):
+        delegate.retryRequest(self, withDelay: retryAfter)
+      case let .failure(error):
         self.finish(error: PubNubError.retry(error, router: self.router))
-      } else {
-        self.finish()
       }
     }
   }
@@ -441,7 +440,7 @@ public protocol RequestDelegate: AnyObject {
     for request: Request,
     dueTo error: Error,
     andPrevious error: Error?,
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   )
   func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?)
 }

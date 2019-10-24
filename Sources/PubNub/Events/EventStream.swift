@@ -27,12 +27,15 @@
 
 import Foundation
 
-public protocol EventStream {
+/// An object capable of streaming a event of objects
+public protocol EventStreamReceiver {
+  /// The unique identifier for this listener
   var uuid: UUID { get }
+  /// The queue that events will be received on
   var queue: DispatchQueue { get }
 }
 
-public extension EventStream {
+public extension EventStreamReceiver {
   var queue: DispatchQueue {
     return .main
   }
@@ -42,29 +45,44 @@ public extension EventStream {
   }
 }
 
+/// Functionality that allows for an object to be cancelled
 public protocol Cancellable {
+  /// Whether this listener has been cancelled
+  ///
+  /// If this listener has become cancelled you will need to discard it, create a new listener,
+  /// and attach it to a PubNub instance in order to continue receiving events
   var isCancelled: Bool { get }
+
+  /// Stop receiving events on this listener
+  ///
+  /// If this listener has become cancelled you will need to discard it, create a new listener,
+  /// and attach it to a PubNub instance in order to continue receiving events
+  /// - Important: This is called implicitly in the event the listener falls out of scope and is released
   func cancel()
 }
 
-public protocol EventStreamListener: AnyObject where ListenerType: Cancellable {
+/// An object capable of broadcasting a stream of events to attached listeners
+public protocol EventStreamEmitter: AnyObject where ListenerType: Cancellable {
   associatedtype ListenerType
 
+  /// Collection of active event listeners
   var listeners: [ListenerType] { get }
-
+  /// Add a new listener to the list of active listeners
   func add(_ listener: ListenerType)
+  /// Remove a listener from the list of active listeners
   func remove(_ listener: ListenerType)
-
+  /// Notify the active listeners of a new event
   func notify(listeners closure: (ListenerType) -> Void)
 }
 
-extension EventStreamListener {
+extension EventStreamEmitter {
   public func remove(_ listener: ListenerType) {
     listener.cancel()
   }
 }
 
-public class ListenerToken: CustomStringConvertible {
+/// A mechanism to automatically remove a listener from an EventStreamEmitter
+public class ListenerToken: Cancellable {
   private let cancelledState = AtomicInt(0)
   private var cancellationClosure: (() -> Void)?
 
@@ -72,6 +90,7 @@ public class ListenerToken: CustomStringConvertible {
     return cancelledState.isEqual(to: 1)
   }
 
+  /// Unique identifer of the token
   public let tokenId = UUID()
 
   public init(cancellationClosure: @escaping () -> Void) {
@@ -94,7 +113,7 @@ public class ListenerToken: CustomStringConvertible {
 
 // MARK: - CustomStringConvertible
 
-extension ListenerToken {
+extension ListenerToken: CustomStringConvertible {
   public var description: String {
     return "ListenerToken: \(tokenId)"
   }

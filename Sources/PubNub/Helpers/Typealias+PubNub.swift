@@ -42,6 +42,7 @@ typealias QueryResult = Result<[URLQueryItem], Error>
 
 // MARK: - Closures
 
+/// A closure that accepts no input and returns `Void`
 public typealias EmptyClosure = () -> Void
-
+/// A closure capable of validating a network response
 public typealias ValidationClosure = (Router, URLRequest, HTTPURLResponse, Data?) -> Error?

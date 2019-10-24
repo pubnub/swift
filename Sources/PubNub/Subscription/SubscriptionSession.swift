@@ -95,6 +95,14 @@ public class SubscriptionSession {
 
   // MARK: - Subscription Loop
 
+  /// Subscribe to channels and/or channel groups
+  ///
+  /// - Parameters:
+  ///   - to: List of channels to subscribe on
+  ///   - and: List of channel groups to subscribe on
+  ///   - at: The timetoken to subscribe with
+  ///   - withPresence: If true it also subscribes to presence events on the specified channels.
+  ///   - setting: The object containing the state for the channel(s).
   public func subscribe(
     to channels: [String],
     and groups: [String] = [],
@@ -127,6 +135,8 @@ public class SubscriptionSession {
     }
   }
 
+  /// Reconnect a disconnected subscription stream
+  /// - parameter timetoken: The timetoken to subscribe with
   public func reconnect(at timetoken: Timetoken?) {
     if !connectionStatus.isActive {
       connectionStatus = .connecting
@@ -148,6 +158,7 @@ public class SubscriptionSession {
     }
   }
 
+  /// Disconnect the subscription stream
   public func disconnect() {
     stopSubscribeLoop(.clientCancelled)
     stopHeartbeatTimer()
@@ -288,6 +299,12 @@ public class SubscriptionSession {
 
   // MARK: - Unsubscribe
 
+  /// Unsubscribe from channels and/or channel groups
+  ///
+  /// - Parameters:
+  ///   - from: List of channels to unsubscribe from
+  ///   - and: List of channel groups to unsubscribe from
+  ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   public func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
     // Update Channel List
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
@@ -311,6 +328,7 @@ public class SubscriptionSession {
     }
   }
 
+  /// Unsubscribe from all channels and channel groups
   public func unsubscribeAll() {
     // Remove All Channels & Groups
     let subscribeChange = internalState.lockedWrite { mutableState -> SubscriptionChangeEvent in
@@ -368,7 +386,7 @@ public class SubscriptionSession {
   }
 }
 
-extension SubscriptionSession: EventStreamListener {
+extension SubscriptionSession: EventStreamEmitter {
   public typealias ListenerType = SubscriptionListener
 
   public var listeners: [ListenerType] {

@@ -95,7 +95,7 @@ class AnyJSONTests: XCTestCase {
     let json: AnyJSON = ["One", 2, true, 3.0]
 
     XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertNotNil(json.arrayValue)
+    XCTAssertNotNil(json.arrayOptional)
   }
 
   func testExpressible_Dictionary() {
@@ -114,7 +114,7 @@ class AnyJSONTests: XCTestCase {
     ]
 
     XCTAssertEqual(json, AnyJSON(literal))
-    XCTAssertNotNil(json.dictionaryValue)
+    XCTAssertNotNil(json.dictionaryOptional)
   }
 
   // MARK: Stringify

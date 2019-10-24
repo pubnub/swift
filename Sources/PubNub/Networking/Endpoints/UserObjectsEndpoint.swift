@@ -31,7 +31,7 @@ import Foundation
 
 public protocol ObjectIdentifiable: JSONCodable {
   var id: String { get }
-  var custom: [String: JSONCodableScalar] { get }
+  var custom: [String: JSONCodableScalar]? { get }
 }
 
 extension ObjectIdentifiable {
@@ -51,15 +51,17 @@ extension ObjectIdentifiable {
 extension ObjectIdentifiable where Self: Equatable {
   func isEqual(_ other: ObjectIdentifiable?) -> Bool {
     return id == other?.id &&
-      custom.allSatisfy { other?.custom[$0]?.scalarValue == $1.scalarValue }
+      custom?.allSatisfy {
+        other?.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
   }
 }
 
 struct SimpleObjectIdentifiable: ObjectIdentifiable, Codable {
   let id: String
-  let custom: [String: JSONCodableScalar]
+  let custom: [String: JSONCodableScalar]?
 
-  init(id: String, custom: [String: JSONCodableScalar]) {
+  init(id: String, custom: [String: JSONCodableScalar]?) {
     self.id = id
     self.custom = custom
   }
@@ -85,7 +87,7 @@ struct SimpleObjectIdentifiable: ObjectIdentifiable, Codable {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(id, forKey: .id)
-    try container.encode(custom.mapValues { $0.scalarValue }, forKey: .custom)
+    try container.encode(custom?.mapValues { $0.scalarValue }, forKey: .custom)
   }
 }
 
@@ -108,6 +110,7 @@ public protocol PubNubUser: ObjectIdentifiable {
   var externalId: String? { get }
   var profileURL: String? { get }
   var email: String? { get }
+  var custom: [String: JSONCodableScalar]? { get }
 }
 
 extension PubNubUser {
@@ -130,7 +133,9 @@ extension PubNubUser where Self: Equatable {
       externalId == other?.externalId &&
       profileURL == other?.profileURL &&
       email == other?.email &&
-      custom.allSatisfy { other?.custom[$0]?.scalarValue == $1.scalarValue }
+      custom?.allSatisfy {
+        other?.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
   }
 }
 
@@ -176,10 +181,15 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
   public let externalId: String?
   public let profileURL: String?
   public let email: String?
-  public let customType: [String: JSONCodableScalarType]
   public let created: Date
   public let updated: Date
   public let eTag: String
+
+  public var custom: [String: JSONCodableScalar]? {
+    return customType
+  }
+
+  let customType: [String: JSONCodableScalarType]?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -199,7 +209,7 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
     externalId: String? = nil,
     profileURL: String? = nil,
     email: String? = nil,
-    custom: [String: JSONCodableScalar] = [:],
+    custom: [String: JSONCodableScalar]? = nil,
     created: Date = Date.distantPast,
     updated: Date? = nil,
     eTag: String = ""
@@ -209,7 +219,7 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
     self.email = email
     self.externalId = externalId
     self.profileURL = profileURL
-    customType = custom.mapValues { $0.scalarValue }
+    customType = custom?.mapValues { $0.scalarValue }
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
@@ -247,14 +257,10 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
     email = try container.decodeIfPresent(String.self, forKey: .email)
     externalId = try container.decodeIfPresent(String.self, forKey: .externalId)
     profileURL = try container.decodeIfPresent(String.self, forKey: .profileURL)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType) ?? [:]
+    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType)
     created = try container.decodeIfPresent(Date.self, forKey: .created) ?? Date.distantPast
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
-  }
-
-  public var custom: [String: JSONCodableScalar] {
-    return customType as [String: JSONCodableScalar]
   }
 }
 

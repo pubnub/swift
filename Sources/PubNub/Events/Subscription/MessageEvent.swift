@@ -27,6 +27,7 @@
 
 import Foundation
 
+/// An event representing a message
 public protocol MessageEvent: CustomStringConvertible {
   /// Message sender identifier
   var publisher: String? { get }

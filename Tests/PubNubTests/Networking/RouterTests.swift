@@ -41,6 +41,8 @@ class RouterTests: XCTestCase {
   }
 
   struct PublishOnlyRouter: Router {
+    var validationError: Error?
+
     var endpoint: Endpoint = .time
     var configuration: RouterConfiguration
     var method: HTTPMethod = .get
@@ -58,8 +60,6 @@ class RouterTests: XCTestCase {
     }
 
     var body: Result<Data?, Error> = .success(nil)
-    var keysRequired: PNKeyRequirement = .publish
-    var pamVersion: PAMVersionRequirement = .version3
     func decodeError(endpoint _: Endpoint,
                      request _: URLRequest,
                      response _: HTTPURLResponse,
@@ -92,25 +92,10 @@ class RouterTests: XCTestCase {
     let router = PubNubRouter(configuration: config, endpoint: .fire(message: AnyJSON([]), channel: "Test", meta: nil))
     let queryItems = [
       URLQueryItem(name: "pnsdk", value: Constant.pnSDKQueryParameterValue),
-      URLQueryItem(name: "uuid", value: config.uuid),
-      URLQueryItem(name: "auth", value: config.authKey)
+      URLQueryItem(name: "uuid", value: config.uuid)
     ]
 
     XCTAssertEqual(router.defaultQueryItems, queryItems)
-  }
-
-  func testKeyValidationError_PublishReq() {
-    let config = PubNubConfiguration(publishKey: "TestKeyNotReal", subscribeKey: nil)
-    let router = PublishOnlyRouter(config: config)
-
-    XCTAssertNil(router.keyValidationError)
-  }
-
-  func testKeyValidationError_PublishReq_MissingKey() {
-    let config = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
-    let router = PublishOnlyRouter(config: config)
-
-    XCTAssertEqual(router.keyValidationError, PubNubError(reason: .missingPublishKey))
   }
 
   func testKeyValidationError_SubscribeReq() {

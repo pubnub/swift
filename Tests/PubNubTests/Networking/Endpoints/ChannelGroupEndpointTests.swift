@@ -123,7 +123,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .deleteChannelGroup(testGroupName) { result in
+      .delete(channelGroup: testGroupName) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
@@ -235,7 +235,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .addChannels(testChannels, to: testGroupName) { result in
+      .add(channels: testChannels, to: testGroupName) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
@@ -256,7 +256,8 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .addChannels(testChannels, to: testGroupName) { result in
+      .add(channels: testChannels, to: testGroupName) { result in
+        print(result)
         switch result {
         case .success:
           XCTFail("Add Channel request should fail")
@@ -277,7 +278,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .addChannels(testChannels, to: testGroupName) { result in
+      .add(channels: testChannels, to: testGroupName) { result in
         print("Result: \(result)")
         switch result {
         case .success:
@@ -323,7 +324,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .removeChannels(testChannels, from: testGroupName) { result in
+      .remove(channels: testChannels, from: testGroupName) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)

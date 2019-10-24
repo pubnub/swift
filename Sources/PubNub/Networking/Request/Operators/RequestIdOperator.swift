@@ -30,6 +30,7 @@ import Foundation
 /// Attaches a request instance ID query parameters to requests
 public struct RequestIdOperator: RequestOperator {
   static let requestIDKey = "requestid"
+  /// The requestID that will be attached to the request
   public let requestID: String
 
   init(requestID: String) {

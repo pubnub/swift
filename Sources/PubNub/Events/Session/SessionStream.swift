@@ -27,7 +27,8 @@
 
 import Foundation
 
-public protocol SessionStream: EventStream {
+/// A stream of `Session` events
+public protocol SessionStream: EventStreamReceiver {
   // URLRequest Building
   func emitRequest(_ request: Request, didCreate urlRequest: URLRequest)
   func emitRequest(_ request: Request, didFailToCreateURLRequestWith error: Error)

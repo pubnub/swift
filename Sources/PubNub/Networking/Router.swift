@@ -48,10 +48,12 @@ public protocol RouterConfiguration {
 }
 
 extension RouterConfiguration {
+  /// The scheme used when creating the URL for the request
   public var urlScheme: String {
     return useSecureConnections ? "https" : "http"
   }
 
+  /// True if the subscribeKey exsits and is not an empty `String`
   public var subscribeKeyExists: Bool {
     guard let subscribeKey = subscribeKey, !subscribeKey.isEmpty else {
       return false
@@ -59,6 +61,7 @@ extension RouterConfiguration {
     return true
   }
 
+  /// True if the publishKey exsits and is not an empty `String`
   public var publishKeyExists: Bool {
     guard let publishKey = publishKey, !publishKey.isEmpty else {
       return false
@@ -68,28 +71,6 @@ extension RouterConfiguration {
 }
 
 extension PubNubConfiguration: RouterConfiguration {}
-
-public enum PNKeyRequirement: String {
-  public enum Contract {
-    case none
-    case publish(String)
-    case subscribe(String)
-    case publishAndSubscribe(publish: String, subscribe: String)
-  }
-
-  case none = "None"
-  case publish = "Publish"
-  case subscribe = "Subscribe"
-  case publishAndSubscribe = "Publish & Subscribe"
-}
-
-public enum PAMVersionRequirement {
-  case none
-  case version2
-  case version3
-}
-
-// public typealias HTTPHeaders = [String: String]
 
 /// HTTP method definitions.
 ///
@@ -108,79 +89,34 @@ public enum HTTPMethod: String {
 
 // MARK: - Router
 
+/// Collects together and assembles the separate pieces used to create a URLRequest
 public protocol Router: URLRequestConvertible, CustomStringConvertible, Validated {
+  /// The target of the `URLRequest`
   var endpoint: Endpoint { get }
+  /// Configuration used during the URLRequest generation
   var configuration: RouterConfiguration { get }
+  /// The HTTP method used on the URL
   var method: HTTPMethod { get }
+  /// The path for the `URL` or the `Error` during its creation
   var path: Result<String, Error> { get }
+  /// The collection of `URLQueryItem` or the `Error` during its creation
   var queryItems: Result<[URLQueryItem], Error> { get }
+  /// Additional requred headers
   var additionalHeaders: HTTPHeaders { get }
+  /// The `Data` that will be put inside the request or the `Error` generate during its creation
   var body: Result<Data?, Error> { get }
 
-  var keysRequired: PNKeyRequirement { get }
-  var pamVersion: PAMVersionRequirement { get }
-
-  func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error>
+  /// The method called when attempting to decode the response error data for a given Endpoint
+  ///
+  /// Currently being used during `Request` validation
+  ///
+  /// - Parameters:
+  ///   - endpoint: The endpoint that was requested
+  ///   - request: The `URLRequest` that failed
+  ///   - response: The `HTTPURLResponse` that was returned
+  ///   - for: The `ResponseDecoder` used to decode the raw response data
+  /// - Returns: The `PubNubError` that represents the response error
   func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
-}
-
-extension Router {
-  // Default Protocol Implementation
-  func decode<D: ResponseDecoder>(response: Response<Data>, decoder: D) -> Result<Response<D.Payload>, Error> {
-    return decoder.decode(response: response)
-  }
-
-  // Default Endpoint Values
-  public var defaultQueryItems: [URLQueryItem] {
-    var queryItems = [
-      Constant.pnSDKURLQueryItem,
-      URLQueryItem(name: "uuid", value: configuration.uuid)
-    ]
-    if pamVersion != .none, let authKey = configuration.authKey {
-      queryItems.append(URLQueryItem(name: "auth", value: authKey))
-    }
-    return queryItems
-  }
-
-  // Endpoint Validators
-  public var keyValidationError: PubNubError? {
-    switch keysRequired {
-    case .none:
-      return nil
-
-    case .subscribe:
-      if configuration.subscribeKeyExists {
-        return nil
-      }
-      return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
-    case .publish:
-      if configuration.publishKeyExists {
-        return nil
-      }
-      return PubNubError(.missingPublishKey, endpoint: endpoint.category)
-
-    case .publishAndSubscribe:
-      switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
-      case (false, false):
-        return PubNubError(.missingPublishAndSubscribeKey, endpoint: endpoint.category)
-      case (true, false):
-        return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
-      case (false, true):
-        return PubNubError(.missingPublishKey, endpoint: endpoint.category)
-      case (true, true):
-        return nil
-      }
-    }
-  }
-
-  var validationError: Error? {
-    if let invalidKeysError = keyValidationError {
-      return invalidKeysError
-    } else if let endpointValidationError = endpoint.validationError {
-      return endpointValidationError
-    }
-    return nil
-  }
 }
 
 // MARK: - URLRequestConvertible
@@ -201,8 +137,8 @@ extension Router {
         // URL will double encode our attempts to sanitize '/' inside path inputs
         urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
 
-        urlComponents.queryItems = defaultQueryItems
-        urlComponents.queryItems?.append(contentsOf: query)
+        urlComponents.queryItems = query
+
         // URL will not encode `+` or `?`, so we will do it manually
         urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.additionalQueryEncoding
 

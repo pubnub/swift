@@ -30,6 +30,7 @@ import Foundation
 /// Attaches a PubNub object instance ID query parameters to requests
 public struct InstanceIdOperator: RequestOperator {
   static let instanceIDKey = "instanceid"
+  /// The instanceID that will be attached to the request
   public let instanceID: String
 
   init(instanceID: String) {

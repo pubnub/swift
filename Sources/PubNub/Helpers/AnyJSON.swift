@@ -27,14 +27,16 @@
 
 import Foundation
 
-/// A `Codable` representation of Any inside a JSON structure
+/// A  JSON`Codable` representation of an `Any`
 public struct AnyJSON {
   let value: AnyJSONType
 
+  /// Create an `AnyJSON` from an `Any`
   public init(_ value: Any) {
     self.value = AnyJSONType(rawValue: value)
   }
 
+  /// Create an `AnyJSON` from a JSON string
   public init(reverse stringify: String) {
     let rawString = stringify.reverseJSONDescription
     if let bool = Bool(rawString) {
@@ -97,9 +99,13 @@ extension AnyJSON: Codable {
 
 // MARK: - Collection
 
+/// The index of for an underlying collection
 public enum AnyJSONIndex: Comparable {
+  /// An index for an underlying Array
   case arrayIndex(Int)
+  /// An index for an underlying Dictionary
   case dictionaryIndex(DictionaryIndex<String, Any>)
+  /// A index for when the underlying value is not a collection
   case null
 
   public static func == (lhs: AnyJSONIndex, rhs: AnyJSONIndex) -> Bool {
@@ -131,9 +137,9 @@ extension AnyJSON: Collection {
   public var startIndex: AnyJSONIndex {
     switch value {
     case .array:
-      return .arrayIndex(arrayValue.startIndex)
+      return .arrayIndex((arrayOptional ?? []).startIndex)
     case .dictionary:
-      return .dictionaryIndex(dictionaryValue.startIndex)
+      return .dictionaryIndex((dictionaryOptional ?? [:]).startIndex)
     default:
       return .null
     }
@@ -142,9 +148,9 @@ extension AnyJSON: Collection {
   public var endIndex: AnyJSONIndex {
     switch value {
     case .array:
-      return .arrayIndex(arrayValue.endIndex)
+      return .arrayIndex((arrayOptional ?? []).endIndex)
     case .dictionary:
-      return .dictionaryIndex(dictionaryValue.endIndex)
+      return .dictionaryIndex((dictionaryOptional ?? [:]).endIndex)
     default:
       return .null
     }
@@ -153,9 +159,9 @@ extension AnyJSON: Collection {
   public func index(after index: AnyJSONIndex) -> AnyJSONIndex {
     switch index {
     case let .arrayIndex(index):
-      return .arrayIndex(arrayValue.index(after: index))
+      return .arrayIndex((arrayOptional ?? []).index(after: index))
     case let .dictionaryIndex(index):
-      return .dictionaryIndex(dictionaryValue.index(after: index))
+      return .dictionaryIndex((dictionaryOptional ?? [:]).index(after: index))
     default:
       return .null
     }
@@ -164,9 +170,9 @@ extension AnyJSON: Collection {
   public subscript(position: AnyJSONIndex) -> (String, Any) {
     switch position {
     case let .arrayIndex(index):
-      return (String(index), AnyJSON(arrayValue[index]))
+      return (String(index), AnyJSON((arrayOptional ?? [])[index]))
     case let .dictionaryIndex(index):
-      return (dictionaryValue[index].key, AnyJSON(dictionaryValue[index].value))
+      return ((dictionaryOptional ?? [:])[index].key, AnyJSON((dictionaryOptional ?? [:])[index].value))
     default:
       return ("", AnyJSON(NSNull()))
     }
@@ -188,18 +194,22 @@ extension AnyJSON: Hashable {
 // MARK: - JSON Objects
 
 extension AnyJSON {
+  /// A `Result` that is either the underlying value as a JSON `String` or an error why it couldn't be created
   var jsonStringifyResult: Result<String, Error> {
     return value.stringify.map { $0.replacingOccurrences(of: "\\/", with: "/") }
   }
 
+  /// The underlying value as a JSON `String` if it could be created
   var jsonStringify: String? {
     return try? jsonStringifyResult.get()
   }
 
+  /// A `Result` that is either the underlying value as JSON Encoded `Data` or an error why it couldn't be created
   var jsonDataResult: Result<Data, Error> {
     return value.jsonEncodedData
   }
 
+  /// The underlying value as a JSON encoded `Data` if it could be created
   var jsonData: Data? {
     return try? jsonDataResult.get()
   }
@@ -213,18 +223,17 @@ extension AnyJSON {
     return value.rawValue
   }
 
+  /// True if the underlying value represents a `nil` value
   public var isNil: Bool {
     return value == .null
   }
 
+  /// The underlying value as a `String` or nil if the value was not a `String`
   public var stringOptional: String? {
     return underlyingValue as? String
   }
 
-  public var stringValue: String {
-    return stringOptional ?? ""
-  }
-
+  /// The underlying value as a `Data` or nil if the value was not a `Data`
   public var dataOptional: Data? {
     if let stringData = stringOptional {
       return Data(base64Encoded: stringData)
@@ -232,62 +241,43 @@ extension AnyJSON {
     return nil
   }
 
-  public var dataValue: Data {
-    return dataOptional ?? Data()
-  }
-
+  /// The underlying value as a `Bool` or nil if the value was not a `Bool`
   public var boolOptional: Bool? {
     return underlyingValue as? Bool
   }
 
-  public var boolValue: Bool {
-    return boolOptional ?? false
-  }
-
+  /// The underlying value as a `Int` or nil if the value was not a `Int`
   public var intOptional: Int? {
     return underlyingValue as? Int
   }
 
-  public var intValue: Int {
-    return intOptional ?? 0
-  }
-
+  /// The underlying value as a `Double` or nil if the value was not a `Double`
   public var doubleOptional: Double? {
     return underlyingValue as? Double
   }
 
-  public var doubleValue: Double {
-    return doubleOptional ?? 0.0
-  }
-
+  /// The underlying value as a `[Any]` or nil if the value was not a `[Any]`
   public var arrayOptional: [Any]? {
     return underlyingValue as? [Any]
   }
 
-  public var arrayValue: [Any] {
-    return arrayOptional ?? []
-  }
-
+  /// The underlying value as an `[AnyJSON]` or an empty list if the value was not an `Array`
   public var wrappedUnderlyingArray: [AnyJSON] {
     return value.rawArray.map { AnyJSON($0) }
   }
 
+  /// The underlying value as a `[String: Any]` or nil if the value was not a `Dictionary`
   public var dictionaryOptional: [String: Any]? {
     return underlyingValue as? [String: Any]
   }
 
-  public var dictionaryValue: [String: Any] {
-    return dictionaryOptional ?? [:]
-  }
-
+  /// The underlying value as a `[String: AnyJSON]` or an empty dictionary if the value was not a `Dictionary`
   public var wrappedUnderlyingDictionary: [String: AnyJSON] {
     return value.rawDictionary.mapValues { AnyJSON($0) }
   }
 }
 
 // MARK: - CustomStringConvertible
-
-// MARK: - CustomDebugStringConvertible
 
 extension AnyJSON: CustomStringConvertible, CustomDebugStringConvertible {
   public var description: String {
@@ -351,6 +341,7 @@ extension AnyJSON: ExpressibleByStringLiteral {
 
 // MARK: - AnyJSONError
 
+/// An `Error` that occurred as a result of perorming an action using an `AnyJSON`
 enum AnyJSONError: Error {
   case unknownCoding(Error)
   case stringCreationFailure(Error?)

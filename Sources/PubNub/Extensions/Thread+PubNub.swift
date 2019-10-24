@@ -28,6 +28,7 @@
 import Foundation
 
 public extension Thread {
+  /// The name describing the current executing Thread
   static var currentName: String {
     if Thread.isMainThread {
       return "Thread.Main"

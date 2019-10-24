@@ -54,6 +54,6 @@ public struct ChannelListPayload: Codable {
 public typealias GroupListPayloadResponse = AnyChannelGroupResponsePayload<GroupListPayload>
 
 public struct GroupListPayload: Codable {
-  public let namespace: String?
+  let namespace: String?
   public let groups: [String]
 }

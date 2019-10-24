@@ -67,8 +67,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: invalidBasePolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
     XCTAssertEqual(testPolicy.policy, validBasePolicy)
@@ -80,8 +79,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: invalidBasePolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
     XCTAssertEqual(testPolicy.policy, validBasePolicy)
@@ -93,8 +91,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: invalidBasePolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
     XCTAssertEqual(testPolicy.policy, validBasePolicy)
@@ -106,8 +103,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: invalidBasePolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
     XCTAssertEqual(testPolicy.policy, validBasePolicy)
@@ -118,8 +114,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: validLinearPolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertEqual(testPolicy.policy, validLinearPolicy)
   }
@@ -129,8 +124,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: immediateasePolicy,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertEqual(testPolicy.policy, immediateasePolicy)
   }
@@ -162,8 +156,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: .immediately,
                                     retryableHTTPStatusCodes: [testStatusCode],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
     let testResponse = HTTPURLResponse(url: url,
                                        statusCode: testStatusCode,
                                        httpVersion: nil,
@@ -179,8 +172,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: .immediately,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [testURLErrorCode],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [testURLErrorCode])
 
     XCTAssertTrue(testPolicy.shouldRetry(response: nil,
                                          error: testError))
@@ -191,8 +183,7 @@ class AutomaticRetryTests: XCTestCase {
     let testPolicy = AutomaticRetry(retryLimit: 2,
                                     policy: .immediately,
                                     retryableHTTPStatusCodes: [],
-                                    retryableURLErrorCodes: [],
-                                    whiltelistedURLErrorCodes: [])
+                                    retryableURLErrorCodes: [])
 
     XCTAssertFalse(testPolicy.shouldRetry(response: nil,
                                           error: testError))
@@ -207,14 +198,10 @@ class AutomaticRetryTests: XCTestCase {
     let maxDelay: UInt = UInt.max
 
     let delayForRetry = [4.0, 8.0, 16.0, 32.0, 64.0]
-    let policy = AutomaticRetry(retryLimit: UInt(maxRetryCount),
-                                policy: .defaultExponential,
-                                retryableHTTPStatusCodes: [],
-                                retryableURLErrorCodes: [],
-                                whiltelistedURLErrorCodes: [])
 
     for count in 1 ... maxRetryCount {
-      XCTAssertEqual(policy.exponentialBackoffDelay(for: base, scale: scale, maxDelay: maxDelay, current: count),
+      XCTAssertEqual(AutomaticRetry.ReconnectionPolicy
+        .exponential(base: base, scale: scale, maxDelay: maxDelay).delay(for: count),
                      delayForRetry[count - 1])
     }
   }
@@ -226,14 +213,10 @@ class AutomaticRetryTests: XCTestCase {
     let maxDelay: UInt = 0
 
     let delayForRetry = [0.0, 0.0, 0.0, 0.0, 0.0]
-    let policy = AutomaticRetry(retryLimit: UInt(maxRetryCount),
-                                policy: .defaultExponential,
-                                retryableHTTPStatusCodes: [],
-                                retryableURLErrorCodes: [],
-                                whiltelistedURLErrorCodes: [])
 
     for count in 1 ... maxRetryCount {
-      XCTAssertEqual(policy.exponentialBackoffDelay(for: base, scale: scale, maxDelay: maxDelay, current: count),
+      XCTAssertEqual(AutomaticRetry.ReconnectionPolicy
+        .exponential(base: base, scale: scale, maxDelay: maxDelay).delay(for: count),
                      delayForRetry[count - 1])
     }
   }

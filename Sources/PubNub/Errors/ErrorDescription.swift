@@ -93,13 +93,42 @@ extension PubNubError: LocalizedError, CustomStringConvertible {
   }
 }
 
+extension PubNubError.Domain: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case .urlCreation:
+      return "Failure during URL Creation"
+    case .jsonCodability:
+      return "Failed encoding or decoding a `Codable` object"
+    case .requestProcessing:
+      return "Failed during Request Processing"
+    case .crypto:
+      return "Failure performing a `Crypto` operation"
+    case .requestTransmission:
+      return "Failure transmitting the request"
+    case .responseReceiving:
+      return "Client platform failed receiving the response"
+    case .responseProcessing:
+      return "Response was malformed in some way"
+    case .endpointResponse:
+      return "Endpoint responded with an Error"
+    case .serviceNotEnabled:
+      return "Failure due to one or more services not enabled"
+    case .uncategorized:
+      return "An unknown error has occurred"
+    case .cancellation:
+      return "The request was cancelled before completing"
+    }
+  }
+}
+
 extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
   public var description: String {
     switch self {
     case .missingRequiredParameter:
       return "A required parameter was missing or empty"
     case .invalidEndpointType:
-      return "A required parameter was missing or empty"
+      return "The endpoint is invalid for the action being performed"
     case .missingPublishKey:
       return "Required PubNub Publish key is missing"
     case .missingSubscribeKey:
@@ -115,7 +144,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .jsonDataDecodingFailure:
       return "The JSON data could not be decoded into the requested object"
     case .sessionDeinitialized:
-      return "Session Deinitialized: This `Session` was deinitialized while tasks were still executing."
+      return "Session Deinitialized: This `Session` was deinitialized while tasks were still executing"
     case .sessionInvalidated:
       return "This Session's underlying `URLSession` was invalidated"
     case .missingCryptoKey:
@@ -182,7 +211,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .serviceUnavailable:
       return "The server took longer to respond than the maximum allowed processing time"
     case .invalidArguments:
-      return "One or more `Request` arguments are invalid"
+      return "One or more `Request` parameters are invalid"
     case .invalidCharacter:
       return "One or more invalid characters were used in the request"
     case .invalidDevicePushToken:
@@ -205,6 +234,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "The request contained a malformed JSON payload"
     case .messageCountExceededMaximum:
       return "The amount of messages returned exceeded the maximum allowed"
+    case .messageTooLong:
+      return "The message you attempted to publish was too large to transmit successfully"
     case .unknown:
       return "Reason unknown"
     }

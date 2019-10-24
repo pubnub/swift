@@ -62,7 +62,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       client.fetch(userID: user.id) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.user.id, "testUserCreateAndFetchEndpoint")
+          XCTAssertEqual(response.id, "testUserCreateAndFetchEndpoint")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -85,7 +85,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       client.create(user: user, include: .custom) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.user.id, "testUserDeleteAndCreateEndpoint")
+          XCTAssertEqual(response.id, "testUserDeleteAndCreateEndpoint")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -108,7 +108,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       client.update(user: user, include: .custom) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.user.id, "testUserCreateAndUpdateEndpoint")
+          XCTAssertEqual(response.id, "testUserCreateAndUpdateEndpoint")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -179,9 +179,9 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     client.create(user: user, include: .custom) { _ in
       client.create(space: space, include: .custom) { _ in
-        client.updateMemberships(userID: user.id,
-                                 adding: [space],
-                                 removing: [space],
+        client.modifyMemberships(userID: user.id,
+                                 joining: [space],
+                                 leaving: [space],
                                  include: [.custom, .customSpace]) { result in
           switch result {
           case let .success(response):

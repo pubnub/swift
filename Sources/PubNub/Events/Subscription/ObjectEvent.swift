@@ -27,47 +27,69 @@
 
 import Foundation
 
+/// An event that contains a unique identifier
 public struct IdentifierEvent: Codable, Hashable {
+  /// The unique identifier for the event
   public let id: String
 }
 
 // MARK: - User Events
 
+/// An event that made changes to a User object
 public typealias UserEvent = UpdatableUser
 
+/// All the changes that can be received for User objects
 public enum UserEvents {
+  /// A User object has been updated
   case updated(UserEvent)
+  /// The ID of the User object that was deleted
   case deleted(IdentifierEvent)
 }
 
 // MARK: - Space Events
 
+/// An event that made changes to a Space object
 public typealias SpaceEvent = UpdatableSpace
 
+/// All the changes that can be received for Space objects
 public enum SpaceEvents {
+  /// A Space object has been updated
   case updated(SpaceEvent)
+  /// The ID of the Space object that was deleted
   case deleted(IdentifierEvent)
 }
 
 // MARK: - Membership
 
+/// All the changes that can be received for Membership objects
 public enum MembershipEvents {
+  /// The IDs of the User and Space whose membership was added
   case userAddedOnSpace(MembershipEvent)
+  /// The IDs of the User and Space whose membership was updated
   case userUpdatedOnSpace(MembershipEvent)
+  /// The IDs of the User and Space that have become separated
   case userDeletedFromSpace(MembershipIdentifiable)
 }
 
+/// A way to uniquely identify a Membership between a User and a Space
 public protocol MembershipIdentifiable {
+  /// The unique identifier of the User object
   var userId: String { get }
+  /// The unique identifier of the Space object
   var spaceId: String { get }
 }
 
+/// An event to alert the changes made to a Membership between a User and a Space
 public struct MembershipEvent: MembershipIdentifiable, Codable, Hashable {
+  /// Unique identifier of the User object
   public let userId: String
+  /// Unique identifier of the Space object
   public let spaceId: String
-
+  /// Custom data contained in the Membership
   public let custom: [String: JSONCodableScalarType]
+  /// Date the Membership was last updated
   public let updated: Date
+  /// The unique cache key used to evaluate if a change has occurred with this object
   public let eTag: String
 
   public init(from decoder: Decoder) throws {

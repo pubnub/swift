@@ -128,7 +128,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.boolValue, true)
+          XCTAssertEqual(channelMessages?.messages.first?.message.boolOptional, true)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -157,7 +157,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
+          XCTAssertEqual(channelMessages?.messages.first?.message.dataOptional?.base64EncodedString(),
                          "s3+CcEE2QZ/Lh9CaPieJnQ==")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
@@ -188,9 +188,9 @@ final class MessageHistoryEndpointTests: XCTestCase {
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           // Unencrypted Value
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue, "Hello")
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringOptional, "Hello")
           // Encrypted Value
-          XCTAssertEqual(channelMessages?.messages.last?.message.boolValue, true)
+          XCTAssertEqual(channelMessages?.messages.last?.message.boolOptional, true)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -342,7 +342,7 @@ extension MessageHistoryEndpointTests {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.boolValue, true)
+          XCTAssertEqual(channelMessages?.messages.first?.message.boolOptional, true)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -371,7 +371,7 @@ extension MessageHistoryEndpointTests {
           XCTAssertNotNil(channelMessages)
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.dataValue.base64EncodedString(),
+          XCTAssertEqual(channelMessages?.messages.first?.message.dataOptional?.base64EncodedString(),
                          "s3+CcEE2QZ/Lh9CaPieJnQ==")
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
@@ -402,9 +402,9 @@ extension MessageHistoryEndpointTests {
           XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
           XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           // Unencrypted Value
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringValue, "Hello")
+          XCTAssertEqual(channelMessages?.messages.first?.message.stringOptional, "Hello")
           // Encrypted Value
-          XCTAssertEqual(channelMessages?.messages.last?.message.boolValue, true)
+          XCTAssertEqual(channelMessages?.messages.last?.message.boolOptional, true)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }

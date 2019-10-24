@@ -29,7 +29,14 @@ import Foundation
 
 // MARK: - RequestMutator
 
+/// Mutation performed on a request prior to transmission
 public protocol RequestMutator {
+  /// Async function that will mutate the request
+  ///
+  /// - Parameters:
+  ///   - urlRequest: The request to mutate
+  ///   - for: The Session that is going to execute the request
+  ///   - completion: The mutation `Result` containing either a mutated `URLRequest` or an `Error`
   func mutate(
     _ urlRequest: URLRequest,
     for session: Session,
@@ -37,46 +44,26 @@ public protocol RequestMutator {
   )
 }
 
-// MARK: - Retry
-
-public enum RetryResult {
-  case retry
-  case retryWithDelay(TimeInterval)
-  case doNotRetry
-  case doNotRetryWithError(Error)
-}
-
-extension RetryResult {
-  var isRequired: Bool {
-    switch self {
-    case .retry, .retryWithDelay:
-      return true
-    default:
-      return false
-    }
-  }
-
-  var delay: TimeInterval? {
-    switch self {
-    case let .retryWithDelay(delay):
-      return delay
-    default:
-      return nil
-    }
-  }
-
-  var error: Error? {
-    guard case let .doNotRetryWithError(error) = self else { return nil }
-    return error
-  }
-}
-
+/// Retry action performed after a failed request
 public protocol RequestRetrier {
-  func retry(_ request: Request, for session: Session, dueTo error: Error, completion: @escaping (RetryResult) -> Void)
+  /// Method that determines if and how the retry should be performed
+  ///
+  /// - Parameters:
+  ///   - request: The request to mutate
+  ///   - for: The Session that is going to execute the request
+  ///   - dueTo: The `Error` that caused the request to fail
+  ///   - completion: The retry `Result` containing either the `TimeInterval` delay for the retry or an `Error`
+  func retry(
+    _ request: Request,
+    for session: Session,
+    dueTo error: Error,
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
+  )
 }
 
 // MARK: - Operator
 
+/// An operation that performs some change on a request
 public protocol RequestOperator: RequestMutator, RequestRetrier {}
 
 extension RequestOperator {
@@ -91,18 +78,26 @@ extension RequestOperator {
   public func retry(
     _: Request,
     for _: Session,
-    dueTo _: Error,
-    completion: @escaping (RetryResult) -> Void
+    dueTo error: Error,
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
-    completion(.doNotRetry)
+    completion(.failure(error))
   }
 
+  /// Merge a collection of RequestOperator into a single RequestOperator
+  ///
+  /// - Parameter operators: The collection of operators to consolidate
+  /// - Returns: A single `RequestOperator` that performs the functionality of the merged operators
   public func merge(operators: [RequestOperator]) -> RequestOperator {
     var mergedOperators: [RequestOperator] = [self]
     mergedOperators.append(contentsOf: operators)
     return MultiplexRequestOperator(operators: mergedOperators)
   }
 
+  /// Merge an optional RequestOperator into a single RequestOperator
+  ///
+  /// - Parameter requestOperator: The optional `RequestOperator` to merge
+  /// - Returns: A single `RequestOperator` that performs the functionality of the merged operators
   public func merge(requestOperator: RequestOperator?) -> RequestOperator {
     if let requestOperator = requestOperator {
       return merge(operators: [requestOperator])
@@ -113,7 +108,9 @@ extension RequestOperator {
 
 // MARK: - Multiplexor Operator
 
+/// A complex `RequestOperator` that can contain 1-N other `RequestOperator`s
 public struct MultiplexRequestOperator: RequestOperator {
+  /// The collection of `RequestOperator` that will be performed
   public let operators: [RequestOperator]
 
   public init(requestOperator: RequestOperator? = nil) {
@@ -145,6 +142,7 @@ public struct MultiplexRequestOperator: RequestOperator {
     mutate(urlRequest, for: session, using: operators, completion: completion)
   }
 
+  /// Loop through the stored operator list and perform the mutate functionality of each
   private func mutate(
     _ urlRequest: URLRequest,
     for session: Session,
@@ -174,22 +172,23 @@ public struct MultiplexRequestOperator: RequestOperator {
     _ request: Request,
     for session: Session,
     dueTo error: Error,
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
     retry(request, for: session, dueTo: error, using: operators, completion: completion)
   }
 
+  /// Loop through the stored operator list and perform the retry functionality of each
   private func retry(
     _ request: Request,
     for session: Session,
     dueTo error: Error,
     using retriers: [RequestOperator],
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
     var pendingRetriers = retriers
 
     guard !pendingRetriers.isEmpty else {
-      completion(.doNotRetry)
+      completion(.failure(error))
       return
     }
 
@@ -197,10 +196,9 @@ public struct MultiplexRequestOperator: RequestOperator {
 
     retrier.retry(request, for: session, dueTo: error) { result in
       switch result {
-      case .retry, .retryWithDelay, .doNotRetryWithError:
+      case .success:
         completion(result)
-      case .doNotRetry:
-        // Only continue to the next retrier if retry was not triggered and no error was encountered
+      case let .failure(error):
         self.retry(request, for: session, dueTo: error, using: pendingRetriers, completion: completion)
       }
     }

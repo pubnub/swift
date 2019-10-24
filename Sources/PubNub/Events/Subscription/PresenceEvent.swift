@@ -27,14 +27,21 @@
 
 import Foundation
 
+/// The type of presence change that occurred
 public enum PresenceStateEvent: String, Codable, Hashable {
+  /// Another user has joined the channel
   case join
+  /// Another user has explicitly left the channel
   case leave
+  /// Another user has timed out on the channel and has left
   case timeout
+  /// A user has updated their state
   case stateChange = "state-change"
+  /// Multiple presence changes have taken place in a single response
   case interval
 }
 
+/// An event representing a presence change on a channel
 public protocol PresenceEvent {
   // Common for all subscription responses
   /// The channel for which the message belongs

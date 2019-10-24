@@ -29,8 +29,11 @@ import Foundation
 
 // MARK: JSONCodable
 
-public protocol JSONCodable {
+/// A object that can be represented as JSON
+public protocol JSONCodable: Codable {
+  /// The concrete type used during `Codable` operations
   var codableValue: AnyJSON { get }
+  /// An `Any` representation of the underlying type data
   var rawValue: Any { get }
 }
 
@@ -43,28 +46,29 @@ extension JSONCodable {
     return AnyJSON(self)
   }
 
-  public func decode<RawValue>() -> RawValue? {
-    return rawValue as? RawValue
-  }
-
+  /// A `Result` that is either the underlying value as a JSON `String` or an error why it couldn't be created
   var jsonStringifyResult: Result<String, Error> {
     return codableValue.jsonStringifyResult
   }
 
+  /// The underlying value as a JSON `String` if it could be created
   var jsonStringify: String? {
-    return try? jsonStringifyResult.get()
+    return codableValue.jsonStringify
   }
 
+  /// A `Result` that is either the underlying value as JSON Encoded `Data` or an error why it couldn't be created
   var jsonDataResult: Result<Data, Error> {
     return codableValue.jsonDataResult
   }
 
+  /// The underlying value as a JSON encoded `Data` if it could be created
   var jsonData: Data? {
-    return try? jsonDataResult.get()
+    return codableValue.jsonData
   }
 }
 
 extension JSONCodable where Self: Equatable {
+  /// A bridge that allows for `Equatable` functionality on non-concrete types
   func isEqual(_ other: JSONCodable?) -> Bool {
     guard let otherSelf = other as? Self else {
       return false
@@ -73,8 +77,9 @@ extension JSONCodable where Self: Equatable {
   }
 }
 
-extension Array: JSONCodable {}
-extension Dictionary: JSONCodable where Key == String {}
+extension Array: JSONCodable where Element: JSONCodable {}
+extension Dictionary: JSONCodable where Key == String, Value: JSONCodable {}
+
 extension AnyJSON: JSONCodable {
   public var codableValue: AnyJSON {
     return self
@@ -87,68 +92,53 @@ extension AnyJSON: JSONCodable {
 
 // MARK: JSONCodableScalar
 
+/// A object that can be represented as JSON Scalar values
 public protocol JSONCodableScalar: JSONCodable {
+  /// The concrete type used during `Codable` operations
   var scalarValue: JSONCodableScalarType { get }
 }
 
 extension JSONCodableScalar {
   public var codableValue: AnyJSON {
-    return AnyJSON(scalarValue.value)
+    return AnyJSON(scalarValue.underlying)
   }
 
+  /// The underlying value as a `String` or nil if the value was not a `String`
   var stringOptional: String? {
-    return scalarValue.value.rawValue as? String
+    return scalarValue.underlying.rawValue as? String
   }
 
-  var stringValue: String? {
-    return stringOptional ?? ""
-  }
-
+  /// The underlying value as a `Int` or nil if the value was not a `Int`
   var intOptional: Int? {
-    return scalarValue.value.rawValue as? Int
+    return scalarValue.underlying.rawValue as? Int
   }
 
-  var intValue: Int {
-    return intOptional ?? 0
-  }
-
+  /// The underlying value as a `Double` or nil if the value was not a `Double`
   var doubleOptional: Double? {
-    return scalarValue.value.rawValue as? Double
+    return scalarValue.underlying.rawValue as? Double
   }
 
-  var doubleValue: Double {
-    return doubleOptional ?? 0.0
-  }
-
+  /// The underlying value as a `Bool` or nil if the value was not a `Bool`
   var boolOptional: Bool? {
-    return scalarValue.value.rawValue as? Bool
+    return scalarValue.underlying.rawValue as? Bool
   }
 
-  var boolValue: Bool {
-    return boolOptional ?? false
-  }
-
+  /// The underlying value as a `Date` or nil if the value was not a `Date`
   var dateOptional: Date? {
-    return scalarValue.value.rawValue as? Date
+    return scalarValue.underlying.rawValue as? Date
   }
 
-  var dateValue: Date {
-    return dateOptional ?? Date.distantPast
-  }
-
+  /// The underlying value as a `Data` or nil if the value was not a `Data`
   var dataOptional: Data? {
     if let dataString = stringOptional, let data = Data(base64Encoded: dataString) {
       return data
     }
     return nil
   }
-
-  var dataValue: Data {
-    return dataOptional ?? Data()
-  }
 }
 
 extension JSONCodableScalar where Self: Equatable {
+  /// A bridge that allows for `Equatable` functionality on non-concrete types
   func isEqual(_ other: JSONCodableScalar?) -> Bool {
     guard let otherSelf = other as? Self else {
       return false
@@ -195,27 +185,29 @@ extension JSONCodableScalarType: JSONCodableScalar {
 
 // MARK: JSONCodableScalarType
 
+/// A concrete type used by `JSONCodableScalarType` during `Codable` operations
 public struct JSONCodableScalarType: Codable, Hashable {
-  let value: AnyJSONType
+  /// The underlying value
+  let underlying: AnyJSONType
 
   init(stringValue: String) {
-    value = .string(stringValue)
+    underlying = .string(stringValue)
   }
 
   init(intValue: Int) {
-    value = .integer(intValue as NSNumber)
+    underlying = .integer(intValue as NSNumber)
   }
 
   init(boolValue: Bool) {
-    value = .boolean(boolValue)
+    underlying = .boolean(boolValue)
   }
 
   init(doubleValue: Double) {
-    value = .double(doubleValue as NSNumber)
+    underlying = .double(doubleValue as NSNumber)
   }
 
   init(dateValue: Date) {
-    value = .string(DateFormatter.iso8601.string(from: dateValue))
+    underlying = .string(DateFormatter.iso8601.string(from: dateValue))
   }
 
   // Note: Research why decoding collections containing this object fails when using the synthesized
@@ -223,6 +215,6 @@ public struct JSONCodableScalarType: Codable, Hashable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
 
-    value = try container.decode(AnyJSONType.self)
+    underlying = try container.decode(AnyJSONType.self)
   }
 }

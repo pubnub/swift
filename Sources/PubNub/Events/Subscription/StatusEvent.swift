@@ -27,16 +27,23 @@
 
 import Foundation
 
-/// Event emitted from a Subscription Stream
+/// Event that either contains a change to the subscription connection or a subscription error
 public typealias StatusEvent = Result<ConnectionStatus, PubNubError>
 
+/// Status of a connection to a remote system
 public enum ConnectionStatus {
+  /// Attempting to connect to a remote system
   case connecting
+  /// Successfully connected to a remote system
   case connected
+  /// Attempting to reconnect to a remote system
   case reconnecting
+  /// Explicit disconnect from a remote system
   case disconnected
+  /// Unexpected disconnect from a remote system
   case disconnectedUnexpectedly
 
+  /// If the connection is connected or attempting to connect
   public var isActive: Bool {
     switch self {
     case .connecting, .connected, .reconnecting:
@@ -46,6 +53,7 @@ public enum ConnectionStatus {
     }
   }
 
+  /// If the connection is connected
   public var isConnected: Bool {
     return self == .connected
   }

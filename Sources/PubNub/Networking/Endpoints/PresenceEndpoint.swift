@@ -232,6 +232,7 @@ public struct SinglePresenceStatePayload: Codable {
   public var status: Int
   public var message: String
   public var service: String
+
   public var uuid: String
 
   public var channel: String

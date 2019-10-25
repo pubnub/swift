@@ -27,7 +27,7 @@
 
 import Foundation
 
-/// A container that stores a`weak` reference to its `Element`
+/// A container that stores a `weak` reference to its `Element`
 public final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashable {
   /// The stored element
   public weak var underlying: Element?

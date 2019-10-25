@@ -32,7 +32,7 @@ public struct PubNubError: Error {
 
   /// The reason why the error occurred
   public let reason: Reason
-  /// Any additional details why the error occurred
+  /// Any additional details about why the error occurred
   public let details: [String]
   /// The underlying `Error` that caused this `Error` to happen
   public let underlying: Error?
@@ -40,7 +40,7 @@ public struct PubNubError: Error {
   let coorelation: [CorrelationIdentifier]
   let affected: [AffectedValue]
 
-  /// The category of the Endpoint the error is associated with
+  /// The Endpoint category the error is associated with
   public let endpointCategory: Endpoint.Category
   /// The domain of the Endpoint the error is associated with
   public var endpointDomain: Endpoint.OperationType {
@@ -72,7 +72,7 @@ public struct PubNubError: Error {
     case json(AnyJSON)
   }
 
-  /// The PubNubError specific Domain that groups together the different Reason
+  /// The PubNubError specific Domain that groups together the different Reasons
   public enum Domain: Int, Error, Hashable, Codable, LocalizedError {
     case urlCreation
     case jsonCodability
@@ -125,7 +125,7 @@ public struct PubNubError: Error {
     case clientCancelled
     case longPollingRestart
 
-    // Response Receiving
+    // Response Received
     case badServerResponse
     case responseDecodingFailure
     case dataLengthExceedsMaximum

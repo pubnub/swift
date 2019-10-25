@@ -71,7 +71,7 @@ public enum MembershipEvents {
   case userDeletedFromSpace(MembershipIdentifiable)
 }
 
-/// A way to uniquely identify a Membership between a User and a Space
+/// Uniquely identifies a Membership between a User and a Space
 public protocol MembershipIdentifiable {
   /// The unique identifier of the User object
   var userId: String { get }

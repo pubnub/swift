@@ -27,13 +27,13 @@
 
 import Foundation
 
-/// An object that is capable of converting into a URL
+/// An object that is capable of converting into an URL
 public protocol URLConvertible {
   /// The converted `URL` or the error that occurred during converting
   var asURL: Result<URL, Error> { get }
 }
 
-/// An `Error` that occured when generating a `URL` from a `URLConvertible`
+/// An `Error` that occured when generating an `URL` from an `URLConvertible`
 public enum URLConvertibleError: Error {
   case urlComponents
 }
@@ -49,7 +49,7 @@ extension URLComponents: URLConvertible {
 
 // MARK: - URLRequestConvertible
 
-/// An object that is capable of converting into a URLRequest
+/// An object that is capable of converting into an URLRequest
 public protocol URLRequestConvertible: URLConvertible {
   /// The converted `URLRequest` or the error that occurred during converting
   var asURLRequest: Result<URLRequest, Error> { get }

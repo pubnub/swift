@@ -99,7 +99,7 @@ extension AnyJSON: Codable {
 
 // MARK: - Collection
 
-/// The index of for an underlying collection
+/// The index for an underlying collection
 public enum AnyJSONIndex: Comparable {
   /// An index for an underlying Array
   case arrayIndex(Int)
@@ -341,7 +341,7 @@ extension AnyJSON: ExpressibleByStringLiteral {
 
 // MARK: - AnyJSONError
 
-/// An `Error` that occurred as a result of perorming an action using an `AnyJSON`
+/// An `Error` that occurred as a result of performing an action using an `AnyJSON`
 enum AnyJSONError: Error {
   case unknownCoding(Error)
   case stringCreationFailure(Error?)

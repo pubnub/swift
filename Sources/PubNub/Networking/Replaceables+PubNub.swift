@@ -37,16 +37,16 @@ public protocol URLSessionReplaceable {
   var sessionDescription: String? { get set }
   /// The operation queue provided when this object was created.
   var delegateQueue: OperationQueue { get }
-  /// A configuration object that defines behavior and policies for a URL session.
+  /// A configuration object that defines behavior and policies for an URL session.
   var configuration: URLSessionConfiguration { get }
-  /// Creates a task that retrieves the contents of a URL based on the specified URL request object.
+  /// Creates a task that retrieves the contents of an URL based on the specified URL request object.
   ///
   /// By creating a task based on a request object, you can tune various aspects of the task’s behavior,
   /// including the cache policy and timeout interval.
   ///
   /// After you create the task, you must start it by calling its resume() method.
   ///
-  /// - Parameter with: A URL request object that provides request-specific information such as the URL,
+  /// - Parameter with: an URL request object that provides request-specific information such as the URL,
   /// cache policy, request type, and body data or body stream.
   /// - Returns: The new session data task.
   func dataTask(with request: URLRequest) -> URLSessionDataTask

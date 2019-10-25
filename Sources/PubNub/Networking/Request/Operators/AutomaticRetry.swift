@@ -36,7 +36,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   /// Retry immediately twice on lost network connection
   public static var connectionLost = AutomaticRetry(policy: .immediately,
                                                     retryableURLErrorCodes: [.networkConnectionLost])
-  /// Exponential backoff twice twice when not internet connection is detected
+  /// Exponential backoff twice when not internet connection is detected
   public static var noInternet = AutomaticRetry(policy: .defaultExponential,
                                                 retryableURLErrorCodes: [.notConnectedToInternet])
 

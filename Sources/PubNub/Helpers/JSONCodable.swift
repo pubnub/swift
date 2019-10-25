@@ -29,7 +29,7 @@ import Foundation
 
 // MARK: JSONCodable
 
-/// A object that can be represented as JSON
+/// An object that can be represented as JSON
 public protocol JSONCodable: Codable {
   /// The concrete type used during `Codable` operations
   var codableValue: AnyJSON { get }
@@ -92,7 +92,7 @@ extension AnyJSON: JSONCodable {
 
 // MARK: JSONCodableScalar
 
-/// A object that can be represented as JSON Scalar values
+/// An object that can be represented as JSON Scalar values
 public protocol JSONCodableScalar: JSONCodable {
   /// The concrete type used during `Codable` operations
   var scalarValue: JSONCodableScalarType { get }

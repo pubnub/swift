@@ -27,7 +27,7 @@
 
 import Foundation
 
-/// A channel or group that has successfully beend subscribed or unsubscribed
+/// A channel or group that has successfully been subscribed or unsubscribed
 public enum SubscriptionChangeEvent {
   /// The channels or groups that have successfully been subscribed
   case subscribed(channels: [PubNubChannel], groups: [PubNubChannel])

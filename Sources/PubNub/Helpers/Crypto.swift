@@ -68,7 +68,7 @@ public struct Crypto: Hashable {
       }
     }
 
-    /// Block size for the algoritm
+    /// Block size for the algorithm
     public var blockSize: Int {
       switch self {
       case .aes:
@@ -76,7 +76,7 @@ public struct Crypto: Hashable {
       }
     }
 
-    /// Key size for the algoritm
+    /// Key size for the algorithm
     public var keySizeRange: ClosedRange<Int> {
       switch self {
       case .aes:

@@ -53,7 +53,7 @@ extension RouterConfiguration {
     return useSecureConnections ? "https" : "http"
   }
 
-  /// True if the subscribeKey exsits and is not an empty `String`
+  /// True if the subscribeKey exists and is not an empty `String`
   public var subscribeKeyExists: Bool {
     guard let subscribeKey = subscribeKey, !subscribeKey.isEmpty else {
       return false
@@ -61,7 +61,7 @@ extension RouterConfiguration {
     return true
   }
 
-  /// True if the publishKey exsits and is not an empty `String`
+  /// True if the publishKey exists and is not an empty `String`
   public var publishKeyExists: Bool {
     guard let publishKey = publishKey, !publishKey.isEmpty else {
       return false
@@ -89,7 +89,7 @@ public enum HTTPMethod: String {
 
 // MARK: - Router
 
-/// Collects together and assembles the separate pieces used to create a URLRequest
+/// Collects together and assembles the separate pieces used to create an URLRequest
 public protocol Router: URLRequestConvertible, CustomStringConvertible, Validated {
   /// The target of the `URLRequest`
   var endpoint: Endpoint { get }

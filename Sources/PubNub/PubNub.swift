@@ -677,7 +677,7 @@ extension PubNub {
     }
   }
 
-  /// Returns the number of messages published on one or more channels for a single time
+  /// Returns the number of messages published for each channels for a single time
   /// - Parameters:
   ///   - channels: The channel to delete the messages from.
   ///   - timetoken: The timetoken for all channels in the list to get message counts for.

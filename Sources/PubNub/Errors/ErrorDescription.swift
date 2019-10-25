@@ -113,7 +113,7 @@ extension PubNubError.Domain: CustomStringConvertible {
     case .endpointResponse:
       return "Endpoint responded with an Error"
     case .serviceNotEnabled:
-      return "Failure due to one or more services not enabled"
+      return "Failure due to at least one service not being enabled"
     case .uncategorized:
       return "An unknown error has occurred"
     case .cancellation:
@@ -160,9 +160,9 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .timedOut:
       return "An asynchronous operation timed out"
     case .nameResolutionFailure:
-      return "The host name for a URL could not be resolved"
+      return "The host name for an URL could not be resolved"
     case .invalidURL:
-      return "A malformed/unsupported URL prevented a URL request from being initiated"
+      return "A malformed/unsupported URL prevented an URL request from being initiated"
     case .connectionFailure:
       // swiftlint:disable line_length
       return "A network resource was requested, but an internet connection hasn’t been established and can’t be established automatically"
@@ -211,9 +211,9 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .serviceUnavailable:
       return "The server took longer to respond than the maximum allowed processing time"
     case .invalidArguments:
-      return "One or more `Request` parameters are invalid"
+      return "At least one `Request` parameters were invalid"
     case .invalidCharacter:
-      return "One or more invalid characters were used in the request"
+      return "At least one invalid character was used in the request"
     case .invalidDevicePushToken:
       return "The provided device token is not a valid push token"
     case .invalidSubscribeKey:

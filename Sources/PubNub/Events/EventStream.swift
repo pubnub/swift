@@ -27,7 +27,7 @@
 
 import Foundation
 
-/// An object capable of streaming a event of objects
+/// An object capable of broadcasting other objects as events
 public protocol EventStreamReceiver {
   /// The unique identifier for this listener
   var uuid: UUID { get }
@@ -45,7 +45,7 @@ public extension EventStreamReceiver {
   }
 }
 
-/// Functionality that allows for an object to be cancelled
+/// Allows for an object to be cancelled
 public protocol Cancellable {
   /// Whether this listener has been cancelled
   ///

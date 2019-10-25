@@ -16,7 +16,7 @@
 
 ## Requirements
 
--   iOS 8.0+ / macOS 10.10+ / tvOS 9.0+ / watchOS 2.0+
+-   iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
 -   Xcode 11+
 -   Swift 5+
 
@@ -31,7 +31,7 @@ The PubNub Swift SDK doesn't contain any external dependencies.
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 2.0.0'
+  pod 'PubNubSwift', '~> 2.0'
 end
 ```
 

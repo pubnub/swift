@@ -31,9 +31,9 @@ import Foundation
 public struct SubscriptionState {
   /// Connection status
   public var connectionState: ConnectionStatus = .disconnected
-  /// Dictionary the maps channel name to the Channel object
+  /// Dictionary that maps channel name to the Channel object
   public var channels: [String: PubNubChannel] = [:]
-  /// Dictionary the maps group name to the group Channel object
+  /// Dictionary that maps group name to the group Channel object
   public var groups: [String: PubNubChannel] = [:]
   /// List of actively subscribed channels
   public var subscribedChannels: [String] {
@@ -101,7 +101,7 @@ public struct SubscriptionState {
     return state
   }
 
-  /// Search for and update a channel name matching the id with the provided states/
+  /// Search for and update a channel name matching the id with the provided states
   ///
   /// This will replace the existing state for the channel
   public mutating func findAndUpdate(_ id: String, state: [String: JSONCodable]) {

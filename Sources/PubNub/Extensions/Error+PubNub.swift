@@ -33,6 +33,19 @@ extension Error {
     return self as? PubNubError
   }
 
+  /// Returns the `PubNubError.Reason` if one exists for the `Error`
+  var genericPubNubReason: PubNubError.Reason? {
+    if let reason = urlError?.pubnubReason {
+      return reason
+    } else if let reason = anyJSON?.pubnubReason {
+      return reason
+    } else if let reason = pubNubError?.reason {
+      return reason
+    }
+
+    return nil
+  }
+
   /// Instance cast as a `URLError`
   public var urlError: URLError? {
     return self as? URLError
@@ -43,6 +56,7 @@ extension Error {
     return self as? AnyJSONError
   }
 
+  /// If a cancellation was the cause of this error
   public var isCancellationError: Bool {
     return urlError?.code == .cancelled ||
       pubNubError?.subdomain == .cancellation

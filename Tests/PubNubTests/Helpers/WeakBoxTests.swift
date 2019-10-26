@@ -64,7 +64,7 @@ class WeakBoxTests: XCTestCase {
 
     testObject = nil
 
-    XCTAssertNil(weakBox.unbox)
+    XCTAssertNil(weakBox.underlying)
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -72,15 +72,15 @@ class WeakBoxTests: XCTestCase {
   func testWeakBox_ContainsStrongRef() {
     let weakBox = WeakBox(strongValue)
 
-    XCTAssertNotNil(weakBox.unbox)
-    XCTAssertEqual(weakBox.unbox, strongValue)
+    XCTAssertNotNil(weakBox.underlying)
+    XCTAssertEqual(weakBox.underlying, strongValue)
   }
 
   func testWeakBox_Hashable() {
     let weakOne = WeakBox<NSString>("Test")
     let weakTwo = WeakBox<NSString>("Test")
 
-    XCTAssertEqual(weakOne.unbox, weakTwo.unbox)
+    XCTAssertEqual(weakOne.underlying, weakTwo.underlying)
     XCTAssertEqual(weakOne, weakTwo)
     XCTAssertEqual(weakOne.hashValue, weakTwo.hashValue)
   }

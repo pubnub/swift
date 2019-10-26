@@ -27,6 +27,7 @@
 
 import Foundation
 
+/// A protocol defining a bridge to an implementation of `URLSessionDataDelegate` for receiving delegation events
 public class SessionDelegate: NSObject {
   weak var sessionBridge: SessionStateBridge?
 }
@@ -78,12 +79,22 @@ extension SessionDelegate: URLSessionDataDelegate {
   }
 }
 
+/// A bridge between a `Session` and a corresponding `SessionDelegate`
 protocol SessionStateBridge: AnyObject {
+  /// The value that uniquely identifies the `Session`
   var sessionID: UUID { get }
+  /// The event stream that session activity status will emit to
   var sessionStream: SessionStream? { get }
+  /// True if the underlying session is invalidated and can no longer perform requests
   var isInvalidated: Bool { get set }
+  /// Performs a lookup to find the associated `Request` for a given `URLSessionTask`
+  ///
+  /// - parameter for: The `URLSessionTask` used as a lookup key
+  /// - returns: The `Request` that is associated with the given `URLSessionTask`
   func request(for task: URLSessionTask) -> Request?
+  /// Event that notifies a given `URLSessionTask` has completed
   func didComplete(_ task: URLSessionTask)
+  /// Event that notifies the underlying `URLSession` has become invalid
   func sessionInvalidated(with error: Error?)
 }
 

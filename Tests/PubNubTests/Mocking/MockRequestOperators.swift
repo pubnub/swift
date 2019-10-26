@@ -42,17 +42,17 @@ class RetryExpector: RequestOperator {
     expectations.append(expectation)
   }
 
-  var shouldRetry: ((Request, Session, Error, Int) -> (RetryResult))?
+  var shouldRetry: ((Request, Session, Error, Int) -> (Result<TimeInterval, Error>))?
 
   func retry(
     _ request: Request,
     for session: Session,
     dueTo error: Error,
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
     let retry = shouldRetry?(request, session, error, retryCount)
     retryCount += 1
-    completion(retry ?? .doNotRetry)
+    completion(retry ?? .failure(error))
     expectation.fulfill()
   }
 }

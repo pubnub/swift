@@ -176,7 +176,7 @@ public enum Endpoint {
   case objectsUserFetch(userID: String, include: IncludeField?)
   case objectsUserCreate(user: PubNubUser, include: IncludeField?)
   case objectsUserUpdate(user: PubNubUser, include: IncludeField?)
-  case objectsUserDelete(userID: String, include: IncludeField?)
+  case objectsUserDelete(userID: String)
   case objectsUserMemberships(
     userID: String,
     include: [IncludeField]?,
@@ -194,7 +194,7 @@ public enum Endpoint {
   case objectsSpaceFetch(spaceID: String, include: IncludeField?)
   case objectsSpaceCreate(space: PubNubSpace, include: IncludeField?)
   case objectsSpaceUpdate(space: PubNubSpace, include: IncludeField?)
-  case objectsSpaceDelete(spaceID: String, include: IncludeField?)
+  case objectsSpaceDelete(spaceID: String)
   case objectsSpaceMemberships(
     spaceID: String,
     include: [IncludeField]?,
@@ -365,7 +365,7 @@ extension Endpoint: Validated {
       return isEndpointInvalid(!user.isValid)
     case let .objectsUserUpdate(user, _):
       return isEndpointInvalid(!user.isValid)
-    case let .objectsUserDelete(userID, _):
+    case let .objectsUserDelete(userID):
       return isEndpointInvalid(userID.isEmpty)
 
     case .objectsSpaceFetch(let spaceID, _):
@@ -376,7 +376,7 @@ extension Endpoint: Validated {
       return isEndpointInvalid(!space.isValid)
     case let .objectsSpaceUpdate(space, _):
       return isEndpointInvalid(!space.isValid)
-    case let .objectsSpaceDelete(spaceID, _):
+    case let .objectsSpaceDelete(spaceID):
       return isEndpointInvalid(spaceID.isEmpty)
     case let .objectsUserMemberships(parameters):
       return isEndpointInvalid(parameters.userID.isEmpty)
@@ -504,8 +504,8 @@ extension Endpoint {
       return ["user": user, "include": include]
     case let .objectsUserUpdate(user, include):
       return ["user": user, "include": include]
-    case let .objectsUserDelete(userID, include):
-      return ["userID": userID, "include": include]
+    case let .objectsUserDelete(userID):
+      return ["userID": userID]
 
     case let .objectsSpaceFetchAll(include, limit, start, end, count):
       return ["include": include, "limit": limit, "start": start, "end": end, "count": count]
@@ -515,8 +515,8 @@ extension Endpoint {
       return ["space": space, "include": include]
     case let .objectsSpaceUpdate(space, include):
       return ["space": space, "include": include]
-    case let .objectsSpaceDelete(spaceID, include):
-      return ["spaceID": spaceID, "include": include]
+    case let .objectsSpaceDelete(spaceID):
+      return ["spaceID": spaceID]
 
     case let .objectsUserMemberships(parameters):
       return ["userID": parameters.userID,

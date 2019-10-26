@@ -62,7 +62,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
       client.fetch(spaceID: space.id) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.space.id, "SwiftITest")
+          XCTAssertEqual(response.id, "SwiftITest")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -85,7 +85,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
       client.create(space: space, include: .custom) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.space.id, "SwiftITest")
+          XCTAssertEqual(response.id, "SwiftITest")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -108,7 +108,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
       client.update(space: space, include: .custom) { result in
         switch result {
         case let .success(response):
-          XCTAssertEqual(response.space.id, "SwiftITest")
+          XCTAssertEqual(response.id, "SwiftITest")
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -153,7 +153,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
 
     client.create(user: user, include: .custom) { _ in
       client.create(space: space, include: .custom) { _ in
-        client.fetchMemberships(spaceID: space.id, include: [.custom, .customUser]) { result in
+        client.fetchMembers(spaceID: space.id, include: [.custom, .customUser]) { result in
           switch result {
           case let .success(response):
             XCTAssertEqual(response.status, 200)
@@ -179,10 +179,10 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
 
     client.create(user: user, include: .custom) { _ in
       client.create(space: space, include: .custom) { _ in
-        client.updateMemberships(spaceID: space.id,
-                                 adding: [user],
-                                 removing: [user],
-                                 include: [.custom, .customUser]) { result in
+        client.modifyMembers(spaceID: space.id,
+                             adding: [user],
+                             removing: [user],
+                             include: [.custom, .customUser]) { result in
           switch result {
           case let .success(response):
             XCTAssertEqual(response.status, 200)

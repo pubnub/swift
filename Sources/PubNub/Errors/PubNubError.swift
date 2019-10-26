@@ -30,20 +30,26 @@ import Foundation
 public struct PubNubError: Error {
   // MARK: - Properties
 
+  /// The reason why the error occurred
   public let reason: Reason
-
+  /// Any additional details about why the error occurred
   public let details: [String]
+  /// The underlying `Error` that caused this `Error` to happen
   public let underlying: Error?
 
   let coorelation: [CorrelationIdentifier]
   let affected: [AffectedValue]
 
+  /// The Endpoint category the error is associated with
   public let endpointCategory: Endpoint.Category
+  /// The domain of the Endpoint the error is associated with
   public var endpointDomain: Endpoint.OperationType {
     return endpointCategory.operationCategory
   }
 
+  /// The domain of the `Error`
   public let domain = "PubNub"
+  /// The subdomain that this error can be categorized with
   public var subdomain: Domain {
     return reason.domain
   }
@@ -66,12 +72,12 @@ public struct PubNubError: Error {
     case json(AnyJSON)
   }
 
+  /// The PubNubError specific Domain that groups together the different Reasons
   public enum Domain: Int, Error, Hashable, Codable, LocalizedError {
     case urlCreation
     case jsonCodability
     case requestProcessing
     case crypto
-    case session
     case requestTransmission
     case responseReceiving
     case responseProcessing
@@ -81,6 +87,7 @@ public struct PubNubError: Error {
     case cancellation
   }
 
+  /// The Reason that causes a PubNubError to occur
   public enum Reason: Int, Equatable, Hashable, Codable {
     // URL Creation Errors
     case missingRequiredParameter
@@ -95,20 +102,14 @@ public struct PubNubError: Error {
     case jsonDataEncodingFailure
     case jsonDataDecodingFailure
 
-    // Cancellation
-    case sessionDeinitialized
-    case sessionInvalidated
-    case clientCancelled
-    case longPollingRestart
-
     // Crypto
     case missingCryptoKey
 
-    // Reqeuest Creation
+    // Request Processing
     case requestMutatorFailure
     case requestRetryFailed
 
-    // System Error Outbound
+    // Request Transmission
     case timedOut
     case nameResolutionFailure
     case invalidURL
@@ -118,7 +119,13 @@ public struct PubNubError: Error {
     case secureConnectionFailure
     case certificateTrustFailure
 
-    // System Error Inbound
+    // Cancellation
+    case sessionDeinitialized
+    case sessionInvalidated
+    case clientCancelled
+    case longPollingRestart
+
+    // Response Received
     case badServerResponse
     case responseDecodingFailure
     case dataLengthExceedsMaximum
@@ -128,7 +135,28 @@ public struct PubNubError: Error {
     case unrecognizedStatusCode
     case malformedResponseBody
 
+    // Endpoint Response
+    case invalidArguments
+    case invalidCharacter
+    case invalidDevicePushToken
+    case invalidSubscribeKey
+    case invalidPublishKey
+    case maxChannelGroupCountExceeded
+    case couldNotParseRequest
+    case requestContainedInvalidJSON
+    case messageCountExceededMaximum
+    case messageTooLong
+
+    // Service Not Enabled
+    case pushNotEnabled
+    case messageHistoryNotEnabled
+    case messageDeletionNotEnabled
+
+    // Uncategorized
+    case unknown
+
     // HTTP Response Code Errors
+    // Don't put non-response code errors below here
     case badRequest = 400
     case unauthorized = 401
     case forbidden = 403
@@ -141,22 +169,6 @@ public struct PubNubError: Error {
     case malformedFilterExpression = 481
     case internalServiceError = 500
     case serviceUnavailable = 503
-
-    // Parsable PubNub Server Response Errors
-    case invalidArguments
-    case invalidCharacter
-    case invalidDevicePushToken
-    case invalidSubscribeKey
-    case invalidPublishKey
-    case maxChannelGroupCountExceeded
-    case pushNotEnabled
-    case messageHistoryNotEnabled
-    case messageDeletionNotEnabled
-    case couldNotParseRequest
-    case requestContainedInvalidJSON
-    case messageCountExceededMaximum
-
-    case unknown
 
     public var domain: PubNubError.Domain {
       switch self {
@@ -184,7 +196,7 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError:
+           .internalServiceError, .messageTooLong:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled:
         return .serviceNotEnabled
@@ -269,34 +281,26 @@ extension PubNubError: Hashable {
 // MARK: - Error Coersion Helpers
 
 extension PubNubError {
-  static func urlCreation(_ error: Error, router: Router) -> PubNubError {
+  static func convert(_ error: Error, router: Router, default reason: Reason = .unknown) -> PubNubError {
     if let pubnub = error.pubNubError {
       return pubnub
-    } else if let jsonError = error.anyJSON {
-      return PubNubError(jsonError.pubnubReason, endpoint: router.endpoint.category, underlying: jsonError.underlying)
+    } else if let reason = error.genericPubNubReason {
+      return PubNubError(reason, endpoint: router.endpoint.category, underlying: error)
     } else {
-      return PubNubError(.invalidURL, endpoint: router.endpoint.category, underlying: error)
+      return PubNubError(reason, endpoint: router.endpoint.category, underlying: error)
     }
+  }
+
+  static func urlCreation(_ error: Error, router: Router) -> PubNubError {
+    return PubNubError.convert(error, router: router, default: .invalidURL)
   }
 
   static func sessionDelegate(_ error: Error, router: Router) -> PubNubError {
-    if let pubnub = error.pubNubError {
-      return pubnub
-    } else if let urlError = error.urlError, let reason = urlError.pubnubReason {
-      return PubNubError(reason, endpoint: router.endpoint.category, underlying: urlError)
-    } else {
-      return PubNubError(.unknown, endpoint: router.endpoint)
-    }
+    return PubNubError.convert(error, router: router, default: .unknown)
   }
 
   static func retry(_ error: Error, router: Router) -> PubNubError {
-    if let pubnub = error.pubNubError {
-      return pubnub
-    } else if let urlError = error.urlError, let reason = urlError.pubnubReason {
-      return PubNubError(reason, endpoint: router.endpoint.category, underlying: urlError)
-    } else {
-      return PubNubError(.requestRetryFailed, endpoint: router.endpoint)
-    }
+    return PubNubError.convert(error, router: router, default: .requestRetryFailed)
   }
 
   static func cancellation(_ reason: Reason?, error: Error?, router: Router) -> PubNubError {
@@ -401,6 +405,8 @@ extension EndpointResponseMessage {
       return .tooManyRequests
     case .unsupportedType:
       return .unsupportedType
+    case .messageTooLong:
+      return .messageTooLong
     case .unknown:
       return nil
     }

@@ -52,7 +52,9 @@ extension PubNubSpace where Self: Equatable {
     return id == other?.id &&
       name == other?.name &&
       spaceDescription == other?.spaceDescription &&
-      custom.allSatisfy { other?.custom[$0]?.scalarValue == $1.scalarValue }
+      custom?.allSatisfy {
+        other?.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
   }
 }
 
@@ -92,14 +94,15 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
   public let id: String
   public let name: String
   public let spaceDescription: String?
-  public let customType: [String: JSONCodableScalarType]
   public let created: Date
   public let updated: Date
   public let eTag: String
 
-  public var custom: [String: JSONCodableScalar] {
-    return customType as [String: JSONCodableScalar]
+  public var custom: [String: JSONCodableScalar]? {
+    return customType
   }
+
+  let customType: [String: JSONCodableScalarType]?
 
   enum CodingKeys: String, CodingKey {
     case id
@@ -115,7 +118,7 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
     name: String,
     id: String? = nil,
     spaceDescription: String? = nil,
-    custom: [String: JSONCodableScalar] = [:],
+    custom: [String: JSONCodableScalar]? = nil,
     created: Date = Date.distantPast,
     updated: Date? = nil,
     eTag: String = ""
@@ -123,7 +126,7 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
     self.id = id ?? name
     self.name = name
     self.spaceDescription = spaceDescription
-    customType = custom.mapValues { $0.scalarValue }
+    customType = custom?.mapValues { $0.scalarValue }
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
@@ -155,7 +158,7 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
     id = try container.decode(String.self, forKey: .id)
     name = try container.decode(String.self, forKey: .name)
     spaceDescription = try container.decodeIfPresent(String.self, forKey: .spaceDescription)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType) ?? [:]
+    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType)
     created = try container.decodeIfPresent(Date.self, forKey: .created) ?? Date.distantPast
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)

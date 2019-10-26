@@ -57,6 +57,28 @@ enum QueryKey: String {
   case limit
 }
 
+/// The PubNub Key requirement for a given Endpoint
+public enum PNKeyRequirement: String {
+  /// No key is required
+  case none = "None"
+  /// Only a publish key is required
+  case publish = "Publish"
+  /// Only a subscribe key is required
+  case subscribe = "Subscribe"
+  /// Both a subscribe and publish key are required
+  case publishAndSubscribe = "Publish & Subscribe"
+}
+
+/// The PubNub PAM version for a given Endpoint
+public enum PAMVersionRequirement {
+  /// No PAM is needed for this endpoint
+  case none
+  /// A key from a version 2 PAM grant is required
+  case version2
+  /// A key from a version 3 PAM grant is required
+  case version3
+}
+
 struct PubNubRouter {
   let configuration: RouterConfiguration
   let endpoint: Endpoint
@@ -66,6 +88,93 @@ struct PubNubRouter {
     self.configuration = configuration
     self.endpoint = endpoint
     self.crypto = crypto
+  }
+}
+
+extension PubNubRouter: Validated {
+  var keysRequired: PNKeyRequirement {
+    switch endpoint {
+    case .time:
+      return .none
+    case .publish, .compressedPublish:
+      return .publishAndSubscribe
+    case .fire:
+      return .publishAndSubscribe
+    default:
+      return .subscribe
+    }
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    switch endpoint {
+    case .time:
+      return .none
+    case .hereNow:
+      return .none
+    case .whereNow:
+      return .none
+    case .channelsForGroup:
+      return .none
+    case .channelGroups:
+      return .none
+    case .listPushChannels:
+      return .none
+    case .removeAllPushChannels:
+      return .none
+    case .heartbeat:
+      return .none
+    case .leave:
+      return .none
+    case .objectsUserFetch, .objectsUserFetchAll, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
+      return .version3
+    case .objectsSpaceFetch, .objectsSpaceFetchAll, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
+      return .version3
+    case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
+         .objectsSpaceMembershipsUpdate:
+      return .version3
+    default:
+      return .version2
+    }
+  }
+
+  // Endpoint Validators
+  public var keyValidationError: PubNubError? {
+    switch keysRequired {
+    case .none:
+      return nil
+
+    case .subscribe:
+      if configuration.subscribeKeyExists {
+        return nil
+      }
+      return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
+    case .publish:
+      if configuration.publishKeyExists {
+        return nil
+      }
+      return PubNubError(.missingPublishKey, endpoint: endpoint.category)
+
+    case .publishAndSubscribe:
+      switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
+      case (false, false):
+        return PubNubError(.missingPublishAndSubscribeKey, endpoint: endpoint.category)
+      case (true, false):
+        return PubNubError(.missingSubscribeKey, endpoint: endpoint.category)
+      case (false, true):
+        return PubNubError(.missingPublishKey, endpoint: endpoint.category)
+      case (true, true):
+        return nil
+      }
+    }
+  }
+
+  var validationError: Error? {
+    if let invalidKeysError = keyValidationError {
+      return invalidKeysError
+    } else if let endpointValidationError = endpoint.validationError {
+      return endpointValidationError
+    }
+    return nil
   }
 }
 
@@ -174,7 +283,7 @@ extension PubNubRouter: Router {
       path = "/v1/objects/\(subscribeKey)/users"
     case let .objectsUserUpdate(user, _):
       path = "/v1/objects/\(subscribeKey)/users/\(user.id)"
-    case let .objectsUserDelete(userID, _):
+    case let .objectsUserDelete(userID):
       path = "/v1/objects/\(subscribeKey)/users/\(userID)"
 
     case .objectsSpaceFetch(let spaceID, _):
@@ -185,7 +294,7 @@ extension PubNubRouter: Router {
       path = "/v1/objects/\(subscribeKey)/spaces"
     case let .objectsSpaceUpdate(space, _):
       path = "/v1/objects/\(subscribeKey)/spaces/\(space.id)"
-    case let .objectsSpaceDelete(spaceID, _):
+    case let .objectsSpaceDelete(spaceID):
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID)"
 
     case let .objectsUserMemberships(parameters):
@@ -203,8 +312,24 @@ extension PubNubRouter: Router {
     return .success(path)
   }
 
+  /// Default Query Paramets for all Endpoints
+  var defaultQueryItems: [URLQueryItem] {
+    let queryItems = [
+      Constant.pnSDKURLQueryItem,
+      URLQueryItem(name: "uuid", value: configuration.uuid)
+    ]
+    return queryItems
+  }
+
   var queryItems: Result<[URLQueryItem], Error> {
-    var query = [URLQueryItem]()
+    var query = defaultQueryItems
+
+    // Add PAM key if needed
+    if pamVersion != .none, let authKey = configuration.authKey {
+      query.append(URLQueryItem(name: "auth", value: authKey))
+    }
+
+    // Add endpoint specific query items
     switch endpoint {
     case let .publish(_, _, shouldStore, ttl, meta):
       return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
@@ -218,7 +343,7 @@ extension PubNubRouter: Router {
       query.appendIfPresent(key: .regionShort, value: parameters.region?.description)
       query.appendIfPresent(key: .filter, value: parameters.filter)
       query.appendIfPresent(key: .heartbeat, value: parameters.heartbeat?.description)
-      return parseState(query: &query, state: parameters.state?.codableValue)
+      return parseState(query: &query, state: parameters.state?.mapValues { $0.mapValues { $0.codableValue } })
     case let .heartbeat(_, groups, presenceTimeout):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.appendIfPresent(key: .heartbeat, value: presenceTimeout?.description)
@@ -228,7 +353,7 @@ extension PubNubRouter: Router {
       query.appendIfNotEmpty(key: .channelGroup, value: parameters.groups)
     case let .setPresenceState(parameters):
       if !parameters.state.isEmpty {
-        return parseState(query: &query, state: parameters.state.codableValue)
+        return parseState(query: &query, state: parameters.state.mapValues { $0.codableValue })
       } else {
         query.append(URLQueryItem(key: .state, value: "{}"))
       }
@@ -283,8 +408,6 @@ extension PubNubRouter: Router {
       query.appendIfPresent(key: .include, value: include?.rawValue)
     case let .objectsUserUpdate(_, include):
       query.appendIfPresent(key: .include, value: include?.rawValue)
-    case let .objectsUserDelete(_, include):
-      query.appendIfPresent(key: .include, value: include?.rawValue)
 
     case let .objectsSpaceFetch(_, include):
       query.appendIfPresent(key: .include, value: include?.rawValue)
@@ -297,8 +420,6 @@ extension PubNubRouter: Router {
     case let .objectsSpaceCreate(_, include):
       query.appendIfPresent(key: .include, value: include?.rawValue)
     case let .objectsSpaceUpdate(_, include):
-      query.appendIfPresent(key: .include, value: include?.rawValue)
-    case let .objectsSpaceDelete(_, include):
       query.appendIfPresent(key: .include, value: include?.rawValue)
     case let .objectsUserMemberships(parameters):
       query.appendIfPresent(key: .include, value: parameters.include?.map { $0.rawValue }.csvString)
@@ -363,51 +484,6 @@ extension PubNubRouter: Router {
       return changeset.encodableJSONData.map { .some($0) }
     default:
       return .success(nil)
-    }
-  }
-
-  var keysRequired: PNKeyRequirement {
-    switch endpoint {
-    case .time:
-      return .none
-    case .publish, .compressedPublish:
-      return .publishAndSubscribe
-    case .fire:
-      return .publishAndSubscribe
-    default:
-      return .subscribe
-    }
-  }
-
-  var pamVersion: PAMVersionRequirement {
-    switch endpoint {
-    case .time:
-      return .none
-    case .hereNow:
-      return .none
-    case .whereNow:
-      return .none
-    case .channelsForGroup:
-      return .none
-    case .channelGroups:
-      return .none
-    case .listPushChannels:
-      return .none
-    case .removeAllPushChannels:
-      return .none
-    case .heartbeat:
-      return .none
-    case .leave:
-      return .none
-    case .objectsUserFetch, .objectsUserFetchAll, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
-      return .version3
-    case .objectsSpaceFetch, .objectsSpaceFetchAll, .objectsSpaceCreate, .objectsSpaceUpdate, .objectsSpaceDelete:
-      return .version3
-    case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
-         .objectsSpaceMembershipsUpdate:
-      return .version3
-    default:
-      return .version2
     }
   }
 

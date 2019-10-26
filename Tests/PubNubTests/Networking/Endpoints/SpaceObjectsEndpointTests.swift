@@ -245,9 +245,8 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .fetch(spaceID: "TestSpace") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstSpace.isEqual(payload.space))
+        case let .success(space):
+          XCTAssertTrue(firstSpace.isEqual(space))
         case let .failure(error):
           XCTFail("Fetch request failed with error: \(error.localizedDescription)")
         }
@@ -404,9 +403,8 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .create(space: firstSpace, include: .custom) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstSpace.isEqual(payload.space))
+        case let .success(space):
+          XCTAssertTrue(firstSpace.isEqual(space))
         case let .failure(error):
           XCTFail("Create request failed with error: \(error.localizedDescription)")
         }
@@ -640,9 +638,8 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .update(space: firstSpace) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstSpace.isEqual(payload.space))
+        case let .success(space):
+          XCTAssertTrue(firstSpace.isEqual(space))
         case let .failure(error):
           XCTFail("Update request failed with error: \(error.localizedDescription)")
         }
@@ -863,7 +860,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
   // MARK: - Delete Tests
 
   func testDelete_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace", include: .custom)
+    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace")
 
     XCTAssertEqual(endpoint.description, "Delete Space Object")
     XCTAssertEqual(endpoint.category, .objectsSpaceDelete)
@@ -879,10 +876,9 @@ final class SpaceObjectsEndpointTests: XCTestCase {
   }
 
   func testDelete_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace", include: .custom)
+    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace")
 
     XCTAssertEqual(endpoint.associatedValue["spaceID"] as? String, "TestSpace")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
   }
 
   func testDelete_Success() {
@@ -1058,7 +1054,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     let firstUser = UserObject(name: "First User", id: "FirstUser", created: spaceDate, eTag: "UserETag")
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMemberships(spaceID: "TestSpace") { result in
+      .fetchMembers(spaceID: "TestSpace") { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.status, 200)
@@ -1096,7 +1092,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMemberships(spaceID: "TestSpace") { result in
+      .fetchMembers(spaceID: "TestSpace") { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.status, 200)
@@ -1167,7 +1163,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
                                eTag: "UserETag")
 
     PubNub(configuration: config, session: sessions.session)
-      .updateMemberships(spaceID: "TestSpace", adding: [firstUser]) { result in
+      .modifyMembers(spaceID: "TestSpace", adding: [firstUser]) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.status, 200)

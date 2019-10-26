@@ -76,8 +76,6 @@ public struct PubNubConfiguration: Hashable {
     self.subscribeKey = subscribeKey
   }
 
-  // MARK: - Router Configurations
-
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   public var publishKey: String?
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
@@ -98,23 +96,14 @@ public struct PubNubConfiguration: Hashable {
   public var useSecureConnections: Bool = true
   /// Full origin (`subdomain`.`domain`) used for requests
   public var origin: String = "ps.pndsn.com"
-
-  // MARK: - Debug Configuration
-
   /// Whether a PubNub object instanceId should be included on outgoing requests
   public var useInstanceId: Bool = false
   /// Whether a request identifier should be included on outgoing requests
   public var useRequestId: Bool = false
-
-  // MARK: - Session Configuration
-
   /// Reconnection policy which will be used if/when a request fails
   public var automaticRetry: AutomaticRetry?
   /// URLSessionConfiguration used for URLSession network events
   public var urlSessionConfiguration: URLSessionConfiguration = .pubnub
-
-  // MARK: - Presence Configurations (Presence Policy?)
-
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
@@ -134,16 +123,15 @@ public struct PubNubConfiguration: Hashable {
   public var supressLeaveEvents: Bool = false
   /// The number of messages into the payload before emitting `RequestMessageCountExceeded`
   public var requestMessageCountThreshold: UInt = 100
-
-  // MARK: - Subscription Configurations
-
   /// PSV2 feature to subscribe with a custom filter expression.
   public var filterExpression: String?
 }
 
 /// A Configuration Object that behavior and policies for a Network tasks.
 public struct NetworkConfiguration {
+  /// Reconnection policy which will be used if/when a request fails
   public let retryPolicy: AutomaticRetry?
+  /// Function that will modify the request before transmission
   public let requestOperator: RequestOperator?
 
   public init(

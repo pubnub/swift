@@ -27,19 +27,27 @@
 
 import Foundation
 
+/// State of a PubNub subscription lifecycle
 public struct SubscriptionState {
+  /// Connection status
   public var connectionState: ConnectionStatus = .disconnected
+  /// Dictionary that maps channel name to the Channel object
   public var channels: [String: PubNubChannel] = [:]
+  /// Dictionary that maps group name to the group Channel object
   public var groups: [String: PubNubChannel] = [:]
-
+  /// List of actively subscribed channels
   public var subscribedChannels: [String] {
     return channels.map { $0.key }
   }
 
+  /// List of actively subscribed groups
   public var subscribedGroups: [String] {
     return groups.map { $0.key }
   }
 
+  /// Names of all subscribed channels
+  ///
+  /// This list includes both regular and presence channel names
   var allSubscribedChannels: [String] {
     var subscribed = [String]()
 
@@ -53,6 +61,9 @@ public struct SubscriptionState {
     return subscribed
   }
 
+  /// Names of all subscribed groups
+  ///
+  /// This list includes both regular and presence groups names
   var allSubscribedGroups: [String] {
     var subscribed = [String]()
 
@@ -66,10 +77,12 @@ public struct SubscriptionState {
     return subscribed
   }
 
+  /// Combined value of all subscribed channels and groups
   public var totalSubscribedCount: Int {
     return channels.count + groups.count
   }
 
+  /// The combined state of all channels and groups
   public var subscribedState: [String: [String: JSONCodable]] {
     var state = [String: [String: JSONCodable]]()
 
@@ -88,6 +101,9 @@ public struct SubscriptionState {
     return state
   }
 
+  /// Search for and update a channel name matching the id with the provided states
+  ///
+  /// This will replace the existing state for the channel
   public mutating func findAndUpdate(_ id: String, state: [String: JSONCodable]) {
     if var channelMatch = channels[id] {
       channelMatch.state = state
@@ -103,11 +119,15 @@ public struct SubscriptionState {
 
 // MARK: - Dependent Models
 
+/// A PubNub channel or channel group
 public struct PubNubChannel {
+  /// The channel name as a String
   public let id: String
+  /// The presence channel name
   public let presenceId: String
+  /// The state for the channel
   public var state: [String: JSONCodable]?
-
+  /// If the channel is currently subscribed with presence
   public var isPresenceSubscribed: Bool
 
   public init(id: String, state: [String: JSONCodable]? = nil, withPresence: Bool = false) {
@@ -162,6 +182,7 @@ extension PubNubChannel: Hashable {
 }
 
 extension Dictionary where Key == String, Value == PubNubChannel {
+  /// Inserts the provided channel if that channel doesn't already exist
   public mutating func insert(_ channel: Value) -> Bool {
     if let match = self[channel.id], match == channel {
       return false
@@ -171,6 +192,7 @@ extension Dictionary where Key == String, Value == PubNubChannel {
     return true
   }
 
+  /// Updates the subscribedPresence state on the channel matching the provided name
   public mutating func unsubscribePresence(_ id: String) -> Value? {
     if var match = self[id], match.isPresenceSubscribed {
       match.isPresenceSubscribed = false

@@ -27,19 +27,21 @@
 
 import Foundation
 
+/// A container that stores a `weak` reference to its `Element`
 public final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashable {
-  public weak var unbox: Element?
+  /// The stored element
+  public weak var underlying: Element?
 
   public init(_ value: Element?) {
-    unbox = value
+    underlying = value
   }
 
   public static func == (lhs: WeakBox<Element>, rhs: WeakBox<Element>) -> Bool {
-    return lhs.unbox == rhs.unbox
+    return lhs.underlying == rhs.underlying
   }
 
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(unbox)
+    hasher.combine(underlying)
   }
 }
 
@@ -52,7 +54,7 @@ struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
 
   // NSSet Operations
   var allObjects: [Element] {
-    return elements.compactMap { $0.unbox }
+    return elements.compactMap { $0.underlying }
   }
 
   var count: Int {
@@ -77,7 +79,7 @@ extension WeakSet: Collection {
   var endIndex: Set<WeakBox<Element>>.Index { return elements.endIndex }
 
   subscript(position: Set<WeakBox<Element>>.Index) -> Element? {
-    return elements[position].unbox
+    return elements[position].underlying
   }
 
   func index(after index: Set<WeakBox<Element>>.Index) -> Set<WeakBox<Element>>.Index {

@@ -53,15 +53,15 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let retrier = RetryExpector(all: &expectations)
-    retrier.shouldRetry = { _, _, _, retryCount in
+    retrier.shouldRetry = { _, _, error, retryCount in
       switch retryCount {
       case 0:
-        return .retry
+        return .success(0.0)
       case 1:
-        return .retryWithDelay(0.001)
+        return .success(0.001)
       default:
         XCTFail("We should only retry twice")
-        return .doNotRetry
+        return .failure(error)
       }
     }
 
@@ -110,11 +110,11 @@ class RequestRetrierTests: XCTestCase {
     retrier.shouldRetry = { _, _, error, retryCount in
       switch retryCount {
       case 0:
-        return .retry
+        return .success(0)
       case 1:
-        return .retryWithDelay(0.001)
+        return .success(0.001)
       default:
-        return .doNotRetryWithError(error)
+        return .failure(error)
       }
     }
 
@@ -169,15 +169,14 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let retrier = RetryExpector(all: &expectations)
-    retrier.shouldRetry = { _, _, _, retryCount in
-      print("Hitting this")
+    retrier.shouldRetry = { _, _, error, retryCount in
       switch retryCount {
       case 0:
-        return .retry
+        return .success(0.0)
       case 1:
-        return .retryWithDelay(0.001)
+        return .success(0.001)
       default:
-        return .doNotRetry
+        return .failure(error)
       }
     }
 

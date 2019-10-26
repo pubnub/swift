@@ -16,8 +16,8 @@
 
 ## Requirements
 
--   iOS 8.0+ / macOS 10.10+ / tvOS 9.0+ / watchOS 2.0+
--   Xcode 10.2+
+-   iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
+-   Xcode 11+
 -   Swift 5+
 
 ## Installation
@@ -31,7 +31,7 @@ The PubNub Swift SDK doesn't contain any external dependencies.
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 1.0.0'
+  pod 'PubNubSwift', '~> 2.0'
 end
 ```
 
@@ -50,7 +50,7 @@ Officially supported: Carthage 0.33 and up.
 Add this to `Cartfile`
 
 ```ruby
-github "pubnub/swift" ~> 1.0
+github "pubnub/swift" ~> 2.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:
@@ -61,49 +61,16 @@ carthage update
 
 ### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
-Create or edit a `Package.swift` file to include:
+- Create or open your project inside of Xcode
+- Select File -> Swift Packages -> Add Package Dependency...
+- Search for PubNub and select the swift package owned by pubnub, and hit the Next button
+- Use the `Up to Next Major Version` rule spanning from `2.0.0` < `3.0.0`, and hit the Next button
 
--   Inside your root level `dependencies` array add:
-
-```swift
-.package(url: "https://github.com/pubnub/swift.git", from: "1.0.0")
-```
-
--   Inside your `targets` array add `PubNub` as a dependency:
-
-```swift
-.target(name: "YOUR_TARGET_NAME", dependencies: ["PubNub"])
-```
-
-When you are finished it should looked similar to the example below:
-
-```swift
-// swift-tools-version:5.0
-
-import PackageDescription
-
-let package = Package(
-  name: "YOUR_TARGET_NAME",
-  dependencies: [
-    .package(url: "https://github.com/pubnub/swift.git", from: "1.0.0")
-  ],
-  targets: [
-    .target(name: "YOUR_TARGET_NAME", dependencies: ["PubNub"])
-  ]
-)
-```
-
-> Note: Ensure that you replace `YOUR_TARGET_NAME` with your target's name
-
-Then in the directory containing your `Package.swift`, execute the following:
-
-```bash
-swift build
-```
+For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
 
 ## Documentation
 
-Check out our official [docs page](https://www.pubnub.com/docs/swift/pubnub-swift-sdk).
+Check out our official [docs page](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk).
 
 ## Communication
 

@@ -29,7 +29,7 @@
 import XCTest
 
 class EventStreamTests: XCTestCase {
-  struct NewStream: EventStream, Hashable {
+  struct NewStream: EventStreamReceiver, Hashable {
     var uuid: UUID = UUID()
   }
 

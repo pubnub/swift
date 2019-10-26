@@ -27,7 +27,8 @@
 
 import Foundation
 
-enum AnyJSONType {
+/// The evaluated type of the Any stored inside an `AnyJSON`
+public enum AnyJSONType {
   case string(String)
   case integer(NSNumber)
   case double(NSNumber)

@@ -27,31 +27,55 @@
 
 import Foundation
 
-extension URLError.Code: Codable {}
-
+/// Reconnection policy which will be used if/when a request fails
 public struct AutomaticRetry: RequestOperator, Hashable {
+  /// Exponential backoff twice for any 500 response code or `URLError` contained in `defaultRetryableURLErrorCodes`
   public static var `default` = AutomaticRetry()
-  public static var none = AutomaticRetry(policy: .none)
+  /// No retry will be performed
+  public static var none = AutomaticRetry(retryLimit: 1)
+  /// Retry immediately twice on lost network connection
   public static var connectionLost = AutomaticRetry(policy: .immediately,
                                                     retryableURLErrorCodes: [.networkConnectionLost])
+  /// Exponential backoff twice when no internet connection is detected
   public static var noInternet = AutomaticRetry(policy: .defaultExponential,
                                                 retryableURLErrorCodes: [.notConnectedToInternet])
 
+  /// Provides the action taken when a retry is to be performed
   public enum ReconnectionPolicy: Hashable {
+    /// Exponential backoff with base/scale factor of 2, and a 300s max delay
     public static let defaultExponential: ReconnectionPolicy = {
       .exponential(base: 2, scale: 2, maxDelay: 300)
     }()
 
+    /// Linear reconnect every 3 seconds
     public static let defaultLinear: ReconnectionPolicy = {
       .linear(delay: 3)
     }()
 
-    case none
+    /// Attempt to reconnect immediately
     case immediately
+    /// Reconnect with an exponential backoff
     case exponential(base: UInt, scale: Double, maxDelay: UInt)
+    /// Attempt to reconnect every X seconds
     case linear(delay: Double)
+
+    func delay(for retryAttempt: Int) -> TimeInterval {
+      switch self {
+      case .immediately:
+        return 0.0
+      case let .exponential(base, scale, maxDelay):
+        return exponentialBackoffDelay(for: base, scale: scale, maxDelay: maxDelay, current: retryAttempt)
+      case let .linear(delay):
+        return delay
+      }
+    }
+
+    func exponentialBackoffDelay(for base: UInt, scale: Double, maxDelay: UInt, current retryCount: Int) -> Double {
+      return min(pow(Double(base), Double(retryCount)) * scale, Double(maxDelay))
+    }
   }
 
+  /// Collection of default `URLError.Code` objects that will trigger a retry
   public static let defaultRetryableURLErrorCodes: Set<URLError.Code> = [
     .badServerResponse,
     .callIsActive,
@@ -69,21 +93,19 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     .timedOut
   ]
 
-  public static let defaultURLErrorCodesWhitelist: Set<URLError.Code> = [
-    .cancelled
-  ]
-
+  /// The max amount of retries before returning an error
   public let retryLimit: UInt
+  /// The policy for when a retry will occurr
   public let policy: ReconnectionPolicy
+  /// Collection of returned HTTP Status Codes  that will trigger a retry
   public let retryableHTTPStatusCodes: Set<Int>
+  /// Collection of returned `URLError.Code` objects that will trigger a retry
   public let retryableURLErrorCodes: Set<URLError.Code>
-  public let whiltelistedURLErrorCodes: Set<URLError.Code>
 
   public init(retryLimit: UInt = 2,
               policy: ReconnectionPolicy = .defaultExponential,
               retryableHTTPStatusCodes: Set<Int> = [500],
-              retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes,
-              whiltelistedURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultURLErrorCodesWhitelist) {
+              retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes) {
     switch policy {
     case let .exponential(base, scale, max):
       switch (true, true) {
@@ -107,45 +129,27 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       } else {
         self.policy = policy
       }
-    default:
+    case .immediately:
       self.policy = policy
     }
 
     self.retryLimit = retryLimit
     self.retryableHTTPStatusCodes = retryableHTTPStatusCodes
     self.retryableURLErrorCodes = retryableURLErrorCodes
-    self.whiltelistedURLErrorCodes = whiltelistedURLErrorCodes
   }
 
   public func retry(
     _ request: Request,
     for _: Session,
     dueTo error: Error,
-    completion: @escaping (RetryResult) -> Void
+    completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
     guard request.retryCount < retryLimit, shouldRetry(response: request.urlResponse, error: error) else {
-      if let errorCode = error.urlError?.code, whiltelistedURLErrorCodes.contains(errorCode) {
-        completion(.doNotRetry)
-      } else {
-        completion(.doNotRetryWithError(error))
-      }
+      completion(.failure(error))
       return
     }
 
-    switch policy {
-    case .none:
-      completion(.doNotRetry)
-    case .immediately:
-      completion(.retryWithDelay(0))
-    case let .linear(timeDelay):
-      completion(.retryWithDelay(timeDelay))
-    case let .exponential(base, scale, max):
-      let timeDelay = exponentialBackoffDelay(for: base,
-                                              scale: scale,
-                                              maxDelay: max,
-                                              current: request.retryCount)
-      completion(.retryWithDelay(timeDelay))
-    }
+    return completion(.success(policy.delay(for: request.retryCount)))
   }
 
   func shouldRetry(response: HTTPURLResponse?, error: Error) -> Bool {
@@ -159,9 +163,5 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     }
 
     return false
-  }
-
-  func exponentialBackoffDelay(for base: UInt, scale: Double, maxDelay: UInt, current retryCount: Int) -> Double {
-    return min(pow(Double(base), Double(retryCount)) * scale, Double(maxDelay))
   }
 }

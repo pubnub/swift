@@ -27,19 +27,15 @@
 
 import Foundation
 
+/// An object that is capable of converting into an URL
 public protocol URLConvertible {
+  /// The converted `URL` or the error that occurred during converting
   var asURL: Result<URL, Error> { get }
 }
 
-enum URLConvertibleError: Error {
+/// An `Error` that occured when generating an `URL` from an `URLConvertible`
+public enum URLConvertibleError: Error {
   case urlComponents
-  case urlRequest
-}
-
-extension URL: URLConvertible {
-  public var asURL: Result<URL, Error> {
-    return .success(self)
-  }
 }
 
 extension URLComponents: URLConvertible {
@@ -53,46 +49,8 @@ extension URLComponents: URLConvertible {
 
 // MARK: - URLRequestConvertible
 
+/// An object that is capable of converting into an URLRequest
 public protocol URLRequestConvertible: URLConvertible {
+  /// The converted `URLRequest` or the error that occurred during converting
   var asURLRequest: Result<URLRequest, Error> { get }
-}
-
-enum URLRequestConvertibleError: Error {
-  case request
-}
-
-extension URLRequest: URLRequestConvertible {
-  public var asURLRequest: Result<URLRequest, Error> {
-    return .success(self)
-  }
-
-  public var asURL: Result<URL, Error> {
-    guard let url = self.url else {
-      return .failure(URLConvertibleError.urlRequest)
-    }
-    return .success(url)
-  }
-}
-
-extension Request: URLRequestConvertible {
-  public var asURLRequest: Result<URLRequest, Error> {
-    guard let urlRequest = self.urlRequest else {
-      return .failure(URLRequestConvertibleError.request)
-    }
-    return .success(urlRequest)
-  }
-
-  public var asURL: Result<URL, Error> {
-    return asURLRequest.flatMap { $0.asURL }
-  }
-}
-
-// MARK: - HTTPURLResponseConvertible
-
-public protocol HTTPURLResponseConvertible {
-  var asHTTPURLResponse: HTTPURLResponse { get }
-}
-
-extension HTTPURLResponse: HTTPURLResponseConvertible {
-  public var asHTTPURLResponse: HTTPURLResponse { return self }
 }

@@ -61,6 +61,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   case serviceUnavailable
   case tooManyRequests
   case unsupportedType
+  case messageTooLong
   case unknown(message: String)
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -107,6 +108,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .internalServiceError
     case "The server took longer to respond than the maximum allowed processing time.":
       self = .serviceUnavailable
+    case "Message Too Large":
+      self = .messageTooLong
     default:
       self = EndpointResponseMessage.rawValueStartsWith(rawValue)
     }
@@ -172,6 +175,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       return "You have exceeded the maximum number of requests per second allowed for your subscriber key."
     case .unsupportedType:
       return "Request payload must be in JSON format."
+    case .messageTooLong:
+      return "Message Too Large"
     case let .unknown(message):
       return "Unknown: \(message)"
     }

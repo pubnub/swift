@@ -27,17 +27,39 @@
 
 import Foundation
 
+/// A factory that manages instances of `SubscriptionSession`
+///
+/// This factory attempts to ensure that regardless of how many `PubNub`
+/// instances you will only create a single `SubscriptionSession`.
+///
+///  You should only use one instance of a `SubscriptionSession` unless you have a very specialized workflow.
+///  Such as one of the following:
+/// * Subscribe using multiple sets of subscribe keys
+/// * Need separate network configurations on a per channel/group basis
+///
+/// - Important: Having multiple `SubscriptionSession` instances will result in
+/// increase network usage and battery drain.
 public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
+  /// The singleton instance for this factory
   public static var shared = SubscribeSessionFactory()
   private let sessions = Atomic<SessionMap>([:])
   private init() {}
 
+  /// Retrieve a session matching the hash value of the configuration or creates a new one if no match was found
+  ///
+  /// The `session` parameter will only be injected into the `SubscriptionSession` in the event
+  /// that a new `SubscriptionSession` is created
+  ///
+  /// - Parameters:
+  ///   - from: A configuration that will be used to fetch an existing SubscriptionSession or create a new one
+  ///   - with: `SessionReplaceable` that will be used as the underlying `Session`
+  /// - Returns: A `SubscriptionSession` that can be used to make PubNub subscribe and presence API calls with
   public func getSession(from config: SubscriptionConfiguration,
                          with session: SessionReplaceable? = nil) -> SubscriptionSession {
     let configHash = config.subscriptionHashValue
-    if let session = sessions.lockedRead({ $0[configHash]?.unbox }) {
+    if let session = sessions.lockedRead({ $0[configHash]?.underlying }) {
       PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")
       return session
     }
@@ -55,19 +77,30 @@ public class SubscribeSessionFactory {
   /// Clean-up method that can be used to poke each weakbox to see if its nil
   func sessionDestroyed() {
     sessions.lockedWrite { sessionMap in
-      sessionMap.keys.forEach { if sessionMap[$0]?.unbox == nil { sessionMap.removeValue(forKey: $0) } }
+      sessionMap.keys.forEach { if sessionMap[$0]?.underlying == nil { sessionMap.removeValue(forKey: $0) } }
     }
   }
 }
 
 // MARK: - SubscriptionConfiguration
 
+/// The configuration used to determine the uniqueness of a `SubscriptionSession`
 public protocol SubscriptionConfiguration: RouterConfiguration {
+  /// Reconnection policy which will be used if/when a request fails
   var automaticRetry: AutomaticRetry? { get }
+  /// How long (in seconds) the server will consider the client alive for presence
+  ///
+  /// - NOTE: The minimum value this field can be is 20
   var durationUntilTimeout: Int { get }
+  /// How often (in seconds) the client will announce itself to server
+  ///
+  /// - NOTE: The minimum value this field can be is 0
   var heartbeatInterval: UInt { get }
+  /// Whether to send out the leave requests
   var supressLeaveEvents: Bool { get }
+  /// The number of messages into the payload before emitting `RequestMessageCountExceeded`
   var requestMessageCountThreshold: UInt { get }
+  /// PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? { get }
 }
 

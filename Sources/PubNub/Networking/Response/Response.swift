@@ -27,30 +27,24 @@
 
 import Foundation
 
+/// Generic Response value
 public struct Response<Value> {
+  /// Router used to generate the `URLRequest`
   public let router: Router
+  /// `URLRequest` that was performed
   public let request: URLRequest
+  /// The server response from the `URLRequest`
   public let response: HTTPURLResponse
+  /// The raw data associated with the response
   public let data: Data?
-
+  /// The decoded response data
   public let payload: Value
 }
 
 extension Response {
+  /// The endpoint contained inside the router
   var endpoint: Endpoint {
     return router.endpoint
-  }
-
-  public func copy<T>(with value: T) -> Response<T> {
-    return Response<T>(router: router, request: request, response: response, data: data, payload: value)
-  }
-
-  public func map<T>(_ transform: (Value) -> T) -> Response<T> {
-    return Response<T>(router: router,
-                       request: request,
-                       response: response,
-                       data: data,
-                       payload: transform(payload))
   }
 }
 

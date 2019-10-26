@@ -1,9 +1,15 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.0.1"
+version: "2.0.2"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Add/Update documentation for public classes, methods, and properties"
+        type: bug
+    date: 2019-10-25
+    version: v2.0.2
   -
     changes:
       - test: "Update the version inside the podspec file"

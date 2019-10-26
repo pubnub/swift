@@ -225,7 +225,7 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(user.externalId, nil)
         XCTAssertEqual(user.profileURL, nil)
         XCTAssertEqual(user.email, nil)
-        XCTAssertEqual(user.custom.isEmpty, true)
+        XCTAssertNil(user.custom)
         XCTAssertEqual(user.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
         XCTAssertEqual(user.eTag, "UserUpdateEtag")
 
@@ -342,7 +342,7 @@ final class SubscribeEndpointTests: XCTestCase {
         XCTAssertEqual(space.id, "TestSpaceID")
         XCTAssertEqual(space.name, "Test Name")
         XCTAssertEqual(space.spaceDescription, nil)
-        XCTAssertEqual(space.custom.isEmpty, true)
+        XCTAssertNil(space.custom)
         XCTAssertEqual(space.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
         XCTAssertEqual(space.eTag, "SpaceUpdateEtag")
 
@@ -458,7 +458,7 @@ final class SubscribeEndpointTests: XCTestCase {
       case let .membershipAdded(membership):
         XCTAssertEqual(membership.userId, "TestUserID")
         XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        XCTAssertEqual(membership.custom["something"]?.boolValue, true)
+        XCTAssertEqual(membership.custom["something"]?.boolOptional, true)
         XCTAssertEqual(membership.updated,
                        DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
         XCTAssertEqual(membership.eTag, "TestETag")

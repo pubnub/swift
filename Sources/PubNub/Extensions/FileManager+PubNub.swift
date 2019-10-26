@@ -28,6 +28,9 @@
 import Foundation
 
 extension FileManager {
+  /// Finds the URL for the newest file in a directory
+  /// - Parameter directory: The URL of the directory to search in
+  /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
   public func newestFile(_ directory: URL) -> URL? {
     let logFiles = files(in: directory)
 
@@ -49,6 +52,9 @@ extension FileManager {
     return newestFile
   }
 
+  /// Finds the URL for the oldest file in a directory
+  /// - Parameter directory: The URL of the directory to search in
+  /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
   public func oldestFile(_ directory: URL) -> URL? {
     let logFiles = files(in: directory)
 
@@ -70,6 +76,9 @@ extension FileManager {
     return oldestFile
   }
 
+  /// A list of file URLs contained inside a directory
+  /// - Parameter directory: The URL of the directory to search in
+  /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
   public func files(in directory: URL) -> [URL] {
     if let fileURLs = try? self.contentsOfDirectory(at: directory,
                                                     includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],

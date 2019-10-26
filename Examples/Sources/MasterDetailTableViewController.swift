@@ -522,7 +522,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performAddChannelsRequest() {
-    pubnub.addChannels(["channelSwift", "otherChannel"], to: "SwiftGroup") { result in
+    pubnub.add(channels: ["channelSwift", "otherChannel"], to: "SwiftGroup") { result in
       switch result {
       case let .success(response):
         print("Successful Add Channels Response: \(response)")
@@ -533,7 +533,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performRemoveChannelsRequest() {
-    pubnub.removeChannels(["channelSwift, otherChannel"], from: "SwiftGroup") { result in
+    pubnub.remove(channels: ["channelSwift, otherChannel"], from: "SwiftGroup") { result in
       switch result {
       case let .success(response):
         print("Successful Remove Channels Response: \(response)")
@@ -544,7 +544,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performDeleteGroupRequest() {
-    pubnub.deleteChannelGroup("SwiftGroup") { result in
+    pubnub.delete(channelGroup: "SwiftGroup") { result in
       switch result {
       case let .success(response):
         print("Successful Delete Group Response: \(response)")

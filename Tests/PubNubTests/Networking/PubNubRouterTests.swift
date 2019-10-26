@@ -90,7 +90,7 @@ class PubNubRouterTests: XCTestCase {
     XCTAssertEqual(subscribeRouter.method, .get)
     XCTAssertEqual(subscribeRouter.keysRequired, .subscribe)
     XCTAssertEqual(try? subscribeRouter.path.get(), "/v2/subscribe/\(subscribeKey)/TestChannel/0")
-    XCTAssertEqual(try? subscribeRouter.queryItems.get(), queryItems)
+    XCTAssertEqual(try? subscribeRouter.queryItems.get(), subscribeRouter.defaultQueryItems + queryItems)
     XCTAssertNoThrow(try subscribeRouter.body.get())
   }
 
@@ -108,7 +108,7 @@ class PubNubRouterTests: XCTestCase {
       URLQueryItem(name: "tt", value: "0")
     ]
 
-    XCTAssertEqual(try? subscribeRouter.queryItems.get(), queryItems)
+    XCTAssertEqual(try? subscribeRouter.queryItems.get(), subscribeRouter.defaultQueryItems + queryItems)
   }
 
   // End Temporary Tests

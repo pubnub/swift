@@ -44,6 +44,9 @@ public extension URL {
     return urlComponents?.url
   }
 
+  /// The size of the file found at the URL
+  ///
+  /// Will return a value of 0 if the file cannot be found
   var sizeOf: Int {
     if let fileResources = try? self.resourceValues(forKeys: [.fileSizeKey]),
       let fileSize = fileResources.fileSize {

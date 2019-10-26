@@ -28,8 +28,11 @@
 import CommonCrypto
 import Foundation
 
+/// Object capable of encryption/decryption
 public struct Crypto: Hashable {
+  /// The key used when encrypting/decrypting
   public let key: Data?
+  /// The algorithm that will be used when encrypting/decrypting
   public let cipher: Cipher
 
   public init?(key: String, cipher: Cipher = .aes) {
@@ -45,6 +48,7 @@ public struct Crypto: Hashable {
     self.cipher = cipher
   }
 
+  /// An algorithm that can be used to encrypt/decrypt data
   public enum Cipher: RawRepresentable, Hashable {
     case aes
 
@@ -64,6 +68,7 @@ public struct Crypto: Hashable {
       }
     }
 
+    /// Block size for the algorithm
     public var blockSize: Int {
       switch self {
       case .aes:
@@ -71,6 +76,7 @@ public struct Crypto: Hashable {
       }
     }
 
+    /// Key size for the algorithm
     public var keySizeRange: ClosedRange<Int> {
       switch self {
       case .aes:
@@ -78,12 +84,15 @@ public struct Crypto: Hashable {
       }
     }
 
+    /// Determines if a provided key size is valid for this algorithm
     public func validate(keySize: Int) -> CryptoError? {
       return keySizeRange.contains(keySize) ? nil : .keySizeError
     }
   }
 
+  /// An implementation of the SHA-256 hash algorithm
   public struct SHA256 {
+    /// Perform a hash operation on provided `Data`
     public static func hash(data: Data) -> Data? {
       var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
       data.withUnsafeBytes {
@@ -209,6 +218,7 @@ public struct Crypto: Hashable {
   }
 }
 
+/// An Error returned from a `Crypto` function
 public enum CryptoError: CCCryptorStatus, Error, LocalizedError {
   /// Insufficent buffer provided for specified operation.
   case bufferTooSmall

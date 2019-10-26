@@ -239,9 +239,8 @@ final class UserObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .fetch(userID: "TestUser") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstUser.isEqual(payload.user))
+        case let .success(user):
+          XCTAssertTrue(firstUser.isEqual(user))
         case let .failure(error):
           XCTFail("Fetch request failed with error: \(error.localizedDescription)")
         }
@@ -397,9 +396,8 @@ final class UserObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .create(user: firstUser, include: .custom) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstUser.isEqual(payload.user))
+        case let .success(user):
+          XCTAssertTrue(firstUser.isEqual(user))
         case let .failure(error):
           XCTFail("Create request failed with error: \(error.localizedDescription)")
         }
@@ -618,9 +616,8 @@ final class UserObjectsEndpointTests: XCTestCase {
     PubNub(configuration: config, session: sessions.session)
       .update(user: firstUser) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.status, 200)
-          XCTAssertTrue(firstUser.isEqual(payload.user))
+        case let .success(user):
+          XCTAssertTrue(firstUser.isEqual(user))
         case let .failure(error):
           XCTFail("Update request failed with error: \(error.localizedDescription)")
         }
@@ -825,7 +822,7 @@ final class UserObjectsEndpointTests: XCTestCase {
   // MARK: - Delete Tests
 
   func testDelete_Endpoint() {
-    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser", include: .custom)
+    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser")
 
     XCTAssertEqual(endpoint.description, "Delete User Object")
     XCTAssertEqual(endpoint.category, .objectsUserDelete)
@@ -841,10 +838,9 @@ final class UserObjectsEndpointTests: XCTestCase {
   }
 
   func testDelete_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser", include: .custom)
+    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser")
 
     XCTAssertEqual(endpoint.associatedValue["userID"] as? String, "TestUser")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
   }
 
   func testDelete_Success() {
@@ -1134,7 +1130,7 @@ final class UserObjectsEndpointTests: XCTestCase {
                                  eTag: "SpaceETag")
 
     PubNub(configuration: config, session: sessions.session)
-      .updateMemberships(userID: "TestUser", adding: [firstSpace]) { result in
+      .modifyMemberships(userID: "TestUser", joining: [firstSpace]) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.status, 200)

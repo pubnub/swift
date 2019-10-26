@@ -27,10 +27,14 @@
 
 import Foundation
 
+/// A channel or group that has successfully been subscribed or unsubscribed
 public enum SubscriptionChangeEvent {
+  /// The channels or groups that have successfully been subscribed
   case subscribed(channels: [PubNubChannel], groups: [PubNubChannel])
+  /// The channels or groups that have successfully been unsubscribed
   case unsubscribed(channels: [PubNubChannel], groups: [PubNubChannel])
 
+  /// Whether this event represents an actual change or contains no data
   var didChange: Bool {
     switch self {
     case let .subscribed(channels, groups):
@@ -41,21 +45,36 @@ public enum SubscriptionChangeEvent {
   }
 }
 
+/// All the possible events related to PubNub subscription
 public enum SubscriptionEvent {
+  /// A message has been received
   case messageReceived(MessageEvent)
+  /// A signal has been received
   case signalReceived(MessageEvent)
+  /// A change in the subscription connection has occurred
   case connectionStatusChanged(ConnectionStatus)
+  /// A change in the subscribed channels or groups has occurred
   case subscriptionChanged(SubscriptionChangeEvent)
+  /// A presence change has been received
   case presenceChanged(PresenceEvent)
+  /// A User object has been updated
   case userUpdated(UserEvent)
+  /// A User object has been deleted
   case userDeleted(IdentifierEvent)
+  /// A Space object has been updated
   case spaceUpdated(SpaceEvent)
+  /// A Space object has been deleted
   case spaceDeleted(IdentifierEvent)
+  /// A Membership object has been added
   case membershipAdded(MembershipEvent)
+  /// A Membership object has been updated
   case membershipUpdated(MembershipEvent)
+  /// A Membership object has been deleted
   case membershipDeleted(MembershipIdentifiable)
+  /// A subscription error has occurred
   case subscribeError(PubNubError)
 
+  /// True if this event is an error related to cancellation otherwise false
   var isCancellationError: Bool {
     switch self {
     case let .subscribeError(error):
@@ -66,7 +85,10 @@ public enum SubscriptionEvent {
   }
 }
 
-public protocol SubscriptionStream: EventStream {
+/// A way to emit a stream of PubNub subscription events
+public protocol SubscriptionStream: EventStreamReceiver {
+  /// The emitter used to broadcast `SubscriptionEvent` to its receivers
+  /// - Parameter subscription: The event to be broadcast
   func emitDidReceive(subscription event: SubscriptionEvent)
 }
 
@@ -74,15 +96,17 @@ extension SubscriptionStream {
   func emitDidReceive(subscription _: SubscriptionEvent) { /* no-op */ }
 }
 
-public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellable {
-  public let uuid: UUID
+/// Listener that will emit events related to PubNub subscription and presence APIs
+public final class SubscriptionListener: SubscriptionStream, Hashable {
+  // EventStream
+  public let uuid = UUID()
   public var queue: DispatchQueue
 
-  var token: ListenerToken?
+  /// Whether you would like to avoid receiving cancellation errors from this listener
   public var supressCancellationErrors: Bool = true
+  var token: ListenerToken?
 
   public init(queue: DispatchQueue = .main) {
-    uuid = UUID()
     self.queue = queue
   }
 
@@ -90,16 +114,23 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
     cancel()
   }
 
+  /// Receiver for all subscription events
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
-
+  /// Receiver for message events
   public var didReceiveMessage: ((MessageEvent) -> Void)?
+  /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
+  /// Receiver for presence events
   public var didReceivePresence: ((PresenceEvent) -> Void)?
+  /// Receiver for signal events
   public var didReceiveSignal: ((MessageEvent) -> Void)?
+  /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
   public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
-
+  /// Receiver for User update and delete events
   public var didReceiveUserEvent: ((UserEvents) -> Void)?
+  /// Receiver for Space update and delete events
   public var didReceiveSpaceEvent: ((SpaceEvents) -> Void)?
+  /// Receiver for Membership join, update, and leave events
   public var didReceiveMembershipEvent: ((MembershipEvents) -> Void)?
 
   // swiftlint:disable:next cyclomatic_complexity
@@ -147,7 +178,9 @@ public final class SubscriptionListener: SubscriptionStream, Hashable, Cancellab
   public static func == (lhs: SubscriptionListener, rhs: SubscriptionListener) -> Bool {
     return lhs.uuid == rhs.uuid
   }
+}
 
+extension SubscriptionListener: Cancellable {
   public var isCancelled: Bool {
     return token?.isCancelled ?? true
   }

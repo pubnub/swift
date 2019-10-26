@@ -43,6 +43,29 @@ final class PublishEndpointTests: XCTestCase {
     XCTAssertEqual(endpoint.associatedValue["meta"] as? AnyJSON, AnyJSON("Meta"))
   }
 
+  func testPublish_MessageTooLongError() {
+    let expectation = self.expectation(description: "Message Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_message_too_large"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .publish(channel: "Test", message: ["text": "Hello"]) { result in
+        switch result {
+        case .success:
+          XCTFail("Message request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(reason: .messageTooLong))
+          XCTAssertTrue(error.pubNubError == .messageTooLong)
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   // MARK: - Signal
 
   func testSignal_Endpoint() {

@@ -29,14 +29,32 @@ import Foundation
 
 // MARK: - URLSession
 
+/// An object capable of replacing a `URLSession`
 public protocol URLSessionReplaceable {
+  /// Creates a session with the specified session configuration, delegate, and operation queue.
   init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
-
+  /// An app-defined descriptive label for the session.
   var sessionDescription: String? { get set }
+  /// The operation queue provided when this object was created.
   var delegateQueue: OperationQueue { get }
+  /// A configuration object that defines behavior and policies for an URL session.
   var configuration: URLSessionConfiguration { get }
-
-  func dataTask(with: URLRequest) -> URLSessionDataTask
+  /// Creates a task that retrieves the contents of an URL based on the specified URL request object.
+  ///
+  /// By creating a task based on a request object, you can tune various aspects of the task’s behavior,
+  /// including the cache policy and timeout interval.
+  ///
+  /// After you create the task, you must start it by calling its resume() method.
+  ///
+  /// - Parameter with: an URL request object that provides request-specific information such as the URL,
+  /// cache policy, request type, and body data or body stream.
+  /// - Returns: The new session data task.
+  func dataTask(with request: URLRequest) -> URLSessionDataTask
+  /// Cancels all outstanding tasks and then invalidates the session.
+  ///
+  /// Once invalidated, references to the delegate and callback objects are broken. After invalidation,
+  /// session objects cannot be reused.
+  /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
 }
 
@@ -44,12 +62,35 @@ extension URLSession: URLSessionReplaceable {}
 
 // MARK: - Session
 
+/// An object capable of replacing a `Session`
 public protocol SessionReplaceable {
+  /// The unique identifier for this object
   var sessionID: UUID { get }
+  /// The underlying `URLSession` used to execute the network tasks
   var session: URLSessionReplaceable { get }
+  /// The method used to set the default `RequestOperator`
+  ///
+  /// - parameter requestOperator: The default `RequestOperator`
+  /// - returns: This `Session` object
   func usingDefault(requestOperator: RequestOperator?) -> Self
+  /// Creates and performs a request using the provided router
+  ///
+  /// - parameters:
+  ///   -  with: The `Router` used to create the `Request`
+  ///   -  requestOperator: The operator specific to this `Request`
+  /// - returns: This created `Request`
   func request(with router: Router, requestOperator: RequestOperator?) -> Request
+  /// Cancels all requests on a given `Endpoint` returning the provided error reason
+  ///
+  /// - Parameters:
+  ///   - reason: The reason for the cancellation
+  ///   - for: The endpoint whose requests will be cancelled
   func cancelAllTasks(_ reason: PubNubError.Reason, for: Endpoint.Category)
+  /// Cancels all outstanding tasks and then invalidates the session.
+  ///
+  /// Once invalidated, references to the delegate and callback objects are broken.
+  /// After invalidation, session objects cannot be reused.
+  /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
 }
 

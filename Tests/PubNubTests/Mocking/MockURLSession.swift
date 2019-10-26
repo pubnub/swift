@@ -162,7 +162,7 @@ extension MockURLSession {
 
       mockTask.mockData = try? endpointResource?.body.jsonDataResult.get()
 
-      // Return either the response or a URL error
+      // Return either the response or an URL error
       if let responseCode = endpointResource?.code {
         mockTask.mockResponse = HTTPURLResponse(url: url,
                                                 statusCode: responseCode,

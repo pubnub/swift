@@ -1,0 +1,10 @@
+{
+  "code": 207,
+  "body": {
+    "status": 207,
+    "error": {
+      "source": "actions",
+      "message": "Deleted but failed to publish removed events."
+    }
+  }
+}

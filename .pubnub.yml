@@ -1,9 +1,19 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.0.2"
+version: "2.1.0"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Fetch previously published Message Actions and Messages via History APIs"
+        type: feature
+      - test: "Fetch previously published Message Actions on a channel"
+        type: feature
+      - test: "Add/Remove Message Actions on previously published messages"
+        type: feature
+    date: 2019-11-01
+    version: v2.1.0
   -
     changes:
       - test: "Add/Update documentation for public classes, methods, and properties"

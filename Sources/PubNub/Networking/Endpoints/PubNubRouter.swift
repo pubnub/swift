@@ -201,6 +201,10 @@ extension PubNubRouter: Router {
       return .patch
     case .objectsSpaceMembershipsUpdate:
       return .patch
+    case .addMessageAction:
+      return .post
+    case .removeMessageAction:
+      return .delete
     default:
       return .get
     }
@@ -270,6 +274,8 @@ extension PubNubRouter: Router {
       } else {
         path = "/v3/history/sub-key/\(subscribeKey)/channel/\(parameters.channels.csvString.urlEncodeSlash)"
       }
+    case let .fetchMessageHistoryWithActions(parameters):
+      path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(parameters.channel)"
     case .deleteMessageHistory(let channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
     case let .messageCounts(channels, _, _):
@@ -305,6 +311,13 @@ extension PubNubRouter: Router {
       path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
     case let .objectsSpaceMembershipsUpdate(parameters):
       path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
+
+    case let .fetchMessageActions(channel, _, _, _):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)"
+    case let .addMessageAction(channel, _, timetoken):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(timetoken)"
+    case let .removeMessageAction(channel, message, action):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(message)/action/\(action)"
 
     case .unknown:
       return .failure(PubNubError(.invalidEndpointType, endpoint: endpoint))
@@ -388,6 +401,11 @@ extension PubNubRouter: Router {
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
       query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
+    case let .fetchMessageHistoryWithActions(_, max, start, end, includeMeta):
+      query.appendIfPresent(key: .max, value: max?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
     case let .deleteMessageHistory(_, startTimetoken, endTimetoken):
       query.appendIfPresent(key: .start, value: startTimetoken?.description)
       query.appendIfPresent(key: .end, value: endTimetoken?.description)
@@ -445,6 +463,10 @@ extension PubNubRouter: Router {
       query.appendIfPresent(key: .start, value: parameters.start?.description)
       query.appendIfPresent(key: .end, value: parameters.end?.description)
       query.appendIfPresent(key: .count, value: parameters.count?.description)
+    case let .fetchMessageActions(_, start, end, limit):
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .limit, value: limit?.description)
     default:
       break
     }
@@ -482,6 +504,8 @@ extension PubNubRouter: Router {
                                                   update: parameters.update,
                                                   remove: parameters.remove)
       return changeset.encodableJSONData.map { .some($0) }
+    case let .addMessageAction(_, message, _):
+      return message.concreteType.encodableJSONData.map { .some($0) }
     default:
       return .success(nil)
     }

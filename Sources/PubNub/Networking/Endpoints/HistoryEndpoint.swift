@@ -215,11 +215,13 @@ public struct MessageHistoryMessagesPayload: Codable {
   public let message: AnyJSON
   public let timetoken: Timetoken
   public let meta: AnyJSON?
+  public let actions: [MessageActionPayload]
 
-  public init(message: AnyJSON, timetoken: Timetoken = 0, meta: AnyJSON? = nil) {
+  public init(message: AnyJSON, timetoken: Timetoken = 0, meta: AnyJSON? = nil, actions: [MessageActionPayload] = []) {
     self.message = message
     self.timetoken = timetoken
     self.meta = meta
+    self.actions = actions
   }
 
   public init(from decoder: Decoder) throws {
@@ -227,13 +229,43 @@ public struct MessageHistoryMessagesPayload: Codable {
 
     message = try container.decode(AnyJSON.self, forKey: .message)
     meta = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
+    var messageTimetoken: Timetoken = 0
     if let tokenNumber = try? Timetoken(container.decode(String.self, forKey: .timetoken)) {
-      timetoken = tokenNumber
-    } else if let tokenNumber = try? Timetoken(container.decode(Timetoken.self, forKey: .timetoken)) {
-      timetoken = tokenNumber
+      messageTimetoken = tokenNumber
     } else {
-      timetoken = 0
+      messageTimetoken = try container.decode(Timetoken.self, forKey: .timetoken)
     }
+    timetoken = messageTimetoken
+
+    // [Type: [Value: [MessageActionHistory]]]
+    let typeValueDictionary = try container.decodeIfPresent([String: [String: [MessageActionHistory]]].self,
+                                                            forKey: .actions) ?? [:]
+    var actions = [MessageActionPayload]()
+
+    typeValueDictionary.forEach { actionType, valueDictionary in
+      valueDictionary.forEach { actionValue, historyList in
+        historyList.forEach { history in
+          actions.append(MessageActionPayload(uuid: history.uuid,
+                                              type: actionType,
+                                              value: actionValue,
+                                              actionTimetoken: history.actionTimetoken,
+                                              messageTimetoken: messageTimetoken))
+        }
+      }
+    }
+    self.actions = actions
+  }
+}
+
+struct MessageActionHistory: Codable {
+  let uuid: String
+  let actionTimetoken: Timetoken
+
+  init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    uuid = try container.decode(String.self, forKey: .uuid)
+    let timetoken = try container.decode(String.self, forKey: .actionTimetoken)
+    actionTimetoken = Timetoken(timetoken) ?? 0
   }
 }
 

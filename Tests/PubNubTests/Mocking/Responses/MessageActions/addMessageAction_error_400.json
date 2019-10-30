@@ -1,0 +1,17 @@
+{
+  "code": 400,
+  "body": {
+    "status": 400,
+    "error": {
+      "source": "actions",
+      "message": "Request payload contained invalid input.",
+      "details": [
+        {
+          "message": "Missing field",
+          "location": "value",
+          "locationType": "body"
+        }
+      ]
+    }
+  }
+}

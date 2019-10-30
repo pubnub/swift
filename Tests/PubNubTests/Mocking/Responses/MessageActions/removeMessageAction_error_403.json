@@ -1,0 +1,10 @@
+{
+  "code": 403,
+  "body": {
+    "status": 403,
+    "error": {
+      "source": "actions",
+      "message": "Supplied authorization key does not have the permissions required to perform this operation."
+    }
+  }
+}

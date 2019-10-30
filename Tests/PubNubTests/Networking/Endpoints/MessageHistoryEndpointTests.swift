@@ -436,6 +436,81 @@ extension MessageHistoryEndpointTests {
   }
 }
 
+// MARK: - Fetch With Message Actions
+
+extension MessageHistoryEndpointTests {
+  func testFetchHistoryWithActions_Endpoint() {
+    let endpoint = Endpoint.fetchMessageHistory(channels: v3Channels,
+                                                max: nil, start: nil, end: nil, includeMeta: false)
+
+    XCTAssertEqual(endpoint.description, "Fetch Message History")
+    XCTAssertEqual(endpoint.category, .fetchMessageHistory)
+    XCTAssertEqual(endpoint.operationCategory, .history)
+    XCTAssertNil(endpoint.validationError)
+  }
+
+  func testFetchHistoryWithActions_Endpoint_AssociatedValues() {
+    let endpoint = Endpoint.fetchMessageHistory(channels: ["SomeChannel"], max: 1, start: 0, end: 1, includeMeta: true)
+
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValue["max"] as? Int, 1)
+    XCTAssertEqual(endpoint.associatedValue["start"] as? Timetoken, 0)
+    XCTAssertEqual(endpoint.associatedValue["end"] as? Timetoken, 1)
+    XCTAssertEqual(endpoint.associatedValue["includeMeta"] as? Bool, true)
+  }
+
+  func testFetchHistoryWithActions_Success() {
+    let expectation = self.expectation(description: "Fetch History  Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_Fetch_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let messageAction = MessageActionPayload(uuid: "otheruser", type: "reaction", value: "smiley_face",
+                                             actionTimetoken: 15_724_677_187_827_310,
+                                             messageTimetoken: 15_724_676_552_283_948)
+
+    PubNub(configuration: config, session: sessions.session)
+      .fetchMessageHistoryWithMessageActions(for: testChannel) { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.count, 1)
+          let channelHistory = payload[self.testChannel]
+          XCTAssertEqual(channelHistory?.messages.count, 2)
+          XCTAssertEqual(channelHistory?.messages.first?.actions.count, 3)
+          XCTAssertTrue(channelHistory?.messages.first?.actions.contains(messageAction) ?? false)
+          XCTAssertEqual(channelHistory?.messages.last?.actions.count, 0)
+        case let .failure(error):
+          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchHistoryWithActions_Success_Empty() {
+    let expectation = self.expectation(description: "Fetch History Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .fetchMessageHistoryWithMessageActions(for: testChannel) { result in
+        switch result {
+        case let .success(channels):
+          XCTAssertEqual(channels.count, 0)
+        case let .failure(error):
+          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
 // MARK: - Delete History
 
 extension MessageHistoryEndpointTests {

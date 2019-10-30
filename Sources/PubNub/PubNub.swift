@@ -220,6 +220,59 @@ extension PubNub {
       completion?(result.map { $0.payload })
     }
   }
+
+  /// Publish a message to a channel and then adds a message action
+  ///
+  /// Message storage and TTL can be configured with the following rules:
+  /// 1. If `shouldStore` is true and `storeTTL` is 0, the message is stored with no expiry time.
+  /// 2. If `shouldStore` is true and `storeTTL` is X; X>0, the message is stored with an expiry time of X hours.
+  /// 3. If `shouldStore` is false or not specified, the message is not stored and the `storeTTL` parameter is ignored.
+  /// 4. If `storeTTL` is not specified, then expiration of the message defaults back to the expiry value for the key.
+  ///
+  /// - Parameters:
+  ///   - channel: The destination of the message
+  ///   - message: The message to publish
+  ///   - messageAction: The action added to the published message
+  ///   - shouldStore: If true the published message is stored in history.
+  ///   - storeTTL: Set a per message time to live in storage.
+  ///   - meta: Publish extra metadata with the request.
+  ///   - shouldCompress: Whether the message needs to be compressed before transmission
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func publishWithMessageAction(
+    channel: String,
+    message: JSONCodable,
+    messageAction: MessageAction,
+    shouldStore: Bool? = nil,
+    storeTTL: Int? = nil,
+    meta: JSONCodable? = nil,
+    shouldCompress: Bool = false,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<MessageActionResponsePayload, Error>) -> Void)?
+  ) {
+    publish(
+      channel: channel,
+      message: message,
+      shouldStore: shouldStore,
+      storeTTL: storeTTL,
+      meta: meta,
+      shouldCompress: shouldCompress,
+      with: networkConfiguration,
+      respondOn: queue
+    ) { result in
+      switch result {
+      case let .success(response):
+        self.addMessageAction(channel: channel,
+                              message: messageAction,
+                              messageTimetoken: response.timetoken,
+                              completion: completion)
+      case let .failure(error):
+        completion?(.failure(error))
+      }
+    }
+  }
 }
 
 // MARK: - Subscription
@@ -620,6 +673,47 @@ extension PubNub {
                                                   start: stateTimetoken,
                                                   end: endTimetoken,
                                                   includeMeta: metaInResponse)
+
+    route(endpoint,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageHistoryResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.channels })
+    }
+  }
+
+  /// Fetches historical messages of a channel with message actions
+  ///
+  /// Keep in mind that you will still receive a maximum of 100 messages
+  /// even if there are more messages that meet the timetoken values.
+  ///
+  /// Iterative calls to history adjusting the start timetoken is necessary to page
+  /// through the full set of results if more than 100 messages meet the timetoken values.
+  ///
+  /// - Parameters:
+  ///   - for: List of channels to fetch history messages from.
+  ///   - max: The max number of messages to retrieve.
+  ///   - start: Time token delimiting the start of time slice (exclusive) to pull messages from.
+  ///   - end: Time token delimiting the end of time slice (inclusive) to pull messages from.
+  ///   - metaInResponse: If `true` the meta properties of messages will be returned as well (if existing).
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func fetchMessageHistoryWithMessageActions(
+    for channel: String,
+    max count: Int? = nil,
+    start stateTimetoken: Timetoken? = nil,
+    end endTimetoken: Timetoken? = nil,
+    metaInResponse: Bool = false,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
+  ) {
+    let endpoint: Endpoint = .fetchMessageHistoryWithActions(channel: channel,
+                                                             max: count,
+                                                             start: stateTimetoken,
+                                                             end: endTimetoken,
+                                                             includeMeta: metaInResponse)
 
     route(endpoint,
           networkConfiguration: networkConfiguration,
@@ -1081,6 +1175,84 @@ extension PubNub {
     route(endpoint,
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceMembershipObjectsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+}
+
+// MARK: - Message Actions
+
+extension PubNub {
+  /// Fetch a list of Message Actions for a channel
+  /// - Parameters:
+  ///   - channel: The name of the channel
+  ///   - start: Action timetoken denoting the start of the range requested (exclusive).
+  ///   - end: Action timetoken denoting the end of the range requested (inclusive).
+  ///   - limit: The max number of message actions to retrieve per request
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func fetchMessageActions(
+    channel: String,
+    start: Timetoken? = nil,
+    end: Timetoken? = nil,
+    limit: Int? = nil,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<MessageActionsResponsePayload, Error>) -> Void)?
+  ) {
+    route(.fetchMessageActions(channel: channel, start: start, end: end, limit: limit),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageActionsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  /// Add an Action to a parent Message
+  /// - Parameters:
+  ///   - channel: The name of the channel
+  ///   - message: The Message Action to associate with a Message
+  ///   - messageTimetoken: The publish timetoken of a parent message.
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func addMessageAction(
+    channel: String,
+    message: MessageAction,
+    messageTimetoken: Timetoken,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<MessageActionResponsePayload, Error>) -> Void)?
+  ) {
+    route(.addMessageAction(channel: channel, message: message, timetoken: messageTimetoken),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: MessageActionResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  /// Removes a Message Action from a published Message
+  /// - Parameters:
+  ///   - channel: The name of the channel
+  ///   - message: The publish timetoken of a parent message.
+  ///   - action: The action timetoken of a message action to be removed.
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removeMessageActions(
+    channel: String,
+    message timetoken: Timetoken,
+    action actionTimetoken: Timetoken,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<DeleteResponsePayload, Error>) -> Void)?
+  ) {
+    route(.removeMessageAction(channel: channel, message: timetoken, action: actionTimetoken),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: DeleteResponseDecoder(),
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }

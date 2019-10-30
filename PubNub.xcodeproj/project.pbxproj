@@ -50,6 +50,24 @@
 		352096302358D67000A641DF /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
 		35277A6722D673090083B9B6 /* SessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35277A6622D673090083B9B6 /* SessionDelegate.swift */; };
 		35277A7022D6B3F90083B9B6 /* URL+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */; };
+		35293A7A2368F9680049A71F /* MessageActionsEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293A792368F9680049A71F /* MessageActionsEndpoint.swift */; };
+		35293A7D2369EF740049A71F /* fetchMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A7C2369EF6C0049A71F /* fetchMessageAction_success.json */; };
+		35293A802369EFBE0049A71F /* fetchMessageAction_error_403.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A7F2369EFB80049A71F /* fetchMessageAction_error_403.json */; };
+		35293A812369EFC10049A71F /* fetchMessageAction_error_400.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A7E2369EF9A0049A71F /* fetchMessageAction_error_400.json */; };
+		35293A832369EFF40049A71F /* addMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A822369EFF40049A71F /* addMessageAction_success.json */; };
+		35293A852369F00C0049A71F /* addMessageAction_success_207.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A842369F00C0049A71F /* addMessageAction_success_207.json */; };
+		35293A872369F0230049A71F /* addMessageAction_error_400.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A862369F0230049A71F /* addMessageAction_error_400.json */; };
+		35293A892369F0330049A71F /* addMessageAction_error_403.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A882369F0330049A71F /* addMessageAction_error_403.json */; };
+		35293A8B2369F0400049A71F /* addMessageAction_error_409.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A8A2369F0400049A71F /* addMessageAction_error_409.json */; };
+		35293A8D2369F0770049A71F /* removeMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A8C2369F0760049A71F /* removeMessageAction_success.json */; };
+		35293A8F2369F08B0049A71F /* removeMessageAction_success_207.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A8E2369F08B0049A71F /* removeMessageAction_success_207.json */; };
+		35293A912369F09E0049A71F /* removeMessageAction_error_400.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A902369F09E0049A71F /* removeMessageAction_error_400.json */; };
+		35293A932369F0A60049A71F /* removeMessageAction_error_403.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A922369F0A60049A71F /* removeMessageAction_error_403.json */; };
+		35293A952369F31B0049A71F /* MessageActionsEndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293A942369F31B0049A71F /* MessageActionsEndpointTests.swift */; };
+		35293A972369FE4F0049A71F /* fetchMessageAction_success_empty.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A962369FE4F0049A71F /* fetchMessageAction_success_empty.json */; };
+		35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293A99236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift */; };
+		35293A9D236A36760049A71F /* messageHistoryWithActions_Fetch_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A9B236A36460049A71F /* messageHistoryWithActions_Fetch_success.json */; };
+		35293A9F236A38E80049A71F /* messageHistoryWithActions_success_empty.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A9E236A38E80049A71F /* messageHistoryWithActions_success_empty.json */; };
 		35304F8A22FE5425006A02CA /* Validated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35304F8922FE5425006A02CA /* Validated.swift */; };
 		35304F9222FF7073006A02CA /* MessageHistoryEndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */; };
 		3534D4E222C56533008E89FA /* TimeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E122C56533008E89FA /* TimeEndpoint.swift */; };
@@ -330,6 +348,24 @@
 		350EFBE322C95FED00FA33AA /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		35277A6622D673090083B9B6 /* SessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDelegate.swift; sourceTree = "<group>"; };
 		35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+PubNub.swift"; sourceTree = "<group>"; };
+		35293A792368F9680049A71F /* MessageActionsEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageActionsEndpoint.swift; sourceTree = "<group>"; };
+		35293A7C2369EF6C0049A71F /* fetchMessageAction_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = fetchMessageAction_success.json; path = Tests/PubNubTests/Mocking/Responses/MessageActions/fetchMessageAction_success.json; sourceTree = SOURCE_ROOT; };
+		35293A7E2369EF9A0049A71F /* fetchMessageAction_error_400.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fetchMessageAction_error_400.json; sourceTree = "<group>"; };
+		35293A7F2369EFB80049A71F /* fetchMessageAction_error_403.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fetchMessageAction_error_403.json; sourceTree = "<group>"; };
+		35293A822369EFF40049A71F /* addMessageAction_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = addMessageAction_success.json; sourceTree = "<group>"; };
+		35293A842369F00C0049A71F /* addMessageAction_success_207.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = addMessageAction_success_207.json; sourceTree = "<group>"; };
+		35293A862369F0230049A71F /* addMessageAction_error_400.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = addMessageAction_error_400.json; sourceTree = "<group>"; };
+		35293A882369F0330049A71F /* addMessageAction_error_403.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = addMessageAction_error_403.json; sourceTree = "<group>"; };
+		35293A8A2369F0400049A71F /* addMessageAction_error_409.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = addMessageAction_error_409.json; sourceTree = "<group>"; };
+		35293A8C2369F0760049A71F /* removeMessageAction_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = removeMessageAction_success.json; sourceTree = "<group>"; };
+		35293A8E2369F08B0049A71F /* removeMessageAction_success_207.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = removeMessageAction_success_207.json; sourceTree = "<group>"; };
+		35293A902369F09E0049A71F /* removeMessageAction_error_400.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = removeMessageAction_error_400.json; sourceTree = "<group>"; };
+		35293A922369F0A60049A71F /* removeMessageAction_error_403.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = removeMessageAction_error_403.json; sourceTree = "<group>"; };
+		35293A942369F31B0049A71F /* MessageActionsEndpointTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageActionsEndpointTests.swift; sourceTree = "<group>"; };
+		35293A962369FE4F0049A71F /* fetchMessageAction_success_empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = fetchMessageAction_success_empty.json; sourceTree = "<group>"; };
+		35293A99236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageActionsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
+		35293A9B236A36460049A71F /* messageHistoryWithActions_Fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistoryWithActions_Fetch_success.json; sourceTree = "<group>"; };
+		35293A9E236A38E80049A71F /* messageHistoryWithActions_success_empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistoryWithActions_success_empty.json; sourceTree = "<group>"; };
 		35304F8922FE5425006A02CA /* Validated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validated.swift; sourceTree = "<group>"; };
 		35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHistoryEndpointTests.swift; sourceTree = "<group>"; };
 		3534D4E122C56533008E89FA /* TimeEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEndpoint.swift; sourceTree = "<group>"; };
@@ -608,6 +644,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		35293A7B2369EF4B0049A71F /* MessageActions */ = {
+			isa = PBXGroup;
+			children = (
+				35293A7C2369EF6C0049A71F /* fetchMessageAction_success.json */,
+				35293A962369FE4F0049A71F /* fetchMessageAction_success_empty.json */,
+				35293A7E2369EF9A0049A71F /* fetchMessageAction_error_400.json */,
+				35293A7F2369EFB80049A71F /* fetchMessageAction_error_403.json */,
+				35293A822369EFF40049A71F /* addMessageAction_success.json */,
+				35293A842369F00C0049A71F /* addMessageAction_success_207.json */,
+				35293A862369F0230049A71F /* addMessageAction_error_400.json */,
+				35293A882369F0330049A71F /* addMessageAction_error_403.json */,
+				35293A8A2369F0400049A71F /* addMessageAction_error_409.json */,
+				35293A8C2369F0760049A71F /* removeMessageAction_success.json */,
+				35293A8E2369F08B0049A71F /* removeMessageAction_success_207.json */,
+				35293A902369F09E0049A71F /* removeMessageAction_error_400.json */,
+				35293A922369F0A60049A71F /* removeMessageAction_error_403.json */,
+			);
+			path = MessageActions;
+			sourceTree = "<group>";
+		};
 		3534D4E022C56524008E89FA /* Endpoints */ = {
 			isa = PBXGroup;
 			children = (
@@ -616,6 +672,7 @@
 				35834F3822E600C60034CF0C /* GenericServicePayloadResponse.swift */,
 				35A6C78E22FB4F0500E97CC5 /* ChannelGroups.swift */,
 				35A6C7BD22FCCBF900E97CC5 /* HistoryEndpoint.swift */,
+				35293A792368F9680049A71F /* MessageActionsEndpoint.swift */,
 				35DA9AAD2332D03F00867989 /* UserObjectsEndpoint.swift */,
 				355E1E64234556A50094D3E0 /* SpaceObjectsEndpoint.swift */,
 				35A6C77C22FB159F00E97CC5 /* PresenceEndpoint.swift */,
@@ -683,6 +740,7 @@
 				35C829D723145AFD00F59D3C /* OnboardingSnippets.swift */,
 				359287B5231727EC0046F7A2 /* PublishEndpointIntegrationTests.swift */,
 				3562DBBA234294D5006DFFBC /* UserObjectsEndpointIntegrationTests.swift */,
+				35293A99236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift */,
 				3562DBC0234408DC006DFFBC /* SpaceObjectsEndpointIntegrationTests.swift */,
 				359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */,
 				353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */,
@@ -712,6 +770,7 @@
 		355BEA0022C2CCBF000EC334 /* Responses */ = {
 			isa = PBXGroup;
 			children = (
+				35293A7B2369EF4B0049A71F /* MessageActions */,
 				35DA9AAF2334476200867989 /* Objects */,
 				35A6C7A922FBD73500E97CC5 /* Push */,
 				D2635DF922FCCE7A0097CF64 /* MessageCounts */,
@@ -893,6 +952,7 @@
 				35A6C79222FB93FD00E97CC5 /* ChannelGroupEndpointTests.swift */,
 				35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */,
 				35DA9AB42335491F00867989 /* UserObjectsEndpointTests.swift */,
+				35293A942369F31B0049A71F /* MessageActionsEndpointTests.swift */,
 				3562DBC22345066F006DFFBC /* SpaceObjectsEndpointTests.swift */,
 				35A6C78C22FB409400E97CC5 /* PresenceEndpointTests.swift */,
 				35A6C7B622FBEA7200E97CC5 /* PushEndpointTests.swift */,
@@ -918,6 +978,8 @@
 				35D0615723039F3600FDB2F9 /* messageHistory_Fetch_success_mixedEncrypted.json */,
 				3595120422FF7B2400C9D3AE /* messageHistory_Fetch_success_emptyList.json */,
 				3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */,
+				35293A9B236A36460049A71F /* messageHistoryWithActions_Fetch_success.json */,
+				35293A9E236A38E80049A71F /* messageHistoryWithActions_success_empty.json */,
 			);
 			path = MessageHistory;
 			sourceTree = "<group>";
@@ -1339,13 +1401,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				35A6C78922FB405E00E97CC5 /* wherenow_success.json in Resources */,
+				35293A8F2369F08B0049A71F /* removeMessageAction_success_207.json in Resources */,
 				3562DBB923428961006DFFBC /* objects_users_fetch_success_empty.json in Resources */,
 				359287CF232880660046F7A2 /* herenow_success_stateful.json in Resources */,
+				35293A7D2369EF740049A71F /* fetchMessageAction_success.json in Resources */,
 				3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */,
 				35FE93F222EF93A90051C455 /* cannotDecodeContentData.json in Resources */,
 				35FE93BE22EE9C4A0051C455 /* couldNotParseRequest.json in Resources */,
 				35A6C7A422FBC59B00E97CC5 /* groups_channels_list_success_empty.json in Resources */,
 				35D01978233581AC00C30E3F /* objects_users_fetch_success.json in Resources */,
+				35293A932369F0A60049A71F /* removeMessageAction_error_403.json in Resources */,
 				35059784234964AC007DC06E /* subscription_spaceUpdate_success.json in Resources */,
 				35A6C79822FBC27F00E97CC5 /* groups_list_success.json in Resources */,
 				35A6C7AF22FBD8C400E97CC5 /* push_list_success_empty.json in Resources */,
@@ -1416,14 +1481,19 @@
 				35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */,
 				35FE93F122EF93A90051C455 /* serverCertificateUntrusted.json in Resources */,
 				35A6C79A22FBC2AD00E97CC5 /* groups_delete_success.json in Resources */,
+				35293A872369F0230049A71F /* addMessageAction_error_400.json in Resources */,
 				359287CD232880160046F7A2 /* herenow_singleChannel_success_stateful.json in Resources */,
 				35FE93F622EF93A90051C455 /* cannotParseResponse.json in Resources */,
 				35A6C79C22FBC2D100E97CC5 /* groups_channels_add_success.json in Resources */,
 				350BC412233952FE00011262 /* objects_error_404.json in Resources */,
 				350BC411233952FC00011262 /* objects_error_403.json in Resources */,
 				35A6C78B22FB406C00E97CC5 /* wherenow_success_empty.json in Resources */,
+				35293A832369EFF40049A71F /* addMessageAction_success.json in Resources */,
+				35293A9D236A36760049A71F /* messageHistoryWithActions_Fetch_success.json in Resources */,
 				350BC4152339530700011262 /* objects_error_415.json in Resources */,
+				35293A892369F0330049A71F /* addMessageAction_error_403.json in Resources */,
 				35FE93F522EF93A90051C455 /* serverCertificateHasBadDate.json in Resources */,
+				35293A802369EFBE0049A71F /* fetchMessageAction_error_403.json in Resources */,
 				35FE93C022EF47CC0051C455 /* timedOut.json in Resources */,
 				35FE93E422EF93A90051C455 /* networkConnectionLost.json in Resources */,
 				359287C5231861580046F7A2 /* subscription_success.json in Resources */,
@@ -1431,13 +1501,17 @@
 				35A66A9722F9B72200AC67A9 /* setState_success.json in Resources */,
 				35FE940922EFA0040051C455 /* unauthorized_StatusCode.json in Resources */,
 				3595120922FF7B4800C9D3AE /* messageHistory_Delete_success.json in Resources */,
+				35293A912369F09E0049A71F /* removeMessageAction_error_400.json in Resources */,
 				359511FD22FF7AED00C9D3AE /* messageHistory_FetchV2_success.json in Resources */,
 				35FE93ED22EF93A90051C455 /* unknown.json in Resources */,
 				35FE93BD22EE9C470051C455 /* requestURITooLong_Message.json in Resources */,
+				35293A852369F00C0049A71F /* addMessageAction_success_207.json in Resources */,
 				355997852307966C000BCFD1 /* message_counts_error_serviceNotEnabled.json in Resources */,
 				35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */,
 				350BC4132339530200011262 /* objects_error_409.json in Resources */,
 				35059782234964A0007DC06E /* subscription_userDelete_success.json in Resources */,
+				35293A8B2369F0400049A71F /* addMessageAction_error_409.json in Resources */,
+				35293A972369FE4F0049A71F /* fetchMessageAction_success_empty.json in Resources */,
 				350BC4182339530F00011262 /* objects_error_503.json in Resources */,
 				350BC4162339530A00011262 /* objects_error_429.json in Resources */,
 				35A6C79422FB96BE00E97CC5 /* maximumChannelCountExceeded_Message.json in Resources */,
@@ -1451,12 +1525,15 @@
 				35D0615423037FB600FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json in Resources */,
 				3505977C23496079007DC06E /* subscription_membershipUpdate_success.json in Resources */,
 				D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */,
+				35293A812369EFC10049A71F /* fetchMessageAction_error_400.json in Resources */,
+				35293A9F236A38E80049A71F /* messageHistoryWithActions_success_empty.json in Resources */,
 				35FE93F822EF93A90051C455 /* clientCertificateRequired.json in Resources */,
 				35FE941022EFA30A0051C455 /* malformedFilterExpression_StatusCode.json in Resources */,
 				35FE93F022EF93A90051C455 /* resourceUnavailable.json in Resources */,
 				35A6C7A622FBC99E00E97CC5 /* push_not_enabled_for_key_Message.json in Resources */,
 				35A66A9622F9B71200AC67A9 /* setState_missing_state.json in Resources */,
 				35FE93F922EF93A90051C455 /* cancelled.json in Resources */,
+				35293A8D2369F0770049A71F /* removeMessageAction_success.json in Resources */,
 				35A6C7A222FBC55E00E97CC5 /* groups_list_success_empty.json in Resources */,
 				35FE93EF22EF93A90051C455 /* dataNotAllowed.json in Resources */,
 				350BC4142339530500011262 /* objects_error_412.json in Resources */,
@@ -1511,6 +1588,7 @@
 			files = (
 				359287B02316EC580046F7A2 /* OnboardingSnippets.swift in Sources */,
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
+				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* SpaceObjectsEndpointIntegrationTests.swift in Sources */,
 				359287C7232712520046F7A2 /* PresenceEndpointIntegrationTests.swift in Sources */,
 				3520962F2358D64C00A641DF /* TestSetup.swift in Sources */,
@@ -1569,6 +1647,7 @@
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				35A66A9222F9169400AC67A9 /* PresenceEvent.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
+				35293A7A2368F9680049A71F /* MessageActionsEndpoint.swift in Sources */,
 				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
@@ -1657,6 +1736,7 @@
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
 				359287B4231720C20046F7A2 /* PublishEndpointTests.swift in Sources */,
+				35293A952369F31B0049A71F /* MessageActionsEndpointTests.swift in Sources */,
 				35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */,
 				35CDFEB822E7776400F3B9F2 /* URLRequest+PubNubTests.swift in Sources */,
 				355806942311D301005CDD92 /* MessageEventTests.swift in Sources */,

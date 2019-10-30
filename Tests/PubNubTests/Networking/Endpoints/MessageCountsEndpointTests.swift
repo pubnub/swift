@@ -130,7 +130,7 @@ final class MessageCountsEndpointTests: XCTestCase {
         expectation.fulfill()
       }
 
-    wait(for: [expectation], timeout: 100.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func testMessageCounts_Error_ServiceNotEnabled() {

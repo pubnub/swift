@@ -62,6 +62,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   case tooManyRequests
   case unsupportedType
   case messageTooLong
+  case successFailedToPublishEvent
+  case invalidUUID
   case unknown(message: String)
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -80,7 +82,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .invalidCharacter
     case "Expected 32 or 100 byte hex device token":
       self = .invalidDeviceToken
-    case "Invalid Subscribe Key":
+    case "Invalid Subscribe Key", "Invalid Subkey":
       self = .invalidSubscribeKey
     case "Invalid Key":
       self = .invalidPublishKey
@@ -110,6 +112,10 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .serviceUnavailable
     case "Message Too Large":
       self = .messageTooLong
+    case "Stored but failed to publish message action.", "Deleted but failed to publish removed events.":
+      self = .successFailedToPublishEvent
+    case "Not deleting message action: wrong uuid specified":
+      self = .invalidUUID
     default:
       self = EndpointResponseMessage.rawValueStartsWith(rawValue)
     }
@@ -177,6 +183,10 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       return "Request payload must be in JSON format."
     case .messageTooLong:
       return "Message Too Large"
+    case .successFailedToPublishEvent:
+      return "Stored but failed to publish message action."
+    case .invalidUUID:
+      return "Not deleting message action: wrong uuid specified"
     case let .unknown(message):
       return "Unknown: \(message)"
     }
@@ -280,10 +290,24 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
 
 // MARK: - Object Error Response
 
-struct ErrorPayload: Codable {
-  let message: EndpointResponseMessage
-  let source: String
-  let details: [ErrorDetail]
+public struct ErrorPayload: Codable, Hashable {
+  public let message: EndpointResponseMessage
+  public let source: String
+  public let details: [ErrorDetail]
+
+  public init(message: EndpointResponseMessage, source: String, details: [ErrorDetail] = []) {
+    self.message = message
+    self.source = source
+    self.details = details
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    message = try container.decode(EndpointResponseMessage.self, forKey: .message)
+    source = try container.decode(String.self, forKey: .source)
+    details = try container.decodeIfPresent([ErrorDetail].self, forKey: .details) ?? []
+  }
 }
 
 public struct ErrorDetail: Codable, Hashable, CustomStringConvertible {

@@ -153,8 +153,8 @@ public enum Endpoint {
   )
 
   // History
-  case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
-  case fetchMessageHistoryWithActions(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+  case fetchMessageHistory(channels: [String], actions: Bool, max: Int?,
+                           start: Timetoken?, end: Timetoken?, includeMeta: Bool)
   case deleteMessageHistory(channel: String, start: Timetoken?, end: Timetoken?)
 
   // Message Counts
@@ -275,13 +275,15 @@ public enum Endpoint {
     case .removeAllPushChannels:
       return .removeAllPushChannels
     case let .fetchMessageHistory(parameters):
-      // Deprecated: Remove v2 message history path when single group support added to v3
-      if parameters.channels.count == 1 {
+      switch (parameters.channels.count, parameters.actions) {
+      case (1, true):
+        return .fetchMessageHistoryWithActions
+      case (1, false):
+        // Deprecated: Remove v2 message history path when single group support added to v3
         return .fetchMessageHistoryV2
+      default:
+        return .fetchMessageHistory
       }
-      return .fetchMessageHistory
-    case .fetchMessageHistoryWithActions:
-      return .fetchMessageHistoryWithActions
     case .deleteMessageHistory:
       return .deleteMessageHistory
     case .objectsUserFetch:
@@ -339,10 +341,8 @@ extension Endpoint: Validated {
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .subscribe(parameters):
       return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty)
-    case let .fetchMessageHistory(channels, max, _, _, _):
-      return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
-    case let .fetchMessageHistoryWithActions(channel, max, _, _, _):
-      return isEndpointInvalid(channel.isEmpty, max ?? 1 < 1)
+    case let .fetchMessageHistory(channels, actions, max, _, _, _):
+      return isEndpointInvalid(channels.isEmpty, channels.count > 1 && actions, max ?? 1 < 1)
     case let .deleteMessageHistory(channel, _, _):
       return isEndpointInvalid(channel.isEmpty)
     case let .hereNow(channels, groups, _, _):
@@ -486,10 +486,9 @@ extension Endpoint {
               "state": state,
               "heartbeat": heartbeat,
               "filter": filter]
-    case let .fetchMessageHistory(channels, max, start, end, includeMeta):
-      return ["channels": channels, "max": max, "start": start, "end": end, "includeMeta": includeMeta]
-    case let .fetchMessageHistoryWithActions(channel, max, start, end, includeMeta):
-      return ["channel": channel, "max": max, "start": start, "end": end, "includeMeta": includeMeta]
+    case let .fetchMessageHistory(channels, actions, max, start, end, includeMeta):
+      return ["channels": channels, "actions": actions, "max": max,
+              "start": start, "end": end, "includeMeta": includeMeta]
     case let .deleteMessageHistory(channel, start, end):
       return ["channel": channel, "start": start, "end": end]
     case let .messageCounts(channels, timetoken, channelsTimetoken):

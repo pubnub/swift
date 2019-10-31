@@ -268,14 +268,16 @@ extension PubNubRouter: Router {
     case .removeAllPushChannels(let token, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
     case let .fetchMessageHistory(parameters):
-      // Deprecated: Remove v2 message history path when single group support added to v3
       if parameters.channels.count == 1, let channel = parameters.channels.first {
-        path = "/v2/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+        if parameters.actions {
+          path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(channel)"
+        } else {
+          // Deprecated: Remove v2 message history path when single group properly supported by v3
+          path = "/v2/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+        }
       } else {
         path = "/v3/history/sub-key/\(subscribeKey)/channel/\(parameters.channels.csvString.urlEncodeSlash)"
       }
-    case let .fetchMessageHistoryWithActions(parameters):
-      path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(parameters.channel)"
     case .deleteMessageHistory(let channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
     case let .messageCounts(channels, _, _):
@@ -389,7 +391,7 @@ extension PubNubRouter: Router {
       query.appendIfNotEmpty(key: .type, value: removeChannels)
     case let .removeAllPushChannels(_, pushType):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
-    case let .fetchMessageHistory(_, max, start, end, includeMeta):
+    case let .fetchMessageHistory(_, _, max, start, end, includeMeta):
       // Deprecated: Remove `count` with v2 message history
       query.appendIfPresent(key: .count, value: max?.description)
       query.appendIfPresent(key: .stringtoken, value: false.description)
@@ -397,11 +399,6 @@ extension PubNubRouter: Router {
       query.appendIfPresent(key: .reverse, value: false.description)
       // End Deprecation Block
 
-      query.appendIfPresent(key: .max, value: max?.description)
-      query.appendIfPresent(key: .start, value: start?.description)
-      query.appendIfPresent(key: .end, value: end?.description)
-      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
-    case let .fetchMessageHistoryWithActions(_, max, start, end, includeMeta):
       query.appendIfPresent(key: .max, value: max?.description)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)

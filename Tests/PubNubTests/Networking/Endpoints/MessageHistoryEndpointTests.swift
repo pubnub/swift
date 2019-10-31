@@ -35,13 +35,13 @@ final class MessageHistoryEndpointTests: XCTestCase {
 
   let testChannel = "TestChannel"
 
-  let v2Channels = ["TestChannel"]
-  let v3Channels = ["TestChannel", "OtherTestChannel"]
+  let testSingleChannel = ["TestChannel"]
+  let testMultiChannels = ["TestChannel", "OtherTestChannel"]
 
   // MARK: - Fetch History V2 (Single Channel)
 
   func testFetchHistoryV2_Endpoint() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: v2Channels,
+    let endpoint = Endpoint.fetchMessageHistory(channels: testSingleChannel, actions: false,
                                                 max: nil, start: nil, end: nil, includeMeta: false)
 
     XCTAssertEqual(endpoint.description, "Fetch Message History V2")
@@ -51,7 +51,8 @@ final class MessageHistoryEndpointTests: XCTestCase {
   }
 
   func testFetchHistoryV2_Endpoint_ValidationError() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: [], max: nil, start: nil, end: nil, includeMeta: false)
+    let endpoint = Endpoint.fetchMessageHistory(channels: [], actions: false,
+                                                max: nil, start: nil, end: nil, includeMeta: false)
 
     XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
   }
@@ -64,7 +65,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -91,7 +92,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -120,7 +121,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -149,7 +150,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -179,7 +180,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -208,7 +209,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertTrue(payload.isEmpty)
@@ -226,7 +227,7 @@ final class MessageHistoryEndpointTests: XCTestCase {
 
 extension MessageHistoryEndpointTests {
   func testFetchHistory_Endpoint() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: v3Channels,
+    let endpoint = Endpoint.fetchMessageHistory(channels: testMultiChannels, actions: false,
                                                 max: nil, start: nil, end: nil, includeMeta: false)
 
     XCTAssertEqual(endpoint.description, "Fetch Message History")
@@ -236,9 +237,13 @@ extension MessageHistoryEndpointTests {
   }
 
   func testFetchHistory_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: ["SomeChannel"], max: 1, start: 0, end: 1, includeMeta: true)
+    let endpoint = Endpoint.fetchMessageHistory(channels: [testChannel], actions: true,
+                                                max: 1, start: 0, end: 1, includeMeta: true)
 
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["SomeChannel"])
+    XCTAssertEqual(endpoint.associatedValue.count, 6)
+
+    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], [testChannel])
+    XCTAssertEqual(endpoint.associatedValue["actions"] as? Bool, true)
     XCTAssertEqual(endpoint.associatedValue["max"] as? Int, 1)
     XCTAssertEqual(endpoint.associatedValue["start"] as? Timetoken, 0)
     XCTAssertEqual(endpoint.associatedValue["end"] as? Timetoken, 1)
@@ -253,7 +258,7 @@ extension MessageHistoryEndpointTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v2Channels) { result in
+      .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.count, 1)
@@ -279,7 +284,7 @@ extension MessageHistoryEndpointTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.count, 1)
@@ -305,7 +310,7 @@ extension MessageHistoryEndpointTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertGreaterThan(payload.count, 1)
@@ -334,7 +339,7 @@ extension MessageHistoryEndpointTests {
     configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -363,7 +368,7 @@ extension MessageHistoryEndpointTests {
     configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -393,7 +398,7 @@ extension MessageHistoryEndpointTests {
     configWithCipher.cipherKey = Crypto(key: "SomeTestString")
 
     PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertFalse(payload.isEmpty)
@@ -422,7 +427,7 @@ extension MessageHistoryEndpointTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: v3Channels) { result in
+      .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
         case let .success(payload):
           XCTAssertTrue(payload.isEmpty)
@@ -439,27 +444,14 @@ extension MessageHistoryEndpointTests {
 // MARK: - Fetch With Message Actions
 
 extension MessageHistoryEndpointTests {
-  func testFetchHistoryWithActions_Endpoint() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: v3Channels,
-                                                max: nil, start: nil, end: nil, includeMeta: false)
+  func testFetchHistory_Endpoint_Validate_MultiChannelActions() {
+    let multiChannels = Endpoint.fetchMessageHistory(channels: testMultiChannels, actions: true,
+                                                     max: 1, start: 0, end: 1, includeMeta: true)
 
-    XCTAssertEqual(endpoint.description, "Fetch Message History")
-    XCTAssertEqual(endpoint.category, .fetchMessageHistory)
-    XCTAssertEqual(endpoint.operationCategory, .history)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertFalse(multiChannels.isValid)
   }
 
-  func testFetchHistoryWithActions_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.fetchMessageHistory(channels: ["SomeChannel"], max: 1, start: 0, end: 1, includeMeta: true)
-
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["SomeChannel"])
-    XCTAssertEqual(endpoint.associatedValue["max"] as? Int, 1)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? Timetoken, 0)
-    XCTAssertEqual(endpoint.associatedValue["end"] as? Timetoken, 1)
-    XCTAssertEqual(endpoint.associatedValue["includeMeta"] as? Bool, true)
-  }
-
-  func testFetchHistoryWithActions_Success() {
+  func testFetchHistory_WithActions_Success() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_Fetch_success"]) else {
@@ -471,7 +463,7 @@ extension MessageHistoryEndpointTests {
                                              messageTimetoken: 15_724_676_552_283_948)
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistoryWithMessageActions(for: testChannel) { result in
+      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.count, 1)
@@ -489,7 +481,7 @@ extension MessageHistoryEndpointTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchHistoryWithActions_Success_Empty() {
+  func testFetchHistory_WithActions_Success_Empty() {
     let expectation = self.expectation(description: "Fetch History Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_success_empty"]) else {
@@ -497,7 +489,7 @@ extension MessageHistoryEndpointTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistoryWithMessageActions(for: testChannel) { result in
+      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
         switch result {
         case let .success(channels):
           XCTAssertEqual(channels.count, 0)
@@ -580,51 +572,6 @@ extension MessageHistoryEndpointTests {
 
 // MARK: - Response Decoder
 
-extension MessageHistoryEndpointTests {
-  func testResponseDecoder_Decode_Failure() {
-    guard let url = URL(string: "http://example.com") else {
-      return XCTFail("Could not create URL")
-    }
-
-    let router = PubNubRouter(configuration: PubNubConfiguration.default, endpoint: .time)
-    let request = URLRequest(url: url)
-    let urlResponse = HTTPURLResponse(url: url, mimeType: nil, expectedContentLength: 200, textEncodingName: nil)
-    let response = Response<Data>(router: router,
-                                  request: request,
-                                  response: urlResponse,
-                                  payload: Data())
-    do {
-      _ = try MessageHistoryResponseDecoder().decode(response: response).get()
-      XCTFail("This should throw an error")
-    } catch {
-      XCTAssertEqual(error.pubNubError, PubNubError(reason: .jsonDataDecodingFailure))
-    }
-  }
-
-  func testDecodeMessageHistoryV2_WrongEndpoint() {
-    guard let url = URL(string: "http://example.com") else {
-      return XCTFail("Could not create URL")
-    }
-
-    let router = PubNubRouter(configuration: PubNubConfiguration.default, endpoint: .time)
-    let request = URLRequest(url: url)
-    let urlResponse = HTTPURLResponse(url: url, mimeType: nil, expectedContentLength: 200, textEncodingName: nil)
-
-    guard let responseData = "[]".data(using: .utf8) else {
-      return XCTFail("Could not create data from string json")
-    }
-
-    let response = Response<Data>(router: router,
-                                  request: request,
-                                  response: urlResponse,
-                                  payload: responseData)
-    do {
-      _ = try MessageHistoryResponseDecoder().decodeMessageHistoryV2(response: response).get()
-      XCTFail("This should throw an error")
-    } catch {
-      XCTAssertEqual(error.pubNubError, PubNubError(reason: .malformedResponseBody))
-    }
-  }
-}
+extension MessageHistoryEndpointTests {}
 
 // swiftlint:enable file_length

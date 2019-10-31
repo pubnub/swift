@@ -57,7 +57,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
 
     let channel: String?
     switch response.endpoint {
-    case let .fetchMessageHistory(channels, _, _, _, _):
+    case let .fetchMessageHistory(channels, _, _, _, _, _):
       channel = channels.first
     default:
       channel = nil

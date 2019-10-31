@@ -69,6 +69,10 @@
 		35293A9D236A36760049A71F /* messageHistoryWithActions_Fetch_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A9B236A36460049A71F /* messageHistoryWithActions_Fetch_success.json */; };
 		35293A9F236A38E80049A71F /* messageHistoryWithActions_success_empty.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A9E236A38E80049A71F /* messageHistoryWithActions_success_empty.json */; };
 		35293AA2236B51A00049A71F /* PubNub+Integration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293AA1236B51A00049A71F /* PubNub+Integration.swift */; };
+		35293AA4236B63350049A71F /* subscription_addMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293AA3236B63350049A71F /* subscription_addMessageAction_success.json */; };
+		35293AA6236B68530049A71F /* MessageActionEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293AA5236B68530049A71F /* MessageActionEvents.swift */; };
+		35293AA8236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293AA7236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json */; };
+		35293AAA236B6C890049A71F /* subscription_removeMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293AA9236B6C890049A71F /* subscription_removeMessageAction_success.json */; };
 		35304F8A22FE5425006A02CA /* Validated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35304F8922FE5425006A02CA /* Validated.swift */; };
 		35304F9222FF7073006A02CA /* MessageHistoryEndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */; };
 		3534D4E222C56533008E89FA /* TimeEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E122C56533008E89FA /* TimeEndpoint.swift */; };
@@ -368,6 +372,10 @@
 		35293A9B236A36460049A71F /* messageHistoryWithActions_Fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistoryWithActions_Fetch_success.json; sourceTree = "<group>"; };
 		35293A9E236A38E80049A71F /* messageHistoryWithActions_success_empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistoryWithActions_success_empty.json; sourceTree = "<group>"; };
 		35293AA1236B51A00049A71F /* PubNub+Integration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNub+Integration.swift"; sourceTree = "<group>"; };
+		35293AA3236B63350049A71F /* subscription_addMessageAction_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_addMessageAction_success.json; sourceTree = "<group>"; };
+		35293AA5236B68530049A71F /* MessageActionEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageActionEvents.swift; sourceTree = "<group>"; };
+		35293AA7236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = removeMessageAction_error_400_noMessage.json; sourceTree = "<group>"; };
+		35293AA9236B6C890049A71F /* subscription_removeMessageAction_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_removeMessageAction_success.json; sourceTree = "<group>"; };
 		35304F8922FE5425006A02CA /* Validated.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Validated.swift; sourceTree = "<group>"; };
 		35304F9122FF7073006A02CA /* MessageHistoryEndpointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageHistoryEndpointTests.swift; sourceTree = "<group>"; };
 		3534D4E122C56533008E89FA /* TimeEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeEndpoint.swift; sourceTree = "<group>"; };
@@ -661,6 +669,7 @@
 				35293A8C2369F0760049A71F /* removeMessageAction_success.json */,
 				35293A8E2369F08B0049A71F /* removeMessageAction_success_207.json */,
 				35293A902369F09E0049A71F /* removeMessageAction_error_400.json */,
+				35293AA7236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json */,
 				35293A922369F0A60049A71F /* removeMessageAction_error_403.json */,
 			);
 			path = MessageActions;
@@ -848,6 +857,8 @@
 				3505977A23495EFD007DC06E /* subscription_membershipCreate_success.json */,
 				3505977B2349606E007DC06E /* subscription_membershipUpdate_success.json */,
 				3505977E2349617C007DC06E /* subscription_membershipDelete_success.json */,
+				35293AA3236B63350049A71F /* subscription_addMessageAction_success.json */,
+				35293AA9236B6C890049A71F /* subscription_removeMessageAction_success.json */,
 				359287C223183E6A0046F7A2 /* subscription_message_success.json */,
 			);
 			path = Subscribe;
@@ -994,6 +1005,7 @@
 				35A66A9122F9169400AC67A9 /* PresenceEvent.swift */,
 				350597782347C05E007DC06E /* ObjectEvent.swift */,
 				35A66A8F22F913B200AC67A9 /* StatusEvent.swift */,
+				35293AA5236B68530049A71F /* MessageActionEvents.swift */,
 				35A66A7D22F861BA00AC67A9 /* SubscriptionStream.swift */,
 			);
 			path = Subscription;
@@ -1513,6 +1525,7 @@
 				35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */,
 				350BC4132339530200011262 /* objects_error_409.json in Resources */,
 				35059782234964A0007DC06E /* subscription_userDelete_success.json in Resources */,
+				35293AA4236B63350049A71F /* subscription_addMessageAction_success.json in Resources */,
 				35293A8B2369F0400049A71F /* addMessageAction_error_409.json in Resources */,
 				35293A972369FE4F0049A71F /* fetchMessageAction_success_empty.json in Resources */,
 				350BC4182339530F00011262 /* objects_error_503.json in Resources */,
@@ -1524,6 +1537,7 @@
 				35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */,
 				35A6C7B322FBD9D200E97CC5 /* push_remove_all_success.json in Resources */,
 				350BC40F233952F400011262 /* objects_users_fetchAll_success_empty.json in Resources */,
+				35293AA8236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json in Resources */,
 				35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */,
 				35D0615423037FB600FDB2F9 /* messageHistory_FetchV2_success_mixedEncrypted.json in Resources */,
 				3505977C23496079007DC06E /* subscription_membershipUpdate_success.json in Resources */,
@@ -1539,6 +1553,7 @@
 				35293A8D2369F0770049A71F /* removeMessageAction_success.json in Resources */,
 				35A6C7A222FBC55E00E97CC5 /* groups_list_success_empty.json in Resources */,
 				35FE93EF22EF93A90051C455 /* dataNotAllowed.json in Resources */,
+				35293AAA236B6C890049A71F /* subscription_removeMessageAction_success.json in Resources */,
 				350BC4142339530500011262 /* objects_error_412.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1654,6 +1669,7 @@
 				35293A7A2368F9680049A71F /* MessageActionsEndpoint.swift in Sources */,
 				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
+				35293AA6236B68530049A71F /* MessageActionEvents.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* Session.swift in Sources */,
 				35A6C7BE22FCCBF900E97CC5 /* HistoryEndpoint.swift in Sources */,

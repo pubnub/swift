@@ -6,6 +6,8 @@ schema: 1
 changelog:
   -
     changes:
+      - test: "Added support for Message Action Subscription Listener"
+        type: feature
       - test: "Fetch previously published Message Actions and Messages via History APIs"
         type: feature
       - test: "Fetch previously published Message Actions on a channel"

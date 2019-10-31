@@ -238,6 +238,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "The message you attempted to publish was too large to transmit successfully"
     case .invalidUUID:
       return "Could not complete action due to wrong uuid specified"
+    case .nothingToDelete:
+      return "There was nothing to delete"
     case .unknown:
       return "Reason unknown"
     }

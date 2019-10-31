@@ -147,6 +147,7 @@ public struct PubNubError: Error {
     case messageCountExceededMaximum
     case messageTooLong
     case invalidUUID
+    case nothingToDelete
 
     // Service Not Enabled
     case pushNotEnabled
@@ -197,7 +198,7 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled:
         return .serviceNotEnabled
@@ -410,6 +411,8 @@ extension EndpointResponseMessage {
       return .messageTooLong
     case .invalidUUID:
       return .invalidUUID
+    case .nothingToDelete:
+      return .nothingToDelete
     case .unknown, .successFailedToPublishEvent:
       return nil
     }

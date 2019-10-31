@@ -32,59 +32,91 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: MessageActionsEndpointIntegrationTests.self)
   let testChannel = "SwiftITest-MessageActions"
 
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   func testAddThenDeleteMessageAction() {
     let addExpect = expectation(description: "Add Message Action Expectation")
     let fetchExpect = expectation(description: "Fetch Message Action Expectation")
     let removeExpect = expectation(description: "Remove Message Action Expectation")
+
+    let addedEventExcept = expectation(description: "Add Message Action Event Expectation")
+    let removedEventExcept = expectation(description: "Remove Message Action Event Expectation")
 
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
     let messageAction = ConcreteMessageAction(type: "reaction", value: "smiley_face")
 
-    client.publishWithMessageAction(
-      channel: testChannel,
-      message: "Hello!",
-      messageAction: messageAction
-    ) { [unowned self] publishResult in
-      switch publishResult {
-      case let .success(publishResponse):
-        XCTAssertEqual(publishResponse.action.uuid, configuration.uuid)
-        XCTAssertEqual(publishResponse.action.type, messageAction.type)
-        XCTAssertEqual(publishResponse.action.value, messageAction.value)
-
-        // Fetch the Message
-        client.fetchMessageActions(channel: self.testChannel) { [unowned self] actionResult in
-          switch actionResult {
-          case let .success(fetchResponse):
-            // Assert that we successfully published to server
-            XCTAssertNotNil(fetchResponse.actions.filter { $0 == publishResponse.action })
-            // Remove the message
-            client.removeMessageActions(
-              channel: self.testChannel,
-              message: publishResponse.action.messageTimetoken,
-              action: publishResponse.action.actionTimetoken
-            ) { removeResult in
-              switch removeResult {
-              case let .success(removeResponse):
-                XCTAssertEqual(removeResponse.message, .acknowledge)
-              case .failure:
-                XCTFail("Failed Fetching Message Actions")
-              }
-              removeExpect.fulfill()
-            }
-          case .failure:
-            XCTFail("Failed Fetching Message Actions")
-          }
-          fetchExpect.fulfill()
-        }
-      case .failure:
-        XCTFail("Failed Fetching Message Actions")
+    let listener = SubscriptionListener()
+    listener.didReceiveMessageAction = { event in
+      switch event {
+      case let .added(action):
+        XCTAssertEqual(action.type, messageAction.type)
+        XCTAssertEqual(action.value, messageAction.value)
+        addedEventExcept.fulfill()
+      case let .removed(action):
+        XCTAssertEqual(action.type, messageAction.type)
+        XCTAssertEqual(action.value, messageAction.value)
+        removedEventExcept.fulfill()
       }
-      addExpect.fulfill()
     }
 
-    wait(for: [addExpect, fetchExpect, removeExpect], timeout: 10.0)
+    listener.didReceiveStatus = { [unowned self] status in
+      switch status {
+      case let .success(connection):
+        if connection.isConnected {
+          client.publishWithMessageAction(
+            channel: self.testChannel,
+            message: "Hello!",
+            messageAction: messageAction
+          ) { [unowned self] publishResult in
+            switch publishResult {
+            case let .success(publishResponse):
+              XCTAssertEqual(publishResponse.action.uuid, configuration.uuid)
+              XCTAssertEqual(publishResponse.action.type, messageAction.type)
+              XCTAssertEqual(publishResponse.action.value, messageAction.value)
+
+              // Fetch the Message
+              client.fetchMessageActions(channel: self.testChannel) { [unowned self] actionResult in
+                switch actionResult {
+                case let .success(fetchResponse):
+                  // Assert that we successfully published to server
+                  XCTAssertNotNil(fetchResponse.actions.filter { $0 == publishResponse.action })
+                  // Remove the message
+                  client.removeMessageActions(
+                    channel: self.testChannel,
+                    message: publishResponse.action.messageTimetoken,
+                    action: publishResponse.action.actionTimetoken
+                  ) { removeResult in
+                    switch removeResult {
+                    case let .success(removeResponse):
+                      XCTAssertEqual(removeResponse.message, .acknowledge)
+                    case .failure:
+                      XCTFail("Failed Fetching Message Actions")
+                    }
+                    removeExpect.fulfill()
+                  }
+                case .failure:
+                  XCTFail("Failed Fetching Message Actions")
+                }
+                fetchExpect.fulfill()
+              }
+            case .failure:
+              XCTFail("Failed Fetching Message Actions")
+            }
+            addExpect.fulfill()
+          }
+        }
+      case .failure:
+        XCTFail("An error occurred")
+      }
+    }
+
+    client.add(listener)
+    client.subscribe(to: [testChannel])
+
+    defer { listener.cancel() }
+
+    wait(for: [addExpect, fetchExpect, removeExpect, addedEventExcept, removedEventExcept], timeout: 10.0)
   }
 
   func testFetchMessageActionsEndpoint() {

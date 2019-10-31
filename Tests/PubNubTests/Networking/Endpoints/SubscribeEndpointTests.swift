@@ -28,10 +28,12 @@
 @testable import PubNub
 import XCTest
 
-// swiftlint:disable:next type_body_length
 final class SubscribeEndpointTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testChannel = "TestChannel"
+
+  let testAction = MessageActionEvent(type: "reaction", value: "winky_face",
+                                      actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144)
 
   // MARK: - Endpoint Tests
 
@@ -79,9 +81,11 @@ final class SubscribeEndpointTests: XCTestCase {
     XCTAssertEqual(endpoint.associatedValue["heartbeat"] as? Int, 2)
     XCTAssertEqual(endpoint.associatedValue["filter"] as? String, "Filter")
   }
+}
 
-  // MARK: - Message Response
+// MARK: - Message Response
 
+extension SubscribeEndpointTests {
   func testSubscribe_Message() {
     let messageExpect = XCTestExpectation(description: "Message Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -117,9 +121,11 @@ final class SubscribeEndpointTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [messageExpect, statusExpect], timeout: 1.0)
   }
+}
 
-  // MARK: - Presence Response
+// MARK: - Presence Response
 
+extension SubscribeEndpointTests {
   func testSubscribe_Presence() {
     let presenceExpect = XCTestExpectation(description: "Presence Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -155,11 +161,11 @@ final class SubscribeEndpointTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [presenceExpect, statusExpect], timeout: 1.0)
   }
+}
 
-  func testSubscribe_Presence_Failure() {}
+// MARK: - Signal Response
 
-  // MARK: - Signal Response
-
+extension SubscribeEndpointTests {
   func testSubscribe_Signal() {
     let signalExpect = XCTestExpectation(description: "Signal Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -196,9 +202,11 @@ final class SubscribeEndpointTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [signalExpect, statusExpect], timeout: 1.0)
   }
+}
 
-  // MARK: - User Object Response
+// MARK: - User Object Response
 
+extension SubscribeEndpointTests {
   // swiftlint:disable:next function_body_length
   func testSubscribe_User_Update() {
     let objectExpect = XCTestExpectation(description: "Object Event")
@@ -616,9 +624,125 @@ final class SubscribeEndpointTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
+}
 
-  // MARK: - Mixed Response
+// MARK: - Message Action
 
+extension SubscribeEndpointTests {
+  func testSubscribe_MessageAction_Added() {
+    let actionExpect = XCTestExpectation(description: "Message Action Event")
+    let statusExpect = XCTestExpectation(description: "Status Event")
+    let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
+
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_addMessageAction_success"]).session else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+
+    let listener = SubscriptionListener()
+    listener.didReceiveSubscription = { [weak self] event in
+      switch event {
+      case let .connectionStatusChanged(status):
+        if status == .disconnected {
+          statusExpect.fulfill()
+        }
+      case let .messageActionAdded(action):
+        XCTAssertEqual(action, self?.testAction)
+        actionExpect.fulfill()
+      case let .subscriptionChanged(change):
+        switch change {
+        case let .subscribed(channels, groups):
+          XCTAssertEqual(channels.first?.id, self?.testChannel)
+        case let .unsubscribed(channels, groups):
+          XCTAssertEqual(channels.first?.id, self?.testChannel)
+        }
+      default:
+        XCTFail("Incorrect Event Received")
+      }
+    }
+    listener.didReceiveMessageAction = { [weak self] event in
+      switch event {
+      case let .added(action):
+        XCTAssertEqual(action, self?.testAction)
+
+        subscription.unsubscribeAll()
+
+        actionListenerExpect.fulfill()
+      default:
+        XCTFail("Incorrect Event Received")
+      }
+    }
+    subscription.add(listener)
+
+    subscription.subscribe(to: [testChannel])
+
+    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
+  }
+
+  func testSubscribe_MessageAction_Removed() {
+    let actionExpect = XCTestExpectation(description: "Message Action Event")
+    let statusExpect = XCTestExpectation(description: "Status Event")
+    let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
+
+    guard let session = try? MockURLSession
+      .mockSession(for: ["subscription_removeMessageAction_success"])
+      .session else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+
+    let listener = SubscriptionListener()
+    listener.didReceiveSubscription = { [weak self] event in
+      switch event {
+      case let .connectionStatusChanged(status):
+        if status == .disconnected {
+          statusExpect.fulfill()
+        }
+      case let .messageActionRemoved(action):
+        XCTAssertEqual(action, self?.testAction)
+        actionExpect.fulfill()
+      case let .subscriptionChanged(change):
+        switch change {
+        case let .subscribed(channels, groups):
+          XCTAssertEqual(channels.first?.id, self?.testChannel)
+        case let .unsubscribed(channels, groups):
+          XCTAssertEqual(channels.first?.id, self?.testChannel)
+        }
+      default:
+        XCTFail("Incorrect Event Received")
+      }
+    }
+    listener.didReceiveMessageAction = { [weak self] event in
+      switch event {
+      case let .removed(action):
+        XCTAssertEqual(action, self?.testAction)
+
+        subscription.unsubscribeAll()
+
+        actionListenerExpect.fulfill()
+      default:
+        XCTFail("Incorrect Event Received")
+      }
+    }
+    subscription.add(listener)
+
+    subscription.subscribe(to: [testChannel])
+
+    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
+  }
+}
+
+// MARK: - Mixed Response
+
+extension SubscribeEndpointTests {
   func testSubscribe_Mixed() {
     let messageExpect = XCTestExpectation(description: "Message Event")
     let presenceExpect = XCTestExpectation(description: "Presence Event")
@@ -670,9 +794,11 @@ final class SubscribeEndpointTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [signalExpect, statusExpect], timeout: 1.0)
   }
+}
 
-  // MARK: - Unsubscribe
+// MARK: - Unsubscribe
 
+extension SubscribeEndpointTests {
   func testUnsubscribe() {
     let statusExpect = XCTestExpectation(description: "Status Event")
     statusExpect.expectedFulfillmentCount = 2

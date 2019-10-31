@@ -425,6 +425,31 @@ extension MessageActionsEndpointTests {
   func testRemove_error_400() {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
 
+    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_error_400_noMessage"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .removeMessageActions(
+        channel: "TestChannel",
+        message: 15_610_547_826_969_050,
+        action: 15_610_547_826_970_050
+      ) { result in
+        switch result {
+        case .success:
+          XCTFail("Request should fail.")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError?.reason, .nothingToDelete)
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testRemove_error_400_NoMessage() {
+    let expectation = self.expectation(description: "400 Error Endpoint Expectation")
+
     guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_error_400"]) else {
       return XCTFail("Could not create mock url session")
     }

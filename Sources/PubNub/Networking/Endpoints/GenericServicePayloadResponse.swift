@@ -64,6 +64,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   case messageTooLong
   case successFailedToPublishEvent
   case invalidUUID
+  case nothingToDelete
   case unknown(message: String)
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -116,6 +117,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .successFailedToPublishEvent
     case "Not deleting message action: wrong uuid specified":
       self = .invalidUUID
+    case "No matching message actions to delete":
+      self = .nothingToDelete
     default:
       self = EndpointResponseMessage.rawValueStartsWith(rawValue)
     }
@@ -187,6 +190,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       return "Stored but failed to publish message action."
     case .invalidUUID:
       return "Not deleting message action: wrong uuid specified"
+    case .nothingToDelete:
+      return "No matching message actions to delete"
     case let .unknown(message):
       return "Unknown: \(message)"
     }

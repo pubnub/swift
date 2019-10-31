@@ -129,6 +129,7 @@ public enum SubscriptionPayload: Codable {
   case presence(MessageResponse<PresenceResponse>)
   case signal(MessageResponse<AnyJSON>)
   case object(MessageResponse<ObjectSubscribePayload>)
+  case messageAction(MessageResponse<MessageActionSubscribePayload>)
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
@@ -142,6 +143,8 @@ public enum SubscriptionPayload: Codable {
       try container.encode(value)
     case let .object(value):
       try container.encode(value)
+    case let .messageAction(value):
+      try container.encode(value)
     }
   }
 
@@ -152,6 +155,8 @@ public enum SubscriptionPayload: Codable {
       self = .presence(presencePayload)
     } else if let objectPayload = try? container.decode(MessageResponse<ObjectSubscribePayload>.self) {
       self = .object(objectPayload)
+    } else if let messageActionPayload = try? container.decode(MessageResponse<MessageActionSubscribePayload>.self) {
+      self = .messageAction(messageActionPayload)
     } else {
       let payload = try container.decode(MessageResponse<AnyJSON>.self)
 
@@ -170,6 +175,7 @@ public enum MessageType: Int, Codable {
   case message = 0
   case signal = 1
   case object = 2
+  case action = 3
   case presence = 99
 }
 
@@ -247,6 +253,8 @@ public struct MessageResponse<Payload>: Codable, Hashable where Payload: Codable
       self.messageType = .signal
     case .some(2):
       self.messageType = .object
+    case .some(3):
+      self.messageType = .action
     default:
       if payload is PresenceResponse {
         self.messageType = .presence
@@ -323,6 +331,46 @@ public struct ObjectSubscribePayload: Codable, Hashable {
                                        .init(codingPath: [],
                                              debugDescription: "Could not match payload with any known type"))
     }
+  }
+}
+
+// MARK: Message Action Response
+
+public struct MessageActionSubscribePayload: Codable, Hashable {
+  let source: String
+  let version: String
+  let event: MessageActionEventType
+  public let data: MessageActionEvent
+}
+
+enum MessageActionEventType: String, Codable, Hashable {
+  case added
+  case removed
+}
+
+public struct MessageActionEvent: Codable, Hashable {
+  public let type: String
+  public let value: String
+  public let actionTimetoken: Timetoken
+  public let messageTimetoken: Timetoken
+
+  public init(type: String, value: String, actionTimetoken: Timetoken, messageTimetoken: Timetoken) {
+    self.type = type
+    self.value = value
+    self.actionTimetoken = actionTimetoken
+    self.messageTimetoken = messageTimetoken
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    type = try container.decode(String.self, forKey: .type)
+    value = try container.decode(String.self, forKey: .value)
+
+    let actionTimetoken = try container.decode(String.self, forKey: .actionTimetoken)
+    self.actionTimetoken = Timetoken(actionTimetoken) ?? 0
+    let messageTimetoken = try container.decode(String.self, forKey: .messageTimetoken)
+    self.messageTimetoken = Timetoken(messageTimetoken) ?? 0
   }
 }
 

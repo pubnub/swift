@@ -29,8 +29,11 @@ import Foundation
 
 // MARK: - Request Object
 
+/// A MessageAction that can be associated with a published message
 public protocol MessageAction: Validated {
+  /// The type of action (e.g. reaction)
   var type: String { get }
+  /// The value of the action (e.g. smiley_face)
   var value: String { get }
 }
 

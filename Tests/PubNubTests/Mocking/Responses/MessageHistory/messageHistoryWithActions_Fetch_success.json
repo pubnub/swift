@@ -1,0 +1,50 @@
+{
+  "code": 200,
+  "body": {
+      "status": 200,
+      "channels": {
+          "TestChannel": [
+              {
+                  "message": {
+                      "senderId": "user123",
+                      "title": "Hello!"
+                  },
+                  "timetoken": "15724676552283948",
+                  "meta": "",
+                  "actions": {
+                      "reaction": {
+                          "smiley_face": [
+                              {
+                                  "uuid": "otheruser",
+                                  "actionTimetoken": "15724677187827310"
+                              },
+                              {
+                                  "uuid": "db9c5e39-7c95-40f5-8d71-125765b6f561",
+                                  "actionTimetoken": "15724676661630010"
+                              }
+                          ]
+                      },
+                      "other": {
+                          "someValue": [
+                              {
+                                  "uuid": "otheruser",
+                                  "actionTimetoken": "15724677602835700"
+                              }
+                          ]
+                      }
+                  }
+              },
+              {
+                  "message": {
+                      "senderId": "user123",
+                      "title": "Hello!"
+                  },
+                  "timetoken": "15724678349095456",
+                  "meta": ""
+              }
+          ]
+      },
+      "error_message": "",
+      "error": false
+  }
+}

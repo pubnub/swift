@@ -271,6 +271,13 @@ public class SubscriptionSession {
                                                                               response: response, error: error)))
                 }
               }
+            case let .messageAction(action):
+              switch action.payload.event {
+              case .added:
+                self?.notify { $0.emitDidReceive(subscription: .messageActionAdded(action.payload.data)) }
+              case .removed:
+                self?.notify { $0.emitDidReceive(subscription: .messageActionRemoved(action.payload.data)) }
+              }
             }
           }
 

@@ -112,12 +112,30 @@ class OnboardingSnippets: XCTestCase {
       }
     }
 
-    client.publish(channel: "pubnub_onboarding_channel",
-                   message: ["sender": configuration.uuid,
-                             "content": "Hello From SDK_NAME SDK"]) { _ in
-      performMessageFetch()
-      publishExpect.fulfill()
+    let listener = SubscriptionListener()
+    listener.didReceiveSubscription = { event in
+      switch event {
+      case .messageReceived(let message):
+        if message.publisher == configuration.uuid {
+          performMessageFetch()
+        }
+      case .connectionStatusChanged(let connection):
+        if connection == .connected {
+          client.publish(channel: "pubnub_onboarding_channel",
+                         message: ["sender": configuration.uuid,
+                                   "content": "Hello From SDK_NAME SDK"]) { _ in
+            publishExpect.fulfill()
+          }
+        }
+      default:
+        break
+      }
     }
+
+    client.add(listener)
+    client.subscribe(to: ["pubnub_onboarding_channel"])
+
+    defer { listener.cancel() }
 
     wait(for: [publishExpect, historyExpect], timeout: 10.0)
   }

@@ -1,0 +1,17 @@
+{
+  "code": 207,
+  "body": {
+    "status": 207,
+    "data": {
+      "type": "reaction",
+      "value": "smiley_face",
+      "uuid": "user-456",
+      "actionTimetoken": "15610547826970050",
+      "messageTimetoken": "15610547826969050"
+    },
+    "error": {
+      "message": "Stored but failed to publish message action.",
+      "source": "actions"
+    }
+  }
+}

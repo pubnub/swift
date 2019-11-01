@@ -1,0 +1,21 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": [
+      {
+        "type": "reaction",
+        "value": "smiley_face",
+        "actionTimetoken": "15610547826970050",
+        "messageTimetoken": "15610547826969050",
+        "uuid": "terryterry69420"
+      }
+    ],
+    "more": {
+      "url": "/v1/actions/sub-c-6ba5f838-6456-11e8-9307-eaaa55e2558c/channel/test_channel_1567187121_2_6_6?start=15610547826970050&end=15645905639093361&limit=2",
+      "start": "15610547826970050",
+      "end": "15645905639093361",
+      "limit": 2
+    }
+  }
+}

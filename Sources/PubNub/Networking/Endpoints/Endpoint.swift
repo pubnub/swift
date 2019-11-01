@@ -32,6 +32,7 @@ public enum Endpoint {
   public enum OperationType: String {
     case channelGroup = "Channel Group"
     case history = "History"
+    case messageActions = "Message Actions"
     case objects = "Objects"
     case presence = "Presence"
     case publish = "Publish"
@@ -66,8 +67,13 @@ public enum Endpoint {
     case removeAllPushChannels = "Remove All Push Channels"
     case fetchMessageHistoryV2 = "Fetch Message History V2"
     case fetchMessageHistory = "Fetch Message History"
+    case fetchMessageHistoryWithActions = "Fetch Message History with Message Actions"
     case deleteMessageHistory = "Delete Message History"
     case messageCounts = "Message Counts"
+
+    case fetchMessageActions = "Fetch a List of Message Actions"
+    case addMessageAction = "Add a Message Action"
+    case removeMessageAction = "Remove a Message Action"
 
     case objectsUserFetchAll = "Fetch All User Objects"
     case objectsUserFetch = "Fetch User Object"
@@ -99,7 +105,8 @@ public enum Endpoint {
         return .channelGroup
       case .listPushChannels, .modifyPushChannels, .removeAllPushChannels:
         return .push
-      case .fetchMessageHistory, .fetchMessageHistoryV2, .deleteMessageHistory, .messageCounts:
+      case .fetchMessageHistory, .fetchMessageHistoryV2, .fetchMessageHistoryWithActions,
+           .deleteMessageHistory, .messageCounts:
         return .history
       case .objectsUserFetchAll, .objectsUserFetch, .objectsUserCreate, .objectsUserUpdate, .objectsUserDelete:
         return .objects
@@ -108,6 +115,8 @@ public enum Endpoint {
       case .objectsUserMemberships, .objectsUserMembershipsUpdate, .objectsSpaceMemberships,
            .objectsSpaceMembershipsUpdate:
         return .objects
+      case .fetchMessageActions, .addMessageAction, .removeMessageAction:
+        return .messageActions
       case .unknown:
         return .unknown
       }
@@ -144,7 +153,8 @@ public enum Endpoint {
   )
 
   // History
-  case fetchMessageHistory(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+  case fetchMessageHistory(channels: [String], actions: Bool, max: Int?,
+                           start: Timetoken?, end: Timetoken?, includeMeta: Bool)
   case deleteMessageHistory(channel: String, start: Timetoken?, end: Timetoken?)
 
   // Message Counts
@@ -165,6 +175,11 @@ public enum Endpoint {
   case removeChannelsForGroup(group: String, channels: [String])
   case channelGroups
   case deleteGroup(group: String)
+
+  // Message Actions
+  case fetchMessageActions(channel: String, start: Timetoken?, end: Timetoken?, limit: Int?)
+  case addMessageAction(channel: String, message: MessageAction, timetoken: Timetoken)
+  case removeMessageAction(channel: String, message: Timetoken, action: Timetoken)
 
   // Push Notifications
   case listPushChannels(pushToken: Data, pushType: PushType)
@@ -260,11 +275,15 @@ public enum Endpoint {
     case .removeAllPushChannels:
       return .removeAllPushChannels
     case let .fetchMessageHistory(parameters):
-      // Deprecated: Remove v2 message history path when single group support added to v3
-      if parameters.channels.count == 1 {
+      switch (parameters.channels.count, parameters.actions) {
+      case (1, true):
+        return .fetchMessageHistoryWithActions
+      case (1, false):
+        // Deprecated: Remove v2 message history path when single group support added to v3
         return .fetchMessageHistoryV2
+      default:
+        return .fetchMessageHistory
       }
-      return .fetchMessageHistory
     case .deleteMessageHistory:
       return .deleteMessageHistory
     case .objectsUserFetch:
@@ -295,7 +314,12 @@ public enum Endpoint {
       return .objectsSpaceMemberships
     case .objectsSpaceMembershipsUpdate:
       return .objectsSpaceMembershipsUpdate
-
+    case .fetchMessageActions:
+      return .fetchMessageActions
+    case .addMessageAction:
+      return .addMessageAction
+    case .removeMessageAction:
+      return .removeMessageAction
     case .unknown:
       return .unknown
     }
@@ -317,8 +341,8 @@ extension Endpoint: Validated {
       return isEndpointInvalid(message.isEmpty, channel.isEmpty)
     case let .subscribe(parameters):
       return isEndpointInvalid(parameters.channels.isEmpty && parameters.groups.isEmpty)
-    case let .fetchMessageHistory(channels, max, _, _, _):
-      return isEndpointInvalid(channels.isEmpty, max ?? 1 < 1)
+    case let .fetchMessageHistory(channels, actions, max, _, _, _):
+      return isEndpointInvalid(channels.isEmpty, channels.count > 1 && actions, max ?? 1 < 1)
     case let .deleteMessageHistory(channel, _, _):
       return isEndpointInvalid(channel.isEmpty)
     case let .hereNow(channels, groups, _, _):
@@ -392,6 +416,12 @@ extension Endpoint: Validated {
                                !parameters.add.allSatisfy { $0.isValid },
                                !parameters.update.allSatisfy { $0.isValid },
                                !parameters.remove.allSatisfy { $0.isValid })
+    case let .fetchMessageActions(channel, _, _, _):
+      return isEndpointInvalid(channel.isEmpty)
+    case let .addMessageAction(channel, message, timetoken):
+      return isEndpointInvalid(channel.isEmpty, !message.isValid, timetoken < 0)
+    case let .removeMessageAction(channel, message, action):
+      return isEndpointInvalid(channel.isEmpty, message < 0, action < 0)
     }
   }
 
@@ -456,8 +486,9 @@ extension Endpoint {
               "state": state,
               "heartbeat": heartbeat,
               "filter": filter]
-    case let .fetchMessageHistory(channels, max, start, end, includeMeta):
-      return ["channels": channels, "max": max, "start": start, "end": end, "includeMeta": includeMeta]
+    case let .fetchMessageHistory(channels, actions, max, start, end, includeMeta):
+      return ["channels": channels, "actions": actions, "max": max,
+              "start": start, "end": end, "includeMeta": includeMeta]
     case let .deleteMessageHistory(channel, start, end):
       return ["channel": channel, "start": start, "end": end]
     case let .messageCounts(channels, timetoken, channelsTimetoken):
@@ -537,6 +568,12 @@ extension Endpoint {
               "include": parameters.include,
               "limit": parameters.limit, "start": parameters.start, "end": parameters.end, "count": parameters.count]
 
+    case let .fetchMessageActions(channel, start, end, limit):
+      return ["channel": channel, "start": start, "end": end, "limit": limit]
+    case let .addMessageAction(channel, message, timetoken):
+      return ["channel": channel, "message": message, "timetoken": timetoken]
+    case let .removeMessageAction(channel, message, action):
+      return ["channel": channel, "message": message, "action": action]
     case .unknown:
       return [:]
     }

@@ -71,6 +71,10 @@ public enum SubscriptionEvent {
   case membershipUpdated(MembershipEvent)
   /// A Membership object has been deleted
   case membershipDeleted(MembershipIdentifiable)
+  /// A MessageAction was added to a published message
+  case messageActionAdded(MessageActionEvent)
+  /// A MessageAction was removed from a published message
+  case messageActionRemoved(MessageActionEvent)
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -132,6 +136,8 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   public var didReceiveSpaceEvent: ((SpaceEvents) -> Void)?
   /// Receiver for Membership join, update, and leave events
   public var didReceiveMembershipEvent: ((MembershipEvents) -> Void)?
+  /// Receiver for message action events
+  public var didReceiveMessageAction: ((MessageActionEvents) -> Void)?
 
   // swiftlint:disable:next cyclomatic_complexity
   public func emitDidReceive(subscription event: SubscriptionEvent) {
@@ -169,6 +175,10 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self.didReceiveMembershipEvent?(.userUpdatedOnSpace(membership))
       case let .membershipDeleted(membership):
         self.didReceiveMembershipEvent?(.userDeletedFromSpace(membership))
+      case let .messageActionAdded(action):
+        self.didReceiveMessageAction?(.added(action))
+      case let .messageActionRemoved(action):
+        self.didReceiveMessageAction?(.removed(action))
       case let .subscribeError(error):
         self.didReceiveStatus?(.failure(error))
       }

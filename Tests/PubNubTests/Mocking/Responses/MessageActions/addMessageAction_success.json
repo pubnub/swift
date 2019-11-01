@@ -1,0 +1,13 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": {
+      "type": "reaction",
+      "value": "smiley_face",
+      "actionTimetoken": "15610547826970050",
+      "messageTimetoken": "15610547826969050",
+      "uuid": "terryterry69420"
+    }
+  }
+}

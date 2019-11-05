@@ -6,6 +6,8 @@ schema: 1
 changelog:
   -
     changes:
+      - test: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
+        type: bug
       - test: "Membership APIs no longer use hardcoded subscribe key"
         type: bug
     date: 2019-11-06

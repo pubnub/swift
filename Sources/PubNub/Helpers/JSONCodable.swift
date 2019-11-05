@@ -210,11 +210,18 @@ public struct JSONCodableScalarType: Codable, Hashable {
     underlying = .string(DateFormatter.iso8601.string(from: dateValue))
   }
 
-  // Note: Research why decoding collections containing this object fails when using the synthesized
-  // decoder method
+  // Note: Research why decoding collections containing this object
+  // fails when using the synthesized decoder method
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
 
     underlying = try container.decode(AnyJSONType.self)
+  }
+
+  // Required or this will default to encoding the `underlying` key
+  // instead of a `singleValueContainer` of the underlying value
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(underlying)
   }
 }

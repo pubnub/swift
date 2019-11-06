@@ -306,13 +306,13 @@ extension PubNubRouter: Router {
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID)"
 
     case let .objectsUserMemberships(parameters):
-      path = "/v1/objects/demo/users/\(parameters.userID)/spaces"
+      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID)/spaces"
     case let .objectsUserMembershipsUpdate(parameters):
-      path = "/v1/objects/demo/users/\(parameters.userID)/spaces"
+      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID)/spaces"
     case let .objectsSpaceMemberships(parameters):
-      path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
+      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID)/users"
     case let .objectsSpaceMembershipsUpdate(parameters):
-      path = "/v1/objects/demo/spaces/\(parameters.spaceID)/users"
+      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID)/users"
 
     case let .fetchMessageActions(channel, _, _, _):
       path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)"

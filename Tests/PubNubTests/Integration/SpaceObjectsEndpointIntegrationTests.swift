@@ -148,7 +148,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    let user = UserObject(name: "Swift ITest", id: "SwiftITest")
+    let user = UserObject(name: "Swift ITest", id: "SwiftITest", custom: ["age": 12])
     let space = SpaceObject(name: "Swift Membership ITest", id: "SwiftMembershipITest")
 
     client.create(user: user, include: .custom) { _ in
@@ -174,7 +174,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    let user = UserObject(name: "Swift ITest", id: "SwiftITest")
+    let user = UserObject(name: "Swift ITest", id: "SwiftITest", custom: ["age": 12])
     let space = SpaceObject(name: "Swift Membership ITest", id: "SwiftMembershipITest")
 
     client.create(user: user, include: .custom) { _ in

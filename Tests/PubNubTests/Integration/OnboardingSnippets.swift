@@ -115,11 +115,11 @@ class OnboardingSnippets: XCTestCase {
     let listener = SubscriptionListener()
     listener.didReceiveSubscription = { event in
       switch event {
-      case .messageReceived(let message):
+      case let .messageReceived(message):
         if message.publisher == configuration.uuid {
           performMessageFetch()
         }
-      case .connectionStatusChanged(let connection):
+      case let .connectionStatusChanged(connection):
         if connection == .connected {
           client.publish(channel: "pubnub_onboarding_channel",
                          message: ["sender": configuration.uuid,

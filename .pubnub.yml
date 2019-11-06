@@ -1,9 +1,17 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.1.0"
+version: "2.1.1"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
+        type: bug
+      - test: "Membership APIs no longer use hardcoded subscribe key"
+        type: bug
+    date: 2019-11-06
+    version: v2.1.1
   -
     changes:
       - test: "Added support for Message Action Subscription Listener"

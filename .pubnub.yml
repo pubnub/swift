@@ -1,9 +1,15 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.1.1"
+version: "2.1.2"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"
+        type: bug
+    date: 2019-11-12
+    version: v2.1.2
   -
     changes:
       - test: "Encoding `JSONCodableScalar` values will now properly encode to a single value"

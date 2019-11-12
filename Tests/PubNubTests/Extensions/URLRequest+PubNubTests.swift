@@ -81,7 +81,7 @@ final class URLRequestPubNubTests: XCTestCase {
     ]
 
     request.allHTTPHeaderFields = dictionary
-    let headers = HTTPHeaders(dictionary)
+    let headers = PubNubHTTPHeaders(dictionary)
 
     XCTAssertEqual(request.headers.allHTTPHeaderFields,
                    headers.allHTTPHeaderFields)
@@ -107,7 +107,7 @@ final class URLRequestPubNubTests: XCTestCase {
       "key": "value",
       "otherKey": "otherValue"
     ]
-    let headers = HTTPHeaders(dictionary)
+    let headers = PubNubHTTPHeaders(dictionary)
 
     request.headers = headers
 

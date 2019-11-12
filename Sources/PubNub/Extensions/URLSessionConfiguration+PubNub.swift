@@ -56,9 +56,9 @@ public extension URLSessionConfiguration {
   }
 
   /// Convience for assigning `HTTPHeader` values to `httpAdditionalHeaders`
-  var headers: HTTPHeaders {
+  var headers: PubNubHTTPHeaders {
     get {
-      return (httpAdditionalHeaders as? [String: String]).map(HTTPHeaders.init) ?? []
+      return (httpAdditionalHeaders as? [String: String]).map(PubNubHTTPHeaders.init) ?? []
     }
     set {
       httpAdditionalHeaders = newValue.allHTTPHeaderFields

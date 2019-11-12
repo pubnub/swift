@@ -470,7 +470,7 @@ extension PubNubRouter: Router {
     return .success(query)
   }
 
-  var additionalHeaders: HTTPHeaders {
+  var additionalHeaders: PubNubHTTPHeaders {
     return [:]
   }
 

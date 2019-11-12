@@ -102,7 +102,7 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible, Validate
   /// The collection of `URLQueryItem` or the `Error` during its creation
   var queryItems: Result<[URLQueryItem], Error> { get }
   /// Additional requred headers
-  var additionalHeaders: HTTPHeaders { get }
+  var additionalHeaders: PubNubHTTPHeaders { get }
   /// The `Data` that will be put inside the request or the `Error` generate during its creation
   var body: Result<Data?, Error> { get }
 

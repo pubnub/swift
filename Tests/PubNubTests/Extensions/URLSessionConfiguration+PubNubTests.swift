@@ -32,7 +32,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
   func testPubNubConfiguration() {
     let config = URLSessionConfiguration.pubnub
 
-    let defaultHeaders: HTTPHeaders = [
+    let defaultHeaders: PubNubHTTPHeaders = [
       .defaultAcceptEncoding,
       .defaultContentType,
       .defaultUserAgent
@@ -44,7 +44,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
   func testSubscriptionConfiguration() {
     let config = URLSessionConfiguration.subscription
 
-    let defaultHeaders: HTTPHeaders = [
+    let defaultHeaders: PubNubHTTPHeaders = [
       .defaultAcceptEncoding,
       .defaultContentType,
       .defaultUserAgent
@@ -64,7 +64,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
 
   func testHeaders_GetSetHeaders() {
     let config = URLSessionConfiguration.default
-    let defaultHeaders: HTTPHeaders = [
+    let defaultHeaders: PubNubHTTPHeaders = [
       .defaultAcceptEncoding,
       .defaultContentType,
       .defaultUserAgent

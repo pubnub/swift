@@ -31,28 +31,28 @@ import XCTest
 class HTTPHeadersTests: XCTestCase {
   func testDictionaryInit() {
     let dict = ["Key": "Value"]
-    let headers = HTTPHeaders(dict)
+    let headers = PubNubHTTPHeaders(dict)
 
     XCTAssertEqual(headers.allHTTPHeaderFields, dict)
   }
 
   func testHTTPHeaderArrayInit() {
     let list = [HTTPHeader(name: "Key", value: "Value")]
-    let headers = HTTPHeaders(list)
+    let headers = PubNubHTTPHeaders(list)
 
     XCTAssertEqual(headers.first?.name, list.first?.name)
     XCTAssertEqual(headers.first?.value, list.first?.value)
   }
 
   func testUpdate_NoCollision() {
-    var headers = HTTPHeaders(["Key": "Value"])
+    var headers = PubNubHTTPHeaders(["Key": "Value"])
     headers.update(HTTPHeader(name: "OtherKey", value: "Other"))
 
     XCTAssertEqual(headers.count, 2)
   }
 
   func testUpdate_Collision() {
-    var headers = HTTPHeaders(["Key": "Value"])
+    var headers = PubNubHTTPHeaders(["Key": "Value"])
     headers.update(HTTPHeader(name: "Key", value: "Other"))
 
     XCTAssertEqual(headers.count, 1)
@@ -60,14 +60,14 @@ class HTTPHeadersTests: XCTestCase {
   }
 
   func testUpdateNameValue_NoCollision() {
-    var headers = HTTPHeaders(["Key": "Value"])
+    var headers = PubNubHTTPHeaders(["Key": "Value"])
     headers.update(name: "OtherKey", value: "Other")
 
     XCTAssertEqual(headers.count, 2)
   }
 
   func testUpdateNameValue_Collision() {
-    var headers = HTTPHeaders(["Key": "Value"])
+    var headers = PubNubHTTPHeaders(["Key": "Value"])
     headers.update(name: "Key", value: "Other")
 
     XCTAssertEqual(headers.count, 1)
@@ -79,20 +79,20 @@ class HTTPHeadersTests: XCTestCase {
       HTTPHeader(name: "Key", value: "Value"),
       HTTPHeader(name: "Key", value: "NextValue")
     ]
-    let headers = HTTPHeaders(list)
+    let headers = PubNubHTTPHeaders(list)
 
     XCTAssertEqual(headers.allHTTPHeaderFields.count, 1)
     XCTAssertEqual(headers.allHTTPHeaderFields, ["Key": "NextValue"])
   }
 
   func testExpressibleByDictionary() {
-    let headers: HTTPHeaders = ["Key": "Value", "Key": "NextValue"]
+    let headers: PubNubHTTPHeaders = ["Key": "Value", "Key": "NextValue"]
 
     XCTAssertEqual(headers.allHTTPHeaderFields, ["Key": "NextValue"])
   }
 
   func testExpressibleByArray() {
-    let headers: HTTPHeaders = [
+    let headers: PubNubHTTPHeaders = [
       HTTPHeader(name: "Key", value: "Value"),
       HTTPHeader(name: "Key", value: "NextValue")
     ]
@@ -101,7 +101,7 @@ class HTTPHeadersTests: XCTestCase {
   }
 
   func testMakeIterator() {
-    let headers: HTTPHeaders = [
+    let headers: PubNubHTTPHeaders = [
       "Key": "Value",
       "OtherKey": "NextValue"
     ]

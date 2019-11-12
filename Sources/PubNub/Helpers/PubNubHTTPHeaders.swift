@@ -1,5 +1,5 @@
 //
-//  HTTPHeaders.swift
+//  PubNumbHTTPHeaders.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 import Foundation
 
 /// A Collection whose elements are HTTPHeader values objects
-public struct HTTPHeaders: Hashable {
+public struct PubNubHTTPHeaders: Hashable {
   var headers: [HTTPHeader] = []
 
   private init() { /* no-op */ }
@@ -70,7 +70,7 @@ public struct HTTPHeaders: Hashable {
   }
 }
 
-extension HTTPHeaders: ExpressibleByDictionaryLiteral {
+extension PubNubHTTPHeaders: ExpressibleByDictionaryLiteral {
   public init(dictionaryLiteral: (String, String)...) {
     self.init()
 
@@ -78,19 +78,19 @@ extension HTTPHeaders: ExpressibleByDictionaryLiteral {
   }
 }
 
-extension HTTPHeaders: ExpressibleByArrayLiteral {
+extension PubNubHTTPHeaders: ExpressibleByArrayLiteral {
   public init(arrayLiteral: HTTPHeader...) {
     self.init(arrayLiteral)
   }
 }
 
-extension HTTPHeaders: Sequence {
+extension PubNubHTTPHeaders: Sequence {
   public func makeIterator() -> IndexingIterator<[HTTPHeader]> {
     return headers.makeIterator()
   }
 }
 
-extension HTTPHeaders: Collection {
+extension PubNubHTTPHeaders: Collection {
   public var startIndex: Int {
     return headers.startIndex
   }

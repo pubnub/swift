@@ -54,7 +54,7 @@ class RouterTests: XCTestCase {
       }
     }
 
-    var additionalHeaders: HTTPHeaders = []
+    var additionalHeaders: PubNubHTTPHeaders = []
     var queryItems: Result<[URLQueryItem], Error> {
       return .success([])
     }

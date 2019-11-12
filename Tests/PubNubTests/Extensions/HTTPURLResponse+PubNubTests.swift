@@ -37,7 +37,7 @@ final class HTTPURLResponsePubNubTests: XCTestCase {
       "TestKey": "TestValue"
     ]
 
-    let httpHeaders = HTTPHeaders(headers)
+    let httpHeaders = PubNubHTTPHeaders(headers)
     let response = HTTPURLResponse(url: url,
                                    statusCode: 200,
                                    httpVersion: "1.2",

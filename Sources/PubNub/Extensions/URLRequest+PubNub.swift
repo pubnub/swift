@@ -43,9 +43,9 @@ public extension URLRequest {
   }
 
   /// Convience for assigning `HTTPHeader` values to `allHTTPHeaderFields`
-  var headers: HTTPHeaders {
+  var headers: PubNubHTTPHeaders {
     get {
-      return allHTTPHeaderFields.map(HTTPHeaders.init) ?? []
+      return allHTTPHeaderFields.map(PubNubHTTPHeaders.init) ?? []
     }
     set {
       allHTTPHeaderFields = newValue.allHTTPHeaderFields

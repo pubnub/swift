@@ -29,8 +29,8 @@ import Foundation
 
 extension HTTPURLResponse {
   /// The `allHeaderFields` represented as a collection of `HTTPHeader` values
-  public var headers: HTTPHeaders {
-    return (allHeaderFields as? [String: String]).map(HTTPHeaders.init) ?? []
+  public var headers: PubNubHTTPHeaders {
+    return (allHeaderFields as? [String: String]).map(PubNubHTTPHeaders.init) ?? []
   }
 
   /// If the `HTTPURLResponse` can be considered successful based on its status code

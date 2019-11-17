@@ -29,122 +29,126 @@ import Foundation
 
 public struct ErrorDescription {
   public static let stringEncodingFailure: String = {
-    return "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
+    "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
   }()
 
   public static let defaultRecoverySuggestion: String = {
-    return "No recover suggestion was provided."
+    "No recover suggestion was provided."
   }()
 
   public static let missingCryptoKey: String = {
-    return "Missing cipher key from `PubNubConfiguration`"
+    "Missing cipher key from `PubNubConfiguration`"
   }()
 
   public static let rootLevelDecoding: String = {
-    return "AnyJSON could not decode invalid root-level JSON object"
+    "AnyJSON could not decode invalid root-level JSON object"
   }()
 
   public static let keyedContainerDecoding: String = {
-    return "AnyJSON could not decode value inside `KeyedDecodingContainer`"
+    "AnyJSON could not decode value inside `KeyedDecodingContainer`"
   }()
 
   public static let unkeyedContainerDecoding: String = {
-    return "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
+    "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
   }()
 
   public static let rootLevelEncoding: String = {
-    return "AnyJSON could not encode invalid root-level JSON object"
+    "AnyJSON could not encode invalid root-level JSON object"
   }()
 
   public static let pushNotEnabled: String = {
-    return "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
+    "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
   }()
 
   public static let messageDeletionNotEnabled: String = {
     // swiftlint:disable:next line_length
-    return "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
+    "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
   }()
 
   public static let messageHistoryNotEnabled: String = {
-    return "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
+    "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
   }()
 }
 
 extension ErrorDescription {
   public static let emptyChannelString: String = {
-    return "Channel is an empty `String`"
+    "Channel is an empty `String`"
   }()
 
   public static let emptyChannelArray: String = {
-    return "Channels is an empty `Array`"
+    "Channels is an empty `Array`"
   }()
 
   public static let emptyGroupString: String = {
-    return "Group is an empty `String`"
+    "Group is an empty `String`"
   }()
 
   public static let missingChannelsAnyGroups: String = {
-    return "No Channels or Groups were provided"
+    "No Channels or Groups were provided"
   }()
 
   public static let missingTimetoken: String = {
-    return "No `Timetoken` value provided"
+    "No `Timetoken` value provided"
   }()
 
   public static let invalidHistoryTimetokens: String = {
-    return "Timetokens `Array` count does not match Channels `Array` count"
+    "Timetokens `Array` count does not match Channels `Array` count"
   }()
 
   public static let invalidMessageAction: String = {
-    return "Message Action is invalid"
+    "Message Action is invalid"
   }()
 
   public static let emptyMessagePayload: String = {
-    return "Message is an empty Object"
+    "Message is an empty Object"
   }()
 
   public static let emptyUUIDString: String = {
-    return "UUID is an empty `String`"
+    "UUID is an empty `String`"
   }()
 
   public static let emptyDeviceTokenData: String = {
-    return "Device Token is an empty `Data`"
+    "Device Token is an empty `Data`"
   }()
 
   public static let emptySpaceID: String = {
-    return "SpaceID is an empty `String`"
+    "SpaceID is an empty `String`"
   }()
 
   public static let invalidPubNubSpace: String = {
-    return "The Object is not a valid `PubNubSpace`"
+    "The Object is not a valid `PubNubSpace`"
   }()
 
   public static let emptyUserID: String = {
-    return "UserID is an empty `String`"
+    "UserID is an empty `String`"
   }()
 
   public static let invalidPubNubUser: String = {
-    return "The Object is not a valid `PubNubUser`"
+    "The Object is not a valid `PubNubUser`"
   }()
 
   public static let invalidJoiningMember: String = {
-    return "A joining Member Object is not valid"
+    "A joining Member Object is not valid"
   }()
+
   public static let invalidUpdatingMember: String = {
-    return "An updating Member Object is not valid"
+    "An updating Member Object is not valid"
   }()
+
   public static let invalidLeavingMember: String = {
-    return "A removing Member Object is not valid"
+    "A removing Member Object is not valid"
   }()
 
   public static let invalidJoiningMembership: String = {
-    return "A joining Membership Object is not valid"
+    "A joining Membership Object is not valid"
   }()
+
   public static let invalidUpdatingMembership: String = {
-    return "An updating Membership Object is not valid"
+    "An updating Membership Object is not valid"
   }()
+
   public static let invalidLeavingMembership: String = {
-    return "A removing Membership Object is not valid"
+    "A removing Membership Object is not valid"
   }()
 }
 

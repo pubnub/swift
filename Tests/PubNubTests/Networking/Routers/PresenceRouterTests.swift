@@ -28,7 +28,6 @@
 @testable import PubNub
 import XCTest
 
-// swiftlint:disable:next type_body_length
 final class PresenceRouterTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
@@ -41,7 +40,9 @@ final class PresenceRouterTests: XCTestCase {
 
 extension PresenceRouterTests {
   func testHereNow_Router() {
-    let router = PresenceRouter(.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config)
+    let router = PresenceRouter(
+      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Here Now")
     XCTAssertEqual(router.category, "Here Now")
@@ -49,20 +50,26 @@ extension PresenceRouterTests {
   }
 
   func testHereNow_Router_ValidationError() {
-    let router = PresenceRouter(.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true), configuration: config)
+    let router = PresenceRouter(
+      .hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true), configuration: config
+    )
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.missingChannelsAnyGroups)
+                   ErrorDescription.missingChannelsAnyGroups)
   }
 
   func testHereNow_Router_Channels() {
-    let router = PresenceRouter(.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config)
+    let router = PresenceRouter(
+      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
   func testHereNow_Router_Groups() {
-    let router = PresenceRouter(.hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true), configuration: config)
+    let router = PresenceRouter(
+      .hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
@@ -248,7 +255,7 @@ extension PresenceRouterTests {
   }
 }
 
-  // MARK: - Global HereNow Tests
+// MARK: - Global HereNow Tests
 
 extension PresenceRouterTests {
   func testHereNowGlobal_Router() {
@@ -308,7 +315,7 @@ extension PresenceRouterTests {
 
 extension PresenceRouterTests {
   func testWhereNow_Router() {
-    let router =  PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
+    let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Where Now")
     XCTAssertEqual(router.category, "Where Now")
@@ -316,10 +323,10 @@ extension PresenceRouterTests {
   }
 
   func testWhereNow_Router_ValidationError() {
-    let router =  PresenceRouter(.whereNow(uuid: ""), configuration: config)
+    let router = PresenceRouter(.whereNow(uuid: ""), configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyUUIDString)
+                   ErrorDescription.emptyUUIDString)
   }
 
   func testWhereNow_Router_Channels() {
@@ -333,7 +340,6 @@ extension PresenceRouterTests {
 
     XCTAssertEqual(router.endpoint.groups, [])
   }
-
 
   func testWhereNow_Success_EmptyClasses() {
     let expectation = self.expectation(description: "WhereNow Response Received")
@@ -382,7 +388,8 @@ extension PresenceRouterTests {
 
 extension PresenceRouterTests {
   func testHeartbeat_Router() {
-    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil), configuration: config)
+    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil),
+                                configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Heartbeat")
     XCTAssertEqual(router.category, "Heartbeat")
@@ -393,17 +400,19 @@ extension PresenceRouterTests {
     let router = PresenceRouter(.heartbeat(channels: [], groups: [], presenceTimeout: nil), configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.missingChannelsAnyGroups)
+                   ErrorDescription.missingChannelsAnyGroups)
   }
 
   func testHeartbeat_Router_Channels() {
-    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil), configuration: config)
+    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil),
+                                configuration: config)
 
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
   func testHeartbeat_Router_Groups() {
-    let router = PresenceRouter(.heartbeat(channels: [], groups: [channelName], presenceTimeout: nil), configuration: config)
+    let router = PresenceRouter(.heartbeat(channels: [], groups: [channelName], presenceTimeout: nil),
+                                configuration: config)
 
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
@@ -424,7 +433,7 @@ extension PresenceRouterTests {
     let router = PresenceRouter(.leave(channels: [], groups: []), configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.missingChannelsAnyGroups)
+                   ErrorDescription.missingChannelsAnyGroups)
   }
 
   func testLeave_Router_Channels() {
@@ -440,7 +449,6 @@ extension PresenceRouterTests {
   }
 }
 
-
 // MARK: - Get State Tests
 
 extension PresenceRouterTests {
@@ -455,9 +463,10 @@ extension PresenceRouterTests {
   func testGetState_Router_ValidationError() {
     let router = PresenceRouter(.getState(uuid: "", channels: [channelName], groups: []), configuration: config)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyUUIDString)
+                   ErrorDescription.emptyUUIDString)
 
-    let missingChannelsGroups = PresenceRouter(.getState(uuid: "TestUUID", channels: [], groups: []), configuration: config)
+    let missingChannelsGroups = PresenceRouter(.getState(uuid: "TestUUID", channels: [], groups: []),
+                                               configuration: config)
     XCTAssertEqual(missingChannelsGroups.validationError?.pubNubError?.details.first,
                    ErrorDescription.missingChannelsAnyGroups)
   }
@@ -475,7 +484,6 @@ extension PresenceRouterTests {
   }
 }
 
-
 // MARK: - Set State Tests
 
 extension PresenceRouterTests {
@@ -491,7 +499,7 @@ extension PresenceRouterTests {
     let router = PresenceRouter(.setState(channels: [], groups: [], state: [:]), configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.missingChannelsAnyGroups)
+                   ErrorDescription.missingChannelsAnyGroups)
   }
 
   func testSetState_Router_Channels() {
@@ -505,5 +513,6 @@ extension PresenceRouterTests {
 
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
-}
 
+  // swiftlint:disable:next file_length
+}

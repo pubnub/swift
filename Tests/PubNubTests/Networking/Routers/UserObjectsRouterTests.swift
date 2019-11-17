@@ -28,7 +28,6 @@
 @testable import PubNub
 import XCTest
 
-// swiftlint:disable:next type_body_length
 final class UserObjectsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testUser = UserObject(name: "TestUser")
@@ -41,7 +40,8 @@ extension UserObjectsRouterTests {
   func testFetchAll_Router() {
     let router = UserObjectsRouter(
       .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch All User Objects")
     XCTAssertEqual(router.category, "Fetch All User Objects")
@@ -51,7 +51,8 @@ extension UserObjectsRouterTests {
   func testFetchAll_Router_ValidationError() {
     let router = UserObjectsRouter(
       .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError,
                       PubNubError(.invalidEndpointType, router: router))
@@ -953,7 +954,8 @@ extension UserObjectsRouterTests {
   func testMembershipFetch_Router() {
     let router = UserObjectsRouter(
       .fetchMemberships(userID: "TestUser", include: [], limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch User's Memberships")
     XCTAssertEqual(router.category, "Fetch User's Memberships")
@@ -963,7 +965,8 @@ extension UserObjectsRouterTests {
   func testMembershipFetch_Router_ValidationError() {
     let router = UserObjectsRouter(
       .fetchMemberships(userID: "", include: [], limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError,
                       PubNubError(.invalidEndpointType, router: router))
@@ -1046,7 +1049,8 @@ extension UserObjectsRouterTests {
       .modifyMemberships(userID: "TestUser",
                          joining: [], updating: [], leaving: [], include: [],
                          limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Modify User's Memberships")
     XCTAssertEqual(router.category, "Modify User's Memberships")
@@ -1058,7 +1062,8 @@ extension UserObjectsRouterTests {
       .modifyMemberships(userID: "",
                          joining: [], updating: [], leaving: [], include: [],
                          limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError,
                       PubNubError(.invalidEndpointType, router: router))

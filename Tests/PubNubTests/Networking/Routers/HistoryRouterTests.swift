@@ -44,7 +44,8 @@ extension HistoryRouterTests {
   func testFetchV2_Router() {
     let router = HistoryRouter(
       .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Message History V2")
     XCTAssertEqual(router.category, "Fetch Message History V2")
@@ -54,16 +55,18 @@ extension HistoryRouterTests {
   func testFetchV2_Router_ValidationError() {
     let router = HistoryRouter(
       .fetchV2(channel: "", max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyChannelString)
+                   ErrorDescription.emptyChannelString)
   }
 
   func testFetchV2_Router_firstChannel() {
     let router = HistoryRouter(
       .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
@@ -240,7 +243,8 @@ extension HistoryRouterTests {
   func testFetchV3_Router() {
     let router = HistoryRouter(
       .fetchV3(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Message History")
     XCTAssertEqual(router.category, "Fetch Message History")
@@ -250,16 +254,18 @@ extension HistoryRouterTests {
   func testFetchV3_Router_ValidationError() {
     let router = HistoryRouter(
       .fetchV3(channels: [], max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyChannelArray)
+                   ErrorDescription.emptyChannelArray)
   }
 
   func testFetchV3_Router_firstChannel() {
     let router = HistoryRouter(
       .fetchV3(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
@@ -461,7 +467,8 @@ extension HistoryRouterTests {
   func testFetchWithActions_Router() {
     let router = HistoryRouter(
       .fetchWithActions(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Message History with Message Actions")
     XCTAssertEqual(router.category, "Fetch Message History with Message Actions")
@@ -471,16 +478,18 @@ extension HistoryRouterTests {
   func testFetchWithActions_Router_ValidationError() {
     let router = HistoryRouter(
       .fetchWithActions(channel: "", max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyChannelString)
+                   ErrorDescription.emptyChannelString)
   }
 
   func testFetchWithActions_Router_firstChannel() {
     let router = HistoryRouter(
       .fetchWithActions(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
@@ -551,7 +560,8 @@ extension HistoryRouterTests {
   func testDelete_Router() {
     let router = HistoryRouter(
       .delete(channel: testChannel, start: nil, end: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Delete Message History")
     XCTAssertEqual(router.category, "Delete Message History")
@@ -564,7 +574,7 @@ extension HistoryRouterTests {
                                configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                      ErrorDescription.emptyChannelString)
+                   ErrorDescription.emptyChannelString)
   }
 
   func testDelete_Router_firstChannel() {
@@ -636,9 +646,11 @@ extension HistoryRouterTests {
                                    configuration: config)
     XCTAssertEqual(missingTTs.validationError?.pubNubError?.details.first, ErrorDescription.missingTimetoken)
 
-    let invalidTTConfig = HistoryRouter(.messageCounts(channels: testMultiChannels, timetoken: 0, channelsTimetoken: [0]),
-                                        configuration: config)
-    XCTAssertEqual(invalidTTConfig.validationError?.pubNubError?.details.first, ErrorDescription.invalidHistoryTimetokens)
+    let invalidTTConfig = HistoryRouter(
+      .messageCounts(channels: testMultiChannels, timetoken: 0, channelsTimetoken: [0]), configuration: config
+    )
+    XCTAssertEqual(invalidTTConfig.validationError?.pubNubError?.details.first,
+                   ErrorDescription.invalidHistoryTimetokens)
   }
 
   func testMessageCounts_Router_firstChannel() {
@@ -742,19 +754,23 @@ extension HistoryRouterTests {
 // MARK: - MessageHistory ResponseDecoder
 
 extension HistoryRouterTests {
-
   func testFetchV2_decode_jsonDataDecodingFailure() {
+    guard let url = URL(string: "http://example.com") else {
+      return XCTFail("Cannot create URL from string")
+    }
     let decoder = MessageHistoryResponseDecoder()
-    let router = HistoryRouter(.fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config)
+    let router = HistoryRouter(
+      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config
+    )
     let response = EndpointResponse(router: router,
-                                    request: .init(url: URL(string: "http://example.com")!),
+                                    request: .init(url: url),
                                     response: .init(),
                                     payload: Data())
 
     switch decoder.decode(response: response) {
     case .success:
       XCTFail("Decoder should not succeed")
-    case .failure(let error):
+    case let .failure(error):
       XCTAssertEqual(error.pubNubError?.reason, .jsonDataDecodingFailure)
     }
   }
@@ -764,7 +780,9 @@ extension HistoryRouterTests {
       return XCTFail("Could not create JSON data")
     }
     let decoder = MessageHistoryResponseDecoder()
-    let router = HistoryRouter(.fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config)
+    let router = HistoryRouter(
+      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config
+    )
     let response = EndpointResponse(router: router,
                                     request: .init(url: url),
                                     response: .init(),
@@ -776,7 +794,7 @@ extension HistoryRouterTests {
     switch result {
     case .success:
       XCTFail("Decoder should not succeed")
-    case .failure(let error):
+    case let .failure(error):
       XCTAssertEqual(error.pubNubError?.reason, .malformedResponseBody)
     }
   }
@@ -798,8 +816,9 @@ extension HistoryRouterTests {
       return XCTFail("Could not convert object to data")
     }
 
-    let payload = try! JSONDecoder().decode(MessageHistoryChannelPayload.self, from: json)
-
+    guard let payload = try? JSONDecoder().decode(MessageHistoryChannelPayload.self, from: json) else {
+      return XCTFail("Could not decode object from data")
+    }
 
     XCTAssertEqual(payload.startTimetoken, 0)
     XCTAssertEqual(payload.endTimetoken, 0)
@@ -811,4 +830,5 @@ extension HistoryRouterTests {
     XCTAssertEqual(payload.isEmpty, true)
   }
 }
+
 // swiftlint:enable file_length

@@ -141,7 +141,9 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let router = PushRouter(.modifyPushChannels(pushToken: data, pushType: .apns, joining: testChannels, leaving: []), configuration: config)
+    let router = PushRouter(
+      .modifyPushChannels(pushToken: data, pushType: .apns, joining: testChannels, leaving: []), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Modify Push Channels")
     XCTAssertEqual(router.category, "Modify Push Channels")
@@ -149,7 +151,9 @@ extension PushRouterTests {
   }
 
   func testListModifyPushChannels_Router_ValidationError() {
-    let router = PushRouter(.modifyPushChannels(pushToken: Data(), pushType: .apns, joining: [], leaving: []), configuration: config)
+    let router = PushRouter(
+      .modifyPushChannels(pushToken: Data(), pushType: .apns, joining: [], leaving: []), configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }

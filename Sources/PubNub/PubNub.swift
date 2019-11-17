@@ -637,13 +637,13 @@ extension PubNub {
     case (1, false):
       router = HistoryRouter(
         .fetchV2(channel: channels.first ?? "",
-                               max: max, start: start, end: end, includeMeta: metaInResponse),
+                 max: max, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
     case (_, true):
       router = HistoryRouter(
         .fetchWithActions(channel: channels.first ?? "",
-                                        max: max, start: start, end: end, includeMeta: metaInResponse),
+                          max: max, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
     default:

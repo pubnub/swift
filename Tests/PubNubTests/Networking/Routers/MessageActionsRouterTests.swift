@@ -457,7 +457,7 @@ extension MessageActionsRouterTests {
   }
 }
 
-// MARK:- MessageAction Object
+// MARK: - MessageAction Object
 
 extension MessageActionsRouterTests {
   func testValidationError_MissingRequiredParameter() {
@@ -467,7 +467,7 @@ extension MessageActionsRouterTests {
   }
 }
 
-// MARK:- MessageActions Response Payload
+// MARK: - MessageActions Response Payload
 
 extension MessageActionsRouterTests {
   func testInit_Defaults() {

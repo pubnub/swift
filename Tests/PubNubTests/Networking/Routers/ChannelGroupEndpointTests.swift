@@ -206,7 +206,8 @@ extension ChannelGroupsRouterTests {
 
 extension ChannelGroupsRouterTests {
   func test_AddChannelsForGroup_Router() {
-    let router = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: testChannels), configuration: config)
+    let router = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: testChannels),
+                                     configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Group Channels Add")
     XCTAssertEqual(router.category, "Group Channels Add")
@@ -219,7 +220,8 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
                    ErrorDescription.emptyGroupString)
 
-    let emptyChannel = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: []), configuration: config)
+    let emptyChannel = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: []),
+                                           configuration: config)
 
     XCTAssertEqual(emptyChannel.validationError?.pubNubError?.details.first,
                    ErrorDescription.emptyChannelArray)
@@ -295,7 +297,8 @@ extension ChannelGroupsRouterTests {
 
 extension ChannelGroupsRouterTests {
   func test_RemoveChannelsForGroup_Router() {
-    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: testChannels), configuration: config)
+    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: testChannels),
+                                     configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Group Channels Remove")
     XCTAssertEqual(router.category, "Group Channels Remove")
@@ -308,7 +311,8 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.validationError?.pubNubError?.details.first,
                    ErrorDescription.emptyGroupString)
 
-    let emptyChannels = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: []), configuration: config)
+    let emptyChannels = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: []),
+                                            configuration: config)
 
     XCTAssertEqual(emptyChannels.validationError?.pubNubError?.details.first,
                    ErrorDescription.emptyChannelArray)

@@ -28,7 +28,6 @@
 @testable import PubNub
 import XCTest
 
-// swiftlint:disable:next type_body_length
 final class SpaceObjectsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testSpace = SpaceObject(name: "TestSpace")
@@ -39,7 +38,9 @@ final class SpaceObjectsRouterTests: XCTestCase {
 
 extension SpaceObjectsRouterTests {
   func testFetchAll_Router() {
-    let router = SpaceObjectsRouter(.fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config)
+    let router = SpaceObjectsRouter(
+      .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch All Space Objects")
     XCTAssertEqual(router.category, "Fetch All Space Objects")
@@ -47,7 +48,9 @@ extension SpaceObjectsRouterTests {
   }
 
   func testFetchAll_Router_ValidationError() {
-    let router = SpaceObjectsRouter(.fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config)
+    let router = SpaceObjectsRouter(
+      .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
@@ -986,7 +989,8 @@ extension SpaceObjectsRouterTests {
   func testFetchMembership_Router() {
     let router = SpaceObjectsRouter(
       .fetchMembers(spaceID: "TestSpace", include: [], limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Space's Members")
     XCTAssertEqual(router.category, "Fetch Space's Members")
@@ -996,7 +1000,8 @@ extension SpaceObjectsRouterTests {
   func testFetchMembership_Router_ValidationError() {
     let router = SpaceObjectsRouter(
       .fetchMembers(spaceID: "", include: [], limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError,
                       PubNubError(.invalidEndpointType, router: router))
@@ -1075,7 +1080,8 @@ extension SpaceObjectsRouterTests {
       .modifyMembers(spaceID: "TestSpace",
                      adding: [], updating: [], removing: [], include: [],
                      limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Modify Space's Members")
     XCTAssertEqual(router.category, "Modify Space's Members")
@@ -1087,7 +1093,8 @@ extension SpaceObjectsRouterTests {
       .modifyMembers(spaceID: "TestSpace",
                      adding: [], updating: [], removing: [], include: [],
                      limit: nil, start: nil, end: nil, count: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError,
                       PubNubError(.invalidEndpointType, router: router))

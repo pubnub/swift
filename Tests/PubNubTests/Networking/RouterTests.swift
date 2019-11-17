@@ -51,6 +51,7 @@ class RouterTests: XCTestCase {
       config.authKey = "SomeAuthKey"
       return config
     }
+
     var method: HTTPMethod = .get
 
     var testablePathPayload = AnyJSON(["Key": "Value"])

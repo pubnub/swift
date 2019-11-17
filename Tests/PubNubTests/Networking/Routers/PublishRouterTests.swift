@@ -41,7 +41,8 @@ extension PublishRouterTests {
   func testPublish_Router() {
     let router = PublishRouter(
       .publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Publish")
     XCTAssertEqual(router.category, "Publish")
@@ -51,7 +52,8 @@ extension PublishRouterTests {
   func testPublish_Router_ValidationError() {
     let router = PublishRouter(
       .publish(message: [], channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
@@ -65,14 +67,14 @@ extension PublishRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
-      case let .failure(error):
-        XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .failure(error):
+          XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -131,15 +133,15 @@ extension PublishRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case .success:
-        XCTFail("Publish request should fail")
-      case let .failure(error):
-        XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, PubNubError(.requestURITooLong))
+        switch result {
+        case .success:
+          XCTFail("Publish request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.requestURITooLong))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -155,15 +157,15 @@ extension PublishRouterTests {
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case .success:
-        XCTFail("Publish request should fail")
-      case let .failure(error):
-        XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, PubNubError(.missingPublishKey))
+        switch result {
+        case .success:
+          XCTFail("Publish request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.missingPublishKey))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -179,15 +181,15 @@ extension PublishRouterTests {
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case .success:
-        XCTFail("Publish request should fail")
-      case let .failure(error):
-        XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, PubNubError(.missingSubscribeKey))
+        switch result {
+        case .success:
+          XCTFail("Publish request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.missingSubscribeKey))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -203,15 +205,15 @@ extension PublishRouterTests {
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
-      switch result {
-      case .success:
-        XCTFail("Publish request should fail")
-      case let .failure(error):
-        XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, PubNubError(.missingPublishAndSubscribeKey))
+        switch result {
+        case .success:
+          XCTFail("Publish request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.missingPublishAndSubscribeKey))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -223,7 +225,8 @@ extension PublishRouterTests {
   func testCompressedPublish_Router() {
     let router = PublishRouter(
       .compressedPublish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Compressed Publish")
     XCTAssertEqual(router.category, "Compressed Publish")
@@ -233,7 +236,8 @@ extension PublishRouterTests {
   func testCompressedPublish_Router_ValidationError() {
     let router = PublishRouter(
       .compressedPublish(message: [], channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
-      configuration: config)
+      configuration: config
+    )
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
@@ -247,14 +251,14 @@ extension PublishRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"], shouldCompress: true) { result in
-      switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
-      case let .failure(error):
-        XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .failure(error):
+          XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -286,14 +290,14 @@ extension PublishRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .fire(channel: "Test", message: ["text": "Hello"], meta: ["metaKey": "metaValue"]) { result in
-      switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
-      case let .failure(error):
-        XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .failure(error):
+          XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }

@@ -1,5 +1,5 @@
 //
-//  UserObjectsEndpoint.swift
+//  UserObjectsRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -26,6 +26,188 @@
 //
 
 import Foundation
+
+// MARK: - Router
+
+struct UserObjectsRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case fetchAll(include: CustomIncludeField?, limit: Int?, start: String?, end: String?, count: Bool?)
+    case fetch(userID: String, include: CustomIncludeField?)
+    case create(user: PubNubUser, include: CustomIncludeField?)
+    case update(user: PubNubUser, include: CustomIncludeField?)
+    case delete(userID: String)
+    case fetchMemberships(
+      userID: String,
+      include: [CustomIncludeField]?,
+      limit: Int?, start: String?, end: String?, count: Bool?
+    )
+    case modifyMemberships(
+      userID: String,
+      joining: [ObjectIdentifiable], updating: [ObjectIdentifiable], leaving: [ObjectIdentifiable],
+      include: [CustomIncludeField]?,
+      limit: Int?, start: String?, end: String?, count: Bool?
+    )
+
+    var description: String {
+      switch self {
+      case .fetchAll:
+        return "Fetch All User Objects"
+      case .fetch:
+        return "Fetch User Object"
+      case .create:
+        return "Create User Object"
+      case .update:
+        return "Update User Object"
+      case .delete:
+        return "Delete User Object"
+      case .fetchMemberships:
+        return "Fetch User's Memberships"
+      case .modifyMemberships:
+        return "Modify User's Memberships"
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .objects
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case .fetchAll:
+      path = "/v1/objects/\(subscribeKey)/users"
+    case .fetch(let userID, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)"
+    case .create:
+      path = "/v1/objects/\(subscribeKey)/users"
+    case .update(let user, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(user.id.urlEncodeSlash)"
+    case let .delete(userID):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)"
+    case let .fetchMemberships(parameters):
+      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID.urlEncodeSlash)/spaces"
+    case let .modifyMemberships(parameters):
+      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID.urlEncodeSlash)/spaces"
+    }
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .fetchAll(include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .fetch(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .create(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .update(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case .delete:
+      break
+    case let .fetchMemberships(_, include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .modifyMemberships(_, _, _, _, include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    }
+
+    return .success(query)
+  }
+
+  var method: HTTPMethod {
+    switch endpoint {
+    case .fetchAll:
+      return .get
+    case .fetch:
+      return .get
+    case .create:
+      return .post
+    case .update:
+      return .patch
+    case .delete:
+      return .delete
+    case .fetchMemberships:
+      return .get
+    case .modifyMemberships:
+      return .patch
+    }
+  }
+
+  var body: Result<Data?, Error> {
+    switch endpoint {
+    case .create(let user, _):
+      return user.jsonDataResult.map { .some($0) }
+    case .update(let user, _):
+      return user.jsonDataResult.map { .some($0) }
+    case let .modifyMemberships(_, joining, updating, leaving, _, _, _, _, _):
+      let changeset = ObjectIdentifiableChangeset(add: joining,
+                                                  update: updating,
+                                                  remove: leaving)
+      return changeset.encodableJSONData.map { .some($0) }
+    default:
+      return .success(nil)
+    }
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    return .version3
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case .fetchAll:
+      return nil
+    case .fetch(let userID, _):
+      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
+    case .create(let user, _):
+      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubUser))
+    case .update(let user, _):
+      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubUser))
+    case let .delete(userID):
+      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
+    case let .fetchMemberships(parameters):
+      return isInvalidForReason((parameters.userID.isEmpty, ErrorDescription.emptyUserID))
+    case let .modifyMemberships(parameters):
+      return isInvalidForReason(
+        (parameters.userID.isEmpty, ErrorDescription.emptyUserID),
+        (!parameters.joining.allSatisfy { $0.isValid }, ErrorDescription.invalidJoiningMembership),
+        (!parameters.updating.allSatisfy { $0.isValid }, ErrorDescription.invalidUpdatingMembership),
+        (!parameters.leaving.allSatisfy { $0.isValid }, ErrorDescription.invalidLeavingMembership)
+      )
+    }
+  }
+}
 
 // MARK: - Object Protocols
 
@@ -385,4 +567,6 @@ public struct UserMembershipsResponsePayload: Codable {
     case next
     case prev
   }
+
+  // swiftlint:disable:next file_length
 }

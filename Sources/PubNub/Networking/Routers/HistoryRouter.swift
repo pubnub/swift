@@ -1,5 +1,5 @@
 //
-//  HistoryEndpoint.swift
+//  HistoryRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,18 +27,162 @@
 
 import Foundation
 
+// MARK: - Router
+
+struct HistoryRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case fetchV2(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+    case fetchV3(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+    case fetchWithActions(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+    case delete(channel: String, start: Timetoken?, end: Timetoken?)
+    case messageCounts(channels: [String], timetoken: Timetoken?, channelsTimetoken: [Timetoken]?)
+
+    var description: String {
+      switch self {
+      case .fetchV2:
+        return "Fetch Message History V2"
+      case .fetchV3:
+        return "Fetch Message History"
+      case .fetchWithActions:
+        return "Fetch Message History with Message Actions"
+      case .delete:
+        return "Delete Message History"
+      case .messageCounts:
+        return "Message Counts"
+      }
+    }
+
+    var firstChannel: String? {
+      switch self {
+      case .fetchV2(let channel, _, _, _, _):
+        return channel
+      case .fetchWithActions(let channel, _, _, _, _):
+        return channel
+      case .fetchV3(let channels, _, _, _, _):
+        return channels.first
+      case .delete(let channel, _, _):
+        return channel
+      case .messageCounts(let channels, _, _):
+        return channels.first
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .history
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case .fetchV2(let channel, _, _, _, _):
+      path = "/v2/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+    case .fetchWithActions(let channel, _, _, _, _):
+      path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(channel)"
+    case .fetchV3(let channels, _, _, _, _):
+      path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+    case .delete(let channel, _, _):
+      path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
+    case .messageCounts(let channels, _, _):
+      path = "/v3/history/sub-key/\(subscribeKey)/message-counts/\(channels.csvString.urlEncodeSlash)"
+    }
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .fetchV2(_, max, start, end, includeMeta):
+      query.appendIfPresent(key: .count, value: max?.description)
+      query.appendIfPresent(key: .stringtoken, value: false.description)
+      query.appendIfPresent(key: .includeToken, value: true.description)
+      query.appendIfPresent(key: .reverse, value: false.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
+    case let .fetchWithActions(_, max, start, end, includeMeta):
+      query.appendIfPresent(key: .max, value: max?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
+    case let .fetchV3(_, max, start, end, includeMeta):
+      query.appendIfPresent(key: .max, value: max?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
+    case let .delete(_, startTimetoken, endTimetoken):
+      query.appendIfPresent(key: .start, value: startTimetoken?.description)
+      query.appendIfPresent(key: .end, value: endTimetoken?.description)
+    case let .messageCounts(parameters):
+      query.appendIfPresent(key: .timetoken, value: parameters.timetoken?.description)
+      query.appendIfPresent(key: .channelsTimetoken,
+                            value: parameters.channelsTimetoken?.map { $0.description }.csvString)
+    }
+
+    return .success(query)
+  }
+
+  var method: HTTPMethod {
+    switch endpoint {
+    case .delete:
+      return .delete
+    default:
+      return .get
+    }
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case .fetchV2(let channel, _, _, _, _):
+      return isInvalidForReason((channel.isEmpty,
+                                 ErrorDescription.emptyChannelString))
+    case .fetchWithActions(let channel, _, _, _, _):
+      return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
+    case .fetchV3(let channels, _, _, _, _):
+      return isInvalidForReason((channels.isEmpty, ErrorDescription.emptyChannelArray))
+    case let .delete(channel, _, _):
+      return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
+    case let .messageCounts(channels, timetoken, timetokens):
+      return isInvalidForReason(
+        (channels.isEmpty, ErrorDescription.emptyChannelArray),
+        (timetoken == nil && timetokens == nil, ErrorDescription.missingTimetoken),
+        (channels.count != timetokens?.count && timetokens != nil,
+         ErrorDescription.invalidHistoryTimetokens)
+      )
+    }
+  }
+}
+
 // MARK: - Response Decoder
 
 struct MessageHistoryResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>) -> Result<Response<MessageHistoryResponse>, Error> {
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<MessageHistoryResponse>, Error> {
     do {
       // Version3
       if let version3Payload = try? Constant.jsonDecoder.decode(MessageHistoryResponse.self, from: response.payload) {
-        let decodedResponse = Response<MessageHistoryResponse>(router: response.router,
-                                                               request: response.request,
-                                                               response: response.response,
-                                                               data: response.data,
-                                                               payload: version3Payload)
+        let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
+                                                                       request: response.request,
+                                                                       response: response.response,
+                                                                       data: response.data,
+                                                                       payload: version3Payload)
 
         // Attempt to decode message response
 
@@ -51,20 +195,14 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
     }
   }
 
-  func decodeMessageHistoryV2(response: Response<Data>) throws -> Result<Response<MessageHistoryResponse>, Error> {
+  func decodeMessageHistoryV2(
+    response: EndpointResponse<Data>
+  ) throws -> Result<EndpointResponse<MessageHistoryResponse>, Error> {
     // Deprecated: Remove `countKey` with v2 message history
     let version2Payload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload).wrappedUnderlyingArray
 
-    let channel: String?
-    switch response.endpoint {
-    case let .fetchMessageHistory(channels, _, _, _, _, _):
-      channel = channels.first
-    default:
-      channel = nil
-    }
-
     guard version2Payload.count == 3,
-      let channelName = channel,
+      let channelName = (response.router as? HistoryRouter)?.endpoint.firstChannel,
       let encodedMessages = version2Payload.first,
       let startTimetoken = version2Payload[1].underlyingValue as? Timetoken,
       let endTimetoken = version2Payload.last?.underlyingValue as? Timetoken else {
@@ -84,16 +222,18 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
     }
     let historyResponse = MessageHistoryResponse(status: response.response.statusCode, channels: channels)
 
-    let decodedResponse = Response<MessageHistoryResponse>(router: response.router,
-                                                           request: response.request,
-                                                           response: response.response,
-                                                           data: response.data,
-                                                           payload: historyResponse)
+    let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
+                                                                   request: response.request,
+                                                                   response: response.response,
+                                                                   data: response.data,
+                                                                   payload: historyResponse)
     return .success(decodedResponse)
     // End Deprecation Block
   }
 
-  func decrypt(response: Response<MessageHistoryResponse>) -> Result<Response<MessageHistoryResponse>, Error> {
+  func decrypt(
+    response: EndpointResponse<MessageHistoryResponse>
+  ) -> Result<EndpointResponse<MessageHistoryResponse>, Error> {
     // End early if we don't have a cipher key
     guard let crypto = response.router.configuration.cipherKey else {
       return .success(response)
@@ -130,11 +270,11 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
                                                   error: response.payload.error,
                                                   responseMessage: response.payload.responseMessage,
                                                   channels: channels)
-    let decryptedResponse = Response<MessageHistoryResponse>(router: response.router,
-                                                             request: response.request,
-                                                             response: response.response,
-                                                             data: response.data,
-                                                             payload: decryptedPayload)
+    let decryptedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
+                                                                     request: response.request,
+                                                                     response: response.response,
+                                                                     data: response.data,
+                                                                     payload: decryptedPayload)
     return .success(decryptedResponse)
   }
 }
@@ -289,4 +429,6 @@ public struct MessageCountsResponsePayload: Codable {
     case channels
     case more
   }
+
+  // swiftlint:disable:next file_length
 }

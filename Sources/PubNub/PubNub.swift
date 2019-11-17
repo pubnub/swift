@@ -61,24 +61,23 @@ public struct PubNub {
     }
 
     defaultRequestOperator = MultiplexRequestOperator(operators: operators)
-    networkSession = session ?? Session(configuration: configuration.urlSessionConfiguration)
+    networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
 
     subscription = SubscribeSessionFactory.shared.getSession(from: configuration)
   }
 
   func route<Decoder>(
-    _ endpoint: Endpoint,
+    _ router: HTTPRouter,
     networkConfiguration: NetworkConfiguration?,
     responseDecoder: Decoder,
     respondOn queue: DispatchQueue = .main,
-    completion: @escaping (Result<Response<Decoder.Payload>, Error>) -> Void
+    completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
     let defaultOperator = defaultRequestOperator
       .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
 
     networkSession.usingDefault(requestOperator: defaultOperator)
-      .request(with: PubNubRouter(configuration: configuration, endpoint: endpoint),
-               requestOperator: networkConfiguration?.requestOperator)
+      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
       .validate()
       .response(
         on: queue,
@@ -101,7 +100,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<TimeResponsePayload, Error>) -> Void)?
   ) {
-    route(.time,
+    route(TimeRouter(.time, configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: TimeResponseDecoder(),
           respondOn: queue) { result in
@@ -142,19 +141,28 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    let endpoint: Endpoint = shouldCompress ?
-      .compressedPublish(message: message.codableValue,
-                         channel: channel,
-                         shouldStore: shouldStore,
-                         ttl: storeTTL,
-                         meta: meta?.codableValue) :
-      .publish(message: message.codableValue,
-               channel: channel,
-               shouldStore: shouldStore,
-               ttl: storeTTL,
-               meta: meta?.codableValue)
+    let router: PublishRouter
+    if shouldCompress {
+      router = PublishRouter(
+        .compressedPublish(message: message.codableValue,
+                           channel: channel,
+                           shouldStore: shouldStore,
+                           ttl: storeTTL,
+                           meta: meta?.codableValue),
+        configuration: configuration
+      )
+    } else {
+      router = PublishRouter(
+        .publish(message: message.codableValue,
+                 channel: channel,
+                 shouldStore: shouldStore,
+                 ttl: storeTTL,
+                 meta: meta?.codableValue),
+        configuration: configuration
+      )
+    }
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
           respondOn: queue) { result in
@@ -190,7 +198,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    route(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
+    route(PublishRouter(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
+                        configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
           respondOn: queue) { result in
@@ -214,7 +223,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
-    route(.signal(message: message.codableValue, channel: channel),
+    route(PublishRouter(.signal(message: message.codableValue, channel: channel),
+                        configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
           respondOn: queue) { result in
@@ -363,17 +373,18 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<HereNowPayload, Error>) -> Void)?
   ) {
-    let endpoint: Endpoint
+    let router: PresenceRouter
     if channels.isEmpty, groups.isEmpty {
-      endpoint = Endpoint.hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState)
+      router = PresenceRouter(.hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState),
+                              configuration: configuration)
     } else {
-      endpoint = Endpoint.hereNow(channels: channels,
-                                  groups: groups,
-                                  includeUUIDs: includeUUIDs,
-                                  includeState: includeState)
+      router = PresenceRouter(
+        .hereNow(channels: channels, groups: groups, includeUUIDs: includeUUIDs, includeState: includeState),
+        configuration: configuration
+      )
     }
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: HereNowResponseDecoder(),
           respondOn: queue) { result in
@@ -393,7 +404,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<WhereNowPayload, Error>) -> Void)?
   ) {
-    route(.whereNow(uuid: uuid),
+    route(PresenceRouter(.whereNow(uuid: uuid), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
           respondOn: queue) { result in
@@ -415,7 +426,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GroupListPayload, Error>) -> Void)?
   ) {
-    route(.channelGroups,
+    route(ChannelGroupsRouter(.channelGroups, configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
           respondOn: queue) { result in
@@ -435,7 +446,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.deleteGroup(group: channelGroup),
+    route(ChannelGroupsRouter(.deleteGroup(group: channelGroup), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -455,7 +466,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ChannelListPayload, Error>) -> Void)?
   ) {
-    route(.channelsForGroup(group: group),
+    route(ChannelGroupsRouter(.channelsForGroup(group: group), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
           respondOn: queue) { result in
@@ -477,7 +488,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.addChannelsForGroup(group: group, channels: channels),
+    route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -499,7 +510,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.removeChannelsForGroup(group: group, channels: channels),
+    route(ChannelGroupsRouter(.removeChannelsForGroup(group: group, channels: channels), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -520,12 +531,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func listPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: Endpoint.PushType = .apns,
+    of pushType: PushRouter.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
-    route(.listPushChannels(pushToken: deviceToken, pushType: pushType),
+    route(PushRouter(.listPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
           respondOn: queue) { result in
@@ -546,16 +557,17 @@ extension PubNub {
     byRemoving removals: [String],
     thenAdding additions: [String],
     for deviceToken: Data,
-    of pushType: Endpoint.PushType = .apns,
+    of pushType: PushRouter.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    let endpoint: Endpoint = .modifyPushChannels(pushToken: deviceToken,
-                                                 pushType: pushType,
-                                                 addChannels: additions,
-                                                 removeChannels: removals)
-    route(endpoint,
+    let router = PushRouter(
+      .modifyPushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
+      configuration: configuration
+    )
+
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
           respondOn: queue) { result in
@@ -572,12 +584,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func removeAllPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: Endpoint.PushType = .apns,
+    of pushType: PushRouter.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
+    route(PushRouter(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
           respondOn: queue) { result in
@@ -597,6 +609,8 @@ extension PubNub {
   /// Iterative calls to history adjusting the start timetoken is necessary to page
   /// through the full set of results if more than 100 messages meet the timetoken values.
   ///
+  /// - Important: History with Message Actions will only return the history of the first channel in the list
+  ///
   /// - Parameters:
   ///   - for: List of channels to fetch history messages from.
   ///   - fetchActions: Include MessageAction in response
@@ -610,22 +624,36 @@ extension PubNub {
   public func fetchMessageHistory(
     for channels: [String],
     fetchActions actions: Bool = false,
-    max count: Int? = nil,
-    start stateTimetoken: Timetoken? = nil,
-    end endTimetoken: Timetoken? = nil,
+    max: Int? = nil,
+    start: Timetoken? = nil,
+    end: Timetoken? = nil,
     metaInResponse: Bool = false,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
   ) {
-    let endpoint: Endpoint = .fetchMessageHistory(channels: channels,
-                                                  actions: actions,
-                                                  max: count,
-                                                  start: stateTimetoken,
-                                                  end: endTimetoken,
-                                                  includeMeta: metaInResponse)
+    let router: HistoryRouter
+    switch (channels.count, actions) {
+    case (1, false):
+      router = HistoryRouter(
+        .fetchV2(channel: channels.first ?? "",
+                               max: max, start: start, end: end, includeMeta: metaInResponse),
+        configuration: configuration
+      )
+    case (_, true):
+      router = HistoryRouter(
+        .fetchWithActions(channel: channels.first ?? "",
+                                        max: max, start: start, end: end, includeMeta: metaInResponse),
+        configuration: configuration
+      )
+    default:
+      router = HistoryRouter(
+        .fetchV3(channels: channels, max: max, start: start, end: end, includeMeta: metaInResponse),
+        configuration: configuration
+      )
+    }
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageHistoryResponseDecoder(),
           respondOn: queue) { result in
@@ -649,7 +677,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.deleteMessageHistory(channel: channel, start: stateTimetoken, end: endTimetoken),
+    route(HistoryRouter(.delete(channel: channel, start: stateTimetoken, end: endTimetoken),
+                        configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -669,11 +698,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
-    let endpoint: Endpoint = .messageCounts(channels: channels.map { $0.key },
-                                            timetoken: nil,
-                                            channelsTimetoken: channels.map { $0.value })
+    let router = HistoryRouter(
+      .messageCounts(channels: channels.map { $0.key }, timetoken: nil, channelsTimetoken: channels.map { $0.value }),
+      configuration: configuration
+    )
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageCountsResponseDecoder(),
           respondOn: queue) { result in
@@ -695,11 +725,12 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
-    let endpoint: Endpoint = .messageCounts(channels: channels,
-                                            timetoken: timetoken,
-                                            channelsTimetoken: nil)
+    let router = HistoryRouter(
+      .messageCounts(channels: channels, timetoken: timetoken, channelsTimetoken: nil),
+      configuration: configuration
+    )
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageCountsResponseDecoder(),
           respondOn: queue) { result in
@@ -722,7 +753,7 @@ extension PubNub {
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fetchUsers(
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -731,7 +762,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserObjectsResponsePayload, Error>) -> Void)?
   ) {
-    route(.objectsUserFetchAll(include: field, limit: limit, start: start, end: end, count: count),
+    route(UserObjectsRouter(.fetchAll(include: field, limit: limit, start: start, end: end, count: count),
+                            configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: UserObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -748,12 +780,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func fetch(
     userID: String,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserObject, Error>) -> Void)?
   ) {
-    route(.objectsUserFetch(userID: userID, include: field),
+    route(UserObjectsRouter(.fetch(userID: userID, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: UserObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -770,12 +802,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func create(
     user: PubNubUser,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserObject, Error>) -> Void)?
   ) {
-    route(.objectsUserCreate(user: user, include: field),
+    route(UserObjectsRouter(.create(user: user, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: UserObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -792,12 +824,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func update(
     user: PubNubUser,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserObject, Error>) -> Void)?
   ) {
-    route(.objectsUserUpdate(user: user, include: field),
+    route(UserObjectsRouter(.update(user: user, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: UserObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -817,7 +849,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.objectsUserDelete(userID: userID),
+    route(UserObjectsRouter(.delete(userID: userID), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -838,7 +870,7 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func fetchMemberships(
     userID: String,
-    include fields: [Endpoint.IncludeField]? = nil,
+    include fields: [CustomIncludeField]? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -847,7 +879,10 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
   ) {
-    route(.objectsUserMemberships(userID: userID, include: fields, limit: limit, start: start, end: end, count: count),
+    route(UserObjectsRouter(
+      .fetchMemberships(userID: userID, include: fields, limit: limit, start: start, end: end, count: count),
+      configuration: configuration
+    ),
           networkConfiguration: networkConfiguration,
           responseDecoder: UserMembershipsObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -874,7 +909,7 @@ extension PubNub {
     joining joinedSpaceIDs: [ObjectIdentifiable] = [],
     updating updateSpaceIDs: [ObjectIdentifiable] = [],
     leaving leavingSpaceIDs: [ObjectIdentifiable] = [],
-    include fields: [Endpoint.IncludeField]? = nil,
+    include fields: [CustomIncludeField]? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -883,14 +918,16 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
   ) {
-    let endpoint = Endpoint.objectsUserMembershipsUpdate(
-      userID: userID,
-      add: joinedSpaceIDs, update: updateSpaceIDs, remove: leavingSpaceIDs,
-      include: fields,
-      limit: limit, start: start, end: end, count: count
+    let router = UserObjectsRouter(
+      .modifyMemberships(
+        userID: userID,
+        joining: joinedSpaceIDs, updating: updateSpaceIDs, leaving: leavingSpaceIDs,
+        include: fields, limit: limit, start: start, end: end, count: count
+      ),
+      configuration: configuration
     )
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: UserMembershipsObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -913,7 +950,7 @@ extension PubNub {
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fetchSpaces(
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -922,7 +959,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceObjectsResponsePayload, Error>) -> Void)?
   ) {
-    route(.objectsSpaceFetchAll(include: field, limit: limit, start: start, end: end, count: count),
+    route(SpaceObjectsRouter(.fetchAll(include: field, limit: limit, start: start, end: end, count: count),
+                             configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -939,12 +977,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func fetch(
     spaceID: String,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceObject, Error>) -> Void)?
   ) {
-    route(.objectsSpaceFetch(spaceID: spaceID, include: field),
+    route(SpaceObjectsRouter(.fetch(spaceID: spaceID, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -961,12 +999,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func create(
     space: PubNubSpace,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceObject, Error>) -> Void)?
   ) {
-    route(.objectsSpaceCreate(space: space, include: field),
+    route(SpaceObjectsRouter(.create(space: space, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -983,12 +1021,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func update(
     space: PubNubSpace,
-    include field: Endpoint.IncludeField? = nil,
+    include field: CustomIncludeField? = nil,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceObject, Error>) -> Void)?
   ) {
-    route(.objectsSpaceUpdate(space: space, include: field),
+    route(SpaceObjectsRouter(.update(space: space, include: field), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceObjectResponseDecoder(),
           respondOn: queue) { result in
@@ -1008,7 +1046,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
   ) {
-    route(.objectsSpaceDelete(spaceID: spaceID),
+    route(SpaceObjectsRouter(.delete(spaceID: spaceID), configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
           respondOn: queue) { result in
@@ -1029,7 +1067,7 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func fetchMembers(
     spaceID: String,
-    include fields: [Endpoint.IncludeField]? = nil,
+    include fields: [CustomIncludeField]? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -1038,8 +1076,10 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
   ) {
-    route(.objectsSpaceMemberships(spaceID: spaceID,
-                                   include: fields, limit: limit, start: start, end: end, count: count),
+    route(SpaceObjectsRouter(
+      .fetchMembers(spaceID: spaceID, include: fields, limit: limit, start: start, end: end, count: count),
+      configuration: configuration
+    ),
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceMembershipObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -1066,7 +1106,7 @@ extension PubNub {
     adding addedUserIDs: [ObjectIdentifiable] = [],
     updating updateUserIDs: [ObjectIdentifiable] = [],
     removing removeUserIDs: [ObjectIdentifiable] = [],
-    include fields: [Endpoint.IncludeField]? = nil,
+    include fields: [CustomIncludeField]? = nil,
     limit: Int? = nil,
     start: String? = nil,
     end: String? = nil,
@@ -1075,14 +1115,17 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
   ) {
-    let endpoint = Endpoint.objectsSpaceMembershipsUpdate(
-      spaceID: spaceID,
-      add: addedUserIDs, update: updateUserIDs, remove: removeUserIDs,
-      include: fields,
-      limit: limit, start: start, end: end, count: count
+    let router = SpaceObjectsRouter(
+      .modifyMembers(
+        spaceID: spaceID,
+        adding: addedUserIDs, updating: updateUserIDs, removing: removeUserIDs,
+        include: fields,
+        limit: limit, start: start, end: end, count: count
+      ),
+      configuration: configuration
     )
 
-    route(endpoint,
+    route(router,
           networkConfiguration: networkConfiguration,
           responseDecoder: SpaceMembershipObjectsResponseDecoder(),
           respondOn: queue) { result in
@@ -1112,7 +1155,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<MessageActionsResponsePayload, Error>) -> Void)?
   ) {
-    route(.fetchMessageActions(channel: channel, start: start, end: end, limit: limit),
+    route(MessageActionsRouter(.fetch(channel: channel, start: start, end: end, limit: limit),
+                               configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageActionsResponseDecoder(),
           respondOn: queue) { result in
@@ -1136,7 +1180,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<MessageActionResponsePayload, Error>) -> Void)?
   ) {
-    route(.addMessageAction(channel: channel, message: message, timetoken: messageTimetoken),
+    route(MessageActionsRouter(.add(channel: channel, message: message, timetoken: messageTimetoken),
+                               configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageActionResponseDecoder(),
           respondOn: queue) { result in
@@ -1160,7 +1205,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<DeleteResponsePayload, Error>) -> Void)?
   ) {
-    route(.removeMessageAction(channel: channel, message: timetoken, action: actionTimetoken),
+    route(MessageActionsRouter(.remove(channel: channel, message: timetoken, action: actionTimetoken),
+                               configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: DeleteResponseDecoder(),
           respondOn: queue) { result in

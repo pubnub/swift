@@ -1,5 +1,5 @@
 //
-//  PresenceEndpointTests.swift
+//  PresenceRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -29,38 +29,42 @@
 import XCTest
 
 // swiftlint:disable:next type_body_length
-final class PresenceEndpointTests: XCTestCase {
+final class PresenceRouterTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
   let channelName = "TestChannel"
   let otherChannel = "OtherTestChannel"
+}
 
-  // MARK: - HereNow Tests
+// MARK: - HereNow Tests
 
-  func testHereNow_Endpoint() {
-    let endpoint = Endpoint.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true)
+extension PresenceRouterTests {
+  func testHereNow_Router() {
+    let router = PresenceRouter(.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Here Now")
-    XCTAssertEqual(endpoint.category, .hereNow)
-    XCTAssertEqual(endpoint.operationCategory, .presence)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Here Now")
+    XCTAssertEqual(router.category, "Here Now")
+    XCTAssertEqual(router.service, .presence)
   }
 
-  func testHereNow_Endpoint_ValidationError() {
-    let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
+  func testHereNow_Router_ValidationError() {
+    let router = PresenceRouter(.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.missingChannelsAnyGroups)
   }
 
-  func testHereNow_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true)
+  func testHereNow_Router_Channels() {
+    let router = PresenceRouter(.hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], [])
-    XCTAssertEqual(endpoint.associatedValue["groups"] as? [String], [])
-    XCTAssertEqual(endpoint.associatedValue["includeUUIDs"] as? Bool, true)
-    XCTAssertEqual(endpoint.associatedValue["includeState"] as? Bool, true)
+    XCTAssertEqual(router.endpoint.channels, [channelName])
+  }
+
+  func testHereNow_Router_Groups() {
+    let router = PresenceRouter(.hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [channelName])
   }
 
   // Single Channel
@@ -140,6 +144,7 @@ final class PresenceEndpointTests: XCTestCase {
   }
 
   // Multi Channel
+
   func testHereNow_Success() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
@@ -241,29 +246,35 @@ final class PresenceEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
   // MARK: - Global HereNow Tests
 
-  func testHereNowGlobal_Endpoint() {
-    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+extension PresenceRouterTests {
+  func testHereNowGlobal_Router() {
+    let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Global Here Now")
-    XCTAssertEqual(endpoint.category, .hereNowGlobal)
-    XCTAssertEqual(endpoint.operationCategory, .presence)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Global Here Now")
+    XCTAssertEqual(router.category, "Global Here Now")
+    XCTAssertEqual(router.service, .presence)
   }
 
-  func testHereNowGlobal_Endpoint_ValidationError() {
-    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+  func testHereNowGlobal_Router_ValidationError() {
+    let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertNil(endpoint.validationError?.pubNubError)
+    XCTAssertNil(router.validationError)
   }
 
-  func testHereNowGlobal_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.hereNowGlobal(includeUUIDs: true, includeState: true)
+  func testHereNowGlobal_Router_Channels() {
+    let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["includeUUIDs"] as? Bool, true)
-    XCTAssertEqual(endpoint.associatedValue["includeState"] as? Bool, true)
+    XCTAssertEqual(router.endpoint.channels, [])
+  }
+
+  func testHereNowGlobal_Router_Groups() {
+    let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [])
   }
 
   func testHereNowGlobal_Success() {
@@ -291,29 +302,38 @@ final class PresenceEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - WhereNow Tests
+// MARK: - WhereNow Tests
 
-  func testWhereNow_Endpoint() {
-    let endpoint = Endpoint.whereNow(uuid: "Soemthing")
+extension PresenceRouterTests {
+  func testWhereNow_Router() {
+    let router =  PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Where Now")
-    XCTAssertEqual(endpoint.category, .whereNow)
-    XCTAssertEqual(endpoint.operationCategory, .presence)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Where Now")
+    XCTAssertEqual(router.category, "Where Now")
+    XCTAssertEqual(router.service, .presence)
   }
 
-  func testWhereNow_Endpoint_ValidationError() {
-    let endpoint = Endpoint.whereNow(uuid: "")
+  func testWhereNow_Router_ValidationError() {
+    let router =  PresenceRouter(.whereNow(uuid: ""), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.emptyUUIDString)
   }
 
-  func testWhereNow_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.whereNow(uuid: "SomeUUID")
+  func testWhereNow_Router_Channels() {
+    let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["uuid"] as? String, "SomeUUID")
+    XCTAssertEqual(router.endpoint.channels, [])
   }
+
+  func testWhereNow_Router_Groups() {
+    let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [])
+  }
+
 
   func testWhereNow_Success_EmptyClasses() {
     let expectation = self.expectation(description: "WhereNow Response Received")
@@ -357,3 +377,133 @@ final class PresenceEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 }
+
+// MARK: - Heartbeat Tests
+
+extension PresenceRouterTests {
+  func testHeartbeat_Router() {
+    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Heartbeat")
+    XCTAssertEqual(router.category, "Heartbeat")
+    XCTAssertEqual(router.service, .presence)
+  }
+
+  func testHeartbeat_Router_ValidationError() {
+    let router = PresenceRouter(.heartbeat(channels: [], groups: [], presenceTimeout: nil), configuration: config)
+
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.missingChannelsAnyGroups)
+  }
+
+  func testHeartbeat_Router_Channels() {
+    let router = PresenceRouter(.heartbeat(channels: [channelName], groups: [], presenceTimeout: nil), configuration: config)
+
+    XCTAssertEqual(router.endpoint.channels, [channelName])
+  }
+
+  func testHeartbeat_Router_Groups() {
+    let router = PresenceRouter(.heartbeat(channels: [], groups: [channelName], presenceTimeout: nil), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [channelName])
+  }
+}
+
+// MARK: - Leave Tests
+
+extension PresenceRouterTests {
+  func testLeave_Router() {
+    let router = PresenceRouter(.leave(channels: [channelName], groups: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Leave")
+    XCTAssertEqual(router.category, "Leave")
+    XCTAssertEqual(router.service, .presence)
+  }
+
+  func testLeave_Router_ValidationError() {
+    let router = PresenceRouter(.leave(channels: [], groups: []), configuration: config)
+
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.missingChannelsAnyGroups)
+  }
+
+  func testLeave_Router_Channels() {
+    let router = PresenceRouter(.leave(channels: [channelName], groups: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.channels, [channelName])
+  }
+
+  func testLeave_Router_Groups() {
+    let router = PresenceRouter(.leave(channels: [], groups: [channelName]), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [channelName])
+  }
+}
+
+
+// MARK: - Get State Tests
+
+extension PresenceRouterTests {
+  func testGetState_Router() {
+    let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [channelName], groups: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Get Presence State")
+    XCTAssertEqual(router.category, "Get Presence State")
+    XCTAssertEqual(router.service, .presence)
+  }
+
+  func testGetState_Router_ValidationError() {
+    let router = PresenceRouter(.getState(uuid: "", channels: [channelName], groups: []), configuration: config)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.emptyUUIDString)
+
+    let missingChannelsGroups = PresenceRouter(.getState(uuid: "TestUUID", channels: [], groups: []), configuration: config)
+    XCTAssertEqual(missingChannelsGroups.validationError?.pubNubError?.details.first,
+                   ErrorDescription.missingChannelsAnyGroups)
+  }
+
+  func testGetState_Router_Channels() {
+    let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [channelName], groups: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.channels, [channelName])
+  }
+
+  func testGetState_Router_Groups() {
+    let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [], groups: [channelName]), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [channelName])
+  }
+}
+
+
+// MARK: - Set State Tests
+
+extension PresenceRouterTests {
+  func testSetState_Router() {
+    let router = PresenceRouter(.setState(channels: [channelName], groups: [], state: [:]), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Set Presence State")
+    XCTAssertEqual(router.category, "Set Presence State")
+    XCTAssertEqual(router.service, .presence)
+  }
+
+  func testSetState_Router_ValidationError() {
+    let router = PresenceRouter(.setState(channels: [], groups: [], state: [:]), configuration: config)
+
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                      ErrorDescription.missingChannelsAnyGroups)
+  }
+
+  func testSetState_Router_Channels() {
+    let router = PresenceRouter(.setState(channels: [channelName], groups: [], state: [:]), configuration: config)
+
+    XCTAssertEqual(router.endpoint.channels, [channelName])
+  }
+
+  func testSetState_Router_Groups() {
+    let router = PresenceRouter(.setState(channels: [], groups: [channelName], state: [:]), configuration: config)
+
+    XCTAssertEqual(router.endpoint.groups, [channelName])
+  }
+}
+

@@ -1,5 +1,5 @@
 //
-//  ObjectsEndpoint.swift
+//  SpaceObjectsRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -26,6 +26,188 @@
 //
 
 import Foundation
+
+// MARK: - Router
+
+struct SpaceObjectsRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case fetchAll(include: CustomIncludeField?, limit: Int?, start: String?, end: String?, count: Bool?)
+    case fetch(spaceID: String, include: CustomIncludeField?)
+    case create(space: PubNubSpace, include: CustomIncludeField?)
+    case update(space: PubNubSpace, include: CustomIncludeField?)
+    case delete(spaceID: String)
+    case fetchMembers(
+      spaceID: String,
+      include: [CustomIncludeField]?,
+      limit: Int?, start: String?, end: String?, count: Bool?
+    )
+    case modifyMembers(
+      spaceID: String,
+      adding: [ObjectIdentifiable], updating: [ObjectIdentifiable], removing: [ObjectIdentifiable],
+      include: [CustomIncludeField]?,
+      limit: Int?, start: String?, end: String?, count: Bool?
+    )
+
+    var description: String {
+      switch self {
+      case .fetchAll:
+        return "Fetch All Space Objects"
+      case .fetch:
+        return "Fetch Space Object"
+      case .create:
+        return "Create Space Object"
+      case .update:
+        return "Update Space Object"
+      case .delete:
+        return "Delete Space Object"
+      case .fetchMembers:
+        return "Fetch Space's Members"
+      case .modifyMembers:
+        return "Modify Space's Members"
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .objects
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case .fetchAll:
+      path = "/v1/objects/\(subscribeKey)/spaces"
+    case .fetch(let spaceID, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
+    case .create:
+      path = "/v1/objects/\(subscribeKey)/spaces"
+    case .update(let pace, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(pace.id.urlEncodeSlash)"
+    case let .delete(spaceID):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
+    case let .fetchMembers(parameters):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID.urlEncodeSlash)/users"
+    case let .modifyMembers(parameters):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID.urlEncodeSlash)/users"
+    }
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .fetchAll(include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .fetch(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .create(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case let .update(_, include):
+      query.appendIfPresent(key: .include, value: include?.rawValue)
+    case .delete:
+      break
+    case let .fetchMembers(_, include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    case let .modifyMembers(_, _, _, _, include, limit, start, end, count):
+      query.appendIfPresent(key: .include, value: include?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .count, value: count?.description)
+    }
+
+    return .success(query)
+  }
+
+  var method: HTTPMethod {
+    switch endpoint {
+    case .fetchAll:
+      return .get
+    case .fetch:
+      return .get
+    case .create:
+      return .post
+    case .update:
+      return .patch
+    case .delete:
+      return .delete
+    case .fetchMembers:
+      return .get
+    case .modifyMembers:
+      return .patch
+    }
+  }
+
+  var body: Result<Data?, Error> {
+    switch endpoint {
+    case .create(let user, _):
+      return user.jsonDataResult.map { .some($0) }
+    case .update(let user, _):
+      return user.jsonDataResult.map { .some($0) }
+    case let .modifyMembers(_, adding, updating, removing, _, _, _, _, _):
+      let changeset = ObjectIdentifiableChangeset(add: adding,
+                                                  update: updating,
+                                                  remove: removing)
+      return changeset.encodableJSONData.map { .some($0) }
+    default:
+      return .success(nil)
+    }
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    return .version3
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case .fetchAll:
+      return nil
+    case .fetch(let userID, _):
+      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptySpaceID))
+    case .create(let user, _):
+      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubSpace))
+    case .update(let user, _):
+      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubSpace))
+    case let .delete(userID):
+      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptySpaceID))
+    case let .fetchMembers(parameters):
+      return isInvalidForReason((parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID))
+    case let .modifyMembers(parameters):
+      return isInvalidForReason(
+        (parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID),
+        (!parameters.adding.allSatisfy { $0.isValid }, ErrorDescription.invalidJoiningMember),
+        (!parameters.updating.allSatisfy { $0.isValid }, ErrorDescription.invalidUpdatingMember),
+        (!parameters.removing.allSatisfy { $0.isValid }, ErrorDescription.invalidLeavingMember)
+      )
+    }
+  }
+}
 
 // MARK: - Space Protocols
 
@@ -252,4 +434,6 @@ public struct SpaceMembershipResponsePayload: Codable {
     case next
     case prev
   }
+
+  // swiftlint:disable:next file_length
 }

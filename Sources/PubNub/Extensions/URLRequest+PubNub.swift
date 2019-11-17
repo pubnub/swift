@@ -41,14 +41,4 @@ public extension URLRequest {
       httpMethod = newValue?.rawValue
     }
   }
-
-  /// Convience for assigning `HTTPHeader` values to `allHTTPHeaderFields`
-  var headers: HTTPHeaders {
-    get {
-      return allHTTPHeaderFields.map(HTTPHeaders.init) ?? []
-    }
-    set {
-      allHTTPHeaderFields = newValue.allHTTPHeaderFields
-    }
-  }
 }

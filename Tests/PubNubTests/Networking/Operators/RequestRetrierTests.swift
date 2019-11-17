@@ -139,7 +139,7 @@ class RequestRetrierTests: XCTestCase {
         XCTFail("Time request should fail")
       case let .failure(error):
         XCTAssertNotNil(error.pubNubError)
-        XCTAssertEqual(error.pubNubError, PubNubError(reason: .nameResolutionFailure))
+        XCTAssertEqual(error.pubNubError, PubNubError(.nameResolutionFailure))
       }
       totalExpectation.fulfill()
     }
@@ -156,7 +156,7 @@ class RequestRetrierTests: XCTestCase {
     for _: URLError.Code,
     and _: URLError.Code
   ) -> Error? {
-    return PubNubError(reason: .requestRetryFailed)
+    return PubNubError(.requestRetryFailed)
   }
 
   func testRetryRequest_Multiple_Success() {

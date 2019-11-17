@@ -1,5 +1,5 @@
 //
-//  SpaceObjectsEndpointTests.swift
+//  SpaceObjectsRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -29,32 +29,27 @@
 import XCTest
 
 // swiftlint:disable:next type_body_length
-final class SpaceObjectsEndpointTests: XCTestCase {
+final class SpaceObjectsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
-  let fetchAllSpaces = Endpoint.objectsSpaceFetchAll(include: nil, limit: nil, start: nil, end: nil, count: nil)
-  let fetchSpace = Endpoint.objectsSpaceFetch(spaceID: "SomeSpace", include: nil)
   let testSpace = SpaceObject(name: "TestSpace")
   let invalidSpace = SpaceObject(name: "")
+}
 
-  // MARK: - Fetch All Tests
+// MARK: - Fetch All Tests
 
-  func testFetchAll_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
+extension SpaceObjectsRouterTests {
+  func testFetchAll_Router() {
+    let router = SpaceObjectsRouter(.fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch All Space Objects")
-    XCTAssertEqual(endpoint.category, .objectsSpaceFetchAll)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch All Space Objects")
+    XCTAssertEqual(router.category, "Fetch All Space Objects")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testFetchAll_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
+  func testFetchAll_Router_ValidationError() {
+    let router = SpaceObjectsRouter(.fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
 
   func testFetchAll_Success() {
@@ -132,7 +127,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -153,7 +148,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -174,7 +169,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -195,37 +190,31 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Fetch Tests
+// MARK: - Fetch Tests
 
-  func testFetch_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceFetch(spaceID: "OtherSpace", include: .custom)
+extension SpaceObjectsRouterTests {
+  func testFetch_Router() {
+    let router = SpaceObjectsRouter(.fetch(spaceID: "OtherSpace", include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch Space Object")
-    XCTAssertEqual(endpoint.category, .objectsSpaceFetch)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch Space Object")
+    XCTAssertEqual(router.category, "Fetch Space Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testFetch_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceFetch(spaceID: "", include: .custom)
+  func testFetch_Router_ValidationError() {
+    let router = SpaceObjectsRouter(.fetch(spaceID: "", include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testFetch_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceFetch(spaceID: "OtherSpace", include: .custom)
-
-    XCTAssertEqual(endpoint.associatedValue["spaceID"] as? String, "OtherSpace")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testFetch_Success() {
@@ -269,7 +258,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -290,7 +279,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .resourceNotFound))
+          XCTAssertEqual(error.pubNubError, PubNubError(.resourceNotFound))
         }
         expectation.fulfill()
       }
@@ -311,7 +300,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -332,7 +321,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -353,37 +342,31 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Create Tests
+// MARK: - Create Tests
 
-  func testCreate_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceCreate(space: testSpace, include: .custom)
+extension SpaceObjectsRouterTests {
+  func testCreate_Router() {
+    let router = SpaceObjectsRouter(.create(space: testSpace, include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Create Space Object")
-    XCTAssertEqual(endpoint.category, .objectsSpaceCreate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Create Space Object")
+    XCTAssertEqual(router.category, "Create Space Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testCreate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceCreate(space: invalidSpace, include: .custom)
+  func testCreate_Router_ValidationError() {
+    let router = SpaceObjectsRouter(.create(space: invalidSpace, include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testCreate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceCreate(space: testSpace, include: .custom)
-
-    XCTAssertTrue(testSpace.isEqual(endpoint.associatedValue["space"] as? PubNubSpace))
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testCreate_Success() {
@@ -432,7 +415,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
+          XCTAssertEqual(error.pubNubError, PubNubError(.badRequest))
         }
         expectation.fulfill()
       }
@@ -458,7 +441,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -484,7 +467,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
+          XCTAssertEqual(error.pubNubError, PubNubError(.conflict))
         }
         expectation.fulfill()
       }
@@ -510,7 +493,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
+          XCTAssertEqual(error.pubNubError, PubNubError(.unsupportedType))
         }
         expectation.fulfill()
       }
@@ -536,7 +519,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -562,7 +545,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -588,37 +571,31 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Update Tests
+// MARK: - Update Tests
 
-  func testUpdate_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceUpdate(space: testSpace, include: .custom)
+extension SpaceObjectsRouterTests {
+  func testUpdate_Router() {
+    let router = SpaceObjectsRouter(.update(space: testSpace, include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Update Space Object")
-    XCTAssertEqual(endpoint.category, .objectsSpaceUpdate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Update Space Object")
+    XCTAssertEqual(router.category, "Update Space Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testUpdate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceUpdate(space: invalidSpace, include: .custom)
+  func testUpdate_Router_ValidationError() {
+    let router = SpaceObjectsRouter(.update(space: invalidSpace, include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testUpdate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceUpdate(space: testSpace, include: .custom)
-
-    XCTAssertTrue(testSpace.isEqual(endpoint.associatedValue["space"] as? PubNubSpace))
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testUpdate_Success() {
@@ -667,7 +644,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
+          XCTAssertEqual(error.pubNubError, PubNubError(.badRequest))
         }
         expectation.fulfill()
       }
@@ -693,7 +670,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -719,7 +696,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
+          XCTAssertEqual(error.pubNubError, PubNubError(.conflict))
         }
         expectation.fulfill()
       }
@@ -745,7 +722,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
+          XCTAssertEqual(error.pubNubError, PubNubError(.preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -771,7 +748,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
+          XCTAssertEqual(error.pubNubError, PubNubError(.unsupportedType))
         }
         expectation.fulfill()
       }
@@ -797,7 +774,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -823,7 +800,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -849,36 +826,31 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Delete Tests
+// MARK: - Delete Tests
 
-  func testDelete_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace")
+extension SpaceObjectsRouterTests {
+  func testDelete_Router() {
+    let router = SpaceObjectsRouter(.delete(spaceID: "TestSpace"), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Delete Space Object")
-    XCTAssertEqual(endpoint.category, .objectsSpaceDelete)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Delete Space Object")
+    XCTAssertEqual(router.category, "Delete Space Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testDelete_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceFetch(spaceID: "", include: .custom)
+  func testDelete_Router_ValidationError() {
+    let router = SpaceObjectsRouter(.delete(spaceID: ""), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testDelete_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceDelete(spaceID: "TestSpace")
-
-    XCTAssertEqual(endpoint.associatedValue["spaceID"] as? String, "TestSpace")
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testDelete_Success() {
@@ -915,7 +887,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -936,7 +908,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
+          XCTAssertEqual(error.pubNubError, PubNubError(.preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -957,7 +929,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -978,7 +950,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -999,51 +971,38 @@ final class SpaceObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Fetch Memberships Tests
+// MARK: - Fetch Memberships Tests
 
-  func testMembershipFetch_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceMemberships(spaceID: "TestSpace",
-                                                    include: [],
-                                                    limit: nil, start: nil, end: nil, count: nil)
+extension SpaceObjectsRouterTests {
+  func testFetchMembership_Router() {
+    let router = SpaceObjectsRouter(
+      .fetchMembers(spaceID: "TestSpace", include: [], limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch Space's Memberships")
-    XCTAssertEqual(endpoint.category, .objectsSpaceMemberships)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch Space's Members")
+    XCTAssertEqual(router.category, "Fetch Space's Members")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testMembershipFetch_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceMemberships(spaceID: "",
-                                                    include: [],
-                                                    limit: nil, start: nil, end: nil, count: nil)
+  func testFetchMembership_Router_ValidationError() {
+    let router = SpaceObjectsRouter(
+      .fetchMembers(spaceID: "", include: [], limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
-  func testMembershipFetch_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceMemberships(spaceID: "TestSpace",
-                                                    include: [.customSpace],
-                                                    limit: 100, start: "Start", end: "End", count: true)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 6)
-    XCTAssertEqual(endpoint.associatedValue["spaceID"] as? String, "TestSpace")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? [Endpoint.IncludeField], [.customSpace])
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
-  }
-
-  func testMembershipFetch_Success() {
+  func testFetchMembership_Success() {
     let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_spaces_fetchMemberships_success"]),
@@ -1084,7 +1043,7 @@ final class SpaceObjectsEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testMembershipFetch_Success_Empty() {
+  func testFetchMembership_Success_Empty() {
     let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_spaces_fetchAll_success_empty"]) else {
@@ -1106,47 +1065,32 @@ final class SpaceObjectsEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Update Memberships Tests
+// MARK: - Update Memberships Tests
 
-  func testMembershipUpdate_Endpoint() {
-    let endpoint = Endpoint.objectsSpaceMembershipsUpdate(spaceID: "TestSpace",
-                                                          add: [], update: [], remove: [],
-                                                          include: [],
-                                                          limit: nil, start: nil, end: nil, count: nil)
+extension SpaceObjectsRouterTests {
+  func testMembershipUpdate_Router() {
+    let router = SpaceObjectsRouter(
+      .modifyMembers(spaceID: "TestSpace",
+                     adding: [], updating: [], removing: [], include: [],
+                     limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Update Space's Memberships")
-    XCTAssertEqual(endpoint.category, .objectsSpaceMembershipsUpdate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Modify Space's Members")
+    XCTAssertEqual(router.category, "Modify Space's Members")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testMembershipUpdate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsSpaceMembershipsUpdate(spaceID: "",
-                                                          add: [], update: [], remove: [],
-                                                          include: [],
-                                                          limit: nil, start: nil, end: nil, count: nil)
+  func testMembershipUpdate_Router_ValidationError() {
+    let router = SpaceObjectsRouter(
+      .modifyMembers(spaceID: "TestSpace",
+                     adding: [], updating: [], removing: [], include: [],
+                     limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testMembershipUpdate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsSpaceMembershipsUpdate(spaceID: "TestSpace",
-                                                          add: [], update: [], remove: [],
-                                                          include: [.customSpace],
-                                                          limit: 100, start: "Start", end: "End", count: true)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 9)
-    XCTAssertEqual(endpoint.associatedValue["spaceID"] as? String, "TestSpace")
-    XCTAssertEqual((endpoint.associatedValue["add"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual((endpoint.associatedValue["update"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual((endpoint.associatedValue["remove"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual(endpoint.associatedValue["include"] as? [Endpoint.IncludeField], [.customSpace])
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testMembershipUpdate_Success() {

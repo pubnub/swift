@@ -1,5 +1,5 @@
 //
-//  UserObjectsEndpointTests.swift
+//  UserObjectsRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -29,32 +29,32 @@
 import XCTest
 
 // swiftlint:disable:next type_body_length
-final class UserObjectsEndpointTests: XCTestCase {
+final class UserObjectsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
-  let fetchAllUsers = Endpoint.objectsUserFetchAll(include: nil, limit: nil, start: nil, end: nil, count: nil)
-  let fetchUser = Endpoint.objectsUserFetch(userID: "SomeUser", include: nil)
   let testUser = UserObject(name: "TestUser")
   let invalidUser = UserObject(name: "")
+}
 
-  // MARK: - Fetch All Tests
+// MARK: - Fetch All Tests
 
-  func testFetchAll_Endpoint() {
-    let endpoint = Endpoint.objectsUserFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
+extension UserObjectsRouterTests {
+  func testFetchAll_Router() {
+    let router = UserObjectsRouter(
+      .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch All User Objects")
-    XCTAssertEqual(endpoint.category, .objectsUserFetchAll)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch All User Objects")
+    XCTAssertEqual(router.category, "Fetch All User Objects")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testFetchAll_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserFetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true)
+  func testFetchAll_Router_ValidationError() {
+    let router = UserObjectsRouter(
+      .fetchAll(include: .custom, limit: 100, start: "Start", end: "End", count: true),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testFetchAll_Success() {
@@ -127,7 +127,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -148,7 +148,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -169,7 +169,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -190,37 +190,31 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Fetch Tests
+// MARK: - Fetch Tests
 
-  func testFetch_Endpoint() {
-    let endpoint = Endpoint.objectsUserFetch(userID: "OtherUser", include: .custom)
+extension UserObjectsRouterTests {
+  func testFetch_Router() {
+    let router = UserObjectsRouter(.fetch(userID: "OtherUser", include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch User Object")
-    XCTAssertEqual(endpoint.category, .objectsUserFetch)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch User Object")
+    XCTAssertEqual(router.category, "Fetch User Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testFetch_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserFetch(userID: "", include: .custom)
+  func testFetch_Router_ValidationError() {
+    let router = UserObjectsRouter(.fetch(userID: "", include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testFetch_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserFetch(userID: "OtherUser", include: .custom)
-
-    XCTAssertEqual(endpoint.associatedValue["userID"] as? String, "OtherUser")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testFetch_Success() {
@@ -263,7 +257,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -284,7 +278,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .resourceNotFound))
+          XCTAssertEqual(error.pubNubError, PubNubError(.resourceNotFound))
         }
         expectation.fulfill()
       }
@@ -305,7 +299,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -326,7 +320,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -347,37 +341,31 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Create Tests
+// MARK: - Create Tests
 
-  func testCreate_Endpoint() {
-    let endpoint = Endpoint.objectsUserCreate(user: testUser, include: .custom)
+extension UserObjectsRouterTests {
+  func testCreate_Router() {
+    let router = UserObjectsRouter(.create(user: testUser, include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Create User Object")
-    XCTAssertEqual(endpoint.category, .objectsUserCreate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Create User Object")
+    XCTAssertEqual(router.category, "Create User Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testCreate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserCreate(user: invalidUser, include: .custom)
+  func testCreate_Router_ValidationError() {
+    let router = UserObjectsRouter(.create(user: invalidUser, include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testCreate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserCreate(user: testUser, include: .custom)
-
-    XCTAssertTrue(testUser.isEqual(endpoint.associatedValue["user"] as? PubNubUser))
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testCreate_Success() {
@@ -423,7 +411,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
+          XCTAssertEqual(error.pubNubError, PubNubError(.badRequest))
         }
         expectation.fulfill()
       }
@@ -447,7 +435,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -471,7 +459,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
+          XCTAssertEqual(error.pubNubError, PubNubError(.conflict))
         }
         expectation.fulfill()
       }
@@ -495,7 +483,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
+          XCTAssertEqual(error.pubNubError, PubNubError(.unsupportedType))
         }
         expectation.fulfill()
       }
@@ -519,7 +507,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -543,7 +531,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -567,37 +555,31 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Update Tests
+// MARK: - Update Tests
 
-  func testUpdate_Endpoint() {
-    let endpoint = Endpoint.objectsUserUpdate(user: testUser, include: .custom)
+extension UserObjectsRouterTests {
+  func testUpdate_Router() {
+    let router = UserObjectsRouter(.update(user: testUser, include: .custom), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Update User Object")
-    XCTAssertEqual(endpoint.category, .objectsUserUpdate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Update User Object")
+    XCTAssertEqual(router.category, "Update User Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testUpdate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserUpdate(user: invalidUser, include: .custom)
+  func testUpdate_Router_ValidationError() {
+    let router = UserObjectsRouter(.update(user: invalidUser, include: .custom), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testUpdate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserUpdate(user: testUser, include: .custom)
-
-    XCTAssertTrue(testUser.isEqual(endpoint.associatedValue["user"] as? PubNubUser))
-    XCTAssertEqual(endpoint.associatedValue["include"] as? Endpoint.IncludeField, .custom)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testUpdate_Success() {
@@ -643,7 +625,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .badRequest))
+          XCTAssertEqual(error.pubNubError, PubNubError(.badRequest))
         }
         expectation.fulfill()
       }
@@ -667,7 +649,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -691,7 +673,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .conflict))
+          XCTAssertEqual(error.pubNubError, PubNubError(.conflict))
         }
         expectation.fulfill()
       }
@@ -715,7 +697,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
+          XCTAssertEqual(error.pubNubError, PubNubError(.preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -739,7 +721,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .unsupportedType))
+          XCTAssertEqual(error.pubNubError, PubNubError(.unsupportedType))
         }
         expectation.fulfill()
       }
@@ -763,7 +745,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -787,7 +769,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -811,36 +793,31 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Delete Tests
+// MARK: - Delete Tests
 
-  func testDelete_Endpoint() {
-    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser")
+extension UserObjectsRouterTests {
+  func testDelete_Router() {
+    let router = UserObjectsRouter(.delete(userID: "TestUser"), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Delete User Object")
-    XCTAssertEqual(endpoint.category, .objectsUserDelete)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Delete User Object")
+    XCTAssertEqual(router.category, "Delete User Object")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testDelete_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserFetch(userID: "", include: .custom)
+  func testDelete_Router_ValidationError() {
+    let router = UserObjectsRouter(.delete(userID: ""), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testDelete_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserDelete(userID: "TestUser")
-
-    XCTAssertEqual(endpoint.associatedValue["userID"] as? String, "TestUser")
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testDelete_Success() {
@@ -877,7 +854,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .forbidden))
+          XCTAssertEqual(error.pubNubError, PubNubError(.forbidden))
         }
         expectation.fulfill()
       }
@@ -898,7 +875,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .preconditionFailed))
+          XCTAssertEqual(error.pubNubError, PubNubError(.preconditionFailed))
         }
         expectation.fulfill()
       }
@@ -919,7 +896,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .tooManyRequests))
+          XCTAssertEqual(error.pubNubError, PubNubError(.tooManyRequests))
         }
         expectation.fulfill()
       }
@@ -940,7 +917,7 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .internalServiceError))
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
         }
         expectation.fulfill()
       }
@@ -961,48 +938,35 @@ final class UserObjectsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Request should fail.")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .serviceUnavailable))
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceUnavailable))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Fetch Memberships Tests
+// MARK: - Fetch Memberships Tests
 
-  func testMembershipFetch_Endpoint() {
-    let endpoint = Endpoint.objectsUserMemberships(userID: "TestUser",
-                                                   include: [],
-                                                   limit: nil, start: nil, end: nil, count: nil)
+extension UserObjectsRouterTests {
+  func testMembershipFetch_Router() {
+    let router = UserObjectsRouter(
+      .fetchMemberships(userID: "TestUser", include: [], limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch User's Memberships")
-    XCTAssertEqual(endpoint.category, .objectsUserMemberships)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch User's Memberships")
+    XCTAssertEqual(router.category, "Fetch User's Memberships")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testMembershipFetch_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserMemberships(userID: "",
-                                                   include: [],
-                                                   limit: nil, start: nil, end: nil, count: nil)
+  func testMembershipFetch_Router_ValidationError() {
+    let router = UserObjectsRouter(
+      .fetchMemberships(userID: "", include: [], limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testMembershipFetch_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserMemberships(userID: "TestUser",
-                                                   include: [.customSpace],
-                                                   limit: 100, start: "Start", end: "End", count: true)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 6)
-    XCTAssertEqual(endpoint.associatedValue["userID"] as? String, "TestUser")
-    XCTAssertEqual(endpoint.associatedValue["include"] as? [Endpoint.IncludeField], [.customSpace])
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testMembershipFetch_Success() {
@@ -1072,47 +1036,32 @@ final class UserObjectsEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Update Memberships Tests
+// MARK: - Update Memberships Tests
 
-  func testMembershipUpdate_Endpoint() {
-    let endpoint = Endpoint.objectsUserMembershipsUpdate(userID: "TestUser",
-                                                         add: [], update: [], remove: [],
-                                                         include: [],
-                                                         limit: nil, start: nil, end: nil, count: nil)
+extension UserObjectsRouterTests {
+  func testMembershipUpdate_Router() {
+    let router = UserObjectsRouter(
+      .modifyMemberships(userID: "TestUser",
+                         joining: [], updating: [], leaving: [], include: [],
+                         limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Update User's Memberships")
-    XCTAssertEqual(endpoint.category, .objectsUserMembershipsUpdate)
-    XCTAssertEqual(endpoint.operationCategory, .objects)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Modify User's Memberships")
+    XCTAssertEqual(router.category, "Modify User's Memberships")
+    XCTAssertEqual(router.service, .objects)
   }
 
-  func testMembershipUpdate_Endpoint_ValidationError() {
-    let endpoint = Endpoint.objectsUserMembershipsUpdate(userID: "",
-                                                         add: [], update: [], remove: [],
-                                                         include: [],
-                                                         limit: nil, start: nil, end: nil, count: nil)
+  func testMembershipUpdate_Router_ValidationError() {
+    let router = UserObjectsRouter(
+      .modifyMemberships(userID: "",
+                         joining: [], updating: [], leaving: [], include: [],
+                         limit: nil, start: nil, end: nil, count: nil),
+      configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testMembershipUpdate_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.objectsUserMembershipsUpdate(userID: "TestUser",
-                                                         add: [], update: [], remove: [],
-                                                         include: [.customSpace],
-                                                         limit: 100, start: "Start", end: "End", count: true)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 9)
-    XCTAssertEqual(endpoint.associatedValue["userID"] as? String, "TestUser")
-    XCTAssertEqual((endpoint.associatedValue["add"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual((endpoint.associatedValue["update"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual((endpoint.associatedValue["remove"] as? [ObjectIdentifiable])?.isEmpty, true)
-    XCTAssertEqual(endpoint.associatedValue["include"] as? [Endpoint.IncludeField], [.customSpace])
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 100)
-    XCTAssertEqual(endpoint.associatedValue["start"] as? String, "Start")
-    XCTAssertEqual(endpoint.associatedValue["end"] as? String, "End")
-    XCTAssertEqual(endpoint.associatedValue["count"] as? Bool, true)
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
   }
 
   func testMembershipUpdate_Success() {

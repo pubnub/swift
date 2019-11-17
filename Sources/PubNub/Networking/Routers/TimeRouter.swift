@@ -1,5 +1,5 @@
 //
-//  TimeEndpoint.swift
+//  TimeRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,22 +27,69 @@
 
 import Foundation
 
+// MARK: - Router
+
+struct TimeRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case time
+
+    var description: String {
+      return "Time"
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .time
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    return .success("/time/0")
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    return .none
+  }
+
+  var keysRequired: PNKeyRequirement {
+    return .none
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    return .success(defaultQueryItems)
+  }
+}
+
 // MARK: - Response Decoder
 
 struct TimeResponseDecoder: ResponseDecoder {
-  func decode(response: Response<Data>) -> Result<Response<TimeResponsePayload>, Error> {
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<TimeResponsePayload>, Error> {
     do {
-      let decodedPayload = try Constant.jsonDecoder.decode([Int64].self, from: response.payload)
+      let decodedPayload = try Constant.jsonDecoder.decode([Timetoken].self, from: response.payload)
 
       guard let timetoken = decodedPayload.first else {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
-      let decodedResponse = Response<TimeResponsePayload>(router: response.router,
-                                                          request: response.request,
-                                                          response: response.response,
-                                                          data: response.data,
-                                                          payload: TimeResponsePayload(timetoken: timetoken))
+      let decodedResponse = EndpointResponse<TimeResponsePayload>(router: response.router,
+                                                                  request: response.request,
+                                                                  response: response.response,
+                                                                  data: response.data,
+                                                                  payload: TimeResponsePayload(timetoken: timetoken))
 
       return .success(decodedResponse)
     } catch {

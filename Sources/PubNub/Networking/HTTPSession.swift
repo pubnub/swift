@@ -30,29 +30,29 @@ import Foundation
 // MARK: - PubNub Networking
 
 /// An object that coordinates a group of related network data transfer tasks.
-public final class Session {
+final class HTTPSession {
   /// The unique identifier for this object
-  public let sessionID: UUID = UUID()
+  let sessionID: UUID = UUID()
   /// The underlying `URLSession` used to execute the network tasks
-  public let session: URLSessionReplaceable
+  let session: URLSessionReplaceable
   /// The dispatch queue used to execute session operations
-  public let sessionQueue: DispatchQueue
+  let sessionQueue: DispatchQueue
   /// The dispatch queue used to execute request operations
-  public let requestQueue: DispatchQueue
+  let requestQueue: DispatchQueue
   /// The state that tracks the validity of the underlying `URLSessionReplaceable`
   let invalidationState = AtomicInt(0)
   /// The delegate that receives incoming network transmissions
-  weak var delegate: SessionDelegate?
+  weak var delegate: HTTPSessionDelegate?
   /// The event stream that session activity status will emit to
   let sessionStream: SessionStream?
   /// The `RequestOperator` that is attached to every request
   var defaultRequestOperator: RequestOperator?
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
-  var taskToRequest: [URLSessionTask: Request] = [:]
+  var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
 
-  public init(
+  init(
     session: URLSessionReplaceable,
-    delegate: SessionDelegate,
+    delegate: HTTPSessionDelegate,
     sessionQueue: DispatchQueue,
     requestQueue: DispatchQueue? = nil,
     sessionStream: SessionStream? = nil
@@ -72,9 +72,9 @@ public final class Session {
     delegate.sessionBridge = self
   }
 
-  public convenience init(
+  convenience init(
     configuration: URLSessionConfiguration = .ephemeral,
-    delegate: SessionDelegate = SessionDelegate(),
+    delegate: HTTPSessionDelegate = HTTPSessionDelegate(),
     sessionQueue: DispatchQueue = DispatchQueue(label: "com.pubnub.session.sessionQueue"),
     requestQueue: DispatchQueue? = nil,
     sessionStream: SessionStream? = nil
@@ -97,7 +97,7 @@ public final class Session {
     PubNub.log.debug("Session Destoryed \(sessionID) with active requests \(taskToRequest.values.map { $0.requestID })")
 
     taskToRequest.values.forEach {
-      $0.cancel(PubNubError(.sessionDeinitialized, endpoint: $0.router.endpoint.category))
+      $0.cancel(PubNubError(.sessionDeinitialized, router: $0.router))
     }
 
     invalidateAndCancel()
@@ -109,7 +109,7 @@ public final class Session {
   ///
   /// - parameter requestOperator: The default `RequestOperator`
   /// - returns: This `Session` object
-  public func usingDefault(requestOperator: RequestOperator?) -> Self {
+  func usingDefault(requestOperator: RequestOperator?) -> Self {
     defaultRequestOperator = requestOperator
     return self
   }
@@ -122,10 +122,10 @@ public final class Session {
   ///   -  with: The `Router` used to create the `Request`
   ///   -  requestOperator: The operator specific to this `Request`
   /// - returns: This created `Request`
-  public func request(
-    with router: Router,
+  func request(
+    with router: HTTPRouter,
     requestOperator: RequestOperator? = nil
-  ) -> Request {
+  ) -> RequestReplaceable {
     let request = Request(with: router,
                           requestQueue: sessionQueue,
                           sessionStream: sessionStream,
@@ -140,7 +140,7 @@ public final class Session {
 
   // MARK: Internal Methods
 
-  func perform(_ request: Request) {
+  func perform(_ request: RequestReplaceable) {
     requestQueue.async {
       // Ensure that the request hasn't been cancelled
       if request.isCancelled { return }
@@ -149,7 +149,7 @@ public final class Session {
     }
   }
 
-  func perform(_ request: Request, urlRequest convertible: URLRequestConvertible) {
+  func perform(_ request: RequestReplaceable, urlRequest convertible: URLRequestConvertible) {
     // Perform the request.  (SessionDelegate will emit the response)
     let urlRequest: URLRequest
 
@@ -193,7 +193,7 @@ public final class Session {
   }
 
   /// True if the underlying session is invalidated and can no longer perform requests
-  public internal(set) var isInvalidated: Bool {
+  var isInvalidated: Bool {
     get {
       return invalidationState.isEqual(to: 1)
     }
@@ -202,7 +202,7 @@ public final class Session {
     }
   }
 
-  func didCreateURLRequest(_ urlRequest: URLRequest, for request: Request) {
+  func didCreateURLRequest(_ urlRequest: URLRequest, for request: RequestReplaceable) {
     if request.isCancelled { return }
 
     // Leak inside URLSession; passing in copy to avoid passing in managed objects
@@ -215,32 +215,12 @@ public final class Session {
       taskToRequest[task] = request
       request.didCreate(task)
 
-      updateStatesForTask(task, request: request)
     } else {
       PubNub.log.warn("Attempted to create task from invalidated session: \(sessionID)")
     }
   }
 
-  func updateStatesForTask(_ task: URLSessionTask, request: Request) {
-    request.withTaskState { atomicState in
-      switch atomicState {
-      case .initialized:
-        sessionQueue.async { request.resume() }
-      case .resumed:
-        // URLDataTasks cannot be 'resumed' after starting, but this is called during a retry
-        task.resume()
-        sessionQueue.async { request.didResume(task) }
-      case .cancelled:
-        task.cancel()
-        sessionQueue.async { request.didCancel(task) }
-      case .finished:
-        // Do nothing
-        break
-      }
-    }
-  }
-
-  func mutator(for request: Request) -> RequestMutator? {
+  func mutator(for request: RequestReplaceable) -> RequestMutator? {
     if let requestOperator = request.requestOperator, let sessionOperator = defaultRequestOperator {
       return MultiplexRequestOperator(operators: [requestOperator, sessionOperator])
     } else {
@@ -248,28 +228,11 @@ public final class Session {
     }
   }
 
-  func retrier(for request: Request) -> RequestRetrier? {
+  func retrier(for request: RequestReplaceable) -> RequestRetrier? {
     if let requestOperator = request.requestOperator, let sessionOperator = defaultRequestOperator {
       return MultiplexRequestOperator(operators: [requestOperator, sessionOperator])
     } else {
       return request.requestOperator ?? defaultRequestOperator
-    }
-  }
-
-  /// Cancels all requests on a given `Endpoint` returning the provided error reason
-  ///
-  /// - Parameters:
-  ///   - reason: The reason for the cancellation
-  ///   - for: The endpoint whose requests will be cancelled
-  public func cancelAllTasks(_ reason: PubNubError.Reason, for endpoint: Endpoint.Category = .subscribe) {
-    sessionQueue.async { [weak self] in
-      self?.taskToRequest.forEach { task, request in
-        if request.router.endpoint.category == endpoint {
-          request.cancellationReason = reason
-          PubNub.log.debug("Cancelling Task for request \(request.requestID)")
-          task.cancel()
-        }
-      }
     }
   }
 
@@ -278,7 +241,7 @@ public final class Session {
   /// Once invalidated, references to the delegate and callback objects are broken.
   /// After invalidation, session objects cannot be reused.
   /// - Important: Calling this method on the session returned by the shared method has no effect.
-  public func invalidateAndCancel() {
+  func invalidateAndCancel() {
     // Ensure that we lock out task creation prior to invalidating
     isInvalidated = true
 
@@ -288,9 +251,9 @@ public final class Session {
 
 // MARK: - RequestDelegate
 
-extension Session: RequestDelegate {
-  public func retryResult(
-    for request: Request,
+extension HTTPSession: RequestDelegate {
+  func retryResult(
+    for request: RequestReplaceable,
     dueTo error: Error,
     andPrevious _: Error?,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
@@ -310,7 +273,7 @@ extension Session: RequestDelegate {
     }
   }
 
-  public func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?) {
+  func retryRequest(_ request: RequestReplaceable, withDelay timeDelay: TimeInterval?) {
     sessionQueue.async {
       let retry: () -> Void = {
         if request.isCancelled { return }

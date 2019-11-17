@@ -40,7 +40,7 @@ public class SubscriptionSession {
 
   // These allow for better tracking of outstanding subscribe loop request status
   var longPolling: Bool = false
-  var request: Request?
+  var request: RequestReplaceable?
 
   let responseQueue: DispatchQueue
 
@@ -168,9 +168,8 @@ public class SubscriptionSession {
   func stopSubscribeLoop(_ reason: PubNubError.Reason) -> Bool {
     // Cancel subscription requests
     request?.cancellationReason = reason
-    request?.cancel()
+    request?.cancel(nil)
 
-    networkSession.cancelAllTasks(reason, for: .subscribe)
     return connectionStatus.isActive
   }
 
@@ -192,21 +191,18 @@ public class SubscriptionSession {
     }
 
     // Create Endpoing
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .subscribe(channels: channels,
-                                                   groups: groups,
-                                                   timetoken: timetoken,
-                                                   region: previousTokenResponse?.region.description,
-                                                   state: storedState,
-                                                   heartbeat: configuration.durationUntilTimeout,
-                                                   filter: configuration.filterExpression))
+    let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: timetoken,
+                                            region: previousTokenResponse?.region.description,
+                                            state: storedState, heartbeat: configuration.durationUntilTimeout,
+                                            filter: configuration.filterExpression),
+                                 configuration: configuration)
 
     request = networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
 
     request?
       .validate()
-      .response(decoder: SubscribeResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: SubscribeResponseDecoder()) { [weak self] result in
         self?.longPolling = false
 
         switch result {
@@ -226,7 +222,7 @@ public class SubscriptionSession {
           if response.payload.messages.count >= 100 {
             self?.notify {
               $0.emitDidReceive(subscription:
-                .subscribeError(PubNubError(.messageCountExceededMaximum, endpoint: router.endpoint.category)))
+                .subscribeError(PubNubError(.messageCountExceededMaximum, router: router)))
             }
           }
 
@@ -287,7 +283,7 @@ public class SubscriptionSession {
           self?.performSubscribeLoop(at: response.payload.token.timetoken)
         case let .failure(error):
           self?.notify {
-            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, endpoint: .subscribe)))
+            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: nil)))
           }
 
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
@@ -374,7 +370,7 @@ public class SubscriptionSession {
             }
           case let .failure(error):
             self?.notify {
-              $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, endpoint: .leave)))
+              $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: nil)))
             }
           }
         }

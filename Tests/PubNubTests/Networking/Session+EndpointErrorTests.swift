@@ -39,7 +39,8 @@ final class SessionEndpointErrorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    pubnub = PubNub(configuration: .default, session: sessions.session)
+    let config = PubNubConfiguration.default
+    pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {
       case .success:
@@ -51,7 +52,7 @@ final class SessionEndpointErrorTests: XCTestCase {
         }
 
         let pubnubError = PubNubError(reason: payload?.pubnubReason,
-                                      endpoint: .time,
+                                      router: TimeRouter(.time, configuration: config),
                                       request: task.mockRequest,
                                       response: response)
 

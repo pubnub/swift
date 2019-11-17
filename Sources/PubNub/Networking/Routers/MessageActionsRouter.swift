@@ -1,5 +1,5 @@
 //
-//  MessageActionsEndpoint.swift
+//  MessageActionsRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,6 +27,116 @@
 
 import Foundation
 
+// MARK: - Router
+
+struct MessageActionsRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case fetch(channel: String, start: Timetoken?, end: Timetoken?, limit: Int?)
+    case add(channel: String, message: MessageAction, timetoken: Timetoken)
+    case remove(channel: String, message: Timetoken, action: Timetoken)
+
+    var description: String {
+      switch self {
+      case .fetch:
+        return "Fetch a List of Message Actions"
+      case .add:
+        return "Add a Message Action"
+      case .remove:
+        return "Remove a Message Action"
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .messageActions
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case let .fetch(channel, _, _, _):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)"
+    case let .add(channel, _, timetoken):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(timetoken)"
+    case let .remove(channel, message, action):
+      path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(message)/action/\(action)"
+    }
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .fetch(_, start, end, limit):
+      query.appendIfPresent(key: .start, value: start?.description)
+      query.appendIfPresent(key: .end, value: end?.description)
+      query.appendIfPresent(key: .limit, value: limit?.description)
+    case .add:
+      break
+    case .remove:
+      break
+    }
+
+    return .success(query)
+  }
+
+  var method: HTTPMethod {
+    switch endpoint {
+    case .fetch:
+      return .get
+    case .add:
+      return .post
+    case .remove:
+      return .delete
+    }
+  }
+
+  var body: Result<Data?, Error> {
+    switch endpoint {
+    case .fetch:
+      return .success(nil)
+    case let .add(_, message, _):
+      return message.concreteType.encodableJSONData.map { .some($0) }
+    case .remove:
+      return .success(nil)
+    }
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case let .fetch(channel, _, _, _):
+      return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
+    case let .add(channel, message, _):
+      return isInvalidForReason(
+        (channel.isEmpty, ErrorDescription.emptyChannelString),
+        (!message.isValid, ErrorDescription.invalidMessageAction)
+      )
+    case let .remove(channel, _, _):
+      return isInvalidForReason(
+        (channel.isEmpty, ErrorDescription.emptyChannelString)
+      )
+    }
+  }
+}
+
 // MARK: - Request Object
 
 /// A MessageAction that can be associated with a published message
@@ -40,7 +150,7 @@ public protocol MessageAction: Validated {
 extension MessageAction {
   public var validationError: Error? {
     if type.isEmpty || value.isEmpty {
-      return PubNubError(reason: .missingRequiredParameter)
+      return PubNubError(.missingRequiredParameter)
     }
 
     return nil

@@ -87,12 +87,27 @@ public enum HTTPMethod: String {
   case trace = "TRACE"
 }
 
+public enum PubNubService: String {
+  case channelGroup = "Channel Group"
+  case history = "History"
+  case messageActions = "Message Actions"
+  case objects = "Objects"
+  case presence = "Presence"
+  case publish = "Publish"
+  case push = "Push"
+  case subscribe = "Subscribe"
+  case time = "Time"
+  case unknown = "Unknown"
+}
+
 // MARK: - Router
 
 /// Collects together and assembles the separate pieces used to create an URLRequest
-public protocol Router: URLRequestConvertible, CustomStringConvertible, Validated {
-  /// The target of the `URLRequest`
-  var endpoint: Endpoint { get }
+public protocol HTTPRouter: URLRequestConvertible, Validated, CustomStringConvertible {
+//  /// The target of the `URLRequest`
+//  var endpoint: Endpoint { get }
+  var service: PubNubService { get }
+  var category: String { get }
   /// Configuration used during the URLRequest generation
   var configuration: RouterConfiguration { get }
   /// The HTTP method used on the URL
@@ -102,9 +117,13 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible, Validate
   /// The collection of `URLQueryItem` or the `Error` during its creation
   var queryItems: Result<[URLQueryItem], Error> { get }
   /// Additional requred headers
-  var additionalHeaders: HTTPHeaders { get }
+  var additionalHeaders: [String: String] { get }
   /// The `Data` that will be put inside the request or the `Error` generate during its creation
   var body: Result<Data?, Error> { get }
+
+  var keysRequired: PNKeyRequirement { get }
+
+  var pamVersion: PAMVersionRequirement { get }
 
   /// The method called when attempting to decode the response error data for a given Endpoint
   ///
@@ -116,12 +135,85 @@ public protocol Router: URLRequestConvertible, CustomStringConvertible, Validate
   ///   - response: The `HTTPURLResponse` that was returned
   ///   - for: The `ResponseDecoder` used to decode the raw response data
   /// - Returns: The `PubNubError` that represents the response error
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
+}
+
+// Default Protocol Values
+extension HTTPRouter {
+  public var method: HTTPMethod { return .get }
+  public var additionalHeaders: [String: String] { return [:] }
+  public var body: Result<Data?, Error> { return .success(nil) }
+  public var keysRequired: PNKeyRequirement { return .subscribe }
+  public var pamVersion: PAMVersionRequirement { return .version2 }
+
+  public func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
+    return AnyJSONResponseDecoder().decodeError(router: self, request: request, response: response, for: data)
+  }
+
+  var defaultQueryItems: [URLQueryItem] {
+    var queryItems = [
+      Constant.pnSDKURLQueryItem,
+      URLQueryItem(name: "uuid", value: configuration.uuid)
+    ]
+    // Add PAM key if needed
+    if pamVersion != .none, let authKey = configuration.authKey {
+      queryItems.append(URLQueryItem(name: "auth", value: authKey))
+    }
+
+    return queryItems
+  }
+
+  public var validationError: Error? {
+    if let reason = keyValidationErrorReason {
+      return PubNubError(reason, router: self)
+    } else if let errorDetail = validationErrorDetail {
+      return PubNubError(.missingRequiredParameter, router: self, additional: [errorDetail])
+    }
+    return nil
+  }
+
+  var subscribeKey: String {
+    return configuration.subscribeKey?.urlEncodeSlash ?? ""
+  }
+
+  var publishKey: String {
+    return configuration.publishKey?.urlEncodeSlash ?? ""
+  }
+
+  public var keyValidationErrorReason: PubNubError.Reason? {
+    switch keysRequired {
+    case .none:
+      return nil
+
+    case .subscribe:
+      if configuration.subscribeKeyExists {
+        return nil
+      }
+      return .missingSubscribeKey
+    case .publish:
+      if configuration.publishKeyExists {
+        return nil
+      }
+      return .missingPublishKey
+
+    case .publishAndSubscribe:
+      switch (configuration.publishKeyExists, configuration.subscribeKeyExists) {
+      case (false, false):
+        return .missingPublishAndSubscribeKey
+      case (true, false):
+        return .missingSubscribeKey
+      case (false, true):
+        return .missingPublishKey
+      case (true, true):
+        return nil
+      }
+    }
+  }
 }
 
 // MARK: - URLRequestConvertible
 
-extension Router {
+extension HTTPRouter {
   public var asURL: Result<URL, Error> {
     if let error = validationError {
       return .failure(error)
@@ -151,7 +243,7 @@ extension Router {
     return asURL.flatMap { url -> Result<URLRequest, Error> in
       body.flatMap { data in
         var request = URLRequest(url: url)
-        request.headers = additionalHeaders
+        request.allHTTPHeaderFields = additionalHeaders
         request.httpMethod = method.rawValue
         request.httpBody = data
         return .success(request)
@@ -162,7 +254,7 @@ extension Router {
 
 // MARK: - CustomStringConvertible
 
-extension Router {
+extension HTTPRouter {
   public var description: String {
     return String(describing: Self.self)
   }

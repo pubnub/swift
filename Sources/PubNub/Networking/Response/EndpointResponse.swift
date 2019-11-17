@@ -28,9 +28,9 @@
 import Foundation
 
 /// Generic Response value
-public struct Response<Value> {
+public struct EndpointResponse<Value> {
   /// Router used to generate the `URLRequest`
-  public let router: Router
+  public let router: HTTPRouter
   /// `URLRequest` that was performed
   public let request: URLRequest
   /// The server response from the `URLRequest`
@@ -41,15 +41,8 @@ public struct Response<Value> {
   public let payload: Value
 }
 
-extension Response {
-  /// The endpoint contained inside the router
-  var endpoint: Endpoint {
-    return router.endpoint
-  }
-}
-
-extension Response where Value == Data {
-  init(router: Router, request: URLRequest, response: HTTPURLResponse, payload: Data) {
+extension EndpointResponse where Value == Data {
+  init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, payload: Data) {
     self.router = router
     self.request = request
     self.response = response

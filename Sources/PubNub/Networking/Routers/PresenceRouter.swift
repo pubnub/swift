@@ -1,5 +1,5 @@
 //
-//  PresenceEndpoint.swift
+//  PresenceRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,6 +27,182 @@
 
 import Foundation
 
+// MARK: - Router
+
+struct PresenceRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case heartbeat(channels: [String], groups: [String], presenceTimeout: UInt?)
+    case leave(channels: [String], groups: [String])
+    case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
+    case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
+    case whereNow(uuid: String)
+    case getState(uuid: String, channels: [String], groups: [String])
+    case setState(channels: [String], groups: [String], state: [String: JSONCodable])
+
+    var description: String {
+      switch self {
+      case .heartbeat:
+        return "Heartbeat"
+      case .leave:
+        return "Leave"
+      case .setState:
+        return "Set Presence State"
+      case .getState:
+        return "Get Presence State"
+      case .hereNow:
+        return "Here Now"
+      case .hereNowGlobal:
+        return "Global Here Now"
+      case .whereNow:
+        return "Where Now"
+      }
+    }
+
+    var channels: [String] {
+      switch self {
+      case .heartbeat(let channels, _, _):
+        return channels
+      case .leave(let channels, _):
+        return channels
+      case .hereNow(let channels, _, _, _):
+        return channels
+      case .getState(_, let channels, _):
+        return channels
+      case .setState(let channels, _, _):
+        return channels
+      default:
+        return []
+      }
+    }
+
+    var groups: [String] {
+      switch self {
+      case .heartbeat(_, let groups, _):
+        return groups
+      case let .leave(_, groups):
+        return groups
+      case .hereNow(_, let groups, _, _):
+        return groups
+      case let .getState(_, _, groups):
+        return groups
+      case .setState(_, let groups, _):
+        return groups
+      default:
+        return []
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .presence
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case .heartbeat(let channels, _, _):
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/heartbeat"
+    case .leave(let channels, _):
+      path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
+    case .hereNow(let channels, _, _, _):
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+    case .hereNowGlobal:
+      path = "/v2/presence/sub-key/\(subscribeKey)"
+    case let .whereNow(uuid):
+      path = "/v2/presence/sub-key/\(subscribeKey)/uuid/\(uuid.urlEncodeSlash)"
+    case let .getState(uuid, channels, _):
+      let channels = channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(uuid.urlEncodeSlash)"
+    case .setState(let channels, _, _):
+      let channels = channels.commaOrCSVString.urlEncodeSlash
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(configuration.uuid.urlEncodeSlash)/data"
+    }
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .heartbeat(_, groups, presenceTimeout):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.appendIfPresent(key: .heartbeat, value: presenceTimeout?.description)
+    case let .leave(_, groups):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+    case let .hereNow(_, groups, includeUUIDs, includeState):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
+    case let .hereNowGlobal(includeUUIDs, includeState):
+      query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
+      query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
+    case .whereNow:
+      break
+    case let .getState(_, _, groups):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+    case let .setState(_, groups, state):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      if !state.isEmpty {
+        return state.mapValues { $0.codableValue }.encodableJSONString.map { json in
+          query.append(URLQueryItem(key: .state, value: json))
+          return query
+        }
+      } else {
+        query.append(URLQueryItem(key: .state, value: "{}"))
+      }
+    }
+
+    return .success(query)
+  }
+
+  var pamVersion: PAMVersionRequirement {
+    return .none
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case let .heartbeat(channels, groups, _):
+      return isInvalidForReason(
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
+    case let .leave(channels, groups):
+      return isInvalidForReason(
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
+    case let .hereNow(channels, groups, _, _):
+      return isInvalidForReason(
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
+    case .hereNowGlobal:
+      return nil
+    case let .whereNow(uuid):
+      return isInvalidForReason((uuid.isEmpty, ErrorDescription.emptyUUIDString))
+    case let .getState(uuid, channels, groups):
+      return isInvalidForReason(
+        (uuid.isEmpty, ErrorDescription.emptyUUIDString),
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups)
+      )
+    case let .setState(channels, groups, _):
+      return isInvalidForReason(
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
+    }
+  }
+}
+
 // MARK: - Response Decoder
 
 struct PresenceResponseDecoder<PresencePayload>: ResponseDecoder where PresencePayload: Codable {
@@ -47,15 +223,16 @@ public struct AnyPresencePayload<Payload>: Codable where Payload: Codable {
 struct HereNowResponseDecoder: ResponseDecoder {
   typealias Payload = HereNowResponsePayload
 
-  func decode(response: Response<Data>) -> Result<Response<Payload>, Error> {
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<Payload>, Error> {
     do {
       let hereNowPayload: HereNowResponsePayload
 
       // Single Channel w/o Group
-      if let channels = response.endpoint.associatedValue["channels"] as? [String],
+
+      if let channels = (response.router as? PresenceRouter)?.endpoint.channels,
         channels.count == 1,
         let channel = channels.first,
-        let groups = response.endpoint.associatedValue["groups"] as? [String],
+        let groups = (response.router as? PresenceRouter)?.endpoint.groups,
         groups.isEmpty {
         hereNowPayload = try HereNowResponsePayload.response(for: channel,
                                                              from: response.payload,
@@ -65,11 +242,11 @@ struct HereNowResponseDecoder: ResponseDecoder {
         hereNowPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
       }
 
-      let decodedResponse = Response<Payload>(router: response.router,
-                                              request: response.request,
-                                              response: response.response,
-                                              data: response.data,
-                                              payload: hereNowPayload)
+      let decodedResponse = EndpointResponse<Payload>(router: response.router,
+                                                      request: response.request,
+                                                      response: response.response,
+                                                      data: response.data,
+                                                      payload: hereNowPayload)
 
       return .success(decodedResponse)
     } catch {
@@ -261,4 +438,5 @@ extension MultiPresenceStatePayload {
 
 public struct PresenceChannelsPayload: Codable, Equatable {
   public var channels: [String: [String: AnyJSON]]
+  // swiftlint:disable:next file_length
 }

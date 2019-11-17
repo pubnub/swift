@@ -1,5 +1,5 @@
 //
-//  MessageActionsEndpointTests.swift
+//  MessageActionsRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,40 +28,32 @@
 @testable import PubNub
 import XCTest
 
-final class MessageActionsEndpointTests: XCTestCase {
+final class MessageActionsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testMessageAction = ConcreteMessageAction(type: "reaction", value: "smiley_face")
+}
 
-  // MARK: - Fetch Message Actions Tests
+// MARK: - Fetch Message Actions Tests
 
-  func testFetchAll_Endpoint() {
-    let endpoint = Endpoint.fetchMessageActions(channel: "TestChannel", start: nil, end: nil, limit: nil)
+extension MessageActionsRouterTests {
+  func testFetch_Router() {
+    let router = MessageActionsRouter(.fetch(channel: "TestChannel", start: nil, end: nil, limit: nil),
+                                      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Fetch a List of Message Actions")
-    XCTAssertEqual(endpoint.category, .fetchMessageActions)
-    XCTAssertEqual(endpoint.operationCategory, .messageActions)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Fetch a List of Message Actions")
+    XCTAssertEqual(router.category, "Fetch a List of Message Actions")
+    XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testFetchAll_Endpoint_ValidationError() {
-    let endpoint = Endpoint.fetchMessageActions(channel: "", start: nil, end: nil, limit: nil)
+  func testFetch_Router_ValidationError() {
+    let router = MessageActionsRouter(.fetch(channel: "", start: nil, end: nil, limit: nil),
+                                      configuration: config)
 
-    XCTAssertEqual(endpoint.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: endpoint))
+    XCTAssertEqual(router.validationError?.pubNubError,
+                   PubNubError(.missingRequiredParameter, router: router))
   }
 
-  func testFetchAll_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.fetchMessageActions(channel: "TestChannel", start: 0, end: 1, limit: 2)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 4)
-
-    XCTAssertEqual(endpoint.associatedValue["channel"] as? String, "TestChannel")
-    XCTAssertEqual(endpoint.associatedValue["start"] as? Timetoken, 0)
-    XCTAssertEqual(endpoint.associatedValue["end"] as? Timetoken, 1)
-    XCTAssertEqual(endpoint.associatedValue["limit"] as? Int, 2)
-  }
-
-  func testFetchAll_Success() {
+  func testFetch_Success() {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_success"]) else {
@@ -90,7 +82,7 @@ final class MessageActionsEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_Success_empty() {
+  func testFetch_Success_empty() {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_success_empty"]) else {
@@ -115,7 +107,7 @@ final class MessageActionsEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_400() {
+  func testFetch_error_400() {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_error_400"]) else {
@@ -136,7 +128,7 @@ final class MessageActionsEndpointTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_403() {
+  func testFetch_error_403() {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_error_403"]) else {
@@ -160,36 +152,22 @@ final class MessageActionsEndpointTests: XCTestCase {
 
 // MARK: - Add Message Actions Tests
 
-extension MessageActionsEndpointTests {
-  func testAdd_Endpoint() {
-    let endpoint = Endpoint.addMessageAction(channel: "TestChannel", message: testMessageAction, timetoken: 0)
+extension MessageActionsRouterTests {
+  func testAdd_Router() {
+    let router = MessageActionsRouter(.add(channel: "TestChannel", message: testMessageAction, timetoken: 0),
+                                      configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Add a Message Action")
-    XCTAssertEqual(endpoint.category, .addMessageAction)
-    XCTAssertEqual(endpoint.operationCategory, .messageActions)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Add a Message Action")
+    XCTAssertEqual(router.category, "Add a Message Action")
+    XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testAdd_Endpoint_ValidationError() {
-    let endpoint = Endpoint.addMessageAction(channel: "", message: testMessageAction, timetoken: 0)
+  func testAdd_Router_ValidationError() {
+    let router = MessageActionsRouter(.add(channel: "", message: testMessageAction, timetoken: 0),
+                                      configuration: config)
 
-    XCTAssertEqual(endpoint.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: endpoint))
-
-    let invalidTimetoken = Endpoint.addMessageAction(channel: "TestChannel", message: testMessageAction, timetoken: -1)
-
-    XCTAssertEqual(invalidTimetoken.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: endpoint))
-  }
-
-  func testAdd_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.addMessageAction(channel: "TestChannel", message: testMessageAction, timetoken: 0)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 3)
-
-    XCTAssertEqual(endpoint.associatedValue["channel"] as? String, "TestChannel")
-    XCTAssertEqual(endpoint.associatedValue["message"] as? ConcreteMessageAction, testMessageAction)
-    XCTAssertEqual(endpoint.associatedValue["timetoken"] as? Timetoken, 0)
+    XCTAssertEqual(router.validationError?.pubNubError,
+                   PubNubError(.missingRequiredParameter, router: router))
   }
 
   func testAdd_Success() {
@@ -334,38 +312,19 @@ extension MessageActionsEndpointTests {
 
 // MARK: - Remove Message Actions Tests
 
-extension MessageActionsEndpointTests {
-  func testRemove_Endpoint() {
-    let endpoint = Endpoint.removeMessageAction(channel: "TestChannel", message: 0, action: 0)
+extension MessageActionsRouterTests {
+  func testRemove_Router() {
+    let router = MessageActionsRouter(.remove(channel: "TestChannel", message: 0, action: 0), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Remove a Message Action")
-    XCTAssertEqual(endpoint.category, .removeMessageAction)
-    XCTAssertEqual(endpoint.operationCategory, .messageActions)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Remove a Message Action")
+    XCTAssertEqual(router.category, "Remove a Message Action")
+    XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testRemove_Endpoint_ValidationError() {
-    let emptyChannel = Endpoint.removeMessageAction(channel: "", message: 0, action: 0)
+  func testRemove_Router_ValidationError() {
+    let emptyChannel = MessageActionsRouter(.remove(channel: "", message: 0, action: 0), configuration: config)
     XCTAssertEqual(emptyChannel.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: emptyChannel))
-
-    let invalidMessageTimetoken = Endpoint.removeMessageAction(channel: "TestChannel", message: -1, action: 0)
-    XCTAssertEqual(invalidMessageTimetoken.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: invalidMessageTimetoken))
-
-    let invalidActionTimetoken = Endpoint.removeMessageAction(channel: "TestChannel", message: 0, action: -1)
-    XCTAssertEqual(invalidActionTimetoken.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, endpoint: invalidActionTimetoken))
-  }
-
-  func testRemove_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.removeMessageAction(channel: "TestChannel", message: 0, action: 1)
-
-    XCTAssertEqual(endpoint.associatedValue.count, 3)
-
-    XCTAssertEqual(endpoint.associatedValue["channel"] as? String, "TestChannel")
-    XCTAssertEqual(endpoint.associatedValue["message"] as? Timetoken, 0)
-    XCTAssertEqual(endpoint.associatedValue["action"] as? Timetoken, 1)
+                   PubNubError(.missingRequiredParameter, router: emptyChannel))
   }
 
   func testRemove_Success() {
@@ -495,6 +454,72 @@ extension MessageActionsEndpointTests {
       }
 
     wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK:- MessageAction Object
+
+extension MessageActionsRouterTests {
+  func testValidationError_MissingRequiredParameter() {
+    let action = ConcreteMessageAction(type: "", value: "")
+
+    XCTAssertEqual(action.validationError?.pubNubError?.reason, .missingRequiredParameter)
+  }
+}
+
+// MARK:- MessageActions Response Payload
+
+extension MessageActionsRouterTests {
+  func testInit_Defaults() {
+    let payload = MessageActionsResponsePayload(actions: [], start: 123)
+    XCTAssertEqual(payload.actions, [])
+    XCTAssertEqual(payload.start, 123)
+    XCTAssertEqual(payload.end, nil)
+    XCTAssertEqual(payload.limit, nil)
+  }
+
+  func testInit_ActionsMore() {
+    let payload = MessageActionsResponsePayload(actions: [], more: .init(start: 123, end: 890, limit: 5))
+    XCTAssertEqual(payload.actions, [])
+    XCTAssertEqual(payload.start, 123)
+    XCTAssertEqual(payload.end, 890)
+    XCTAssertEqual(payload.limit, 5)
+  }
+
+  func testEncode() {
+    let payload = MessageActionsResponsePayload(actions: [], start: 123, end: 890, limit: 5)
+    guard let encoded = try? JSONEncoder().encode(payload) else {
+      return XCTFail("Failed to encode MessageActionsResponsePayload")
+    }
+    guard let deocded = try? JSONDecoder().decode(AnyJSON.self, from: encoded).dictionaryOptional else {
+      return XCTFail("Failed to decode MessageActionsResponsePayload")
+    }
+
+    XCTAssertEqual(deocded["data"] as? [MessageActionPayload], [])
+    XCTAssertEqual(deocded["start"] as? Timetoken, 123)
+    XCTAssertEqual(deocded["end"] as? Timetoken, 890)
+    XCTAssertEqual(deocded["limit"] as? Int, 5)
+  }
+
+  func testMessageActionPayload_Decode_InvalidTimetokenStrings() {
+    guard let action = ["uuid": "UUIDString", "type": "ActionType", "value": "ValueType",
+                        "actionTimetoken": "notTimetoken", "messageTimetoken": "notTimetoken"].jsonData else {
+      return XCTFail("Could not convert object to data")
+    }
+    let payload = try? JSONDecoder().decode(MessageActionPayload.self, from: action)
+
+    XCTAssertEqual(payload?.actionTimetoken, 0)
+    XCTAssertEqual(payload?.messageTimetoken, 0)
+  }
+
+  func testMessageActionMorePaylaod_Decode_InvalidTimetokenStrings() {
+    guard let action = ["limit": 1].jsonData else {
+      return XCTFail("Could not convert object to data")
+    }
+    let payload = try? JSONDecoder().decode(MessageActionMorePaylaod.self, from: action)
+
+    XCTAssertEqual(payload?.start, nil)
+    XCTAssertEqual(payload?.end, nil)
   }
 
   // swiftlint:disable:next file_length

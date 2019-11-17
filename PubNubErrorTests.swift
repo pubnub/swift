@@ -29,10 +29,10 @@
 import XCTest
 
 class PubNubErrorTests: XCTestCase {
-  let error: PubNubError = PubNubError(reason: .badRequest)
+  let error: PubNubError = PubNubError(.badRequest)
   let reason: PubNubError.Reason = .badRequest
 
-  let optionalError: PubNubError? = PubNubError(reason: .badRequest)
+  let optionalError: PubNubError? = PubNubError(.badRequest)
   let optionalReason: PubNubError.Reason? = .badRequest
 
   // MARK: Equatable

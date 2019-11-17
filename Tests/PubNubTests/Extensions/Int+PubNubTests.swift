@@ -28,8 +28,8 @@
 @testable import PubNub
 import XCTest
 
-class IntTests: XCTestCase {
-  func testTimetoken() {
+class TimetokenTests: XCTestCase {
+  func testTimetokenDate() {
     let timetoken = Timetoken(15_614_817_397_828_462)
 
     let date = Date(timeIntervalSince1970: TimeInterval(timetoken / 10_000_000))

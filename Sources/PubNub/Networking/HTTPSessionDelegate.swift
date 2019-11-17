@@ -1,5 +1,5 @@
 //
-//  SessionDelegate.swift
+//  HTTPSessionDelegate.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,15 +28,15 @@
 import Foundation
 
 /// A protocol defining a bridge to an implementation of `URLSessionDataDelegate` for receiving delegation events
-public class SessionDelegate: NSObject {
+class HTTPSessionDelegate: NSObject {
   weak var sessionBridge: SessionStateBridge?
 }
 
-extension SessionDelegate: URLSessionDataDelegate {
+extension HTTPSessionDelegate: URLSessionDataDelegate {
   // MARK: - URLSessionDelegate
 
   // Task was invalidated by the session directly
-  public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
+  func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
     PubNub.log.warn("Session Invalidated \(String(describing: sessionBridge?.sessionID))")
 
     // Set invalidated in case this happened unexpectedly
@@ -46,7 +46,7 @@ extension SessionDelegate: URLSessionDataDelegate {
   }
 
   // Called when the request fails.
-  public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
       return
@@ -70,7 +70,7 @@ extension SessionDelegate: URLSessionDataDelegate {
 
   // MARK: - URLSessionDataDelegate
 
-  public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+  func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
     if let request = sessionBridge?.request(for: dataTask) {
       request.didReceive(data: data)
     }
@@ -91,15 +91,15 @@ protocol SessionStateBridge: AnyObject {
   ///
   /// - parameter for: The `URLSessionTask` used as a lookup key
   /// - returns: The `Request` that is associated with the given `URLSessionTask`
-  func request(for task: URLSessionTask) -> Request?
+  func request(for task: URLSessionTask) -> RequestReplaceable?
   /// Event that notifies a given `URLSessionTask` has completed
   func didComplete(_ task: URLSessionTask)
   /// Event that notifies the underlying `URLSession` has become invalid
   func sessionInvalidated(with error: Error?)
 }
 
-extension Session: SessionStateBridge {
-  func request(for task: URLSessionTask) -> Request? {
+extension HTTPSession: SessionStateBridge {
+  func request(for task: URLSessionTask) -> RequestReplaceable? {
     return taskToRequest[task]
   }
 
@@ -111,9 +111,7 @@ extension Session: SessionStateBridge {
   func sessionInvalidated(with error: Error?) {
     // Notify the requests that the tasks have been invalidated
     taskToRequest.values.forEach {
-      $0.cancel(PubNubError(.sessionInvalidated,
-                            endpoint: $0.router.endpoint,
-                            error: error))
+      $0.cancel(PubNubError(.sessionInvalidated, router: $0.router, underlying: error))
     }
 
     // Clean up the task dictionary

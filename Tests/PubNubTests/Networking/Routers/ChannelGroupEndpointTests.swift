@@ -1,5 +1,5 @@
 //
-//  ChannelGroupEndpointTests.swift
+//  ChannelGroupsRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,28 +28,33 @@
 @testable import PubNub
 import XCTest
 
-final class ChannelGroupsEndpointTests: XCTestCase {
+final class ChannelGroupsRouterTests: XCTestCase {
   var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+
+  let subKey = "FakeSub"
+  let pubKey = "FakePub"
+  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub")
 
   let testChannels = ["TestChannel", "OtherChannel"]
   let testGroupName = "TestGroup"
+}
 
-  // MARK: - List Groups
+// MARK: - List Channel Groups
 
-  func testGroupList_Endpoint() {
-    let endpoint = Endpoint.channelGroups
+extension ChannelGroupsRouterTests {
+  func testGroupList_Router() {
+    let router = ChannelGroupsRouter(.channelGroups, configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Group List")
-    XCTAssertEqual(endpoint.category, .channelGroups)
-    XCTAssertEqual(endpoint.operationCategory, .channelGroup)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Group List")
+    XCTAssertEqual(router.category, "Group List")
+    XCTAssertEqual(router.service, .channelGroup)
+    XCTAssertEqual(router.pamVersion, .none)
   }
 
-  func testGroupList_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.channelGroups
+  func testGroupList_Router_ValidationError() {
+    let router = ChannelGroupsRouter(.channelGroups, configuration: config)
 
-    XCTAssertTrue(endpoint.associatedValue.isEmpty)
+    XCTAssertEqual(router.validationError?.pubNubError, nil)
   }
 
   func testGroupList_Success() {
@@ -91,28 +96,24 @@ final class ChannelGroupsEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Delete Group
+// MARK: - Delete Group
 
-  func testGroupDelete_Endpoint() {
-    let endpoint = Endpoint.deleteGroup(group: testGroupName)
+extension ChannelGroupsRouterTests {
+  func testGroupDelete_Router() {
+    let router = ChannelGroupsRouter(.deleteGroup(group: testGroupName), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Group Delete")
-    XCTAssertEqual(endpoint.category, .deleteGroup)
-    XCTAssertEqual(endpoint.operationCategory, .channelGroup)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Group Delete")
+    XCTAssertEqual(router.category, "Group Delete")
+    XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func testGroupDelete_Endpoint_ValidationError() {
-    let endpoint = Endpoint.deleteGroup(group: "")
+  func testGroupDelete_Router_ValidationError() {
+    let router = ChannelGroupsRouter(.deleteGroup(group: ""), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testGroupDelete_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.deleteGroup(group: "Some Group")
-
-    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "Some Group")
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyGroupString)
   }
 
   func testGroupDelete_Success() {
@@ -135,28 +136,25 @@ final class ChannelGroupsEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - List Group Channels
+// MARK: - List Channels For Group
 
-  func testChannelsForGroup_Endpoint() {
-    let endpoint = Endpoint.channelsForGroup(group: testGroupName)
+extension ChannelGroupsRouterTests {
+  func testChannelsForGroup_Router() {
+    let router = ChannelGroupsRouter(.channelsForGroup(group: testGroupName), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Group Channels List")
-    XCTAssertEqual(endpoint.category, .channelsForGroup)
-    XCTAssertEqual(endpoint.operationCategory, .channelGroup)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Group Channels List")
+    XCTAssertEqual(router.category, "Group Channels List")
+    XCTAssertEqual(router.service, .channelGroup)
+    XCTAssertEqual(router.pamVersion, .none)
   }
 
-  func testChannelsForGroup_Endpoint_ValidationError() {
-    let endpoint = Endpoint.channelsForGroup(group: "")
+  func testChannelsForGroup_Router_ValidationError() {
+    let router = ChannelGroupsRouter(.channelsForGroup(group: ""), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testChannelsForGroup_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.channelsForGroup(group: "Some Group")
-
-    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "Some Group")
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyGroupString)
   }
 
   func testGroupChannelsList_Success() {
@@ -202,29 +200,29 @@ final class ChannelGroupsEndpointTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Add Group Channel
+// MARK: - Add Channel to Group
 
-  func testGroupChannelsAdd_Endpoint() {
-    let endpoint = Endpoint.addChannelsForGroup(group: testGroupName, channels: testChannels)
+extension ChannelGroupsRouterTests {
+  func test_AddChannelsForGroup_Router() {
+    let router = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: testChannels), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Group Channels Add")
-    XCTAssertEqual(endpoint.category, .addChannelsForGroup)
-    XCTAssertEqual(endpoint.operationCategory, .channelGroup)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Group Channels Add")
+    XCTAssertEqual(router.category, "Group Channels Add")
+    XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func testGroupChannelAdd_Endpoint_ValidationError() {
-    let endpoint = Endpoint.addChannelsForGroup(group: "", channels: [])
+  func test_AddChannelsForGroup_Router_ValidationError() {
+    let router = ChannelGroupsRouter(.addChannelsToGroup(group: "", channels: testChannels), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyGroupString)
 
-  func testAddChannelsForGroup_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.addChannelsForGroup(group: "GroupName", channels: ["Channels"])
+    let emptyChannel = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: []), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "GroupName")
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["Channels"])
+    XCTAssertEqual(emptyChannel.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyChannelArray)
   }
 
   func testGroupChannels_Add_Success() {
@@ -262,7 +260,7 @@ final class ChannelGroupsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Add Channel request should fail")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .maxChannelGroupCountExceeded))
+          XCTAssertEqual(error.pubNubError, PubNubError(.maxChannelGroupCountExceeded))
         }
         expectation.fulfill()
       }
@@ -284,36 +282,36 @@ final class ChannelGroupsEndpointTests: XCTestCase {
         case .success:
           XCTFail("Add Channel request should fail")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .invalidCharacter))
+          XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Group Channel Remove
+// MARK: - Remove Channel from Group
 
-  func testGroupChannelsRemove_Endpoint() {
-    let endpoint = Endpoint.removeChannelsForGroup(group: testGroupName, channels: testChannels)
+extension ChannelGroupsRouterTests {
+  func test_RemoveChannelsForGroup_Router() {
+    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: testChannels), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Group Channels Remove")
-    XCTAssertEqual(endpoint.category, .removeChannelsForGroup)
-    XCTAssertEqual(endpoint.operationCategory, .channelGroup)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Group Channels Remove")
+    XCTAssertEqual(router.category, "Group Channels Remove")
+    XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func testGroupChannelRemove_Endpoint_ValidationError() {
-    let endpoint = Endpoint.removeChannelsForGroup(group: "", channels: [])
+  func test_RemoveChannelsForGroup_Router_ValidationError() {
+    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: "", channels: testChannels), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyGroupString)
 
-  func testGroupChannelRemove_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.removeChannelsForGroup(group: "GroupName", channels: ["ChannelName"])
+    let emptyChannels = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: []), configuration: config)
 
-    XCTAssertEqual(endpoint.associatedValue["group"] as? String, "GroupName")
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["ChannelName"])
+    XCTAssertEqual(emptyChannels.validationError?.pubNubError?.details.first,
+                   ErrorDescription.emptyChannelArray)
   }
 
   func testGroupChannels_Remove_Success() {

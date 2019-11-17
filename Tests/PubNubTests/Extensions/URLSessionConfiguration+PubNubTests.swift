@@ -32,22 +32,22 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
   func testPubNubConfiguration() {
     let config = URLSessionConfiguration.pubnub
 
-    let defaultHeaders: HTTPHeaders = [
-      .defaultAcceptEncoding,
-      .defaultContentType,
-      .defaultUserAgent
+    let defaultHeaders = [
+      Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
+      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
+      Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
     ]
-    XCTAssertEqual(config.headers.allHTTPHeaderFields,
-                   defaultHeaders.allHTTPHeaderFields)
+
+    XCTAssertEqual(config.headers, defaultHeaders)
   }
 
   func testSubscriptionConfiguration() {
     let config = URLSessionConfiguration.subscription
 
-    let defaultHeaders: HTTPHeaders = [
-      .defaultAcceptEncoding,
-      .defaultContentType,
-      .defaultUserAgent
+    let defaultHeaders = [
+      Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
+      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
+      Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
     ]
 
     var defaultTimeout = Constant.minimumSubscribeRequestTimeout
@@ -55,8 +55,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
     defaultTimeout += URLSessionConfiguration
       .default.timeoutIntervalForRequest
 
-    XCTAssertEqual(config.headers.allHTTPHeaderFields,
-                   defaultHeaders.allHTTPHeaderFields)
+    XCTAssertEqual(config.headers, defaultHeaders)
     XCTAssertEqual(config.timeoutIntervalForRequest, defaultTimeout)
     XCTAssertEqual(config.httpMaximumConnectionsPerHost,
                    URLSessionConfiguration.default.httpMaximumConnectionsPerHost)
@@ -64,21 +63,18 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
 
   func testHeaders_GetSetHeaders() {
     let config = URLSessionConfiguration.default
-    let defaultHeaders: HTTPHeaders = [
-      .defaultAcceptEncoding,
-      .defaultContentType,
-      .defaultUserAgent
+    let additionalHeaders = [
+      Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader
     ]
 
-    config.headers = defaultHeaders
+    config.headers = additionalHeaders
 
-    XCTAssertEqual(config.headers.allHTTPHeaderFields,
-                   defaultHeaders.allHTTPHeaderFields)
+    XCTAssertEqual(config.headers, additionalHeaders)
   }
 
   func testHeaders_GetNil() {
     let config = URLSessionConfiguration.default
 
-    XCTAssertEqual(config.headers, [])
+    XCTAssertEqual(config.headers, [:])
   }
 }

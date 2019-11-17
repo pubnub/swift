@@ -39,7 +39,7 @@ public protocol RequestMutator {
   ///   - completion: The mutation `Result` containing either a mutated `URLRequest` or an `Error`
   func mutate(
     _ urlRequest: URLRequest,
-    for session: Session,
+    for session: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   )
 }
@@ -54,8 +54,8 @@ public protocol RequestRetrier {
   ///   - dueTo: The `Error` that caused the request to fail
   ///   - completion: The retry `Result` containing either the `TimeInterval` delay for the retry or an `Error`
   func retry(
-    _ request: Request,
-    for session: Session,
+    _ request: RequestReplaceable,
+    for session: SessionReplaceable,
     dueTo error: Error,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   )
@@ -69,15 +69,15 @@ public protocol RequestOperator: RequestMutator, RequestRetrier {}
 extension RequestOperator {
   public func mutate(
     _ urlRequest: URLRequest,
-    for _: Session,
+    for _: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     completion(.success(urlRequest))
   }
 
   public func retry(
-    _: Request,
-    for _: Session,
+    _: RequestReplaceable,
+    for _: SessionReplaceable,
     dueTo error: Error,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
@@ -136,7 +136,7 @@ public struct MultiplexRequestOperator: RequestOperator {
 
   public func mutate(
     _ urlRequest: URLRequest,
-    for session: Session,
+    for session: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     mutate(urlRequest, for: session, using: operators, completion: completion)
@@ -145,7 +145,7 @@ public struct MultiplexRequestOperator: RequestOperator {
   /// Loop through the stored operator list and perform the mutate functionality of each
   private func mutate(
     _ urlRequest: URLRequest,
-    for session: Session,
+    for session: SessionReplaceable,
     using mutators: [RequestOperator],
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
@@ -169,8 +169,8 @@ public struct MultiplexRequestOperator: RequestOperator {
   }
 
   public func retry(
-    _ request: Request,
-    for session: Session,
+    _ request: RequestReplaceable,
+    for session: SessionReplaceable,
     dueTo error: Error,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
@@ -179,8 +179,8 @@ public struct MultiplexRequestOperator: RequestOperator {
 
   /// Loop through the stored operator list and perform the retry functionality of each
   private func retry(
-    _ request: Request,
-    for session: Session,
+    _ request: RequestReplaceable,
+    for session: SessionReplaceable,
     dueTo error: Error,
     using retriers: [RequestOperator],
     completion: @escaping (Result<TimeInterval, Error>) -> Void

@@ -58,7 +58,7 @@ class ConstantsTests: XCTestCase {
   }
 
   func testPubnubSwiftSDKVersion() {
-    let ver = Bundle(for: Session.self).infoDictionary?["CFBundleShortVersionString"]
+    let ver = Bundle(for: HTTPSession.self).infoDictionary?["CFBundleShortVersionString"]
 
     XCTAssertEqual(Constant.pubnubSwiftSDKVersion, "\(ver ?? "")")
   }
@@ -76,7 +76,7 @@ class ConstantsTests: XCTestCase {
     testUA = "\(testUA) (\(Constant.operatingSystemName) \(Constant.operatingSystemVersion))"
     testUA = "\(testUA) \(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
 
-    XCTAssertEqual(Constant.defaultUserAgent, testUA)
+    XCTAssertEqual(Constant.defaultUserAgentHeader, testUA)
   }
 
   func testPNSDKQueryParameterValue() {

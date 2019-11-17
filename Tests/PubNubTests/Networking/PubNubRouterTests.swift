@@ -188,7 +188,7 @@ class PubNubRouterTests: XCTestCase {
       .session?
       .request(with: metaErrorRouter)
       .validate()
-      .response(decoder: PublishResponseDecoder()) { result in
+      .response(on: .main, decoder: PublishResponseDecoder()) { result in
         switch result {
         case .success:
           XCTFail("Publish request should fail")
@@ -231,7 +231,7 @@ class PubNubRouterTests: XCTestCase {
       .session?
       .request(with: metaErrorRouter)
       .validate()
-      .response(decoder: PublishResponseDecoder()) { result in
+      .response(on: .main, decoder: PublishResponseDecoder()) { result in
         switch result {
         case .success:
           XCTFail("Publish request should fail")

@@ -47,7 +47,7 @@ final class SessionURLErrorTests: XCTestCase {
       case let .failure(error):
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError,
-                       PubNubError(reason: URLError(code).pubnubReason ?? .unknown))
+                       PubNubError(URLError(code).pubnubReason ?? .unknown))
       }
       expectation.fulfill()
     }

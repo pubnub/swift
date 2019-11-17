@@ -42,11 +42,11 @@ class RetryExpector: RequestOperator {
     expectations.append(expectation)
   }
 
-  var shouldRetry: ((Request, Session, Error, Int) -> (Result<TimeInterval, Error>))?
+  var shouldRetry: ((RequestReplaceable, SessionReplaceable, Error, Int) -> (Result<TimeInterval, Error>))?
 
   func retry(
-    _ request: Request,
-    for session: Session,
+    _ request: RequestReplaceable,
+    for session: SessionReplaceable,
     dueTo error: Error,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {
@@ -68,7 +68,11 @@ struct MutatorExpector: RequestOperator {
 
   var mutateRequest: ((URLRequest) -> (Result<URLRequest, Error>))?
 
-  func mutate(_ urlRequest: URLRequest, for _: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
+  func mutate(
+    _ urlRequest: URLRequest,
+    for _: SessionReplaceable,
+    completion: @escaping (Result<URLRequest, Error>) -> Void
+  ) {
     completion(mutateRequest?(urlRequest) ?? .success(urlRequest))
     expectation.fulfill()
   }

@@ -34,7 +34,7 @@ import Foundation
 /// - important: A 64-bit `Double` has a max precision of 15-digits, so
 ///         any value derived from a `TimeInterval` will not be precise
 ///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = Int64
+public typealias Timetoken = UInt64
 
 typealias AtomicInt = Atomic<Int32>
 
@@ -45,4 +45,4 @@ typealias QueryResult = Result<[URLQueryItem], Error>
 /// A closure that accepts no input and returns `Void`
 public typealias EmptyClosure = () -> Void
 /// A closure capable of validating a network response
-public typealias ValidationClosure = (Router, URLRequest, HTTPURLResponse, Data?) -> Error?
+public typealias ValidationClosure = (HTTPRouter, URLRequest, HTTPURLResponse, Data?) -> Error?

@@ -68,49 +68,4 @@ final class URLRequestPubNubTests: XCTestCase {
 
     XCTAssertEqual(request.method, .post)
   }
-
-  func testHeaders_Get() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
-    var request = URLRequest(url: url)
-
-    let dictionary = [
-      "key": "value",
-      "otherKey": "otherValue"
-    ]
-
-    request.allHTTPHeaderFields = dictionary
-    let headers = HTTPHeaders(dictionary)
-
-    XCTAssertEqual(request.headers.allHTTPHeaderFields,
-                   headers.allHTTPHeaderFields)
-  }
-
-  func testHeaders_GetNil() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
-    var request = URLRequest(url: url)
-    request.allHTTPHeaderFields = nil
-
-    XCTAssertEqual(request.headers, [])
-  }
-
-  func testHeaders_Set() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
-    var request = URLRequest(url: url)
-
-    let dictionary = [
-      "key": "value",
-      "otherKey": "otherValue"
-    ]
-    let headers = HTTPHeaders(dictionary)
-
-    request.headers = headers
-
-    XCTAssertEqual(request.allHTTPHeaderFields, dictionary)
-  }
 }

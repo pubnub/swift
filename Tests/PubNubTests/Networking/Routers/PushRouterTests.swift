@@ -1,5 +1,5 @@
 //
-//  PushEndpointTests.swift
+//  PushRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,42 +28,33 @@
 @testable import PubNub
 import XCTest
 
-final class PushEndpointTests: XCTestCase {
+final class PushRouterTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
   let testChannels = ["TestChannel", "OtherChannel"]
 
   let hexString = "815ee724ccb0a6a84dc303be8ccbaa00d1c84dde6bcae6721b08f92100951113"
+}
 
-  // MARK: - List Push Channels
+// MARK: - List Push Channels
 
-  func testListPushProvisions_Endpoint() {
+extension PushRouterTests {
+  func testListPushProvisions_Router() {
     guard let data = Data(hexEncodedString: "A1B2") else {
       return XCTFail("Could not encode Data from hex string")
     }
-    let endpoint = Endpoint.listPushChannels(pushToken: data, pushType: .apns)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .apns), configuration: config)
 
-    XCTAssertEqual(endpoint.description, "List Push Channels")
-    XCTAssertEqual(endpoint.category, .listPushChannels)
-    XCTAssertEqual(endpoint.operationCategory, .push)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "List Push Channels")
+    XCTAssertEqual(router.category, "List Push Channels")
+    XCTAssertEqual(router.service, .push)
   }
 
-  func testListPushProvisions_Endpoint_ValidationError() {
-    let endpoint = Endpoint.listPushChannels(pushToken: Data(), pushType: .apns)
+  func testListPushProvisions_Router_ValidationError() {
+    let router = PushRouter(.listPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testListPushProvisions_Endpoint_AssociatedValues() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
-    let endpoint = Endpoint.listPushChannels(pushToken: data, pushType: .apns)
-
-    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, data)
-    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
 
   func testListPushRegistration_Success() {
@@ -133,50 +124,34 @@ final class PushEndpointTests: XCTestCase {
         case .success:
           XCTFail("This should not succeed")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .pushNotEnabled))
+          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Modify Push Channels Tests
+// MARK: - Modify Push Channels Tests
 
-  func testModifyPushChannels_Endpoint() {
+extension PushRouterTests {
+  func testModifyPushChannels_Router() {
     guard let data = Data(hexEncodedString: "A1B2") else {
       return XCTFail("Could not encode Data from hex string")
     }
-    let endpoint = Endpoint.modifyPushChannels(pushToken: data,
-                                               pushType: .apns,
-                                               addChannels: testChannels,
-                                               removeChannels: [])
 
-    XCTAssertEqual(endpoint.description, "Modify Push Channels")
-    XCTAssertEqual(endpoint.category, .modifyPushChannels)
-    XCTAssertEqual(endpoint.operationCategory, .push)
-    XCTAssertNil(endpoint.validationError)
+    let router = PushRouter(.modifyPushChannels(pushToken: data, pushType: .apns, joining: testChannels, leaving: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Modify Push Channels")
+    XCTAssertEqual(router.category, "Modify Push Channels")
+    XCTAssertEqual(router.service, .push)
   }
 
-  func testListModifyPushChannels_Endpoint_ValidationError() {
-    let endpoint = Endpoint.modifyPushChannels(pushToken: Data(),
-                                               pushType: .apns,
-                                               addChannels: [],
-                                               removeChannels: [])
+  func testListModifyPushChannels_Router_ValidationError() {
+    let router = PushRouter(.modifyPushChannels(pushToken: Data(), pushType: .apns, joining: [], leaving: []), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testListModifyPushChannels_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.modifyPushChannels(pushToken: Data(),
-                                               pushType: .apns,
-                                               addChannels: ["SomeChannel"],
-                                               removeChannels: ["OtherChannel"])
-
-    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, Data())
-    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
-    XCTAssertEqual(endpoint.associatedValue["addChannels"] as? [String], ["SomeChannel"])
-    XCTAssertEqual(endpoint.associatedValue["removeChannels"] as? [String], ["OtherChannel"])
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
 
   func testModifyPush_Success() {
@@ -221,7 +196,7 @@ final class PushEndpointTests: XCTestCase {
         case .success:
           XCTFail("This should not succeed")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .pushNotEnabled))
+          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
         }
         expectation.fulfill()
       }
@@ -246,37 +221,34 @@ final class PushEndpointTests: XCTestCase {
         case .success:
           XCTFail("This should not succeed")
         case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(reason: .invalidDevicePushToken))
+          XCTAssertEqual(error.pubNubError, PubNubError(.invalidDevicePushToken))
         }
         expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
   }
+}
 
-  // MARK: - Remove All Push Channels Tests
+// MARK: - Remove All Push Channels Tests
 
-  func testRemoveAllPushChannels_Endpoint() {
+extension PushRouterTests {
+  func testRemoveAllPushChannels_Router() {
     guard let data = Data(hexEncodedString: "A1B2") else {
       return XCTFail("Could not encode Data from hex string")
     }
-    let endpoint = Endpoint.removeAllPushChannels(pushToken: data, pushType: .apns)
 
-    XCTAssertEqual(endpoint.description, "Remove All Push Channels")
-    XCTAssertEqual(endpoint.category, .removeAllPushChannels)
+    let router = PushRouter(.removeAllPushChannels(pushToken: data, pushType: .apns), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Remove All Push Channels")
+    XCTAssertEqual(router.category, "Remove All Push Channels")
+    XCTAssertEqual(router.service, .push)
   }
 
-  func testRemoveAllPushChannels_Endpoint_ValidationError() {
-    let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
+  func testRemoveAllPushChannels_Router_ValidationError() {
+    let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testRemoveAllPushChannels_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.removeAllPushChannels(pushToken: Data(), pushType: .apns)
-
-    XCTAssertEqual(endpoint.associatedValue["pushToken"] as? Data, Data())
-    XCTAssertEqual(endpoint.associatedValue["pushType"] as? Endpoint.PushType, .apns)
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
 
   func testRemoveAllPush_Success() {

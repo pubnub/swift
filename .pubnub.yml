@@ -1,9 +1,27 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.1.2"
+version: "2.2.0"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"
+        type: improvement
+      - test: "Removed `PubNubRouter`, and replaced with multiple service specific `HTTPRouter` implementations"
+        type: improvement
+      - test: "Removed `Endpoint` type"
+        type: improvement
+      - test: "Renamed `Response` to `EndpointResponse`"
+        type: improvement
+      - test: "Removed `HTTPHeader` & `HTTPHeader`, and replaced with `[String: String]`"
+        type: improvement
+      - test: "Renamed `Session` to `HTTPSession` and made it an internal type"
+        type: improvement
+      - test: "Created `RequestReplaceable` and made `Request` an internal type"
+        type: improvement
+    date: 2019-11-14
+    version: v2.2.0
   -
     changes:
       - test: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"

@@ -39,7 +39,7 @@ public struct InstanceIdOperator: RequestOperator {
 
   public func mutate(
     _ urlRequest: URLRequest,
-    for _: Session,
+    for _: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     var mutatedRequest = urlRequest

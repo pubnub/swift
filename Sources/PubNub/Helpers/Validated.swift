@@ -32,6 +32,9 @@ public protocol Validated {
   ///
   /// Required
   var validationError: Error? { get }
+
+  /// `String` describing why the error occurred
+  var validationErrorDetail: String? { get }
 }
 
 extension Validated {
@@ -46,5 +49,16 @@ extension Validated {
       return .failure(error)
     }
     return .success(self)
+  }
+
+  public var validationErrorDetail: String? {
+    return nil
+  }
+
+  func isInvalidForReason(_ values: (Bool, String)...) -> String? {
+    for (invalidValue, message) in values where invalidValue {
+      return message
+    }
+    return nil
   }
 }

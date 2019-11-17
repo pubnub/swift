@@ -66,7 +66,7 @@ public class SubscribeSessionFactory {
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     return sessions.lockedWrite { dictionary in
-      let sessionReplaceable = session ?? Session(configuration: URLSessionConfiguration.subscription)
+      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription)
       let subscriptionSession = SubscriptionSession(configuration: config,
                                                     network: sessionReplaceable)
       dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)
@@ -91,7 +91,7 @@ public protocol SubscriptionConfiguration: RouterConfiguration {
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  var durationUntilTimeout: Int { get }
+  var durationUntilTimeout: UInt { get }
   /// How often (in seconds) the client will announce itself to server
   ///
   /// - NOTE: The minimum value this field can be is 0

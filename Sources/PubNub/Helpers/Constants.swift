@@ -62,7 +62,7 @@ struct Constant {
   }()
 
   static let pubnubSwiftSDKVersion: String = {
-    guard let pubnubInfo = Bundle(for: Session.self).infoDictionary,
+    guard let pubnubInfo = Bundle(for: HTTPSession.self).infoDictionary,
       let build = pubnubInfo["CFBundleShortVersionString"] else {
       return "?.?.?"
     }
@@ -94,26 +94,6 @@ struct Constant {
 
   static let pnSDKURLQueryItem: URLQueryItem = {
     URLQueryItem(name: "pnsdk", value: pnSDKQueryParameterValue)
-  }()
-
-  static let defaultUserAgent: String = {
-    let userAgent: String = {
-      let appNameVersion: String = {
-        "\(Constant.appBundleId)/\(Constant.appVersion)"
-      }()
-
-      let osNameVersion: String = {
-        "\(Constant.operatingSystemName) \(Constant.operatingSystemVersion)"
-      }()
-
-      let pubnubVersion: String = {
-        "\(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
-      }()
-
-      return "\(appNameVersion) (\(osNameVersion)) \(pubnubVersion)"
-    }()
-
-    return userAgent
   }()
 
   static let minimumSubscribeRequestTimeout: TimeInterval = {
@@ -158,5 +138,64 @@ struct Constant {
                                                                   negativeInfinity: negativeInfinty,
                                                                   nan: notANumber)
     return encoder
+  }()
+}
+
+// MARK: - Header Key/Values
+
+extension Constant {
+  /// Produces a `Accept-Encoding` header according to
+  /// [RFC7231 section 5.3.4](https://tools.ietf.org/html/rfc7231#section-5.3.4)
+  public static let acceptEncodingHeaderKey = {
+    "Accept-Encoding"
+  }()
+
+  /// The default `Accept-Encoding` used for PubNub requests
+  public static let defaultAcceptEncodingHeader: String = {
+    let encodings: [String]
+    // Brotli (br) support added in iOS 11 https://9to5mac.com/2017/06/21/apple-ios-11-beta-2/
+    if #available(iOS 11.0, macOS 10.13, tvOS 11.0, watchOS 4.0, *) {
+      encodings = ["br", "gzip", "deflate"]
+    } else {
+      encodings = ["gzip", "deflate"]
+    }
+    return encodings.headerQualityEncoded
+  }()
+
+  /// Produces a `Content-Type` header according to
+  /// [RFC7231 section 3.1.1.5](https://tools.ietf.org/html/rfc7231#section-3.1.1.5)
+  public static let contentTypeHeaderKey = {
+    "Content-Type"
+  }()
+
+  /// The default `Content-Type` used for PubNub requests
+  public static let defaultContentTypeHeader = {
+    "application/json; charset=UTF-8"
+  }()
+
+  /// Produces a `User-Agent` header according to
+  /// [RFC7231 section 5.5.3](https://tools.ietf.org/html/rfc7231#section-5.5.3)
+  public static let userAgentHeaderKey = {
+    "User-Agent"
+  }()
+
+  static let defaultUserAgentHeader: String = {
+    let userAgent: String = {
+      let appNameVersion: String = {
+        "\(Constant.appBundleId)/\(Constant.appVersion)"
+      }()
+
+      let osNameVersion: String = {
+        "\(Constant.operatingSystemName) \(Constant.operatingSystemVersion)"
+      }()
+
+      let pubnubVersion: String = {
+        "\(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
+      }()
+
+      return "\(appNameVersion) (\(osNameVersion)) \(pubnubVersion)"
+    }()
+
+    return userAgent
   }()
 }

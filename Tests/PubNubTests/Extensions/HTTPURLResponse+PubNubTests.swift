@@ -31,29 +31,6 @@ import XCTest
 final class HTTPURLResponsePubNubTests: XCTestCase {
   let url: URL! = URL(string: "https://example.com")
 
-  func testHeaders() {
-    let headers = [
-      "HeaderKey": "HeaderValue",
-      "TestKey": "TestValue"
-    ]
-
-    let httpHeaders = HTTPHeaders(headers)
-    let response = HTTPURLResponse(url: url,
-                                   statusCode: 200,
-                                   httpVersion: "1.2",
-                                   headerFields: headers)
-
-    guard let responseHeaders = response?.headers else {
-      XCTFail("Reponse headers was nil")
-      return
-    }
-
-    XCTAssertEqual(
-      responseHeaders.allHTTPHeaderFields,
-      httpHeaders.allHTTPHeaderFields
-    )
-  }
-
   func testIsSuccessful_True() {
     guard let response = HTTPURLResponse(
       url: url,

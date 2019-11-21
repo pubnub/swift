@@ -139,8 +139,8 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   }
 
   public func retry(
-    _ request: Request,
-    for _: Session,
+    _ request: RequestReplaceable,
+    for _: SessionReplaceable,
     dueTo error: Error,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   ) {

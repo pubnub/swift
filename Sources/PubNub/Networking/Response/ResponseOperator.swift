@@ -39,7 +39,7 @@ public protocol ResponseDecoder where Payload: Codable {
   ///   - response: The raw `Response` to be decoded
   ///   - decoder: The `ResponseDecoder` used to decode the raw response data
   /// - Returns: The decoded payload or the error that occurred during the decoding process
-  func decode(response: Response<Data>) -> Result<Response<Payload>, Error>
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<Payload>, Error>
 
   /// The method called when attempting to decode the response error data for a given Endpoint
   ///
@@ -49,30 +49,30 @@ public protocol ResponseDecoder where Payload: Codable {
   ///   - response: The `HTTPURLResponse` that was returned
   ///   - for: The `ResponseDecoder` used to decode the raw response data
   /// - Returns: The `PubNubError` that represents the response error
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
+  func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError?
 
   /// The method called when attempting to decode the response error data for a given Endpoint
   ///
   /// - Parameters:
   ///   - response: The response to be decrypted
   /// - Returns: The decrypted Payload or an Error
-  func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error>
+  func decrypt(response: EndpointResponse<Payload>) -> Result<EndpointResponse<Payload>, Error>
 }
 
 extension ResponseDecoder {
-  func decodeError(endpoint: Endpoint, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
-    return decodeDefaultError(endpoint: endpoint, request: request, response: response, for: data)
+  func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
+    return decodeDefaultError(router: router, request: request, response: response, for: data)
   }
 
-  func decode(response: Response<Data>) -> Result<Response<Payload>, Error> {
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<Payload>, Error> {
     do {
       let decodedPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
 
-      let decodedResponse = Response<Payload>(router: response.router,
-                                              request: response.request,
-                                              response: response.response,
-                                              data: response.data,
-                                              payload: decodedPayload)
+      let decodedResponse = EndpointResponse<Payload>(router: response.router,
+                                                      request: response.request,
+                                                      response: response.response,
+                                                      data: response.data,
+                                                      payload: decodedPayload)
 
       return .success(decodedResponse)
     } catch {
@@ -80,12 +80,12 @@ extension ResponseDecoder {
     }
   }
 
-  func decrypt(response: Response<Payload>) -> Result<Response<Payload>, Error> {
+  func decrypt(response: EndpointResponse<Payload>) -> Result<EndpointResponse<Payload>, Error> {
     return .success(response)
   }
 
   func decodeDefaultError(
-    endpoint: Endpoint,
+    router: HTTPRouter,
     request: URLRequest,
     response: HTTPURLResponse,
     for data: Data
@@ -94,7 +94,7 @@ extension ResponseDecoder {
     let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data)
 
     return PubNubError(reason: generalErrorPayload?.pubnubReason,
-                       endpoint: endpoint, request: request, response: response,
+                       router: router, request: request, response: response,
                        affected: generalErrorPayload?.details)
   }
 }
@@ -102,16 +102,10 @@ extension ResponseDecoder {
 // MARK: - Request: Response Handling
 
 extension Request {
-  /// The directions on how to process the response when it comes back from the `Endpoint`
-  ///
-  /// - Parameters:
-  ///   - on: The queue the completion block will be returned on
-  ///   - decoder: The decoder used to determine the response type
-  ///   - completion: The completion block being returned with the decode response data or the error that occurred
   public func response<D: ResponseDecoder>(
     on queue: DispatchQueue = .main,
     decoder responseDecoder: D,
-    completion: @escaping (Result<Response<D.Payload>, Error>) -> Void
+    completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   ) {
     appendResponseCompletion { result in
       queue.async {
@@ -128,16 +122,16 @@ extension Request {
     }
   }
 
-  func appendResponseCompletion(_ closure: @escaping (Result<Response<Data>, Error>) -> Void) {
+  func appendResponseCompletion(_ closure: @escaping (Result<EndpointResponse<Data>, Error>) -> Void) {
     // Add the completion closure to the request and wait for it to complete
     atomicState.lockedWrite { mutableState in
       mutableState.responseCompletionClosure = closure
     }
   }
 
-  func processResponseCompletion(_ result: Result<Response<Data>, Error>) {
+  func processResponseCompletion(_ result: Result<EndpointResponse<Data>, Error>) {
     // Request is now complete, so fire the stored completion closure
-    var responseCompletion: ((Result<Response<Data>, Error>) -> Void)?
+    var responseCompletion: ((Result<EndpointResponse<Data>, Error>) -> Void)?
 
     atomicState.lockedWrite { state in
       responseCompletion = state.responseCompletionClosure

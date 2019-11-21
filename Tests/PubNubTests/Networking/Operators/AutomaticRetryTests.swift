@@ -163,7 +163,7 @@ class AutomaticRetryTests: XCTestCase {
                                        headerFields: [:])
 
     XCTAssertTrue(testPolicy.shouldRetry(response: testResponse,
-                                         error: PubNubError(reason: .unknown)))
+                                         error: PubNubError(.unknown)))
   }
 
   func testShouldRetry_True_ErrorCodeMatch() {

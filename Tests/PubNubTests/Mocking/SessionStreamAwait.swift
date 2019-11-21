@@ -38,7 +38,7 @@ final class SessionExpector {
   }
 
   // URLRequest Building
-  func expectDidCreateURLRequest(fullfil count: Int = 1, closure: @escaping (Request, URLRequest) -> Void) {
+  func expectDidCreateURLRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable, URLRequest) -> Void) {
     let expectation = XCTestExpectation(description: "didCreateURLRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didCreateURLRequest = { request, urlRequest in
@@ -48,7 +48,10 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidFailToCreateURLRequestWithError(fullfil count: Int = 1, closure: @escaping (Request, Error) -> Void) {
+  func expectDidFailToCreateURLRequestWithError(
+    fullfil count: Int = 1,
+    closure: @escaping (RequestReplaceable, Error) -> Void
+  ) {
     let expectation = XCTestExpectation(description: "didFailToCreateURLRequestWithError")
     expectation.expectedFulfillmentCount = count
     sessionListener.didFailToCreateURLRequestWithError = { request, error in
@@ -59,7 +62,7 @@ final class SessionExpector {
   }
 
   // URLSessionTask States
-  func expectDidCreateTask(fullfil count: Int = 1, closure: @escaping (Request, URLSessionTask) -> Void) {
+  func expectDidCreateTask(fullfil count: Int = 1, closure: @escaping (RequestReplaceable, URLSessionTask) -> Void) {
     let expectation = XCTestExpectation(description: "didCreateTask")
     expectation.expectedFulfillmentCount = count
     sessionListener.didCreateTask = { request, task in
@@ -69,7 +72,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidResumeTask(fullfil count: Int = 1, closure: @escaping (Request, URLSessionTask) -> Void) {
+  func expectDidResumeTask(fullfil count: Int = 1, closure: @escaping (RequestReplaceable, URLSessionTask) -> Void) {
     let expectation = XCTestExpectation(description: "didResumeTask")
     expectation.expectedFulfillmentCount = count
     sessionListener.didResumeTask = { request, task in
@@ -79,7 +82,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidCancelTask(fullfil count: Int = 1, closure: @escaping (Request, URLSessionTask) -> Void) {
+  func expectDidCancelTask(fullfil count: Int = 1, closure: @escaping (RequestReplaceable, URLSessionTask) -> Void) {
     let expectation = XCTestExpectation(description: "didCancelTask")
     expectation.expectedFulfillmentCount = count
     sessionListener.didCancelTask = { request, task in
@@ -89,7 +92,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidCompleteTask(fullfil count: Int = 1, closure: @escaping (Request, URLSessionTask) -> Void) {
+  func expectDidCompleteTask(fullfil count: Int = 1, closure: @escaping (RequestReplaceable, URLSessionTask) -> Void) {
     let expectation = XCTestExpectation(description: "didCompleteTask")
     expectation.expectedFulfillmentCount = count
     sessionListener.didCompleteTask = { request, task in
@@ -101,7 +104,7 @@ final class SessionExpector {
 
   func expectDidCompleteTaskWithError(
     fullfil count: Int = 1,
-    closure: @escaping (Request, URLSessionTask, Error) -> Void
+    closure: @escaping (RequestReplaceable, URLSessionTask, Error) -> Void
   ) {
     let expectation = XCTestExpectation(description: "didCompleteTaskWithError")
     expectation.expectedFulfillmentCount = count
@@ -113,7 +116,7 @@ final class SessionExpector {
   }
 
   // Request States
-  func expectDidResumeRequest(fullfil count: Int = 1, closure: @escaping (Request) -> Void) {
+  func expectDidResumeRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable) -> Void) {
     let expectation = XCTestExpectation(description: "didResumeRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didResumeRequest = { request in
@@ -123,7 +126,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidFinishRequest(fullfil count: Int = 1, closure: @escaping (Request) -> Void) {
+  func expectDidFinishRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable) -> Void) {
     let expectation = XCTestExpectation(description: "didFinishRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didFinishRequest = { request in
@@ -133,7 +136,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidCancelRequest(fullfil count: Int = 1, closure: @escaping (Request) -> Void) {
+  func expectDidCancelRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable) -> Void) {
     let expectation = XCTestExpectation(description: "didCancelRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didCancelRequest = { request in
@@ -143,7 +146,7 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidRetryRequest(fullfil count: Int = 1, closure: @escaping (Request) -> Void) {
+  func expectDidRetryRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable) -> Void) {
     print("expectDidRetryRequest")
     let expectation = XCTestExpectation(description: "didRetryRequest")
     expectation.expectedFulfillmentCount = count
@@ -155,7 +158,10 @@ final class SessionExpector {
   }
 
   // Request Mutator
-  func expectDidMutateRequest(fullfil count: Int = 1, closure: @escaping (Request, URLRequest, URLRequest) -> Void) {
+  func expectDidMutateRequest(
+    fullfil count: Int = 1,
+    closure: @escaping (RequestReplaceable, URLRequest, URLRequest) -> Void
+  ) {
     let expectation = XCTestExpectation(description: "didMutateRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didMutateRequest = { request, initialURLRequest, mutatedURLRequest in
@@ -165,7 +171,10 @@ final class SessionExpector {
     expectations.append(expectation)
   }
 
-  func expectDidFailToMutateRequest(fullfil count: Int = 1, closure: @escaping (Request, URLRequest, Error) -> Void) {
+  func expectDidFailToMutateRequest(
+    fullfil count: Int = 1,
+    closure: @escaping (RequestReplaceable, URLRequest, Error) -> Void
+  ) {
     let expectation = XCTestExpectation(description: "didFailToMutateRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didFailToMutateRequest = { request, initialURLRequest, error in

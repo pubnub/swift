@@ -66,15 +66,15 @@ extension SubscriptionSession {
     }
 
     // Perform Heartbeat
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .heartbeat(channels: channels,
-                                                   groups: groups,
-                                                   presenceTimeout: configuration.durationUntilTimeout))
+    let router = PresenceRouter(
+      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.durationUntilTimeout),
+      configuration: configuration
+    )
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: GenericServiceResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: GenericServiceResponseDecoder()) { [weak self] result in
         switch result {
         case .success:
           // If the connection is active register a new heartbeat otherwise stop the timer
@@ -96,13 +96,12 @@ extension SubscriptionSession {
     and groups: [String],
     completion: @escaping (Result<Bool, Error>) -> Void
   ) {
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .leave(channels: channels, groups: groups))
+    let router = PresenceRouter(.leave(channels: channels, groups: groups), configuration: configuration)
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: GenericServiceResponseDecoder()) { result in
+      .response(on: .main, decoder: GenericServiceResponseDecoder()) { result in
         switch result {
         case .success:
           completion(.success(true))
@@ -120,13 +119,13 @@ extension SubscriptionSession {
     and groups: [String],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
   ) {
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .getPresenceState(uuid: uuid, channels: channels, groups: groups))
+    let router = PresenceRouter(.getState(uuid: uuid, channels: channels, groups: groups),
+                                configuration: configuration)
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: AnyJSONResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: AnyJSONResponseDecoder()) { [weak self] result in
 
         completion(result.flatMap { response in
           let normalizedState: [String: [String: AnyJSON]]
@@ -160,13 +159,13 @@ extension SubscriptionSession {
     and groups: [String],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
   ) {
-    let router = PubNubRouter(configuration: configuration,
-                              endpoint: .setPresenceState(channels: channels, groups: groups, state: state))
+    let router = PresenceRouter(.setState(channels: channels, groups: groups, state: state),
+                                configuration: configuration)
 
     networkSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(decoder: SetPresenceStateResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: SetPresenceStateResponseDecoder()) { [weak self] result in
         completion(result.map { response in
           // Get mapping of channels/groups to new state
           let normalizedState = response.payload.normalizedPayload(using: channels + groups)

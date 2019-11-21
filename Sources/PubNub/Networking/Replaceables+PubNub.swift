@@ -79,13 +79,7 @@ public protocol SessionReplaceable {
   ///   -  with: The `Router` used to create the `Request`
   ///   -  requestOperator: The operator specific to this `Request`
   /// - returns: This created `Request`
-  func request(with router: Router, requestOperator: RequestOperator?) -> Request
-  /// Cancels all requests on a given `Endpoint` returning the provided error reason
-  ///
-  /// - Parameters:
-  ///   - reason: The reason for the cancellation
-  ///   - for: The endpoint whose requests will be cancelled
-  func cancelAllTasks(_ reason: PubNubError.Reason, for: Endpoint.Category)
+  func request(with router: HTTPRouter, requestOperator: RequestOperator?) -> RequestReplaceable
   /// Cancels all outstanding tasks and then invalidates the session.
   ///
   /// Once invalidated, references to the delegate and callback objects are broken.
@@ -94,4 +88,48 @@ public protocol SessionReplaceable {
   func invalidateAndCancel()
 }
 
-extension Session: SessionReplaceable {}
+extension HTTPSession: SessionReplaceable {}
+
+public protocol RequestReplaceable: AnyObject {
+  var sessionID: UUID { get }
+  var requestID: UUID { get }
+  var router: HTTPRouter { get }
+  var requestQueue: DispatchQueue { get }
+  var requestOperator: RequestOperator? { get }
+
+  var urlRequest: URLRequest? { get }
+  var urlResponse: HTTPURLResponse? { get }
+
+  func didCreate(_ urlRequest: URLRequest)
+  func didFailToCreateURLRequest(with error: Error)
+  func didCreate(_ task: URLSessionTask)
+
+  func didMutate(_ initialRequest: URLRequest, to mutatedRequest: URLRequest)
+  func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error)
+
+  func didReceive(data: Data)
+  func didComplete(_ task: URLSessionTask)
+  func didComplete(_ task: URLSessionTask, with error: Error)
+
+  var retryCount: Int { get }
+  var isCancelled: Bool { get }
+  var cancellationReason: PubNubError.Reason? { get set }
+  func prepareForRetry()
+
+  @discardableResult
+  func cancel(_ error: Error?) -> Self
+  func validate() -> Self
+  /// The directions on how to process the response when it comes back from the `Endpoint`
+  ///
+  /// - Parameters:
+  ///   - on: The queue the completion block will be returned on
+  ///   - decoder: The decoder used to determine the response type
+  ///   - completion: The completion block being returned with the decode response data or the error that occurred
+  func response<D: ResponseDecoder>(
+    on: DispatchQueue,
+    decoder: D,
+    completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
+  )
+}
+
+extension Request: RequestReplaceable {}

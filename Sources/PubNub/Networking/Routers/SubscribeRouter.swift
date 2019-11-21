@@ -1,5 +1,5 @@
 //
-//  SubscribeEndpoint.swift
+//  SubscribeRouter.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -26,6 +26,80 @@
 //
 
 import Foundation
+
+// MARK: - Router
+
+struct SubscribeRouter: HTTPRouter {
+  // Nested Endpoint
+  enum Endpoint: CustomStringConvertible {
+    case subscribe(channels: [String], groups: [String], timetoken: Timetoken?, region: String?,
+                   state: [String: [String: JSONCodable]]?, heartbeat: UInt?, filter: String?)
+
+    var description: String {
+      switch self {
+      case .subscribe:
+        return "Subscribe"
+      }
+    }
+  }
+
+  // Init
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+    self.endpoint = endpoint
+    self.configuration = configuration
+  }
+
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
+
+  // Protocol Properties
+  var service: PubNubService {
+    return .subscribe
+  }
+
+  var category: String {
+    return endpoint.description
+  }
+
+  var path: Result<String, Error> {
+    let path: String
+
+    switch endpoint {
+    case .subscribe(let channels, _, _, _, _, _, _):
+      path = "/v2/subscribe/\(subscribeKey)/\(channels.commaOrCSVString.urlEncodeSlash)/0"
+    }
+
+    return .success(path)
+  }
+
+  var queryItems: Result<[URLQueryItem], Error> {
+    var query = defaultQueryItems
+
+    switch endpoint {
+    case let .subscribe(_, groups, timetoken, region, state, heartbeat, filter):
+      query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.appendIfPresent(key: .timetokenShort, value: timetoken?.description)
+      query.appendIfPresent(key: .regionShort, value: region?.description)
+      query.appendIfPresent(key: .filter, value: filter)
+      query.appendIfPresent(key: .heartbeat, value: heartbeat?.description)
+      return state?.mapValues { $0.mapValues { $0.codableValue } }
+        .encodableJSONString
+        .map { json in
+          query.append(URLQueryItem(key: .state, value: json))
+          return query
+        } ?? .success(query)
+    }
+  }
+
+  // Validated
+  var validationErrorDetail: String? {
+    switch endpoint {
+    case let .subscribe(channels, groups, _, _, _, _, _):
+      return isInvalidForReason(
+        (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
+    }
+  }
+}
 
 // MARK: - Response Decoder
 
@@ -83,7 +157,7 @@ struct SubscribeResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-public typealias SubscriptionResponse = Response<SubscriptionResponsePayload>
+public typealias SubscriptionResponse = EndpointResponse<SubscriptionResponsePayload>
 
 public struct SubscriptionResponsePayload: Codable {
   // Root Level

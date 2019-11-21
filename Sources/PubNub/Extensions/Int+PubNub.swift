@@ -27,9 +27,10 @@
 
 import Foundation
 
-public extension Int64 {
+public extension Timetoken {
   /// The `Date` that the timetoken represents
   var timetokenDate: Date {
+    // No direct conversion of UInt64 (Timetoken) to TimeInterval, so cast to Int64
     return Date(timeIntervalSince1970: TimeInterval(integerLiteral: Int64(self / 10_000_000)))
   }
 }

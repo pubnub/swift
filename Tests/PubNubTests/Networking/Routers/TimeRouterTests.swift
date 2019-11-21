@@ -1,5 +1,5 @@
 //
-//  PubNubTests.swift
+//  TimeRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,20 +28,44 @@
 @testable import PubNub
 import XCTest
 
-final class PubNubTests: XCTestCase {
-  let testBundle = Bundle(for: PubNubTests.self)
-  var pubnub: PubNub!
+class TimeRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
-  func testInit_DefaultConfig() {
-    XCTAssertEqual(PubNub().configuration, PubNubConfiguration.default)
+  func testTime_Endpoint() {
+    let router = TimeRouter(.time, configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Time")
+    XCTAssertEqual(router.category, "Time")
+    XCTAssertEqual(try? router.path.get(), "/time/0")
+    XCTAssertEqual(try? router.queryItems.get(), router.defaultQueryItems)
+    XCTAssertEqual(router.pamVersion, .none)
+    XCTAssertEqual(router.keysRequired, .none)
+    XCTAssertEqual(router.service, .time)
   }
 
-  func testInit_CustomConfig() {
-    let customConfig = PubNubConfiguration(from: testBundle)
+  func testTime_Endpoint_ValidationError() {
+    let router = TimeRouter(.time, configuration: config)
 
-    let pubnub = PubNub(configuration: customConfig)
+    XCTAssertEqual(router.validationError?.pubNubError, nil)
+  }
 
-    XCTAssertNotEqual(pubnub.configuration, PubNubConfiguration.default)
+  func testTime_Success() {
+    let expectation = self.expectation(description: "Time Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session).time { result in
+      switch result {
+      case let .success(payload):
+        XCTAssertEqual(payload.timetoken, 15_643_405_135_132_358)
+      case let .failure(error):
+        XCTFail("Time request failed with error: \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
   }
 }

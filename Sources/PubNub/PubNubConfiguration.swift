@@ -107,7 +107,7 @@ public struct PubNubConfiguration: Hashable {
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  public var durationUntilTimeout: Int = 300 {
+  public var durationUntilTimeout: UInt = 300 {
     didSet {
       if durationUntilTimeout < 20 {
         durationUntilTimeout = 20

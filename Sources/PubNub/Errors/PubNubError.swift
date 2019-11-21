@@ -40,12 +40,7 @@ public struct PubNubError: Error {
   let coorelation: [CorrelationIdentifier]
   let affected: [AffectedValue]
 
-  /// The Endpoint category the error is associated with
-  public let endpointCategory: Endpoint.Category
-  /// The domain of the Endpoint the error is associated with
-  public var endpointDomain: Endpoint.OperationType {
-    return endpointCategory.operationCategory
-  }
+  let router: HTTPRouter?
 
   /// The domain of the `Error`
   public let domain = "PubNub"
@@ -212,13 +207,13 @@ public struct PubNubError: Error {
 
   init(
     _ reason: Reason,
-    endpoint category: Endpoint.Category,
+    router: HTTPRouter? = nil,
     coorelation identifiers: [CorrelationIdentifier] = [],
     underlying error: Error? = nil,
     additional details: [String] = [],
     affected values: [AffectedValue] = []
   ) {
-    endpointCategory = category
+    self.router = router
     self.reason = reason
     coorelation = identifiers
     underlying = error
@@ -226,17 +221,9 @@ public struct PubNubError: Error {
     affected = values
   }
 
-  init(reason: Reason) {
-    self.init(reason, endpoint: Endpoint.unknown)
-  }
-
-  init(_ reason: Reason, endpoint: Endpoint, error: Error? = nil) {
-    self.init(reason, endpoint: endpoint.category, underlying: error)
-  }
-
   init(
     reason: Reason?,
-    endpoint: Endpoint,
+    router: HTTPRouter,
     request: URLRequest,
     response: HTTPURLResponse,
     affected details: [ErrorDetail]? = nil
@@ -244,26 +231,26 @@ public struct PubNubError: Error {
     let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
 
     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
-              endpoint: endpoint.category,
+              router: router,
               additional: details?.compactMap { $0.message } ?? [],
               affected: [.request(request), .response(response)])
   }
 
-  init(router: Router, request: URLRequest, response: HTTPURLResponse) {
+  init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {
     self.init(PubNubError.Reason(rawValue: response.statusCode) ?? .unknown,
-              endpoint: router.endpoint.category,
+              router: router,
               affected: [.request(request), .response(response)])
   }
 
-  init<ResponseType>(_ reason: Reason, response: Response<ResponseType>, error: Error? = nil) {
+  init<ResponseType>(_ reason: Reason, response: EndpointResponse<ResponseType>, error: Error? = nil) {
     if let error = error {
       self.init(reason,
-                endpoint: response.endpoint.category,
+                router: response.router,
                 underlying: error,
                 affected: [.request(response.request), .response(response.response)])
     }
     self.init(reason,
-              endpoint: response.endpoint.category,
+              router: response.router,
               affected: [.request(response.request), .response(response.response)])
   }
 }
@@ -283,49 +270,49 @@ extension PubNubError: Hashable {
 // MARK: - Error Coersion Helpers
 
 extension PubNubError {
-  static func convert(_ error: Error, router: Router, default reason: Reason = .unknown) -> PubNubError {
+  static func convert(_ error: Error, router: HTTPRouter, default reason: Reason = .unknown) -> PubNubError {
     if let pubnub = error.pubNubError {
       return pubnub
     } else if let reason = error.genericPubNubReason {
-      return PubNubError(reason, endpoint: router.endpoint.category, underlying: error)
+      return PubNubError(reason, router: router, underlying: error)
     } else {
-      return PubNubError(reason, endpoint: router.endpoint.category, underlying: error)
+      return PubNubError(reason, router: router, underlying: error)
     }
   }
 
-  static func urlCreation(_ error: Error, router: Router) -> PubNubError {
+  static func urlCreation(_ error: Error, router: HTTPRouter) -> PubNubError {
     return PubNubError.convert(error, router: router, default: .invalidURL)
   }
 
-  static func sessionDelegate(_ error: Error, router: Router) -> PubNubError {
+  static func sessionDelegate(_ error: Error, router: HTTPRouter) -> PubNubError {
     return PubNubError.convert(error, router: router, default: .unknown)
   }
 
-  static func retry(_ error: Error, router: Router) -> PubNubError {
+  static func retry(_ error: Error, router: HTTPRouter) -> PubNubError {
     return PubNubError.convert(error, router: router, default: .requestRetryFailed)
   }
 
-  static func cancellation(_ reason: Reason?, error: Error?, router: Router) -> PubNubError {
+  static func cancellation(_ reason: Reason?, error: Error?, router: HTTPRouter) -> PubNubError {
     if let reason = reason {
-      return PubNubError(reason, endpoint: router.endpoint, error: error)
+      return PubNubError(reason, router: router, underlying: error)
     }
 
     if let pubnub = error?.pubNubError {
       return pubnub
     } else if let urlError = error?.urlError {
-      return PubNubError(.clientCancelled, endpoint: router.endpoint.category, underlying: urlError)
+      return PubNubError(.clientCancelled, router: router, underlying: urlError)
     } else {
-      return PubNubError(.clientCancelled, endpoint: router.endpoint.category, underlying: error)
+      return PubNubError(.clientCancelled, router: router, underlying: error)
     }
   }
 
-  static func event(_ error: Error, endpoint category: Endpoint.Category) -> PubNubError {
+  static func event(_ error: Error, router: HTTPRouter?) -> PubNubError {
     if let pubnub = error.pubNubError {
       return pubnub
     } else if let urlError = error.urlError {
-      return PubNubError(.clientCancelled, endpoint: category, underlying: urlError)
+      return PubNubError(.clientCancelled, router: router, underlying: urlError)
     } else {
-      return PubNubError(.unknown, endpoint: category, underlying: error)
+      return PubNubError(.unknown, router: router, underlying: error)
     }
   }
 }

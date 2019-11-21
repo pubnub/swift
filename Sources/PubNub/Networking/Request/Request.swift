@@ -27,12 +27,12 @@
 
 import Foundation
 
-public final class Request {
-  enum TaskState: CustomStringConvertible {
-    case initialized
-    case resumed
-    case cancelled
-    case finished
+final class Request {
+  enum TaskState: String, CustomStringConvertible {
+    case initialized = "Initialized"
+    case resumed = "Resumed"
+    case cancelled = "Cancelled"
+    case finished = "Finished"
 
     func canTransition(to state: TaskState) -> Bool {
       switch (self, state) {
@@ -50,23 +50,14 @@ public final class Request {
     }
 
     var description: String {
-      switch self {
-      case .initialized:
-        return "Initialized"
-      case .resumed:
-        return "Resumed"
-      case .cancelled:
-        return "Cancelled"
-      case .finished:
-        return "Finished"
-      }
+      return rawValue
     }
   }
 
   struct InternalState {
     var taskState: TaskState = .initialized
 
-    var responseCompletionClosure: ((Result<Response<Data>, Error>) -> Void)?
+    var responseCompletionClosure: ((Result<EndpointResponse<Data>, Error>) -> Void)?
 
     var tasks: [URLSessionTask] = []
 
@@ -85,21 +76,21 @@ public final class Request {
     }
   }
 
-  public let sessionID: UUID
-  public let requestID: UUID = UUID()
-  public let router: Router
-  public let requestQueue: DispatchQueue
-  public let requestOperator: RequestOperator?
+  let sessionID: UUID
+  let requestID: UUID = UUID()
+  let router: HTTPRouter
+  let requestQueue: DispatchQueue
+  let requestOperator: RequestOperator?
 
-  public private(set) weak var delegate: RequestDelegate?
+  private(set) weak var delegate: RequestDelegate?
   let sessionStream: SessionStream?
 
   let atomicState: Atomic<InternalState> = Atomic(InternalState())
 
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
 
-  public init(
-    with router: Router,
+  init(
+    with router: HTTPRouter,
     requestQueue: DispatchQueue,
     sessionStream: SessionStream?,
     requestOperator: RequestOperator? = nil,
@@ -131,37 +122,33 @@ public final class Request {
     atomicState.lockedWrite { $0.purgeAll() }
   }
 
-  public var endpoint: Endpoint {
-    return router.endpoint
-  }
-
-  public var urlRequests: [URLRequest] {
+  var urlRequests: [URLRequest] {
     return atomicState.lockedRead { $0.urlRequests }
   }
 
-  public var urlRequest: URLRequest? {
+  var urlRequest: URLRequest? {
     return urlRequests.last
   }
 
-  public var tasks: [URLSessionTask] {
+  var tasks: [URLSessionTask] {
     return atomicState.lockedRead { $0.tasks }
   }
 
-  public var task: URLSessionTask? {
+  var task: URLSessionTask? {
     return tasks.last
   }
 
-  public var urlResponse: HTTPURLResponse? {
+  var urlResponse: HTTPURLResponse? {
     return task?.response as? HTTPURLResponse
   }
 
-  public var data: Data? {
+  var data: Data? {
     return atomicState.lockedRead { $0.responesData }
   }
 
   var cancellationReason: PubNubError.Reason?
 
-  public private(set) var error: Error? {
+  private(set) var error: Error? {
     get {
       return atomicState.lockedRead { $0.error }
     }
@@ -175,24 +162,24 @@ public final class Request {
     }
   }
 
-  public var previousErrors: [Error] {
+  var previousErrors: [Error] {
     return atomicState.lockedRead { $0.previousErrors }
   }
 
-  public var previousError: Error? {
+  var previousError: Error? {
     return previousErrors.last
   }
 
-  public var retryCount: Int {
+  var retryCount: Int {
     return atomicState.lockedRead { $0.retryCount }
   }
 
-  public var isCancelled: Bool {
-    return atomicState.lockedRead { $0.taskState == .cancelled }
+  var requestState: TaskState {
+    return atomicState.lockedRead { $0.taskState }
   }
 
-  func withTaskState(perform closure: (TaskState) -> Void) {
-    atomicState.lockedWrite { closure($0.taskState) }
+  var isCancelled: Bool {
+    return atomicState.lockedRead { $0.taskState == .cancelled }
   }
 
   // MARK: - Request Processing
@@ -250,6 +237,21 @@ public final class Request {
   func didCreate(_ task: URLSessionTask) {
     atomicState.lockedWrite { $0.tasks.append(task) }
     sessionStream?.emitRequest(self, didCreate: task)
+
+    switch requestState {
+    case .initialized:
+      resume()
+    case .resumed:
+      // URLDataTasks cannot be 'resumed' after starting, but this is called during a retry
+      task.resume()
+      didResume(task)
+    case .cancelled:
+      task.cancel()
+      didCancel(task)
+    case .finished:
+      // Do nothing
+      break
+    }
   }
 
   func didResume(_ task: URLSessionTask) {
@@ -316,7 +318,7 @@ public final class Request {
       return
     }
 
-    processResponseCompletion(atomicState.lockedRead { state -> Result<Response<Data>, Error> in
+    processResponseCompletion(atomicState.lockedRead { state -> Result<EndpointResponse<Data>, Error> in
 
       if let error = state.error {
         return .failure(error)
@@ -325,10 +327,10 @@ public final class Request {
       if let request = state.urlRequests.last,
         let response = state.tasks.last?.response as? HTTPURLResponse,
         let data = state.responesData {
-        return .success(Response(router: router, request: request, response: response, payload: data))
+        return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
       }
 
-      return .failure(PubNubError(.missingCriticalResponseData, endpoint: router.endpoint.category))
+      return .failure(PubNubError(.missingCriticalResponseData, router: router))
     })
 
     didFinish()
@@ -339,7 +341,7 @@ public final class Request {
 
 extension Request {
   @discardableResult
-  public func resume() -> Self {
+  func resume() -> Self {
     atomicState.lockedWrite { mutableState in
       guard mutableState.taskState.canTransition(to: .resumed) else {
         return
@@ -359,7 +361,7 @@ extension Request {
   }
 
   @discardableResult
-  public func cancel(_ error: Error? = nil) -> Self {
+  func cancel(_ error: Error? = nil) -> Self {
     let cancellationError = PubNubError.cancellation(cancellationReason,
                                                      error: error, router: router)
 
@@ -408,11 +410,11 @@ extension Request {
     return self
   }
 
-  public func validate() -> Self {
+  func validate() -> Self {
     return validate { router, request, response, data in
       if !response.isSuccessful {
         if let data = data, !data.trulyEmpty {
-          return router.decodeError(endpoint: router.endpoint, request: request, response: response, for: data)
+          return router.decodeError(request: request, response: response, for: data)
         }
         return PubNubError(router: router, request: request, response: response)
       }
@@ -424,25 +426,25 @@ extension Request {
 // MARK: - Hashable
 
 extension Request: Hashable {
-  public static func == (lhs: Request, rhs: Request) -> Bool {
+  static func == (lhs: Request, rhs: Request) -> Bool {
     return lhs.requestID == rhs.requestID
   }
 
-  public func hash(into hasher: inout Hasher) {
+  func hash(into hasher: inout Hasher) {
     hasher.combine(requestID)
   }
 }
 
 // MARK: - RequestDelegate
 
-public protocol RequestDelegate: AnyObject {
+protocol RequestDelegate: AnyObject {
   func retryResult(
-    for request: Request,
+    for request: RequestReplaceable,
     dueTo error: Error,
     andPrevious error: Error?,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   )
-  func retryRequest(_ request: Request, withDelay timeDelay: TimeInterval?)
+  func retryRequest(_ request: RequestReplaceable, withDelay timeDelay: TimeInterval?)
 }
 
 // swiftlint:disable:this file_length

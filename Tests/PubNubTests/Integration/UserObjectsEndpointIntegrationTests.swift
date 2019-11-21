@@ -29,13 +29,12 @@ import PubNub
 import XCTest
 
 class UserObjectsEndpointIntegrationTests: XCTestCase {
-  let testsBundle = Bundle(for: UserObjectsEndpointIntegrationTests.self)
+  let config = PubNubConfiguration(from: Bundle(for: UserObjectsEndpointIntegrationTests.self))
 
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     client.fetchUsers(include: .custom, limit: 100, count: true) { result in
       switch result {
@@ -53,8 +52,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUserCreateAndFetchEndpoint")
 
@@ -76,8 +74,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserDeleteAndCreateEndpoint() {
     let fetchExpect = expectation(description: "Create User Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUserDeleteAndCreateEndpoint")
 
@@ -99,8 +96,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserCreateAndUpdateEndpoint() {
     let fetchExpect = expectation(description: "Update User Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUserCreateAndUpdateEndpoint")
 
@@ -122,8 +118,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserCreateAndDeleteEndpoint() {
     let fetchExpect = expectation(description: "Delete User Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUserCreateAndDeleteEndpoint")
 
@@ -145,8 +140,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserFetchMemberships() {
     let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUserFetchMemberships")
     let space = SpaceObject(name: "Swift Membership ITest", id: "testUserFetchMembershipsSpace")
@@ -171,8 +165,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUpdateMemberships() {
     let updateMembershipExpect = expectation(description: "Update Membership Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
-    let client = PubNub(configuration: configuration)
+    let client = PubNub(configuration: config)
 
     let user = UserObject(name: "Swift ITest", id: "testUpdateMemberships")
     let space = SpaceObject(name: "Swift Membership ITest", id: "testUpdateMembershipsSpace")

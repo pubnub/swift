@@ -1,5 +1,5 @@
 //
-//  SubscribeEndpointTests.swift
+//  SubscribeRouterTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,7 +28,7 @@
 @testable import PubNub
 import XCTest
 
-final class SubscribeEndpointTests: XCTestCase {
+final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testChannel = "TestChannel"
 
@@ -37,55 +37,28 @@ final class SubscribeEndpointTests: XCTestCase {
 
   // MARK: - Endpoint Tests
 
-  func testSubscribe_Endpoint() {
-    let endpoint = Endpoint.subscribe(channels: ["TestChannel"],
-                                      groups: [],
-                                      timetoken: 0,
-                                      region: nil,
-                                      state: nil,
-                                      heartbeat: nil,
-                                      filter: nil)
+  func testSubscribe_Router() {
+    let router = SubscribeRouter(.subscribe(channels: ["TestChannel"], groups: [], timetoken: 0,
+                                            region: nil, state: nil, heartbeat: nil, filter: nil),
+                                 configuration: config)
 
-    XCTAssertEqual(endpoint.description, "Subscribe")
-    XCTAssertEqual(endpoint.category, .subscribe)
-    XCTAssertEqual(endpoint.operationCategory, .subscribe)
-    XCTAssertNil(endpoint.validationError)
+    XCTAssertEqual(router.endpoint.description, "Subscribe")
+    XCTAssertEqual(router.category, "Subscribe")
+    XCTAssertEqual(router.service, .subscribe)
   }
 
-  func testSubscribe_Endpoint_ValidationError() {
-    let endpoint = Endpoint.subscribe(channels: [],
-                                      groups: [],
-                                      timetoken: 0,
-                                      region: nil,
-                                      state: nil,
-                                      heartbeat: nil,
-                                      filter: nil)
+  func testSubscribe_Router_ValidationError() {
+    let router = SubscribeRouter(.subscribe(channels: [], groups: [], timetoken: 0,
+                                            region: nil, state: nil, heartbeat: nil, filter: nil),
+                                 configuration: config)
 
-    XCTAssertNotEqual(endpoint.validationError?.pubNubError, PubNubError(.invalidEndpointType, endpoint: endpoint))
-  }
-
-  func testSubscribe_Endpoint_AssociatedValues() {
-    let endpoint = Endpoint.subscribe(channels: ["SomeChannel"],
-                                      groups: ["SomeGroup"],
-                                      timetoken: 0,
-                                      region: "1",
-                                      state: ["Channel": [:]],
-                                      heartbeat: 2,
-                                      filter: "Filter")
-
-    XCTAssertEqual(endpoint.associatedValue["channels"] as? [String], ["SomeChannel"])
-    XCTAssertEqual(endpoint.associatedValue["groups"] as? [String], ["SomeGroup"])
-    XCTAssertEqual(endpoint.associatedValue["timetoken"] as? Timetoken, 0)
-    XCTAssertEqual(endpoint.associatedValue["region"] as? String, "1")
-    XCTAssertNotNil(endpoint.associatedValue["state"] as? [String: [String: JSONCodable]])
-    XCTAssertEqual(endpoint.associatedValue["heartbeat"] as? Int, 2)
-    XCTAssertEqual(endpoint.associatedValue["filter"] as? String, "Filter")
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }
 }
 
 // MARK: - Message Response
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testSubscribe_Message() {
     let messageExpect = XCTestExpectation(description: "Message Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -125,7 +98,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - Presence Response
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testSubscribe_Presence() {
     let presenceExpect = XCTestExpectation(description: "Presence Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -165,7 +138,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - Signal Response
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testSubscribe_Signal() {
     let signalExpect = XCTestExpectation(description: "Signal Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -206,7 +179,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - User Object Response
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length
   func testSubscribe_User_Update() {
     let objectExpect = XCTestExpectation(description: "Object Event")
@@ -628,7 +601,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - Message Action
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testSubscribe_MessageAction_Added() {
     let actionExpect = XCTestExpectation(description: "Message Action Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -742,7 +715,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - Mixed Response
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testSubscribe_Mixed() {
     let messageExpect = XCTestExpectation(description: "Message Event")
     let presenceExpect = XCTestExpectation(description: "Presence Event")
@@ -798,7 +771,7 @@ extension SubscribeEndpointTests {
 
 // MARK: - Unsubscribe
 
-extension SubscribeEndpointTests {
+extension SubscribeRouterTests {
   func testUnsubscribe() {
     let statusExpect = XCTestExpectation(description: "Status Event")
     statusExpect.expectedFulfillmentCount = 2

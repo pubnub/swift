@@ -70,6 +70,88 @@ public struct ErrorDescription {
   }()
 }
 
+extension ErrorDescription {
+  public static let emptyChannelString: String = {
+    "Channel is an empty `String`"
+  }()
+
+  public static let emptyChannelArray: String = {
+    "Channels is an empty `Array`"
+  }()
+
+  public static let emptyGroupString: String = {
+    "Group is an empty `String`"
+  }()
+
+  public static let missingChannelsAnyGroups: String = {
+    "No Channels or Groups were provided"
+  }()
+
+  public static let missingTimetoken: String = {
+    "No `Timetoken` value provided"
+  }()
+
+  public static let invalidHistoryTimetokens: String = {
+    "Timetokens `Array` count does not match Channels `Array` count"
+  }()
+
+  public static let invalidMessageAction: String = {
+    "Message Action is invalid"
+  }()
+
+  public static let emptyMessagePayload: String = {
+    "Message is an empty Object"
+  }()
+
+  public static let emptyUUIDString: String = {
+    "UUID is an empty `String`"
+  }()
+
+  public static let emptyDeviceTokenData: String = {
+    "Device Token is an empty `Data`"
+  }()
+
+  public static let emptySpaceID: String = {
+    "SpaceID is an empty `String`"
+  }()
+
+  public static let invalidPubNubSpace: String = {
+    "The Object is not a valid `PubNubSpace`"
+  }()
+
+  public static let emptyUserID: String = {
+    "UserID is an empty `String`"
+  }()
+
+  public static let invalidPubNubUser: String = {
+    "The Object is not a valid `PubNubUser`"
+  }()
+
+  public static let invalidJoiningMember: String = {
+    "A joining Member Object is not valid"
+  }()
+
+  public static let invalidUpdatingMember: String = {
+    "An updating Member Object is not valid"
+  }()
+
+  public static let invalidLeavingMember: String = {
+    "A removing Member Object is not valid"
+  }()
+
+  public static let invalidJoiningMembership: String = {
+    "A joining Membership Object is not valid"
+  }()
+
+  public static let invalidUpdatingMembership: String = {
+    "An updating Membership Object is not valid"
+  }()
+
+  public static let invalidLeavingMembership: String = {
+    "A removing Membership Object is not valid"
+  }()
+}
+
 extension PubNubError: LocalizedError, CustomStringConvertible {
   public var description: String {
     return errorDescription ?? reason.description

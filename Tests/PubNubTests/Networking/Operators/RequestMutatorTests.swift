@@ -116,7 +116,7 @@ class RequestMutatorTests: XCTestCase {
 
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { _ in
-      .failure(PubNubError(reason: .requestMutatorFailure))
+      .failure(PubNubError(.requestMutatorFailure))
     }
 
     let networkConfig = NetworkConfiguration(
@@ -127,7 +127,7 @@ class RequestMutatorTests: XCTestCase {
     sessionExpector.expectDidFailToMutateRequest { request, initialURLRequest, error in
 
       XCTAssertEqual(request.urlRequest, initialURLRequest)
-      XCTAssertEqual(error.pubNubError, PubNubError(reason: .requestMutatorFailure))
+      XCTAssertEqual(error.pubNubError, PubNubError(.requestMutatorFailure))
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
@@ -137,7 +137,7 @@ class RequestMutatorTests: XCTestCase {
       case .success:
         XCTFail("Time request should fail")
       case let .failure(error):
-        XCTAssertEqual(error.pubNubError, PubNubError(reason: .requestMutatorFailure))
+        XCTAssertEqual(error.pubNubError, PubNubError(.requestMutatorFailure))
       }
       totalExpectation.fulfill()
     }

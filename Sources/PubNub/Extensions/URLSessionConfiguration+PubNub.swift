@@ -34,9 +34,11 @@ public extension URLSessionConfiguration {
   static var pubnub: URLSessionConfiguration {
     let configuration = URLSessionConfiguration.default
 
-    configuration.headers = [.defaultAcceptEncoding,
-                             .defaultContentType,
-                             .defaultUserAgent]
+    configuration.headers = [
+      Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
+      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
+      Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
+    ]
 
     return configuration
   }
@@ -56,12 +58,12 @@ public extension URLSessionConfiguration {
   }
 
   /// Convience for assigning `HTTPHeader` values to `httpAdditionalHeaders`
-  var headers: HTTPHeaders {
+  var headers: [String: String] {
     get {
-      return (httpAdditionalHeaders as? [String: String]).map(HTTPHeaders.init) ?? []
+      return httpAdditionalHeaders as? [String: String] ?? [:]
     }
     set {
-      httpAdditionalHeaders = newValue.allHTTPHeaderFields
+      httpAdditionalHeaders = newValue
     }
   }
 }

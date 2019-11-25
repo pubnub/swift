@@ -413,15 +413,15 @@ public struct FCMAndroidLightSettings: Codable, Hashable {
 /// Represents a color in the RGBA color space.
 public struct FCMColor: Codable, Hashable {
   /// The amount of red in the color as a value in the interval [0, 1].
-  public let red: CGFloat
+  public let red: Double
   /// The amount of green in the color as a value in the interval [0, 1].
-  public let green: CGFloat
+  public let green: Double
   /// The amount of blue in the color as a value in the interval [0, 1].
-  public let blue: CGFloat
+  public let blue: Double
   /// The fraction of this color that should be applied to the pixel.
   ///
   /// A value of 1.0 corresponds to a solid color, whereas a value of 0.0 corresponds to a completely transparent color.
-  public let alpha: CGFloat
+  public let alpha: Double
 
   // swiftlint:enable line_length
   // swiftlint:disable:next file_length

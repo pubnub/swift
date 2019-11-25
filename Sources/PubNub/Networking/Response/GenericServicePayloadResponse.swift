@@ -107,7 +107,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .unsupportedType
     case "You have exceeded the maximum number of requests per second allowed for your subscriber key.":
       self = .tooManyRequests
-    case "An unexpected error ocurred while processing the request.":
+    case "Too many requests.":
       self = .internalServiceError
     case "The server took longer to respond than the maximum allowed processing time.":
       self = .serviceUnavailable

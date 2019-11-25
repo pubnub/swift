@@ -30,6 +30,11 @@ import Foundation
 // MARK: - Router
 
 public struct PushRouter: HTTPRouter {
+  public enum Environment: String, Codable {
+    case development
+    case production
+  }
+
   public enum PushType: String, Codable {
     case apns
     case gcm
@@ -41,6 +46,8 @@ public struct PushRouter: HTTPRouter {
     case listPushChannels(pushToken: Data, pushType: PushType)
     case modifyPushChannels(pushToken: Data, pushType: PushType, joining: [String], leaving: [String])
     case removeAllPushChannels(pushToken: Data, pushType: PushType)
+    case modifyAPNS(pushToken: Data, environment: Environment, topic: String, adding: [String], removing: [String])
+    case removeAllAPNS(pushToken: Data, environment: Environment, topic: String)
 
     public var description: String {
       switch self {
@@ -50,6 +57,39 @@ public struct PushRouter: HTTPRouter {
         return "Modify Push Channels"
       case .removeAllPushChannels:
         return "Remove All Push Channels"
+      case .modifyAPNS:
+        return "List/Modify APNS Devices"
+      case .removeAllAPNS:
+        return "Remove all channels from APNS device"
+      }
+    }
+
+    var addedChannels: [String] {
+      switch self {
+      case .listPushChannels:
+        return []
+      case .modifyPushChannels(_, _, let joining, _):
+        return joining
+      case .removeAllPushChannels:
+        return []
+      case .modifyAPNS(_, _, _, let adding, _):
+        return adding
+      case .removeAllAPNS:
+        return []
+      }
+    }
+    var removedChannels: [String] {
+      switch self {
+      case .listPushChannels:
+        return []
+      case .modifyPushChannels(_, _, _, let leaving):
+        return leaving
+      case .removeAllPushChannels:
+        return []
+      case .modifyAPNS(_, _, _, _, let removing):
+        return removing
+      case .removeAllAPNS:
+        return []
       }
     }
   }
@@ -82,6 +122,10 @@ public struct PushRouter: HTTPRouter {
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
     case .removeAllPushChannels(let token, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
+    case .modifyAPNS(let token, _, _, _, _):
+      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)"
+    case .removeAllAPNS(let token, _, _):
+      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)/remove"
     }
     return .success(path)
   }
@@ -92,12 +136,20 @@ public struct PushRouter: HTTPRouter {
     switch endpoint {
     case let .listPushChannels(_, pushType):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
-    case let .modifyPushChannels(_, pushType, addChannels, removeChannels):
+    case let .modifyPushChannels(_, pushType, joining, removing):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
-      query.appendIfNotEmpty(key: .add, value: addChannels)
-      query.appendIfNotEmpty(key: .remove, value: removeChannels)
+      query.appendIfNotEmpty(key: .add, value: joining)
+      query.appendIfNotEmpty(key: .remove, value: removing)
     case let .removeAllPushChannels(_, pushType):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
+    case let .modifyAPNS(_, environment, topic, adding, removing):
+      query.append(URLQueryItem(key: .environment, value: environment.rawValue))
+      query.append(URLQueryItem(key: .topic, value: topic))
+      query.appendIfNotEmpty(key: .add, value: adding)
+      query.appendIfNotEmpty(key: .remove, value: removing)
+    case let .removeAllAPNS(_, environment, topic):
+      query.append(URLQueryItem(key: .environment, value: environment.rawValue))
+      query.append(URLQueryItem(key: .topic, value: topic))
     }
 
     return .success(query)
@@ -107,9 +159,7 @@ public struct PushRouter: HTTPRouter {
     switch endpoint {
     case .listPushChannels:
       return .none
-    case .modifyPushChannels:
-      return .version2
-    case .removeAllPushChannels:
+    default:
       return .version2
     }
   }
@@ -126,6 +176,16 @@ public struct PushRouter: HTTPRouter {
       )
     case .removeAllPushChannels(let pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
+    case let .modifyAPNS(pushToken, _, topic, _, _):
+      return isInvalidForReason(
+        (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (topic.isEmpty, ErrorDescription.emptyUUIDString)
+      )
+    case let .removeAllAPNS(pushToken, _, topic):
+      return isInvalidForReason(
+        (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (topic.isEmpty, ErrorDescription.emptyUUIDString)
+      )
     }
   }
 }
@@ -159,7 +219,7 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
 }
 
 struct ModifyPushResponseDecoder: ResponseDecoder {
-  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<GenericServicePayloadResponse>, Error> {
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<ModifiedPushChannelsPayloadResponse>, Error> {
     do {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
@@ -168,16 +228,17 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
-      let decodedPayload = GenericServicePayloadResponse(message: .acknowledge,
-                                                         service: "push",
-                                                         status: 200,
-                                                         error: false)
+      let endpoint = (response.router as? PushRouter)?.endpoint
+      let payload = ModifiedPushChannelsPayloadResponse(
+        added: endpoint?.addedChannels ?? [],
+        removed: endpoint?.removedChannels ?? []
+      )
 
-      let decodedResponse = EndpointResponse<GenericServicePayloadResponse>(router: response.router,
+      let decodedResponse = EndpointResponse<ModifiedPushChannelsPayloadResponse>(router: response.router,
                                                                             request: response.request,
                                                                             response: response.response,
                                                                             data: response.data,
-                                                                            payload: decodedPayload)
+                                                                            payload: payload)
 
       return .success(decodedResponse)
     } catch {
@@ -188,10 +249,21 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
+public struct ModifiedPushChannelsPayloadResponse: Codable {
+  public let message: EndpointResponseMessage = .acknowledge
+
+  public let added: [String]
+  public let removed: [String]
+
+  public var channels: [String] {
+    return added + removed
+  }
+}
+
 public struct RegisteredPushChannelsPayloadResponse: Codable {
-  let channels: [String]
+  public let channels: [String]
 }
 
 public struct ErrorMessagePayloadResponse: Codable {
-  let error: String
+  public let error: String
 }

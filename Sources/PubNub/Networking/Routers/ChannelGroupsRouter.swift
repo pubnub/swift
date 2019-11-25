@@ -201,6 +201,8 @@ enum QueryKey: String {
   case channelsTimetoken
   case include
   case limit
+  case topic
+  case environment
 }
 
 /// The PubNub Key requirement for a given Endpoint

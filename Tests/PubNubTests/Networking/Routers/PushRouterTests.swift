@@ -289,7 +289,8 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let router = PushRouter(.modifyAPNS(pushToken: data, environment: .production, topic: "TestTopic", adding: [], removing: []), configuration: config)
+    let router = PushRouter(.modifyAPNS(pushToken: data, environment: .production,
+                                        topic: "TestTopic", adding: [], removing: []), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List/Modify APNS Devices")
     XCTAssertEqual(router.category, "List/Modify APNS Devices")
@@ -297,7 +298,8 @@ extension PushRouterTests {
   }
 
   func testModifyAPNS_Router_ValidationError() {
-    let router = PushRouter(.modifyAPNS(pushToken: Data(), environment: .production, topic: "TestTopic", adding: [], removing: []),
+    let router = PushRouter(.modifyAPNS(pushToken: Data(), environment: .production,
+                                        topic: "TestTopic", adding: [], removing: []),
                             configuration: config)
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
@@ -306,8 +308,9 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let emptyTopic = PushRouter(.modifyAPNS(pushToken: data, environment: .production, topic: "", adding: [], removing: []),
-                            configuration: config)
+    let emptyTopic = PushRouter(.modifyAPNS(pushToken: data, environment: .production,
+                                            topic: "", adding: [], removing: []),
+                                configuration: config)
 
     XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
   }
@@ -399,7 +402,8 @@ extension PushRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [], device: hexData, on: "TestTopic") { result in
+      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                   device: hexData, on: "TestTopic") { result in
         switch result {
         case let .success(payload):
           XCTAssertEqual(payload.message, .acknowledge)
@@ -449,7 +453,8 @@ extension PushRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [], device: hexData, on: "TestTopic") { result in
+      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                   device: hexData, on: "TestTopic") { result in
         switch result {
         case .success:
           XCTFail("This should not succeed")
@@ -541,4 +546,6 @@ extension PushRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  // swiftlint:disable:next file_length
 }

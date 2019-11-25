@@ -63,7 +63,8 @@ public struct FCMWebpushConfig: Codable, Hashable {
 public struct FCMWebpushNotification: Codable, Hashable {
   /// The actions array of the notification.
   public let actions: [FCMWebpushAction]?
-  /// The URL of the image used to represent the notification when there is not enough space to display the notification itself.
+  /// The URL of the image used to represent the notification
+  /// used when there is not enough space to display the notification itself.
   public let badge: String?
   /// The body string of the notification.
   public let body: String?
@@ -79,7 +80,8 @@ public struct FCMWebpushNotification: Codable, Hashable {
   public let image: String?
   /// Specifies whether the user should be notified after a new notification replaces an old one
   public let renotify: Bool?
-  /// A Boolean indicating that a notification should remain active until the user clicks or dismisses it, rather than closing automatically.
+  /// Whehter notification should remain active until the user clicks or dismisses it,
+  /// rather than closing automatically.
   public let requireInteraction: Bool?
   /// Specifies whether the notification should be silent
   ///
@@ -93,13 +95,15 @@ public struct FCMWebpushNotification: Codable, Hashable {
   public let vibrate: [UInt]?
 }
 
-/// Used to represent action buttons the user can click to interact with Firebase Cloud Messaging (FCM) Webpush notifications.
+/// Used to represent action buttons the user can click to interact
+/// with Firebase Cloud Messaging (FCM) Webpush notifications.
 public struct FCMWebpushAction: Codable, Hashable {
   /// The name of the action, which can be used to identify the clicked action
   public let action: String?
   /// The string describing the action that is displayed to the user.
   public let title: String?
-  /// The URL of the image used to represent the notification when there is not enough space to display the notification itself.
+  /// The URL of the image used to represent the notification
+  /// when there is not enough space to display the notification itself.
   public let icon: String?
 }
 

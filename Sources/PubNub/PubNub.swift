@@ -613,7 +613,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
-    route(PushRouter(.modifyAPNS(pushToken: deviceToken, environment: environment, topic: topic, adding: [], removing: []),
+    route(PushRouter(.modifyAPNS(pushToken: deviceToken, environment: environment,
+                                 topic: topic, adding: [], removing: []),
                      configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
@@ -648,7 +649,7 @@ extension PubNub {
       configuration: configuration
     )
 
-    if removals.isEmpty && additions.isEmpty {
+    if removals.isEmpty, additions.isEmpty {
       completion?(
         .failure(PubNubError(.missingRequiredParameter,
                              router: router,
@@ -662,7 +663,6 @@ extension PubNub {
       completion?(result.map { $0.payload })
     }
   }
-
 
   /// Disable APNS push notifications from all channels which is registered with specified pushToken.
   /// - Parameters:
@@ -680,7 +680,8 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
-    route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic), configuration: configuration),
+    route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
+                     configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
           respondOn: queue) { result in

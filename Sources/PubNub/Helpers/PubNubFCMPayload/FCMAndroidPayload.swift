@@ -24,6 +24,7 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// swiftlint:disable line_length
 
 import Foundation
 
@@ -52,7 +53,7 @@ public struct FCMAndroidPayload: Codable, Hashable {
   /// Options for features provided by the FCM SDK for Android.
   public let options: FCMOptionsPayload?
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case collapseKey = "collapse_key"
     case priority
     case ttl
@@ -85,25 +86,30 @@ public struct FCMAndroidPayload: Codable, Hashable {
 /// Priority of a Firebase Cloud Messaging (FCM) message to send to Android devices.
 ///
 /// Note this priority is an FCM concept that controls when the message is delivered.
-/// See [FCM guides](https://firebase.google.com/docs/cloud-messaging/concept-options?authuser=0#setting-the-priority-of-a-message).
+/// See
+/// [FCM guides](https://firebase.google.com/docs/cloud-messaging/concept-options?authuser=0#setting-the-priority-of-a-message).
 ///
 /// Additionally, you can determine notification display priority on targeted Android devices using
 /// [AndroidNotification.NotificationPriority](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#androidnotification)
 public enum FCMAndroidMessagePriority: String, Codable, Hashable {
   /// Default priority for data messages.
   ///
-  /// Normal priority messages won't open network connections on a sleeping device, and their delivery may be delayed to conserve the battery.
-  /// For less time-sensitive messages, such as notifications of new email or other data to sync, choose normal delivery priority.
+  /// Normal priority messages won't open network connections on a sleeping device,
+  /// and their delivery may be delayed to conserve the battery.
+  /// For less time-sensitive messages, such as notifications of new email or other data to sync,
+  /// choose normal delivery priority.
   case normal = "NORMAL"
   /// Default priority for notification messages.
   ///
   /// FCM attempts to deliver high priority messages immediately,
   /// allowing the FCM service to wake a sleeping device when possible and open a network connection to your app server.
   ///
-  /// Apps with instant messaging, chat, or voice call alerts, for example, generally need to open a network connection and make sure FCM delivers the message to the device without delay.
+  /// Apps with instant messaging, chat, or voice call alerts, for example,
+  /// generally need to open a network connection and make sure FCM delivers the message to the device without delay.
   ///
   /// Set high priority if the message is time-critical and requires the user's immediate interaction,
-  /// but beware that setting your messages to high priority contributes more to battery drain compared with normal priority messages.
+  /// but beware that setting your messages to high priority contributes
+  /// more to battery drain compared with normal priority messages.
   case high = "HIGH"
 }
 
@@ -143,32 +149,39 @@ public struct FCMAndroidNotification: Codable, Hashable {
   ///
   /// If specified, an activity with a matching intent filter is launched when a user clicks on the notification.
   public let clickAction: String?
-  /// The key to the body string in the app's string resources to use to localize the body text to the user's current localization.
+  /// The key to the body string in the app's string resources
+  /// to use to localize the body text to the user's current localization.
   ///
   /// See [String Resources](https://goo.gl/NdFZGI) for more information.
   public let bodyLocKey: String?
-  /// Variable string values to be used in place of the format specifiers in `bodyLocKey` to use to localize the body text to the user's current localization.
+  /// Variable string values to be used in place of the format specifiers in `bodyLocKey`
+  /// to use to localize the body text to the user's current localization.
   ///
   /// See [Formatting and Styling](https://goo.gl/MalYE3) for more information.
   public let bodyLocArgs: [String]?
-  /// The key to the title string in the app's string resources to use to localize the title text to the user's current localization.
+  /// The key to the title string in the app's string resources to use to localize
+  ///  the title text to the user's current localization.
   ///
   /// See [String Resources](https://goo.gl/NdFZGI) for more information.
   public let titleLocKey: String?
-  /// Variable string values to be used in place of the format specifiers in `titleLocKey` to use to localize the title text to the user's current localization.
+  /// Variable string values to be used in place of the format specifiers in `titleLocKey`
+  ///  to use to localize the title text to the user's current localization.
   ///
   /// See [Formatting and Styling](https://goo.gl/MalYE3) for more information.
   public let titleLocArgs: [String]?
-  /// The [notification's channel id](https://developer.android.com/guide/topics/ui/notifiers/notifications#ManageChannels)
-  /// (new in Android O).
+  /// The
+  /// [notification's channel id](https://developer.android.com/guide/topics/ui/notifiers/notifications#ManageChannels)
   ///
-  /// f you don't send this channel ID in the request, or if the channel ID provided has not yet been created by the app,
+  /// If you don't send this channel ID in the request, or if the channel ID
+  /// provided has not yet been created by the app,
   /// FCM uses the channel ID specified in the app manifest.
-  /// - Requires: The app must create a channel with this channel ID before any notification with this channel ID is received.
+  /// - Requires: The app must create a channel with this channel ID
+  ///  before any notification with this channel ID is received.
   public let channelID: String?
   /// Sets the "ticker" text, which is sent to accessibility services.
   ///
-  /// Prior to API level 21 (Lollipop), sets the text that is displayed in the status bar when the notification first arrives.
+  /// Prior to API level 21 (Lollipop), sets the text that is displayed
+  /// in the status bar when the notification first arrives.
   public let ticker: String?
   /// When set to false or unset, the notification is automatically dismissed when the user clicks it in the panel.
   ///
@@ -189,7 +202,8 @@ public struct FCMAndroidNotification: Codable, Hashable {
   ///
   /// Priority is an indication of how much of the user's attention should be consumed by this notification.
   ///
-  /// Low-priority notifications may be hidden from the user in certain situations, while the user might be interrupted for a higher-priority notification.
+  /// Low-priority notifications may be hidden from the user in certain situations,
+  /// while the user might be interrupted for a higher-priority notification.
   /// The effect of setting the same priorities may differ slightly on different platforms.
   ///
   /// - Note:This priority differs from `FCMAndroidMessagePriority`.
@@ -214,14 +228,17 @@ public struct FCMAndroidNotification: Codable, Hashable {
   /// Default values are specified in
   /// [config.xml](https://android.googlesource.com/platform/frameworks/base/+/master/core/res/res/values/config.xml).
   ///
-  /// If `defaultLightSettings` is set to true and `lightSettings` is also set, the user-specified `lightSettings` is used instead of the default value.
+  /// If `defaultLightSettings` is set to true and `lightSettings`
+  /// is also set, the user-specified `lightSettings` is used instead of the default value.
   public let defaultLightSettings: Bool?
   /// Set the vibration pattern to use.
   ///
-  /// The first value indicates the Duration to wait before turning the vibrator on. The next value indicates the Duration to keep the vibrator on.
+  /// The first value indicates the Duration to wait before turning the vibrator on.
+  /// The next value indicates the Duration to keep the vibrator on.
   /// Subsequent values alternate between Duration to turn the vibrator off and to turn the vibrator on.
   ///
-  /// If `vibrateTimings` is set and `defaultVibrateTimings` is set to true, the default value is used instead of the user-specified `vibrateTimings`.
+  /// If `vibrateTimings` is set and `defaultVibrateTimings` is set to true,
+  /// the default value is used instead of the user-specified `vibrateTimings`.
   public let vibrateTimings: [String]?
   /// Set the visibility of the notification.
   public let visibility: FCMAndroidVisibility?
@@ -245,7 +262,7 @@ public struct FCMAndroidNotification: Codable, Hashable {
   /// If present, it will override `FCMNotificationPayload.image`.
   public let image: String?
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case title
     case body
     case icon
@@ -348,11 +365,13 @@ public enum FCMAndroidNotificationPriority: String, Codable, Hashable {
   case unspecified = "PRIORITY_UNSPECIFIED"
   /// Lowest notification priority.
   ///
-  /// Notifications with this might not be shown to the user except under special circumstances, such as detailed notification logs.
+  /// Notifications with this might not be shown to the user except under
+  /// special circumstances, such as detailed notification logs.
   case min = "PRIORITY_MIN"
   /// Lower notification priority.
   ///
-  /// The UI may choose to show the notifications smaller, or at a different position in the list, compared with notifications with `default`.
+  /// The UI may choose to show the notifications smaller,
+  /// or at a different position in the list, compared with notifications with `default`.
   case low = "PRIORITY_LOW"
   /// Default notification priority.
   ///
@@ -378,7 +397,7 @@ public struct FCMAndroidLightSettings: Codable, Hashable {
   /// Along with `onDuration`, define the blink rate of LED flashes.
   public let offDuration: String
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case color
     case onDuration = "light_on_duration"
     case offDuration = "light_off_duration"
@@ -403,4 +422,7 @@ public struct FCMColor: Codable, Hashable {
   ///
   /// A value of 1.0 corresponds to a solid color, whereas a value of 0.0 corresponds to a completely transparent color.
   public let alpha: CGFloat
+
+  // swiftlint:enable line_length
+  // swiftlint:disable:next file_length
 }

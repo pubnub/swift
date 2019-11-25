@@ -50,7 +50,7 @@ public struct PubNubFCMPayload: Codable {
   /// Target to send a message to
   public let target: FCMTarget
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case payload = "data"
     case notification
     case android
@@ -78,15 +78,15 @@ public struct PubNubFCMPayload: Codable {
   }
 
   public init(from decoder: Decoder) throws {
-    self.target = try FCMTarget(from: decoder)
+    target = try FCMTarget(from: decoder)
 
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.payload = try container.decode(AnyJSON.self, forKey: .payload)
-    self.notification = try container.decode(FCMNotificationPayload.self, forKey: .notification)
-    self.android = try container.decodeIfPresent(FCMAndroidPayload.self, forKey: .android)
-    self.webpush = try container.decodeIfPresent(FCMWebpushConfig.self, forKey: .webpush)
-    self.apns = try container.decodeIfPresent(FCMApnsConfig.self, forKey: .apns)
-    self.options = try container.decodeIfPresent(FCMOptionsPayload.self, forKey: .options)
+    payload = try container.decode(AnyJSON.self, forKey: .payload)
+    notification = try container.decode(FCMNotificationPayload.self, forKey: .notification)
+    android = try container.decodeIfPresent(FCMAndroidPayload.self, forKey: .android)
+    webpush = try container.decodeIfPresent(FCMWebpushConfig.self, forKey: .webpush)
+    apns = try container.decodeIfPresent(FCMApnsConfig.self, forKey: .apns)
+    options = try container.decodeIfPresent(FCMOptionsPayload.self, forKey: .options)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -116,7 +116,7 @@ public enum FCMTarget: Codable, Hashable {
   /// e.g. "'foo' in topics && 'bar' in topics".
   case condition(String)
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case token
     case topic
     case condition
@@ -136,11 +136,11 @@ public enum FCMTarget: Codable, Hashable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     switch self {
-    case .token(let value):
+    case let .token(value):
       try container.encode(value, forKey: .token)
-    case .topic(let value):
+    case let .topic(value):
       try container.encode(value, forKey: .topic)
-    case .condition(let value):
+    case let .condition(value):
       try container.encode(value, forKey: .condition)
     }
   }
@@ -181,7 +181,7 @@ public struct FCMOptionsPayload: Codable, Hashable {
   /// Label associated with the message's analytics data.
   public let analyticsLabel: String?
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case analyticsLabel = "analytics_label"
   }
 
@@ -190,7 +190,7 @@ public struct FCMOptionsPayload: Codable, Hashable {
   }
 }
 
-// MARK:- FCM APNS
+// MARK: - FCM APNS
 
 /// Firebase Cloud Messaging (FCM) [Apple Push Notification Service](https://goo.gl/MXRTPa) specific options.
 public struct FCMApnsConfig: Codable, Hashable {
@@ -203,7 +203,7 @@ public struct FCMApnsConfig: Codable, Hashable {
   /// Options for features provided by the FCM SDK for iOS.
   public let options: FCMApnsFcmOptions?
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case headers
     case payload
     case options = "fcm_options"
@@ -248,7 +248,7 @@ public struct FCMApnsFcmOptions: Codable, Hashable {
   /// If present, it will override `FCMNotificationPayload.image`.
   public let image: String?
 
-  public enum CodingKeys : String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case analyticsLabel = "analytics_label"
     case image
   }

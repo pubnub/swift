@@ -78,15 +78,16 @@ public struct PushRouter: HTTPRouter {
         return []
       }
     }
+
     var removedChannels: [String] {
       switch self {
       case .listPushChannels:
         return []
-      case .modifyPushChannels(_, _, _, let leaving):
+      case let .modifyPushChannels(_, _, _, leaving):
         return leaving
       case .removeAllPushChannels:
         return []
-      case .modifyAPNS(_, _, _, _, let removing):
+      case let .modifyAPNS(_, _, _, _, removing):
         return removing
       case .removeAllAPNS:
         return []
@@ -219,7 +220,9 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
 }
 
 struct ModifyPushResponseDecoder: ResponseDecoder {
-  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<ModifiedPushChannelsPayloadResponse>, Error> {
+  func decode(
+    response: EndpointResponse<Data>
+  ) -> Result<EndpointResponse<ModifiedPushChannelsPayloadResponse>, Error> {
     do {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
@@ -235,10 +238,10 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
       )
 
       let decodedResponse = EndpointResponse<ModifiedPushChannelsPayloadResponse>(router: response.router,
-                                                                            request: response.request,
-                                                                            response: response.response,
-                                                                            data: response.data,
-                                                                            payload: payload)
+                                                                                  request: response.request,
+                                                                                  response: response.response,
+                                                                                  data: response.data,
+                                                                                  payload: payload)
 
       return .success(decodedResponse)
     } catch {

@@ -29,10 +29,13 @@ import Foundation
 
 public struct PubNubPushMessage: JSONCodable {
   /// The payload delivered via Apple Push Notification Service (APNS)
-  var apns: PubNubAPNSPayload?
-  var fcm: PubNubFCMPayload?
-  var mpns: JSONCodable?
-  var additionalMessage: JSONCodable?
+  public let apns: PubNubAPNSPayload?
+  /// The payload delivered via Firebase Cloud Messaging Service (FCM)
+  public let fcm: PubNubFCMPayload?
+  /// The payload delivered via Microsoft Push Notification Service (MPNS)
+  public let mpns: JSONCodable?
+  /// Additional message payload sent outside of the push notification
+  public var additionalMessage: JSONCodable?
 
   enum CodingKeys: String, CodingKey {
     case apns = "pn_apns"
@@ -40,16 +43,19 @@ public struct PubNubPushMessage: JSONCodable {
     case mpns = "pn_mpns"
   }
 
-  public init(apns: PubNubAPNSPayload? = nil, fcm: PubNubFCMPayload? = nil, mpns: JSONCodable? = nil, additional message: JSONCodable? = nil) {
+  public init(
+    apns: PubNubAPNSPayload? = nil,
+    fcm: PubNubFCMPayload? = nil,
+    mpns: JSONCodable? = nil,
+    additional message: JSONCodable? = nil
+  ) {
     self.apns = apns
     self.fcm = fcm
     self.mpns = mpns
-    self.additionalMessage = message
+    additionalMessage = message
   }
 
   public init(from decoder: Decoder) throws {
-    additionalMessage = try additionalMessage?.codableValue.decode(AnyJSON.self)
-
     let container = try decoder.container(keyedBy: CodingKeys.self)
     apns = try container.decodeIfPresent(PubNubAPNSPayload.self, forKey: .apns)
     fcm = try container.decodeIfPresent(PubNubFCMPayload.self, forKey: .fcm)

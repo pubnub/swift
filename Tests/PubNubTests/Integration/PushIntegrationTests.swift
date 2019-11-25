@@ -29,11 +29,7 @@ import XCTest
 
 import PubNub
 
-import Foundation
-import PubNub
-
 class PushIntegrationTests: XCTestCase {
-
   let testsBundle = Bundle(for: PushIntegrationTests.self)
   let pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")
 
@@ -41,17 +37,21 @@ class PushIntegrationTests: XCTestCase {
   let pushTopic = "SwiftPushITest"
 
   func testModifyChannels() {
-     let addExpect = expectation(description: "Adding Channel")
+    let addExpect = expectation(description: "Adding Channel")
+
+    guard let token = pushToken else {
+      return XCTFail("Could not create push data")
+    }
 
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
-    client.modifyPushChannelRegistrations(byRemoving: [], thenAdding: ["foo1","foo2"], for: pushToken!) { result in
+    client.modifyPushChannelRegistrations(byRemoving: [], thenAdding: ["foo1", "foo2"], for: token) { result in
       switch result {
-      case .success(let response):
+      case let .success(response):
 
-          print("Added APNS to \(response.channels)")
+        print("Added APNS to \(response.channels)")
 
-      case .failure(let error):
-          print("Could not add APNS on channels: \(self.channel). ERROR: \(error.localizedDescription)")
+      case let .failure(error):
+        print("Could not add APNS on channels: \(self.channel). ERROR: \(error.localizedDescription)")
       }
       addExpect.fulfill()
     }
@@ -65,21 +65,26 @@ class PushIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
 
+    guard let token = pushToken else {
+      return XCTFail("Could not create push data")
+    }
+
     // Add a channel
     client.modifyAPNSDevicesOnChannels(
-      byRemoving: [], thenAdding: [channel], device: pushToken!, on: pushTopic) { [unowned self] result in
+      byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
+    ) { [unowned self] result in
 
-        // List Channels
-        client.listAPNSChannelsOnDevice(for: self.pushToken!, on: self.pushTopic) { (result) in
-          switch result {
-          case .success(let response):
-            XCTAssertEqual(response.channels.first, self.channel)
-          case .failure(let error):
-            XCTFail("List APNS call failed due to \(error.localizedDescription)")
-          }
-          listExpect.fulfill()
+      // List Channels
+      client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.channels.first, self.channel)
+        case let .failure(error):
+          XCTFail("List APNS call failed due to \(error.localizedDescription)")
         }
-        addExpect.fulfill()
+        listExpect.fulfill()
+      }
+      addExpect.fulfill()
     }
 
     wait(for: [addExpect, listExpect], timeout: 10.0)
@@ -92,16 +97,20 @@ class PushIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
 
+    guard let token = pushToken else {
+      return XCTFail("Could not create push data")
+    }
+
     // Add a channel
     client.modifyAPNSDevicesOnChannels(
-      byRemoving: [], thenAdding: [channel], device: pushToken!, on: pushTopic
+      byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
-      client.removeAPNSPushDevice(for: self.pushToken!, on: self.pushTopic) { result in
-        client.listAPNSChannelsOnDevice(for: self.pushToken!, on: self.pushTopic) { (result) in
+      client.removeAPNSPushDevice(for: token, on: self.pushTopic) { result in
+        client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
           switch result {
-          case .success(let response):
+          case let .success(response):
             XCTAssertEqual(response.channels.isEmpty, true)
-          case .failure(let error):
+          case let .failure(error):
             XCTFail("List APNS call failed due to \(error.localizedDescription)")
           }
           listExpect.fulfill()

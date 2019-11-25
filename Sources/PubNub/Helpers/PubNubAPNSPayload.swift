@@ -24,20 +24,20 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
+// swiftlint:disable line_length
 
 import Foundation
-
 
 /// The PubNub push configuration payload
 public struct PubNubPushConfig: Codable, Hashable {
   /// The targets of a published PubNub notification
-  public let targets: [PubNubPushTarget] = []
+  public let targets: [PubNubPushTarget]
   /// Version of the PubNub push configuration
   public let version: String = "v2"
   /// APS collapse id
-  public let collapseID: String? = ""
+  public let collapseID: String?
   /// Expiration time of the remote notification
-  public let expiration: Date? = Date()
+  public let expiration: Date?
 
   enum CodingKeys: String, CodingKey {
     case collapseID = "collapse_id"
@@ -45,27 +45,47 @@ public struct PubNubPushConfig: Codable, Hashable {
     case targets
     case version
   }
+
+  public init(
+    targets: [PubNubPushTarget],
+    collapseID: String? = nil,
+    expiration: Date? = nil
+  ) {
+    self.targets = targets
+    self.collapseID = collapseID
+    self.expiration = expiration
+  }
 }
 
 /// The target of a published PubNub notification
 public struct PubNubPushTarget: Codable, Hashable {
   /// The topic of the device
-  public let topic: String = ""
+  public let topic: String
   /// The APS environment
-  public let environment: PushRouter.Environment = .production
+  public let environment: PushRouter.Environment
   /// Devices that should not receive this notification
   ///
   /// This is likely the senders device token
-  public let excludedDevices: [String]? = nil
+  public let excludedDevices: [String]?
 
   enum CodingKeys: String, CodingKey {
     case environment
     case excludedDevices = "excluded_devices"
     case topic
   }
+
+  public init(
+    topic: String,
+    environment: PushRouter.Environment = .production,
+    excludedDevices: [String]? = nil
+  ) {
+    self.topic = topic
+    self.environment = environment
+    self.excludedDevices = excludedDevices
+  }
 }
 
-// MARK:- APS Payload
+// MARK: - APS Payload
 
 public struct PubNubAPNSPayload: Codable {
   public let aps: APSPayload
@@ -73,7 +93,7 @@ public struct PubNubAPNSPayload: Codable {
   public let payload: JSONCodable
 
   enum CodingKeys: String, CodingKey {
-    case aps = "aps"
+    case aps
     case pubnub = "pn_push"
     case payload
   }
@@ -121,12 +141,14 @@ public struct APSPayload: Codable, Hashable {
   public let threadID: String?
   /// The notification’s type.
   ///
-  /// - Requires: This string must correspond to the identifier of one of the `UNNotificationCategory` objects you register at launch time.
+  /// - Requires: This string must correspond to the identifier of one of the
+  /// `UNNotificationCategory` objects you register at launch time.
   /// See [Declaring Your Actionable Notification Types](https://developer.apple.com/documentation/usernotifications/declaring_your_actionable_notification_types).
   public let category: String?
   /// The background notification flag.
   ///
-  /// To perform a silent background update, specify the value 1 and don't include the alert, badge, or sound keys in your payload.
+  /// To perform a silent background update,
+  /// specify the value 1 and don't include the alert, badge, or sound keys in your payload.
   ///
   /// See [Pushing Background Updates to Your App](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/pushing_background_updates_to_your_app).
   public let contentAvailable: Int?
@@ -200,9 +222,9 @@ public enum APSAlert: Codable, Hashable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
-    case .body(let value):
+    case let .body(value):
       try container.encode(value)
-    case .object(let value):
+    case let .object(value):
       try container.encode(value)
     }
   }
@@ -301,11 +323,13 @@ public struct APSAlertObject: Codable, Hashable {
 
 /// The sound that will play upon delivery of your APS message
 public enum APSSound: Codable, Hashable {
-  /// The name of a sound file in your app’s main bundle or in the Library/Sounds folder of your app’s container directory.
+  /// The name of a sound file in your app’s main bundle or in
+  /// the Library/Sounds folder of your app’s container directory.
   ///
   /// Specify the string "default" to play the system sound.
   ///
-  /// For critical alerts, use the sound dictionary instead. For information about how to prepare sounds, see `UNNotificationSound`.
+  /// For critical alerts, use the sound dictionary instead.
+  /// For information about how to prepare sounds, see `UNNotificationSound`.
   case string(String)
   /// An object that contains sound information for critical alerts.
   case critical(APSCriticalSound)
@@ -323,9 +347,9 @@ public enum APSSound: Codable, Hashable {
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     switch self {
-    case .string(let value):
+    case let .string(value):
       try container.encode(value)
-    case .critical(let value):
+    case let .critical(value):
       try container.encode(value)
     }
   }
@@ -337,7 +361,8 @@ public struct APSCriticalSound: Codable, Hashable {
   ///
   /// Set to 1 to enable the critical alert.
   public let critical: Int?
-  /// The name of a sound file in your app’s main bundle or in the Library/Sounds folder of your app’s container directory.
+  /// The name of a sound file in your app’s main bundle or
+  ///  in the Library/Sounds folder of your app’s container directory.
   ///
   /// Specify the string "default" to play the system sound.
   ///
@@ -354,3 +379,5 @@ public struct APSCriticalSound: Codable, Hashable {
     self.volume = volume
   }
 }
+
+// swiftlint:enable line_length

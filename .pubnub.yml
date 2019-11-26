@@ -1,9 +1,19 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.2.0"
+version: "2.3.0"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Added convenience objects for creating push publish messages"
+        type: feature
+      - test: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
+        type: feature
+      - test: "`Channel` property on push responses is not public"
+        type: bug
+    date: 2019-11-25
+    version: v2.3.0
   -
     changes:
       - test: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"

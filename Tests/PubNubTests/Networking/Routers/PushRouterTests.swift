@@ -280,3 +280,272 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 }
+
+// MARK: - Remove All Push Channels Tests
+
+extension PushRouterTests {
+  func testModifyAPNS_Router() {
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+
+    let router = PushRouter(.modifyAPNS(pushToken: data, environment: .development,
+                                        topic: "TestTopic", adding: [], removing: []), configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "List/Modify APNS Devices")
+    XCTAssertEqual(router.category, "List/Modify APNS Devices")
+    XCTAssertEqual(router.service, .push)
+  }
+
+  func testModifyAPNS_Router_ValidationError() {
+    let router = PushRouter(.modifyAPNS(pushToken: Data(), environment: .development,
+                                        topic: "TestTopic", adding: [], removing: []),
+                            configuration: config)
+
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+
+    let emptyTopic = PushRouter(.modifyAPNS(pushToken: data, environment: .development,
+                                            topic: "", adding: [], removing: []),
+                                configuration: config)
+
+    XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
+  }
+
+  func testModifyAPNS_ListChannels_Success() {
+    let expectation = self.expectation(description: "Push List Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertFalse(payload.channels.isEmpty)
+        case let .failure(error):
+          XCTFail("Push List request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testModifyAPNS_ListChannels_Fail_NotEnabled() {
+    let expectation = self.expectation(description: "Push List Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+        switch result {
+        case .success:
+          XCTFail("This should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testModifyAPNS_ListChannels_Success_Empty() {
+    let expectation = self.expectation(description: "Push List Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertTrue(payload.channels.isEmpty)
+        case let .failure(error):
+          XCTFail("Push List request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testModifyAPNS_AddRemove_Success() {
+    let expectation = self.expectation(description: "Modify Push Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_modify_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                   device: hexData, on: "TestTopic") { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.message, .acknowledge)
+        case let .failure(error):
+          XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testModifyAPNS_AddRemove_Fail_EmptyAddRemove() {
+    let expectation = self.expectation(description: "Modify Push Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .modifyAPNSDevicesOnChannels(byRemoving: [], thenAdding: [], device: hexData, on: "TestTopic") { result in
+        switch result {
+        case .success:
+          XCTFail("This should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.missingRequiredParameter))
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testModifyAPNS_AddRemove_Fail_NotEnabled() {
+    let expectation = self.expectation(description: "Modify Push Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .modifyAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                   device: hexData, on: "TestTopic") { result in
+        switch result {
+        case .success:
+          XCTFail("This should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK: - Remove All APNS Channels Tests
+
+extension PushRouterTests {
+  func testRemoveAllAPNSChannels_Router() {
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+
+    let router = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
+                            configuration: config)
+
+    XCTAssertEqual(router.endpoint.description, "Remove all channels from APNS device")
+    XCTAssertEqual(router.category, "Remove all channels from APNS device")
+    XCTAssertEqual(router.service, .push)
+  }
+
+  func testRemoveAllAPNSChannels_Router_ValidationError() {
+    let router = PushRouter(.removeAllAPNS(pushToken: Data(), environment: .development, topic: "TestTopic"),
+                            configuration: config)
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+
+    guard let data = Data(hexEncodedString: "A1B2") else {
+      return XCTFail("Could not encode Data from hex string")
+    }
+    let emptyTopic = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
+                                configuration: config)
+    XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
+  }
+
+  func testRemoveAllAPNSChannels_Success() {
+    let expectation = self.expectation(description: "Group List Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_remove_all_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .removeAPNSPushDevice(for: hexData, on: "TestTopic") { result in
+        switch result {
+        case let .success(payload):
+          XCTAssertEqual(payload.message, .acknowledge)
+        case let .failure(error):
+          XCTFail("Group List request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testRemoveAllAPNSChannels_Fail_NotEnabled() {
+    let expectation = self.expectation(description: "Push List Response Received")
+
+    guard let hexData = Data(hexEncodedString: hexString) else {
+      return XCTFail("Could not conver hex string to data")
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .removeAPNSPushDevice(for: hexData, on: "TestTopic") { result in
+        switch result {
+        case .success:
+          XCTFail("This should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  // swiftlint:disable:next file_length
+}

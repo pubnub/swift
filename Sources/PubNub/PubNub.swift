@@ -560,7 +560,7 @@ extension PubNub {
     of pushType: PushRouter.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     let router = PushRouter(
       .modifyPushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
@@ -587,9 +587,101 @@ extension PubNub {
     of pushType: PushRouter.PushType = .apns,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ModifyPushResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  /// All channels on which APNS push notification has been enabled using specified device token and topic.
+  /// - Parameters:
+  ///   - for: The device token used during registration
+  ///   - on: The topic of the device
+  ///   - environment: The environment to register the device
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func listAPNSChannelsOnDevice(
+    for deviceToken: Data,
+    on topic: String,
+    environment: PushRouter.Environment = .development,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    route(PushRouter(.modifyAPNS(pushToken: deviceToken, environment: environment,
+                                 topic: topic, adding: [], removing: []),
+                     configuration: configuration),
+          networkConfiguration: networkConfiguration,
+          responseDecoder: RegisteredPushChannelsResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  /// - Parameters:
+  ///   - byRemoving: The list of channels to remove the device registration from
+  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - device: The device to add/remove from the channels
+  ///   - on: The topic of the device
+  ///   - environment: The environment to register the device
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func modifyAPNSDevicesOnChannels(
+    byRemoving removals: [String],
+    thenAdding additions: [String],
+    device token: Data,
+    on topic: String,
+    environment: PushRouter.Environment = .development,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    let router = PushRouter(
+      .modifyAPNS(pushToken: token, environment: environment,
+                  topic: topic, adding: additions, removing: removals),
+      configuration: configuration
+    )
+
+    if removals.isEmpty, additions.isEmpty {
+      completion?(
+        .failure(PubNubError(.missingRequiredParameter,
+                             router: router,
+                             additional: [ErrorDescription.missingChannelsAnyGroups])))
+    }
+
+    route(router,
+          networkConfiguration: networkConfiguration,
+          responseDecoder: ModifyPushResponseDecoder(),
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload })
+    }
+  }
+
+  /// Disable APNS push notifications from all channels which is registered with specified pushToken.
+  /// - Parameters:
+  ///   - for: The device token to remove from all channels
+  ///   - on: The topic of the device
+  ///   - environment: TThe environment to register the device
+  ///   - with: Additional network configuration to use on the request
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removeAPNSPushDevice(
+    for deviceToken: Data,
+    on topic: String,
+    environment: PushRouter.Environment = .development,
+    with networkConfiguration: NetworkConfiguration? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
+                     configuration: configuration),
           networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
           respondOn: queue) { result in

@@ -6,7 +6,7 @@ schema: 1
 changelog:
   -
     changes:
-      - test: "Added convience objects for creating push publish messages"
+      - test: "Added convenience objects for creating push publish messages"
         type: feature
       - test: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
         type: feature

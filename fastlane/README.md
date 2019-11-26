@@ -25,16 +25,6 @@ Executes SDK Unit Tests
 fastlane code_coverage
 ```
 Generates Code Coverage Files
-### codacy_code_coverage
-```
-fastlane codacy_code_coverage
-```
-
-### release_verification
-```
-fastlane release_verification
-```
-Executes Linting for Framework releasing
 ### lint_cocoapods
 ```
 fastlane lint_cocoapods

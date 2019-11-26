@@ -76,7 +76,7 @@ public struct PubNubPushTarget: Codable, Hashable {
 
   public init(
     topic: String,
-    environment: PushRouter.Environment = .production,
+    environment: PushRouter.Environment = .development,
     excludedDevices: [String]? = nil
   ) {
     self.topic = topic

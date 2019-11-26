@@ -289,7 +289,7 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let router = PushRouter(.modifyAPNS(pushToken: data, environment: .production,
+    let router = PushRouter(.modifyAPNS(pushToken: data, environment: .development,
                                         topic: "TestTopic", adding: [], removing: []), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List/Modify APNS Devices")
@@ -298,7 +298,7 @@ extension PushRouterTests {
   }
 
   func testModifyAPNS_Router_ValidationError() {
-    let router = PushRouter(.modifyAPNS(pushToken: Data(), environment: .production,
+    let router = PushRouter(.modifyAPNS(pushToken: Data(), environment: .development,
                                         topic: "TestTopic", adding: [], removing: []),
                             configuration: config)
 
@@ -308,7 +308,7 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let emptyTopic = PushRouter(.modifyAPNS(pushToken: data, environment: .production,
+    let emptyTopic = PushRouter(.modifyAPNS(pushToken: data, environment: .development,
                                             topic: "", adding: [], removing: []),
                                 configuration: config)
 
@@ -476,7 +476,7 @@ extension PushRouterTests {
       return XCTFail("Could not encode Data from hex string")
     }
 
-    let router = PushRouter(.removeAllAPNS(pushToken: data, environment: .production, topic: "TestTopic"),
+    let router = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
                             configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove all channels from APNS device")
@@ -485,14 +485,14 @@ extension PushRouterTests {
   }
 
   func testRemoveAllAPNSChannels_Router_ValidationError() {
-    let router = PushRouter(.removeAllAPNS(pushToken: Data(), environment: .production, topic: "TestTopic"),
+    let router = PushRouter(.removeAllAPNS(pushToken: Data(), environment: .development, topic: "TestTopic"),
                             configuration: config)
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
 
     guard let data = Data(hexEncodedString: "A1B2") else {
       return XCTFail("Could not encode Data from hex string")
     }
-    let emptyTopic = PushRouter(.removeAllAPNS(pushToken: data, environment: .production, topic: "TestTopic"),
+    let emptyTopic = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
                                 configuration: config)
     XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
   }

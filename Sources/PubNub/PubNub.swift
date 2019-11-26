@@ -608,7 +608,7 @@ extension PubNub {
   public func listAPNSChannelsOnDevice(
     for deviceToken: Data,
     on topic: String,
-    environment: PushRouter.Environment = .production,
+    environment: PushRouter.Environment = .development,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
@@ -638,7 +638,7 @@ extension PubNub {
     thenAdding additions: [String],
     device token: Data,
     on topic: String,
-    environment: PushRouter.Environment = .production,
+    environment: PushRouter.Environment = .development,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
@@ -675,7 +675,7 @@ extension PubNub {
   public func removeAPNSPushDevice(
     for deviceToken: Data,
     on topic: String,
-    environment: PushRouter.Environment = .production,
+    environment: PushRouter.Environment = .development,
     with networkConfiguration: NetworkConfiguration? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?

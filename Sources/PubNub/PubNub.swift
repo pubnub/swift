@@ -600,8 +600,8 @@ extension PubNub {
   /// All channels on which APNS push notification has been enabled using specified device token and topic.
   /// - Parameters:
   ///   - for: The device token used during registration
-  ///   - on: The topic of the device
-  ///   - environment: The environment to register the device
+  ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
+  ///   - environment: The APS environment to register the device
   ///   - with: Additional network configuration to use on the request
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
@@ -628,8 +628,8 @@ extension PubNub {
   ///   - byRemoving: The list of channels to remove the device registration from
   ///   - thenAdding: The list of channels to add the device registration to
   ///   - device: The device to add/remove from the channels
-  ///   - on: The topic of the device
-  ///   - environment: The environment to register the device
+  ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
+  ///   - environment: The APS environment to register the device
   ///   - with: Additional network configuration to use on the request
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
@@ -667,8 +667,8 @@ extension PubNub {
   /// Disable APNS push notifications from all channels which is registered with specified pushToken.
   /// - Parameters:
   ///   - for: The device token to remove from all channels
-  ///   - on: The topic of the device
-  ///   - environment: TThe environment to register the device
+  ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
+  ///   - environment: The APS environment to register the device
   ///   - with: Additional network configuration to use on the request
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call

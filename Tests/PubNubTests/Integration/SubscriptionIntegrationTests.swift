@@ -33,6 +33,41 @@ class SubscriptionIntegrationTests: XCTestCase {
 
   let testChannel = "SwiftSubscriptionITestsChannel"
 
+  func testSubscribeError() {
+    let subscribeExpect = expectation(description: "Subscribe Expectation")
+    let connectingExpect = expectation(description: "Connecting Expectation")
+    let disconnectedExpect = expectation(description: "Disconnected Expectation")
+
+    // Should return subscription key error
+    let configuration = PubNubConfiguration(publishKey: "", subscribeKey: "")
+    let pubnub = PubNub(configuration: configuration)
+
+    let listener = SubscriptionListener()
+    listener.didReceiveSubscription = { event in
+      switch event {
+      case let .connectionStatusChanged(status):
+        print("Status: \(status)")
+        switch status {
+        case .connecting:
+          connectingExpect.fulfill()
+        case .disconnectedUnexpectedly:
+          disconnectedExpect.fulfill()
+        default:
+          XCTFail("Only should emit these two states")
+        }
+      case .subscribeError:
+        subscribeExpect.fulfill()
+      default:
+        break
+      }
+    }
+    pubnub.add(listener)
+
+    pubnub.subscribe(to: [testChannel])
+
+    wait(for: [subscribeExpect, connectingExpect, disconnectedExpect], timeout: 10.0)
+  }
+
   // swiftlint:disable:next function_body_length
   func testUnsubscribeResubscribe() {
     let subscribeExpect = expectation(description: "Subscribe Expectation")

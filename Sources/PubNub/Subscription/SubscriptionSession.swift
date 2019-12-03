@@ -294,7 +294,6 @@ public class SubscriptionSession {
             }
           } else {
             self?.connectionStatus = .disconnectedUnexpectedly
-            self?.reconnect(at: self?.previousTokenResponse?.timetoken)
           }
         }
       }

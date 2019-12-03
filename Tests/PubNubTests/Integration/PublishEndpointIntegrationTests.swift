@@ -140,4 +140,40 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
     wait(for: [publishExpect], timeout: 10.0)
   }
+
+  func testPublishPushPayload() {
+    let publishExpect = expectation(description: "Publish Response")
+
+    // Instantiate PubNub
+    let configuration = PubNubConfiguration(from: testsBundle)
+    let client = PubNub(configuration: configuration)
+
+    let pushMessage = PubNubPushMessage(
+      apns: PubNubAPNSPayload(
+        aps: APSPayload(alert: .object(.init(title: "Apple Message")), badge: 1, sound: .string("default")),
+        pubnub: [.init(targets: [.init(topic: "com.pubnub.swift", environment: .production)], collapseID: "SwiftSDK")],
+        payload: "Push Message from PubNub Swift SDK"
+      ),
+      fcm: PubNubFCMPayload(
+        payload: "Push Message from PubNub Swift SDK",
+        target: .topic("com.pubnub.swift"),
+        notification: FCMNotificationPayload(title: "Android Message"),
+        android: FCMAndroidPayload(collapseKey: "SwiftSDK", notification: FCMAndroidNotification(sound: "default"))
+      ),
+      additional: "Push Message from PubNub Swift SDK"
+    )
+
+    // Publish a simple message to the demo_tutorial channel
+    client.publish(channel: "SwiftITest", message: pushMessage) { result in
+      switch result {
+      case .success:
+        break
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      publishExpect.fulfill()
+    }
+
+    wait(for: [publishExpect], timeout: 10.0)
+  }
 }

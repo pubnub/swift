@@ -428,6 +428,29 @@ extension AnyJSONType: Hashable {
 // MARK: - AnyJSONType Collections
 
 extension AnyJSONType {
+  var isScalar: Bool {
+    switch self {
+    case .string:
+      return true
+    case .integer:
+      return true
+    case .double:
+      return true
+    case .boolean:
+      return true
+    case .null:
+      return true
+    case .array:
+      return false
+    case .dictionary:
+      return false
+    case .codable:
+      return false
+    case .unknown:
+      return true
+    }
+  }
+
   var rawArray: [AnyJSONType] {
     switch self {
     case let .array(arrayValue):

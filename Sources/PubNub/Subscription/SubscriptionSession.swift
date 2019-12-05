@@ -130,7 +130,7 @@ public class SubscriptionSession {
       notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
     }
 
-    if subscribeChange.didChange || connectionStatus != .connected {
+    if subscribeChange.didChange || !connectionStatus.isActive {
       reconnect(at: timetoken)
     }
   }

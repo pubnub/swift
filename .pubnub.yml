@@ -6,6 +6,8 @@ schema: 1
 changelog:
   -
     changes:
+      - test: "Duplicate subscription will no longer start if a current subscription is connecting"
+        type: bug
       - test: "Added missing APNS2 pubnub config field to publish payload object"
         type: bug
       - test: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"

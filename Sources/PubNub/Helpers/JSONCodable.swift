@@ -46,6 +46,10 @@ extension JSONCodable {
     return AnyJSON(self)
   }
 
+  public var isScalar: Bool {
+    return codableValue.value.isScalar
+  }
+
   /// A `Result` that is either the underlying value as a JSON `String` or an error why it couldn't be created
   var jsonStringifyResult: Result<String, Error> {
     return codableValue.jsonStringifyResult

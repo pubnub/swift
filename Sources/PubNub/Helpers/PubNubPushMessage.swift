@@ -35,12 +35,16 @@ public struct PubNubPushMessage: JSONCodable {
   /// The payload delivered via Microsoft Push Notification Service (MPNS)
   public let mpns: JSONCodable?
   /// Additional message payload sent outside of the push notification
+  ///
+  /// In order to guarantee valid JSON any scalar values will be assigned to the `data` key.
+  /// Non-scalar values will retain their coding keys.
   public var additionalMessage: JSONCodable?
 
   enum CodingKeys: String, CodingKey {
     case apns = "pn_apns"
     case fcm = "pn_gcm"
     case mpns = "pn_mpns"
+    case additionalMessage = "data"
   }
 
   public init(
@@ -63,11 +67,17 @@ public struct PubNubPushMessage: JSONCodable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    try additionalMessage?.codableValue.encode(to: encoder)
+    if !(additionalMessage?.codableValue.isScalar ?? true) {
+      try additionalMessage?.codableValue.encode(to: encoder)
+    }
 
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(apns, forKey: .apns)
     try container.encodeIfPresent(fcm, forKey: .fcm)
     try container.encodeIfPresent(mpns?.codableValue, forKey: .mpns)
+
+    if additionalMessage?.codableValue.isScalar ?? true {
+      try container.encodeIfPresent(additionalMessage?.codableValue, forKey: .additionalMessage)
+    }
   }
 }

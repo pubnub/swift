@@ -1,9 +1,21 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.3.0"
+version: "2.3.1"
 schema: 1
 changelog:
+  -
+    changes:
+      - test: "Duplicate subscription will no longer start if a current subscription is connecting"
+        type: bug
+      - test: "Added missing APNS2 pubnub config field to publish payload object"
+        type: bug
+      - test: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"
+        type: bug
+      - test: "Subscription will no long attempt to automatically reconnect after an unexpected disconnet"
+        type: bug
+    date: 2019-12-03
+    version: v2.3.1
   -
     changes:
       - test: "Added convenience objects for creating push publish messages"

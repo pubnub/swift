@@ -253,11 +253,13 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct ModifiedPushChannelsPayloadResponse: Codable {
+  /// Response message
   public let message: EndpointResponseMessage = .acknowledge
-
+  /// Channels that had push support added
   public let added: [String]
+  /// Channels that had push support removed
   public let removed: [String]
-
+  /// All channels that were modified
   public var channels: [String] {
     return added + removed
   }

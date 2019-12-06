@@ -24,22 +24,29 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable line_length
+// swiftlint:disable file_length line_length
 
 import Foundation
 
 /// The PubNub push configuration payload
 public struct PubNubPushConfig: Codable, Hashable {
+  /// The authorization method used inside the PubNub Portal from your Apple Developer Account
+  public let authMethod: String = "token"
   /// The targets of a published PubNub notification
   public let targets: [PubNubPushTarget]
   /// Version of the PubNub push configuration
   public let version: String = "v2"
   /// APS collapse id
+  ///
+  /// This will populate the APN's `apns-collapse-id` header
   public let collapseID: String?
   /// Expiration time of the remote notification
+  ///
+  /// This will populate the APN's `apns-expiration` header
   public let expiration: Date?
 
   enum CodingKeys: String, CodingKey {
+    case authMethod = "auth_method"
     case collapseID = "collapse_id"
     case expiration
     case targets
@@ -60,6 +67,8 @@ public struct PubNubPushConfig: Codable, Hashable {
 /// The target of a published PubNub notification
 public struct PubNubPushTarget: Codable, Hashable {
   /// The topic of the device
+  ///
+  /// This will populate the APN's `apns-topic` header
   public let topic: String
   /// The APS environment
   public let environment: PushRouter.Environment
@@ -88,14 +97,19 @@ public struct PubNubPushTarget: Codable, Hashable {
 // MARK: - APS Payload
 
 public struct PubNubAPNSPayload: Codable {
+  /// The `APS` payload to be included in all notifications through APNS
   public let aps: APSPayload
+  /// The PubNub push configuration payload
   public let pubnub: [PubNubPushConfig]
+  /// The message being sent inside the remote notification
+  ///
+  /// In order to guarantee valid JSON any scalar values will be assigned to the `data` key.  Non-scalar values will retain their coding keys.
   public let payload: JSONCodable
 
   enum CodingKeys: String, CodingKey {
     case aps
     case pubnub = "pn_push"
-    case payload
+    case payload = "data"
   }
 
   public init(aps: APSPayload, pubnub: [PubNubPushConfig], payload: JSONCodable) {
@@ -112,11 +126,17 @@ public struct PubNubAPNSPayload: Codable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    try payload.codableValue.encode(to: encoder)
+    if !payload.codableValue.isScalar {
+      try payload.codableValue.encode(to: encoder)
+    }
 
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(aps, forKey: .aps)
     try container.encode(pubnub, forKey: .pubnub)
+
+    if payload.codableValue.isScalar {
+      try container.encode(payload.codableValue, forKey: .payload)
+    }
   }
 }
 
@@ -380,4 +400,4 @@ public struct APSCriticalSound: Codable, Hashable {
   }
 }
 
-// swiftlint:enable line_length
+// swiftlint:enable file_length line_length

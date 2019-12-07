@@ -68,7 +68,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     wait(for: [subscribeExpect, connectingExpect, disconnectedExpect], timeout: 10.0)
   }
 
-  // swiftlint:disable:next function_body_length
+  // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testUnsubscribeResubscribe() {
     let totalLoops = 10
 

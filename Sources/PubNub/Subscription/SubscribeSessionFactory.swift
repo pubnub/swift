@@ -67,7 +67,8 @@ public class SubscribeSessionFactory {
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     return sessions.lockedWrite { dictionary in
-      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription, sessionQueue: subscribeQueue)
+      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription,
+                                                      sessionQueue: subscribeQueue)
       let subscriptionSession = SubscriptionSession(configuration: config,
                                                     network: sessionReplaceable)
       dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)

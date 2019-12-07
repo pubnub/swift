@@ -71,7 +71,7 @@ extension SubscriptionSession {
       configuration: configuration
     )
 
-    networkSession
+    nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { [weak self] result in
@@ -98,7 +98,7 @@ extension SubscriptionSession {
   ) {
     let router = PresenceRouter(.leave(channels: channels, groups: groups), configuration: configuration)
 
-    networkSession
+    nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { result in
@@ -122,7 +122,7 @@ extension SubscriptionSession {
     let router = PresenceRouter(.getState(uuid: uuid, channels: channels, groups: groups),
                                 configuration: configuration)
 
-    networkSession
+    nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(on: .main, decoder: AnyJSONResponseDecoder()) { [weak self] result in
@@ -162,7 +162,7 @@ extension SubscriptionSession {
     let router = PresenceRouter(.setState(channels: channels, groups: groups, state: state),
                                 configuration: configuration)
 
-    networkSession
+    nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(on: .main, decoder: SetPresenceStateResponseDecoder()) { [weak self] result in

@@ -113,7 +113,7 @@ final class Request {
     self.requestOperator = MultiplexRequestOperator(operators: operators)
     self.delegate = delegate
 
-    PubNub.log.debug("Request Created \(requestID)")
+    PubNub.log.debug("Request Created \(requestID) on \(router)")
   }
 
   deinit {
@@ -145,8 +145,6 @@ final class Request {
   var data: Data? {
     return atomicState.lockedRead { $0.responesData }
   }
-
-  var cancellationReason: PubNubError.Reason?
 
   private(set) var error: Error? {
     get {
@@ -180,6 +178,13 @@ final class Request {
 
   var isCancelled: Bool {
     return atomicState.lockedRead { $0.taskState == .cancelled }
+  }
+
+  var isFinished: Bool {
+    return atomicState.lockedRead { state in
+      let taskState = state.taskState
+      return taskState == .cancelled || taskState == .finished
+    }
   }
 
   // MARK: - Request Processing
@@ -367,9 +372,11 @@ extension Request {
   }
 
   @discardableResult
-  func cancel(_ error: Error? = nil) -> Self {
-    let cancellationError = PubNubError.cancellation(cancellationReason,
-                                                     error: error, router: router)
+  func cancel(_ error: Error) -> Self {
+    // Nothing to do here if we're already finished
+    if isFinished {
+      return self
+    }
 
     atomicState.lockedWrite { mutableState in
       guard mutableState.taskState.canTransition(to: .cancelled) else {
@@ -379,11 +386,15 @@ extension Request {
 
       self.requestQueue.async { self.didCancel() }
 
-      mutableState.error = cancellationError
+      mutableState.error = error
 
       guard let task = mutableState.tasks.last else {
         self.requestQueue.async { self.finish() }
         return
+      }
+
+      if task.state != .completed {
+        self.requestQueue.async { task.cancel() }
       }
 
       if task.state != .completed || task.state != .canceling {
@@ -391,7 +402,7 @@ extension Request {
       }
 
       // We skip the retry attempt due to the cancellation
-      self.requestQueue.async { self.finish(error: cancellationError) }
+      self.requestQueue.async { self.finish(error: error) }
     }
     return self
   }

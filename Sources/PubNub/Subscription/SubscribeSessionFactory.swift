@@ -43,6 +43,7 @@ public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
   /// The singleton instance for this factory
+  public let subscribeQueue = DispatchQueue(label: "Subscribe Response Queue")
   public static var shared = SubscribeSessionFactory()
   private let sessions = Atomic<SessionMap>([:])
   private init() {}
@@ -66,7 +67,8 @@ public class SubscribeSessionFactory {
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     return sessions.lockedWrite { dictionary in
-      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription)
+      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription,
+                                                      sessionQueue: subscribeQueue)
       let subscriptionSession = SubscriptionSession(configuration: config,
                                                     network: sessionReplaceable)
       dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)

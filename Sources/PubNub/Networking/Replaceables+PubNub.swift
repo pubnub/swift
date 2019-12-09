@@ -68,6 +68,8 @@ public protocol SessionReplaceable {
   var sessionID: UUID { get }
   /// The underlying `URLSession` used to execute the network tasks
   var session: URLSessionReplaceable { get }
+  /// The dispatch queue used to execute session operations
+  var sessionQueue: DispatchQueue { get }
   /// The method used to set the default `RequestOperator`
   ///
   /// - parameter requestOperator: The default `RequestOperator`
@@ -113,11 +115,10 @@ public protocol RequestReplaceable: AnyObject {
 
   var retryCount: Int { get }
   var isCancelled: Bool { get }
-  var cancellationReason: PubNubError.Reason? { get set }
   func prepareForRetry()
 
   @discardableResult
-  func cancel(_ error: Error?) -> Self
+  func cancel(_ error: Error) -> Self
   func validate() -> Self
   /// The directions on how to process the response when it comes back from the `Endpoint`
   ///

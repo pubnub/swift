@@ -36,7 +36,7 @@ final class HTTPSession {
   /// The underlying `URLSession` used to execute the network tasks
   let session: URLSessionReplaceable
   /// The dispatch queue used to execute session operations
-  let sessionQueue: DispatchQueue
+  public let sessionQueue: DispatchQueue
   /// The dispatch queue used to execute request operations
   let requestQueue: DispatchQueue
   /// The state that tracks the validity of the underlying `URLSessionReplaceable`
@@ -214,7 +214,6 @@ final class HTTPSession {
       let task = session.dataTask(with: urlRequestCopy)
       taskToRequest[task] = request
       request.didCreate(task)
-
     } else {
       PubNub.log.warn("Attempted to create task from invalidated session: \(sessionID)")
     }

@@ -31,15 +31,17 @@ public class SubscriptionSession {
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
   public let uuid = UUID()
-  let networkSession: SessionReplaceable
+  let longPollingSession: SessionReplaceable
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
   var messageCache = [MessageResponse<AnyJSON>?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
 
+  /// Session used for performing request/response REST calls
+  let nonSubscribeSession: SessionReplaceable
+
   // These allow for better tracking of outstanding subscribe loop request status
-  var longPolling: Bool = false
   var request: RequestReplaceable?
 
   let responseQueue: DispatchQueue
@@ -81,14 +83,16 @@ public class SubscriptionSession {
 
   internal init(configuration: SubscriptionConfiguration, network session: SessionReplaceable) {
     self.configuration = configuration
-    networkSession = session
+    longPollingSession = session
+    nonSubscribeSession = HTTPSession(configuration: URLSessionConfiguration.pubnub, sessionQueue: session.sessionQueue)
     responseQueue = DispatchQueue(label: "com.pubnub.subscription.response", qos: .default)
     sessionStream = SessionListener(queue: responseQueue)
   }
 
   deinit {
     PubNub.log.debug("SubscriptionSession Destoryed")
-    networkSession.invalidateAndCancel()
+    longPollingSession.invalidateAndCancel()
+    nonSubscribeSession.invalidateAndCancel()
     // Poke the session factory to clean up nil values
     SubscribeSessionFactory.shared.sessionDestroyed()
   }
@@ -146,12 +150,6 @@ public class SubscriptionSession {
 
       // Start presence heartbeat
       registerHeartbeatTimer()
-    } else if longPolling {
-      // Stop current task so it can restart
-      stopSubscribeLoop(.longPollingRestart)
-
-      // Start subscribe loop
-      performSubscribeLoop(at: timetoken)
     } else {
       // Start subscribe loop
       performSubscribeLoop(at: timetoken)
@@ -167,16 +165,13 @@ public class SubscriptionSession {
   @discardableResult
   func stopSubscribeLoop(_ reason: PubNubError.Reason) -> Bool {
     // Cancel subscription requests
-    request?.cancellationReason = reason
-    request?.cancel(nil)
+    request?.cancel(PubNubError(reason, router: request?.router))
 
     return connectionStatus.isActive
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
   func performSubscribeLoop(at timetoken: Timetoken?) {
-    longPolling = true
-
     let (channels, groups, storedState) = internalState
       .lockedWrite { state -> ([String], [String], [String: [String: JSONCodable]]?) in
 
@@ -197,14 +192,17 @@ public class SubscriptionSession {
                                             filter: configuration.filterExpression),
                                  configuration: configuration)
 
-    request = networkSession
+    // Cancel previous request before starting new one
+    stopSubscribeLoop(.longPollingRestart)
+
+    // Will compre this in the error response to see if we need to restart
+    let nextSubscribe = longPollingSession
       .request(with: router, requestOperator: configuration.automaticRetry)
+    request = nextSubscribe
 
     request?
       .validate()
       .response(on: .main, decoder: SubscribeResponseDecoder()) { [weak self] result in
-        self?.longPolling = false
-
         switch result {
         case let .success(response):
           guard let strongSelf = self else {
@@ -283,13 +281,14 @@ public class SubscriptionSession {
           self?.performSubscribeLoop(at: response.payload.token.timetoken)
         case let .failure(error):
           self?.notify {
-            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: nil)))
+            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: self?.request?.router)))
           }
 
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
             if self?.subscriptionCount == 0 {
               self?.connectionStatus = .disconnected
-            } else {
+            } else if self?.request?.requestID == nextSubscribe.requestID {
+              // No new request has been created so we'll reconnect here
               self?.reconnect(at: self?.previousTokenResponse?.timetoken)
             }
           } else {

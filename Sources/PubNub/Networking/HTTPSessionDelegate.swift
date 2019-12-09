@@ -54,7 +54,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
     if let error = error {
       if error.isCancellationError {
-        request.cancel(error)
+        request.cancel(PubNubError(.clientCancelled, router: request.router, underlying: error))
       } else {
         request.didComplete(task, with: error)
       }

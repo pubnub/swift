@@ -4,204 +4,142 @@ scm: github.com/pubnub/swift
 version: "2.3.2"
 schema: 1
 changelog:
-  -
-    changes:
-      -
-        text: "Subscription requests will now properly cancel when updating existing subscription loop"
-        type: bug
+  - changes:
+    - text: "Subscription requests will now properly cancel when updating existing subscription loop"
+      type: bug
     date: 2019-12-09
     version: v2.3.2
-  -
-    changes:
-      -
-        text: "Duplicate subscription will no longer start if a current subscription is connecting"
-        type: bug
-      -
-        text: "Added missing APNS2 pubnub config field to publish payload object"
-        type: bug
-      -
-        text: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"
-        type: bug
-      -
-        text: "Subscription will no long attempt to automatically reconnect after an unexpected disconnet"
-        type: bug
+  - changes:
+    - text: "Duplicate subscription will no longer start if a current subscription is connecting"
+      type: bug
+    - text: "Added missing APNS2 pubnub config field to publish payload object"
+      type: bug
+    - text: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"
+      type: bug
+    - text: "Subscription will no long attempt to automatically reconnect after an unexpected disconnet"
+      type: bug
     date: 2019-12-03
     version: v2.3.1
-  -
-    changes:
-      -
-        text: "Added convenience objects for creating push publish messages"
-        type: feature
-      -
-        text: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
-        type: feature
-      -
-        text: "`Channel` property on push responses is not public"
-        type: bug
+  - changes:
+    - text: "Added convenience objects for creating push publish messages"
+      type: feature
+    - text: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
+      type: feature
+    - text: "`Channel` property on push responses is not public"
+      type: bug
     date: 2019-11-25
     version: v2.3.0
-  -
-    changes:
-      -
-        text: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"
-        type: improvement
-      -
-        text: "Removed `PubNubRouter`, and replaced with multiple service specific `HTTPRouter` implementations"
-        type: improvement
-      -
-        text: "Removed `Endpoint` type"
-        type: improvement
-      -
-        text: "Renamed `Response` to `EndpointResponse`"
-        type: improvement
-      -
-        text: "Removed `HTTPHeader` & `HTTPHeader`, and replaced with `[String: String]`"
-        type: improvement
-      -
-        text: "Renamed `Session` to `HTTPSession` and made it an internal type"
-        type: improvement
-      -
-        text: "Created `RequestReplaceable` and made `Request` an internal type"
-        type: improvement
+  - changes:
+    - text: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"
+      type: improvement
+    - text: "Removed `PubNubRouter`, and replaced with multiple service specific `HTTPRouter` implementations"
+      type: improvement
+    - text: "Removed `Endpoint` type"
+      type: improvement
+    - text: "Renamed `Response` to `EndpointResponse`"
+      type: improvement
+    - text: "Removed `HTTPHeader` & `HTTPHeader`, and replaced with `[String: String]`"
+      type: improvement
+    - text: "Renamed `Session` to `HTTPSession` and made it an internal type"
+      type: improvement
+    - text: "Created `RequestReplaceable` and made `Request` an internal type"
+      type: improvement
     date: 2019-11-14
     version: v2.2.0
-  -
-    changes:
-      -
-        text: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"
-        type: bug
+  - changes:
+    - text: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"
+      type: bug
     date: 2019-11-12
     version: v2.1.2
-  -
-    changes:
-      -
-        text: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
-        type: bug
-      -
-        text: "Membership APIs no longer use hardcoded subscribe key"
-        type: bug
+  - changes:
+    - text: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
+      type: bug
+    - text: "Membership APIs no longer use hardcoded subscribe key"
+      type: bug
     date: 2019-11-06
     version: v2.1.1
-  -
-    changes:
-      -
-        text: "Added support for Message Action Subscription Listener"
-        type: feature
-      -
-        text: "Fetch previously published Message Actions and Messages via History APIs"
-        type: feature
-      -
-        text: "Fetch previously published Message Actions on a channel"
-        type: feature
-      -
-        text: "Add/Remove Message Actions on previously published messages"
-        type: feature
+  - changes:
+    - text: "Added support for Message Action Subscription Listener"
+      type: feature
+    - text: "Fetch previously published Message Actions and Messages via History APIs"
+      type: feature
+    - text: "Fetch previously published Message Actions on a channel"
+      type: feature
+    - text: "Add/Remove Message Actions on previously published messages"
+      type: feature
     date: 2019-11-01
     version: v2.1.0
-  -
-    changes:
-      -
-        text: "Add/Update documentation for public classes, methods, and properties"
-        type: bug
+  - changes:
+    - text: "Add/Update documentation for public classes, methods, and properties"
+      type: bug
     date: 2019-10-25
     version: v2.0.2
-  -
-    changes:
-      -
-        text: "Update the version inside the podspec file"
-        type: bug
+  - changes:
+    - text: "Update the version inside the podspec file"
+      type: bug
     date: 2019-10-21
     version: v2.0.1
-  -
-    changes:
-      -
-        text: "Subscribe/Unsubscribe will now properly cancel/restart the subscribe loop when completely stoppping cycle"
-        type: bug
-      -
-        text: "Fixed memory leak inside Hearthbeat response handler"
-        type: bug
-      -
-        text: "Fixed memory leak inside SubscriptionSessionFactory"
-        type: bug
-      -
-        text: "PNError enum has been replaced by PubNubError struct to allow for greater flexibility in error handling and recognition"
-        type: improvement
-      -
-        text: "AnyJSON as been replaced by the JSONCodable protocol for method parameters allowing any conforming object to be passed"
-        type: improvement
-      -
-        text: "Removed initialized and cancelled as ConnectionsStatus options"
-        type: improvement
-      -
-        text: "Response error events due to cancellations will now be suppresed by default by the SubscriptionListener.  They can be toggled on using a the `supressCancellationErrors` property"
-        type: improvement
-      -
-        text: "Added subscription event listener for subscribe/unsubscribe changes"
-        type: feature
+  - changes:
+    - text: "Subscribe/Unsubscribe will now properly cancel/restart the subscribe loop when completely stoppping cycle"
+      type: bug
+    - text: "Fixed memory leak inside Hearthbeat response handler"
+      type: bug
+    - text: "Fixed memory leak inside SubscriptionSessionFactory"
+      type: bug
+    - text: "PNError enum has been replaced by PubNubError struct to allow for greater flexibility in error handling and recognition"
+      type: improvement
+    - text: "AnyJSON as been replaced by the JSONCodable protocol for method parameters allowing any conforming object to be passed"
+      type: improvement
+    - text: "Removed initialized and cancelled as ConnectionsStatus options"
+      type: improvement
+    - text: "Response error events due to cancellations will now be suppresed by default by the SubscriptionListener.  They can be toggled on using a the `supressCancellationErrors` property"
+      type: improvement
+    - text: "Added subscription event listener for subscribe/unsubscribe changes"
+      type: feature
     date: 2019-10-17
     version: v2.0.0
-  -
-    changes:
-      -
-        text: "Made the subscription token a property on the listener for cleaner setup"
-        type: improvement
+  - changes:
+    - text: "Made the subscription token a property on the listener for cleaner setup"
+      type: improvement
     date: 2019-10-15
     version: v1.2.1
-  -
-    changes:
-      -
-        text: "Removed development dependencies from being included in Swift Package imports"
-        type: improvement
-      -
-        text: "Added meta event listener covering all event types"
-        type: improvement
-      -
-        text: "Support for Objects added"
-        type: feature
-      -
-        text: "Changed `ConnectionStatus.isActive` and `ConnectionStatus.isConnected` access control to public"
-        type: bug
-      -
-        text: "Fixed typo in PubNub.Push method parameters"
-        type: bug
-      -
-        text: "Add support for Global HereNow"
-        type: bug
-      -
-        text: "Fixed HereNow stateless response decoding"
-        type: bug
-      -
-        text: "Fixed HereNow single channel response decoding"
-        type: bug
+  - changes:
+    - text: "Removed development dependencies from being included in Swift Package imports"
+      type: improvement
+    - text: "Added meta event listener covering all event types"
+      type: improvement
+    - text: "Support for Objects added"
+      type: feature
+    - text: "Changed `ConnectionStatus.isActive` and `ConnectionStatus.isConnected` access control to public"
+      type: bug
+    - text: "Fixed typo in PubNub.Push method parameters"
+      type: bug
+    - text: "Add support for Global HereNow"
+      type: bug
+    - text: "Fixed HereNow stateless response decoding"
+      type: bug
+    - text: "Fixed HereNow single channel response decoding"
+      type: bug
     date: 2019-10-08
     version: v1.2.0
-  -
-    changes:
-        -
-          text: "Add support for Signal Subscription Listener"
-          type: feature
-        -
-          text: "Add support for Signal publish API"
-          type: feature
-        -
-          text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
-          type: bug
-        -
-          text: "Default Encryption/Decryption methodology now properly aligns with other SDKs"
-          type: bug
-        -
-          text: "Exposed add(listener:) to be called by PubNub instance directly"
-          type: improvement
-        -
-          text: "`?` characters inside URL query parameters will now be properly url encoded"
-          type: bug
+  - changes:
+    - text: "Add support for Signal Subscription Listener"
+      type: feature
+    - text: "Add support for Signal publish API"
+      type: feature
+    - text: "Fixed crash attempting to create URLSessionTasks from invalidated URLSession"
+      type: bug
+    - text: "Default Encryption/Decryption methodology now properly aligns with other SDKs"
+      type: bug
+    - text: "Exposed add(listener:) to be called by PubNub instance directly"
+      type: improvement
+    - text: "`?` characters inside URL query parameters will now be properly url encoded"
+      type: bug
     date: 2019-09-03
     version: v1.1.0
-  -
-    changes:
-      -
-        text: "Initial release of native Swift PubNub SDK"
-        type: feature
+  - changes:
+    - text: "Initial release of native Swift PubNub SDK"
+      type: feature
     date: 2019-08-23
     version: v1.0.0
 features:
@@ -285,8 +223,7 @@ features:
     - MESSAGE-ACTIONS-ADD
     - MESSAGE-ACTIONS-REMOVE
 supported-platforms:
-  -
-    version: PubNub Swift SDK
+  - version: PubNub Swift SDK
     platforms:
       - iOS 8.0 or higher
       - macOS 10.10 or higher

@@ -7,124 +7,124 @@ changelog:
   -
     changes:
       -
-        test: "Subscription requests will now properly cancel when updating existing subscription loop"
+        text: "Subscription requests will now properly cancel when updating existing subscription loop"
         type: bug
     date: 2019-12-09
     version: v2.3.2
   -
     changes:
       -
-        test: "Duplicate subscription will no longer start if a current subscription is connecting"
+        text: "Duplicate subscription will no longer start if a current subscription is connecting"
         type: bug
       -
-        test: "Added missing APNS2 pubnub config field to publish payload object"
+        text: "Added missing APNS2 pubnub config field to publish payload object"
         type: bug
       -
-        test: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"
+        text: "Fixed Coding issue when a scalar value is used for APNS2 publish payload object"
         type: bug
       -
-        test: "Subscription will no long attempt to automatically reconnect after an unexpected disconnet"
+        text: "Subscription will no long attempt to automatically reconnect after an unexpected disconnet"
         type: bug
     date: 2019-12-03
     version: v2.3.1
   -
     changes:
       -
-        test: "Added convenience objects for creating push publish messages"
+        text: "Added convenience objects for creating push publish messages"
         type: feature
       -
-        test: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
+        text: "List/Add/Remove/Remove-All of APNS2 push channels for devices"
         type: feature
       -
-        test: "`Channel` property on push responses is not public"
+        text: "`Channel` property on push responses is not public"
         type: bug
     date: 2019-11-25
     version: v2.3.0
   -
     changes:
       -
-        test: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"
+        text: "`Timetoken` was changed from an Int64 to UInt64 to avoid negative timetoken values"
         type: improvement
       -
-        test: "Removed `PubNubRouter`, and replaced with multiple service specific `HTTPRouter` implementations"
+        text: "Removed `PubNubRouter`, and replaced with multiple service specific `HTTPRouter` implementations"
         type: improvement
       -
-        test: "Removed `Endpoint` type"
+        text: "Removed `Endpoint` type"
         type: improvement
       -
-        test: "Renamed `Response` to `EndpointResponse`"
+        text: "Renamed `Response` to `EndpointResponse`"
         type: improvement
       -
-        test: "Removed `HTTPHeader` & `HTTPHeader`, and replaced with `[String: String]`"
+        text: "Removed `HTTPHeader` & `HTTPHeader`, and replaced with `[String: String]`"
         type: improvement
       -
-        test: "Renamed `Session` to `HTTPSession` and made it an internal type"
+        text: "Renamed `Session` to `HTTPSession` and made it an internal type"
         type: improvement
       -
-        test: "Created `RequestReplaceable` and made `Request` an internal type"
+        text: "Created `RequestReplaceable` and made `Request` an internal type"
         type: improvement
     date: 2019-11-14
     version: v2.2.0
   -
     changes:
       -
-        test: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"
+        text: "PubNub Info.plist is now included on Cocoapod and Carthage deployed builds"
         type: bug
     date: 2019-11-12
     version: v2.1.2
   -
     changes:
       -
-        test: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
+        text: "Encoding `JSONCodableScalar` values will now properly encode to a single value"
         type: bug
       -
-        test: "Membership APIs no longer use hardcoded subscribe key"
+        text: "Membership APIs no longer use hardcoded subscribe key"
         type: bug
     date: 2019-11-06
     version: v2.1.1
   -
     changes:
       -
-        test: "Added support for Message Action Subscription Listener"
+        text: "Added support for Message Action Subscription Listener"
         type: feature
       -
-        test: "Fetch previously published Message Actions and Messages via History APIs"
+        text: "Fetch previously published Message Actions and Messages via History APIs"
         type: feature
       -
-        test: "Fetch previously published Message Actions on a channel"
+        text: "Fetch previously published Message Actions on a channel"
         type: feature
       -
-        test: "Add/Remove Message Actions on previously published messages"
+        text: "Add/Remove Message Actions on previously published messages"
         type: feature
     date: 2019-11-01
     version: v2.1.0
   -
     changes:
       -
-        test: "Add/Update documentation for public classes, methods, and properties"
+        text: "Add/Update documentation for public classes, methods, and properties"
         type: bug
     date: 2019-10-25
     version: v2.0.2
   -
     changes:
       -
-        test: "Update the version inside the podspec file"
+        text: "Update the version inside the podspec file"
         type: bug
     date: 2019-10-21
     version: v2.0.1
   -
     changes:
       -
-        test: "Subscribe/Unsubscribe will now properly cancel/restart the subscribe loop when completely stoppping cycle"
+        text: "Subscribe/Unsubscribe will now properly cancel/restart the subscribe loop when completely stoppping cycle"
         type: bug
       -
-        test: "Fixed memory leak inside Hearthbeat response handler"
+        text: "Fixed memory leak inside Hearthbeat response handler"
         type: bug
       -
-        test: "Fixed memory leak inside SubscriptionSessionFactory"
+        text: "Fixed memory leak inside SubscriptionSessionFactory"
         type: bug
       -
-        test: "PNError enum has been replaced by PubNubError struct to allow for greater flexibility in error handling and recognition"
+        text: "PNError enum has been replaced by PubNubError struct to allow for greater flexibility in error handling and recognition"
         type: improvement
       -
         text: "AnyJSON as been replaced by the JSONCodable protocol for method parameters allowing any conforming object to be passed"

@@ -1,6 +1,6 @@
 language: objective-c
 os: osx
-osx_image: xcode11.2
+osx_image: xcode11.3
 sudo: true
 rvm: 2.5.3
 cache:
@@ -17,6 +17,15 @@ stages:
     if: type = pull_request
 jobs:
   include:
+    - stage: Validate
+      name: "Code Coverage"
+      script: bundle exec fastlane test --env ios
+    - name: Cocoapods
+      script: bundle exec fastlane lint_cocoapods
+    - name: "Swift Package Manager"
+      script: bundle exec fastlane lint_swift_package_manager
+    - name: "Build Demo App"
+      script: bundle exec fastlane build_example --env ios
     - stage: "Unit Tests"
       name: iOS
       before_script: xcrun simctl list -j
@@ -35,15 +44,6 @@ jobs:
       - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
       script: bundle exec fastlane test --env legacy
-    - stage: Validate
-      name: "Code Coverage"
-      script: bundle exec fastlane test --env ios
-    - name: Cocoapods
-      script: bundle exec fastlane lint_cocoapods
-    - name: "Swift Package Manager"
-      script: bundle exec fastlane lint_swift_package_manager
-    - name: "Build Demo App"
-      script: bundle exec fastlane build_example --env ios
 before_cache:
   - rvm cleanup all
   - bundle clean

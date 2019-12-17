@@ -193,10 +193,7 @@ enum QueryKey: String {
   case channel
   case count
   case max
-  case reverse
-  case includeToken = "include_token"
   case includeMeta = "include_meta"
-  case stringtoken
   case timetoken
   case channelsTimetoken
   case include

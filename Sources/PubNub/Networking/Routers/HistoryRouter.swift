@@ -32,17 +32,14 @@ import Foundation
 struct HistoryRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case fetchV2(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
-    case fetchV3(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
+    case fetch(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
     case fetchWithActions(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool)
     case delete(channel: String, start: Timetoken?, end: Timetoken?)
     case messageCounts(channels: [String], timetoken: Timetoken?, channelsTimetoken: [Timetoken]?)
 
     var description: String {
       switch self {
-      case .fetchV2:
-        return "Fetch Message History V2"
-      case .fetchV3:
+      case .fetch:
         return "Fetch Message History"
       case .fetchWithActions:
         return "Fetch Message History with Message Actions"
@@ -55,11 +52,9 @@ struct HistoryRouter: HTTPRouter {
 
     var firstChannel: String? {
       switch self {
-      case .fetchV2(let channel, _, _, _, _):
-        return channel
       case .fetchWithActions(let channel, _, _, _, _):
         return channel
-      case .fetchV3(let channels, _, _, _, _):
+      case .fetch(let channels, _, _, _, _):
         return channels.first
       case .delete(let channel, _, _):
         return channel
@@ -91,11 +86,9 @@ struct HistoryRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case .fetchV2(let channel, _, _, _, _):
-      path = "/v2/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
     case .fetchWithActions(let channel, _, _, _, _):
       path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(channel)"
-    case .fetchV3(let channels, _, _, _, _):
+    case .fetch(let channels, _, _, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case .delete(let channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
@@ -109,20 +102,12 @@ struct HistoryRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .fetchV2(_, max, start, end, includeMeta):
-      query.appendIfPresent(key: .count, value: max?.description)
-      query.appendIfPresent(key: .stringtoken, value: false.description)
-      query.appendIfPresent(key: .includeToken, value: true.description)
-      query.appendIfPresent(key: .reverse, value: false.description)
-      query.appendIfPresent(key: .start, value: start?.description)
-      query.appendIfPresent(key: .end, value: end?.description)
-      query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
     case let .fetchWithActions(_, max, start, end, includeMeta):
       query.appendIfPresent(key: .max, value: max?.description)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
       query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
-    case let .fetchV3(_, max, start, end, includeMeta):
+    case let .fetch(_, max, start, end, includeMeta):
       query.appendIfPresent(key: .max, value: max?.description)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -151,12 +136,9 @@ struct HistoryRouter: HTTPRouter {
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case .fetchV2(let channel, _, _, _, _):
-      return isInvalidForReason((channel.isEmpty,
-                                 ErrorDescription.emptyChannelString))
     case .fetchWithActions(let channel, _, _, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
-    case .fetchV3(let channels, _, _, _, _):
+    case .fetch(let channels, _, _, _, _):
       return isInvalidForReason((channels.isEmpty, ErrorDescription.emptyChannelArray))
     case let .delete(channel, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
@@ -177,58 +159,19 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
   func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<MessageHistoryResponse>, Error> {
     do {
       // Version3
-      if let version3Payload = try? Constant.jsonDecoder.decode(MessageHistoryResponse.self, from: response.payload) {
-        let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
-                                                                       request: response.request,
-                                                                       response: response.response,
-                                                                       data: response.data,
-                                                                       payload: version3Payload)
+      let payload = try Constant.jsonDecoder.decode(MessageHistoryResponse.self, from: response.payload)
+      let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
+                                                                     request: response.request,
+                                                                     response: response.response,
+                                                                     data: response.data,
+                                                                     payload: payload)
 
         // Attempt to decode message response
 
         return .success(decodedResponse)
-      }
-
-      return try decodeMessageHistoryV2(response: response)
     } catch {
       return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
-  }
-
-  func decodeMessageHistoryV2(
-    response: EndpointResponse<Data>
-  ) throws -> Result<EndpointResponse<MessageHistoryResponse>, Error> {
-    // Deprecated: Remove `countKey` with v2 message history
-    let version2Payload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload).wrappedUnderlyingArray
-
-    guard version2Payload.count == 3,
-      let channelName = (response.router as? HistoryRouter)?.endpoint.firstChannel,
-      let encodedMessages = version2Payload.first,
-      let startTimetoken = version2Payload[1].underlyingValue as? Timetoken,
-      let endTimetoken = version2Payload.last?.underlyingValue as? Timetoken else {
-      return .failure(PubNubError(.malformedResponseBody, response: response))
-    }
-
-    let messages = try encodedMessages.decode([MessageHistoryMessagesPayload].self)
-
-    let channels: [String: MessageHistoryChannelPayload]
-    if !messages.isEmpty {
-      let channelPayload = MessageHistoryChannelPayload(messags: messages,
-                                                        startTimetoken: startTimetoken,
-                                                        endTimetoken: endTimetoken)
-      channels = [channelName: channelPayload]
-    } else {
-      channels = [:]
-    }
-    let historyResponse = MessageHistoryResponse(status: response.response.statusCode, channels: channels)
-
-    let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
-                                                                   request: response.request,
-                                                                   response: response.response,
-                                                                   data: response.data,
-                                                                   payload: historyResponse)
-    return .success(decodedResponse)
-    // End Deprecation Block
   }
 
   func decrypt(

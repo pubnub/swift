@@ -38,211 +38,12 @@ final class HistoryRouterTests: XCTestCase {
   let testMultiChannels = ["TestChannel", "OtherTestChannel"]
 }
 
-// MARK: - Fetch History V2 (Single Channel)
+// MARK: - Fetch History
 
 extension HistoryRouterTests {
-  func testFetchV2_Router() {
+  func testFetch_Router() {
     let router = HistoryRouter(
-      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config
-    )
-
-    XCTAssertEqual(router.endpoint.description, "Fetch Message History V2")
-    XCTAssertEqual(router.category, "Fetch Message History V2")
-    XCTAssertEqual(router.service, .history)
-  }
-
-  func testFetchV2_Router_ValidationError() {
-    let router = HistoryRouter(
-      .fetchV2(channel: "", max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config
-    )
-
-    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyChannelString)
-  }
-
-  func testFetchV2_Router_firstChannel() {
-    let router = HistoryRouter(
-      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
-      configuration: config
-    )
-
-    XCTAssertEqual(router.endpoint.firstChannel, testChannel)
-  }
-
-  func testFetchV2_Success() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertFalse(channelMessages?.messages.isEmpty ?? true)
-          XCTAssertNil(channelMessages?.messages.first?.meta)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func testFetchV2_Success_IncludeMeta() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_withMeta"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertNotNil(channelMessages?.messages.first?.meta)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func testFetchV2_Success_Encrypted() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
-
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.boolOptional, true)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func testFetchV2_Success_EncryptedWrongKey() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_encrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
-
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.dataOptional?.base64EncodedString(),
-                         "s3+CcEE2QZ/Lh9CaPieJnQ==")
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func testFetchV2_Success_MixedEncrypted() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_mixedEncrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
-
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          // Unencrypted Value
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringOptional, "Hello")
-          // Encrypted Value
-          XCTAssertEqual(channelMessages?.messages.last?.message.boolOptional, true)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
-  func testFetchV2_Success_EmptyMessages() {
-    let expectation = self.expectation(description: "Fetch History V2 Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_emptyList"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success(payload):
-          XCTAssertTrue(payload.isEmpty)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-}
-
-// MARK: - Fetch History V3 (Multi Channel)
-
-extension HistoryRouterTests {
-  func testFetchV3_Router() {
-    let router = HistoryRouter(
-      .fetchV3(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
       configuration: config
     )
 
@@ -251,9 +52,9 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.service, .history)
   }
 
-  func testFetchV3_Router_ValidationError() {
+  func testFetch_Router_ValidationError() {
     let router = HistoryRouter(
-      .fetchV3(channels: [], max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(channels: [], max: nil, start: nil, end: nil, includeMeta: false),
       configuration: config
     )
 
@@ -261,16 +62,16 @@ extension HistoryRouterTests {
                    ErrorDescription.emptyChannelArray)
   }
 
-  func testFetchV3_Router_firstChannel() {
+  func testFetch_Router_firstChannel() {
     let router = HistoryRouter(
-      .fetchV3(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
       configuration: config
     )
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testFetchV3_Success() {
+  func testFetch_Success() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success"]) else {
@@ -296,7 +97,7 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_IncludeMeta() {
+  func testFetch_Success_IncludeMeta() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_withMeta"]) else {
@@ -322,7 +123,7 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_MultipleChannels() {
+  func testFetch_Success_MultipleChannels() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_multipleChannels"]) else {
@@ -348,7 +149,7 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_Encrypted() {
+  func testFetch_Success_Encrypted() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
@@ -377,7 +178,7 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_EncryptedWrongKey() {
+  func testFetch_Success_EncryptedWrongKey() {
     let expectation = self.expectation(description: "HereNow Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
@@ -407,8 +208,8 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_MixedEncrypted() {
-    let expectation = self.expectation(description: "FetchV3 Response Received")
+  func testFetch_Success_MixedEncrypted() {
+    let expectation = self.expectation(description: "Fetch Response Received")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_mixedEncrypted"]) else {
       return XCTFail("Could not create mock url session")
@@ -439,10 +240,10 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchV3_Success_EmptyMessages() {
-    let expectation = self.expectation(description: "Fetch History V2 Received")
+  func testFetch_Success_EmptyMessages() {
+    let expectation = self.expectation(description: "Fetch History Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_FetchV2_success_emptyList"]) else {
+    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_emptyList"]) else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -754,51 +555,6 @@ extension HistoryRouterTests {
 // MARK: - MessageHistory ResponseDecoder
 
 extension HistoryRouterTests {
-  func testFetchV2_decode_jsonDataDecodingFailure() {
-    guard let url = URL(string: "http://example.com") else {
-      return XCTFail("Cannot create URL from string")
-    }
-    let decoder = MessageHistoryResponseDecoder()
-    let router = HistoryRouter(
-      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config
-    )
-    let response = EndpointResponse(router: router,
-                                    request: .init(url: url),
-                                    response: .init(),
-                                    payload: Data())
-
-    switch decoder.decode(response: response) {
-    case .success:
-      XCTFail("Decoder should not succeed")
-    case let .failure(error):
-      XCTAssertEqual(error.pubNubError?.reason, .jsonDataDecodingFailure)
-    }
-  }
-
-  func testFetchV2_decode_malformedResponse() {
-    guard let data = AnyJSON([]).jsonData, let url = URL(string: "http://example.com") else {
-      return XCTFail("Could not create JSON data")
-    }
-    let decoder = MessageHistoryResponseDecoder()
-    let router = HistoryRouter(
-      .fetchV2(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false), configuration: config
-    )
-    let response = EndpointResponse(router: router,
-                                    request: .init(url: url),
-                                    response: .init(),
-                                    payload: data)
-
-    guard let result = try? decoder.decodeMessageHistoryV2(response: response) else {
-      return XCTFail("Deocder threw an exception")
-    }
-    switch result {
-    case .success:
-      XCTFail("Decoder should not succeed")
-    case let .failure(error):
-      XCTAssertEqual(error.pubNubError?.reason, .malformedResponseBody)
-    }
-  }
-
   func testMessageHistoryResponse_Deocde_missingChannels() {
     let data: [String: JSONCodableScalar] = ["status": 0, "error": false, "error_message": "Test Message"]
 

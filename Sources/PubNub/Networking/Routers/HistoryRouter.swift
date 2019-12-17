@@ -166,9 +166,9 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
                                                                      data: response.data,
                                                                      payload: payload)
 
-        // Attempt to decode message response
+      // Attempt to decode message response
 
-        return .success(decodedResponse)
+      return .success(decodedResponse)
     } catch {
       return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
     }
@@ -372,6 +372,4 @@ public struct MessageCountsResponsePayload: Codable {
     case channels
     case more
   }
-
-  // swiftlint:disable:next file_length
 }

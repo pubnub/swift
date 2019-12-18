@@ -725,22 +725,15 @@ extension PubNub {
     completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
   ) {
     let router: HistoryRouter
-    switch (channels.count, actions) {
-    case (1, false):
-      router = HistoryRouter(
-        .fetchV2(channel: channels.first ?? "",
-                 max: max, start: start, end: end, includeMeta: metaInResponse),
-        configuration: configuration
-      )
-    case (_, true):
+    if actions {
       router = HistoryRouter(
         .fetchWithActions(channel: channels.first ?? "",
                           max: max, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
-    default:
+    } else {
       router = HistoryRouter(
-        .fetchV3(channels: channels, max: max, start: start, end: end, includeMeta: metaInResponse),
+        .fetch(channels: channels, max: max, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
     }

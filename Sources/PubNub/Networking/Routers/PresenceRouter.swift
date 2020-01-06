@@ -171,10 +171,6 @@ struct PresenceRouter: HTTPRouter {
     return .success(query)
   }
 
-  var pamVersion: PAMVersionRequirement {
-    return .none
-  }
-
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {

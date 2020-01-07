@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.3.2"
+version: "2.3.3"
 schema: 1
 changelog:
+  - changes:
+    - text: "Enable ability to send auth token on Presence endpoints "
+      type: bug
+    date: 2020-01-07
+    version: v2.3.3
   - changes:
     - text: "Subscription requests will now properly cancel when updating existing subscription loop"
       type: bug

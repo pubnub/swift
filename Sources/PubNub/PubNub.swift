@@ -39,6 +39,8 @@ public struct PubNub {
   public let subscription: SubscriptionSession
   // Default Request Operator attached to every request
   public let defaultRequestOperator: RequestOperator
+  // PAM Token Manager
+  internal var tokenStore: PAMTokenManagementSystem
 
   /// Global log instance for the PubNub SDK
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
@@ -64,6 +66,7 @@ public struct PubNub {
     networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
 
     subscription = SubscribeSessionFactory.shared.getSession(from: configuration)
+    tokenStore = PAMTokenManagementSystem()
   }
 
   func route<Decoder>(
@@ -1329,6 +1332,47 @@ extension PubNub {
     }
 
     return crypto.decrypt(encrypted: data)
+  }
+}
+
+// MARK: - PAM
+
+extension PubNub {
+  /// Perfoms a lookup and returns a token for the specified resource type and ID
+  /// - Parameters:
+  ///   - for: The resource ID for which the token is to be retrieved.
+  ///   - with: The resource type
+  /// - Returns: The assigned PAMToken if one exists; otherwise `nil`
+  ///
+  /// If no token is found for the supplied resource type and ID,
+  /// the TMS checks the resource stores in the following order: `User`, `Space`
+  public func getToken(for identifier: String, with type: PAMResourceType? = nil) -> PAMToken? {
+    return tokenStore.getToken(for: identifier, with: type)
+  }
+
+  /// Returns the token(s) for the specified resource type.
+  /// - Returns: A dictionary of resource identifiers mapped to their PAM token
+  public func getTokens(by type: PAMResourceType) -> PAMTokenStore {
+    return tokenStore.getTokens(by: type)
+  }
+
+  /// Returns a map of all tokens stored by the token management system
+  /// - Returns: A dictionary of resource types mapped to resource identifier/token pairs
+  public func getAllTokens() -> [PAMResourceType: PAMTokenStore] {
+    return tokenStore.getAllTokens()
+  }
+
+  /// Stores a single token in the Token Management System for use in API calls.
+  /// - Parameter token: The token to add to the Token Management System.
+  public mutating func set(token: String) {
+    tokenStore.set(token: token)
+  }
+
+  /// Stores multiple tokens in the Token Management System for use in API calls.
+  /// - Parameters:
+  ///   - tokens: The list of tokens to add to the Token Management System.
+  public mutating func set(tokens: [String]) {
+    tokenStore.set(tokens: tokens)
   }
 
   // swiftlint:disable:next file_length

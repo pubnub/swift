@@ -40,6 +40,12 @@ typealias AtomicInt = Atomic<Int32>
 
 typealias QueryResult = Result<[URLQueryItem], Error>
 
+/// Token identifier keyed to the token currently being used
+public typealias PAMTokenStore = [String: PAMToken]
+
+/// The resource type for the cooresponding token
+public typealias PAMResourceType = PAMTokenManagementSystem.Resource
+
 // MARK: - Closures
 
 /// A closure that accepts no input and returns `Void`

@@ -45,8 +45,11 @@
 		350EFBDC22C951F700FA33AA /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDB22C951F700FA33AA /* Request.swift */; };
 		350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */; };
 		350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBE322C95FED00FA33AA /* Atomic.swift */; };
+		3513AB2723A967D9002D4B57 /* PAMTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */; };
+		3513AB2923A96803002D4B57 /* PAMTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2823A96803002D4B57 /* PAMTokenStore.swift */; };
 		3520962F2358D64C00A641DF /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
 		352096302358D67000A641DF /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
+		35270C0323AC124800501388 /* CBORDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35270C0223AC124800501388 /* CBORDecoder.swift */; };
 		35277A7022D6B3F90083B9B6 /* URL+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */; };
 		35293A7A2368F9680049A71F /* MessageActionsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293A792368F9680049A71F /* MessageActionsRouter.swift */; };
 		35293A7D2369EF740049A71F /* fetchMessageAction_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35293A7C2369EF6C0049A71F /* fetchMessageAction_success.json */; };
@@ -78,6 +81,7 @@
 		3534D4E622C67CCA008E89FA /* HTTPRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E522C67CCA008E89FA /* HTTPRouter.swift */; };
 		3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */; };
 		353D92AF23562A1100367B9F /* SubscriptionIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */; };
+		353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353E8CE323C68F01003FBFF5 /* Float32+PubNub.swift */; };
 		35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */; };
 		35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
 		35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
@@ -146,6 +150,8 @@
 		3585033422CD139400A11D9A /* String+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033322CD139400A11D9A /* String+PubNub.swift */; };
 		3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033622CD4A1A00A11D9A /* RequestOperator.swift */; };
 		3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */; };
+		3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585A02323C63EE900FDA860 /* CBORSerialization.swift */; };
+		3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585A02523C63F3900FDA860 /* DecodingError+PubNub.swift */; };
 		358C641A2388BF76009CE354 /* PubNubFCMPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C64192388BF76009CE354 /* PubNubFCMPayload.swift */; };
 		358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C641B238C5232009CE354 /* FCMAndroidPayload.swift */; };
 		358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C641E238C5FCA009CE354 /* FCMWebpushPayload.swift */; };
@@ -345,6 +351,9 @@
 		350EFBDD22C9520400FA33AA /* EndpointResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointResponse.swift; sourceTree = "<group>"; };
 		350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLocking+PubNub.swift"; sourceTree = "<group>"; };
 		350EFBE322C95FED00FA33AA /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
+		3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStoreTests.swift; sourceTree = "<group>"; };
+		3513AB2823A96803002D4B57 /* PAMTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStore.swift; sourceTree = "<group>"; };
+		35270C0223AC124800501388 /* CBORDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBORDecoder.swift; sourceTree = "<group>"; };
 		35277A6622D673090083B9B6 /* HTTPSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPSessionDelegate.swift; sourceTree = "<group>"; };
 		35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+PubNub.swift"; sourceTree = "<group>"; };
 		35293A792368F9680049A71F /* MessageActionsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageActionsRouter.swift; sourceTree = "<group>"; };
@@ -377,6 +386,7 @@
 		3534D4E522C67CCA008E89FA /* HTTPRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRouter.swift; sourceTree = "<group>"; };
 		3534D4E722C67D0E008E89FA /* OperationQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OperationQueue+PubNub.swift"; sourceTree = "<group>"; };
 		353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionIntegrationTests.swift; sourceTree = "<group>"; };
+		353E8CE323C68F01003FBFF5 /* Float32+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Float32+PubNub.swift"; sourceTree = "<group>"; };
 		35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeSessionFactoryTests.swift; sourceTree = "<group>"; };
 		35458BA4230D8E500085B502 /* TestLogWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLogWriter.swift; sourceTree = "<group>"; };
 		35458BA6230D91BB0085B502 /* TestSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSetup.swift; sourceTree = "<group>"; };
@@ -444,6 +454,8 @@
 		3585033322CD139400A11D9A /* String+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+PubNub.swift"; sourceTree = "<group>"; };
 		3585033622CD4A1A00A11D9A /* RequestOperator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestOperator.swift; sourceTree = "<group>"; };
 		3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLRequest+PubNub.swift"; sourceTree = "<group>"; };
+		3585A02323C63EE900FDA860 /* CBORSerialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBORSerialization.swift; sourceTree = "<group>"; };
+		3585A02523C63F3900FDA860 /* DecodingError+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodingError+PubNub.swift"; sourceTree = "<group>"; };
 		358C64192388BF76009CE354 /* PubNubFCMPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFCMPayload.swift; sourceTree = "<group>"; };
 		358C641B238C5232009CE354 /* FCMAndroidPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMAndroidPayload.swift; sourceTree = "<group>"; };
 		358C641E238C5FCA009CE354 /* FCMWebpushPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMWebpushPayload.swift; sourceTree = "<group>"; };
@@ -755,8 +767,10 @@
 				35C6B6E522F51A060054F242 /* AnyJSONType.swift */,
 				35B38249233AAB8C0028803F /* JSONCodable.swift */,
 				350EFBE322C95FED00FA33AA /* Atomic.swift */,
+				3585A02223C63ECE00FDA860 /* CBOR */,
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
 				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
+				3513AB2823A96803002D4B57 /* PAMTokenStore.swift */,
 				3557CE0623886434004BBACC /* PubNubAPNSPayload.swift */,
 				358C6420238C6787009CE354 /* PubNubPushMessage.swift */,
 				358C641D238C524C009CE354 /* PubNubFCMPayload */,
@@ -885,6 +899,7 @@
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
 				35D0615123035E4300FDB2F9 /* CryptoTests.swift */,
 				35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */,
+				3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */,
 				35D061592303A61500FDB2F9 /* ValidatedTests.swift */,
 				3559977A23073D53000BCFD1 /* WeakBoxTests.swift */,
 			);
@@ -945,6 +960,15 @@
 				355806992311F968005CDD92 /* SubscriptionStreamTests.swift */,
 			);
 			path = Events;
+			sourceTree = "<group>";
+		};
+		3585A02223C63ECE00FDA860 /* CBOR */ = {
+			isa = PBXGroup;
+			children = (
+				3585A02323C63EE900FDA860 /* CBORSerialization.swift */,
+				35270C0223AC124800501388 /* CBORDecoder.swift */,
+			);
+			path = CBOR;
 			sourceTree = "<group>";
 		};
 		358C641D238C524C009CE354 /* PubNubFCMPayload */ = {
@@ -1133,6 +1157,7 @@
 				3567434722E1E4F700BF2639 /* Collection+PubNub.swift */,
 				35A6C7B422FBDD9300E97CC5 /* Data+PubNub.swift */,
 				354ADA8F22DA81650093EFFB /* DateFormatter+PubNub.swift */,
+				3585A02523C63F3900FDA860 /* DecodingError+PubNub.swift */,
 				354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */,
 				35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */,
 				35089A0822E3C08D002BCC94 /* Error+PubNub.swift */,
@@ -1150,6 +1175,7 @@
 				3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */,
 				35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */,
 				35F0259322BBE821007BD7D3 /* UUID+PubNub.swift */,
+				353E8CE323C68F01003FBFF5 /* Float32+PubNub.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1331,6 +1357,8 @@
 			dependencies = (
 			);
 			name = PubNub;
+			packageProductDependencies = (
+			);
 			productName = PubNub;
 			productReference = "PubNub::PubNub::Product" /* PubNub.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1373,6 +1401,8 @@
 				Base,
 			);
 			mainGroup = OBJ_5;
+			packageReferences = (
+			);
 			productRefGroup = OBJ_17 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1600,6 +1630,7 @@
 			buildActionMask = 0;
 			files = (
 				35D0615F2304830600FDB2F9 /* GenericServicePayloadResponse.swift in Sources */,
+				3513AB2923A96803002D4B57 /* PAMTokenStore.swift in Sources */,
 				35A66A8E22F911DB00AC67A9 /* SubscribeSessionFactory.swift in Sources */,
 				35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */,
 				3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */,
@@ -1639,6 +1670,7 @@
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
+				3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				35A66A9222F9169400AC67A9 /* PresenceEvent.swift in Sources */,
@@ -1648,9 +1680,11 @@
 				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
 				35293AA6236B68530049A71F /* MessageActionEvents.swift in Sources */,
+				3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */,
 				3557CE0723886434004BBACC /* PubNubAPNSPayload.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
+				353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */,
 				352DBFE9237C937F00A0106E /* HTTPSessionDelegate.swift in Sources */,
 				35A6C7BE22FCCBF900E97CC5 /* HistoryRouter.swift in Sources */,
 				35A66A9022F913B200AC67A9 /* StatusEvent.swift in Sources */,
@@ -1664,6 +1698,7 @@
 				35A6C7B522FBDD9300E97CC5 /* Data+PubNub.swift in Sources */,
 				35A6C78F22FB4F0500E97CC5 /* ChannelGroupsRouter.swift in Sources */,
 				354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */,
+				35270C0323AC124800501388 /* CBORDecoder.swift in Sources */,
 				3559978C230A02B7000BCFD1 /* PubNubLogger.swift in Sources */,
 				35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */,
 				358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */,
@@ -1727,6 +1762,7 @@
 				357AEB8622E6979D00C18250 /* DateFormatter+PubNubTests.swift in Sources */,
 				357AEB8222E6949300C18250 /* Bool+PubNubTests.swift in Sources */,
 				35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */,
+				3513AB2723A967D9002D4B57 /* PAMTokenStoreTests.swift in Sources */,
 				3580A5A822F1583900B12E5E /* MockRequestOperators.swift in Sources */,
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
@@ -1843,7 +1879,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.3.3;
+				MARKETING_VERSION = 2.4.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -1877,7 +1913,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.3.3;
+				MARKETING_VERSION = 2.4.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";

@@ -126,13 +126,17 @@ extension CBORReader {
     case 0x00 ... 0x17: // 0...23 Used directly as the data value.
       return (Int(value), nextIndex)
     case 0x18: // Next byte is uint8_t in data value section
-      return try source.byteValue(from: nextIndex) as (UInt8, Index)
+      let (value, endIndex): (UInt8, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
     case 0x19: // Next 2 bytes uint16_t in data value section
-      return try source.byteValue(from: nextIndex) as (UInt16, Index)
+      let (value, endIndex): (UInt16, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
     case 0x1A: // Next 4 bytes is uint32_t in data value section
-      return try source.byteValue(from: nextIndex) as (UInt32, Index)
+      let (value, endIndex): (UInt32, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
     case 0x1B: // Next 8 bytes is uint64_t in data value section
-      return try source.byteValue(from: nextIndex) as (UInt64, Index)
+      let (value, endIndex): (UInt64, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
 
       // MARK: Negative Int
 
@@ -294,24 +298,38 @@ extension CBORReader {
       // MARK: Array
 
     case 0x80 ... 0x97:
-      // Parse array
-      return try parseArray(from: nextIndex, for: Int(value - 0xA0))
+      if let (value, endArray) = try parseArray(from: nextIndex, for: Int(value - 0x80)) {
+        return (value, endArray)
+      }
+      return nil
     case 0x98: // Next byte is uint8_t for payload length
       // Get array length
       let (arrayLength, endIndex) = try source.byteValue(from: nextIndex) as (UInt8, Index)
-      return try parseArray(from: endIndex, for: Int(arrayLength))
+      if let (value, endArray) = try parseArray(from: endIndex, for: Int(arrayLength)) {
+        return (value, endArray)
+      }
+      return nil
     case 0x99: // Next 2 bytes uint16_t for payload length
       // Get array length
       let (arrayLength, endIndex) = try source.byteValue(from: nextIndex) as (UInt16, Index)
-      return try parseArray(from: endIndex, for: Int(arrayLength))
+      if let (value, endArray) = try parseArray(from: endIndex, for: Int(arrayLength)) {
+        return (value, endArray)
+      }
+      return nil
     case 0x9A: // Next 4 bytes is uint32_t for payload length
       // Get array length
       let (arrayLength, endIndex) = try source.byteValue(from: nextIndex) as (UInt32, Index)
-      return try parseArray(from: endIndex, for: Int(arrayLength))
+      if let (value, endArray) = try parseArray(from: endIndex, for: Int(arrayLength)) {
+        return (value, endArray)
+      }
+      return nil
     case 0x9B: // Next 8 bytes is uint64_t for payload length
       // Get array length
       let (arrayLength, endIndex) = try source.byteValue(from: nextIndex) as (UInt64, Index)
-      return try parseArray(from: endIndex, for: Int(arrayLength))
+      if let (value, endArray) = try parseArray(from: endIndex, for: Int(arrayLength)) {
+        return (value, endArray)
+      }
+      return nil
     case 0x9F:
       // Implement array until break
       return ([], nextIndex)
@@ -320,27 +338,42 @@ extension CBORReader {
 
     case 0xA0 ... 0xB7:
       // Parse Pairs
-      return try parsePairs(from: nextIndex, for: Int(value - 0xA0))
+      if let (value, endArray) = try parsePairs(from: nextIndex, for: Int(value - 0xA0)) {
+        return (value, endArray)
+      }
+      return nil
     case 0xB8: // Next byte is uint8_t for payload length
       // Get Pair Count
       let (pairCount, endIndex) = try source.byteValue(from: nextIndex) as (UInt8, Index)
       // Parse Pairs
-      return try parsePairs(from: endIndex, for: Int(pairCount))
+      if let (value, endArray) = try parsePairs(from: endIndex, for: Int(pairCount)) {
+        return (value, endArray)
+      }
+      return nil
     case 0xB9: // Next 2 bytes uint16_t for payload length
       // Get Pair Count
       let (pairCount, endIndex) = try source.byteValue(from: nextIndex) as (UInt16, Index)
       // Parse Pairs
-      return try parsePairs(from: endIndex, for: Int(pairCount))
+      if let (value, endArray) = try parsePairs(from: endIndex, for: Int(pairCount)) {
+        return (value, endArray)
+      }
+      return nil
     case 0xBA: // Next 4 bytes is uint32_t for payload length
       // Get Pair Count
       let (pairCount, endIndex) = try source.byteValue(from: nextIndex) as (UInt32, Index)
       // Parse Pairs
-      return try parsePairs(from: endIndex, for: Int(pairCount))
+      if let (value, endArray) = try parsePairs(from: endIndex, for: Int(pairCount)) {
+        return (value, endArray)
+      }
+      return nil
     case 0xBB: // Next 8 bytes is uint64_t for payload length
       // Get Pair Count
       let (pairCount, endIndex) = try source.byteValue(from: nextIndex) as (UInt64, Index)
       // Parse Pairs
-      return try parsePairs(from: endIndex, for: Int(pairCount))
+      if let (value, endArray) = try parsePairs(from: endIndex, for: Int(pairCount)) {
+        return (value, endArray)
+      }
+      return nil
     case 0xBF:
       // Implement map until break
       return ([:], nextIndex)
@@ -389,9 +422,11 @@ extension CBORReader {
       let (element, endIndex) = try source.byteValue(from: nextIndex) as (UInt16, Index)
       return (Float32.float16(from: element), endIndex)
     case 0xFA:
-      return try source.byteValue(from: nextIndex) as (Float32, Index)
+      let (value, endIndex): (Float32, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
     case 0xFB:
-      return try source.byteValue(from: nextIndex) as (Float64, Index)
+      let (value, endIndex): (Float64, Index) = try source.byteValue(from: nextIndex)
+      return (value, endIndex)
 
       // MARK: Break
 

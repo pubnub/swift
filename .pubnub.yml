@@ -1,11 +1,18 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.3.3"
+version: "2.4.0"
 schema: 1
 changelog:
   - changes:
-    - text: "Enable ability to send auth token on Presence endpoints "
+    - text: "PAM Token Management System added to manage Object API auth tokens"
+      type: feature
+    - text: "HereNow Presence will now work when only groups are being used"
+      type: bug
+    date: 2020-01-17
+    version: v2.4.0
+  - changes:
+    - text: "Enable ability to send auth token on Presence endpoints"
       type: bug
     date: 2020-01-07
     version: v2.3.3

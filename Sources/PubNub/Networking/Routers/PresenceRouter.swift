@@ -121,7 +121,7 @@ struct PresenceRouter: HTTPRouter {
     case .leave(let channels, _):
       path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
     case .hereNow(let channels, _, _, _):
-      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)"
     case .hereNowGlobal:
       path = "/v2/presence/sub-key/\(subscribeKey)"
     case let .whereNow(uuid):

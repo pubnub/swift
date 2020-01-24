@@ -44,7 +44,7 @@ final class HTTPSession {
   /// The delegate that receives incoming network transmissions
   weak var delegate: HTTPSessionDelegate?
   /// The event stream that session activity status will emit to
-  let sessionStream: SessionStream?
+  var sessionStream: SessionStream?
   /// The `RequestOperator` that is attached to every request
   var defaultRequestOperator: RequestOperator?
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`

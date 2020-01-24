@@ -57,4 +57,29 @@ public enum ConnectionStatus {
   public var isConnected: Bool {
     return self == .connected
   }
+
+  func canTransition(to state: ConnectionStatus) -> Bool {
+    switch (self, state) {
+    case (.connecting, .reconnecting):
+      return false
+    case (.connecting, _):
+      return true
+    case (.connected, .connecting):
+      return false
+    case (.connected, _):
+      return true
+    case (.reconnecting, .connecting):
+      return false
+    case (.reconnecting, _):
+      return true
+    case (.disconnected, .connecting):
+      return true
+    case (.disconnected, _):
+      return false
+    case (.disconnectedUnexpectedly, .connecting):
+      return true
+    case (.disconnectedUnexpectedly, _):
+      return false
+    }
+  }
 }

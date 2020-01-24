@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.4.0"
+version: "2.4.1"
 schema: 1
 changelog:
+  - changes:
+    - text: "A `reconnecting` event will be emitted once subscription starts retrying"
+      type: bug
+    date: 2020-01-24
+    version: v2.4.1
   - changes:
     - text: "PAM Token Management System added to manage Object API auth tokens"
       type: feature

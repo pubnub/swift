@@ -27,6 +27,7 @@
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 public class SubscriptionSession {
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
 
@@ -66,14 +67,17 @@ public class SubscriptionSession {
     }
     set {
       // Set internal state
-      let oldState = internalState.lockedWrite { state -> ConnectionStatus in
+      let (oldState, didTransition) = internalState.lockedWrite { state -> (ConnectionStatus, Bool) in
         let oldState = state.connectionState
-        state.connectionState = newValue
-        return oldState
+        if oldState.canTransition(to: newValue) {
+          state.connectionState = newValue
+          return (oldState, true)
+        }
+        return (oldState, false)
       }
 
       // Update any listeners if value changed
-      if oldState != newValue {
+      if oldState != newValue, didTransition {
         notify { $0.emitDidReceive(subscription: .connectionStatusChanged(newValue)) }
       }
     }
@@ -83,10 +87,29 @@ public class SubscriptionSession {
 
   internal init(configuration: SubscriptionConfiguration, network session: SessionReplaceable) {
     self.configuration = configuration
-    longPollingSession = session
+    var mutableSession = session
+
     nonSubscribeSession = HTTPSession(configuration: URLSessionConfiguration.pubnub, sessionQueue: session.sessionQueue)
+
     responseQueue = DispatchQueue(label: "com.pubnub.subscription.response", qos: .default)
     sessionStream = SessionListener(queue: responseQueue)
+
+    // Add listener to session
+    mutableSession.sessionStream = sessionStream
+    longPollingSession = mutableSession
+
+    sessionStream.didRetryRequest = { _ in
+      self.connectionStatus = .reconnecting
+    }
+
+    sessionStream.sessionDidReceiveChallenge = { _, _ in
+      if self.connectionStatus == .reconnecting {
+        // Delay time for server to process connection after TLS handshake
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.05) {
+          self.connectionStatus = .connected
+        }
+      }
+    }
   }
 
   deinit {
@@ -212,10 +235,8 @@ public class SubscriptionSession {
           // Reset heartbeat timer
           self?.registerHeartbeatTimer()
 
-          // If we were in the process of connecting, notify connected
-          if strongSelf.connectionStatus == .connecting {
-            self?.connectionStatus = .connected
-          }
+          // Ensure that we're connected now the response has been processed
+          self?.connectionStatus = .connected
 
           if response.payload.messages.count >= 100 {
             self?.notify {

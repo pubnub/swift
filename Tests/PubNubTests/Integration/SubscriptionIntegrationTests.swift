@@ -46,7 +46,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     listener.didReceiveSubscription = { event in
       switch event {
       case let .connectionStatusChanged(status):
-        print("Status: \(status)")
+//        print("Status: \(status)")
         switch status {
         case .connecting:
           connectingExpect.fulfill()

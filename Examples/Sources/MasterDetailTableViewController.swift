@@ -229,6 +229,7 @@ class MasterDetailTableViewController: UITableViewController {
 
     var config = PubNubConfiguration()
     config.cipherKey = Crypto(key: "MyCoolCipherKey")
+    config.automaticRetry = AutomaticRetry(retryLimit: 500, policy: .linear(delay: 0.25))
 
     pubnub = PubNub(configuration: config)
 

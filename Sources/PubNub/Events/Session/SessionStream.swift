@@ -58,6 +58,7 @@ public protocol SessionStream: EventStreamReceiver {
   func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
   func emitURLSession(_ session: URLSession, task: URLSessionTask, didCompleteWith error: Error?)
   func emitURLSession(_ session: URLSession, didBecomeInvalidWith error: Error?)
+  func emitURLSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge)
 }
 
 public extension SessionStream {
@@ -183,6 +184,10 @@ public final class MultiplexSessionStream: SessionStream, Hashable {
   public func emitURLSession(_ session: URLSession, didBecomeInvalidWith error: Error?) {
     performEvent { $0.emitURLSession(session, didBecomeInvalidWith: error) }
   }
+
+  public func emitURLSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) {
+    performEvent { $0.emitURLSession(session, didReceive: challenge) }
+  }
 }
 
 final class SessionListener: SessionStream, Hashable {
@@ -216,6 +221,7 @@ final class SessionListener: SessionStream, Hashable {
   var didMutateRequest: ((RequestReplaceable, URLRequest, URLRequest) -> Void)?
   var didFailToMutateRequest: ((RequestReplaceable, URLRequest, Error) -> Void)?
 
+  var sessionDidReceiveChallenge: ((URLSession, URLAuthenticationChallenge) -> Void)?
   var sessionTaskDidReceiveData: ((URLSession, URLSessionDataTask, Data) -> Void)?
   var sessionTaskDidComplete: ((URLSession, URLSessionTask, Error?) -> Void)?
   var sessionDidBecomeInvalidated: ((URLSession, Error?) -> Void)?
@@ -281,6 +287,10 @@ final class SessionListener: SessionStream, Hashable {
   }
 
   // URLSessionDelegate
+  func emitURLSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) {
+    queue.async { self.sessionDidReceiveChallenge?(session, challenge) }
+  }
+
   func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
     queue.async { self.sessionTaskDidReceiveData?(session, dataTask, data) }
   }

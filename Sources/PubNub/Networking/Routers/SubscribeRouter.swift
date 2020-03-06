@@ -189,7 +189,7 @@ public struct TimetokenResponse: Codable, Hashable {
   // We want the timetoken as a Int instead of a String
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    region = try container.decode(Int.self, forKey: .region)
+    region = try (container.decodeIfPresent(Int.self, forKey: .region) ?? 0)
 
     let timetokenString = try container.decode(String.self, forKey: .timetoken)
     timetoken = Timetoken(timetokenString) ?? 0

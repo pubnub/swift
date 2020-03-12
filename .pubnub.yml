@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.4.1"
+version: "2.4.2"
 schema: 1
 changelog:
+  - changes:
+    - text: "Make `region` optional during `originTimetoken` parsing and set to 0 by default"
+      type: bug
+    date: 2020-03-12
+    version: v2.4.2
   - changes:
     - text: "A `reconnecting` event will be emitted once subscription starts retrying"
       type: bug

@@ -445,7 +445,6 @@
 		357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubErrorTests.swift; sourceTree = SOURCE_ROOT; };
 		357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+PubNub.swift"; sourceTree = "<group>"; };
 		3580A59322F0C74100B12E5E /* RequestMutatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestMutatorTests.swift; sourceTree = "<group>"; };
-		3580A59522F0DBC000B12E5E /* PubNubRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubRouterTests.swift; sourceTree = "<group>"; };
 		3580A59922F1217E00B12E5E /* ErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorDescription.swift; sourceTree = "<group>"; };
 		3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamAwait.swift; sourceTree = "<group>"; };
 		3580A5A722F1583900B12E5E /* MockRequestOperators.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRequestOperators.swift; sourceTree = "<group>"; };
@@ -936,7 +935,6 @@
 				359511FA22FF769400C9D3AE /* Routers */,
 				35FE93C222EF57FA0051C455 /* Session+URLErrorTests.swift */,
 				35FE940022EF983A0051C455 /* Session+EndpointErrorTests.swift */,
-				3580A59522F0DBC000B12E5E /* PubNubRouterTests.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -1879,7 +1877,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.5.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -1913,7 +1911,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.4.1;
+				MARKETING_VERSION = 2.5.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";

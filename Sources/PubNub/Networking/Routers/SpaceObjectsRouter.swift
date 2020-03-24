@@ -44,7 +44,7 @@ struct SpaceObjectsRouter: HTTPRouter {
     )
     case modifyMembers(
       spaceID: String,
-      adding: [ObjectIdentifiable], updating: [ObjectIdentifiable], removing: [ObjectIdentifiable],
+      adding: [ObjectIdentifiable], updating: [ObjectIdentifiable], removing: [String],
       include: [CustomIncludeField]?,
       limit: Int?, start: String?, end: String?, count: Bool?
     )
@@ -97,8 +97,8 @@ struct SpaceObjectsRouter: HTTPRouter {
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
     case .create:
       path = "/v1/objects/\(subscribeKey)/spaces"
-    case .update(let pace, _):
-      path = "/v1/objects/\(subscribeKey)/spaces/\(pace.id.urlEncodeSlash)"
+    case .update(let space, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(space.id.urlEncodeSlash)"
     case let .delete(spaceID):
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
     case let .fetchMembers(parameters):
@@ -170,10 +170,8 @@ struct SpaceObjectsRouter: HTTPRouter {
     case .update(let user, _):
       return user.jsonDataResult.map { .some($0) }
     case let .modifyMembers(_, adding, updating, removing, _, _, _, _, _):
-      let changeset = ObjectIdentifiableChangeset(add: adding,
-                                                  update: updating,
-                                                  remove: removing)
-      return changeset.encodableJSONData.map { .some($0) }
+      return MembershipChangeset(add: adding, update: updating, remove: removing)
+        .encodableJSONData.map { .some($0) }
     default:
       return .success(nil)
     }
@@ -188,22 +186,24 @@ struct SpaceObjectsRouter: HTTPRouter {
     switch endpoint {
     case .fetchAll:
       return nil
-    case .fetch(let userID, _):
-      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptySpaceID))
-    case .create(let user, _):
-      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubSpace))
-    case .update(let user, _):
-      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubSpace))
-    case let .delete(userID):
-      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptySpaceID))
+    case .fetch(let spaceID, _):
+      return isInvalidForReason((spaceID.isEmpty, ErrorDescription.emptySpaceID))
+    case .create(let space, _):
+      return isInvalidForReason(
+        (space.id.isEmpty && space.name.isEmpty, ErrorDescription.invalidPubNubSpace))
+    case .update(let space, _):
+      return isInvalidForReason(
+        (space.id.isEmpty && space.name.isEmpty, ErrorDescription.invalidPubNubSpace))
+    case let .delete(spaceID):
+      return isInvalidForReason((spaceID.isEmpty, ErrorDescription.emptySpaceID))
     case let .fetchMembers(parameters):
       return isInvalidForReason((parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID))
     case let .modifyMembers(parameters):
       return isInvalidForReason(
         (parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID),
-        (!parameters.adding.allSatisfy { $0.isValid }, ErrorDescription.invalidJoiningMember),
-        (!parameters.updating.allSatisfy { $0.isValid }, ErrorDescription.invalidUpdatingMember),
-        (!parameters.removing.allSatisfy { $0.isValid }, ErrorDescription.invalidLeavingMember)
+        (!parameters.adding.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMember),
+        (!parameters.updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMember),
+        (!parameters.removing.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMember)
       )
     }
   }
@@ -211,90 +211,299 @@ struct SpaceObjectsRouter: HTTPRouter {
 
 // MARK: - Space Protocols
 
-public protocol PubNubSpace: ObjectIdentifiable {
+public protocol PubNubSpace: PubNubObject {
   var name: String { get }
   var spaceDescription: String? { get }
+
+  /// Allows for other PubNubSpace objects to transcode between themselves
+  init(from space: PubNubSpace) throws
 }
 
 extension PubNubSpace {
-  var isValid: Bool {
-    return !id.isEmpty && !name.isEmpty
+  public func transcode<T: PubNubSpace>(into _: T.Type) throws -> T {
+    return try transcode()
   }
 
-  var spaceObject: SpaceObject {
-    guard let object = self as? SpaceObject else {
-      return SpaceObject(self)
+  public func transcode<T: PubNubSpace>() throws -> T {
+    // Check if we're already that object, and return
+    if let custom = self as? T {
+      return custom
     }
-    return object
+
+    return try T(from: self)
   }
 }
 
-extension PubNubSpace where Self: Equatable {
-  func isEqual(_ other: PubNubSpace?) -> Bool {
-    return id == other?.id &&
-      name == other?.name &&
-      spaceDescription == other?.spaceDescription &&
-      custom?.allSatisfy {
-        other?.custom?[$0]?.scalarValue == $1.scalarValue
-      } ?? true
+public protocol PubNubMember: PubNubObject {
+  var userId: String { get }
+  var user: PubNubUser? { get set }
+
+  init(from member: PubNubMember) throws
+}
+
+extension PubNubMember {
+  public var id: String {
+    return userId
   }
-}
 
-public protocol UpdatableSpace: PubNubSpace {
-  var updated: Date { get }
-  var eTag: String { get }
-}
+  public func transcode<T: PubNubMember>(into _: T.Type) throws -> T {
+    return try transcode()
+  }
 
-extension UpdatableSpace {
-  var spaceObject: SpaceObject {
-    guard let object = self as? SpaceObject else {
-      return SpaceObject(updatable: self)
+  public func transcode<T: PubNubMember>() throws -> T {
+    // Check if we're already that object, and return
+    if let custom = self as? T {
+      return custom
     }
-    return object
+
+    return try T(from: self)
   }
 }
 
 // MARK: - Response Decoder
 
-struct SpaceObjectResponseDecoder: ResponseDecoder {
-  typealias Payload = SpaceObjectResponsePayload
+// MARK: Protocol Spaces
+
+struct PubNubSpacesResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubSpacesResponsePayload
 }
 
-struct SpaceObjectsResponseDecoder: ResponseDecoder {
-  typealias Payload = SpaceObjectsResponsePayload
+public struct PubNubSpacesResponsePayload: Codable {
+  public let status: Int
+  public let data: [PubNubSpace]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [PubNubSpace],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case status
+    case data
+    case totalCount
+    case next
+    case prev
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    data = try container.decode([SpaceObject].self, forKey: .data)
+    status = try container.decode(Int.self, forKey: .status)
+    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
+    next = try container.decodeIfPresent(String.self, forKey: .next)
+    prev = try container.decodeIfPresent(String.self, forKey: .prev)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(try data.map { try $0.transcode(into: SpaceObject.self) }, forKey: .data)
+    try container.encode(status, forKey: .status)
+    try container.encodeIfPresent(totalCount, forKey: .totalCount)
+    try container.encodeIfPresent(next, forKey: .next)
+    try container.encodeIfPresent(prev, forKey: .prev)
+  }
 }
 
-// MARK: - Membership Response Decoder
+// MARK: Spaces
 
-struct SpaceMembershipObjectsResponseDecoder: ResponseDecoder {
-  typealias Payload = SpaceMembershipResponsePayload
+public struct SpacesResponsePayload<T: PubNubSpace> {
+  public let status: Int
+  public let data: [T]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [T],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  public init<T: PubNubSpace>(
+    protocol response: PubNubSpacesResponsePayload,
+    into _: T.Type
+  ) throws {
+    self.init(
+      status: response.status,
+      data: try response.data.map { try $0.transcode() },
+      totalCount: response.totalCount,
+      next: response.next,
+      prev: response.prev
+    )
+  }
 }
 
-// MARK: - Response
+extension SpacesResponsePayload: Codable where T: Codable {}
+extension SpacesResponsePayload: Equatable where T: Equatable {}
 
-public struct SpaceObject: Codable, Equatable, UpdatableSpace {
+// MARK: Protocol Space
+
+struct PubNubSpaceResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubSpaceResponsePayload
+}
+
+public struct PubNubSpaceResponsePayload: Codable {
+  public let status: Int
+  public let data: PubNubSpace
+
+  public init(status: Int = 200, data: PubNubSpace) {
+    self.status = status
+    self.data = data
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: ObjectResponseCodingKeys.self)
+
+    data = try container.decode(SpaceObject.self, forKey: .data)
+    status = try container.decode(Int.self, forKey: .status)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    try container.encode(try data.transcode(into: SpaceObject.self), forKey: .data)
+    try container.encode(status, forKey: .status)
+  }
+}
+
+// MARK: Space
+
+public struct SpaceResponsePayload<T: PubNubSpace> {
+  public let status: Int
+  public let data: T
+}
+
+extension SpaceResponsePayload: Equatable where T: Equatable {}
+
+// MARK: Protocol Members
+
+struct PubNubMembersResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubMembersResponsePayload
+}
+
+public struct PubNubMembersResponsePayload: Codable {
+  public let status: Int
+  public let data: [PubNubMember]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [PubNubMember],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case status
+    case data
+    case totalCount
+    case next
+    case prev
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    status = try container.decode(Int.self, forKey: .status)
+    data = try container.decode([SpaceObjectMember].self, forKey: .data)
+    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
+    next = try container.decodeIfPresent(String.self, forKey: .next)
+    prev = try container.decodeIfPresent(String.self, forKey: .prev)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    try container.encode(try data.map { try $0.transcode(into: SpaceObjectMember.self) }, forKey: .data)
+    try container.encode(status, forKey: .status)
+    try container.encodeIfPresent(totalCount, forKey: .totalCount)
+    try container.encodeIfPresent(next, forKey: .next)
+    try container.encodeIfPresent(prev, forKey: .prev)
+  }
+}
+
+// MARK: Members
+
+public struct MembersResponsePayload<T: PubNubMember> {
+  public let status: Int
+  public let data: [T]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [T],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) throws {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  public init<T: PubNubMember>(
+    protocol response: PubNubMembersResponsePayload,
+    into _: T.Type
+  ) throws {
+    try self.init(
+      status: response.status,
+      data: try response.data.map { try $0.transcode() },
+      totalCount: response.totalCount,
+      next: response.next,
+      prev: response.prev
+    )
+  }
+}
+
+extension MembersResponsePayload: Equatable where T: Equatable {}
+
+// MARK: - Space Response
+
+public struct SpaceObject: PubNubSpace, Codable, Equatable {
   public let id: String
   public let name: String
   public let spaceDescription: String?
+
+  public var custom: [String: JSONCodableScalar]?
+
   public let created: Date
   public let updated: Date
   public let eTag: String
-
-  public var custom: [String: JSONCodableScalar]? {
-    return customType
-  }
-
-  let customType: [String: JSONCodableScalarType]?
-
-  enum CodingKeys: String, CodingKey {
-    case id
-    case name
-    case spaceDescription = "description"
-    case customType = "custom"
-    case created
-    case updated
-    case eTag
-  }
 
   public init(
     name: String,
@@ -308,30 +517,32 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
     self.id = id ?? name
     self.name = name
     self.spaceDescription = spaceDescription
-    customType = custom?.mapValues { $0.scalarValue }
+    self.custom = custom
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
   }
 
-  public init(_ spaceProto: PubNubSpace) {
+  public init(from space: PubNubSpace) {
     self.init(
-      name: spaceProto.name,
-      id: spaceProto.id,
-      spaceDescription: spaceProto.spaceDescription,
-      custom: spaceProto.custom
+      name: space.name,
+      id: space.id,
+      spaceDescription: space.spaceDescription,
+      custom: space.custom,
+      created: space.created,
+      updated: space.updated,
+      eTag: space.eTag
     )
   }
 
-  public init(updatable: UpdatableSpace) {
-    self.init(
-      name: updatable.name,
-      id: updatable.id,
-      spaceDescription: updatable.spaceDescription,
-      custom: updatable.custom,
-      updated: updatable.updated,
-      eTag: updatable.eTag
-    )
+  enum CodingKeys: String, CodingKey {
+    case id
+    case name
+    case spaceDescription = "description"
+    case custom
+    case created
+    case updated
+    case eTag
   }
 
   public init(from decoder: Decoder) throws {
@@ -340,99 +551,142 @@ public struct SpaceObject: Codable, Equatable, UpdatableSpace {
     id = try container.decode(String.self, forKey: .id)
     name = try container.decode(String.self, forKey: .name)
     spaceDescription = try container.decodeIfPresent(String.self, forKey: .spaceDescription)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType)
-    created = try container.decodeIfPresent(Date.self, forKey: .created) ?? Date.distantPast
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+    created = try container.decode(Date.self, forKey: .created)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
   }
-}
 
-public struct SpaceObjectResponsePayload: Codable, Equatable {
-  public let status: Int
-  public let space: SpaceObject
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
 
-  enum CodingKeys: String, CodingKey {
-    case status
-    case space = "data"
+    try container.encode(id, forKey: .id)
+    try container.encode(name, forKey: .name)
+    try container.encodeIfPresent(spaceDescription, forKey: .spaceDescription)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
+    try container.encode(created, forKey: .created)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+  }
+
+  public static func == (lhs: SpaceObject, rhs: SpaceObject) -> Bool {
+    return lhs.id == rhs.id &&
+      lhs.name == rhs.name &&
+      lhs.spaceDescription == rhs.spaceDescription &&
+      lhs.created == lhs.created &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.allSatisfy {
+        rhs.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
   }
 }
 
-public struct SpaceObjectsResponsePayload: Codable {
-  public let status: Int
-  public let spaces: [SpaceObject]
-  public let totalCount: Int?
-  public let next: String?
-  public let prev: String?
+// MARK: - Member Response
 
-  enum CodingKeys: String, CodingKey {
-    case status
-    case spaces = "data"
-    case totalCount
-    case next
-    case prev
-  }
-}
-
-// MARK: - Membership Response
-
-public struct UserMembership: Codable, Equatable {
+public struct SpaceObjectMember: PubNubMember, PubNubIdentifiable, Codable, Equatable {
   public let id: String
-  public let customType: [String: JSONCodableScalarType]
-  public let user: UserObject?
+  public var userId: String {
+    return id
+  }
+
+  public let custom: [String: JSONCodableScalar]?
+
+  var userObject: UserObject?
+  public var user: PubNubUser? {
+    get { return userObject }
+    set { userObject = try? newValue?.transcode() }
+  }
+
   public let created: Date
   public let updated: Date
   public let eTag: String
 
-  enum CodingKeys: String, CodingKey {
-    case id
-    case user
-    case customType = "custom"
-    case created
-    case updated
-    case eTag
-  }
-
   public init(
     id: String,
-    custom: [String: JSONCodableScalarType] = [:],
+    custom: [String: JSONCodableScalar]? = nil,
     user: PubNubUser?,
     created: Date = Date(),
     updated: Date? = nil,
     eTag: String = ""
   ) {
     self.id = id
-    customType = custom.mapValues { $0.scalarValue }
-    self.user = user?.userObject
+    self.custom = custom
+    userObject = try? user?.transcode()
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
+  }
+
+  public init(from member: PubNubMember) throws {
+    self.init(
+      id: member.userId,
+      custom: member.custom,
+      user: member.user,
+      created: member.created,
+      updated: member.updated,
+      eTag: member.eTag
+    )
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case user
+    case custom
+    case created
+    case updated
+    case eTag
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     id = try container.decode(String.self, forKey: .id)
-    user = try container.decodeIfPresent(UserObject.self, forKey: .user)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType) ?? [:]
+    userObject = try container.decodeIfPresent(UserObject.self, forKey: .user)
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     created = try container.decode(Date.self, forKey: .created)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
   }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(id, forKey: .id)
+    try container.encodeIfPresent(userObject, forKey: .user)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
+    try container.encode(created, forKey: .created)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+  }
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    return lhs.id == rhs.id &&
+      lhs.userObject == rhs.userObject &&
+      lhs.created == lhs.created &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.allSatisfy {
+        rhs.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
+  }
 }
 
-public struct SpaceMembershipResponsePayload: Codable {
-  public let status: Int
-  public let memberships: [UserMembership]
-  public let totalCount: Int?
-  public let next: String?
-  public let prev: String?
+// MARK: - Deprecated (v2.0.0)
 
-  enum CodingKeys: String, CodingKey {
-    case status
-    case memberships = "data"
-    case totalCount
-    case next
-    case prev
+public typealias SpaceObjectsResponsePayload = SpacesResponsePayload<SpaceObject>
+extension SpaceObjectsResponsePayload {
+  public var spaces: [T] {
+    return data
+  }
+}
+
+public typealias UserMembership = SpaceObjectMember
+
+public typealias SpaceMembershipResponsePayload = MembersResponsePayload<SpaceObjectMember>
+extension SpaceMembershipResponsePayload {
+  public var memberships: [T] {
+    return data
   }
 
   // swiftlint:disable:next file_length

@@ -44,7 +44,7 @@ struct UserObjectsRouter: HTTPRouter {
     )
     case modifyMemberships(
       userID: String,
-      joining: [ObjectIdentifiable], updating: [ObjectIdentifiable], leaving: [ObjectIdentifiable],
+      joining: [ObjectIdentifiable], updating: [ObjectIdentifiable], leaving: [String],
       include: [CustomIncludeField]?,
       limit: Int?, start: String?, end: String?, count: Bool?
     )
@@ -170,10 +170,8 @@ struct UserObjectsRouter: HTTPRouter {
     case .update(let user, _):
       return user.jsonDataResult.map { .some($0) }
     case let .modifyMemberships(_, joining, updating, leaving, _, _, _, _, _):
-      let changeset = ObjectIdentifiableChangeset(add: joining,
-                                                  update: updating,
-                                                  remove: leaving)
-      return changeset.encodableJSONData.map { .some($0) }
+      return MembershipChangeset(add: joining, update: updating, remove: leaving)
+        .encodableJSONData.map { .some($0) }
     default:
       return .success(nil)
     }
@@ -191,9 +189,11 @@ struct UserObjectsRouter: HTTPRouter {
     case .fetch(let userID, _):
       return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
     case .create(let user, _):
-      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubUser))
+      return isInvalidForReason(
+        (user.id.isEmpty && user.name.isEmpty, ErrorDescription.invalidPubNubUser))
     case .update(let user, _):
-      return isInvalidForReason((!user.isValid, ErrorDescription.invalidPubNubUser))
+      return isInvalidForReason(
+        (user.id.isEmpty && user.name.isEmpty, ErrorDescription.invalidPubNubUser))
     case let .delete(userID):
       return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
     case let .fetchMemberships(parameters):
@@ -201,9 +201,9 @@ struct UserObjectsRouter: HTTPRouter {
     case let .modifyMemberships(parameters):
       return isInvalidForReason(
         (parameters.userID.isEmpty, ErrorDescription.emptyUserID),
-        (!parameters.joining.allSatisfy { $0.isValid }, ErrorDescription.invalidJoiningMembership),
-        (!parameters.updating.allSatisfy { $0.isValid }, ErrorDescription.invalidUpdatingMembership),
-        (!parameters.leaving.allSatisfy { $0.isValid }, ErrorDescription.invalidLeavingMembership)
+        (!parameters.joining.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMembership),
+        (!parameters.updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMembership),
+        (!parameters.leaving.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMembership)
       )
     }
   }
@@ -211,46 +211,61 @@ struct UserObjectsRouter: HTTPRouter {
 
 // MARK: - Object Protocols
 
-public protocol ObjectIdentifiable: JSONCodable {
+/// My Identifiable
+public protocol PubNubIdentifiable {
   var id: String { get }
+}
+
+public protocol ObjectCustomizable {
   var custom: [String: JSONCodableScalar]? { get }
 }
 
-extension ObjectIdentifiable {
-  var isValid: Bool {
-    return !id.isEmpty
+public extension ObjectCustomizable {
+  /// A Codable reprentation of the custom property
+  var concreteCustom: [String: JSONCodableScalarType]? {
+    return custom?.mapValues { $0.scalarValue }
   }
 
-  var identifiableType: SimpleObjectIdentifiable {
-    guard let object = self as? SimpleObjectIdentifiable else {
-      return SimpleObjectIdentifiable(self)
-    }
-
-    return object
+  func customValue<T>(for key: String) -> T? {
+    return custom?[key]?.rawValue as? T
   }
 }
 
-extension ObjectIdentifiable where Self: Equatable {
-  func isEqual(_ other: ObjectIdentifiable?) -> Bool {
-    return id == other?.id &&
-      custom?.allSatisfy {
-        other?.custom?[$0]?.scalarValue == $1.scalarValue
-      } ?? true
-  }
+/// Minimum amount of information all Object Types contain
+
+public protocol PubNubObject: PubNubIdentifiable, ObjectCustomizable, JSONCodable {
+  var created: Date { get }
+  var updated: Date { get }
+  var eTag: String { get }
 }
 
-struct SimpleObjectIdentifiable: ObjectIdentifiable, Codable {
-  let id: String
-  let custom: [String: JSONCodableScalar]?
+// MARK: - Concrete Request Types
 
-  init(id: String, custom: [String: JSONCodableScalar]?) {
+public struct SimpleIdentifiableObject: Codable, Hashable {
+  public let id: String
+
+  public init(id: String) {
     self.id = id
-    self.custom = custom
+  }
+}
+
+public struct SimpleCustomObject: ObjectIdentifiable, Codable {
+  public let id: String
+  public let custom: [String: JSONCodableScalar]?
+
+  public init(_ object: ObjectIdentifiable) {
+    id = object.id
+    custom = object.custom
   }
 
-  init(_ proto: ObjectIdentifiable) {
-    id = proto.id
-    custom = proto.custom
+  public init(_ membership: PubNubMembership) {
+    id = membership.spaceId
+    custom = membership.custom
+  }
+
+  public init(_ membership: PubNubMember) {
+    id = membership.userId
+    custom = membership.custom
   }
 
   enum CodingKeys: String, CodingKey {
@@ -262,128 +277,335 @@ struct SimpleObjectIdentifiable: ObjectIdentifiable, Codable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     id = try container.decode(String.self, forKey: .id)
-    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) ?? [:]
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(id, forKey: .id)
-    try container.encode(custom?.mapValues { $0.scalarValue }, forKey: .custom)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
   }
 }
 
-struct ObjectIdentifiableChangeset: Codable {
-  let add: [SimpleObjectIdentifiable]
-  let update: [SimpleObjectIdentifiable]
-  let remove: [SimpleObjectIdentifiable]
+struct MembershipChangeset: Codable {
+  let add: [SimpleCustomObject]
+  let update: [SimpleCustomObject]
+  let remove: [SimpleIdentifiableObject]
 
-  init(add: [ObjectIdentifiable], update: [ObjectIdentifiable], remove: [ObjectIdentifiable]) {
-    self.add = add.map { $0.identifiableType }
-    self.update = update.map { $0.identifiableType }
-    self.remove = remove.map { $0.identifiableType }
+  init(add: [ObjectIdentifiable], update: [ObjectIdentifiable], remove: [String]) {
+    self.add = add.map { SimpleCustomObject($0) }
+    self.update = update.map { SimpleCustomObject($0) }
+    self.remove = remove.map { SimpleIdentifiableObject(id: $0) }
   }
 }
 
 // MARK: - User Protocols
 
-public protocol PubNubUser: ObjectIdentifiable {
+public protocol PubNubUser: PubNubObject {
   var name: String { get }
   var externalId: String? { get }
   var profileURL: String? { get }
   var email: String? { get }
-  var custom: [String: JSONCodableScalar]? { get }
+
+  /// Allows for other PubNubUser objects to transcode between themselves
+  init(from user: PubNubUser) throws
 }
 
 extension PubNubUser {
-  var isValid: Bool {
-    return !id.isEmpty && !name.isEmpty
+  public func transcode<T: PubNubUser>(into _: T.Type) throws -> T {
+    return try transcode()
   }
 
-  var userObject: UserObject {
-    guard let object = self as? UserObject else {
-      return UserObject(self)
+  public func transcode<T: PubNubUser>() throws -> T {
+    // Check if we're already that object, and return
+    if let custom = self as? T {
+      return custom
     }
-    return object
+
+    return try T(from: self)
   }
 }
 
-extension PubNubUser where Self: Equatable {
-  func isEqual(_ other: PubNubUser?) -> Bool {
-    return id == other?.id &&
-      name == other?.name &&
-      externalId == other?.externalId &&
-      profileURL == other?.profileURL &&
-      email == other?.email &&
-      custom?.allSatisfy {
-        other?.custom?[$0]?.scalarValue == $1.scalarValue
-      } ?? true
+public protocol PubNubMembership: PubNubObject {
+  var spaceId: String { get }
+  var space: PubNubSpace? { get set }
+
+  init(from membership: PubNubMembership) throws
+}
+
+extension PubNubMembership {
+  public var id: String {
+    return spaceId
   }
-}
 
-public protocol UpdatableUser: PubNubUser {
-  var updated: Date { get }
-  var eTag: String { get }
-}
+  public func transcode<T: PubNubMembership>(into _: T.Type) throws -> T {
+    return try transcode()
+  }
 
-extension UpdatableUser {
-  var userObject: UserObject {
-    guard let object = self as? UserObject else {
-      return UserObject(updatable: self)
+  public func transcode<T: PubNubMembership>() throws -> T {
+    // Check if we're already that object, and return
+    if let custom = self as? T {
+      return custom
     }
-    return object
+
+    return try T(from: self)
   }
 }
 
 // MARK: - Response Decoder
 
-struct UserObjectResponseDecoder: ResponseDecoder {
-  typealias Payload = UserObjectResponsePayload
+enum ObjectsResponseCodingKeys: String, CodingKey {
+  case status
+  case data
+  case totalCount
+  case next
+  case prev
 }
 
-struct UserObjectsResponseDecoder: ResponseDecoder {
-  typealias Payload = UserObjectsResponsePayload
+enum ObjectResponseCodingKeys: String, CodingKey {
+  case status
+  case data
 }
 
-struct UserSpacesResponseDecoder: ResponseDecoder {
-  typealias Payload = UserObjectsResponsePayload
+// MARK: Protocol Users
+
+struct PubNubUsersResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubUsersResponsePayload
 }
 
-// MARK: - Membership Response Decoder
+public struct PubNubUsersResponsePayload: Codable {
+  public let status: Int
+  public let data: [PubNubUser]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
 
-struct UserMembershipsObjectsResponseDecoder: ResponseDecoder {
-  typealias Payload = UserMembershipsResponsePayload
+  public init(
+    status: Int,
+    data: [PubNubUser],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    data = try container.decode([UserObject].self, forKey: .data)
+    status = try container.decode(Int.self, forKey: .status)
+    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
+    next = try container.decodeIfPresent(String.self, forKey: .next)
+    prev = try container.decodeIfPresent(String.self, forKey: .prev)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    try container.encode(try data.map { try $0.transcode(into: UserObject.self) }, forKey: .data)
+    try container.encode(status, forKey: .status)
+    try container.encodeIfPresent(totalCount, forKey: .totalCount)
+    try container.encodeIfPresent(next, forKey: .next)
+    try container.encodeIfPresent(prev, forKey: .prev)
+  }
 }
+
+// MARK: Users
+
+public struct UsersResponsePayload<T: PubNubUser> {
+  public let status: Int
+  public let data: [T]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [T],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  public init<T: PubNubUser>(
+    protocol response: PubNubUsersResponsePayload,
+    into _: T.Type
+  ) throws {
+    self.init(
+      status: response.status,
+      data: try response.data.map { try $0.transcode() },
+      totalCount: response.totalCount,
+      next: response.next,
+      prev: response.prev
+    )
+  }
+}
+
+extension UsersResponsePayload: Codable where T: Codable {}
+extension UsersResponsePayload: Equatable where T: Equatable {}
+
+// MARK: Protocol User
+
+struct PubNubUserResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubUserResponsePayload
+}
+
+public struct PubNubUserResponsePayload: Codable {
+  public let status: Int
+  public let data: PubNubUser
+
+  public init(status: Int = 200, data: PubNubUser) {
+    self.status = status
+    self.data = data
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: ObjectResponseCodingKeys.self)
+
+    data = try container.decode(UserObject.self, forKey: .data)
+    status = try container.decode(Int.self, forKey: .status)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    try container.encode(try data.transcode(into: UserObject.self), forKey: .data)
+    try container.encode(status, forKey: .status)
+  }
+}
+
+// MARK: User
+
+public struct UserResponsePayload<T: PubNubUser> {
+  public let status: Int
+  public let data: T
+}
+
+extension UserResponsePayload: Equatable where T: Equatable {}
+
+// MARK: Protocol Memberships
+
+struct PubNubMembershipsResponseDecoder: ResponseDecoder {
+  typealias Payload = PubNubMembershipsResponsePayload
+}
+
+public struct PubNubMembershipsResponsePayload: Codable {
+  public let status: Int
+  public let data: [PubNubMembership]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [PubNubMembership],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case status
+    case data
+    case totalCount
+    case next
+    case prev
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    status = try container.decode(Int.self, forKey: .status)
+    data = try container.decode([UserObjectMembership].self, forKey: .data)
+    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
+    next = try container.decodeIfPresent(String.self, forKey: .next)
+    prev = try container.decodeIfPresent(String.self, forKey: .prev)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: ObjectsResponseCodingKeys.self)
+
+    try container.encode(try data.map { try $0.transcode(into: UserObjectMembership.self) }, forKey: .data)
+    try container.encode(status, forKey: .status)
+    try container.encodeIfPresent(totalCount, forKey: .totalCount)
+    try container.encodeIfPresent(next, forKey: .next)
+    try container.encodeIfPresent(prev, forKey: .prev)
+  }
+}
+
+// MARK: Memberships
+
+public struct MembershipsResponsePayload<T: PubNubMembership> {
+  public let status: Int
+  public let data: [T]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+
+  public init(
+    status: Int,
+    data: [T],
+    totalCount: Int?,
+    next: String?,
+    prev: String?
+  ) throws {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+    self.prev = prev
+  }
+
+  public init<T: PubNubMembership>(
+    protocol response: PubNubMembershipsResponsePayload,
+    into _: T.Type
+  ) throws {
+    try self.init(
+      status: response.status,
+      data: try response.data.map { try $0.transcode() },
+      totalCount: response.totalCount,
+      next: response.next,
+      prev: response.prev
+    )
+  }
+}
+
+extension MembershipsResponsePayload: Equatable where T: Equatable {}
 
 // MARK: - Response
 
-public struct UserObject: Codable, Equatable, UpdatableUser {
+/// Top-Level Coding Keys that can be used when Coding a PubNub User
+public struct UserObject: PubNubUser, Codable, Equatable {
   public let id: String
+
   public let name: String
   public let externalId: String?
   public let profileURL: String?
   public let email: String?
+
   public let created: Date
   public let updated: Date
   public let eTag: String
 
-  public var custom: [String: JSONCodableScalar]? {
-    return customType
-  }
-
-  let customType: [String: JSONCodableScalarType]?
-
-  enum CodingKeys: String, CodingKey {
-    case id
-    case name
-    case externalId
-    case profileURL
-    case email
-    case customType = "custom"
-    case created
-    case updated
-    case eTag
-  }
+  public let custom: [String: JSONCodableScalar]?
 
   public init(
     name: String,
@@ -401,34 +623,48 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
     self.email = email
     self.externalId = externalId
     self.profileURL = profileURL
-    customType = custom?.mapValues { $0.scalarValue }
+    self.custom = custom
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
   }
 
-  public init(_ userProto: PubNubUser) {
+  public init(copy user: UserObject) {
+    id = user.id
+    name = user.name
+    email = user.email
+    externalId = user.externalId
+    profileURL = user.profileURL
+    custom = user.custom
+    created = user.created
+    updated = user.updated
+    eTag = user.eTag
+  }
+
+  public init(from user: PubNubUser) {
     self.init(
-      name: userProto.name,
-      id: userProto.id,
-      externalId: userProto.externalId,
-      profileURL: userProto.profileURL,
-      email: userProto.email,
-      custom: userProto.custom
+      name: user.name,
+      id: user.id,
+      externalId: user.externalId,
+      profileURL: user.profileURL,
+      email: user.email,
+      custom: user.custom,
+      created: user.created,
+      updated: user.updated,
+      eTag: user.eTag
     )
   }
 
-  public init(updatable: UpdatableUser) {
-    self.init(
-      name: updatable.name,
-      id: updatable.id,
-      externalId: updatable.externalId,
-      profileURL: updatable.profileURL,
-      email: updatable.email,
-      custom: updatable.custom,
-      updated: updatable.updated,
-      eTag: updatable.eTag
-    )
+  enum CodingKeys: String, CodingKey {
+    case id
+    case name
+    case externalId
+    case profileURL = "profileUrl"
+    case email
+    case custom
+    case created
+    case updated
+    case eTag
   }
 
   public init(from decoder: Decoder) throws {
@@ -439,133 +675,148 @@ public struct UserObject: Codable, Equatable, UpdatableUser {
     email = try container.decodeIfPresent(String.self, forKey: .email)
     externalId = try container.decodeIfPresent(String.self, forKey: .externalId)
     profileURL = try container.decodeIfPresent(String.self, forKey: .profileURL)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType)
-    created = try container.decodeIfPresent(Date.self, forKey: .created) ?? Date.distantPast
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+    created = try container.decode(Date.self, forKey: .created)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
   }
-}
-
-public struct UserObjectResponsePayload: Codable {
-  public let status: Int
-  public let user: UserObject
-
-  enum CodingKeys: String, CodingKey {
-    case status
-    case user = "data"
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    status = try container.decode(Int.self, forKey: .status)
-    user = try container.decode(UserObject.self, forKey: .user)
-  }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
-    try container.encode(status, forKey: .status)
-    try container.encode(user.codableValue, forKey: .user)
-  }
-}
-
-public struct UserObjectsResponsePayload: Codable {
-  public let status: Int
-  public let users: [UserObject]
-  public let totalCount: Int?
-  public let next: String?
-  public let prev: String?
-
-  enum CodingKeys: String, CodingKey {
-    case status
-    case users = "data"
-    case totalCount
-    case next
-    case prev
+    try container.encode(id, forKey: .id)
+    try container.encode(name, forKey: .name)
+    try container.encodeIfPresent(email, forKey: .email)
+    try container.encodeIfPresent(externalId, forKey: .externalId)
+    try container.encodeIfPresent(profileURL, forKey: .profileURL)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
+    try container.encode(created, forKey: .created)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
   }
 
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    status = try container.decode(Int.self, forKey: .status)
-    users = try container.decode([UserObject].self, forKey: .users)
-    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
-    next = try container.decodeIfPresent(String.self, forKey: .next)
-    prev = try container.decodeIfPresent(String.self, forKey: .prev)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    try container.encode(status, forKey: .status)
-    try container.encode(users.codableValue, forKey: .users)
-    try container.encode(totalCount, forKey: .totalCount)
-    try container.encode(next, forKey: .next)
-    try container.encode(prev, forKey: .prev)
+  public static func == (lhs: UserObject, rhs: UserObject) -> Bool {
+    return lhs.id == rhs.id &&
+      lhs.name == rhs.name &&
+      lhs.externalId == rhs.externalId &&
+      lhs.profileURL == rhs.profileURL &&
+      lhs.email == rhs.email &&
+      lhs.created == rhs.created &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.allSatisfy {
+        rhs.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
   }
 }
 
 // MARK: - Membership Response
 
-public struct SpaceMembership: Codable, Equatable {
+public struct UserObjectMembership: PubNubMembership, PubNubIdentifiable, Codable, Equatable {
   public let id: String
-  public let customType: [String: JSONCodableScalarType]
-  public let space: SpaceObject?
+  public var spaceId: String {
+    return id
+  }
+
+  var spaceObject: SpaceObject?
+  public var space: PubNubSpace? {
+    get { return spaceObject }
+    set { spaceObject = try? newValue?.transcode() }
+  }
+
+  public let custom: [String: JSONCodableScalar]?
+
   public let created: Date
   public let updated: Date
   public let eTag: String
 
-  enum CodingKeys: String, CodingKey {
-    case id
-    case space
-    case customType = "custom"
-    case created
-    case updated
-    case eTag
-  }
-
   public init(
     id: String,
-    custom: [String: JSONCodableScalar] = [:],
+    custom: [String: JSONCodableScalar]? = nil,
     space: PubNubSpace?,
     created: Date = Date(),
     updated: Date? = nil,
     eTag: String = ""
   ) {
     self.id = id
-    customType = custom.mapValues { $0.scalarValue }
-    self.space = space?.spaceObject
+    self.custom = custom
+    spaceObject = try? space?.transcode()
     self.created = created
     self.updated = updated ?? created
     self.eTag = eTag
+  }
+
+  public init(from membership: PubNubMembership) throws {
+    self.init(
+      id: membership.id,
+      custom: membership.custom,
+      space: membership.space,
+      created: membership.created,
+      updated: membership.updated,
+      eTag: membership.eTag
+    )
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case spaceObject = "space"
+    case custom
+    case created
+    case updated
+    case eTag
   }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     id = try container.decode(String.self, forKey: .id)
-    space = try container.decodeIfPresent(SpaceObject.self, forKey: .space)
-    customType = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .customType) ?? [:]
+    spaceObject = try container.decodeIfPresent(SpaceObject.self, forKey: .spaceObject)
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     created = try container.decode(Date.self, forKey: .created)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
   }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(id, forKey: .id)
+    try container.encodeIfPresent(spaceObject, forKey: .spaceObject)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
+    try container.encode(created, forKey: .created)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+  }
+
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    return lhs.id == rhs.id &&
+      lhs.spaceObject == rhs.spaceObject &&
+      lhs.created == lhs.created &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.allSatisfy {
+        rhs.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
+  }
 }
 
-public struct UserMembershipsResponsePayload: Codable {
-  public let status: Int
-  public let memberships: [SpaceMembership]
-  public let totalCount: Int?
-  public let next: String?
-  public let prev: String?
+// MARK: - Deprecated (v2.0.0)
 
-  enum CodingKeys: String, CodingKey {
-    case status
-    case memberships = "data"
-    case totalCount
-    case next
-    case prev
+public typealias ObjectIdentifiable = PubNubIdentifiable & ObjectCustomizable & JSONCodable
+
+public typealias SpaceMembership = UserObjectMembership
+
+public typealias UserObjectsResponsePayload = UsersResponsePayload<UserObject>
+extension UserObjectsResponsePayload {
+  public var users: [T] {
+    return data
+  }
+}
+
+public typealias UserMembershipsResponsePayload = MembershipsResponsePayload<UserObjectMembership>
+extension UserMembershipsResponsePayload {
+  public var memberships: [T] {
+    return data
   }
 
   // swiftlint:disable:next file_length

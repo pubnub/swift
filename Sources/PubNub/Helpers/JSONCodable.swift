@@ -107,33 +107,43 @@ extension JSONCodableScalar {
     return AnyJSON(scalarValue.underlying)
   }
 
+  /// The underlying value as an `Any`
+  public var rawValue: Any {
+    return scalarValue.underlying.rawValue
+  }
+
+  /// Whether the underlying value is coded to Null
+  public var isNil: Bool {
+    return scalarValue.underlying.isNil
+  }
+
   /// The underlying value as a `String` or nil if the value was not a `String`
-  var stringOptional: String? {
-    return scalarValue.underlying.rawValue as? String
+  public var stringOptional: String? {
+    return rawValue as? String
   }
 
   /// The underlying value as a `Int` or nil if the value was not a `Int`
-  var intOptional: Int? {
-    return scalarValue.underlying.rawValue as? Int
+  public var intOptional: Int? {
+    return rawValue as? Int
   }
 
   /// The underlying value as a `Double` or nil if the value was not a `Double`
-  var doubleOptional: Double? {
-    return scalarValue.underlying.rawValue as? Double
+  public var doubleOptional: Double? {
+    return rawValue as? Double
   }
 
   /// The underlying value as a `Bool` or nil if the value was not a `Bool`
-  var boolOptional: Bool? {
-    return scalarValue.underlying.rawValue as? Bool
+  public var boolOptional: Bool? {
+    return rawValue as? Bool
   }
 
   /// The underlying value as a `Date` or nil if the value was not a `Date`
-  var dateOptional: Date? {
-    return scalarValue.underlying.rawValue as? Date
+  public var dateOptional: Date? {
+    return rawValue as? Date
   }
 
   /// The underlying value as a `Data` or nil if the value was not a `Data`
-  var dataOptional: Data? {
+  public var dataOptional: Data? {
     if let dataString = stringOptional, let data = Data(base64Encoded: dataString) {
       return data
     }
@@ -194,23 +204,27 @@ public struct JSONCodableScalarType: Codable, Hashable {
   /// The underlying value
   let underlying: AnyJSONType
 
-  init(stringValue: String) {
-    underlying = .string(stringValue)
+  public init(stringValue: String?) {
+    if let value = stringValue {
+      underlying = .string(value)
+    } else {
+      underlying = .null
+    }
   }
 
-  init(intValue: Int) {
+  public init(intValue: Int) {
     underlying = .integer(intValue as NSNumber)
   }
 
-  init(boolValue: Bool) {
+  public init(boolValue: Bool) {
     underlying = .boolean(boolValue)
   }
 
-  init(doubleValue: Double) {
+  public init(doubleValue: Double) {
     underlying = .double(doubleValue as NSNumber)
   }
 
-  init(dateValue: Date) {
+  public init(dateValue: Date) {
     underlying = .string(DateFormatter.iso8601.string(from: dateValue))
   }
 

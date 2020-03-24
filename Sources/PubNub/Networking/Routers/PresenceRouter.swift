@@ -256,7 +256,38 @@ public struct HereNowSingleResponsePayload: Codable {
   public let message: String
   public let service: String
   public let occupancy: Int
-  public let uuids: [HereNowUUIDPayload]
+  public let occupants: [String: [String: AnyJSON]?]
+
+  public init(
+    status: Int = 200,
+    message: String = "OK",
+    service: String = "Presence",
+    occupancy: Int,
+    occupants: [String: [String: AnyJSON]?]
+  ) {
+    self.status = status
+    self.message = message
+    self.service = service
+    self.occupancy = occupancy
+    self.occupants = occupants
+
+    UUIDs = occupants.map { HereNowUUIDPayload(uuid: $0.key, state: $0.value) }
+  }
+
+  @available(*, deprecated, message: "Use the `occupants` dictionary instead")
+  public var uuids: [HereNowUUIDPayload] {
+    return UUIDs
+  }
+
+  private let UUIDs: [HereNowUUIDPayload]
+
+  public enum CodingKeys: String, CodingKey {
+    case status
+    case message
+    case service
+    case occupancy
+    case occupants = "uuids"
+  }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: HereNowSingleResponsePayload.CodingKeys.self)
@@ -267,11 +298,24 @@ public struct HereNowSingleResponsePayload: Codable {
 
     occupancy = try container.decode(Int.self, forKey: .occupancy)
 
-    if let stringList = try? container.decodeIfPresent([String].self, forKey: .uuids) {
-      uuids = stringList.map { HereNowUUIDPayload(uuid: $0) }
+    var occupants = [String: [String: AnyJSON]?]()
+    if let stringList = try? container.decodeIfPresent([String].self, forKey: .occupants) {
+      UUIDs = stringList.map { HereNowUUIDPayload(uuid: $0) }
     } else {
-      uuids = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .uuids) ?? []
+      UUIDs = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .occupants) ?? []
     }
+    UUIDs.forEach { occupants[$0.uuid] = $0.state }
+    self.occupants = occupants
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(status, forKey: .status)
+    try container.encode(message, forKey: .message)
+    try container.encode(service, forKey: .service)
+    try container.encode(occupancy, forKey: .occupancy)
+    try container.encode(occupants.map { HereNowUUIDPayload(uuid: $0.key, state: $0.value) }, forKey: .occupants)
   }
 }
 
@@ -281,7 +325,19 @@ public struct HereNowResponsePayload: Codable {
   public let service: String
   public let payload: HereNowPayload
 
-  static func response(
+  public init(
+    status: Int = 200,
+    message: String = "OK",
+    service: String = "Presence",
+    payload: HereNowPayload
+  ) {
+    self.status = status
+    self.message = message
+    self.service = service
+    self.payload = payload
+  }
+
+  public static func response(
     for channel: String,
     from data: Data,
     using decoder: JSONDecoder
@@ -292,7 +348,7 @@ public struct HereNowResponsePayload: Codable {
     if payload.occupancy == 0 {
       channels = [:]
     } else {
-      channels = [channel: HereNowChannelsPayload(occupancy: payload.occupancy, uuids: payload.uuids)]
+      channels = [channel: HereNowChannelsPayload(occupancy: payload.occupancy, occupants: payload.occupants)]
     }
 
     let hereNowPayload = HereNowPayload(channels: channels,
@@ -336,37 +392,98 @@ public struct HereNowPayload: Codable {
       channels = [:]
     }
   }
-}
 
-public struct HereNowChannelsPayload: Codable {
-  public let occupancy: Int
-  public let uuids: [HereNowUUIDPayload]
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
 
-  public init(occupancy: Int, uuids: [HereNowUUIDPayload]) {
-    self.occupancy = occupancy
-    self.uuids = uuids
-  }
+    try container.encode(totalOccupancy, forKey: .totalOccupancy)
+    try container.encode(totalChannels, forKey: .totalChannels)
 
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: HereNowChannelsPayload.CodingKeys.self)
-
-    occupancy = try container.decode(Int.self, forKey: .occupancy)
-
-    if let stringList = try? container.decodeIfPresent([String].self, forKey: .uuids) {
-      uuids = stringList.map { HereNowUUIDPayload(uuid: $0) }
+    if channels.isEmpty {
+      // Empty channels encodes as empty list instead of empty object
+      try container.encode([String](), forKey: .channels)
     } else {
-      uuids = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .uuids) ?? []
+      try container.encode(channels, forKey: .channels)
     }
   }
 }
 
-public struct HereNowUUIDPayload: Codable {
+public struct HereNowChannelsPayload: Codable {
+  public let occupancy: Int
+  public let occupants: [String: [String: AnyJSON]?]
+
+  // Deprecated
+  @available(*, deprecated, message: "Use the `occupants` dictionary instead")
+  public var uuids: [HereNowUUIDPayload] {
+    return UUIDs
+  }
+
+  // Used to avoid having deprecated warnings internally
+  private let UUIDs: [HereNowUUIDPayload]
+
+  @available(*, deprecated, message: "Instead use `init(occupancy:occupants:)`")
+  public init(occupancy: Int, uuids: [HereNowUUIDPayload]) {
+    self.occupancy = occupancy
+    UUIDs = uuids
+    var occupants = [String: [String: AnyJSON]?]()
+    uuids.forEach { occupants[$0.uuid] = $0.state }
+    self.occupants = occupants
+  }
+
+  public init(occupancy: Int, occupants: [String: [String: AnyJSON]?]) {
+    self.occupancy = occupancy
+    self.occupants = occupants
+    UUIDs = occupants.map { HereNowUUIDPayload(uuid: $0.key, state: $0.value) }
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case occupancy
+    case occupants = "uuids"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    occupancy = try container.decode(Int.self, forKey: .occupancy)
+
+    var occupants = [String: [String: AnyJSON]?]()
+    if let stringList = try? container.decodeIfPresent([String].self, forKey: .occupants) {
+      UUIDs = stringList.map { HereNowUUIDPayload(uuid: $0) }
+    } else {
+      UUIDs = try container.decodeIfPresent([HereNowUUIDPayload].self, forKey: .occupants) ?? []
+    }
+    UUIDs.forEach { occupants[$0.uuid] = $0.state }
+    self.occupants = occupants
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(occupancy, forKey: .occupancy)
+    try container.encode(occupants.map { HereNowUUIDPayload(uuid: $0.key, state: $0.value) }, forKey: .occupants)
+  }
+}
+
+public struct HereNowUUIDPayload: Codable, Equatable {
   public let uuid: String
   public let state: [String: AnyJSON]?
 
   public init(uuid: String, state: [String: AnyJSON]? = nil) {
     self.uuid = uuid
-    self.state = state
+    self.state = state?.mapValues { $0.codableValue }
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    if let state = state {
+      var container = encoder.container(keyedBy: CodingKeys.self)
+
+      try container.encode(uuid, forKey: .uuid)
+      try container.encode(state, forKey: .state)
+    } else {
+      var container = encoder.singleValueContainer()
+
+      try container.encode(uuid)
+    }
   }
 }
 
@@ -389,6 +506,18 @@ public struct SetPresenceStatePayload: Codable {
   public var message: String
   public var service: String
   public var payload: [String: AnyJSON]
+
+  public init(
+    status: Int = 200,
+    message: String = "OK",
+    service: String = "Presence",
+    payload: [String: AnyJSON]
+  ) {
+    self.status = status
+    self.message = message
+    self.service = service
+    self.payload = payload
+  }
 }
 
 extension SetPresenceStatePayload {
@@ -410,6 +539,22 @@ public struct SinglePresenceStatePayload: Codable {
 
   public var channel: String
   public var payload: [String: AnyJSON]
+
+  public init(
+    status: Int = 200,
+    message: String = "OK",
+    service: String = "Presence",
+    uuid: String,
+    channel: String,
+    payload: [String: AnyJSON]
+  ) {
+    self.status = status
+    self.message = message
+    self.service = service
+    self.uuid = uuid
+    self.channel = channel
+    self.payload = payload
+  }
 }
 
 extension SinglePresenceStatePayload {
@@ -422,8 +567,19 @@ public struct MultiPresenceStatePayload: Codable {
   public var status: Int
   public var message: String
   public var service: String
-
   public var payload: PresenceChannelsPayload
+
+  public init(
+    status: Int = 200,
+    message: String = "OK",
+    service: String = "Presence",
+    channels: [String: [String: AnyJSON]]
+  ) {
+    self.status = status
+    self.message = message
+    self.service = service
+    payload = PresenceChannelsPayload(channels: channels)
+  }
 }
 
 extension MultiPresenceStatePayload {

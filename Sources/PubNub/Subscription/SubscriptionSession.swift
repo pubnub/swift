@@ -85,11 +85,15 @@ public class SubscriptionSession {
 
   var internalState = Atomic<SubscriptionState>(SubscriptionState())
 
-  internal init(configuration: SubscriptionConfiguration, network session: SessionReplaceable) {
+  internal init(
+    configuration: SubscriptionConfiguration,
+    network subscribeSession: SessionReplaceable,
+    presenceSession: SessionReplaceable
+  ) {
     self.configuration = configuration
-    var mutableSession = session
+    var mutableSession = subscribeSession
 
-    nonSubscribeSession = HTTPSession(configuration: URLSessionConfiguration.pubnub, sessionQueue: session.sessionQueue)
+    nonSubscribeSession = presenceSession
 
     responseQueue = DispatchQueue(label: "com.pubnub.subscription.response", qos: .default)
     sessionStream = SessionListener(queue: responseQueue)

@@ -28,15 +28,24 @@
 import Foundation
 
 /// An event that contains a unique identifier
-public struct IdentifierEvent: Codable, Hashable {
-  /// The unique identifier for the event
-  public let id: String
-}
+public typealias IdentifierEvent = SimpleIdentifiableObject
 
 // MARK: - User Events
 
 /// An event that made changes to a User object
-public typealias UserEvent = UpdatableUser
+public typealias UserEvent = UserPatch
+
+public typealias UserPatch = ObjectPatch<UserChangeEvent>
+
+public extension UserPatch {
+  func update<T: PubNubUser>(_ user: T?) throws -> T? {
+    if let pubnubUser = updatePatch(user) {
+      return try T(from: pubnubUser)
+    }
+
+    return nil
+  }
+}
 
 /// All the changes that can be received for User objects
 public enum UserEvents {
@@ -49,7 +58,19 @@ public enum UserEvents {
 // MARK: - Space Events
 
 /// An event that made changes to a Space object
-public typealias SpaceEvent = UpdatableSpace
+public typealias SpaceEvent = SpacePatch
+
+public typealias SpacePatch = ObjectPatch<SpaceChangeEvent>
+
+public extension SpacePatch {
+  func update<T: PubNubSpace>(_ space: T?) throws -> T? {
+    if let pubnubSpace = updatePatch(space) {
+      return try T(from: pubnubSpace)
+    }
+
+    return nil
+  }
+}
 
 /// All the changes that can be received for Space objects
 public enum SpaceEvents {
@@ -72,33 +93,98 @@ public enum MembershipEvents {
 }
 
 /// Uniquely identifies a Membership between a User and a Space
-public protocol MembershipIdentifiable {
+public struct MembershipIdentifiable: Codable, Hashable {
   /// The unique identifier of the User object
-  var userId: String { get }
+  public let userId: String
   /// The unique identifier of the Space object
-  var spaceId: String { get }
+  public let spaceId: String
+
+  public init(userId: String, spaceId: String) {
+    self.userId = userId
+    self.spaceId = spaceId
+  }
 }
 
 /// An event to alert the changes made to a Membership between a User and a Space
-public struct MembershipEvent: MembershipIdentifiable, Codable, Hashable {
+public struct MembershipEvent: Codable, Equatable {
   /// Unique identifier of the User object
   public let userId: String
   /// Unique identifier of the Space object
   public let spaceId: String
   /// Custom data contained in the Membership
-  public let custom: [String: JSONCodableScalarType]
+  public let custom: [String: JSONCodableScalar]?
+  /// Date the Membership was created
+  public let created: Date
   /// Date the Membership was last updated
   public let updated: Date
   /// The unique cache key used to evaluate if a change has occurred with this object
   public let eTag: String
+
+  public init(
+    userId: String,
+    spaceId: String,
+    custom: [String: JSONCodableScalar]?,
+    created: Date = Date(),
+    updated: Date? = nil,
+    eTag: String
+  ) {
+    self.userId = userId
+    self.spaceId = spaceId
+    self.custom = custom
+    self.created = created
+    self.updated = updated ?? created
+    self.eTag = eTag
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case userId
+    case spaceId
+    case custom
+    case created
+    case updated
+    case eTag
+  }
 
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     userId = try container.decode(String.self, forKey: .userId)
     spaceId = try container.decode(String.self, forKey: .spaceId)
-    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) ?? [:]
-    updated = try container.decodeIfPresent(Date.self, forKey: .updated) ?? Date.distantPast
-    eTag = try container.decodeIfPresent(String.self, forKey: .eTag) ?? ""
+    custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+    created = try container.decode(Date.self, forKey: .created)
+    updated = try container.decode(Date.self, forKey: .updated)
+    eTag = try container.decode(String.self, forKey: .eTag)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+
+    try container.encode(userId, forKey: .userId)
+    try container.encode(spaceId, forKey: .spaceId)
+    try container.encodeIfPresent(custom?.mapValues { $0.codableValue }, forKey: .custom)
+    try container.encode(created, forKey: .created)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+  }
+
+  public static func == (lhs: MembershipEvent, rhs: MembershipEvent) -> Bool {
+    return lhs.userId == rhs.userId &&
+      lhs.spaceId == rhs.spaceId &&
+      lhs.created == lhs.created &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.allSatisfy {
+        rhs.custom?[$0]?.scalarValue == $1.scalarValue
+      } ?? true
+  }
+
+  public var asMember: PubNubMember {
+    return SpaceObjectMember(id: userId, custom: custom, user: nil,
+                             created: created, updated: updated, eTag: eTag)
+  }
+
+  public var asMembership: PubNubMembership {
+    return UserObjectMembership(id: spaceId, custom: custom, space: nil,
+                                created: created, updated: updated, eTag: eTag)
   }
 }

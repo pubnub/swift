@@ -112,11 +112,13 @@ struct SubscribeResponseDecoder: ResponseDecoder {
       // If a message fails we just return the original and move on
       do {
         let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
-        if let decodedString = String(bytes: decryptedPayload, encoding: .utf8) {
+        if let decodedString = String(bytes: decryptedPayload, encoding: crypto.defaultStringEncoding) {
           return message.message(with: AnyJSON(reverse: decodedString))
         } else {
           // swiftlint:disable:next line_length
           PubNub.log.error("Decrypted subscribe payload data failed to stringify for base64 encoded payload \(decryptedPayload.base64EncodedString())")
+
+          return message.message(with: AnyJSON(messageData))
         }
       } catch {
         PubNub.log.error("Subscribe message failed to decrypt due to \(error)")
@@ -367,6 +369,173 @@ public enum ObjectType: String, Codable, Hashable {
   case membership
 }
 
+public protocol ChangeEvent {
+  static func changeValue(key: String, value: Any?) -> Self?
+}
+
+public struct ObjectPatch<ChangeType: ChangeEvent>: Decodable {
+  public let id: String
+
+  public let updated: Date
+  public let eTag: String
+
+  public var changes: [ChangeType]
+
+  public init(
+    id: String,
+    updated: Date,
+    eTag: String,
+    changes: [ChangeType]
+  ) {
+    self.id = id
+    self.updated = updated
+    self.eTag = eTag
+    self.changes = changes
+  }
+
+  enum CodingKeys: String, CodingKey {
+    case id
+    case updated
+    case eTag
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+
+    var json = try container.decode([String: AnyJSON].self)
+
+    guard let id = json.removeValue(forKey: "id")?.stringOptional else {
+      throw DecodingError.keyNotFound(CodingKeys.id, .init(codingPath: [], debugDescription: ""))
+    }
+    self.id = id
+
+    guard let updated = json.removeValue(forKey: "updated")?.stringOptional,
+      let date = DateFormatter.iso8601.date(from: updated) else {
+      throw DecodingError.keyNotFound(CodingKeys.updated, .init(codingPath: [], debugDescription: ""))
+    }
+    self.updated = date
+
+    guard let eTag = json.removeValue(forKey: "eTag")?.stringOptional else {
+      throw DecodingError.keyNotFound(CodingKeys.id, .init(codingPath: [], debugDescription: ""))
+    }
+    self.eTag = eTag
+
+    changes = json.compactMap { ChangeType.changeValue(key: $0.key, value: $0.value.rawValue) }
+  }
+}
+
+extension ObjectPatch where ChangeType == UserChangeEvent {
+  func updatePatch(_ other: PubNubUser?) -> PubNubUser? {
+    guard let other = other,
+      other.id == self.id, other.updated.timeIntervalSince(self.updated) < 0,
+      other.eTag != self.eTag else {
+      return nil
+    }
+
+    var name = other.name
+    var externalId = other.externalId
+    var profileURL = other.profileURL
+    var email = other.email
+    var otherCustom = other.custom
+
+    for change in changes {
+      switch change {
+      case let .name(value):
+        name = value
+      case let .externalId(value):
+        externalId = value
+      case let .profileURL(value):
+        profileURL = value
+      case let .email(value):
+        email = value
+      case let .custom(custom):
+        otherCustom = custom
+      }
+    }
+
+    return UserObject(
+      name: name, id: other.id, externalId: externalId,
+      profileURL: profileURL, email: email, custom: otherCustom,
+      created: other.created, updated: updated, eTag: eTag
+    )
+  }
+}
+
+public enum UserChangeEvent: ChangeEvent {
+  case name(String)
+  case externalId(String?)
+  case profileURL(String?)
+  case email(String?)
+  case custom([String: JSONCodableScalarType]?)
+
+  public static func changeValue(key: String, value: Any?) -> UserChangeEvent? {
+    switch (key, value) {
+    case let ("name", name as String):
+      return .name(name)
+    case ("externalId", _):
+      return .externalId(value as? String)
+    case ("profileURL", _):
+      return .profileURL(value as? String)
+    case ("email", _):
+      return .email(value as? String)
+    case ("custom", _):
+      return .custom(value as? [String: JSONCodableScalarType])
+    default:
+      return nil
+    }
+  }
+}
+
+public enum SpaceChangeEvent: ChangeEvent {
+  case name(String)
+  case spaceDescription(String?)
+  case custom([String: JSONCodableScalarType]?)
+
+  public static func changeValue(key: String, value: Any?) -> SpaceChangeEvent? {
+    switch (key, value) {
+    case let ("name", name as String):
+      return .name(name)
+    case ("description", _):
+      return .spaceDescription(value as? String)
+    case ("custom", _):
+      return .custom(value as? [String: JSONCodableScalarType])
+    default:
+      return nil
+    }
+  }
+}
+
+extension ObjectPatch where ChangeType == SpaceChangeEvent {
+  func updatePatch(_ other: PubNubSpace?) -> PubNubSpace? {
+    guard let other = other,
+      other.id == self.id, other.updated.timeIntervalSince(self.updated) < 0,
+      other.eTag != self.eTag else {
+      return nil
+    }
+
+    var name = other.name
+    var spaceDescription = other.spaceDescription
+    var otherCustom = other.custom
+
+    for change in changes {
+      switch change {
+      case let .name(value):
+        name = value
+      case let .spaceDescription(value):
+        spaceDescription = value
+      case let .custom(custom):
+        otherCustom = custom
+      }
+    }
+
+    return SpaceObject(
+      name: name, id: other.id, spaceDescription: spaceDescription,
+      custom: otherCustom,
+      created: other.created, updated: updated, eTag: eTag
+    )
+  }
+}
+
 public struct ObjectSubscribePayload: Codable, Hashable {
   public let source: String
   public let version: String
@@ -387,11 +556,11 @@ public struct ObjectSubscribePayload: Codable, Hashable {
   func decodedEvent() throws -> SubscriptionEvent {
     switch (type, event) {
     case (.user, .update):
-      return .userUpdated(try data.decode(UserObject.self))
+      return .userUpdated(try data.decode(UserEvent.self))
     case (.user, .delete):
       return .userDeleted(try data.decode(IdentifierEvent.self))
     case (.space, .update):
-      return .spaceUpdated(try data.decode(SpaceObject.self))
+      return .spaceUpdated(try data.decode(SpaceEvent.self))
     case (.space, .delete):
       return .spaceDeleted(try data.decode(IdentifierEvent.self))
     case (.membership, .add):
@@ -399,7 +568,7 @@ public struct ObjectSubscribePayload: Codable, Hashable {
     case (.membership, .update):
       return .membershipUpdated(try data.decode(MembershipEvent.self))
     case (.membership, .delete):
-      return .membershipDeleted(try data.decode(MembershipEvent.self))
+      return .membershipDeleted(try data.decode(MembershipIdentifiable.self))
     default:
       throw DecodingError.typeMismatch(SubscriptionEvent.self,
                                        .init(codingPath: [],

@@ -52,11 +52,11 @@ final class UnfairLock: NSLocking {
   }
 }
 
-final class Atomic<Locked> {
+public final class Atomic<Locked> {
   private let lock: NSLocking
   private var value: Locked
 
-  init(_ value: Locked, locker: NSLocking? = nil) {
+  public init(_ value: Locked, locker: NSLocking? = nil) {
     if #available(iOS 10.0, macOS 10.12, tvOS 10.0, watchOS 3.0, *) {
       self.lock = locker ?? UnfairLock()
     } else {
@@ -68,26 +68,26 @@ final class Atomic<Locked> {
 
   /// Thread-safe access of locked value
   @inline(__always)
-  func lockedRead<Value>(_ closure: (Locked) -> Value) -> Value {
+  public func lockedRead<Value>(_ closure: (Locked) -> Value) -> Value {
     return lock.synchronize { closure(self.value) }
   }
 
   /// Thread-safe mutation of locked value
   @discardableResult
   @inline(__always)
-  func lockedWrite<Value>(_ closure: (inout Locked) -> Value) -> Value {
+  public func lockedWrite<Value>(_ closure: (inout Locked) -> Value) -> Value {
     return lock.synchronize { closure(&self.value) }
   }
 
   /// Thread-safe execution of a closure
   @inline(__always)
-  func lockedPerform(_ closure: () -> Void) {
+  public func lockedPerform(_ closure: () -> Void) {
     return lock.synchronize { closure() }
   }
 
   /// Thread-safe execution of a closure that can throw exceptions
   @inline(__always)
-  func lockedTry<Value>(_ closure: (inout Locked) throws -> Value) throws -> Value {
+  public func lockedTry<Value>(_ closure: (inout Locked) throws -> Value) throws -> Value {
     return try lock.synchronize { try closure(&self.value) }
   }
 }

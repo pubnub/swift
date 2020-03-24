@@ -101,10 +101,10 @@ struct SpaceObjectsRouter: HTTPRouter {
       path = "/v1/objects/\(subscribeKey)/spaces/\(space.id.urlEncodeSlash)"
     case let .delete(spaceID):
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
-    case let .fetchMembers(parameters):
-      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID.urlEncodeSlash)/users"
-    case let .modifyMembers(parameters):
-      path = "/v1/objects/\(subscribeKey)/spaces/\(parameters.spaceID.urlEncodeSlash)/users"
+    case let .fetchMembers(spaceID, _, _, _, _, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)/users"
+    case let .modifyMembers(spaceID, _, _, _, _, _, _, _, _):
+      path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)/users"
     }
     return .success(path)
   }
@@ -196,14 +196,14 @@ struct SpaceObjectsRouter: HTTPRouter {
         (space.id.isEmpty && space.name.isEmpty, ErrorDescription.invalidPubNubSpace))
     case let .delete(spaceID):
       return isInvalidForReason((spaceID.isEmpty, ErrorDescription.emptySpaceID))
-    case let .fetchMembers(parameters):
-      return isInvalidForReason((parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID))
-    case let .modifyMembers(parameters):
+    case let .fetchMembers(spaceID, _, _, _, _, _):
+      return isInvalidForReason((spaceID.isEmpty, ErrorDescription.emptySpaceID))
+    case let .modifyMembers(spaceID, adding, updating, removing, _, _, _, _, _):
       return isInvalidForReason(
-        (parameters.spaceID.isEmpty, ErrorDescription.emptySpaceID),
-        (!parameters.adding.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMember),
-        (!parameters.updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMember),
-        (!parameters.removing.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMember)
+        (spaceID.isEmpty, ErrorDescription.emptySpaceID),
+        (!adding.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMember),
+        (!updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMember),
+        (!removing.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMember)
       )
     }
   }

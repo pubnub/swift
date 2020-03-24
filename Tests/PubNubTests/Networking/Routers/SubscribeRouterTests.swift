@@ -515,9 +515,9 @@ extension SubscribeRouterTests {
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -571,9 +571,9 @@ extension SubscribeRouterTests {
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -630,9 +630,9 @@ extension SubscribeRouterTests {
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -686,9 +686,9 @@ extension SubscribeRouterTests {
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:

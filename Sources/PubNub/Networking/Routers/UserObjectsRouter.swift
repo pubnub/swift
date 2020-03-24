@@ -101,10 +101,10 @@ struct UserObjectsRouter: HTTPRouter {
       path = "/v1/objects/\(subscribeKey)/users/\(user.id.urlEncodeSlash)"
     case let .delete(userID):
       path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)"
-    case let .fetchMemberships(parameters):
-      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID.urlEncodeSlash)/spaces"
-    case let .modifyMemberships(parameters):
-      path = "/v1/objects/\(subscribeKey)/users/\(parameters.userID.urlEncodeSlash)/spaces"
+    case let .fetchMemberships(userID, _, _, _, _, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)/spaces"
+    case let .modifyMemberships(userID, _, _, _, _, _, _, _, _):
+      path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)/spaces"
     }
     return .success(path)
   }
@@ -196,14 +196,14 @@ struct UserObjectsRouter: HTTPRouter {
         (user.id.isEmpty && user.name.isEmpty, ErrorDescription.invalidPubNubUser))
     case let .delete(userID):
       return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
-    case let .fetchMemberships(parameters):
-      return isInvalidForReason((parameters.userID.isEmpty, ErrorDescription.emptyUserID))
-    case let .modifyMemberships(parameters):
+    case let .fetchMemberships(userID, _, _, _, _, _):
+      return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
+    case let .modifyMemberships(userID, joining, updating, leaving, _, _, _, _, _):
       return isInvalidForReason(
-        (parameters.userID.isEmpty, ErrorDescription.emptyUserID),
-        (!parameters.joining.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMembership),
-        (!parameters.updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMembership),
-        (!parameters.leaving.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMembership)
+        (userID.isEmpty, ErrorDescription.emptyUserID),
+        (!joining.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidJoiningMembership),
+        (!updating.allSatisfy { !$0.id.isEmpty }, ErrorDescription.invalidUpdatingMembership),
+        (!leaving.allSatisfy { !$0.isEmpty }, ErrorDescription.invalidLeavingMembership)
       )
     }
   }

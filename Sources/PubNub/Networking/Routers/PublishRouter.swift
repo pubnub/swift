@@ -71,14 +71,14 @@ struct PublishRouter: HTTPRouter {
 
   var path: Result<String, Error> {
     switch endpoint {
-    case let .publish(parameters):
-      return append(message: parameters.message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
-    case let .fire(parameters):
-      return append(message: parameters.message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
-    case let .compressedPublish(parameters):
-      return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0")
+    case let .publish(message, channel, _, _, _):
+      return append(message: message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .fire(message, channel, _):
+      return append(message: message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .compressedPublish(_, channel, _, _, _):
+      return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0")
     case let .signal(message, channel):
       return append(message: message,
                     to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
@@ -136,13 +136,13 @@ struct PublishRouter: HTTPRouter {
 
   var body: Result<Data?, Error> {
     switch endpoint {
-    case let .compressedPublish(parameters):
+    case let .compressedPublish(message, _, _, _, _):
       if let crypto = configuration.cipherKey {
-        return parameters.message.jsonStringifyResult.flatMap {
+        return message.jsonStringifyResult.flatMap {
           crypto.encrypt(plaintext: $0).map { $0.jsonDescription.data(using: .utf8) }
         }
       }
-      return parameters.message.jsonDataResult.map { .some($0) }
+      return message.jsonDataResult.map { .some($0) }
     default:
       return .success(nil)
     }

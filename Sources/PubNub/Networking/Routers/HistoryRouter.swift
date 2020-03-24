@@ -115,10 +115,10 @@ struct HistoryRouter: HTTPRouter {
     case let .delete(_, startTimetoken, endTimetoken):
       query.appendIfPresent(key: .start, value: startTimetoken?.description)
       query.appendIfPresent(key: .end, value: endTimetoken?.description)
-    case let .messageCounts(parameters):
-      query.appendIfPresent(key: .timetoken, value: parameters.timetoken?.description)
+    case let .messageCounts(_, timetoken, channelsTimetoken):
+      query.appendIfPresent(key: .timetoken, value: timetoken?.description)
       query.appendIfPresent(key: .channelsTimetoken,
-                            value: parameters.channelsTimetoken?.map { $0.description }.csvString)
+                            value: channelsTimetoken?.map { $0.description }.csvString)
     }
 
     return .success(query)

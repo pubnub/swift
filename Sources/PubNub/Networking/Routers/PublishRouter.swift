@@ -240,7 +240,7 @@ public struct PublishResponsePayload: Codable, Hashable {
 
     guard let error = optionalError, let message = optionalMessage, let timetoken = optionalToken else {
       throw DecodingError
-        .valueNotFound(Self.self,
+        .valueNotFound(PublishResponsePayload.self,
                        .init(codingPath: [],
                              debugDescription: PubNubError.Reason.malformedResponseBody.description))
     }

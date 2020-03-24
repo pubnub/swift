@@ -788,7 +788,7 @@ public struct UserObjectMembership: PubNubMembership, PubNubIdentifiable, Codabl
     try container.encode(eTag, forKey: .eTag)
   }
 
-  public static func == (lhs: Self, rhs: Self) -> Bool {
+  public static func == (lhs: UserObjectMembership, rhs: UserObjectMembership) -> Bool {
     return lhs.id == rhs.id &&
       lhs.spaceObject == rhs.spaceObject &&
       lhs.created == lhs.created &&

@@ -660,7 +660,7 @@ public struct SpaceObjectMember: PubNubMember, PubNubIdentifiable, Codable, Equa
     try container.encode(eTag, forKey: .eTag)
   }
 
-  public static func == (lhs: Self, rhs: Self) -> Bool {
+  public static func == (lhs: SpaceObjectMember, rhs: SpaceObjectMember) -> Bool {
     return lhs.id == rhs.id &&
       lhs.userObject == rhs.userObject &&
       lhs.created == lhs.created &&

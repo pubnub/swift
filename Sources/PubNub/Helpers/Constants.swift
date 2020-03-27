@@ -27,7 +27,7 @@
 
 import Foundation
 
-struct Constant {
+public struct Constant {
   static let presenceChannelSuffix: String = {
     "-pnpres"
   }()
@@ -120,23 +120,27 @@ struct Constant {
     NSNull()
   }()
 
-  static let jsonDecoder: JSONDecoder = {
+  public static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.dataDecodingStrategy = .base64
     decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601)
-    decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: positiveInfinty,
-                                                                    negativeInfinity: negativeInfinty,
-                                                                    nan: notANumber)
+    decoder.nonConformingFloatDecodingStrategy = .convertFromString(
+      positiveInfinity: positiveInfinty,
+      negativeInfinity: negativeInfinty,
+      nan: notANumber
+    )
     return decoder
   }()
 
-  static let jsonEncoder: JSONEncoder = {
+  public static let jsonEncoder: JSONEncoder = {
     let encoder = JSONEncoder()
     encoder.dataEncodingStrategy = .base64
     encoder.dateEncodingStrategy = .formatted(DateFormatter.iso8601)
-    encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: positiveInfinty,
-                                                                  negativeInfinity: negativeInfinty,
-                                                                  nan: notANumber)
+    encoder.nonConformingFloatEncodingStrategy = .convertToString(
+      positiveInfinity: positiveInfinty,
+      negativeInfinity: negativeInfinty,
+      nan: notANumber
+    )
     return encoder
   }()
 }

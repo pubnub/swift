@@ -69,7 +69,7 @@ extension UserObjectsRouterTests {
 
     let firstUser = UserObject(name: "HNNCTGRURF", id: "WGWPWPJBRJ", created: firstCreatedDate, eTag: "AY/Cz7edr46A3wE")
     let lastUser = UserObject(name: "VDUVIGRMWF", id: "OSPULBRLGN",
-                              custom: ["info": "JMGXDNYF"],
+                              custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
                               created: lastCreatedDate, eTag: "AeH55Y3T0a78Ew")
 
     PubNub(configuration: config, session: sessions.session)
@@ -81,8 +81,8 @@ extension UserObjectsRouterTests {
           XCTAssertEqual(payload.status, 200)
           XCTAssertEqual(payload.totalCount, 2)
 
-          XCTAssertTrue(firstUser.isEqual(payload.users.first))
-          XCTAssertTrue(lastUser.isEqual(payload.users.last))
+          XCTAssertEqual(firstUser, payload.users.first)
+          XCTAssertEqual(lastUser, payload.users.last)
 
         case let .failure(error):
           XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
@@ -995,14 +995,14 @@ extension UserObjectsRouterTests {
           XCTAssertEqual(payload.totalCount, 2)
 
           XCTAssertEqual(payload.memberships.first?.id, firstSpace.id)
-          XCTAssertEqual(payload.memberships.first?.customType.isEmpty, true)
+          XCTAssertNil(payload.memberships.first?.custom)
           XCTAssertEqual(payload.memberships.first?.eTag, "FirstETag")
           XCTAssertEqual(payload.memberships.first?.created,
                          DateFormatter.iso8601.date(from: "2019-09-29T13:07:57.589822Z"))
           XCTAssertTrue(firstSpace.isEqual(payload.memberships.first?.space))
 
           XCTAssertEqual(payload.memberships.last?.id, "LastSpace")
-          XCTAssertEqual(payload.memberships.last?.customType, ["starred": .init(boolValue: true)])
+          XCTAssertEqual(payload.memberships.last?.custom?["starred"]?.boolOptional, true)
           XCTAssertEqual(payload.memberships.last?.eTag, "LastETag")
           XCTAssertEqual(payload.memberships.last?.created,
                          DateFormatter.iso8601.date(from: "2019-09-29T19:13:43.964451Z"))
@@ -1092,14 +1092,14 @@ extension UserObjectsRouterTests {
           XCTAssertEqual(payload.totalCount, 2)
 
           XCTAssertEqual(payload.memberships.first?.id, firstSpace.id)
-          XCTAssertEqual(payload.memberships.first?.customType.isEmpty, true)
+          XCTAssertNil(payload.memberships.first?.custom)
           XCTAssertEqual(payload.memberships.first?.eTag, "FirstETag")
           XCTAssertEqual(payload.memberships.first?.created,
                          DateFormatter.iso8601.date(from: "2019-09-29T13:07:57.589822Z"))
           XCTAssertTrue(firstSpace.isEqual(payload.memberships.first?.space))
 
           XCTAssertEqual(payload.memberships.last?.id, "LastSpace")
-          XCTAssertEqual(payload.memberships.last?.customType, ["starred": .init(boolValue: true)])
+          XCTAssertEqual(payload.memberships.last?.custom?["starred"]?.boolOptional, true)
           XCTAssertEqual(payload.memberships.last?.eTag, "LastETag")
           XCTAssertEqual(payload.memberships.last?.created,
                          DateFormatter.iso8601.date(from: "2019-09-29T19:13:43.964451Z"))

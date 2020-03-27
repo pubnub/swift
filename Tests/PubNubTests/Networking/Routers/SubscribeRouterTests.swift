@@ -191,6 +191,8 @@ extension SubscribeRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let baseUser = UserObject(name: "Not Real Name", id: "TestUserID")
+
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
     let listener = SubscriptionListener()
@@ -200,15 +202,14 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .userUpdated(user):
-        XCTAssertEqual(user.id, "TestUserID")
-        XCTAssertEqual(user.name, "Test Name")
-        XCTAssertEqual(user.externalId, nil)
-        XCTAssertEqual(user.profileURL, nil)
-        XCTAssertEqual(user.email, nil)
-        XCTAssertNil(user.custom)
-        XCTAssertEqual(user.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(user.eTag, "UserUpdateEtag")
+      case let .userUpdated(patch):
+        let updated = try? patch.update(baseUser)
+
+        XCTAssertEqual(updated?.id, "TestUserID")
+        XCTAssertEqual(updated?.name, "Test Name")
+        XCTAssertNil(updated?.custom)
+        XCTAssertEqual(updated?.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
+        XCTAssertEqual(updated?.eTag, "UserUpdateEtag")
 
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
@@ -219,7 +220,7 @@ extension SubscribeRouterTests {
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
       default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
     listener.didReceiveUserEvent = { event in
@@ -310,6 +311,8 @@ extension SubscribeRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let baseSpace = SpaceObject(name: "Not Real Name", id: "TestSpaceID")
+
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
     let listener = SubscriptionListener()
@@ -319,13 +322,15 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .spaceUpdated(space):
-        XCTAssertEqual(space.id, "TestSpaceID")
-        XCTAssertEqual(space.name, "Test Name")
-        XCTAssertEqual(space.spaceDescription, nil)
-        XCTAssertNil(space.custom)
-        XCTAssertEqual(space.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(space.eTag, "SpaceUpdateEtag")
+      case let .spaceUpdated(patch):
+        let updated = try? patch.update(baseSpace)
+
+        XCTAssertEqual(updated?.id, "TestSpaceID")
+        XCTAssertEqual(updated?.name, "Test Name")
+        XCTAssertEqual(updated?.spaceDescription, nil)
+        XCTAssertNil(updated?.custom)
+        XCTAssertEqual(updated?.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
+        XCTAssertEqual(updated?.eTag, "SpaceUpdateEtag")
 
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
@@ -439,7 +444,7 @@ extension SubscribeRouterTests {
       case let .membershipAdded(membership):
         XCTAssertEqual(membership.userId, "TestUserID")
         XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        XCTAssertEqual(membership.custom["something"]?.boolOptional, true)
+        XCTAssertEqual(membership.custom?["something"]?.boolOptional, true)
         XCTAssertEqual(membership.updated,
                        DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
         XCTAssertEqual(membership.eTag, "TestETag")
@@ -503,16 +508,16 @@ extension SubscribeRouterTests {
       case let .membershipUpdated(membership):
         XCTAssertEqual(membership.userId, "TestUserID")
         XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        XCTAssertEqual(membership.custom.isEmpty, true)
+        XCTAssertNil(membership.custom)
         XCTAssertEqual(membership.updated,
                        DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
         XCTAssertEqual(membership.eTag, "TestETag")
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -566,9 +571,9 @@ extension SubscribeRouterTests {
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -625,9 +630,9 @@ extension SubscribeRouterTests {
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
@@ -681,9 +686,9 @@ extension SubscribeRouterTests {
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, groups):
+        case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, groups):
+        case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:

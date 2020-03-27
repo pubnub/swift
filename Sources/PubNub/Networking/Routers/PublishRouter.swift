@@ -71,14 +71,14 @@ struct PublishRouter: HTTPRouter {
 
   var path: Result<String, Error> {
     switch endpoint {
-    case let .publish(parameters):
-      return append(message: parameters.message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
-    case let .fire(parameters):
-      return append(message: parameters.message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0/")
-    case let .compressedPublish(parameters):
-      return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(parameters.channel.urlEncodeSlash)/0")
+    case let .publish(message, channel, _, _, _):
+      return append(message: message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .fire(message, channel, _):
+      return append(message: message,
+                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .compressedPublish(_, channel, _, _, _):
+      return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0")
     case let .signal(message, channel):
       return append(message: message,
                     to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
@@ -88,7 +88,7 @@ struct PublishRouter: HTTPRouter {
   func append(message: AnyJSON, to partialPath: String) -> Result<String, Error> {
     if let crypto = configuration.cipherKey {
       return message.jsonDataResult.flatMap { jsonData in
-        crypto.encrypt(utf8Encoded: jsonData)
+        crypto.encrypt(encoded: jsonData)
           .flatMap { .success("\(partialPath)\($0.base64EncodedString().urlEncodeSlash.jsonDescription)") }
       }
     }
@@ -136,13 +136,13 @@ struct PublishRouter: HTTPRouter {
 
   var body: Result<Data?, Error> {
     switch endpoint {
-    case let .compressedPublish(parameters):
+    case let .compressedPublish(message, _, _, _, _):
       if let crypto = configuration.cipherKey {
-        return parameters.message.jsonStringifyResult.flatMap {
+        return message.jsonStringifyResult.flatMap {
           crypto.encrypt(plaintext: $0).map { $0.jsonDescription.data(using: .utf8) }
         }
       }
-      return parameters.message.jsonDataResult.map { .some($0) }
+      return message.jsonDataResult.map { .some($0) }
     default:
       return .success(nil)
     }
@@ -186,44 +186,18 @@ struct PublishRouter: HTTPRouter {
 // MARK: - Response Decoder
 
 struct PublishResponseDecoder: ResponseDecoder {
-  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<PublishResponsePayload>, Error> {
-    do {
-      // Publish Response pattern:  [Int, String, String]
-      let decodedPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload).arrayOptional
-
-      guard let timeString = decodedPayload?.last as? String, let timetoken = Timetoken(timeString) else {
-        return .failure(PubNubError(.malformedResponseBody, response: response))
-      }
-
-      let decodedResponse = EndpointResponse<PublishResponsePayload>(
-        router: response.router,
-        request: response.request,
-        response: response.response,
-        data: response.data,
-        payload: PublishResponsePayload(timetoken: timetoken)
-      )
-
-      return .success(decodedResponse)
-    } catch {
-      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
-    }
-  }
+  typealias Payload = PublishResponsePayload
 
   func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
-    // Publish Response pattern:  [Int, String, String]
-    let decodedPayload = try? Constant.jsonDecoder.decode(AnyJSON.self, from: data).arrayOptional
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(PublishResponsePayload.self, from: data)
 
-    if let errorFlag = decodedPayload?.first as? Int, errorFlag == 0 {
-      if let message = decodedPayload?[1] as? String,
-        let reason = EndpointResponseMessage(rawValue: message).pubnubReason {
-        return PubNubError(reason: reason, router: router, request: request, response: response)
+      return PubNubError(reason: EndpointResponseMessage(rawValue: decodedPayload.message).pubnubReason,
+                         router: router, request: request, response: response)
+    } catch {
+      if let defaultError = decodeDefaultError(router: router, request: request, response: response, for: data) {
+        return defaultError
       }
-      return PubNubError(reason: .unknown, router: router, request: request, response: response)
-    }
-
-    // Check if we were provided a default error from the server
-    if let defaultError = decodeDefaultError(router: router, request: request, response: response, for: data) {
-      return defaultError
     }
 
     return nil
@@ -233,12 +207,54 @@ struct PublishResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 public struct PublishResponsePayload: Codable, Hashable {
+  public let error: Int
+  public let message: String
   public let timetoken: Timetoken
-}
 
-public struct ErrorResponse: Codable, Hashable {
-  public let message: String?
-  public let error: Bool
-  public let service: String?
-  public let status: Int
+  public init(error: Int = 1, message: String = "Sent", timetoken: Timetoken) {
+    self.error = error
+    self.message = message
+    self.timetoken = timetoken
+  }
+
+  public init(from decoder: Decoder) throws {
+    var container = try decoder.unkeyedContainer()
+
+    var optionalError: Int?
+    var optionalMessage: String?
+    var optionalToken: Timetoken?
+
+    while !container.isAtEnd {
+      switch container.currentIndex {
+      case 0:
+        optionalError = try container.decode(Int.self)
+      case 1:
+        optionalMessage = try container.decode(String.self)
+      case 2:
+        let value = try container.decode(String.self)
+        optionalToken = Timetoken(value) ?? 0
+      default:
+        break
+      }
+    }
+
+    guard let error = optionalError, let message = optionalMessage, let timetoken = optionalToken else {
+      throw DecodingError
+        .valueNotFound(PublishResponsePayload.self,
+                       .init(codingPath: [],
+                             debugDescription: PubNubError.Reason.malformedResponseBody.description))
+    }
+
+    self.error = error
+    self.message = message
+    self.timetoken = timetoken
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.unkeyedContainer()
+
+    try container.encode(error)
+    try container.encode(message)
+    try container.encode(timetoken.description)
+  }
 }

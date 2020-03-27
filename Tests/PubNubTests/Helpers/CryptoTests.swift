@@ -33,16 +33,16 @@ class CryptoTests: XCTestCase {
   func testEncryptDecrypt_Data() {
     let crypto = Crypto(key: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
-    guard let testData = testMessage.data(using: .utf8) else {
+    guard let testData = testMessage.data(using: .utf16) else {
       return XCTFail("Could not create Data from test string")
     }
-    guard let encryptedData = try? crypto?.encrypt(utf8Encoded: testData).get() else {
+    guard let encryptedData = try? crypto?.encrypt(encoded: testData).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
     guard let decryptedData = try? crypto?.decrypt(encrypted: encryptedData).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
-    let decryptedString = String(bytes: decryptedData, encoding: .utf8)
+    let decryptedString = String(bytes: decryptedData, encoding: .utf16)
     XCTAssertEqual(testMessage, decryptedString)
   }
 
@@ -67,7 +67,7 @@ class CryptoTests: XCTestCase {
     guard let testData = jsonMessage.data(using: .utf8) else {
       return XCTFail("Could not create Data from test string")
     }
-    guard let encryptedData = try? crypto?.encrypt(utf8Encoded: testData).get() else {
+    guard let encryptedData = try? crypto?.encrypt(encoded: testData).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
     guard let decryptedData = try? crypto?.decrypt(encrypted: encryptedData).get() else {
@@ -96,7 +96,7 @@ class CryptoTests: XCTestCase {
       let ivData = try Crypto.initializationVector.get()
       XCTAssertEqual(ivData.base64EncodedString(), "MDEyMzQ1Njc4OTAxMjM0NQ==")
 
-      let encryptedMessage = try crypto.encrypt(utf8Encoded: messageData).get()
+      let encryptedMessage = try crypto.encrypt(encoded: messageData).get()
 
       XCTAssertEqual(encryptedMessage.base64EncodedString(),
                      "Ej+YVJcPtbDrY2fM4OhaLQ==")

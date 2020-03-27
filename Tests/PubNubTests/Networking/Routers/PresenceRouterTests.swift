@@ -90,7 +90,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, self.channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+          XCTAssertEqual(payload.channels.first?.value.occupants.count,
                          payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
@@ -116,7 +116,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, self.channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+          XCTAssertEqual(payload.channels.first?.value.occupants.count,
                          payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
@@ -167,7 +167,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, self.channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+          XCTAssertEqual(payload.channels.first?.value.occupants.count,
                          payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
@@ -193,7 +193,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, self.channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+          XCTAssertEqual(payload.channels.first?.value.occupants.count,
                          payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
@@ -244,7 +244,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count, 0)
+          XCTAssertEqual(payload.channels.first?.value.occupants.count, 0)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -299,7 +299,7 @@ extension PresenceRouterTests {
           XCTAssertEqual(payload.channels.count, payload.totalChannels)
           XCTAssertEqual(payload.channels.first?.key, self.channelName)
           XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.uuids.count,
+          XCTAssertEqual(payload.channels.first?.value.occupants.count,
                          payload.channels.first?.value.occupancy)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")

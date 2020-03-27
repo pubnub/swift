@@ -307,6 +307,10 @@ extension AnyJSONType: RawRepresentable {
     }
   }
 
+  public var isNil: Bool {
+    return self == .null
+  }
+
   // swiftlint:disable:next cyclomatic_complexity function_body_length
   public init(rawValue: Any) {
     switch rawValue {

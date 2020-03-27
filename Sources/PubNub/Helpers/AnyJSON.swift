@@ -177,6 +177,18 @@ extension AnyJSON: Collection {
       return ("", AnyJSON(NSNull()))
     }
   }
+
+  public subscript(key: String) -> AnyJSON? {
+    switch value {
+    case let .dictionary(dictionary):
+      if let value = dictionary[key] {
+        return AnyJSON(value)
+      }
+      return nil
+    default:
+      return nil
+    }
+  }
 }
 
 // MARK: - Equatable
@@ -235,6 +247,9 @@ extension AnyJSON {
 
   /// The underlying value as a `Data` or nil if the value was not a `Data`
   public var dataOptional: Data? {
+    if let data = underlyingValue as? Data {
+      return data
+    }
     if let stringData = stringOptional {
       return Data(base64Encoded: stringData)
     }

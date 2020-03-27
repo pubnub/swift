@@ -27,6 +27,7 @@
                 },
                 "eTag": "TestETag",
                 "spaceId": "TestSpaceID",
+                "created": "2019-10-05T23:35:38.457823306Z",
                 "updated": "2019-10-05T23:35:38.457823306Z",
                 "userId": "TestUserID"
             }

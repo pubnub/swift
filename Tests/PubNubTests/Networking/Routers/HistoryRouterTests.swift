@@ -204,7 +204,6 @@ extension HistoryRouterTests {
         }
         expectation.fulfill()
       }
-
     wait(for: [expectation], timeout: 1.0)
   }
 

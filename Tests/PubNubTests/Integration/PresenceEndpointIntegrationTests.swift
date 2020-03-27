@@ -84,8 +84,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         case let .success(response):
           let channel = response.channels[self.channel]
           XCTAssertNotNil(channel)
-          let userPresence = channel?.uuids.first(where: { $0.uuid == configuration.uuid })
-          XCTAssertNotNil(userPresence?.state)
+          XCTAssertEqual(channel?.occupants[configuration.uuid], ["StateKey": "StateValue"])
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -175,8 +174,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         case let .success(response):
           let channel = response.channels[self.channel]
           XCTAssertNotNil(channel)
-          let userPresence = channel?.uuids.first(where: { $0.uuid == configuration.uuid })
-          XCTAssertNotNil(userPresence?.state)
+          XCTAssertEqual(channel?.occupants[configuration.uuid], ["StateKey": "StateValue"])
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }

@@ -31,7 +31,7 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
   // Reserverd Prefix Types
-  public static let none = LogPrefix(rawValue: 0)
+  public static let none = LogPrefix([])
   public static let level = LogPrefix(rawValue: 1 << 0)
   public static let date = LogPrefix(rawValue: 1 << 1)
   public static let queue = LogPrefix(rawValue: 1 << 2)
@@ -52,7 +52,7 @@ public struct LogType: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
   // Reserverd Log Types
-  public static let none = LogType(rawValue: 0)
+  public static let none = LogType([])
   public static let debug = LogType(rawValue: 1 << 0)
   public static let info = LogType(rawValue: 1 << 1)
   public static let event = LogType(rawValue: 1 << 2)
@@ -69,8 +69,6 @@ public struct LogType: OptionSet, Equatable, Hashable {
 extension LogType: CustomStringConvertible {
   public var description: String {
     switch self {
-    case LogType.none:
-      return "Logging Disabled"
     case LogType.debug:
       return "Debug"
     case LogType.info:

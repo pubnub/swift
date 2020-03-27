@@ -57,8 +57,11 @@ public class SubscribeSessionFactory {
   ///   - from: A configuration that will be used to fetch an existing SubscriptionSession or create a new one
   ///   - with: `SessionReplaceable` that will be used as the underlying `Session`
   /// - Returns: A `SubscriptionSession` that can be used to make PubNub subscribe and presence API calls with
-  public func getSession(from config: SubscriptionConfiguration,
-                         with session: SessionReplaceable? = nil) -> SubscriptionSession {
+  public func getSession(
+    from config: SubscriptionConfiguration,
+    with subscribeSession: SessionReplaceable? = nil,
+    presenceSession: SessionReplaceable? = nil
+  ) -> SubscriptionSession {
     let configHash = config.subscriptionHashValue
     if let session = sessions.lockedRead({ $0[configHash]?.underlying }) {
       PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")
@@ -67,10 +70,16 @@ public class SubscribeSessionFactory {
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     return sessions.lockedWrite { dictionary in
-      let sessionReplaceable = session ?? HTTPSession(configuration: URLSessionConfiguration.subscription,
-                                                      sessionQueue: subscribeQueue)
+      let subscribeSession = subscribeSession ?? HTTPSession(configuration: URLSessionConfiguration.subscription,
+                                                             sessionQueue: subscribeQueue)
+
+      let presenceSession = presenceSession ?? HTTPSession(configuration: URLSessionConfiguration.pubnub,
+                                                           sessionQueue: subscribeSession.sessionQueue)
+
       let subscriptionSession = SubscriptionSession(configuration: config,
-                                                    network: sessionReplaceable)
+                                                    network: subscribeSession,
+                                                    presenceSession: presenceSession)
+
       dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)
       return subscriptionSession
     }

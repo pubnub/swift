@@ -34,6 +34,8 @@ public struct Crypto: Hashable {
   public let key: Data?
   /// The algorithm that will be used when encrypting/decrypting
   public let cipher: Cipher
+  /// The String Encoding strategy to be used by default
+  public let defaultStringEncoding: String.Encoding
 
   public init?(key: String, cipher: Cipher = .aes) {
     guard let data = key.data(using: .utf8) else {
@@ -43,9 +45,10 @@ public struct Crypto: Hashable {
     self.init(key: data, cipher: cipher)
   }
 
-  public init(key data: Data, cipher: Cipher = .aes) {
+  public init(key data: Data, cipher: Cipher = .aes, encoding: String.Encoding = .utf8) {
     key = SHA256.hash(data: data)
     self.cipher = cipher
+    defaultStringEncoding = encoding
   }
 
   /// An algorithm that can be used to encrypt/decrypt data
@@ -116,15 +119,15 @@ public struct Crypto: Hashable {
 
   // MARK: - Encrypt
 
-  public func encrypt(plaintext stringIn: String) -> Result<String, Error> {
-    guard let messageData = stringIn.data(using: .utf8) else {
+  public func encrypt(plaintext stringIn: String, encoding override: String.Encoding? = nil) -> Result<String, Error> {
+    guard let messageData = stringIn.data(using: override ?? defaultStringEncoding) else {
       return .failure(CryptoError.illegalParameter)
     }
 
-    return encrypt(utf8Encoded: messageData).map { $0.base64EncodedString() }
+    return encrypt(encoded: messageData).map { $0.base64EncodedString() }
   }
 
-  public func encrypt(utf8Encoded dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
+  public func encrypt(encoded dataIn: Data, dataMovedOut _: Int = 0) -> Result<Data, Error> {
     guard let key = key else {
       return .failure(CryptoError.keySizeError)
     }
@@ -143,13 +146,17 @@ public struct Crypto: Hashable {
 
   // MARK: - Decrypt
 
-  public func decrypt(base64Encoded stringIn: String, dataMovedOut _: Int = 0) -> Result<String, Error> {
+  public func decrypt(
+    base64Encoded stringIn: String,
+    encoding override: String.Encoding? = nil,
+    dataMovedOut _: Int = 0
+  ) -> Result<String, Error> {
     guard let messageData = Data(base64Encoded: stringIn) else {
       return .failure(CryptoError.illegalParameter)
     }
 
     return decrypt(encrypted: messageData).flatMap { data in
-      guard let decodedString = String(bytes: data, encoding: .utf8) else {
+      guard let decodedString = String(bytes: data, encoding: override ?? defaultStringEncoding) else {
         return .failure(CryptoError.decodeError)
       }
       return .success(decodedString)

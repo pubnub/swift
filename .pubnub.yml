@@ -1,9 +1,26 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.4.2"
+version: "2.5.0"
 schema: 1
 changelog:
+  - changes:
+    - text: "Message Subscribe Events and Message History will now return the decrypted `Data` blob in the event it was decrypted, but couldn't be stringified"
+      type: improvement
+    - text: "Crypto will now accept the type of `String.Encoding` to be used when converting between `Data` and `String`"
+      type: improvement
+    - text: "Object API fetch|create|update methods with generic response objects have been added"
+      type: improvement
+    - text: "Object API fetch|create|update methods with protocol response objects have been added"
+      type: improvement
+    - text: "Object types User|Space|Member|Membership can now convert the underlying type using `transocde(into:)`"
+      type: improvement
+    - text: "Corrected the access control level of `MembershipIdentifiable` properties"
+      type: bug
+    - text: "User/Space Subscription Update events wouldn't properly handle partial object updates"
+      type: bug
+    date: 2020-03-26
+    version: v2.5.0
   - changes:
     - text: "Make `region` optional during `originTimetoken` parsing and set to 0 by default"
       type: bug

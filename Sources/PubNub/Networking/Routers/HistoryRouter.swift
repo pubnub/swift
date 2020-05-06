@@ -52,13 +52,13 @@ struct HistoryRouter: HTTPRouter {
 
     var firstChannel: String? {
       switch self {
-      case .fetchWithActions(let channel, _, _, _, _):
+      case let .fetchWithActions(channel, _, _, _, _):
         return channel
-      case .fetch(let channels, _, _, _, _):
+      case let .fetch(channels, _, _, _, _):
         return channels.first
-      case .delete(let channel, _, _):
+      case let .delete(channel, _, _):
         return channel
-      case .messageCounts(let channels, _, _):
+      case let .messageCounts(channels, _, _):
         return channels.first
       }
     }
@@ -86,13 +86,13 @@ struct HistoryRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case .fetchWithActions(let channel, _, _, _, _):
+    case let .fetchWithActions(channel, _, _, _, _):
       path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(channel)"
-    case .fetch(let channels, _, _, _, _):
+    case let .fetch(channels, _, _, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
-    case .delete(let channel, _, _):
+    case let .delete(channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
-    case .messageCounts(let channels, _, _):
+    case let .messageCounts(channels, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/message-counts/\(channels.csvString.urlEncodeSlash)"
     }
     return .success(path)
@@ -136,9 +136,9 @@ struct HistoryRouter: HTTPRouter {
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case .fetchWithActions(let channel, _, _, _, _):
+    case let .fetchWithActions(channel, _, _, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
-    case .fetch(let channels, _, _, _, _):
+    case let .fetch(channels, _, _, _, _):
       return isInvalidForReason((channels.isEmpty, ErrorDescription.emptyChannelArray))
     case let .delete(channel, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))

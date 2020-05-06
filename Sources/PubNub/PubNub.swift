@@ -751,7 +751,9 @@ extension PubNub {
           networkConfiguration: networkConfiguration,
           responseDecoder: MessageHistoryResponseDecoder(),
           respondOn: queue) { result in
-      completion?(result.map { $0.payload.channels })
+      completion?(result.map {
+        $0.payload.channels
+      })
     }
   }
 

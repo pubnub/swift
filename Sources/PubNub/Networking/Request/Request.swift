@@ -117,7 +117,7 @@ final class Request {
   }
 
   deinit {
-    PubNub.log.debug("Request Destoryed \(requestID)")
+    PubNub.log.debug("Request Destroyed \(requestID)")
 
     atomicState.lockedWrite { $0.purgeAll() }
   }

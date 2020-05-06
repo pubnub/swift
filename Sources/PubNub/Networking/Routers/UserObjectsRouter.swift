@@ -93,11 +93,11 @@ struct UserObjectsRouter: HTTPRouter {
     switch endpoint {
     case .fetchAll:
       path = "/v1/objects/\(subscribeKey)/users"
-    case .fetch(let userID, _):
+    case let .fetch(userID, _):
       path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)"
     case .create:
       path = "/v1/objects/\(subscribeKey)/users"
-    case .update(let user, _):
+    case let .update(user, _):
       path = "/v1/objects/\(subscribeKey)/users/\(user.id.urlEncodeSlash)"
     case let .delete(userID):
       path = "/v1/objects/\(subscribeKey)/users/\(userID.urlEncodeSlash)"
@@ -165,9 +165,9 @@ struct UserObjectsRouter: HTTPRouter {
 
   var body: Result<Data?, Error> {
     switch endpoint {
-    case .create(let user, _):
+    case let .create(user, _):
       return user.jsonDataResult.map { .some($0) }
-    case .update(let user, _):
+    case let .update(user, _):
       return user.jsonDataResult.map { .some($0) }
     case let .modifyMemberships(_, joining, updating, leaving, _, _, _, _, _):
       return MembershipChangeset(add: joining, update: updating, remove: leaving)
@@ -186,12 +186,12 @@ struct UserObjectsRouter: HTTPRouter {
     switch endpoint {
     case .fetchAll:
       return nil
-    case .fetch(let userID, _):
+    case let .fetch(userID, _):
       return isInvalidForReason((userID.isEmpty, ErrorDescription.emptyUserID))
-    case .create(let user, _):
+    case let .create(user, _):
       return isInvalidForReason(
         (user.id.isEmpty && user.name.isEmpty, ErrorDescription.invalidPubNubUser))
-    case .update(let user, _):
+    case let .update(user, _):
       return isInvalidForReason(
         (user.id.isEmpty && user.name.isEmpty, ErrorDescription.invalidPubNubUser))
     case let .delete(userID):

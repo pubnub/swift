@@ -80,9 +80,9 @@ extension FileManager {
   /// - Parameter directory: The URL of the directory to search in
   /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
   public func files(in directory: URL) -> [URL] {
-    if let fileURLs = try? self.contentsOfDirectory(at: directory,
-                                                    includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],
-                                                    options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles]) {
+    if let fileURLs = try? contentsOfDirectory(at: directory,
+                                               includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],
+                                               options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles]) {
       return fileURLs
     }
     return []

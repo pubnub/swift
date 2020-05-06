@@ -76,7 +76,7 @@ private class _CBORDecoder: Decoder {
       )
     }
 
-    guard let topContainer = self.storage.topContainer as? [String: Any] else {
+    guard let topContainer = storage.topContainer as? [String: Any] else {
       throw DecodingError._typeMismatch(at: codingPath,
                                         expectation: [String: Any].self,
                                         reality: storage.topContainer)
@@ -95,7 +95,7 @@ private class _CBORDecoder: Decoder {
       )
     }
 
-    guard let topContainer = self.storage.topContainer as? [Any] else {
+    guard let topContainer = storage.topContainer as? [Any] else {
       throw DecodingError._typeMismatch(at: codingPath,
                                         expectation: [Any].self,
                                         reality: storage.topContainer)
@@ -345,7 +345,7 @@ extension _CBORDecoder {
   fileprivate func unbox_(_ value: Any?, as type: Decodable.Type) throws -> Any? {
     // There is no protocol container for Data objects, so unbox here
     if type == Data.self {
-      guard let data = try self.unbox(value, as: Data.self) else { return nil }
+      guard let data = try unbox(value, as: Data.self) else { return nil }
       return data
     } else {
       storage.push(container: value)
@@ -398,7 +398,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decodeNil(forKey key: Key) throws -> Bool {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -410,7 +410,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Bool.Type, forKey key: Key) throws -> Bool {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -421,7 +421,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Bool.self) else {
+    guard let value = try decoder.unbox(entry, as: Bool.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -433,7 +433,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: String.Type, forKey key: Key) throws -> String {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -444,7 +444,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: String.self) else {
+    guard let value = try decoder.unbox(entry, as: String.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -456,7 +456,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Double.Type, forKey key: Key) throws -> Double {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -467,7 +467,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Double.self) else {
+    guard let value = try decoder.unbox(entry, as: Double.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -479,7 +479,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Float.Type, forKey key: Key) throws -> Float {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -490,7 +490,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Float.self) else {
+    guard let value = try decoder.unbox(entry, as: Float.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -502,7 +502,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Int.Type, forKey key: Key) throws -> Int {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -513,7 +513,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int.self) else {
+    guard let value = try decoder.unbox(entry, as: Int.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -525,7 +525,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Int8.Type, forKey key: Key) throws -> Int8 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -536,7 +536,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int8.self) else {
+    guard let value = try decoder.unbox(entry, as: Int8.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -548,7 +548,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Int16.Type, forKey key: Key) throws -> Int16 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -559,7 +559,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int16.self) else {
+    guard let value = try decoder.unbox(entry, as: Int16.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -571,7 +571,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Int32.Type, forKey key: Key) throws -> Int32 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -582,7 +582,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int32.self) else {
+    guard let value = try decoder.unbox(entry, as: Int32.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -594,7 +594,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: Int64.Type, forKey key: Key) throws -> Int64 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -605,7 +605,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: Int64.self) else {
+    guard let value = try decoder.unbox(entry, as: Int64.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -617,7 +617,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: UInt.Type, forKey key: Key) throws -> UInt {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -628,7 +628,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt.self) else {
+    guard let value = try decoder.unbox(entry, as: UInt.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -640,7 +640,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: UInt8.Type, forKey key: Key) throws -> UInt8 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -651,7 +651,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt8.self) else {
+    guard let value = try decoder.unbox(entry, as: UInt8.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -663,7 +663,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: UInt16.Type, forKey key: Key) throws -> UInt16 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -674,7 +674,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt16.self) else {
+    guard let value = try decoder.unbox(entry, as: UInt16.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -686,7 +686,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: UInt32.Type, forKey key: Key) throws -> UInt32 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -697,7 +697,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt32.self) else {
+    guard let value = try decoder.unbox(entry, as: UInt32.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -709,7 +709,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode(_ type: UInt64.Type, forKey key: Key) throws -> UInt64 {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -720,7 +720,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: UInt64.self) else {
+    guard let value = try decoder.unbox(entry, as: UInt64.self) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -732,7 +732,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
   }
 
   func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T: Decodable {
-    guard let entry = self.container[key.stringValue] else {
+    guard let entry = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -743,7 +743,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = try self.decoder.unbox(entry, as: type) else {
+    guard let value = try decoder.unbox(entry, as: type) else {
       throw DecodingError.valueNotFound(
         type,
         DecodingError.Context(codingPath: decoder.codingPath,
@@ -784,7 +784,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = self.container[key.stringValue] else {
+    guard let value = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(
@@ -849,12 +849,12 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         Any?.self,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
 
-    if container[self.currentIndex] is NSNull {
+    if container[currentIndex] is NSNull {
       currentIndex += 1
       return true
     } else {
@@ -866,7 +866,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -874,10 +874,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Bool.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Bool.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -890,7 +890,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -898,10 +898,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: String.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: String.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -914,7 +914,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -922,10 +922,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Double.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Double.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -938,7 +938,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -946,10 +946,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Float.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Float.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -961,7 +961,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
   mutating func decode(_ type: Int.Type) throws -> Int {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
-        type, DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        type, DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                                     debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -969,10 +969,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Int.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Int.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -985,7 +985,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -993,10 +993,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Int8.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Int8.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1009,7 +1009,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1017,10 +1017,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Int16.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Int16.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1033,7 +1033,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1041,10 +1041,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Int32.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Int32.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1057,7 +1057,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1065,10 +1065,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: Int64.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: Int64.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1081,7 +1081,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1089,10 +1089,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: UInt.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: UInt.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1105,7 +1105,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1113,10 +1113,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: UInt8.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: UInt8.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1129,7 +1129,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1137,10 +1137,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: UInt16.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: UInt16.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1153,7 +1153,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1161,10 +1161,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: UInt32.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: UInt32.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1177,7 +1177,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1185,10 +1185,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: UInt64.self) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: UInt64.self) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1201,7 +1201,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     guard !isAtEnd else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Unkeyed container is at end.")
       )
     }
@@ -1209,10 +1209,10 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
     decoder.codingPath.append(CBORKey(index: currentIndex))
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let decoded = try self.decoder.unbox(self.container[self.currentIndex], as: type) else {
+    guard let decoded = try decoder.unbox(container[currentIndex], as: type) else {
       throw DecodingError.valueNotFound(
         type,
-        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: self.currentIndex)],
+        DecodingError.Context(codingPath: decoder.codingPath + [CBORKey(index: currentIndex)],
                               debugDescription: "Expected \(type) but found null instead.")
       )
     }
@@ -1235,7 +1235,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
       )
     }
 
-    let value = self.container[self.currentIndex]
+    let value = self.container[currentIndex]
     guard !(value is NSNull) else {
       throw DecodingError.valueNotFound(
         KeyedDecodingContainer<NestedKey>.self,
@@ -1265,7 +1265,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
       )
     }
 
-    let value = container[self.currentIndex]
+    let value = container[currentIndex]
     guard !(value is NSNull) else {
       throw DecodingError.valueNotFound(
         UnkeyedDecodingContainer.self,
@@ -1294,7 +1294,7 @@ extension _CBORUnkeyedDecodingContainer: UnkeyedDecodingContainer {
       )
     }
 
-    let value = container[self.currentIndex]
+    let value = container[currentIndex]
     currentIndex += 1
     return _CBORDecoder(referencing: value, at: decoder.codingPath)
   }
@@ -1319,7 +1319,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Bool.Type) throws -> Bool {
     try expectNonNull(Bool.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Bool.self) else {
+    guard let value = try unbox(storage.topContainer, as: Bool.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1327,7 +1327,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: String.Type) throws -> String {
     try expectNonNull(String.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: String.self) else {
+    guard let value = try unbox(storage.topContainer, as: String.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1335,7 +1335,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Double.Type) throws -> Double {
     try expectNonNull(Double.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Double.self) else {
+    guard let value = try unbox(storage.topContainer, as: Double.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1343,7 +1343,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Float.Type) throws -> Float {
     try expectNonNull(Float.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Float.self) else {
+    guard let value = try unbox(storage.topContainer, as: Float.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1351,7 +1351,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Int.Type) throws -> Int {
     try expectNonNull(Int.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Int.self) else {
+    guard let value = try unbox(storage.topContainer, as: Int.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1359,7 +1359,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Int8.Type) throws -> Int8 {
     try expectNonNull(Int8.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Int8.self) else {
+    guard let value = try unbox(storage.topContainer, as: Int8.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1367,7 +1367,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Int16.Type) throws -> Int16 {
     try expectNonNull(Int16.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Int16.self) else {
+    guard let value = try unbox(storage.topContainer, as: Int16.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1375,7 +1375,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Int32.Type) throws -> Int32 {
     try expectNonNull(Int32.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Int32.self) else {
+    guard let value = try unbox(storage.topContainer, as: Int32.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1383,7 +1383,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: Int64.Type) throws -> Int64 {
     try expectNonNull(Int64.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: Int64.self) else {
+    guard let value = try unbox(storage.topContainer, as: Int64.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1391,7 +1391,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: UInt.Type) throws -> UInt {
     try expectNonNull(UInt.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: UInt.self) else {
+    guard let value = try unbox(storage.topContainer, as: UInt.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1399,7 +1399,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: UInt8.Type) throws -> UInt8 {
     try expectNonNull(UInt8.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: UInt8.self) else {
+    guard let value = try unbox(storage.topContainer, as: UInt8.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1407,7 +1407,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: UInt16.Type) throws -> UInt16 {
     try expectNonNull(UInt16.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: UInt16.self) else {
+    guard let value = try unbox(storage.topContainer, as: UInt16.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1415,7 +1415,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: UInt32.Type) throws -> UInt32 {
     try expectNonNull(UInt32.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: UInt32.self) else {
+    guard let value = try unbox(storage.topContainer, as: UInt32.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1423,7 +1423,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode(_ type: UInt64.Type) throws -> UInt64 {
     try expectNonNull(UInt64.self)
-    guard let value = try self.unbox(self.storage.topContainer, as: UInt64.self) else {
+    guard let value = try unbox(storage.topContainer, as: UInt64.self) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value
@@ -1431,7 +1431,7 @@ extension _CBORDecoder: SingleValueDecodingContainer {
 
   func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
     try expectNonNull(type)
-    guard let value = try self.unbox(self.storage.topContainer, as: type) else {
+    guard let value = try unbox(storage.topContainer, as: type) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
     return value

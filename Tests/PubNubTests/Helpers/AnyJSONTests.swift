@@ -274,4 +274,17 @@ class AnyJSONTests: XCTestCase {
     let json = AnyJSON([test])
     XCTAssertEqual(json.debugDescription, [test].description)
   }
+
+  // MARK: - subscript
+
+  func testAnyJSON_subscript_rawValue_dictionary() {
+    let testValue = "Hello"
+
+    let testDict = ["messageText": testValue]
+
+    let json = AnyJSON(testDict)
+
+    XCTAssertEqual(json.dictionaryOptional as? [String: String], testDict)
+    XCTAssertEqual(json[rawValue: "messageText"] as? String, testValue)
+  }
 }

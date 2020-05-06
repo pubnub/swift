@@ -94,11 +94,11 @@ class SubscriptionIntegrationTests: XCTestCase {
       case let .subscriptionChanged(status):
 //        print("subscriptionChanged: \(status) for current list \(pubnub.subscribedChannels)")
         switch status {
-        case .subscribed(let channels, _):
+        case let .subscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self.testChannel }))
           XCTAssertTrue(pubnub.subscribedChannels.contains(self.testChannel))
           subscribeExpect.fulfill()
-        case .unsubscribed(let channels, _):
+        case let .unsubscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self.testChannel }))
           XCTAssertFalse(pubnub.subscribedChannels.contains(self.testChannel))
           unsubscribeExpect.fulfill()

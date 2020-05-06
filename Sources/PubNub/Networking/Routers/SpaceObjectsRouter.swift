@@ -93,11 +93,11 @@ struct SpaceObjectsRouter: HTTPRouter {
     switch endpoint {
     case .fetchAll:
       path = "/v1/objects/\(subscribeKey)/spaces"
-    case .fetch(let spaceID, _):
+    case let .fetch(spaceID, _):
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
     case .create:
       path = "/v1/objects/\(subscribeKey)/spaces"
-    case .update(let space, _):
+    case let .update(space, _):
       path = "/v1/objects/\(subscribeKey)/spaces/\(space.id.urlEncodeSlash)"
     case let .delete(spaceID):
       path = "/v1/objects/\(subscribeKey)/spaces/\(spaceID.urlEncodeSlash)"
@@ -165,9 +165,9 @@ struct SpaceObjectsRouter: HTTPRouter {
 
   var body: Result<Data?, Error> {
     switch endpoint {
-    case .create(let user, _):
+    case let .create(user, _):
       return user.jsonDataResult.map { .some($0) }
-    case .update(let user, _):
+    case let .update(user, _):
       return user.jsonDataResult.map { .some($0) }
     case let .modifyMembers(_, adding, updating, removing, _, _, _, _, _):
       return MembershipChangeset(add: adding, update: updating, remove: removing)
@@ -186,12 +186,12 @@ struct SpaceObjectsRouter: HTTPRouter {
     switch endpoint {
     case .fetchAll:
       return nil
-    case .fetch(let spaceID, _):
+    case let .fetch(spaceID, _):
       return isInvalidForReason((spaceID.isEmpty, ErrorDescription.emptySpaceID))
-    case .create(let space, _):
+    case let .create(space, _):
       return isInvalidForReason(
         (space.id.isEmpty && space.name.isEmpty, ErrorDescription.invalidPubNubSpace))
-    case .update(let space, _):
+    case let .update(space, _):
       return isInvalidForReason(
         (space.id.isEmpty && space.name.isEmpty, ErrorDescription.invalidPubNubSpace))
     case let .delete(spaceID):

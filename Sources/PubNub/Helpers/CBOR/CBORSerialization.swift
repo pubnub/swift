@@ -442,7 +442,7 @@ extension CBORReader {
 extension UnsafeRawBufferPointer {
   func nextBreakIndex(from start: Index) -> Index? {
     // 0xFF is the CBOR code for `break`
-    return self[start ..< self.endIndex].firstIndex(of: 0xFF)
+    return self[start ..< endIndex].firstIndex(of: 0xFF)
   }
 
   func byteValue<T>(from start: Index) throws -> (T, Index) {

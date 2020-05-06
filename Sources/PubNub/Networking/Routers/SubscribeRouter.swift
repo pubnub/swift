@@ -235,7 +235,7 @@ public enum SubscriptionPayload: Codable {
       if let uuid = messageActionPayload.issuer {
         messageActionPayload.payload.data.uuid = uuid
       }
-
+      messageActionPayload.payload.data.channel = messageActionPayload.channel
       self = .messageAction(messageActionPayload)
     } else {
       let payload = try container.decode(MessageResponse<AnyJSON>.self)
@@ -599,13 +599,15 @@ public struct MessageActionEvent: Codable, Hashable {
   public let type: String
   public let value: String
   public fileprivate(set) var uuid: String = ""
+  public fileprivate(set) var channel: String = ""
   public let actionTimetoken: Timetoken
   public let messageTimetoken: Timetoken
 
-  public init(type: String, value: String, uuid: String, actionTimetoken: Timetoken, messageTimetoken: Timetoken) {
+  public init(type: String, value: String, uuid: String, channel: String, actionTimetoken: Timetoken, messageTimetoken: Timetoken) {
     self.type = type
     self.value = value
     self.uuid = uuid
+    self.channel = channel
     self.actionTimetoken = actionTimetoken
     self.messageTimetoken = messageTimetoken
   }

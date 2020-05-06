@@ -5,7 +5,7 @@ version: "2.5.1"
 schema: 1
 changelog:
   - changes:
-    - text: "Add `uuid` to the Message Action Event"
+    - text: "Add `uuid` and `channel` to the Message Action Event"
       type: bug
     - text: "Fixed typos inside log messages"
       type: bug

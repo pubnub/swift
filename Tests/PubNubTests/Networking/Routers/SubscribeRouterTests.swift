@@ -32,7 +32,7 @@ final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testChannel = "TestChannel"
 
-  let testAction = MessageActionEvent(type: "reaction", value: "winky_face", uuid: "SomeUser",
+  let testAction = MessageActionEvent(type: "reaction", value: "winky_face", uuid: "SomeUser", channel: "TestChannel",
                                       actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144)
 
   // MARK: - Endpoint Tests

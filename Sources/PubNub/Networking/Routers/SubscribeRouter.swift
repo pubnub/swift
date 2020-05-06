@@ -617,6 +617,16 @@ public struct MessageActionEvent: Codable, Hashable {
   }
 }
 
+public struct MessageActionIdentifiable {
+  public let userId: String
+  public let event: MessageActionEvent
+
+  public init(userId: String, event: MessageActionEvent) {
+    self.userId = userId
+    self.event = event
+  }
+}
+
 // MARK: Presence Response
 
 public struct PresenceResponse: Codable, Hashable {

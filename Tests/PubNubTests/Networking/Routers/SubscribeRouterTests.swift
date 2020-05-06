@@ -626,7 +626,7 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionAdded(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.event, self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -642,7 +642,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .added(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.event, self?.testAction)
 
         subscription.unsubscribeAll()
 
@@ -682,7 +682,7 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionRemoved(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.event, self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -698,7 +698,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .removed(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.event, self?.testAction)
 
         subscription.unsubscribeAll()
 

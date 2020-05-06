@@ -72,9 +72,9 @@ public enum SubscriptionEvent {
   /// A Membership object has been deleted
   case membershipDeleted(MembershipIdentifiable)
   /// A MessageAction was added to a published message
-  case messageActionAdded(MessageActionEvent)
+  case messageActionAdded(MessageActionIdentifiable)
   /// A MessageAction was removed from a published message
-  case messageActionRemoved(MessageActionEvent)
+  case messageActionRemoved(MessageActionIdentifiable)
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 

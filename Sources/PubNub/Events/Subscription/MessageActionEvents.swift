@@ -30,14 +30,14 @@ import Foundation
 /// The type of action the Message Action event represents
 public enum MessageActionEvents {
   /// The Message Action was added to a message
-  case added(MessageActionEvent)
+  case added(MessageActionIdentifiable)
   /// The Message Action was removed from a message
-  case removed(MessageActionEvent)
+  case removed(MessageActionIdentifiable)
 }
 
 extension MessageActionEvents {
   /// The underlying Message Action associated value
-  public var associatedValue: MessageActionEvent {
+  public var associatedValue: MessageActionIdentifiable {
     switch self {
     case let .added(event):
       return event

@@ -293,9 +293,9 @@ public class SubscriptionSession {
             case let .messageAction(action):
               switch action.payload.event {
               case .added:
-                self?.notify { $0.emitDidReceive(subscription: .messageActionAdded(action.payload.data)) }
+                self?.notify { $0.emitDidReceive(subscription: .messageActionAdded(action)) }
               case .removed:
-                self?.notify { $0.emitDidReceive(subscription: .messageActionRemoved(action.payload.data)) }
+                self?.notify { $0.emitDidReceive(subscription: .messageActionRemoved(action)) }
               }
             }
           }

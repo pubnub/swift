@@ -583,15 +583,17 @@ public struct MessageActionSubscribePayload: Codable, Hashable {
   let source: String
   let version: String
   let event: MessageActionEventType
-  public let data: MessageActionEvent
+  public let data: MessageActionEventPayload
 }
+
+public typealias MessageActionEvent = MessageResponse<MessageActionSubscribePayload>
 
 enum MessageActionEventType: String, Codable, Hashable {
   case added
   case removed
 }
 
-public struct MessageActionEvent: Codable, Hashable {
+public struct MessageActionEventPayload: Codable, Hashable {
   public let type: String
   public let value: String
   public let actionTimetoken: Timetoken

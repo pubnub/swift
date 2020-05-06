@@ -32,7 +32,7 @@ final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testChannel = "TestChannel"
 
-  let testAction = MessageActionEvent(type: "reaction", value: "winky_face",
+  let testAction = MessageActionEventPayload(type: "reaction", value: "winky_face",
                                       actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144)
 
   // MARK: - Endpoint Tests
@@ -626,7 +626,7 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionAdded(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.payload.data, self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -642,7 +642,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .added(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.payload.data, self?.testAction)
 
         subscription.unsubscribeAll()
 
@@ -682,7 +682,7 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionRemoved(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.payload.data, self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -698,7 +698,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .removed(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(action.payload.data, self?.testAction)
 
         subscription.unsubscribeAll()
 

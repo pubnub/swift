@@ -61,15 +61,15 @@ struct PresenceRouter: HTTPRouter {
 
     var channels: [String] {
       switch self {
-      case .heartbeat(let channels, _, _):
+      case let .heartbeat(channels, _, _):
         return channels
-      case .leave(let channels, _):
+      case let .leave(channels, _):
         return channels
-      case .hereNow(let channels, _, _, _):
+      case let .hereNow(channels, _, _, _):
         return channels
-      case .getState(_, let channels, _):
+      case let .getState(_, channels, _):
         return channels
-      case .setState(let channels, _, _):
+      case let .setState(channels, _, _):
         return channels
       default:
         return []
@@ -78,15 +78,15 @@ struct PresenceRouter: HTTPRouter {
 
     var groups: [String] {
       switch self {
-      case .heartbeat(_, let groups, _):
+      case let .heartbeat(_, groups, _):
         return groups
       case let .leave(_, groups):
         return groups
-      case .hereNow(_, let groups, _, _):
+      case let .hereNow(_, groups, _, _):
         return groups
       case let .getState(_, _, groups):
         return groups
-      case .setState(_, let groups, _):
+      case let .setState(_, groups, _):
         return groups
       default:
         return []
@@ -116,11 +116,11 @@ struct PresenceRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case .heartbeat(let channels, _, _):
+    case let .heartbeat(channels, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/heartbeat"
-    case .leave(let channels, _):
+    case let .leave(channels, _):
       path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
-    case .hereNow(let channels, _, _, _):
+    case let .hereNow(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)"
     case .hereNowGlobal:
       path = "/v2/presence/sub-key/\(subscribeKey)"
@@ -129,7 +129,7 @@ struct PresenceRouter: HTTPRouter {
     case let .getState(uuid, channels, _):
       let channels = channels.commaOrCSVString.urlEncodeSlash
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(uuid.urlEncodeSlash)"
-    case .setState(let channels, _, _):
+    case let .setState(channels, _, _):
       let channels = channels.commaOrCSVString.urlEncodeSlash
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels)/uuid/\(configuration.uuid.urlEncodeSlash)/data"
     }

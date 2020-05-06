@@ -1,9 +1,18 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.5.0"
+version: "2.5.1"
 schema: 1
 changelog:
+  - changes:
+    - text: "Add `uuid` to the Message Action Event"
+      type: bug
+    - text: "Fixed typos inside log messages"
+      type: bug
+    - text: "AnyJSON dictionaries can now perform a rawValue subscript that will return the underlying Any object"
+      type: improvement
+    date: 2020-05-07
+    version: v2.5.1
   - changes:
     - text: "Message Subscribe Events and Message History will now return the decrypted `Data` blob in the event it was decrypted, but couldn't be stringified"
       type: improvement

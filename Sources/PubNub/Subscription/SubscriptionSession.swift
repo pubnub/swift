@@ -117,7 +117,7 @@ public class SubscriptionSession {
   }
 
   deinit {
-    PubNub.log.debug("SubscriptionSession Destoryed")
+    PubNub.log.debug("SubscriptionSession Destroyed")
     longPollingSession.invalidateAndCancel()
     nonSubscribeSession.invalidateAndCancel()
     // Poke the session factory to clean up nil values

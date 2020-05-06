@@ -37,12 +37,12 @@ public struct Crypto: Hashable {
   /// The String Encoding strategy to be used by default
   public let defaultStringEncoding: String.Encoding
 
-  public init?(key: String, cipher: Cipher = .aes) {
-    guard let data = key.data(using: .utf8) else {
+  public init?(key: String, cipher: Cipher = .aes, encoding: String.Encoding = .utf8) {
+    guard let data = key.data(using: encoding) else {
       return nil
     }
 
-    self.init(key: data, cipher: cipher)
+    self.init(key: data, cipher: cipher, encoding: encoding)
   }
 
   public init(key data: Data, cipher: Cipher = .aes, encoding: String.Encoding = .utf8) {

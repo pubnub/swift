@@ -167,7 +167,7 @@ extension AnyJSON: Collection {
     }
   }
 
-  public subscript(position: AnyJSONIndex) -> (String, Any) {
+  public subscript(position: AnyJSONIndex) -> (String, AnyJSON) {
     switch position {
     case let .arrayIndex(index):
       return (String(index), AnyJSON((arrayOptional ?? [])[index]))
@@ -178,11 +178,34 @@ extension AnyJSON: Collection {
     }
   }
 
+  public subscript(rawValue position: AnyJSONIndex) -> (String, Any)? {
+    switch position {
+    case let .arrayIndex(index):
+      return (String(index), (arrayOptional ?? [])[index])
+    case let .dictionaryIndex(index):
+      return ((dictionaryOptional ?? [:])[index].key, (dictionaryOptional ?? [:])[index].value)
+    default:
+      return nil
+    }
+  }
+
   public subscript(key: String) -> AnyJSON? {
     switch value {
     case let .dictionary(dictionary):
       if let value = dictionary[key] {
         return AnyJSON(value)
+      }
+      return nil
+    default:
+      return nil
+    }
+  }
+
+  public subscript(rawValue key: String) -> Any? {
+    switch value {
+    case let .dictionary(dictionary):
+      if let value = dictionary[key] {
+        return value.rawValue
       }
       return nil
     default:
@@ -389,4 +412,5 @@ extension AnyJSONError: LocalizedError {
       return "Failed to create JSONEncoded data"
     }
   }
+  // swiftlint:disable:next file_length
 }

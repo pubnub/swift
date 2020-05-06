@@ -419,6 +419,20 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performPublishRequest() {
+    let payload = PubNubPushMessage(
+      apns: PubNubAPNSPayload(
+        aps: APSPayload(alert: .object(.init(title: "Chat invite")), sound: .string("default")),
+        pubnub: [.init(targets: [.init(topic: "com.example.chat", environment: .production)])],
+        payload: ""
+      ),
+      fcm: PubNubFCMPayload(
+        payload: "",
+        target: .topic("com.example.chat"),
+        notification: FCMNotificationPayload(title: "Chat invite"),
+        android: FCMAndroidPayload(notification: FCMAndroidNotification(sound: "default"))
+      )
+    )
+
     pubnub.publish(channel: "channelSwift", message: true, shouldCompress: false) { result in
       switch result {
       case let .success(response):

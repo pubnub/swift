@@ -68,11 +68,11 @@ public struct PushRouter: HTTPRouter {
       switch self {
       case .listPushChannels:
         return []
-      case .modifyPushChannels(_, _, let joining, _):
+      case let .modifyPushChannels(_, _, joining, _):
         return joining
       case .removeAllPushChannels:
         return []
-      case .modifyAPNS(_, _, _, let adding, _):
+      case let .modifyAPNS(_, _, _, adding, _):
         return adding
       case .removeAllAPNS:
         return []
@@ -117,15 +117,15 @@ public struct PushRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case .listPushChannels(let pushToken, _):
+    case let .listPushChannels(pushToken, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
-    case .modifyPushChannels(let pushToken, _, _, _):
+    case let .modifyPushChannels(pushToken, _, _, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
-    case .removeAllPushChannels(let token, _):
+    case let .removeAllPushChannels(token, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
-    case .modifyAPNS(let token, _, _, _, _):
+    case let .modifyAPNS(token, _, _, _, _):
       path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)"
-    case .removeAllAPNS(let token, _, _):
+    case let .removeAllAPNS(token, _, _):
       path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)/remove"
     }
     return .success(path)
@@ -168,14 +168,14 @@ public struct PushRouter: HTTPRouter {
   // Validated
   public var validationErrorDetail: String? {
     switch endpoint {
-    case .listPushChannels(let pushToken, _):
+    case let .listPushChannels(pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
     case let .modifyPushChannels(pushToken, _, addChannels, removeChannels):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
         (addChannels.isEmpty && removeChannels.isEmpty, ErrorDescription.emptyChannelArray)
       )
-    case .removeAllPushChannels(let pushToken, _):
+    case let .removeAllPushChannels(pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
     case let .modifyAPNS(pushToken, _, topic, _, _):
       return isInvalidForReason(

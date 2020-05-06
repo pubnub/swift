@@ -603,7 +603,10 @@ public struct MessageActionEvent: Codable, Hashable {
   public let actionTimetoken: Timetoken
   public let messageTimetoken: Timetoken
 
-  public init(type: String, value: String, uuid: String, channel: String, actionTimetoken: Timetoken, messageTimetoken: Timetoken) {
+  public init(
+    type: String, value: String, uuid: String, channel: String,
+    actionTimetoken: Timetoken, messageTimetoken: Timetoken
+  ) {
     self.type = type
     self.value = value
     self.uuid = uuid

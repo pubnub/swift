@@ -1,4 +1,4 @@
-//
+c//
 //  ChannelGroups.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
@@ -108,7 +108,7 @@ struct ChannelGroupsRouter: HTTPRouter {
   var pamVersion: PAMVersionRequirement {
     switch endpoint {
     case .channelsForGroup:
-      return .none
+      return .version2
     case .channelGroups:
       return .none
     default:

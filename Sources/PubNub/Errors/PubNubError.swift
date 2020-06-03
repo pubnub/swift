@@ -58,13 +58,14 @@ public struct PubNubError: Error {
     case urlTask(Int)
   }
 
-  enum AffectedValue: Hashable {
+  enum AffectedValue: CaseAccessible, Hashable {
     case uuid(UUID)
     case string(String)
     case data(Data)
     case request(URLRequest)
     case response(HTTPURLResponse)
     case json(AnyJSON)
+    case subscribe(TimetokenResponse)
   }
 
   /// The PubNubError specific Domain that groups together the different Reasons
@@ -211,14 +212,14 @@ public struct PubNubError: Error {
     coorelation identifiers: [CorrelationIdentifier] = [],
     underlying error: Error? = nil,
     additional details: [String] = [],
-    affected values: [AffectedValue] = []
-  ) {
+    affected: [AffectedValue] = []
+   ) {
     self.router = router
     self.reason = reason
     coorelation = identifiers
     underlying = error
     self.details = details
-    affected = values
+    self.affected = affected
   }
 
   init(
@@ -226,15 +227,16 @@ public struct PubNubError: Error {
     router: HTTPRouter,
     request: URLRequest,
     response: HTTPURLResponse,
-    affected details: [ErrorDetail]? = nil
-  ) {
-    let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
+    additional details: [ErrorDetail]? = nil
+   ) {
+     let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
 
-    self.init(reasonOrResponse ?? .unrecognizedStatusCode,
-              router: router,
-              additional: details?.compactMap { $0.message } ?? [],
-              affected: [.request(request), .response(response)])
-  }
+     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
+               router: router,
+               additional: details?.compactMap { $0.message } ?? [],
+               affected: [ .request(request), .response(response)])
+   }
+
 
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {
     self.init(PubNubError.Reason(rawValue: response.statusCode) ?? .unknown,
@@ -242,16 +244,23 @@ public struct PubNubError: Error {
               affected: [.request(request), .response(response)])
   }
 
-  init<ResponseType>(_ reason: Reason, response: EndpointResponse<ResponseType>, error: Error? = nil) {
+  init<ResponseType>(
+    _ reason: Reason,
+    response: EndpointResponse<ResponseType>,
+    error: Error? = nil,
+    affected values: [AffectedValue] = []
+  ) {
+    let affectedValues = [.request(response.request), .response(response.response)] + values
+
     if let error = error {
       self.init(reason,
                 router: response.router,
                 underlying: error,
-                affected: [.request(response.request), .response(response.response)])
+                affected: affectedValues)
     }
     self.init(reason,
               router: response.router,
-              affected: [.request(response.request), .response(response.response)])
+              affected: affectedValues)
   }
 }
 
@@ -470,6 +479,17 @@ extension URLError {
       }
       return nil
     }
+  }
+}
+
+extension Collection where Element == PubNubError.AffectedValue {
+  func findFirst<AssociatedValue>(by casePath: (AssociatedValue) -> Element) -> AssociatedValue? {
+    for value in self {
+      if let associatedValue = value[case: casePath] {
+        return associatedValue
+      }
+    }
+    return nil
   }
 
   // swiftlint:disable:next file_length

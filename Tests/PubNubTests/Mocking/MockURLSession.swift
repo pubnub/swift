@@ -141,35 +141,45 @@ class MockURLSession: URLSessionReplaceable {
 extension MockURLSession {
   static func mockSession(
     for jsonResources: [String],
+    raw dataResource: [Data] = [],
     with stream: SessionStream? = nil
   ) throws -> (session: HTTPSession?, mockSession: MockURLSession) {
     let urlSession = MockURLSession(configuration: .ephemeral, delegate: HTTPSessionDelegate(), delegateQueue: .main)
 
     urlSession.responseForTask = { mockTask, index in
-      guard jsonResources.count > index else {
+      guard jsonResources.count + dataResource.count > index else {
         print("Index out of range for next task")
         return nil
       }
-
-      let resource = jsonResources[index]
-      let endpointResource: EndpointResource? = ImportTestResource.testResource(resource)
-      let urlErrorResource: URLErrorResource? = ImportTestResource.testResource(resource)
 
       guard let url = mockTask.mockRequest.url else {
         print("Could not get url from mock task")
         return nil
       }
 
-      mockTask.mockData = try? endpointResource?.body.jsonDataResult.get()
+      if !dataResource.isEmpty, dataResource.count > index {
+        mockTask.mockData = dataResource[index]
 
-      // Return either the response or an URL error
-      if let responseCode = endpointResource?.code {
         mockTask.mockResponse = HTTPURLResponse(url: url,
-                                                statusCode: responseCode,
+                                                statusCode: 200,
                                                 httpVersion: "1.1",
                                                 headerFields: nil)
-      } else if let error = urlErrorResource?.urlError {
-        mockTask.mockError = error
+      } else {
+        let resource = jsonResources[index - dataResource.count]
+        let endpointResource: EndpointResource? = ImportTestResource.testResource(resource)
+        let urlErrorResource: URLErrorResource? = ImportTestResource.testResource(resource)
+
+        mockTask.mockData = try? endpointResource?.body.jsonDataResult.get()
+
+        // Return either the response or an URL error
+        if let responseCode = endpointResource?.code {
+          mockTask.mockResponse = HTTPURLResponse(url: url,
+                                                  statusCode: responseCode,
+                                                  httpVersion: "1.1",
+                                                  headerFields: nil)
+        } else if let error = urlErrorResource?.urlError {
+          mockTask.mockError = error
+        }
       }
 
       return mockTask

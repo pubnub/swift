@@ -1,9 +1,20 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.5.1"
+version: "2.5.2"
 schema: 1
 changelog:
+  - changes:
+    - text: "Resolves possible memory leaks related to listeners"
+      type: bug
+    - text: "Responds with the appropriate error when a Signal payload is too large"
+      type: bug
+    - text: "Added PAM support to Channels for Channel-Group endpoint"
+      type: bug
+    - text: "Invalid JSON will attempt to be parsed for the next Timetoken, and if successful will no interrupt the current subscription loop"
+      type: bug
+    date: 2020-06-04
+    version: v2.5.2
   - changes:
     - text: "Add `uuid` and `channel` to the Message Action Event"
       type: bug

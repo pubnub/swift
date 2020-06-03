@@ -42,6 +42,8 @@
 		350BC4162339530A00011262 /* objects_error_429.json in Resources */ = {isa = PBXBuildFile; fileRef = 350BC40B23393F8800011262 /* objects_error_429.json */; };
 		350BC4172339530C00011262 /* objects_error_500.json in Resources */ = {isa = PBXBuildFile; fileRef = 350BC40C23393FA400011262 /* objects_error_500.json */; };
 		350BC4182339530F00011262 /* objects_error_503.json in Resources */ = {isa = PBXBuildFile; fileRef = 350BC40D23393FBB00011262 /* objects_error_503.json */; };
+		350D7B242488402500B6DCEC /* signal_message_too_large.json in Resources */ = {isa = PBXBuildFile; fileRef = 350D7B232488402400B6DCEC /* signal_message_too_large.json */; };
+		350D7B272488428500B6DCEC /* CaseAccessible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350D7B252488426A00B6DCEC /* CaseAccessible.swift */; };
 		350EFBDC22C951F700FA33AA /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDB22C951F700FA33AA /* Request.swift */; };
 		350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */; };
 		350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBE322C95FED00FA33AA /* Atomic.swift */; };
@@ -346,6 +348,8 @@
 		350BC40C23393FA400011262 /* objects_error_500.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_error_500.json; sourceTree = "<group>"; };
 		350BC40D23393FBB00011262 /* objects_error_503.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_error_503.json; sourceTree = "<group>"; };
 		350BC40E2339520500011262 /* objects_users_fetchAll_success_empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_users_fetchAll_success_empty.json; sourceTree = "<group>"; };
+		350D7B232488402400B6DCEC /* signal_message_too_large.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = signal_message_too_large.json; sourceTree = "<group>"; };
+		350D7B252488426A00B6DCEC /* CaseAccessible.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaseAccessible.swift; sourceTree = "<group>"; };
 		350EFBD722C926C300FA33AA /* SubscribeRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeRouter.swift; sourceTree = "<group>"; };
 		350EFBDB22C951F700FA33AA /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
 		350EFBDD22C9520400FA33AA /* EndpointResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointResponse.swift; sourceTree = "<group>"; };
@@ -766,6 +770,7 @@
 				35C6B6E522F51A060054F242 /* AnyJSONType.swift */,
 				35B38249233AAB8C0028803F /* JSONCodable.swift */,
 				350EFBE322C95FED00FA33AA /* Atomic.swift */,
+				350D7B252488426A00B6DCEC /* CaseAccessible.swift */,
 				3585A02223C63ECE00FDA860 /* CBOR */,
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
 				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
@@ -830,6 +835,7 @@
 		357AEB7C22E693CE00C18250 /* Publish */ = {
 			isa = PBXGroup;
 			children = (
+				350D7B232488402400B6DCEC /* signal_message_too_large.json */,
 				357AEB7A22E693C000C18250 /* publish_invalid_key.json */,
 				35EE2EC4235F69A5006183E9 /* publish_message_too_large.json */,
 				35FE93C622EF80AB0051C455 /* publish_success.json */,
@@ -1427,6 +1433,7 @@
 			files = (
 				35A6C78922FB405E00E97CC5 /* wherenow_success.json in Resources */,
 				35293A8F2369F08B0049A71F /* removeMessageAction_success_207.json in Resources */,
+				350D7B242488402500B6DCEC /* signal_message_too_large.json in Resources */,
 				3562DBB923428961006DFFBC /* objects_users_fetch_success_empty.json in Resources */,
 				359287CF232880660046F7A2 /* herenow_success_stateful.json in Resources */,
 				35293A7D2369EF740049A71F /* fetchMessageAction_success.json in Resources */,
@@ -1706,6 +1713,7 @@
 				350597792347C05E007DC06E /* ObjectEvent.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,
 				35EE358C22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift in Sources */,
+				350D7B272488428500B6DCEC /* CaseAccessible.swift in Sources */,
 				35A66A9422F91B2A00AC67A9 /* SubscriptionSession+Presence.swift in Sources */,
 				350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */,
 			);
@@ -1876,7 +1884,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -1909,7 +1917,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";

@@ -111,7 +111,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .internalServiceError
     case "The server took longer to respond than the maximum allowed processing time.":
       self = .serviceUnavailable
-    case "Message Too Large":
+    case "Message Too Large", "Signal size too large":
       self = .messageTooLong
     case "Stored but failed to publish message action.", "Deleted but failed to publish removed events.":
       self = .successFailedToPublishEvent

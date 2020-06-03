@@ -147,7 +147,7 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.endpoint.description, "Group Channels List")
     XCTAssertEqual(router.category, "Group Channels List")
     XCTAssertEqual(router.service, .channelGroup)
-    XCTAssertEqual(router.pamVersion, .none)
+    XCTAssertEqual(router.pamVersion, .version2)
   }
 
   func testChannelsForGroup_Router_ValidationError() {

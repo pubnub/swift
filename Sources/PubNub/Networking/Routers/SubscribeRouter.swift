@@ -106,6 +106,37 @@ struct SubscribeRouter: HTTPRouter {
 struct SubscribeResponseDecoder: ResponseDecoder {
   typealias Payload = SubscriptionResponsePayload
 
+  func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<Payload>, Error> {
+    do {
+      let decodedPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
+
+      let decodedResponse = EndpointResponse<Payload>(router: response.router,
+                                                      request: response.request,
+                                                      response: response.response,
+                                                      data: response.data,
+                                                      payload: decodedPayload)
+
+      return .success(decodedResponse)
+    } catch {
+      // Atempt to parse out the timetoken protion of the payload to push ahead the subscribe loop
+      if response.payload.count >= 37 {
+        // The `0..<37` range represents the start of the subscribe response `{'t': {'t': 1234, 'r': 0}...`
+        var truncatedData = response.payload[0..<37]
+        /// `125` represents the close curley brace` }`, and the `36` position is the end of the `Data` blob
+        truncatedData[36] = 125
+
+        if let timetokenResponse = try? Constant.jsonDecoder.decode(
+          Payload.self, from: truncatedData
+        ).token {
+          return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error,
+                                      affected: [.subscribe(timetokenResponse)]))
+        }
+      }
+
+      return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
+    }
+  }
+
   func decrypt(_ crypto: Crypto, message: MessageResponse<AnyJSON>) -> MessageResponse<AnyJSON> {
     // Convert base64 string into Data
     if let messageData = message.payload.dataOptional {
@@ -169,6 +200,20 @@ public struct SubscriptionResponsePayload: Codable {
   enum CodingKeys: String, CodingKey {
     case token = "t"
     case messages = "m"
+  }
+
+  public init(
+    token: TimetokenResponse,
+    messages: [SubscriptionPayload]
+  ) {
+    self.token = token
+    self.messages = messages
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    token = try container.decode(TimetokenResponse.self, forKey: .token)
+    messages = try container.decodeIfPresent([SubscriptionPayload].self, forKey: .messages) ?? []
   }
 }
 

@@ -17,9 +17,7 @@ stages:
 jobs:
   include:
     - stage: Validate
-      name: "Code Coverage"
-      script: bundle exec fastlane test --env ios
-    - name: Cocoapods
+      name: Cocoapods
       script: bundle exec fastlane lint_cocoapods
     - name: "Swift Package Manager"
       script: bundle exec fastlane lint_swift_package_manager

@@ -121,8 +121,8 @@ struct SubscribeResponseDecoder: ResponseDecoder {
       // Atempt to parse out the timetoken protion of the payload to push ahead the subscribe loop
       if response.payload.count >= 37 {
         // The `0..<37` range represents the start of the subscribe response `{'t': {'t': 1234, 'r': 0}...`
-        var truncatedData = response.payload[0..<37]
-        /// `125` represents the close curley brace` }`, and the `36` position is the end of the `Data` blob
+        var truncatedData = response.payload[0 ..< 37]
+        // `125` represents the close curley brace` }`, and the `36` position is the end of the `Data` blob
         truncatedData[36] = 125
 
         if let timetokenResponse = try? Constant.jsonDecoder.decode(

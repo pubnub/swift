@@ -213,7 +213,7 @@ public struct PubNubError: Error {
     underlying error: Error? = nil,
     additional details: [String] = [],
     affected: [AffectedValue] = []
-   ) {
+  ) {
     self.router = router
     self.reason = reason
     coorelation = identifiers
@@ -228,15 +228,14 @@ public struct PubNubError: Error {
     request: URLRequest,
     response: HTTPURLResponse,
     additional details: [ErrorDetail]? = nil
-   ) {
-     let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
+  ) {
+    let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
 
-     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
-               router: router,
-               additional: details?.compactMap { $0.message } ?? [],
-               affected: [ .request(request), .response(response)])
-   }
-
+    self.init(reasonOrResponse ?? .unrecognizedStatusCode,
+              router: router,
+              additional: details?.compactMap { $0.message } ?? [],
+              affected: [.request(request), .response(response)])
+  }
 
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {
     self.init(PubNubError.Reason(rawValue: response.statusCode) ?? .unknown,

@@ -407,4 +407,6 @@ extension PublishRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  // swiftlint:disable:next file_length
 }

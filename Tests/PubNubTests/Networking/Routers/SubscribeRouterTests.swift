@@ -775,8 +775,10 @@ extension SubscribeRouterTests {
 }
 
 // MARK: - Error Handling
+
 extension SubscribeRouterTests {
   func testInvalidJSONResponse() {
+    // swiftlint:disable:next line_length
     let corruptBase64Response = "eyJ0Ijp7InQiOiIxNTkxMjE4MzQ0MTUyNjM1MCIsInIiOjF9LCJtIjpbeyJhIjoiMyIsImYiOjUxMiwicCI6eyJ0IjoiMTU5MTIxODM0NDE1NTQyMDAiLCJyIjoxfSwiayI6ImRlbW8tMzYiLCJjIjoic3dpZnRJbnZhbGlkSlNPTi7/IiwiZCI6ImhlbGxvIiwiYiI6InN3aWZ0SW52YWxpZEpTT04uKiJ9XX0="
 
     guard let corruptedData = Data(base64Encoded: corruptBase64Response) else {
@@ -800,11 +802,11 @@ extension SubscribeRouterTests {
       switch event {
       case .subscriptionChanged:
         break
-      case .connectionStatusChanged(let connection):
+      case let .connectionStatusChanged(connection):
         if connection == .disconnected {
           statusExpect.fulfill()
         }
-      case .subscribeError(let error):
+      case let .subscribeError(error):
         XCTAssertEqual(error.reason, .jsonDataDecodingFailure)
 
         subscription.unsubscribeAll()

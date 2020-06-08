@@ -1,6 +1,6 @@
 language: objective-c
 os: osx
-osx_image: xcode11.3
+osx_image: xcode11.5
 rvm: 2.5.3
 cache:
   bundler: true
@@ -17,9 +17,7 @@ stages:
 jobs:
   include:
     - stage: Validate
-      name: "Code Coverage"
-      script: bundle exec fastlane test --env ios
-    - name: Cocoapods
+      name: Cocoapods
       script: bundle exec fastlane lint_cocoapods
     - name: "Swift Package Manager"
       script: bundle exec fastlane lint_swift_package_manager
@@ -34,15 +32,6 @@ jobs:
     - name: tvOS
       before_script: xcrun simctl list -j
       script: bundle exec fastlane test --env tvos
-    - name: Legacy
-      osx_image: xcode10.2
-      before_script:
-      - xcrun simctl list -j
-      # https://developer.apple.com/documentation/xcode_release_notes/xcode_10_2_1_release_notes
-      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 8.4.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 9.3.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-      - sudo mkdir -p "/Library/Developer/CoreSimulator/Profiles/Runtimes/tvOS 9.2.simruntime/Contents/Resources/RuntimeRoot/usr/lib/swift"
-      script: bundle exec fastlane test --env legacy
 before_cache:
   - rvm cleanup all
   - bundle clean

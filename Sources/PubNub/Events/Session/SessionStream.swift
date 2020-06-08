@@ -101,8 +101,8 @@ public final class MultiplexSessionStream: SessionStream, Hashable {
   }
 
   func performEvent(_ closure: @escaping (SessionStream) -> Void) {
-    queue.async {
-      for stream in self.streams {
+    queue.async { [weak self] in
+      for stream in self?.streams ?? [] {
         stream.queue.async { closure(stream) }
       }
     }
@@ -228,49 +228,49 @@ final class SessionListener: SessionStream, Hashable {
 
   // URLRequest Building
   func emitRequest(_ request: RequestReplaceable, didCreate urlRequest: URLRequest) {
-    queue.async { self.didCreateURLRequest?(request, urlRequest) }
+    queue.async { [weak self] in self?.didCreateURLRequest?(request, urlRequest) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didFailToCreateURLRequestWith error: Error) {
-    queue.async { self.didFailToCreateURLRequestWithError?(request, error) }
+    queue.async { [weak self] in self?.didFailToCreateURLRequestWithError?(request, error) }
   }
 
   // URLSessionTask States
   func emitRequest(_ request: RequestReplaceable, didCreate task: URLSessionTask) {
-    queue.async { self.didCreateTask?(request, task) }
+    queue.async { [weak self] in self?.didCreateTask?(request, task) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didResume task: URLSessionTask) {
-    queue.async { self.didResumeTask?(request, task) }
+    queue.async { [weak self] in self?.didResumeTask?(request, task) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didCancel task: URLSessionTask) {
-    queue.async { self.didCancelTask?(request, task) }
+    queue.async { [weak self] in self?.didCancelTask?(request, task) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didComplete task: URLSessionTask) {
-    queue.async { self.didCompleteTask?(request, task) }
+    queue.async { [weak self] in self?.didCompleteTask?(request, task) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didComplete task: URLSessionTask, with error: Error) {
-    queue.async { self.didCompleteTaskWithError?(request, task, error) }
+    queue.async { [weak self] in self?.didCompleteTaskWithError?(request, task, error) }
   }
 
   // Request States
   func emitRequestDidResume(_ request: RequestReplaceable) {
-    queue.async { self.didResumeRequest?(request) }
+    queue.async { [weak self] in self?.didResumeRequest?(request) }
   }
 
   func emitRequestDidFinish(_ request: RequestReplaceable) {
-    queue.async { self.didFinishRequest?(request) }
+    queue.async { [weak self] in self?.didFinishRequest?(request) }
   }
 
   func emitRequestDidCancel(_ request: RequestReplaceable) {
-    queue.async { self.didCancelRequest?(request) }
+    queue.async { [weak self] in self?.didCancelRequest?(request) }
   }
 
   func emitRequestIsRetrying(_ request: RequestReplaceable) {
-    queue.async { self.didRetryRequest?(request) }
+    queue.async { [weak self] in self?.didRetryRequest?(request) }
   }
 
   // Request Mutator
@@ -279,27 +279,27 @@ final class SessionListener: SessionStream, Hashable {
     didMutate initialURLRequest: URLRequest,
     to mutatedURLRequest: URLRequest
   ) {
-    queue.async { self.didMutateRequest?(request, initialURLRequest, mutatedURLRequest) }
+    queue.async { [weak self] in self?.didMutateRequest?(request, initialURLRequest, mutatedURLRequest) }
   }
 
   func emitRequest(_ request: RequestReplaceable, didFailToMutate initialURLRequest: URLRequest, with error: Error) {
-    queue.async { self.didFailToMutateRequest?(request, initialURLRequest, error) }
+    queue.async { [weak self] in self?.didFailToMutateRequest?(request, initialURLRequest, error) }
   }
 
   // URLSessionDelegate
   func emitURLSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge) {
-    queue.async { self.sessionDidReceiveChallenge?(session, challenge) }
+    queue.async { [weak self] in self?.sessionDidReceiveChallenge?(session, challenge) }
   }
 
   func emitURLSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
-    queue.async { self.sessionTaskDidReceiveData?(session, dataTask, data) }
+    queue.async { [weak self] in self?.sessionTaskDidReceiveData?(session, dataTask, data) }
   }
 
   func emitURLSession(_ session: URLSession, task: URLSessionTask, didCompleteWith error: Error?) {
-    queue.async { self.sessionTaskDidComplete?(session, task, error) }
+    queue.async { [weak self] in self?.sessionTaskDidComplete?(session, task, error) }
   }
 
   func emitURLSession(_ session: URLSession, didBecomeInvalidWith error: Error?) {
-    queue.async { self.sessionDidBecomeInvalidated?(session, error) }
+    queue.async { [weak self] in self?.sessionDidBecomeInvalidated?(session, error) }
   }
 }

@@ -363,6 +363,29 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testSignal_Error_MessageTooLarge() {
+    let expectation = self.expectation(description: "Signal Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["signal_message_too_large"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    PubNub(configuration: config, session: sessions.session)
+      .signal(channel: "Test", message: ["text": "Hello"]) { result in
+        switch result {
+        case .success:
+          XCTFail("Signal request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.messageTooLong))
+          print(error)
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testSignal_Error_SystemSupplied() {
     let expectation = self.expectation(description: "Signal Response Received")
 
@@ -384,4 +407,6 @@ extension PublishRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
+
+  // swiftlint:disable:next file_length
 }

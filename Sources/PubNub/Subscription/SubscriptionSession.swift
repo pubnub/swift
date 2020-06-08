@@ -316,6 +316,12 @@ public class SubscriptionSession {
               // No new request has been created so we'll reconnect here
               self?.reconnect(at: self?.previousTokenResponse?.timetoken)
             }
+          } else if let timetokenPayload = error.pubNubError?
+            .affected.findFirst(by: PubNubError.AffectedValue.subscribe
+            ) {
+            self?.previousTokenResponse = timetokenPayload
+
+            self?.reconnect(at: timetokenPayload.timetoken)
           } else {
             self?.connectionStatus = .disconnectedUnexpectedly
           }

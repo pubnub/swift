@@ -774,6 +774,59 @@ extension SubscribeRouterTests {
   }
 }
 
+// MARK: - Error Handling
+
+extension SubscribeRouterTests {
+  func testInvalidJSONResponse() {
+    // swiftlint:disable:next line_length
+    let corruptBase64Response = "eyJ0Ijp7InQiOiIxNTkxMjE4MzQ0MTUyNjM1MCIsInIiOjF9LCJtIjpbeyJhIjoiMyIsImYiOjUxMiwicCI6eyJ0IjoiMTU5MTIxODM0NDE1NTQyMDAiLCJyIjoxfSwiayI6ImRlbW8tMzYiLCJjIjoic3dpZnRJbnZhbGlkSlNPTi7/IiwiZCI6ImhlbGxvIiwiYiI6InN3aWZ0SW52YWxpZEpTT04uKiJ9XX0="
+
+    guard let corruptedData = Data(base64Encoded: corruptBase64Response) else {
+      return XCTFail("Could not create Data from String")
+    }
+
+    let errorExpect = XCTestExpectation(description: "Error Event")
+    let statusExpect = XCTestExpectation(description: "Status Event")
+
+    guard let session = try? MockURLSession.mockSession(
+      for: ["cancelled"],
+      raw: [corruptedData]
+    ).session else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+
+    let listener = SubscriptionListener()
+    listener.didReceiveSubscription = { event in
+      switch event {
+      case .subscriptionChanged:
+        break
+      case let .connectionStatusChanged(connection):
+        if connection == .disconnected {
+          statusExpect.fulfill()
+        }
+      case let .subscribeError(error):
+        XCTAssertEqual(error.reason, .jsonDataDecodingFailure)
+
+        subscription.unsubscribeAll()
+
+        errorExpect.fulfill()
+      default:
+        XCTFail("Unexpected event received \(event)")
+      }
+    }
+    subscription.add(listener)
+
+    subscription.subscribe(to: [testChannel])
+
+    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [errorExpect, statusExpect], timeout: 1.0, enforceOrder: true)
+  }
+}
+
 // MARK: - Unsubscribe
 
 extension SubscribeRouterTests {

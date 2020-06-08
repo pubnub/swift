@@ -2,5 +2,5 @@ source "https://rubygems.org"
 
 gem "cocoapods"
 
-gem "fastlane"
+gem "fastlane", "2.148.1"
 gem "slather"

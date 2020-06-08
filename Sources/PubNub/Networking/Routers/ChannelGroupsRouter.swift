@@ -107,8 +107,6 @@ struct ChannelGroupsRouter: HTTPRouter {
 
   var pamVersion: PAMVersionRequirement {
     switch endpoint {
-    case .channelsForGroup:
-      return .none
     case .channelGroups:
       return .none
     default:

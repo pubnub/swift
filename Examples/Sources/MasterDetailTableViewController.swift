@@ -433,7 +433,7 @@ class MasterDetailTableViewController: UITableViewController {
       )
     )
 
-    pubnub.publish(channel: "channelSwift", message: true, shouldCompress: false) { result in
+    pubnub.publish(channel: "channelSwift", message: payload) { result in
       switch result {
       case let .success(response):
         print("Successful Publish Response: \(response)")

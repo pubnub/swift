@@ -145,42 +145,42 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
       return
     }
 
-    queue.async {
+    queue.async { [weak self] in
       // Emit Master Event
-      self.didReceiveSubscription?(event)
+      self?.didReceiveSubscription?(event)
 
       // Emit Granular Event
       switch event {
       case let .messageReceived(message):
-        self.didReceiveMessage?(message)
+        self?.didReceiveMessage?(message)
       case let .signalReceived(signal):
-        self.didReceiveSignal?(signal)
+        self?.didReceiveSignal?(signal)
       case let .connectionStatusChanged(status):
-        self.didReceiveStatus?(.success(status))
+        self?.didReceiveStatus?(.success(status))
       case let .subscriptionChanged(change):
-        self.didReceiveSubscriptionChange?(change)
+        self?.didReceiveSubscriptionChange?(change)
       case let .presenceChanged(presence):
-        self.didReceivePresence?(presence)
+        self?.didReceivePresence?(presence)
       case let .userUpdated(user):
-        self.didReceiveUserEvent?(.updated(user))
+        self?.didReceiveUserEvent?(.updated(user))
       case let .userDeleted(user):
-        self.didReceiveUserEvent?(.deleted(user))
+        self?.didReceiveUserEvent?(.deleted(user))
       case let .spaceUpdated(space):
-        self.didReceiveSpaceEvent?(.updated(space))
+        self?.didReceiveSpaceEvent?(.updated(space))
       case let .spaceDeleted(space):
-        self.didReceiveSpaceEvent?(.deleted(space))
+        self?.didReceiveSpaceEvent?(.deleted(space))
       case let .membershipAdded(membership):
-        self.didReceiveMembershipEvent?(.userAddedOnSpace(membership))
+        self?.didReceiveMembershipEvent?(.userAddedOnSpace(membership))
       case let .membershipUpdated(membership):
-        self.didReceiveMembershipEvent?(.userUpdatedOnSpace(membership))
+        self?.didReceiveMembershipEvent?(.userUpdatedOnSpace(membership))
       case let .membershipDeleted(membership):
-        self.didReceiveMembershipEvent?(.userDeletedFromSpace(membership))
+        self?.didReceiveMembershipEvent?(.userDeletedFromSpace(membership))
       case let .messageActionAdded(action):
-        self.didReceiveMessageAction?(.added(action))
+        self?.didReceiveMessageAction?(.added(action))
       case let .messageActionRemoved(action):
-        self.didReceiveMessageAction?(.removed(action))
+        self?.didReceiveMessageAction?(.removed(action))
       case let .subscribeError(error):
-        self.didReceiveStatus?(.failure(error))
+        self?.didReceiveStatus?(.failure(error))
       }
     }
   }

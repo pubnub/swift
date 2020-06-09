@@ -29,8 +29,6 @@
 import XCTest
 
 class RequestRetrierTests: XCTestCase {
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
   var retryCount = 0
 
@@ -43,14 +41,12 @@ class RequestRetrierTests: XCTestCase {
     expectations.removeAll()
   }
 
+  // swiftlint:disable:next function_body_length
   func testRetryRequest_Success() {
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
     let taskResources = ["networkConnectionLost", "timedOut", "time_success"]
-    guard let sessions = try? MockURLSession.mockSession(for: taskResources, with: sessionListener) else {
-      return XCTFail("Could not create mock url session")
-    }
 
     let retrier = RetryExpector(all: &expectations)
     retrier.shouldRetry = { _, _, error, retryCount in
@@ -63,6 +59,14 @@ class RequestRetrierTests: XCTestCase {
         XCTFail("We should only retry twice")
         return .failure(error)
       }
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(
+      for: taskResources,
+      with: sessionListener,
+      request: MultiplexRequestOperator(requestOperator: retrier)
+    ) else {
+      return XCTFail("Could not create mock url session")
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
@@ -79,8 +83,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let networkConfig = NetworkConfiguration(requestOperator: MultiplexRequestOperator(requestOperator: retrier))
-    PubNub(configuration: .default, session: sessions.session).time(with: networkConfig) { result in
+    PubNub(configuration: .default, session: sessions.session).time { result in
       switch result {
       case let .success(payload):
         XCTAssertEqual(payload.timetoken, 15_643_405_135_132_358)
@@ -97,14 +100,12 @@ class RequestRetrierTests: XCTestCase {
     wait(for: expectations, timeout: 1.0)
   }
 
+  // swiftlint:disable:next function_body_length
   func testRetryRequest_Failure() {
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
     let taskResources = ["networkConnectionLost", "timedOut", "cannotFindHost"]
-    guard let sessions = try? MockURLSession.mockSession(for: taskResources, with: sessionListener) else {
-      return XCTFail("Could not create mock url session")
-    }
 
     let retrier = RetryExpector(expectedRetry: 3, all: &expectations)
     retrier.shouldRetry = { _, _, error, retryCount in
@@ -116,6 +117,14 @@ class RequestRetrierTests: XCTestCase {
       default:
         return .failure(error)
       }
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(
+      for: taskResources,
+      with: sessionListener,
+      request: retrier
+    ) else {
+      return XCTFail("Could not create mock url session")
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
@@ -132,8 +141,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let networkConfig = NetworkConfiguration(requestOperator: retrier)
-    PubNub(configuration: .default, session: sessions.session).time(with: networkConfig) { result in
+    PubNub(configuration: .default, session: sessions.session).time { result in
       switch result {
       case .success:
         XCTFail("Time request should fail")
@@ -159,14 +167,12 @@ class RequestRetrierTests: XCTestCase {
     return PubNubError(.requestRetryFailed)
   }
 
+  // swiftlint:disable:next function_body_length
   func testRetryRequest_Multiple_Success() {
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
     let taskResources = ["networkConnectionLost", "timedOut", "time_success"]
-    guard let sessions = try? MockURLSession.mockSession(for: taskResources, with: sessionListener) else {
-      return XCTFail("Could not create mock url session")
-    }
 
     let retrier = RetryExpector(all: &expectations)
     retrier.shouldRetry = { _, _, error, retryCount in
@@ -178,6 +184,14 @@ class RequestRetrierTests: XCTestCase {
       default:
         return .failure(error)
       }
+    }
+
+    guard let sessions = try? MockURLSession.mockSession(
+      for: taskResources,
+      with: sessionListener,
+      request: MultiplexRequestOperator(operators: [DefaultOperator(), retrier])
+    ) else {
+      return XCTFail("Could not create mock url session")
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
@@ -195,10 +209,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let networkConfig = NetworkConfiguration(
-      requestOperator: MultiplexRequestOperator(operators: [DefaultOperator(), retrier])
-    )
-    PubNub(configuration: .default, session: sessions.session).time(with: networkConfig) { result in
+    PubNub(configuration: .default, session: sessions.session).time { result in
       switch result {
       case let .success(payload):
         XCTAssertEqual(payload.timetoken, 15_643_405_135_132_358)

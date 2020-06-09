@@ -1,0 +1,31 @@
+{
+  "code": 200,
+  "body": {
+      "t": {
+          "t": "15910420241167072",
+          "r": 1
+      },
+      "m": [
+          {
+              "a": "3",
+              "f": 514,
+              "p": {
+                  "t": "15910420241218251",
+                  "r": 1
+              },
+              "k": "demo",
+              "c": "TestChannel-pnpres",
+              "d": {
+                  "action": "state-change",
+                  "uuid": "db9c5e39-7c95-40f5-8d71-125765b6f561",
+                  "timestamp": 1591042024,
+                  "data": {
+                      "key": "value"
+                  },
+                  "occupancy": 0
+              },
+              "b": "TestChannel-pnpres"
+          }
+      ]
+  }
+}

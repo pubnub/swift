@@ -2,6 +2,7 @@
   "code": 200,
   "body": {
     "status": 200,
-    "data": []
+    "data": [],
+    "next": "NextPage"
   }
 }

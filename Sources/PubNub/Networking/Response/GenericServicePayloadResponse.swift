@@ -99,7 +99,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .badRequest
     case "Requested object was not found.":
       self = .notFound
-    case "Object with the requested identifier already exists.":
+    case "Object with the requested identifier already exists.", "Action Already Added":
       self = .conflict
     case "Object already changed by another request since last retrieval.":
       self = .preconditionFailed
@@ -289,6 +289,9 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
   }
 
   public var pubnubReason: PubNubError.Reason? {
+    if message.pubnubReason == .some(.unknown) {
+      return PubNubError.Reason(rawValue: status)
+    }
     return message.pubnubReason ?? PubNubError.Reason(rawValue: status)
   }
 }

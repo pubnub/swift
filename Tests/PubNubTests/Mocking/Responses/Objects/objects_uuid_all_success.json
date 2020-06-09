@@ -6,20 +6,25 @@
       {
         "id": "WGWPWPJBRJ",
         "name": "HNNCTGRURF",
-        "description": null,
+        "externalId": null,
+        "profileUrl": null,
+        "email": null,
         "custom": null,
-        "created": "2019-08-18T11:25:55.44977Z",
         "updated": "2019-08-18T11:25:55.44977Z",
         "eTag": "AY/Cz7edr46A3wE"
       },
       {
         "id": "OSPULBRLGN",
         "name": "VDUVIGRMWF",
-        "description": "Test Description",
+        "externalId": null,
+        "profileUrl": null,
+        "email": null,
         "custom": {
-          "info": "JMGXDNYF"
+          "string": "String",
+          "int": 1,
+          "double": 1.1,
+          "bool": true
         },
-        "created": "2019-08-18T11:25:59.326105Z",
         "updated": "2019-08-18T11:25:59.326105Z",
         "eTag": "AeH55Y3T0a78Ew"
       }

@@ -58,9 +58,8 @@ class OnboardingSnippets: XCTestCase {
     }
     listener.didReceivePresence = { event in
       print("Channel `\(event.channel)` has occupancy of \(event.occupancy)")
-      print("User(s) Joined: \(event.join)")
-      print("User(s) Left: \(event.leave)")
-      print("User(s) Timedout: \(event.timeout)")
+      print("State-Change `\(event.stateChange ?? [:])`")
+      print("Events `\(event.actions)`")
     }
     listener.didReceiveStatus = { event in
       switch event {
@@ -93,15 +92,15 @@ class OnboardingSnippets: XCTestCase {
 
     // Fetch last 10 messages
     let performMessageFetch = {
-      client.fetchMessageHistory(for: ["pubnub_onboarding_channel"], max: 10) { result in
+      client.fetchMessageHistory(for: ["pubnub_onboarding_channel"], limit: 10) { result in
         switch result {
-        case let .success(response):
-          XCTAssertNotNil(response["pubnub_onboarding_channel"])
-          if let channelMessages = response["pubnub_onboarding_channel"] {
-            print("Start timetoken: \(channelMessages.startTimetoken)")
-            print("Start timetoken: \(channelMessages.endTimetoken)")
-            for message in channelMessages.messages {
-              print("Message content: \(message.message)")
+        case let .success((actions, nextPage)):
+          XCTAssertNotNil(actions["pubnub_onboarding_channel"])
+          if let channelMessages = actions["pubnub_onboarding_channel"] {
+            print("Start timetoken: \(nextPage?.start ?? 0)")
+            print("End timetoken: \(nextPage?.end ?? 0)")
+            for message in channelMessages {
+              print("Message content: \(message.payload)")
             }
           }
         case let .failure(error):

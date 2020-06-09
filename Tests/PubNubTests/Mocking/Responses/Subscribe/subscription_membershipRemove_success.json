@@ -17,13 +17,20 @@
         "k": "demo",
         "c": "TestUserID",
         "d": {
-            "source": "objects",
-            "version": "1.0",
-            "event": "delete",
-            "type": "user",
-            "data": {
+          "source": "objects",
+          "version": "2.0",
+          "event": "delete",
+          "type": "membership",
+          "data": {
+            "channel": {
+              "id": "TestSpaceID"
+            },
+            "uuid": {
               "id": "TestUserID"
-            }
+            },
+            "updated": "2019-10-05T23:35:38.457823306Z",
+            "eTag": "TestETag"
+          }
         },
         "b": "TestUserID"
       },

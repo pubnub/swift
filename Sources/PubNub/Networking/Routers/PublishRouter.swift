@@ -191,9 +191,15 @@ struct PublishResponseDecoder: ResponseDecoder {
   func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     do {
       let decodedPayload = try Constant.jsonDecoder.decode(PublishResponsePayload.self, from: data)
+      let reason = EndpointResponseMessage(rawValue: decodedPayload.message).pubnubReason
+      if reason == .unknown {
+        return PubNubError(reason: reason, router: router, request: request, response: response,
+                           additional: [ErrorDetail(message: decodedPayload.message,
+                                                    location: "unknown",
+                                                    locationType: "unknown")])
+      }
 
-      return PubNubError(reason: EndpointResponseMessage(rawValue: decodedPayload.message).pubnubReason,
-                         router: router, request: request, response: response)
+      return PubNubError(reason: reason, router: router, request: request, response: response, additional: [])
     } catch {
       if let defaultError = decodeDefaultError(router: router, request: request, response: response, for: data) {
         return defaultError

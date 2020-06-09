@@ -6,11 +6,6 @@
     "error_message": "", 
     "channels": {
       "TestChannel": 2
-    }, 
-    "more": {
-      "Test": {
-        "is_more": false
-      }
     }
   }
 }

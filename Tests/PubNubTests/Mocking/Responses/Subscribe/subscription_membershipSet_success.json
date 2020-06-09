@@ -18,18 +18,17 @@
         "c": "TestUserID",
         "d": {
             "source": "objects",
-            "version": "1.0",
-            "event": "create",
+            "version": "2.0",
+            "event": "set",
             "type": "membership",
             "data": {
-                "custom": {
-                    "something": true
-                },
-                "eTag": "TestETag",
-                "spaceId": "TestSpaceID",
-                "created": "2019-10-05T23:35:38.457823306Z",
-                "updated": "2019-10-05T23:35:38.457823306Z",
-                "userId": "TestUserID"
+              "custom": {
+                "something": true
+              },
+              "channel": { "id": "TestSpaceID" },
+              "uuid": { "id": "TestUserID" },
+              "updated": "2019-10-05T23:35:38.457823306Z",
+              "eTag": "TestETag"
             }
         },
         "b": "TestUserID"

@@ -35,17 +35,17 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
 
-    client.fetchSpaces(include: .custom, limit: 100, count: true) { result in
+    client.allChannelMetadata() { result in
       switch result {
-      case let .success(response):
-        XCTAssertTrue(response.totalCount ?? 0 >= response.spaces.count)
+      case let .success((channels, nextPage)):
+        XCTAssertTrue(nextPage?.totalCount ?? 0 >= channels.count)
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       fetchAllExpect.fulfill()
     }
 
-    wait(for: [fetchAllExpect], timeout: 1000.0)
+    wait(for: [fetchAllExpect], timeout: 10.0)
   }
 
   func testCreateAndFetchEndpoint() {
@@ -53,13 +53,15 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let space = SpaceObject(name: "Swift ITest", id: "SwiftITest")
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testCreateAndFetchEndpoint", name: "Swift ITest"
+    )
 
-    client.create(space: space, include: .custom) { response in
-      client.fetch(spaceID: space.id) { result in
+    client.set(channel: testChannel) { _ in
+      client.fetch(channel: testChannel.metadataId) { result in
         switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "SwiftITest")
+        case let .success(channel):
+          XCTAssertEqual(channel.metadataId, testChannel.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -75,35 +77,15 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let space = SpaceObject(name: "Swift ITest", id: "SwiftITest")
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testDeleteAndCreateEndpoint", name: "Swift ITest"
+    )
 
-    client.delete(spaceID: space.id) { _ in
-      client.create(space: space, include: .custom) { result in
+    client.remove(channel: testChannel.metadataId) { _ in
+      client.set(channel: testChannel) { result in
         switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "SwiftITest")
-        case let .failure(error):
-          XCTFail("Failed due to error: \(error)")
-        }
-        fetchExpect.fulfill()
-      }
-    }
-
-    wait(for: [fetchExpect], timeout: 10.0)
-  }
-
-  func testCreateAndUpdateEndpoint() {
-    let fetchExpect = expectation(description: "Update Expectation")
-
-    let client = PubNub(configuration: config)
-
-    let space = SpaceObject(name: "Swift ITest", id: "SwiftITest")
-
-    client.create(space: space, include: .custom) { response in
-      client.update(space: space, include: .custom) { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "SwiftITest")
+        case let .success(channel):
+          XCTAssertEqual(channel.metadataId, testChannel.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -119,13 +101,15 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let space = SpaceObject(name: "Swift ITest", id: "SwiftITest")
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testCreateAndDeleteEndpoint", name: "Swift ITest"
+    )
 
-    client.create(space: space, include: .custom) { response in
-      client.delete(spaceID: space.id) { result in
+    client.set(channel: testChannel) { response in
+      client.remove(channel: testChannel.metadataId) { result in
         switch result {
-        case let .success(response):
-          XCTAssertTrue(response.message == .acknowledge)
+        case let .success(metadataId):
+          XCTAssertEqual(metadataId, testChannel.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -136,24 +120,42 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testFetchMemberships() {
+  func testFetchMembers() {
     let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "SwiftITest", custom: ["age": 12])
-    let space = SpaceObject(name: "Swift Membership ITest", id: "SwiftMembershipITest")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testFetchMembersUUID", name: "Swift ITest"
+    )
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testFetchMembersChannel", name: "Swift ITest"
+    )
+    let membership = PubNubMembershipMetadataBase(
+      uuidMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      uuid: testUser, channel: testChannel
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.create(space: space, include: .custom) { _ in
-        client.fetchMembers(spaceID: space.id, include: [.custom, .customUser]) { result in
-          switch result {
-          case let .success(response):
-            XCTAssertEqual(response.status, 200)
-          case let .failure(error):
-            XCTFail("Failed due to error: \(error)")
+    client.set(uuid: testUser) { _ in
+      client.set(channel: testChannel) { _ in
+        client.setMembers(channel: testChannel.metadataId, uuids: [membership]) { _ in
+          client.fetchMembers(
+            channel: testChannel.metadataId,
+            include: .init(uuidFields: true, uuidCustomFields: true)
+          ) { result in
+            switch result {
+            case let .success((memberships, _)):
+              XCTAssertTrue(
+                memberships.contains(where:
+                  { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                )
+              )
+            case let .failure(error):
+              XCTFail("Failed due to error: \(error)")
+            }
+            fetchMembershipExpect.fulfill()
           }
-          fetchMembershipExpect.fulfill()
         }
       }
     }
@@ -161,23 +163,38 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchMembershipExpect], timeout: 10.0)
   }
 
-  func testUpdateMemberships() {
+  func testManageMembers() {
     let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "SwiftITest", custom: ["age": 12])
-    let space = SpaceObject(name: "Swift Membership ITest", id: "SwiftMembershipITest")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testManageMembersUUID", name: "Swift ITest"
+    )
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testManageMembersChannel", name: "Swift ITest"
+    )
+    let membership = PubNubMembershipMetadataBase(
+      uuidMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      uuid: testUser, channel: testChannel
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.create(space: space, include: .custom) { _ in
-        client.modifyMembers(spaceID: space.id,
-                             adding: [user],
-                             removing: [user],
-                             include: [.custom, .customUser]) { result in
+    client.set(uuid: testUser) { _ in
+      client.set(channel: testChannel) { _ in
+        client.manageMembers(
+          channel: testChannel.metadataId,
+          setting: [membership],
+          removing: [membership],
+          include: .init(uuidFields: true, uuidCustomFields: true)
+        ) { result in
           switch result {
-          case let .success(response):
-            XCTAssertEqual(response.status, 200)
+          case let .success((memberships, _)):
+            XCTAssertTrue(
+              memberships.contains(where:
+                { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+              )
+            )
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

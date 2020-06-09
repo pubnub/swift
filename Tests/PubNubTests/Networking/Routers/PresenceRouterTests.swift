@@ -351,8 +351,8 @@ extension PresenceRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .whereNow(for: "testUser") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
+        case let .success(channelsByGroupId):
+          XCTAssertTrue(channelsByGroupId["testUser"]?.isEmpty ?? false)
         case let .failure(error):
           XCTFail("Where Now request failed with error: \(error.localizedDescription)")
         }
@@ -372,8 +372,8 @@ extension PresenceRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .whereNow(for: "testUser") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.channels.count, 1)
+        case let .success(channels):
+          XCTAssertEqual(channels.count, 1)
         case let .failure(error):
           XCTFail("Where Now request failed with error: \(error.localizedDescription)")
         }

@@ -18,9 +18,9 @@
         "c": "TestUserID",
         "d": {
             "source": "objects",
-            "version": "1.0",
-            "event": "update",
-            "type": "user",
+            "version": "2.0",
+            "event": "set",
+            "type": "uuid",
             "data": {
                 "eTag": "UserUpdateEtag",
                 "id": "TestUserID",

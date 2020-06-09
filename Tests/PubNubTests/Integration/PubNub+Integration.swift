@@ -33,14 +33,15 @@ extension PubNub {
   func publishWithMessageAction(
     channel: String,
     message: JSONCodable,
-    messageAction: MessageAction,
+    actionType: String,
+    actionValue: String,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
     meta: JSONCodable? = nil,
     shouldCompress: Bool = false,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    with networkConfiguration: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MessageActionResponsePayload, Error>) -> Void)?
+    completion: ((Result<(PubNubMessageAction), Error>) -> Void)?
   ) {
     publish(
       channel: channel,
@@ -49,15 +50,17 @@ extension PubNub {
       storeTTL: storeTTL,
       meta: meta,
       shouldCompress: shouldCompress,
-      with: networkConfiguration,
+      using: networkConfiguration,
       respondOn: queue
     ) { result in
       switch result {
       case let .success(response):
-        self.addMessageAction(channel: channel,
-                              message: messageAction,
-                              messageTimetoken: response.timetoken,
-                              completion: completion)
+        self.addMessageAction(
+          channel: channel,
+          type: actionType, value: actionValue,
+          messageTimetoken: response.timetoken,
+          completion: completion
+        )
       case let .failure(error):
         completion?(.failure(error))
       }

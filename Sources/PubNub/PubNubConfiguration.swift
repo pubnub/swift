@@ -107,13 +107,7 @@ public struct PubNubConfiguration: Hashable {
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  public var durationUntilTimeout: UInt = 300 {
-    didSet {
-      if durationUntilTimeout < 20 {
-        durationUntilTimeout = 20
-      }
-    }
-  }
+  @BoundedValue(min: 20, max: UInt.max) public var durationUntilTimeout: UInt = 300
 
   /// How often (in seconds) the client will announce itself to server
   ///
@@ -125,20 +119,4 @@ public struct PubNubConfiguration: Hashable {
   public var requestMessageCountThreshold: UInt = 100
   /// PSV2 feature to subscribe with a custom filter expression.
   public var filterExpression: String?
-}
-
-/// A Configuration Object that behavior and policies for a Network tasks.
-public struct NetworkConfiguration {
-  /// Reconnection policy which will be used if/when a request fails
-  public let retryPolicy: AutomaticRetry?
-  /// Function that will modify the request before transmission
-  public let requestOperator: RequestOperator?
-
-  public init(
-    customRetryPolicy: AutomaticRetry? = nil,
-    requestOperator: RequestOperator? = nil
-  ) {
-    retryPolicy = customRetryPolicy
-    self.requestOperator = requestOperator
-  }
 }

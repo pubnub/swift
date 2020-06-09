@@ -1,0 +1,31 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": [
+        {
+          "uuid": {
+            "id": "FirstUser",
+            "name": "First User",
+            "updated": "2019-09-29T13:07:45.807503Z",
+            "eTag": "UserETag"
+          },
+          "custom": null,
+          "updated": "2019-10-02T18:07:52.858703Z",
+          "eTag": "FirstETag"
+        },
+        {
+          "uuid": {
+            "id": "LastUser"
+          },
+          "custom": {
+            "starred": true
+          },
+          "updated": "2019-09-29T19:46:28.84402Z",
+          "eTag": "LastETag"
+        }
+    ],
+    "totalCount": 2,
+    "next": "NextPage"
+  }
+}

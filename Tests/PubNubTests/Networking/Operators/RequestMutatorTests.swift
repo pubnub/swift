@@ -50,11 +50,6 @@ class RequestMutatorTests: XCTestCase {
                                                                qos: .userInitiated,
                                                                attributes: .concurrent))
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: sessionListener) else {
-      return XCTFail("Could not create mock url session")
-    }
-
     let newAuth = URLQueryItem(name: "auth", value: "newAuthKey")
 
     var mutator = MutatorExpector(all: &expectations)
@@ -63,10 +58,6 @@ class RequestMutatorTests: XCTestCase {
       newRequest.url = request.url?.appending(queryItems: [newAuth])
       return .success(newRequest)
     }
-
-    let networkConfig = NetworkConfiguration(
-      requestOperator: MultiplexRequestOperator(operators: [DefaultOperator(), mutator])
-    )
 
     let sessionExpector = SessionExpector(session: sessionListener)
     sessionExpector.expectDidMutateRequest { request, initialURLRequest, mutatedURLRequest in
@@ -83,9 +74,17 @@ class RequestMutatorTests: XCTestCase {
       XCTAssertTrue(mutatedURLComp?.queryItems?.contains(newAuth) ?? false)
     }
 
+    guard let sessions = try? MockURLSession.mockSession(
+      for: ["time_success"],
+      with: sessionListener,
+      request: MultiplexRequestOperator(operators: [DefaultOperator(), mutator])
+    ) else {
+      return XCTFail("Could not create mock url session")
+    }
+
     let totalExpectation = expectation(description: "Time Response Received")
     pubnub = PubNub(configuration: .default, session: sessions.session)
-    pubnub.time(with: networkConfig) { result in
+    pubnub.time { result in
       switch result {
       case let .success(payload):
         XCTAssertEqual(payload.timetoken, 15_643_405_135_132_358)
@@ -108,20 +107,10 @@ class RequestMutatorTests: XCTestCase {
     let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",
                                                                qos: .userInitiated,
                                                                attributes: .concurrent))
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["cannotFindHost"],
-                                                         with: sessionListener) else {
-      return XCTFail("Could not create mock url session")
-    }
-
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { _ in
       .failure(PubNubError(.requestMutatorFailure))
     }
-
-    let networkConfig = NetworkConfiguration(
-      requestOperator: MultiplexRequestOperator(operators: [mutator, DefaultOperator()])
-    )
 
     let sessionExpector = SessionExpector(session: sessionListener)
     sessionExpector.expectDidFailToMutateRequest { request, initialURLRequest, error in
@@ -130,9 +119,17 @@ class RequestMutatorTests: XCTestCase {
       XCTAssertEqual(error.pubNubError, PubNubError(.requestMutatorFailure))
     }
 
+    guard let sessions = try? MockURLSession.mockSession(
+      for: ["cannotFindHost"],
+      with: sessionListener,
+      request: MultiplexRequestOperator(operators: [mutator, DefaultOperator()])
+    ) else {
+      return XCTFail("Could not create mock url session")
+    }
+
     let totalExpectation = expectation(description: "Time Response Received")
     pubnub = PubNub(configuration: .default, session: sessions.session)
-    pubnub.time(with: networkConfig) { result in
+    pubnub.time { result in
       switch result {
       case .success:
         XCTFail("Time request should fail")

@@ -36,7 +36,7 @@ public class SubscriptionSession {
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
-  var messageCache = [MessageResponse<AnyJSON>?].init(repeating: nil, count: 100)
+  var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
 
   /// Session used for performing request/response REST calls
@@ -47,7 +47,7 @@ public class SubscriptionSession {
 
   let responseQueue: DispatchQueue
 
-  var previousTokenResponse: TimetokenResponse?
+  var previousTokenResponse: SubscribeCursor?
 
   public var subscribedChannels: [String] {
     return internalState.lockedRead { $0.subscribedChannels }
@@ -78,7 +78,7 @@ public class SubscriptionSession {
 
       // Update any listeners if value changed
       if oldState != newValue, didTransition {
-        notify { $0.emitDidReceive(subscription: .connectionStatusChanged(newValue)) }
+        notify { $0.emitDidReceiveBatch(subscription: [.connectionStatusChanged(newValue)]) }
       }
     }
   }
@@ -137,7 +137,7 @@ public class SubscriptionSession {
   public func subscribe(
     to channels: [String],
     and groups: [String] = [],
-    at timetoken: Timetoken = 0,
+    at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false,
     setting presenceState: [String: [String: JSONCodable]] = [:]
   ) {
@@ -158,28 +158,28 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
+      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
     }
 
     if subscribeChange.didChange || !connectionStatus.isActive {
-      reconnect(at: timetoken, passing: presenceState)
+      reconnect(at: cursor)
     }
   }
 
   /// Reconnect a disconnected subscription stream
   /// - parameter timetoken: The timetoken to subscribe with
-  public func reconnect(at timetoken: Timetoken?, passing state: [String: [String: JSONCodable]]? = nil) {
+  public func reconnect(at cursor: SubscribeCursor? = nil) {
     if !connectionStatus.isActive {
       connectionStatus = .connecting
 
       // Start subscribe loop
-      performSubscribeLoop(at: timetoken, passing: state)
+      performSubscribeLoop(at: cursor)
 
       // Start presence heartbeat
       registerHeartbeatTimer()
     } else {
       // Start subscribe loop
-      performSubscribeLoop(at: timetoken, passing: state)
+      performSubscribeLoop(at: cursor)
     }
   }
 
@@ -198,7 +198,7 @@ public class SubscriptionSession {
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
-  func performSubscribeLoop(at timetoken: Timetoken?, passing state: [String: [String: JSONCodable]]? = nil) {
+  func performSubscribeLoop(at cursor: SubscribeCursor?) {
     let (channels, groups) = internalState.lockedWrite { state -> ([String], [String]) in
       (state.allSubscribedChannels, state.allSubscribedGroups)
     }
@@ -211,7 +211,7 @@ public class SubscriptionSession {
     // Create Endpoing
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: timetoken,
                                             region: previousTokenResponse?.region.description,
-                                            state: state, heartbeat: configuration.durationUntilTimeout,
+                                            state: nil, heartbeat: configuration.durationUntilTimeout,
                                             filter: configuration.filterExpression),
                                  configuration: configuration)
 
@@ -225,7 +225,7 @@ public class SubscriptionSession {
 
     request?
       .validate()
-      .response(on: .main, decoder: SubscribeResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: SubscribeDecoder()) { [weak self] result in
         switch result {
         case let .success(response):
           guard let strongSelf = self else {
@@ -238,65 +238,105 @@ public class SubscriptionSession {
           // Ensure that we're connected now the response has been processed
           self?.connectionStatus = .connected
 
+          // Emit the header of the reponse
+          self?.notify { listener in
+            var pubnubChannels = [String: PubNubChannel]()
+            channels.forEach {
+              if $0.isPresenceChannelName {
+                let channel = PubNubChannel(channel: $0)
+                pubnubChannels[channel.id] = channel
+              } else if pubnubChannels[$0] == nil {
+                pubnubChannels[$0] = PubNubChannel(channel: $0)
+              }
+            }
+
+            var pubnubGroups = [String: PubNubChannel]()
+            groups.forEach {
+              if $0.isPresenceChannelName {
+                let group = PubNubChannel(channel: $0)
+                pubnubGroups[group.id] = group
+              } else if pubnubChannels[$0] == nil {
+                pubnubGroups[$0] = PubNubChannel(channel: $0)
+              }
+            }
+
+            listener.emitDidReceiveBatch(subscription: [.subscriptionChanged(
+              .responseHeader(channels: pubnubChannels.values.map { $0 }, groups: pubnubGroups.values.map { $0 },
+                              previous: cursor, next: response.payload.cursor)
+            )])
+          }
+
+          // Attempt to detect missed messages due to queue overflow
           if response.payload.messages.count >= 100 {
             self?.notify {
-              $0.emitDidReceive(subscription:
-                .subscribeError(PubNubError(.messageCountExceededMaximum, router: router)))
+              $0.emitDidReceiveBatch(subscription: [
+                .subscribeError(PubNubError(.messageCountExceededMaximum,
+                                            router: router,
+                                            affected: [.subscribe(response.payload.cursor)]))
+              ])
             }
           }
 
-          // Emit the event to the observers
-          for message in response.payload.messages {
-            switch message {
-            case let .message(message):
+          let events = response.payload.messages
+            .filter { message in // Dedupe the message
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
-                self?.notify { $0.emitDidReceive(subscription: .messageReceived(message)) }
                 self?.messageCache.append(message)
-              }
-              // Remove oldest value if we're at max capacity
-              if strongSelf.messageCache.count >= 100 {
-                self?.messageCache.remove(at: 0)
-              }
-            case let .signal(signal):
-              // Update Cache and notify if not a duplicate message
-              if !strongSelf.messageCache.contains(signal) {
-                self?.notify { $0.emitDidReceive(subscription: .signalReceived(signal)) }
-                self?.messageCache.append(signal)
-              }
-              // Remove oldest value if we're at max capacity
-              if strongSelf.messageCache.count >= 100 {
-                self?.messageCache.remove(at: 0)
-              }
-            case let .presence(presence):
-              self?.notify { $0.emitDidReceive(subscription: .presenceChanged(presence)) }
-            case let .object(object):
-              do {
-                let event = try object.payload.decodedEvent()
-                self?.notify { $0.emitDidReceive(subscription: event) }
-              } catch {
-                self?.notify {
-                  $0.emitDidReceive(subscription: .subscribeError(PubNubError(.jsonDataDecodingFailure,
-                                                                              response: response, error: error)))
+
+                // Remove oldest value if we're at max capacity
+                if strongSelf.messageCache.count >= 100 {
+                  self?.messageCache.remove(at: 0)
                 }
+
+                return true
               }
-            case let .messageAction(action):
-              switch action.payload.event {
-              case .added:
-                self?.notify { $0.emitDidReceive(subscription: .messageActionAdded(action.payload.data)) }
-              case .removed:
-                self?.notify { $0.emitDidReceive(subscription: .messageActionRemoved(action.payload.data)) }
+
+              return false
+            }
+            .map { message -> SubscriptionEvent in // Decode and eventify
+              switch message.messageType {
+              case .message:
+                return .messageReceived(PubNubMessageBase(from: message))
+              case .signal:
+                return .signalReceived(PubNubMessageBase(from: message))
+              case .object:
+                guard let objectAction = try? message.payload.decode(SubscribeObjectMetadataPayload.self) else {
+                  return .messageReceived(PubNubMessageBase(from: message))
+                }
+                return objectAction.subscribeEvent
+              case .messageAction:
+                guard let messageAction = PubNubMessageActionBase(from: message),
+                  let actionEvent = try? message.payload["event"]?.decode(SubscribeMessageActionPayload.Action.self)
+                else {
+                  return .messageReceived(PubNubMessageBase(from: message))
+                }
+
+                switch actionEvent {
+                case .added:
+                  return .messageActionAdded(messageAction)
+                case .removed:
+                  return .messageActionRemoved(messageAction)
+                }
+              case .presence:
+                guard let presence = PubNubPresenceBase(from: message) else {
+                  return .messageReceived(PubNubMessageBase(from: message))
+                }
+
+                return .presenceChanged(presence)
               }
             }
-          }
 
-          self?.previousTokenResponse = response.payload.token
+          self?.notify { $0.emitDidReceiveBatch(subscription: events) }
+
+          self?.previousTokenResponse = response.payload.cursor
 
           // Repeat the request
-          self?.performSubscribeLoop(at: response.payload.token.timetoken)
+          self?.performSubscribeLoop(at: response.payload.cursor)
         case let .failure(error):
-          self?.notify {
-            $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: self?.request?.router)))
+          self?.notify { [unowned self] in
+            $0.emitDidReceiveBatch(
+              subscription: [.subscribeError(PubNubError.event(error, router: self?.request?.router))]
+            )
           }
 
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
@@ -304,14 +344,13 @@ public class SubscriptionSession {
               self?.connectionStatus = .disconnected
             } else if self?.request?.requestID == nextSubscribe.requestID {
               // No new request has been created so we'll reconnect here
-              self?.reconnect(at: self?.previousTokenResponse?.timetoken)
+              self?.reconnect(at: self?.previousTokenResponse)
             }
-          } else if let timetokenPayload = error.pubNubError?
-            .affected.findFirst(by: PubNubError.AffectedValue.subscribe
-            ) {
-            self?.previousTokenResponse = timetokenPayload
+          } else if let cursor = error.pubNubError?.affected.findFirst(by: PubNubError.AffectedValue.subscribe) {
+            self?.previousTokenResponse = cursor
 
-            self?.reconnect(at: timetokenPayload.timetoken)
+            // Repeat the request
+            self?.performSubscribeLoop(at: cursor)
           } else {
             self?.connectionStatus = .disconnectedUnexpectedly
           }
@@ -344,7 +383,7 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
+      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -365,7 +404,7 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceive(subscription: .subscriptionChanged(subscribeChange)) }
+      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -389,7 +428,7 @@ public class SubscriptionSession {
             }
           case let .failure(error):
             self?.notify {
-              $0.emitDidReceive(subscription: .subscribeError(PubNubError.event(error, router: nil)))
+              $0.emitDidReceiveBatch(subscription: [.subscribeError(PubNubError.event(error, router: nil))])
             }
           }
         }
@@ -403,7 +442,7 @@ public class SubscriptionSession {
       previousTokenResponse = nil
       disconnect()
     } else {
-      reconnect(at: previousTokenResponse?.timetoken)
+      reconnect(at: previousTokenResponse)
     }
   }
 }

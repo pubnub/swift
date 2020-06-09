@@ -65,7 +65,7 @@ public struct PubNubError: Error {
     case request(URLRequest)
     case response(HTTPURLResponse)
     case json(AnyJSON)
-    case subscribe(TimetokenResponse)
+    case subscribe(SubscribeCursor)
   }
 
   /// The PubNubError specific Domain that groups together the different Reasons
@@ -144,6 +144,7 @@ public struct PubNubError: Error {
     case messageTooLong
     case invalidUUID
     case nothingToDelete
+    case failedToPublish
 
     // Service Not Enabled
     case pushNotEnabled
@@ -194,7 +195,7 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled:
         return .serviceNotEnabled
@@ -408,8 +409,10 @@ extension EndpointResponseMessage {
       return .invalidUUID
     case .nothingToDelete:
       return .nothingToDelete
-    case .unknown, .successFailedToPublishEvent:
-      return nil
+    case .unknown:
+      return .unknown
+    case .successFailedToPublishEvent:
+      return .failedToPublish
     }
   }
 }

@@ -1,0 +1,36 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+        "t": "15913731269718720",
+        "r": 1
+    },
+    "m": [
+        {
+          "a": "4",
+          "f": 0,
+          "e": 2,
+          "p": {
+              "t": "15913731269750512",
+              "r": 1
+          },
+          "k": "demo",
+          "c": "craig-lane",
+          "d": {
+              "source": "objects",
+              "version": "2.0",
+              "event": "set",
+              "type": "uuid",
+              "data": {
+                  "custom": {},
+                  "eTag": "AbeS8/X9marEIg",
+                  "email": null,
+                  "id": "craig-lane",
+                  "updated": "2020-06-05T16:05:26.560988Z"
+              }
+          },
+          "b": "craig-lane"
+      }
+    ]
+  }
+}

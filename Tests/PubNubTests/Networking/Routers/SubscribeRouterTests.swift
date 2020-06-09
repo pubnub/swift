@@ -32,8 +32,11 @@ final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
   let testChannel = "TestChannel"
 
-  let testAction = MessageActionEvent(type: "reaction", value: "winky_face", uuid: "SomeUser", channel: "TestChannel",
-                                      actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144)
+  let testAction = PubNubMessageActionBase(
+    actionType: "reaction", actionValue: "winky_face",
+    actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144,
+    publisher: "SomeUser", channel: "TestChannel", published: 15_725_459_794_105_070
+  )
 
   // MARK: - Endpoint Tests
 
@@ -63,8 +66,9 @@ extension SubscribeRouterTests {
     let messageExpect = XCTestExpectation(description: "Message Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_message_success",
-                                                              "cancelled"]).session else {
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_message_success", "cancelled"]
+    ).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -73,7 +77,6 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceiveMessage = { [weak self] message in
       XCTAssertEqual(message.channel, self?.testChannel)
-      XCTAssertEqual(message.messageType, .message)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
 
       subscription.unsubscribeAll()
@@ -113,8 +116,7 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceivePresence = { [weak self] presence in
       XCTAssertEqual(presence.channel, self?.testChannel)
-      XCTAssertEqual(presence.event, .interval)
-      XCTAssertEqual(presence.join, ["db9c5e39-7c95-40f5-8d71-125765b6f561"])
+      XCTAssertEqual(presence.actions, [.join(uuid: "db9c5e39-7c95-40f5-8d71-125765b6f561", time: 1_567_099_526)])
 
       subscription.unsubscribeAll()
 
@@ -153,7 +155,6 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceiveSignal = { [weak self] signal in
       XCTAssertEqual(signal.channel, self?.testChannel)
-      XCTAssertEqual(signal.messageType, .signal)
       XCTAssertEqual(signal.publisher, "TestUser")
       XCTAssertEqual(signal.payload.stringOptional, "Test Signal")
 
@@ -180,18 +181,18 @@ extension SubscribeRouterTests {
 // MARK: - User Object Response
 
 extension SubscribeRouterTests {
-  // swiftlint:disable:next function_body_length
-  func testSubscribe_User_Update() {
+  // swiftlint:disable:next function_body_length cyclomatic_complexity
+  func testSubscribe_UUIDMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_userUpdate_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidSet_success",
                                                               "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
-    let baseUser = UserObject(name: "Not Real Name", id: "TestUserID")
+    let baseUser = PubNubUUIDMetadataBase(metadataId: "TestUserID", name: "Not Real Name")
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -202,20 +203,23 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .userUpdated(patch):
-        let updated = try? patch.update(baseUser)
-
-        XCTAssertEqual(updated?.id, "TestUserID")
-        XCTAssertEqual(updated?.name, "Test Name")
-        XCTAssertNil(updated?.custom)
-        XCTAssertEqual(updated?.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(updated?.eTag, "UserUpdateEtag")
+      case let .uuidMetadataSet(changeset):
+        let updated = changeset.apply(to: baseUser)
+        XCTAssertEqual(
+          try? updated.transcode(),
+          PubNubUUIDMetadataBase(
+            metadataId: "TestUserID", name: "Test Name",
+            updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"), eTag: "UserUpdateEtag"
+          )
+        )
 
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
@@ -223,10 +227,10 @@ extension SubscribeRouterTests {
         XCTFail("Incorrect Event Received \(event)")
       }
     }
-    listener.didReceiveUserEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .updated(user):
-        XCTAssertEqual(user.id, "TestUserID")
+      case let .setUUID(changeset):
+        XCTAssertEqual(changeset.metadataId, "TestUserID")
 
         subscription.unsubscribeAll()
 
@@ -245,12 +249,13 @@ extension SubscribeRouterTests {
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
-  func testSubscribe_User_Delete() {
+  // swiftlint:disable:next cyclomatic_complexity
+  func testSubscribe_UUIDMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_userDelete_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidRemove_success",
                                                               "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -264,13 +269,15 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .userDeleted(user):
-        XCTAssertEqual(user.id, "TestUserID")
+      case let .uuidMetadataRemoved(metadataId):
+        XCTAssertEqual(metadataId, "TestUserID")
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
@@ -278,10 +285,10 @@ extension SubscribeRouterTests {
         XCTFail("Incorrect Event Received")
       }
     }
-    listener.didReceiveUserEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .deleted(user):
-        XCTAssertEqual(user.id, "TestUserID")
+      case let .removedUUID(metadataId):
+        XCTAssertEqual(metadataId, "TestUserID")
 
         subscription.unsubscribeAll()
 
@@ -301,17 +308,17 @@ extension SubscribeRouterTests {
   }
 
   // swiftlint:disable:next function_body_length
-  func testSubscribe_Space_Update() {
+  func testSubscribe_ChannelMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_spaceUpdate_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_channelSet_success",
                                                               "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
-    let baseSpace = SpaceObject(name: "Not Real Name", id: "TestSpaceID")
+    let baseSpace = PubNubChannelMetadataBase(metadataId: "TestSpaceID", name: "Not Real Name")
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -322,32 +329,30 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .spaceUpdated(patch):
-        let updated = try? patch.update(baseSpace)
+      case let .channelMetadataSet(changeset):
+        let updated = changeset.apply(to: baseSpace)
 
-        XCTAssertEqual(updated?.id, "TestSpaceID")
-        XCTAssertEqual(updated?.name, "Test Name")
-        XCTAssertEqual(updated?.spaceDescription, nil)
-        XCTAssertNil(updated?.custom)
-        XCTAssertEqual(updated?.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(updated?.eTag, "SpaceUpdateEtag")
+        XCTAssertEqual(updated.metadataId, "TestSpaceID")
+        XCTAssertEqual(updated.name, "Test Name")
+        XCTAssertEqual(updated.channelDescription, nil)
+        XCTAssertNil(updated.custom)
+        XCTAssertEqual(updated.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
+        XCTAssertEqual(updated.eTag, "SpaceUpdateEtag")
 
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
+        default:
+          break
         }
       default:
         XCTFail("Incorrect Event Received")
       }
     }
-    listener.didReceiveSpaceEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .updated(space):
-        XCTAssertEqual(space.id, "TestSpaceID")
+      case let .setChannel(changeset):
+        XCTAssertEqual(changeset.metadataId, "TestSpaceID")
 
         subscription.unsubscribeAll()
 
@@ -366,12 +371,13 @@ extension SubscribeRouterTests {
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
-  func testSubscribe_Space_Delete() {
+  // swiftlint:disable:next cyclomatic_complexity
+  func testSubscribe_ChannelMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_spaceDelete_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_channelRemove_success",
                                                               "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -385,13 +391,15 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .spaceDeleted(user):
-        XCTAssertEqual(user.id, "TestSpaceID")
+      case let .channelMetadataRemoved(metadataId):
+        XCTAssertEqual(metadataId, "TestSpaceID")
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
@@ -399,10 +407,10 @@ extension SubscribeRouterTests {
         XCTFail("Incorrect Event Received")
       }
     }
-    listener.didReceiveSpaceEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .deleted(space):
-        XCTAssertEqual(space.id, "TestSpaceID")
+      case let .removedChannel(metadataId: metadataId):
+        XCTAssertEqual(metadataId, "TestSpaceID")
 
         subscription.unsubscribeAll()
 
@@ -421,18 +429,23 @@ extension SubscribeRouterTests {
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
-  // swiftlint:disable:next function_body_length
-  func testSubscribe_Membership_Added() {
+  // swiftlint:disable:next function_body_length cyclomatic_complexity
+  func testSubscribe_Membership_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipCreate_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipSet_success",
                                                               "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+
+    let testMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID", custom: ["something": true],
+      updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
+    )
 
     let listener = SubscriptionListener()
     listener.didReceiveSubscription = { [unowned self] event in
@@ -441,38 +454,33 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .membershipAdded(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        XCTAssertEqual(membership.custom?["something"]?.boolOptional, true)
-        XCTAssertEqual(membership.updated,
-                       DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
-        XCTAssertEqual(membership.eTag, "TestETag")
-
+      case let .membershipSet(membership):
+        XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
 
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
       default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
-    listener.didReceiveMembershipEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .userAddedOnSpace(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
+      case let .setMembership(membership):
+        XCTAssertEqual(try? membership.transcode(), testMembership)
 
         subscription.unsubscribeAll()
 
         objectListenerExpect.fulfill()
       default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
     subscription.add(listener)
@@ -485,18 +493,22 @@ extension SubscribeRouterTests {
     wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
   }
 
-  // swiftlint:disable:next function_body_length
-  func testSubscribe_Membership_Update() {
+  // swiftlint:disable:next function_body_length cyclomatic_complexity
+  func testSubscribe_Membership_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipUpdate_success",
-                                                              "cancelled"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipRemove_success"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+
+    let testMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
+      updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
+    )
 
     let listener = SubscriptionListener()
     listener.didReceiveSubscription = { [weak self] event in
@@ -505,92 +517,32 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .membershipUpdated(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        XCTAssertNil(membership.custom)
-        XCTAssertEqual(membership.updated,
-                       DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"))
-        XCTAssertEqual(membership.eTag, "TestETag")
+      case let .membershipRemoved(membership):
+        XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
-    listener.didReceiveMembershipEvent = { event in
+    listener.didReceiveObjectMetadataEvent = { event in
       switch event {
-      case let .userUpdatedOnSpace(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
+      case let .removedMembership(membership):
+        XCTAssertEqual(try? membership.transcode(), testMembership)
 
         subscription.unsubscribeAll()
 
         objectListenerExpect.fulfill()
       default:
-        XCTFail("Incorrect Event Received")
-      }
-    }
-    subscription.add(listener)
-
-    subscription.subscribe(to: [testChannel])
-
-    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
-
-    defer { listener.cancel() }
-    wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
-  }
-
-  func testSubscribe_Membership_Delete() {
-    let objectExpect = XCTestExpectation(description: "Object Event")
-    let statusExpect = XCTestExpectation(description: "Status Event")
-    let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipDelete_success"]).session else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-
-    let listener = SubscriptionListener()
-    listener.didReceiveSubscription = { [weak self] event in
-      switch event {
-      case let .connectionStatusChanged(status):
-        if status == .disconnected {
-          statusExpect.fulfill()
-        }
-      case let .membershipDeleted(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
-        objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        }
-      default:
-        XCTFail("Incorrect Event Received")
-      }
-    }
-    listener.didReceiveMembershipEvent = { event in
-      switch event {
-      case let .userDeletedFromSpace(membership):
-        XCTAssertEqual(membership.userId, "TestUserID")
-        XCTAssertEqual(membership.spaceId, "TestSpaceID")
-
-        subscription.unsubscribeAll()
-
-        objectListenerExpect.fulfill()
-      default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
     subscription.add(listener)
@@ -607,6 +559,7 @@ extension SubscribeRouterTests {
 // MARK: - Message Action
 
 extension SubscribeRouterTests {
+  // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_MessageAction_Added() {
     let actionExpect = XCTestExpectation(description: "Message Action Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -626,23 +579,25 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionAdded(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(try? action.transcode(), self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
       default:
-        XCTFail("Incorrect Event Received")
+        XCTFail("Incorrect Event Received \(event)")
       }
     }
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .added(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(try? action.transcode(), self?.testAction)
 
         subscription.unsubscribeAll()
 
@@ -661,6 +616,7 @@ extension SubscribeRouterTests {
     wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_MessageAction_Removed() {
     let actionExpect = XCTestExpectation(description: "Message Action Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -682,12 +638,14 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .messageActionRemoved(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(try? action.transcode(), self?.testAction)
         actionExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self?.testChannel)
         }
@@ -698,7 +656,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessageAction = { [weak self] event in
       switch event {
       case let .removed(action):
-        XCTAssertEqual(action, self?.testAction)
+        XCTAssertEqual(try? action.transcode(), self?.testAction)
 
         subscription.unsubscribeAll()
 
@@ -743,18 +701,16 @@ extension SubscribeRouterTests {
     }
     listener.didReceiveMessage = { [weak self] message in
       XCTAssertEqual(message.channel, self?.testChannel)
-      XCTAssertEqual(message.messageType, .message)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
       messageExpect.fulfill()
     }
     listener.didReceivePresence = { [weak self] presence in
       XCTAssertEqual(presence.channel, self?.testChannel)
-      XCTAssertEqual(presence.join, ["db9c5e39-7c95-40f5-8d71-125765b6f561"])
+      XCTAssertEqual(presence.actions, [.join(uuid: "db9c5e39-7c95-40f5-8d71-125765b6f561", time: 1_567_099_526)])
       presenceExpect.fulfill()
     }
     listener.didReceiveSignal = { [weak self] signal in
       XCTAssertEqual(signal.channel, self?.testChannel)
-      XCTAssertEqual(signal.messageType, .signal)
       XCTAssertEqual(signal.payload.stringOptional, "Test Signal")
       signalExpect.fulfill()
     }
@@ -847,6 +803,8 @@ extension SubscribeRouterTests {
         switch change {
         case let .subscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertEqual(channels.first?.id, self.testChannel)
         }
@@ -894,6 +852,8 @@ extension SubscribeRouterTests {
         case let .subscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self?.testChannel }))
           XCTAssertTrue(channels.contains(where: { $0.id == otherChannel }))
+        case .responseHeader:
+          break
         case let .unsubscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self?.testChannel }))
           XCTAssertTrue(channels.contains(where: { $0.id == otherChannel }))

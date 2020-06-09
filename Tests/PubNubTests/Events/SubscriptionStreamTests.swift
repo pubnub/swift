@@ -32,9 +32,9 @@ class SubscriptionListenerTests: XCTestCase {
   struct MockStatusStream: SubscriptionStream {
     let uuid: UUID = UUID()
 
-    var statusEvent: ((StatusEvent) -> Void)?
+    var statusEvent: ((SubscriptionListener.StatusEvent) -> Void)?
 
-    func emitDidReceive(status event: StatusEvent) {
+    func emitDidReceive(status event: SubscriptionListener.StatusEvent) {
       statusEvent?(event)
     }
   }
@@ -42,44 +42,32 @@ class SubscriptionListenerTests: XCTestCase {
   struct MockMessageStream: SubscriptionStream {
     let uuid: UUID = UUID()
 
-    var messageEvent: ((MessageEvent) -> Void)?
+    var PubNubMessage: ((PubNubMessage) -> Void)?
 
-    func emitDidReceive(message event: MessageEvent) {
-      messageEvent?(event)
+    func emitDidReceive(message event: PubNubMessage) {
+      PubNubMessage?(event)
     }
   }
 
-  struct MockMessageEvent: MessageEvent, Equatable {
-    var messageType: MessageType = .message
-    var publisher: String? = "Sender"
-    var payload: AnyJSON = "Message"
-    var channel: String = "Channel"
-    var subscription: String? = "Channel"
-    var timetoken: Timetoken = 0
-    var userMetadata: AnyJSON? = "Message"
-  }
-
-  let messageEvent: MessageEvent = MockMessageEvent()
-  let connectionEvent: ConnectionStatus = .connected
-  let statusEvent: StatusEvent = .success(.connected)
-  let presenceEvent: PresenceEvent = MessageResponse(
-    shard: "0",
-    subscriptionMatch: "Channel",
+  let pubnubMessage = PubNubMessageBase(
+    payload: "Message",
+    actions: [],
+    publisher: "Sender",
     channel: "Channel",
-    messageType: .presence,
-    payload: PresenceResponse(action: .join,
-                              timetoken: 0,
-                              occupancy: 1,
-                              join: ["User"],
-                              leave: [],
-                              timeout: [],
-                              channelState: ["Channel": ["StateKey": "StateValue"]]),
-    flags: 0,
-    issuer: "Someone",
-    subscribeKey: "SomeKey",
-    originTimetoken: TimetokenResponse(timetoken: 0, region: 0),
-    publishTimetoken: TimetokenResponse(timetoken: 0, region: 0),
-    metadata: "Metadata"
+    subscription: "Channel",
+    published: 0,
+    metadata: "Message"
+  )
+  let connectionEvent: ConnectionStatus = .connected
+  let statusEvent: SubscriptionListener.StatusEvent = .success(.connected)
+
+  let presenceEvent = PubNubPresenceBase(
+    actions: [.join(uuid: "User", time: 0)],
+    occupancy: 1,
+    timetoken: 0,
+    channel: "Channel",
+    stateChange: ["StateKey": "StateValue"],
+    subscription: "Channel"
   )
 
   // MARK: - Subscription Stream Defaults
@@ -91,18 +79,18 @@ class SubscriptionListenerTests: XCTestCase {
     }
 
     stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
-    stream.emitDidReceive(subscription: .messageReceived(messageEvent))
+    stream.emitDidReceive(subscription: .messageReceived(pubnubMessage))
     stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
 
   func testSessionStream_Default_StatusPresence() {
     var stream = MockMessageStream()
-    stream.messageEvent = { [weak self] event in
-      XCTAssertEqual(event as? MockMessageEvent, self?.messageEvent as? MockMessageEvent)
+    stream.PubNubMessage = { [weak self] event in
+      XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
     }
 
     stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
-    stream.emitDidReceive(subscription: .messageReceived(messageEvent))
+    stream.emitDidReceive(subscription: .messageReceived(pubnubMessage))
     stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
 
@@ -111,12 +99,11 @@ class SubscriptionListenerTests: XCTestCase {
 
     let listener = SubscriptionListener(queue: .main)
     listener.didReceiveMessage = { [weak self] event in
-      XCTAssertNotNil(event as? MockMessageEvent)
-      XCTAssertEqual(event as? MockMessageEvent, self?.messageEvent as? MockMessageEvent)
+      XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
       expectation.fulfill()
     }
 
-    listener.emitDidReceive(subscription: .messageReceived(messageEvent))
+    listener.emitDidReceive(subscription: .messageReceived(pubnubMessage))
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -140,9 +127,7 @@ class SubscriptionListenerTests: XCTestCase {
     let expectation = XCTestExpectation(description: "didReceivePresence")
     let listener = SubscriptionListener()
     listener.didReceivePresence = { [weak self] event in
-      XCTAssertNotNil(event as? MessageResponse<PresenceResponse>)
-      XCTAssertEqual(event as? MessageResponse<PresenceResponse>,
-                     self?.presenceEvent as? MessageResponse<PresenceResponse>)
+      XCTAssertEqual(try? event.transcode(), self?.presenceEvent)
       expectation.fulfill()
     }
 

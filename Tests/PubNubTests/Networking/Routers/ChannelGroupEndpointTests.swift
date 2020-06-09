@@ -66,8 +66,8 @@ extension ChannelGroupsRouterTests {
 
     PubNub(configuration: config, session: sessions.session).listChannelGroups { result in
       switch result {
-      case let .success(payload):
-        XCTAssertFalse(payload.groups.isEmpty)
+      case let .success(groups):
+        XCTAssertFalse(groups.isEmpty)
       case let .failure(error):
         XCTFail("Group List request failed with error: \(error.localizedDescription)")
       }
@@ -86,8 +86,8 @@ extension ChannelGroupsRouterTests {
 
     PubNub(configuration: config, session: sessions.session).listChannelGroups { result in
       switch result {
-      case let .success(payload):
-        XCTAssertTrue(payload.groups.isEmpty)
+      case let .success(groups):
+        XCTAssertTrue(groups.isEmpty)
       case let .failure(error):
         XCTFail("Group List request failed with error: \(error.localizedDescription)")
       }
@@ -126,12 +126,11 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .delete(channelGroup: testGroupName) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
+        case .success:
+          expectation.fulfill()
         case let .failure(error):
           XCTFail("Group Delete request failed with error: \(error.localizedDescription)")
         }
-        expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
@@ -167,9 +166,9 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listChannels(for: testGroupName) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.group, self.testGroupName)
-          XCTAssertFalse(payload.channels.isEmpty)
+        case let .success(channelByGroupId):
+          XCTAssertEqual(channelByGroupId.keys.first, self.testGroupName)
+          XCTAssertFalse(channelByGroupId[self.testGroupName]?.isEmpty ?? true)
         case let .failure(error):
           XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
         }
@@ -189,9 +188,9 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listChannels(for: testGroupName) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.group, self.testGroupName)
-          XCTAssertTrue(payload.channels.isEmpty)
+        case let .success(channslByGroupId):
+          XCTAssertEqual(channslByGroupId.keys.first, self.testGroupName)
+          XCTAssertTrue(channslByGroupId[self.testGroupName]?.isEmpty ?? false)
         case let .failure(error):
           XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
         }
@@ -237,12 +236,11 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .add(channels: testChannels, to: testGroupName) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
+        case let .success:
+          expectation.fulfill()
         case let .failure(error):
           XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")
         }
-        expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
@@ -328,12 +326,11 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .remove(channels: testChannels, from: testGroupName) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, EndpointResponseMessage.acknowledge)
+        case .success:
+          expectation.fulfill()
         case let .failure(error):
           XCTFail("Group Channels Remove request failed with error: \(error.localizedDescription)")
         }
-        expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)

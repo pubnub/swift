@@ -37,8 +37,6 @@ public struct PubNub {
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
-  // Default Request Operator attached to every request
-  public let defaultRequestOperator: RequestOperator
   // PAM Token Manager
   internal var tokenStore: PAMTokenManagementSystem
 
@@ -57,6 +55,7 @@ public struct PubNub {
     instanceID = UUID()
     self.configuration = configuration
 
+    // Default operators based on config
     var operators = [RequestOperator]()
     if let retryOperator = configuration.automaticRetry {
       operators.append(retryOperator)
@@ -66,27 +65,40 @@ public struct PubNub {
       operators.append(instanceIdOperator)
     }
 
-    defaultRequestOperator = MultiplexRequestOperator(operators: operators)
-    networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
+    // Mutable session
+    var networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
 
-    subscription = SubscribeSessionFactory.shared.getSession(from: configuration,
-                                                             with: subscribeSession,
-                                                             presenceSession: presenceSession)
+    // Configure the default request operators
+    if networkSession.defaultRequestOperator == nil {
+      networkSession.defaultRequestOperator = MultiplexRequestOperator(operators: operators)
+    } else {
+      networkSession.defaultRequestOperator = networkSession
+        .defaultRequestOperator?
+        .merge(requestOperator: MultiplexRequestOperator(operators: operators))
+    }
+
+    // Immutable session
+    self.networkSession = networkSession
+
+    // Set initial session also based on configuration
+    subscription = SubscribeSessionFactory.shared.getSession(
+      from: configuration,
+      with: subscribeSession,
+      presenceSession: presenceSession
+    )
+
     tokenStore = PAMTokenManagementSystem()
   }
 
   func route<Decoder>(
     _ router: HTTPRouter,
-    networkConfiguration: NetworkConfiguration?,
     responseDecoder: Decoder,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
-    let defaultOperator = defaultRequestOperator
-      .merge(requestOperator: networkConfiguration?.retryPolicy ?? configuration.automaticRetry)
-
-    networkSession.usingDefault(requestOperator: defaultOperator)
-      .request(with: router, requestOperator: networkConfiguration?.requestOperator)
+    (customSession ?? networkSession)
+      .request(with: router, requestOperator: nil)
       .validate()
       .response(
         on: queue,
@@ -101,17 +113,17 @@ public struct PubNub {
 extension PubNub {
   /// Get current `Timetoken` from System
   /// - Parameters:
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func time(
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<TimeResponsePayload, Error>) -> Void)?
   ) {
     route(TimeRouter(.time, configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: TimeResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -136,7 +148,7 @@ extension PubNub {
   ///   - storeTTL: Set a per message time to live in storage.
   ///   - meta: Publish extra metadata with the request.
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func publish(
@@ -146,7 +158,7 @@ extension PubNub {
     storeTTL: Int? = nil,
     meta: JSONCodable? = nil,
     shouldCompress: Bool = false,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
@@ -172,8 +184,8 @@ extension PubNub {
     }
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -195,22 +207,21 @@ extension PubNub {
   ///   - message: The message to publish
   ///   - meta: Publish extra metadata with the request.
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fire(
     channel: String,
     message: JSONCodable,
-    messageAction _: MessageAction? = nil,
     meta: JSONCodable? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
     route(PublishRouter(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
                         configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -222,20 +233,20 @@ extension PubNub {
   ///   - channel: The destination of the message
   ///   - message: The message to publish
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func signal(
     channel: String,
     message: JSONCodable,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<PublishResponsePayload, Error>) -> Void)?
   ) {
     route(PublishRouter(.signal(message: message.codableValue, channel: channel),
                         configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: PublishResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -256,13 +267,14 @@ extension PubNub {
   public func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
-    at timetoken: Timetoken = 0,
+    at timetoken: Timetoken? = nil,
+    region: Int? = nil,
     withPresence: Bool = false,
     setting presenceState: [String: [String: JSONCodable]] = [:]
   ) {
     subscription.subscribe(to: channels,
                            and: channelGroups,
-                           at: timetoken,
+                           at: SubscribeCursor(timetoken: timetoken, region: region),
                            withPresence: withPresence,
                            setting: presenceState)
   }
@@ -291,8 +303,8 @@ extension PubNub {
   /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
   /// - Important: This subscription might be shared with multiple `PubNub` instances.
-  public func reconnect(at timetoken: Timetoken?) {
-    subscription.reconnect(at: timetoken)
+  public func reconnect(at timetoken: Timetoken? = nil, region: Int? = nil) {
+    subscription.reconnect(at: SubscribeCursor(timetoken: timetoken, region: region))
   }
 
   /// The `Timetoken` used for the last successful subscription request
@@ -370,7 +382,7 @@ extension PubNub {
   ///   - and: The list of channel groups to return occupancy results from.
   ///   - includeUUIDs: `false` disables the return of uuids
   ///   - also: `true` will return the subscribe state information if available
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func hereNow(
@@ -378,7 +390,7 @@ extension PubNub {
     and groups: [String] = [],
     includeUUIDs: Bool = true,
     also includeState: Bool = false,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<HereNowPayload, Error>) -> Void)?
   ) {
@@ -394,8 +406,8 @@ extension PubNub {
     }
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: HereNowResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload.payload })
     }
@@ -404,20 +416,20 @@ extension PubNub {
   /// Obtain information about the current list of channels a UUID is subscribed to
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func whereNow(
     for uuid: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<WhereNowPayload, Error>) -> Void)?
+    completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(PresenceRouter(.whereNow(uuid: uuid), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload.payload })
+        completion?(result.map { [uuid: $0.payload.payload.channels] })
     }
   }
 }
@@ -427,59 +439,61 @@ extension PubNub {
 extension PubNub {
   /// Lists all the channel groups
   /// - Parameters:
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func listChannelGroups(
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GroupListPayload, Error>) -> Void)?
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.channelGroups, configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload.payload })
+      completion?(result.map { $0.payload.payload.groups })
     }
   }
 
   /// Removes the channel group.
   /// - Parameters:
   ///   - channelGroup: The channel group to delete.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func delete(
     channelGroup: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<String, Error>) -> Void)?
   ) {
-    route(ChannelGroupsRouter(.deleteGroup(group: channelGroup), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: GenericServiceResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+    route(
+      ChannelGroupsRouter(.deleteGroup(group: channelGroup), configuration: configuration),
+      responseDecoder: GenericServiceResponseDecoder(),
+      using: customSession,
+      respondOn: queue
+    ) { result in
+      completion?(result.map { _ in channelGroup })
     }
   }
 
   /// Lists all the channels of the channel group.
   /// - Parameters:
   ///   - for: The channel group to list channels on.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func listChannels(
     for group: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ChannelListPayload, Error>) -> Void)?
+    completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.channelsForGroup(group: group), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload.payload })
+        completion?(result.map { [$0.payload.payload.group: $0.payload.payload.channels] })
     }
   }
 
@@ -487,21 +501,21 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: List of channels to add to the group
   ///   - to: The Channel Group to add the list of channels to.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func add(
     channels: [String],
     to group: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      completion?(result.map { _ in () })
     }
   }
 
@@ -509,21 +523,21 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: List of channels to remove from the group
   ///   - from: The Channel Group to remove the list of channels from
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func remove(
     channels: [String],
     from group: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.removeChannelsForGroup(group: group, channels: channels), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+            completion?(result.map { _ in [group: channels] })
     }
   }
 }
@@ -535,19 +549,19 @@ extension PubNub {
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func listPushChannelRegistrations(
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     route(PushRouter(.listPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -559,7 +573,7 @@ extension PubNub {
   ///   - thenAdding: The list of channels to add the device registration to
   ///   - for: A device token to identify the device for registration changes
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func modifyPushChannelRegistrations(
@@ -567,7 +581,7 @@ extension PubNub {
     thenAdding additions: [String],
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
@@ -577,8 +591,8 @@ extension PubNub {
     )
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -588,19 +602,19 @@ extension PubNub {
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func removeAllPushChannelRegistrations(
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -611,22 +625,22 @@ extension PubNub {
   ///   - for: The device token used during registration
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func listAPNSChannelsOnDevice(
     for deviceToken: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     route(PushRouter(.modifyAPNS(pushToken: deviceToken, environment: environment,
                                  topic: topic, adding: [], removing: []),
                      configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -639,7 +653,7 @@ extension PubNub {
   ///   - device: The device to add/remove from the channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func modifyAPNSDevicesOnChannels(
@@ -648,7 +662,7 @@ extension PubNub {
     device token: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
@@ -666,8 +680,8 @@ extension PubNub {
     }
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -678,21 +692,21 @@ extension PubNub {
   ///   - for: The device token to remove from all channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func removeAPNSPushDevice(
     for deviceToken: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
                      configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: ModifyPushResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
@@ -719,40 +733,45 @@ extension PubNub {
   ///   - start: Time token delimiting the start of time slice (exclusive) to pull messages from.
   ///   - end: Time token delimiting the end of time slice (inclusive) to pull messages from.
   ///   - metaInResponse: If `true` the meta properties of messages will be returned as well (if existing).
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fetchMessageHistory(
     for channels: [String],
     fetchActions actions: Bool = false,
-    max: Int? = nil,
+    limit: Int? = nil,
     start: Timetoken? = nil,
     end: Timetoken? = nil,
     metaInResponse: Bool = false,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MessageHistoryChannelsPayload, Error>) -> Void)?
+    completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     let router: HistoryRouter
     if actions {
       router = HistoryRouter(
         .fetchWithActions(channel: channels.first ?? "",
-                          max: max, start: start, end: end, includeMeta: metaInResponse),
+                          max: limit, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
     } else {
       router = HistoryRouter(
-        .fetch(channels: channels, max: max, start: start, end: end, includeMeta: metaInResponse),
+        .fetch(channels: channels, max: limit, start: start, end: end, includeMeta: metaInResponse),
         configuration: configuration
       )
     }
 
-    route(router,
-          networkConfiguration: networkConfiguration,
-          responseDecoder: MessageHistoryResponseDecoder(),
-          respondOn: queue) { result in
+    route(
+      router,
+      responseDecoder: MessageHistoryResponseDecoder(),
+      using: customSession,
+      respondOn: queue
+    ) { result in
       completion?(result.map {
-        $0.payload.channels
+        (
+          messagesByChannel: $0.payload.asPubNubMessagesByChannel,
+          next: $0.payload.asBoundedPage(end: end, limit: limit)
+        )
       })
     }
   }
@@ -762,35 +781,35 @@ extension PubNub {
   ///   - from: The channel to delete the messages from.
   ///   - start: Time token delimiting the start of time slice (exclusive) to delete messages from.
   ///   - end: Time token delimiting the end of time slice (inclusive) to delete messages from.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func deleteMessageHistory(
     from channel: String,
     start stateTimetoken: Timetoken? = nil,
     end endTimetoken: Timetoken? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<String, Error>) -> Void)?
   ) {
     route(HistoryRouter(.delete(channel: channel, start: stateTimetoken, end: endTimetoken),
                         configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: GenericServiceResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      completion?(result.map { _ in channel })
     }
   }
 
   /// Returns the number of messages published for one of more channels using a channel specific time token
   /// - Parameters:
   ///   - channels: Dictionary of channel and the timetoken to get the message count for.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func messageCounts(
     channels: [String: Timetoken],
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
@@ -800,8 +819,8 @@ extension PubNub {
     )
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: MessageCountsResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload.channels })
     }
@@ -811,13 +830,13 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: The channel to delete the messages from.
   ///   - timetoken: The timetoken for all channels in the list to get message counts for.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func messageCounts(
     channels: [String],
     timetoken: Timetoken = 1,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
@@ -827,15 +846,101 @@ extension PubNub {
     )
 
     route(router,
-          networkConfiguration: networkConfiguration,
           responseDecoder: MessageCountsResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
       completion?(result.map { $0.payload.channels })
     }
   }
 }
 
-// MARK: - User Objects
+// MARK: - Object Request Helpers
+
+extension PubNub {
+  public struct Page {
+    public let start: String?
+    public let end: String?
+
+    public init?(start: String?, end: String?) {
+      if start == nil, end == nil {
+        return nil
+      }
+
+      self.start = start
+      self.end = end
+    }
+  }
+
+  public struct IncludeFields {
+    public let customFields: Bool
+    public let totalCount: Bool
+
+    public init(custom: Bool = true, totalCount: Bool = true) {
+      customFields = custom
+      self.totalCount = totalCount
+    }
+  }
+
+  public struct MembershipInclude {
+    public let customFields: Bool
+    public let channelFields: Bool
+    public let channelCustomFields: Bool
+    public let totalCount: Bool
+
+    public init(
+      customFields: Bool = true,
+      channelFields: Bool = false,
+      channelCustomFields: Bool = false,
+      totalCount: Bool = false
+    ) {
+      self.customFields = customFields
+      self.channelFields = channelFields
+      self.channelCustomFields = channelCustomFields
+      self.totalCount = totalCount
+    }
+
+    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
+      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+
+      if customFields { includes.append(.custom) }
+      if channelFields { includes.append(.channel) }
+      if channelCustomFields { includes.append(.channelCustom) }
+
+      return includes.isEmpty ? nil : includes
+    }
+  }
+
+  public struct MemberInclude {
+    public let customFields: Bool
+    public let uuidFields: Bool
+    public let uuidCustomFields: Bool
+    public let totalCount: Bool
+
+    public init(
+      customFields: Bool = true,
+      uuidFields: Bool = false,
+      uuidCustomFields: Bool = false,
+      totalCount: Bool = false
+    ) {
+      self.customFields = customFields
+      self.uuidFields = uuidFields
+      self.uuidCustomFields = uuidCustomFields
+      self.totalCount = totalCount
+    }
+
+    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
+      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+
+      if customFields { includes.append(.custom) }
+      if uuidFields { includes.append(.uuid) }
+      if uuidCustomFields { includes.append(.uuidCustom) }
+
+      return includes.isEmpty ? nil : includes
+    }
+  }
+}
+
+// MARK: - UUID Metadat Objects
 
 extension PubNub {
   /// Returns a paginated list of user objects, optionally including each user's custom data object.
@@ -845,546 +950,120 @@ extension PubNub {
   ///   - start: The start paging hash string to retrieve the users from
   ///   - end: The end paging hash string to retrieve the users from
   ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func fetchUsers(
-    include field: CustomIncludeField? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+  public func allUUIDMetadata(
+    include: IncludeFields = IncludeFields(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = 100,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserObjectsResponsePayload, Error>) -> Void)?
+    completion: ((Result<([PubNubUUIDMetadata], PubNubHashedPage?), Error>) -> Void)?
   ) {
-    fetchCustomUsers(respondWith: UserObject.self,
-                     include: field, limit: limit,
-                     start: start, end: end, count: count,
-                     with: networkConfiguration, respondOn: queue, completion: completion)
-  }
-
-  /// Returns the specified user object
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user object to delete.
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetch(
-    userID: String,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserObject, Error>) -> Void)?
-  ) {
-    fetchCustom(userID: userID,
-                respondWith: UserObject.self,
-                include: field,
-                with: networkConfiguration,
-                respondOn: queue,
-                completion: completion)
-  }
-
-  /// Creates a user with the specified properties
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to create
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func create(
-    user: PubNubUser,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserObject, Error>) -> Void)?
-  ) {
-    createCustom(user: user, respondWith: UserObject.self,
-                 include: field,
-                 with: networkConfiguration, respondOn: queue,
-                 completion: completion)
-  }
-
-  /// Updates a user with the specified properties
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to update
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func update(
-    user: PubNubUser,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserObject, Error>) -> Void)?
-  ) {
-    updateCustom(user: user, respondWith: UserObject.self,
-                 include: field,
-                 with: networkConfiguration, respondOn: queue,
-                 completion: completion)
-  }
-
-  /// Deletes the specified user object.
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user object to delete.
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func delete(
-    userID: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
-  ) {
-    route(UserObjectsRouter(.delete(userID: userID), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: GenericServiceResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
-    }
-  }
-
-  /// Get the specified user's space memberships.
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchMemberships(
-    userID: String,
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
-  ) {
-    fetchCustomMemberships(
-      userID: userID, respondWith: SpaceMembership.self,
-      include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue,
-      completion: completion
-    )
-  }
-
-  /// Modifty the list of space memberships for a given user
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - joining: The list of spaces identifiers to add the user to
-  ///   - updating: The list of space identifiers to update for the user
-  ///   - leaving: The list of space identifiers to remove the user from
-  ///   - include: List of custom fields (if any) to include in the response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func modifyMemberships(
-    userID: String,
-    joining joinedSpaceIDs: [ObjectIdentifiable] = [],
-    updating updateSpaceIDs: [ObjectIdentifiable] = [],
-    leaving leavingSpaceIDs: [ObjectIdentifiable] = [],
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UserMembershipsResponsePayload, Error>) -> Void)?
-  ) {
-    modifyCustomMemberships(
-      userID: userID, respondWith: SpaceMembership.self,
-      joining: joinedSpaceIDs, updating: updateSpaceIDs, leaving: leavingSpaceIDs.map { $0.id },
-      include: fields,
-      limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue,
-      completion: completion
-    )
-  }
-}
-
-// MARK: - Custom User Objects
-
-extension PubNub {
-  /// Returns a paginated list of custom User objects, optionally including each user's custom data object.
-  /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - respondWith: The custom `PubNubUser` type to respond with
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchCustomUsers<T: PubNubUser>(
-    respondWith custom: T.Type,
-    include field: CustomIncludeField? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<UsersResponsePayload<T>, Error>) -> Void)?
-  ) {
-    fetchPubNubUsers(
-      include: field, limit: limit,
-      start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try UsersResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Returns a paginated list of PubNubUser protocol instances, optionally including each user's custom data object.
-  ///
-  /// You can use `transcode()` to convert the PubNubUser into any custom type of PubNubUser
-  /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchPubNubUsers(
-    include field: CustomIncludeField? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubUsersResponsePayload, Error>) -> Void)?
-  ) {
-    route(UserObjectsRouter(.fetchAll(include: field, limit: limit, start: start, end: end, count: count),
-                            configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubUsersResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
-    }
-  }
-
-  /// Returns the specified custom User object
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user object to delete.
-  ///   - respondWith: The custom `PubNubUser` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchCustom<T: PubNubUser>(
-    userID: String,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    fetchPubNub(userID: userID, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Returns the specified User wrapped as a `PubNubUser` protocol
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user object to delete.
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call as a `PubNubUser`
-  public func fetchPubNub(
-    userID: String,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubUser, Error>) -> Void)?
-  ) {
-    route(UserObjectsRouter(.fetch(userID: userID, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubUserResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Creates a user with the specified properties responds with a  custom typed `PubNubUser`
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to create
-  ///   - respondWith: The custom `PubNubUser` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a custom typed User
-  public func createCustom<T: PubNubUser>(
-    user: PubNubUser,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    createPubNub(user: user, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Creates a user with the specified properties; ; responds with a `PubNubUser` protocol
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to create
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a `PubNubUser`
-  public func createPubNub(
-    user: PubNubUser,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubUser, Error>) -> Void)?
-  ) {
-    route(UserObjectsRouter(.create(user: user, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubUserResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Updates a user with the specified properties; responds with a  custom typed `PubNubUser`
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to update
-  ///   - respondWith: The custom `PubNubUser` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a custom typed User
-  public func updateCustom<T: PubNubUser>(
-    user: PubNubUser,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    updatePubNub(user: user, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Updates a user with the specified properties; responds with a `PubNubUser` protocol
-  /// - Parameters:
-  ///   - user: The `PubNubUser` protocol object to update
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a `PubNubUser`
-  public func updatePubNub(
-    user: PubNubUser,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubUser, Error>) -> Void)?
-  ) {
-    route(UserObjectsRouter(.update(user: user, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubUserResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Get the specified user's space memberships.
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - respondWith: The custom `PubNubMembership` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a custom typed Memberships
-  public func fetchCustomMemberships<T: PubNubMembership>(
-    userID: String,
-    respondWith custom: T.Type,
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MembershipsResponsePayload<T>, Error>) -> Void)?
-  ) {
-    fetchPubNubMemberships(
-      userID: userID, include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try MembershipsResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Get the specified user's space memberships as protocol wrapped instances
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing `PubNubMembership` instances
-  public func fetchPubNubMemberships(
-    userID: String,
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubMembershipsResponsePayload, Error>) -> Void)?
-  ) {
-    route(
-      UserObjectsRouter(
-        .fetchMemberships(userID: userID, include: fields, limit: limit, start: start, end: end, count: count),
-        configuration: configuration
-      ),
-      networkConfiguration: networkConfiguration,
-      responseDecoder: PubNubMembershipsResponseDecoder(),
-      respondOn: queue
-    ) { result in
-      completion?(result.map { $0.payload })
-    }
-  }
-
-  /// Modifty the list of space memberships for a given user
-  /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - respondWith: The custom `PubNubMembership` type to respond with
-  ///   - joining: The list of spaces identifiers to add the user to
-  ///   - updating: The list of space identifiers to update for the user
-  ///   - leaving: The list of space identifiers to remove the user from
-  ///   - include: List of custom fields (if any) to include in the response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing a custom typed Memberships
-  public func modifyCustomMemberships<T: PubNubMembership>(
-    userID: String,
-    respondWith custom: T.Type,
-    joining joinedSpaceIDs: [ObjectIdentifiable] = [],
-    updating updateSpaceIDs: [ObjectIdentifiable] = [],
-    leaving leavingSpaceIDs: [String] = [],
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MembershipsResponsePayload<T>, Error>) -> Void)?
-  ) {
-    modifyPubNubMemberships(
-      userID: userID,
-      joining: joinedSpaceIDs, updating: updateSpaceIDs, leaving: leavingSpaceIDs,
-      include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try MembershipsResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  public func modifyPubNubMemberships(
-    userID: String,
-    joining joinedSpaceIDs: [ObjectIdentifiable] = [],
-    updating updateSpaceIDs: [ObjectIdentifiable] = [],
-    leaving leavingSpaceIDs: [String] = [],
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubMembershipsResponsePayload, Error>) -> Void)?
-  ) {
-    let router = UserObjectsRouter(
-      .modifyMemberships(
-        userID: userID,
-        joining: joinedSpaceIDs, updating: updateSpaceIDs, leaving: leavingSpaceIDs,
-        include: fields, limit: limit, start: start, end: end, count: count
-      ),
+    let router = ObjectsUUIDRouter(
+      .all(customFields: include.customFields, totalCount: include.totalCount,
+           filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end),
       configuration: configuration
     )
 
     route(router,
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubMembershipsResponseDecoder(),
+          responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      completion?(result.map { (
+        $0.payload.data,
+        try? PubNubHashedPageBase(from: $0.payload)
+      ) })
+    }
+  }
+
+  /// Returns the specified user object
+  /// - Parameters:
+  ///   - uuid: The unique identifier of the PubNub user object to delete.
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func fetch(
+    uuid metadata: String?,
+    include customFields: Bool = true,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+  ) {
+    let router = ObjectsUUIDRouter(
+      .fetch(metadataId: metadata ?? configuration.uuid, customFields: customFields),
+      configuration: configuration
+    )
+
+    route(router,
+          responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.data })
+    }
+  }
+
+  /// Creates a user with the specified properties
+  /// - Parameters:
+  ///   - uuid: The `PubNubUser` protocol object to create
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func set(
+    uuid metadata: PubNubUUIDMetadata,
+    include customFields: Bool = true,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+  ) {
+    let router = ObjectsUUIDRouter(
+      .set(metadata: metadata, customFields: customFields),
+      configuration: configuration
+    )
+
+    route(router,
+          responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.data })
+    }
+  }
+
+  /// Deletes the specified user object.
+  /// - Parameters:
+  ///   - uuid: The unique identifier of the PubNub user object to delete.
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func remove(
+    uuid metadataId: String?,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<String, Error>) -> Void)?
+  ) {
+    // Capture the response or current configuration uuid
+    let metadataId = metadataId ?? configuration.uuid
+
+    let router = ObjectsUUIDRouter(
+      .remove(metadataId: metadataId),
+      configuration: configuration
+    )
+
+    route(router,
+          responseDecoder: GenericServiceResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { _ in metadataId })
     }
   }
 }
 
-// MARK: - Space Objects
+// MARK: - Channel Metadata Objects
 
 extension PubNub {
   /// Returns a paginated list of `SpaceObject` objects, optionally including each space's custom data object.
@@ -1394,434 +1073,120 @@ extension PubNub {
   ///   - start: The start paging hash string to retrieve the spaces from
   ///   - end: The end paging hash string to retrieve the spaces from
   ///   - count: A flag denoting whether to return the total count of spaces
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func fetchSpaces(
-    include field: CustomIncludeField? = nil,
+  public func allChannelMetadata(
+    include: IncludeFields = IncludeFields(),
+    filter: String? = nil,
+    sort: String? = nil,
     limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceObjectsResponsePayload, Error>) -> Void)?
+    completion: ((Result<([PubNubChannelMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
-    fetchCustomSpaces(
-      respondWith: SpaceObject.self,
-      include: field, limit: limit,
-      start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue, completion: completion
+    let router = ObjectsChannelRouter(
+      .all(customFields: include.customFields, totalCount: include.totalCount,
+           filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end),
+      configuration: configuration
     )
+
+    route(router,
+          responseDecoder: PubNubChannelsMetadataResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { (
+        $0.payload.data,
+        try? PubNubHashedPageBase(from: $0.payload)
+      ) })
+    }
   }
 
   /// Returns the specified space object
   /// - Parameters:
   ///   - spaceID: The unique identifier of the PubNub space object to delete.
   ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fetch(
-    spaceID: String,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    channel metadataId: String,
+    include customFields: Bool = true,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceObject, Error>) -> Void)?
+    completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
-    fetchCustom(
-      spaceID: spaceID, respondWith: SpaceObject.self,
-      include: field,
-      with: networkConfiguration, respondOn: queue,
-      completion: completion
+    let router = ObjectsChannelRouter(
+      .fetch(metadataId: metadataId, customFields: customFields),
+      configuration: configuration
     )
+
+    route(router,
+          responseDecoder: PubNubChannelMetadataResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.data })
+    }
   }
 
   /// Creates a space with the specified properties
   /// - Parameters:
   ///   - space: The `PubNubSpace` protocol object to create
   ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func create(
-    space: PubNubSpace,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+  public func set(
+    channel metadata: PubNubChannelMetadata,
+    include customFields: Bool = true,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceObject, Error>) -> Void)?
+    completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
-    createCustom(space: space, respondWith: SpaceObject.self,
-                 include: field,
-                 with: networkConfiguration, respondOn: queue,
-                 completion: completion)
-  }
+    let router = ObjectsChannelRouter(
+      .set(metadata: metadata, customFields: customFields),
+      configuration: configuration
+    )
 
-  /// Updates a space with the specified properties
-  /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to update
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func update(
-    space: PubNubSpace,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceObject, Error>) -> Void)?
-  ) {
-    updateCustom(space: space, respondWith: SpaceObject.self,
-                 include: field,
-                 with: networkConfiguration, respondOn: queue,
-                 completion: completion)
+    route(router,
+          responseDecoder: PubNubChannelMetadataResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.data })
+    }
   }
 
   /// Deletes the specified space object.
   /// - Parameters:
   ///   - spaceID: The unique identifier of the PubNub space object to delete.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func delete(
-    spaceID: String,
-    with networkConfiguration: NetworkConfiguration? = nil,
+  public func remove(
+    channel metadataId: String,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<GenericServicePayloadResponse, Error>) -> Void)?
+    completion: ((Result<String, Error>) -> Void)?
   ) {
-    route(SpaceObjectsRouter(.delete(spaceID: spaceID), configuration: configuration),
-          networkConfiguration: networkConfiguration,
+    let router = ObjectsChannelRouter(
+      .remove(metadataId: metadataId),
+      configuration: configuration
+    )
+
+    route(router,
           responseDecoder: GenericServiceResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      completion?(result.map { _ in metadataId })
     }
-  }
-
-  /// Get the specified space’s member users.
-  /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchMembers(
-    spaceID: String,
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
-  ) {
-    fetchCustomMembers(
-      spaceID: spaceID, respondWith: UserMembership.self,
-      include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue,
-      completion: completion
-    )
-  }
-
-  /// Modifty the list of members for a space.
-  /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space
-  ///   - adding: A list of unique  PubNub user identifier to add
-  ///   - updating: A list of unique  PubNub user identifier to update
-  ///   - removing: A list of unique  PubNub user identifier to remove
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func modifyMembers(
-    spaceID: String,
-    adding addedUserIDs: [ObjectIdentifiable] = [],
-    updating updateUserIDs: [ObjectIdentifiable] = [],
-    removing removeUserIDs: [ObjectIdentifiable] = [],
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpaceMembershipResponsePayload, Error>) -> Void)?
-  ) {
-    modifyCustomMembers(
-      spaceID: spaceID, respondWith: UserMembership.self,
-      adding: addedUserIDs, updating: updateUserIDs, removing: removeUserIDs.map { $0.id },
-      include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue,
-      completion: completion
-    )
   }
 }
 
-// MARK: - Custom Space Objects
+// MARK: - Memberships
 
 extension PubNub {
-  /// Returns a paginated list of `SpaceObject` objects, optionally including each space's custom data object.
-  /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the spaces from
-  ///   - end: The end paging hash string to retrieve the spaces from
-  ///   - count: A flag denoting whether to return the total count of spaces
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchCustomSpaces<T: PubNubSpace>(
-    respondWith custom: T.Type,
-    include field: CustomIncludeField? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<SpacesResponsePayload<T>, Error>) -> Void)?
-  ) {
-    fetchPubNubSpaces(
-      include: field, limit: limit,
-      start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try SpacesResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Returns a paginated list of `SpaceObject` objects, optionally including each space's custom data object.
-  /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the spaces from
-  ///   - end: The end paging hash string to retrieve the spaces from
-  ///   - count: A flag denoting whether to return the total count of spaces
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchPubNubSpaces(
-    include field: CustomIncludeField? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubSpacesResponsePayload, Error>) -> Void)?
-  ) {
-    route(SpaceObjectsRouter(.fetchAll(include: field, limit: limit, start: start, end: end, count: count),
-                             configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubSpacesResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
-    }
-  }
-
-  /// Returns the specified custom Space object
-  /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space object to delete.
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchCustom<T: PubNubSpace>(
-    spaceID: String,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    fetchPubNub(spaceID: spaceID, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Returns the specified User wrapped as a `PubNubSpace` protocol
-  /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space object to delete.
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call as a `PubNubSpace`
-  public func fetchPubNub(
-    spaceID: String,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubSpace, Error>) -> Void)?
-  ) {
-    route(SpaceObjectsRouter(.fetch(spaceID: spaceID, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubSpaceResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Creates a user with the specified properties responds with a  custom typed `PubNubSpace`
-  /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to create
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func createCustom<T: PubNubSpace>(
-    space: PubNubSpace,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    createPubNub(space: space, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Creates a user with the specified properties; ; responds with a `PubNubSpace` protocol
-  /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to create
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call as a `PubNubSpace`
-  public func createPubNub(
-    space: PubNubSpace,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubSpace, Error>) -> Void)?
-  ) {
-    route(SpaceObjectsRouter(.create(space: space, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubSpaceResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Updates a user with the specified properties; responds with a  custom typed `PubNubSpace`
-  /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to update
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func updateCustom<T: PubNubSpace>(
-    space: PubNubSpace,
-    respondWith _: T.Type,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<T, Error>) -> Void)?
-  ) {
-    updatePubNub(space: space, include: field, with: networkConfiguration, respondOn: queue) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try payload.transcode())
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Updates a user with the specified properties; responds with a `PubNubSpace` protocol
-  /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to update
-  ///   - respondWith: The custom `PubNubSpace` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call as a `PubNubSpace`
-  public func updatePubNub(
-    space: PubNubSpace,
-    include field: CustomIncludeField? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubSpace, Error>) -> Void)?
-  ) {
-    route(SpaceObjectsRouter(.update(space: space, include: field), configuration: configuration),
-          networkConfiguration: networkConfiguration,
-          responseDecoder: PubNubSpaceResponseDecoder(),
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload.data })
-    }
-  }
-
-  /// Get the specified space’s member users.
-  /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space
-  ///   - respondWith: The custom `PubNubMember` type to respond with
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func fetchCustomMembers<T: PubNubMember>(
-    spaceID: String,
-    respondWith custom: T.Type,
-    include fields: [CustomIncludeField]? = nil,
-    limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MembersResponsePayload<T>, Error>) -> Void)?
-  ) {
-    fetchPubNubMembers(
-      spaceID: spaceID, include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try MembersResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
-      })
-    }
-  }
-
-  /// Get the specified user's space memberships as protocol wrapped instances
+  /// Get the specified user's space memberships.
   /// - Parameters:
   ///   - userID: The unique identifier of the PubNub user
   ///   - include: Whether to include the custom field in the fetch response
@@ -1829,107 +1194,303 @@ extension PubNub {
   ///   - start: The start paging hash string to retrieve the users from
   ///   - end: The end paging hash string to retrieve the users from
   ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result containing `PubNubMembership` instances
-  public func fetchPubNubMembers(
-    spaceID: String,
-    include fields: [CustomIncludeField]? = nil,
+  ///   - completion: The async result of the method call
+  public func fetchMemberships(
+    uuid metadataId: String,
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
     limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubMembersResponsePayload, Error>) -> Void)?
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
-    route(
-      SpaceObjectsRouter(
-        .fetchMembers(spaceID: spaceID, include: fields, limit: limit, start: start, end: end, count: count),
-        configuration: configuration
-      ),
-      networkConfiguration: networkConfiguration,
-      responseDecoder: PubNubMembersResponseDecoder(),
-      respondOn: queue
-    ) { result in
-      completion?(result.map { $0.payload })
+    let router = ObjectsMembershipsRouter(.fetchMemberships(
+      uuidMetadataId: metadataId, customFields: include.customIncludes,
+      totalCount: include.totalCount, filter: filter, sort: sort,
+      limit: limit, start: page?.start, end: page?.end
+    ),
+                                          configuration: configuration)
+
+    route(router,
+          responseDecoder: PubNubMembershipsResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { response in
+        (
+          response.payload.data.compactMap {
+            PubNubMembershipMetadataBase(from: $0, other: metadataId)
+          },
+          try? PubNubHashedPageBase(from: response.payload)
+        )
+      })
     }
   }
 
-  /// Modifty the list of members for a space.
+  /// Get the specified user's space memberships.
   /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space
-  ///   - respondWith: The custom `PubNubMember` type to respond with
-  ///   - adding: A list of unique  PubNub user identifier to add
-  ///   - updating: A list of unique  PubNub user identifier to update
-  ///   - removing: A list of unique  PubNub user identifier to remove
+  ///   - userID: The unique identifier of the PubNub user
   ///   - include: Whether to include the custom field in the fetch response
   ///   - limit: The number of objects to retrieve at a time
   ///   - start: The start paging hash string to retrieve the users from
   ///   - end: The end paging hash string to retrieve the users from
   ///   - count: A flag denoting whether to return the total count of users
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func modifyCustomMembers<T: PubNubMember>(
-    spaceID: String,
-    respondWith custom: T.Type,
-    adding addingUserIDs: [ObjectIdentifiable] = [],
-    updating updateUserIDs: [ObjectIdentifiable] = [],
-    removing removingUserIDs: [String] = [],
-    include fields: [CustomIncludeField]? = nil,
+  public func fetchMembers(
+    channel metadataId: String,
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
     limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MembersResponsePayload<T>, Error>) -> Void)?
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
-    modifyPubNubMembers(
-      spaceID: spaceID,
-      adding: addingUserIDs, updating: updateUserIDs, removing: removingUserIDs,
-      include: fields, limit: limit, start: start, end: end, count: count,
-      with: networkConfiguration, respondOn: queue
-    ) { result in
-      completion?(result.flatMap { payload in
-        do {
-          return .success(try MembersResponsePayload(protocol: payload, into: custom))
-        } catch {
-          return .failure(error)
-        }
+    let router = ObjectsMembershipsRouter(.fetchMembers(
+      channelMetadataId: metadataId, customFields: include.customIncludes,
+      totalCount: include.totalCount, filter: filter, sort: sort,
+      limit: limit, start: page?.start, end: page?.end
+    ),
+                                          configuration: configuration)
+
+    route(router,
+          responseDecoder: PubNubMembershipsResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { response in
+        (
+          response.payload.data.compactMap {
+            PubNubMembershipMetadataBase(from: $0, other: metadataId)
+          },
+          try? PubNubHashedPageBase(from: response.payload)
+        )
       })
     }
   }
 
-  public func modifyPubNubMembers(
-    spaceID: String,
-    adding addingUserIDs: [ObjectIdentifiable] = [],
-    updating updateUserIDs: [ObjectIdentifiable] = [],
-    removing removingUserIDs: [String] = [],
-    include fields: [CustomIncludeField]? = nil,
+  /// Get the specified user's space memberships.
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func setMemberships(
+    uuid metadataId: String,
+    channels memberships: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
     limit: Int? = nil,
-    start: String? = nil,
-    end: String? = nil,
-    count: Bool? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PubNubMembersResponsePayload, Error>) -> Void)?
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
-    route(
-      SpaceObjectsRouter(
-        .modifyMembers(
-          spaceID: spaceID,
-          adding: addingUserIDs, updating: updateUserIDs, removing: removingUserIDs,
-          include: fields, limit: limit, start: start, end: end, count: count
-        ),
-        configuration: configuration
+    manageMemberships(
+      uuid: metadataId, setting: memberships, removing: [],
+      include: include, filter: filter, sort: sort, limit: limit, page: page,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Get the specified user's space memberships.
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removeMemberships(
+    uuid metadataId: String,
+    channels memberships: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+  ) {
+    manageMemberships(
+      uuid: metadataId, setting: [], removing: memberships,
+      include: include, filter: filter, sort: sort, limit: limit, page: page,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Modifty the list of space memberships for a given user
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - seting: The list of space identifiers to update for the user
+  ///   - removing: The list of space identifiers to remove the user from
+  ///   - include: List of custom fields (if any) to include in the response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func manageMemberships(
+    uuid metadataId: String,
+    setting channelMembershipSets: [PubNubMembershipMetadata],
+    removing channelMembershipDeletes: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+  ) {
+    let router = ObjectsMembershipsRouter(.setMemberships(
+      uuidMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
+      changes: .init(
+        set: channelMembershipSets.map { .init(metadataId: $0.channelMetadataId, custom: $0.custom) },
+        delete: channelMembershipDeletes.map { .init(metadataId: $0.channelMetadataId, custom: $0.custom) }
       ),
-      networkConfiguration: networkConfiguration,
-      responseDecoder: PubNubMembersResponseDecoder(),
-      respondOn: queue
-    ) { result in
-      completion?(result.map { $0.payload })
+      filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end
+    ), configuration: configuration)
+
+    route(router,
+          responseDecoder: PubNubMembershipsResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { response in
+        (
+          response.payload.data.compactMap {
+            PubNubMembershipMetadataBase(from: $0, other: metadataId)
+          },
+          try? PubNubHashedPageBase(from: response.payload)
+        )
+      })
+    }
+  }
+
+  /// Get the specified user's space memberships.
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func setMembers(
+    channel metadataId: String,
+    uuids members: [PubNubMembershipMetadata],
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+  ) {
+    manageMembers(
+      channel: metadataId, setting: members, removing: [],
+      include: include, filter: filter, sort: sort, limit: limit, page: page,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Get the specified user's space memberships.
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - include: Whether to include the custom field in the fetch response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removeMembers(
+    channel metadataId: String,
+    uuids members: [PubNubMembershipMetadata],
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+  ) {
+    manageMembers(
+      channel: metadataId, setting: [], removing: members,
+      include: include, filter: filter, sort: sort, limit: limit, page: page,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Modifty the list of space memberships for a given user
+  /// - Parameters:
+  ///   - userID: The unique identifier of the PubNub user
+  ///   - seting: The list of space identifiers to update for the user
+  ///   - removing: The list of space identifiers to remove the user from
+  ///   - include: List of custom fields (if any) to include in the response
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - start: The start paging hash string to retrieve the users from
+  ///   - end: The end paging hash string to retrieve the users from
+  ///   - count: A flag denoting whether to return the total count of users
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func manageMembers(
+    channel metadataId: String,
+    setting uuidMembershipSets: [PubNubMembershipMetadata],
+    removing uuidMembershipDeletes: [PubNubMembershipMetadata],
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: String? = nil,
+    limit: Int? = nil,
+    page: Page? = nil,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+  ) {
+    let router = ObjectsMembershipsRouter(.setMembers(
+      channelMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
+      changes: .init(
+        set: uuidMembershipSets.map { .init(metadataId: $0.uuidMetadataId, custom: $0.custom) },
+        delete: uuidMembershipDeletes.map { .init(metadataId: $0.uuidMetadataId, custom: $0.custom) }
+      ),
+      filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end
+    ), configuration: configuration)
+
+    route(router,
+          responseDecoder: PubNubMembershipsResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { response in
+        (
+          response.payload.data.compactMap {
+            PubNubMembershipMetadataBase(from: $0, other: metadataId)
+          },
+          try? PubNubHashedPageBase(from: response.payload)
+        )
+      })
     }
   }
 }
@@ -1943,7 +1504,7 @@ extension PubNub {
   ///   - start: Action timetoken denoting the start of the range requested (exclusive).
   ///   - end: Action timetoken denoting the end of the range requested (inclusive).
   ///   - limit: The max number of message actions to retrieve per request
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func fetchMessageActions(
@@ -1951,41 +1512,69 @@ extension PubNub {
     start: Timetoken? = nil,
     end: Timetoken? = nil,
     limit: Int? = nil,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MessageActionsResponsePayload, Error>) -> Void)?
+    completion: ((Result<([PubNubMessageAction], PubNubBoundedPage?), Error>) -> Void)?
   ) {
     route(MessageActionsRouter(.fetch(channel: channel, start: start, end: end, limit: limit),
                                configuration: configuration),
-          networkConfiguration: networkConfiguration,
           responseDecoder: MessageActionsResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      switch result {
+      case let .success(response):
+        completion?(.success((
+          response.payload.actions.map { PubNubMessageActionBase(from: $0, on: channel) },
+          PubNubBoundedPageBase(
+            start: response.payload.start, end: response.payload.end, limit: response.payload.limit
+          )
+        )))
+      case let .failure(error):
+        completion?(.failure(error))
+      }
     }
   }
 
   /// Add an Action to a parent Message
   /// - Parameters:
   ///   - channel: The name of the channel
-  ///   - message: The Message Action to associate with a Message
+  ///   - type: The Message Action's type
+  ///   - value: The Message Action's value
   ///   - messageTimetoken: The publish timetoken of a parent message.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func addMessageAction(
     channel: String,
-    message: MessageAction,
+    type actionType: String, value: String,
     messageTimetoken: Timetoken,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<MessageActionResponsePayload, Error>) -> Void)?
+    completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
-    route(MessageActionsRouter(.add(channel: channel, message: message, timetoken: messageTimetoken),
-                               configuration: configuration),
-          networkConfiguration: networkConfiguration,
+    let router = MessageActionsRouter(
+      .add(channel: channel, type: actionType, value: value, timetoken: messageTimetoken), configuration: configuration
+    )
+
+    route(router,
           responseDecoder: MessageActionResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      switch result {
+      case let .success(response):
+
+        if let errorPayload = response.payload.error {
+          let error = PubNubError(
+            reason: errorPayload.message.pubnubReason, router: router,
+            request: response.request, response: response.response,
+            additional: errorPayload.details
+          )
+          completion?(.failure(error))
+        }
+        completion?(.success(PubNubMessageActionBase(from: response.payload.data, on: channel)))
+      case let .failure(error):
+        completion?(.failure(error))
+      }
     }
   }
 
@@ -1994,23 +1583,41 @@ extension PubNub {
   ///   - channel: The name of the channel
   ///   - message: The publish timetoken of a parent message.
   ///   - action: The action timetoken of a message action to be removed.
-  ///   - with: Additional network configuration to use on the request
+  ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func removeMessageActions(
     channel: String,
     message timetoken: Timetoken,
     action actionTimetoken: Timetoken,
-    with networkConfiguration: NetworkConfiguration? = nil,
+    using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<DeleteResponsePayload, Error>) -> Void)?
+    completion: ((Result<(String, Timetoken, Timetoken), Error>) -> Void)?
   ) {
-    route(MessageActionsRouter(.remove(channel: channel, message: timetoken, action: actionTimetoken),
-                               configuration: configuration),
-          networkConfiguration: networkConfiguration,
+    let router = MessageActionsRouter(
+      .remove(channel: channel, message: timetoken, action: actionTimetoken),
+      configuration: configuration
+    )
+
+    route(router,
           responseDecoder: DeleteResponseDecoder(),
+          using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+      switch result {
+      case let .success(response):
+        if let errorPayload = response.payload.error {
+          let error = PubNubError(
+            reason: errorPayload.message.pubnubReason, router: router,
+            request: response.request, response: response.response,
+            additional: errorPayload.details
+          )
+          completion?(.failure(error))
+        }
+
+        completion?(.success((channel, timetoken, actionTimetoken)))
+      case let .failure(error):
+        completion?(.failure(error))
+      }
     }
   }
 }

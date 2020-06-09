@@ -81,7 +81,7 @@ public struct PubNubFCMPayload: Codable {
     target = try? FCMTarget(from: decoder)
 
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    payload = try container.decode(AnyJSON.self, forKey: .payload)
+    payload = try container.decodeIfPresent(AnyJSON.self, forKey: .payload)
     notification = try container.decode(FCMNotificationPayload.self, forKey: .notification)
     android = try container.decodeIfPresent(FCMAndroidPayload.self, forKey: .android)
     webpush = try container.decodeIfPresent(FCMWebpushConfig.self, forKey: .webpush)
@@ -91,9 +91,7 @@ public struct PubNubFCMPayload: Codable {
 
   public func encode(to encoder: Encoder) throws {
     // Preserve the key names of target
-    if let target = target {
-      try target.encode(to: encoder)
-    }
+    try target?.encode(to: encoder)
 
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(payload?.codableValue, forKey: .payload)

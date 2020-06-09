@@ -68,6 +68,10 @@ public struct ErrorDescription {
   public static let messageHistoryNotEnabled: String = {
     "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
   }()
+
+  public static let cryptoStringEncodeFailed: String = {
+    "Decrypted payload failed to String encode using default Coder string encoding"
+  }()
 }
 
 extension ErrorDescription {
@@ -111,44 +115,20 @@ extension ErrorDescription {
     "Device Token is an empty `Data`"
   }()
 
-  public static let emptySpaceID: String = {
-    "SpaceID is an empty `String`"
+  public static let emptyUUIDMetadataId: String = {
+    "The UUID MetadataId `String` cannot be empty"
   }()
 
-  public static let invalidPubNubSpace: String = {
-    "The Object is not a valid `PubNubSpace`"
+  public static let invalidUUIDMetadata: String = {
+    "The Object is not valid UUID Metadata"
   }()
 
-  public static let emptyUserID: String = {
-    "UserID is an empty `String`"
+  public static let emptyChannelMetadataId: String = {
+    "The Channel MetadataId `String` cannot be empty"
   }()
 
-  public static let invalidPubNubUser: String = {
-    "The Object is not a valid `PubNubUser`"
-  }()
-
-  public static let invalidJoiningMember: String = {
-    "A joining Member Object is not valid"
-  }()
-
-  public static let invalidUpdatingMember: String = {
-    "An updating Member Object is not valid"
-  }()
-
-  public static let invalidLeavingMember: String = {
-    "A removing Member Object is not valid"
-  }()
-
-  public static let invalidJoiningMembership: String = {
-    "A joining Membership Object is not valid"
-  }()
-
-  public static let invalidUpdatingMembership: String = {
-    "An updating Membership Object is not valid"
-  }()
-
-  public static let invalidLeavingMembership: String = {
-    "A removing Membership Object is not valid"
+  public static let invalidChannelMetadata: String = {
+    "The Object is not a valid Channel Metadata"
   }()
 }
 
@@ -323,7 +303,9 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .nothingToDelete:
       return "There was nothing to delete"
     case .unknown:
-      return "Reason unknown"
+      return "Reason could not be parsed from existing strings"
+    case .failedToPublish:
+      return "The operation successfully stored the value, but failed to publish"
     }
   }
 

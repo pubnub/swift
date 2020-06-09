@@ -1,4 +1,19 @@
 {
   "code": 200,
-  "body": {"status": 200, "error": false, "error_message": "", "channels": {"TestChannel":[{"message":"Hello","timetoken":"15653750239963666"},{"message":"Hello","timetoken":"15654070724737575"}]}}
+  "body": {
+    "status": 200,
+    "error": false,
+    "error_message": "",
+    "channels": {
+      "TestChannel":[
+        {
+          "message":"Hello",
+          "timetoken":"15653750239963666"
+        },{
+          "message":"Hello",
+          "timetoken":"15654070724737575"
+        }
+      ]
+    }
+  }
 }

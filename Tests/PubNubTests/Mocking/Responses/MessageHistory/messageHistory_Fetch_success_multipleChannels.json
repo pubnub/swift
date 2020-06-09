@@ -1,4 +1,33 @@
 {
   "code": 200,
-  "body": {"status": 200, "error": false, "error_message": "", "channels": {"otherChannel":[{"message":"TestMessage","meta":{"metaKey": "Value"},"timetoken":"15654811413997357"}],"TestChannel":[{"message":"Hello","meta":"","timetoken":"15654070724737575"},{"message":"Hello","meta":{"metaKey": "Value"},"timetoken":"15654771042808477"}]}}
+  "body": {
+    "status": 200,
+    "error": false,
+    "error_message": "",
+    "channels": {
+      "otherChannel": [
+        {
+          "message":"TestMessage",
+          "meta": {
+            "metaKey": "Value"
+          },
+          "timetoken":"15654811413997357"
+        }
+      ],
+      "TestChannel":[
+        {
+          "message":"Hello",
+          "meta":"",
+          "timetoken":"15654070724737575"
+        },
+        {
+          "message":"Hello",
+          "meta": {
+            "metaKey": "Value"
+          },
+          "timetoken":"15654771042808477"
+        }
+      ]
+    }
+  }
 }

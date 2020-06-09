@@ -92,12 +92,16 @@ class SubscriptionIntegrationTests: XCTestCase {
     listener.didReceiveSubscription = { [unowned self] event in
       switch event {
       case let .subscriptionChanged(status):
-//        print("subscriptionChanged: \(status) for current list \(pubnub.subscribedChannels)")
+//        print("subscriptionChanged: \(status)")
         switch status {
         case let .subscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self.testChannel }))
           XCTAssertTrue(pubnub.subscribedChannels.contains(self.testChannel))
           subscribeExpect.fulfill()
+        case let .responseHeader(channels, _, _, next):
+          XCTAssertTrue(channels.contains(where: { $0.id == self.testChannel }))
+//          print("channels: \(channels) previous: \(previous?.timetoken) next: \(next?.timetoken)")
+          XCTAssertEqual(pubnub.previousTimetoken, next?.timetoken)
         case let .unsubscribed(channels, _):
           XCTAssertTrue(channels.contains(where: { $0.id == self.testChannel }))
           XCTAssertFalse(pubnub.subscribedChannels.contains(self.testChannel))

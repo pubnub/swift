@@ -36,10 +36,10 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    client.fetchUsers(include: .custom, limit: 100, count: true) { result in
+    client.allUUIDMetadata() { result in
       switch result {
-      case let .success(response):
-        XCTAssertTrue(response.totalCount ?? 0 >= response.users.count)
+      case let .success((users, nextPage)):
+        XCTAssertTrue(nextPage?.totalCount ?? 0 >= users.count)
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
@@ -54,13 +54,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "testUserCreateAndFetchEndpoint")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest"
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.fetch(userID: user.id) { result in
+    client.set(uuid: testUser) { _ in
+      client.fetch(uuid: testUser.metadataId) { result in
         switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "testUserCreateAndFetchEndpoint")
+        case let .success(user):
+          XCTAssertEqual(user.metadataId, testUser.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -76,35 +78,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "testUserDeleteAndCreateEndpoint")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testUserDeleteAndCreateEndpoint", name: "Swift ITest"
+    )
 
-    client.delete(userID: user.id) { _ in
-      client.create(user: user, include: .custom) { result in
+    client.remove(uuid: testUser.metadataId) { _ in
+      client.set(uuid: testUser) { result in
         switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "testUserDeleteAndCreateEndpoint")
-        case let .failure(error):
-          XCTFail("Failed due to error: \(error)")
-        }
-        fetchExpect.fulfill()
-      }
-    }
-
-    wait(for: [fetchExpect], timeout: 10.0)
-  }
-
-  func testUserCreateAndUpdateEndpoint() {
-    let fetchExpect = expectation(description: "Update User Expectation")
-
-    let client = PubNub(configuration: config)
-
-    let user = UserObject(name: "Swift ITest", id: "testUserCreateAndUpdateEndpoint")
-
-    client.create(user: user, include: .custom) { _ in
-      client.update(user: user, include: .custom) { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.id, "testUserCreateAndUpdateEndpoint")
+        case let .success(user):
+          XCTAssertEqual(user.metadataId, testUser.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -120,13 +102,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "testUserCreateAndDeleteEndpoint")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testUserCreateAndDeleteEndpoint", name: "Swift ITest"
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.delete(userID: user.id) { result in
+    client.set(uuid: testUser) { _ in
+      client.remove(uuid: testUser.metadataId) { result in
         switch result {
-        case let .success(response):
-          XCTAssertTrue(response.message == .acknowledge)
+        case let .success(userMetadataId):
+          XCTAssertTrue(userMetadataId == testUser.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -142,19 +126,38 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "testUserFetchMemberships")
-    let space = SpaceObject(name: "Swift Membership ITest", id: "testUserFetchMembershipsSpace")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testUserFetchMemberships", name: "Swift ITest"
+    )
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testUserFetchMembershipsSpace", name: "Swift Membership ITest"
+    )
+    let membership = PubNubMembershipMetadataBase(
+      uuidMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      uuid: testUser, channel: testChannel
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.create(space: space, include: .custom) { _ in
-        client.fetchMemberships(userID: user.id, include: [.custom, .customSpace]) { result in
-          switch result {
-          case let .success(response):
-            XCTAssertEqual(response.status, 200)
-          case let .failure(error):
-            XCTFail("Failed due to error: \(error)")
+
+    client.set(uuid: testUser) { _ in
+      client.set(channel: testChannel) { _ in
+        client.setMemberships(uuid: testUser.metadataId, channels: [membership]) { _ in
+          client.fetchMemberships(
+            uuid: testUser.metadataId,
+            include: .init(channelFields: true, channelCustomFields: true)
+          ) { result in
+            switch result {
+            case let .success((memberships, _)):
+              XCTAssertTrue(
+                memberships.contains(where:
+                  { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                )
+              )
+            case let .failure(error):
+              XCTFail("Failed due to error: \(error)")
+            }
+            fetchMembershipExpect.fulfill()
           }
-          fetchMembershipExpect.fulfill()
         }
       }
     }
@@ -167,18 +170,32 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let user = UserObject(name: "Swift ITest", id: "testUpdateMemberships")
-    let space = SpaceObject(name: "Swift Membership ITest", id: "testUpdateMembershipsSpace")
+    let testUser = PubNubUUIDMetadataBase(
+      metadataId: "testUpdateMemberships", name: "Swift ITest"
+    )
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: "testUpdateMembershipsSpace", name: "Swift Membership ITest"
+    )
+    let membership = PubNubMembershipMetadataBase(
+      uuidMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      uuid: testUser, channel: testChannel
+    )
 
-    client.create(user: user, include: .custom) { _ in
-      client.create(space: space, include: .custom) { _ in
-        client.modifyMemberships(userID: user.id,
-                                 joining: [space],
-                                 leaving: [space],
-                                 include: [.custom, .customSpace]) { result in
+    client.set(uuid: testUser) { _ in
+      client.set(channel: testChannel) { _ in
+        client.manageMemberships(
+          uuid: testUser.metadataId,
+          setting: [membership],
+          removing: [membership]
+        ) { result in
           switch result {
-          case let .success(response):
-            XCTAssertEqual(response.status, 200)
+          case let .success((memberships, _)):
+            XCTAssertTrue(
+              memberships.contains(where:
+                { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+              )
+            )
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

@@ -489,10 +489,10 @@ public struct HereNowUUIDPayload: Codable, Equatable {
 
 // MARK: Where Now Response
 
-public typealias WhereNowResponsePayload = AnyPresencePayload<WhereNowPayload>
+typealias WhereNowResponsePayload = AnyPresencePayload<WhereNowPayload>
 
-public struct WhereNowPayload: Codable {
-  public let channels: [String]
+struct WhereNowPayload: Codable {
+  let channels: [String]
 }
 
 struct SetPresenceStateResponseDecoder: ResponseDecoder {

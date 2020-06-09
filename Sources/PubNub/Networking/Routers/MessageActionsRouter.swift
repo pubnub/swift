@@ -31,9 +31,9 @@ import Foundation
 
 struct MessageActionsRouter: HTTPRouter {
   // Nested Endpoint
-  enum Endpoint: CustomStringConvertible {
+  enum Endpoint: CaseAccessible, CustomStringConvertible {
     case fetch(channel: String, start: Timetoken?, end: Timetoken?, limit: Int?)
-    case add(channel: String, message: MessageAction, timetoken: Timetoken)
+    case add(channel: String, type: String, value: String, timetoken: Timetoken)
     case remove(channel: String, message: Timetoken, action: Timetoken)
 
     var description: String {
@@ -45,6 +45,16 @@ struct MessageActionsRouter: HTTPRouter {
       case .remove:
         return "Remove a Message Action"
       }
+    }
+  }
+
+  struct AddRequestBody: Codable, Hashable {
+    let type: String
+    let value: String
+
+    init(type: String, value: String) {
+      self.type = type
+      self.value = value
     }
   }
 
@@ -72,7 +82,7 @@ struct MessageActionsRouter: HTTPRouter {
     switch endpoint {
     case let .fetch(channel, _, _, _):
       path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)"
-    case let .add(channel, _, timetoken):
+    case let .add(channel, _, _, timetoken):
       path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(timetoken)"
     case let .remove(channel, message, action):
       path = "/v1/message-actions/\(subscribeKey)/channel/\(channel)/message/\(message)/action/\(action)"
@@ -112,8 +122,9 @@ struct MessageActionsRouter: HTTPRouter {
     switch endpoint {
     case .fetch:
       return .success(nil)
-    case let .add(_, message, _):
-      return message.concreteType.encodableJSONData.map { .some($0) }
+    case let .add(_, actionType, actionValue, _):
+      return AddRequestBody(type: actionType, value: actionValue)
+        .encodableJSONData.map { .some($0) }
     case .remove:
       return .success(nil)
     }
@@ -124,50 +135,17 @@ struct MessageActionsRouter: HTTPRouter {
     switch endpoint {
     case let .fetch(channel, _, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
-    case let .add(channel, message, _):
+    case let .add(channel, actionType, actionValue, _):
       return isInvalidForReason(
         (channel.isEmpty, ErrorDescription.emptyChannelString),
-        (!message.isValid, ErrorDescription.invalidMessageAction)
+        (actionType.isEmpty, ErrorDescription.invalidMessageAction),
+        (actionValue.isEmpty, ErrorDescription.invalidMessageAction)
       )
     case let .remove(channel, _, _):
       return isInvalidForReason(
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
     }
-  }
-}
-
-// MARK: - Request Object
-
-/// A MessageAction that can be associated with a published message
-public protocol MessageAction: Validated {
-  /// The type of action (e.g. reaction)
-  var type: String { get }
-  /// The value of the action (e.g. smiley_face)
-  var value: String { get }
-}
-
-extension MessageAction {
-  public var validationError: Error? {
-    if type.isEmpty || value.isEmpty {
-      return PubNubError(.missingRequiredParameter)
-    }
-
-    return nil
-  }
-
-  public var concreteType: ConcreteMessageAction {
-    return ConcreteMessageAction(type: type, value: value)
-  }
-}
-
-public struct ConcreteMessageAction: MessageAction, Codable, Hashable {
-  public let type: String
-  public let value: String
-
-  public init(type: String, value: String) {
-    self.type = type
-    self.value = value
   }
 }
 
@@ -187,77 +165,22 @@ struct DeleteResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-public struct MessageActionsResponsePayload: Codable, Hashable {
-  public let actions: [MessageActionPayload]
-
-  public let start: Timetoken?
-  public let end: Timetoken?
-  public let limit: Int?
-
-  enum CodingKeys: String, CodingKey {
-    case actions = "data"
-    case start
-    case end
-    case limit
-    case more
-  }
-
-  public init(
-    actions: [MessageActionPayload],
-    start: Timetoken? = nil,
-    end: Timetoken? = nil,
-    limit: Int? = nil
-  ) {
-    self.actions = actions
-    self.start = start
-    self.end = end
-    self.limit = limit
-  }
-
-  init(actions: [MessageActionPayload], more: MessageActionMorePaylaod? = nil) {
-    self.actions = actions
-    start = more?.start
-    end = more?.end
-    limit = more?.limit
-  }
-
-  public init(from decoder: Decoder) throws {
-    // Check if container is keyed or unkeyed
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    actions = try container.decode([MessageActionPayload].self, forKey: .actions)
-    let more = try container.decodeIfPresent(MessageActionMorePaylaod.self, forKey: .more)
-    start = more?.start
-    end = more?.end
-    limit = more?.limit
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(actions, forKey: .actions)
-    try container.encode(start, forKey: .start)
-    try container.encode(end, forKey: .end)
-    try container.encode(limit, forKey: .limit)
-  }
-}
-
-public struct MessageActionResponsePayload: Codable, Hashable {
-  public let action: MessageActionPayload
-  public let error: ErrorPayload?
+struct MessageActionPayload: Codable, Hashable {
+  let uuid: String
+  let type: String
+  let value: String
+  let actionTimetoken: Timetoken
+  let messageTimetoken: Timetoken
 
   enum CodingKeys: String, CodingKey {
-    case action = "data"
-    case error
+    case uuid
+    case type
+    case value
+    case actionTimetoken
+    case messageTimetoken
   }
-}
 
-public struct MessageActionPayload: Codable, Hashable {
-  public let uuid: String
-  public let type: String
-  public let value: String
-  public let actionTimetoken: Timetoken
-  public let messageTimetoken: Timetoken
-
-  public init(
+  init(
     uuid: String = UUID().uuidString,
     type: String,
     value: String,
@@ -271,7 +194,7 @@ public struct MessageActionPayload: Codable, Hashable {
     self.messageTimetoken = messageTimetoken
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     uuid = try container.decode(String.self, forKey: .uuid)
@@ -283,35 +206,79 @@ public struct MessageActionPayload: Codable, Hashable {
     let messageTimetoken = try container.decode(String.self, forKey: .messageTimetoken)
     self.messageTimetoken = Timetoken(messageTimetoken) ?? 0
   }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(uuid, forKey: .uuid)
+    try container.encode(type, forKey: .type)
+    try container.encode(value, forKey: .value)
+    try container.encode(actionTimetoken.description, forKey: .actionTimetoken)
+    try container.encode(messageTimetoken.description, forKey: .messageTimetoken)
+  }
 }
 
-struct MessageActionMorePaylaod: Codable, Hashable {
+// MARK: Fetch Message Action Response
+
+struct MessageActionsResponsePayload: Codable, Hashable {
+  let actions: [MessageActionPayload]
   let start: Timetoken?
   let end: Timetoken?
   let limit: Int?
 
-  init(start: Timetoken?, end: Timetoken?, limit: Int?) {
+  enum CodingKeys: String, CodingKey {
+    case data
+    case more
+  }
+
+  enum MoreCodingKeys: String, CodingKey {
+    case start
+    case end
+    case limit
+  }
+
+  init(
+    actions: [MessageActionPayload],
+    start: Timetoken? = nil,
+    end: Timetoken? = nil,
+    limit: Int? = nil
+  ) {
+    self.actions = actions
     self.start = start
     self.end = end
     self.limit = limit
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
+    actions = try container.decode([MessageActionPayload].self, forKey: .data)
 
-    let start = try container.decodeIfPresent(String.self, forKey: .start) ?? ""
-    self.start = Timetoken(start)
-    let end = try container.decodeIfPresent(String.self, forKey: .end) ?? ""
-    self.end = Timetoken(end)
-    limit = try container.decodeIfPresent(Int.self, forKey: .limit)
+    let pageContainer = try? container.nestedContainer(keyedBy: MoreCodingKeys.self, forKey: .more)
+    start = Timetoken(try pageContainer?.decodeIfPresent(String.self, forKey: .start) ?? "")
+    end = Timetoken(try pageContainer?.decodeIfPresent(String.self, forKey: .end) ?? "")
+    limit = try pageContainer?.decodeIfPresent(Int.self, forKey: .limit)
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(actions, forKey: .data)
+
+    var pageContainer = container.nestedContainer(keyedBy: MoreCodingKeys.self, forKey: .more)
+    try pageContainer.encodeIfPresent(start?.description, forKey: .start)
+    try pageContainer.encodeIfPresent(end?.description, forKey: .end)
+    try pageContainer.encodeIfPresent(limit, forKey: .limit)
   }
 }
 
-public struct DeleteResponsePayload: Codable, Hashable {
-  let status: Int
-  public let error: ErrorPayload?
+// MARK: Add Message Action Response
 
-  public var message: EndpointResponseMessage {
-    return .acknowledge
-  }
+struct MessageActionResponsePayload: Codable, Hashable {
+  let data: MessageActionPayload
+  let error: ErrorPayload?
+}
+
+// MARK: Delete Response
+
+struct DeleteResponsePayload: Codable, Hashable {
+  let status: Int
+  let error: ErrorPayload?
 }

@@ -5,7 +5,7 @@
     "data": {
       "type": "reaction",
       "value": "smiley_face",
-      "uuid": "user-456",
+      "uuid": "testUser",
       "actionTimetoken": "15610547826970050",
       "messageTimetoken": "15610547826969050"
     },

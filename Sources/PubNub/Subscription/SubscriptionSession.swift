@@ -145,8 +145,8 @@ public class SubscriptionSession {
       return
     }
 
-    let channelObject = channels.map { PubNubChannel(id: $0, state: presenceState[$0], withPresence: withPresence) }
-    let groupObjects = groups.map { PubNubChannel(id: $0, state: presenceState[$0], withPresence: withPresence) }
+    let channelObject = channels.map { PubNubChannel(id: $0, withPresence: withPresence) }
+    let groupObjects = groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
 
     // Don't attempt to start subscription if there are no changes
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
@@ -162,24 +162,24 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange || !connectionStatus.isActive {
-      reconnect(at: timetoken)
+      reconnect(at: timetoken, passing: presenceState)
     }
   }
 
   /// Reconnect a disconnected subscription stream
   /// - parameter timetoken: The timetoken to subscribe with
-  public func reconnect(at timetoken: Timetoken?) {
+  public func reconnect(at timetoken: Timetoken?, passing state: [String: [String: JSONCodable]]? = nil) {
     if !connectionStatus.isActive {
       connectionStatus = .connecting
 
       // Start subscribe loop
-      performSubscribeLoop(at: timetoken)
+      performSubscribeLoop(at: timetoken, passing: state)
 
       // Start presence heartbeat
       registerHeartbeatTimer()
     } else {
       // Start subscribe loop
-      performSubscribeLoop(at: timetoken)
+      performSubscribeLoop(at: timetoken, passing: state)
     }
   }
 
@@ -198,14 +198,10 @@ public class SubscriptionSession {
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
-  func performSubscribeLoop(at timetoken: Timetoken?) {
-    let (channels, groups, storedState) = internalState
-      .lockedWrite { state -> ([String], [String], [String: [String: JSONCodable]]?) in
-
-        (state.allSubscribedChannels,
-         state.allSubscribedGroups,
-         state.subscribedState)
-      }
+  func performSubscribeLoop(at timetoken: Timetoken?, passing state: [String: [String: JSONCodable]]? = nil) {
+    let (channels, groups) = internalState.lockedWrite { state -> ([String], [String]) in
+      (state.allSubscribedChannels, state.allSubscribedGroups)
+    }
 
     // Don't start subscription if there no channels/groups
     if channels.isEmpty, groups.isEmpty {
@@ -215,7 +211,7 @@ public class SubscriptionSession {
     // Create Endpoing
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: timetoken,
                                             region: previousTokenResponse?.region.description,
-                                            state: storedState, heartbeat: configuration.durationUntilTimeout,
+                                            state: state, heartbeat: configuration.durationUntilTimeout,
                                             filter: configuration.filterExpression),
                                  configuration: configuration)
 
@@ -273,12 +269,6 @@ public class SubscriptionSession {
                 self?.messageCache.remove(at: 0)
               }
             case let .presence(presence):
-              // If the state chage is for this user we should update our internal cache
-              if presence.payload.channelState.keys.contains(strongSelf.configuration.uuid) {
-                self?.internalState.lockedWrite { $0.findAndUpdate(presence.channel.trimmingPresenceChannelSuffix,
-                                                                   state: presence.payload.channelState) }
-              }
-
               self?.notify { $0.emitDidReceive(subscription: .presenceChanged(presence)) }
             case let .object(object):
               do {

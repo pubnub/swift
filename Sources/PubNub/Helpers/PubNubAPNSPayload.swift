@@ -104,7 +104,7 @@ public struct PubNubAPNSPayload: Codable {
   /// The message being sent inside the remote notification
   ///
   /// In order to guarantee valid JSON any scalar values will be assigned to the `data` key.  Non-scalar values will retain their coding keys.
-  public let payload: JSONCodable
+  public let payload: JSONCodable?
 
   enum CodingKeys: String, CodingKey {
     case aps
@@ -112,7 +112,7 @@ public struct PubNubAPNSPayload: Codable {
     case payload = "data"
   }
 
-  public init(aps: APSPayload, pubnub: [PubNubPushConfig], payload: JSONCodable) {
+  public init(aps: APSPayload, pubnub: [PubNubPushConfig], payload: JSONCodable?) {
     self.aps = aps
     self.pubnub = pubnub
     self.payload = payload
@@ -122,11 +122,11 @@ public struct PubNubAPNSPayload: Codable {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     aps = try container.decode(APSPayload.self, forKey: .aps)
     pubnub = try container.decode([PubNubPushConfig].self, forKey: .pubnub)
-    payload = try container.decode(AnyJSON.self, forKey: .payload)
+    payload = try container.decodeIfPresent(AnyJSON.self, forKey: .payload)
   }
 
   public func encode(to encoder: Encoder) throws {
-    if !payload.codableValue.isScalar {
+    if let payload = payload, !payload.codableValue.isScalar {
       try payload.codableValue.encode(to: encoder)
     }
 
@@ -134,7 +134,7 @@ public struct PubNubAPNSPayload: Codable {
     try container.encode(aps, forKey: .aps)
     try container.encode(pubnub, forKey: .pubnub)
 
-    if payload.codableValue.isScalar {
+    if let payload = payload, payload.codableValue.isScalar {
       try container.encode(payload.codableValue, forKey: .payload)
     }
   }

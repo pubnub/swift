@@ -81,59 +81,22 @@ public struct SubscriptionState {
   public var totalSubscribedCount: Int {
     return channels.count + groups.count
   }
-
-  /// The combined state of all channels and groups
-  public var subscribedState: [String: [String: JSONCodable]] {
-    var state = [String: [String: JSONCodable]]()
-
-    channels.forEach { _, channel in
-      if let channelState = channel.state {
-        state[channel.id] = channelState
-      }
-    }
-
-    groups.forEach { _, group in
-      if let channelState = group.state {
-        state[group.id] = channelState
-      }
-    }
-
-    return state
-  }
-
-  /// Search for and update a channel name matching the id with the provided states
-  ///
-  /// This will replace the existing state for the channel
-  public mutating func findAndUpdate(_ id: String, state: [String: JSONCodable]) {
-    if var channelMatch = channels[id] {
-      channelMatch.state = state
-      channels[channelMatch.id] = channelMatch
-    } else if var groupMatch = groups[id] {
-      groupMatch.state = state
-      groups[groupMatch.id] = groupMatch
-    } else {
-      PubNub.log.debug("Attempted to updated state of an unsubscribed channel/group \(id)")
-    }
-  }
 }
 
 // MARK: - Dependent Models
 
 /// A PubNub channel or channel group
-public struct PubNubChannel {
+public struct PubNubChannel: Hashable {
   /// The channel name as a String
   public let id: String
   /// The presence channel name
   public let presenceId: String
-  /// The state for the channel
-  public var state: [String: JSONCodable]?
   /// If the channel is currently subscribed with presence
   public var isPresenceSubscribed: Bool
 
-  public init(id: String, state: [String: JSONCodable]? = nil, withPresence: Bool = false) {
+  public init(id: String, withPresence: Bool = false) {
     self.id = id
     presenceId = id.presenceChannelName
-    self.state = state
     isPresenceSubscribed = withPresence
   }
 }
@@ -142,7 +105,6 @@ extension PubNubChannel: Codable {
   enum CodingKeys: String, CodingKey {
     case id
     case presenceId
-    case state
     case isPresenceSubscribed
   }
 
@@ -151,7 +113,6 @@ extension PubNubChannel: Codable {
 
     id = try container.decode(String.self, forKey: .id)
     presenceId = try container.decode(String.self, forKey: .presenceId)
-    state = try container.decodeIfPresent([String: AnyJSON].self, forKey: .state)
     isPresenceSubscribed = try container.decode(Bool.self, forKey: .isPresenceSubscribed)
   }
 
@@ -160,24 +121,7 @@ extension PubNubChannel: Codable {
 
     try container.encode(id, forKey: .id)
     try container.encode(presenceId, forKey: .presenceId)
-    try container.encode(state?.mapValues { $0.codableValue }, forKey: .state)
     try container.encode(isPresenceSubscribed, forKey: .isPresenceSubscribed)
-  }
-}
-
-extension PubNubChannel: Hashable {
-  public static func == (lhs: PubNubChannel, rhs: PubNubChannel) -> Bool {
-    return lhs.id == rhs.id &&
-      lhs.presenceId == rhs.presenceId &&
-      lhs.state?.mapValues { $0.codableValue } == rhs.state?.mapValues { $0.codableValue } &&
-      lhs.isPresenceSubscribed == rhs.isPresenceSubscribed
-  }
-
-  public func hash(into hasher: inout Hasher) {
-    id.hash(into: &hasher)
-    presenceId.hash(into: &hasher)
-    state?.mapValues { $0.codableValue }.hash(into: &hasher)
-    isPresenceSubscribed.hash(into: &hasher)
   }
 }
 

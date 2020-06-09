@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.5.2"
+version: "2.5.3"
 schema: 1
 changelog:
+  - changes:
+     - text: "Payload and FCMTarget fields are now optional for PubNubPushMessage"
+       type: enchancement
+     - text: "Fixed an issue where nested presence state could be published"
+       type: bug
+     date: 2020-06-09
+     version: v2.5.3
   - changes:
     - text: "Resolves possible memory leaks related to listeners"
       type: bug

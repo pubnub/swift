@@ -236,7 +236,7 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .add(channels: testChannels, to: testGroupName) { result in
         switch result {
-        case let .success:
+        case .success:
           expectation.fulfill()
         case let .failure(error):
           XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")

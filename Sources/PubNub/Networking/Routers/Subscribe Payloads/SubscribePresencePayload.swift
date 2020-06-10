@@ -27,14 +27,18 @@
 
 import Foundation
 
-struct SubscribePresencePayload: Codable, Hashable {
-  let actions: [PubNubPresenceAction]
-
+struct SubscribePresencePayload: Codable {
   let occupancy: Int
-  let timetoken: Timetoken
-  let stateChange: [String: AnyJSON]?
+  let timestamp: Timetoken
+  let state: AnyJSON?
+  let uuid: String?
 
   let actionEvent: Action
+  let refreshHereNow: Bool
+
+  let join: [String]
+  let leave: [String]
+  let timeout: [String]
 
   /// The type of presence change that occurred
   enum Action: String, Codable, Hashable {
@@ -52,7 +56,7 @@ struct SubscribePresencePayload: Codable, Hashable {
 
   enum CodingKeys: String, CodingKey {
     case action
-    case timetoken = "timestamp"
+    case timestamp
     case occupancy
 
     // Internval Keys
@@ -62,108 +66,57 @@ struct SubscribePresencePayload: Codable, Hashable {
 
     // State breakdown
     case uuid
-    case stateChange = "data"
+    case state = "data"
+    case refreshHereNow = "here_now_refresh"
   }
 
   public init(
     actionEvent: Action,
-    actions: [PubNubPresenceAction],
     occupancy: Int,
-    timetoken: Timetoken,
-    stateChange: [String: AnyJSON]? = nil
+    uuid: String?,
+    timestamp: Timetoken,
+    refreshHereNow: Bool,
+    state: AnyJSON?,
+    join: [String] = [],
+    leave: [String] = [],
+    timeout: [String] = []
   ) {
     self.actionEvent = actionEvent
-    self.actions = actions
+    self.uuid = uuid
     self.occupancy = occupancy
-    self.timetoken = timetoken
-    self.stateChange = stateChange
+    self.timestamp = timestamp
+    self.refreshHereNow = refreshHereNow
+    self.state = state
+    self.join = join
+    self.leave = leave
+    self.timeout = timeout
   }
 
-  // We want the timetoken as a Int instead of a String
-  // swiftlint:disable:next cyclomatic_complexity
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     actionEvent = try container.decode(Action.self, forKey: .action)
     occupancy = try container.decode(Int.self, forKey: .occupancy)
-    timetoken = try container.decode(Timetoken.self, forKey: .timetoken)
-    stateChange = try container.decodeIfPresent([String: AnyJSON].self, forKey: .stateChange)
-
-    let uuid = try container.decodeIfPresent(String.self, forKey: .uuid) ?? ""
-
-    var actions = [PubNubPresenceAction]()
-    switch actionEvent {
-    case .join:
-      actions.append(PubNubPresenceAction.join(uuid: uuid, time: timetoken))
-    case .leave:
-      actions.append(PubNubPresenceAction.leave(uuid: uuid, time: timetoken))
-    case .timeout:
-      actions.append(PubNubPresenceAction.timeout(uuid: uuid, time: timetoken))
-    case .stateChange:
-      break
-    case .interval:
-      if let join = try container.decodeIfPresent([String].self, forKey: .join), !join.isEmpty {
-        for uuid in join {
-          actions.append(PubNubPresenceAction.join(uuid: uuid, time: timetoken))
-        }
-      }
-      if let leave = try container.decodeIfPresent([String].self, forKey: .leave), !leave.isEmpty {
-        for uuid in leave {
-          actions.append(PubNubPresenceAction.leave(uuid: uuid, time: timetoken))
-        }
-      }
-      if let timeout = try container.decodeIfPresent([String].self, forKey: .timeout), !timeout.isEmpty {
-        for uuid in timeout {
-          actions.append(PubNubPresenceAction.timeout(uuid: uuid, time: timetoken))
-        }
-      }
-    }
-    self.actions = actions
+    timestamp = try container.decode(Timetoken.self, forKey: .timestamp)
+    refreshHereNow = try container.decodeIfPresent(Bool.self, forKey: .refreshHereNow) ?? false
+    state = try container.decodeIfPresent(AnyJSON.self, forKey: .state)
+    uuid = try container.decodeIfPresent(String.self, forKey: .uuid)
+    join = try container.decodeIfPresent([String].self, forKey: .join) ?? []
+    leave = try container.decodeIfPresent([String].self, forKey: .leave) ?? []
+    timeout = try container.decodeIfPresent([String].self, forKey: .timeout) ?? []
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(actionEvent, forKey: .action)
-    try container.encode(timetoken, forKey: .timetoken)
+    try container.encode(timestamp, forKey: .timestamp)
     try container.encode(occupancy, forKey: .occupancy)
-    try container.encodeIfPresent(stateChange, forKey: .stateChange)
-
-    switch actionEvent {
-    case .join:
-      try container.encodeIfPresent(actions.first?[case: PubNubPresenceAction.join]?.0, forKey: .uuid)
-    case .leave:
-      try container.encodeIfPresent(actions.first?[case: PubNubPresenceAction.leave]?.0, forKey: .uuid)
-    case .timeout:
-      try container.encodeIfPresent(actions.first?[case: PubNubPresenceAction.timeout]?.0, forKey: .uuid)
-    case .stateChange:
-      break
-    case .interval:
-      var joins = [String]()
-      var leaves = [String]()
-      var timeouts = [String]()
-
-      for action in actions {
-        switch action {
-        case .join(uuid: let uuid, time: _):
-          joins.append(uuid)
-        case .leave(uuid: let uuid, time: _):
-          leaves.append(uuid)
-        case .timeout(uuid: let uuid, time: _):
-          timeouts.append(uuid)
-        }
-      }
-
-      if !joins.isEmpty {
-        try container.encode(joins, forKey: .join)
-      }
-      if !leaves.isEmpty {
-        try container.encode(leaves, forKey: .leave)
-      }
-      if !timeouts.isEmpty {
-        try container.encode(timeouts, forKey: .timeout)
-      }
-    }
+    try container.encode(refreshHereNow, forKey: .refreshHereNow)
+    try container.encodeIfPresent(uuid, forKey: .uuid)
+    try container.encodeIfPresent(state, forKey: .state)
+    try container.encode(join, forKey: .join)
+    try container.encode(leave, forKey: .leave)
+    try container.encode(timeout, forKey: .timeout)
   }
 }

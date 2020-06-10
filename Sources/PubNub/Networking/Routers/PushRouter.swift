@@ -44,20 +44,20 @@ public struct PushRouter: HTTPRouter {
   // Nested Endpoint
   public enum Endpoint: CustomStringConvertible {
     case listPushChannels(pushToken: Data, pushType: PushType)
-    case modifyPushChannels(pushToken: Data, pushType: PushType, joining: [String], leaving: [String])
+    case managePushChannels(pushToken: Data, pushType: PushType, joining: [String], leaving: [String])
     case removeAllPushChannels(pushToken: Data, pushType: PushType)
-    case modifyAPNS(pushToken: Data, environment: Environment, topic: String, adding: [String], removing: [String])
+    case manageAPNS(pushToken: Data, environment: Environment, topic: String, adding: [String], removing: [String])
     case removeAllAPNS(pushToken: Data, environment: Environment, topic: String)
 
     public var description: String {
       switch self {
       case .listPushChannels:
         return "List Push Channels"
-      case .modifyPushChannels:
+      case .managePushChannels:
         return "Modify Push Channels"
       case .removeAllPushChannels:
         return "Remove All Push Channels"
-      case .modifyAPNS:
+      case .manageAPNS:
         return "List/Modify APNS Devices"
       case .removeAllAPNS:
         return "Remove all channels from APNS device"
@@ -68,11 +68,11 @@ public struct PushRouter: HTTPRouter {
       switch self {
       case .listPushChannels:
         return []
-      case let .modifyPushChannels(_, _, joining, _):
+      case let .managePushChannels(_, _, joining, _):
         return joining
       case .removeAllPushChannels:
         return []
-      case let .modifyAPNS(_, _, _, adding, _):
+      case let .manageAPNS(_, _, _, adding, _):
         return adding
       case .removeAllAPNS:
         return []
@@ -83,11 +83,11 @@ public struct PushRouter: HTTPRouter {
       switch self {
       case .listPushChannels:
         return []
-      case let .modifyPushChannels(_, _, _, leaving):
+      case let .managePushChannels(_, _, _, leaving):
         return leaving
       case .removeAllPushChannels:
         return []
-      case let .modifyAPNS(_, _, _, _, removing):
+      case let .manageAPNS(_, _, _, _, removing):
         return removing
       case .removeAllAPNS:
         return []
@@ -119,11 +119,11 @@ public struct PushRouter: HTTPRouter {
     switch endpoint {
     case let .listPushChannels(pushToken, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
-    case let .modifyPushChannels(pushToken, _, _, _):
+    case let .managePushChannels(pushToken, _, _, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
     case let .removeAllPushChannels(token, _):
       path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
-    case let .modifyAPNS(token, _, _, _, _):
+    case let .manageAPNS(token, _, _, _, _):
       path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)"
     case let .removeAllAPNS(token, _, _):
       path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)/remove"
@@ -137,13 +137,13 @@ public struct PushRouter: HTTPRouter {
     switch endpoint {
     case let .listPushChannels(_, pushType):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
-    case let .modifyPushChannels(_, pushType, joining, removing):
+    case let .managePushChannels(_, pushType, joining, removing):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
       query.appendIfNotEmpty(key: .add, value: joining)
       query.appendIfNotEmpty(key: .remove, value: removing)
     case let .removeAllPushChannels(_, pushType):
       query.append(URLQueryItem(key: .type, value: pushType.rawValue))
-    case let .modifyAPNS(_, environment, topic, adding, removing):
+    case let .manageAPNS(_, environment, topic, adding, removing):
       query.append(URLQueryItem(key: .environment, value: environment.rawValue))
       query.append(URLQueryItem(key: .topic, value: topic))
       query.appendIfNotEmpty(key: .add, value: adding)
@@ -170,14 +170,14 @@ public struct PushRouter: HTTPRouter {
     switch endpoint {
     case let .listPushChannels(pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
-    case let .modifyPushChannels(pushToken, _, addChannels, removeChannels):
+    case let .managePushChannels(pushToken, _, addChannels, removeChannels):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
         (addChannels.isEmpty && removeChannels.isEmpty, ErrorDescription.emptyChannelArray)
       )
     case let .removeAllPushChannels(pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
-    case let .modifyAPNS(pushToken, _, topic, _, _):
+    case let .manageAPNS(pushToken, _, topic, _, _):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
         (topic.isEmpty, ErrorDescription.emptyUUIDString)

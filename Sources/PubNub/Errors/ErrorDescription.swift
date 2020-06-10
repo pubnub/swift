@@ -290,6 +290,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
     case .messageDeletionNotEnabled:
       return "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
+    case .multiplexingNotEnabled:
+      return "Use of Multiplexing requires Stream Controller to be enabled for this subscribe key"
     case .couldNotParseRequest:
       return "The PubNub server was unable to parse the request"
     case .requestContainedInvalidJSON:

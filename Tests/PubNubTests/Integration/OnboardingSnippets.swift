@@ -58,8 +58,9 @@ class OnboardingSnippets: XCTestCase {
     }
     listener.didReceivePresence = { event in
       print("Channel `\(event.channel)` has occupancy of \(event.occupancy)")
-      print("State-Change `\(event.stateChange ?? [:])`")
-      print("Events `\(event.actions)`")
+      for action in event.actions {
+        print("Event `\(action)` at \(event.timetoken)")
+      }
     }
     listener.didReceiveStatus = { event in
       switch event {

@@ -61,12 +61,12 @@ class SubscriptionListenerTests: XCTestCase {
   let connectionEvent: ConnectionStatus = .connected
   let statusEvent: SubscriptionListener.StatusEvent = .success(.connected)
 
-  let presenceEvent = PubNubPresenceBase(
-    actions: [.join(uuid: "User", time: 0)],
+  let presenceEvent = PubNubPresenceChangeBase(
+    actions: [.join(uuids: ["User"]), .stateChange(uuid: "User", state: ["StateKey": "StateValue"])],
     occupancy: 1,
     timetoken: 0,
+    refreshHereNow: false,
     channel: "Channel",
-    stateChange: ["StateKey": "StateValue"],
     subscription: "Channel"
   )
 

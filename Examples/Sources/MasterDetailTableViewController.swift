@@ -455,7 +455,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performSubscribeRequest() {
-    pubnub.subscribe(to: ["channelSwift"], withPresence: true, setting: ["channelSwift": ["SubKey": "SubValue"]])
+    pubnub.subscribe(to: ["channelSwift"], withPresence: true)
   }
 
   func performUnsubscribeRequest() {
@@ -582,7 +582,7 @@ class MasterDetailTableViewController: UITableViewController {
 
   func performHistoryFetch() {
     pubnub.fetchMessageHistory(for: ["channelSwift"],
-                               max: 25,
+                               limit: 25,
                                start: nil,
                                end: nil) { result in
       switch result {

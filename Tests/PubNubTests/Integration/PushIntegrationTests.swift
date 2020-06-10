@@ -44,7 +44,7 @@ class PushIntegrationTests: XCTestCase {
     }
 
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
-    client.modifyPushChannelRegistrations(byRemoving: [], thenAdding: ["foo1", "foo2"], for: token) { result in
+    client.managePushChannelRegistrations(byRemoving: [], thenAdding: ["foo1", "foo2"], for: token) { result in
       switch result {
       case let .success(response):
 
@@ -70,7 +70,7 @@ class PushIntegrationTests: XCTestCase {
     }
 
     // Add a channel
-    client.modifyAPNSDevicesOnChannels(
+    client.manageAPNSDevicesOnChannels(
       byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
 
@@ -102,7 +102,7 @@ class PushIntegrationTests: XCTestCase {
     }
 
     // Add a channel
-    client.modifyAPNSDevicesOnChannels(
+    client.manageAPNSDevicesOnChannels(
       byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
       client.removeAPNSPushDevice(for: token, on: self.pushTopic) { result in

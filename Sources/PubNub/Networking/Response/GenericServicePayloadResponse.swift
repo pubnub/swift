@@ -57,6 +57,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   case pushNotEnabled
   case messageHistoryNotEnabled
   case messageDeletionNotEnabled
+  case multiplexingNotEnabled
   case requestURITooLong
   case serviceUnavailable
   case tooManyRequests
@@ -119,6 +120,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       self = .invalidUUID
     case "No matching message actions to delete":
       self = .nothingToDelete
+    case "Multiplexing not enabled":
+      self = .multiplexingNotEnabled
     default:
       self = EndpointResponseMessage.rawValueStartsWith(rawValue)
     }
@@ -176,6 +179,8 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
       return ErrorDescription.messageHistoryNotEnabled
     case .messageDeletionNotEnabled:
       return ErrorDescription.messageDeletionNotEnabled
+    case .multiplexingNotEnabled:
+      return "Multiplexing not enabled"
     case .requestURITooLong:
       return "Request URI Too Long"
     case .serviceUnavailable:

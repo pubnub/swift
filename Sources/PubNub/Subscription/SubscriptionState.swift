@@ -101,9 +101,7 @@ public struct PubNubChannel: Hashable {
   }
 
   /// Detects if the string is a Presence channel name and sets the appropriate values
-  public init(channel: String, state: [String: JSONCodable]? = nil) {
-    self.state = state
-
+  public init(channel: String) {
     if channel.isPresenceChannelName {
       id = channel.trimmingPresenceChannelSuffix
       presenceId = channel

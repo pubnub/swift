@@ -89,7 +89,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
       path = "/v2/objects/\(subscribeKey)/uuids"
     case let .fetch(metadataId, _):
       path = "/v2/objects/\(subscribeKey)/uuids/\(metadataId.urlEncodeSlash)"
-    case .set(let metadata, _):
+    case let .set(metadata, _):
       path = "/v2/objects/\(subscribeKey)/uuids/\(metadata.metadataId.urlEncodeSlash)"
     case let .remove(metadataId):
       path = "/v2/objects/\(subscribeKey)/uuids/\(metadataId.urlEncodeSlash)"

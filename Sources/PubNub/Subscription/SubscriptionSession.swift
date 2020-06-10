@@ -138,8 +138,7 @@ public class SubscriptionSession {
     to channels: [String],
     and groups: [String] = [],
     at cursor: SubscribeCursor? = nil,
-    withPresence: Bool = false,
-    setting presenceState: [String: [String: JSONCodable]] = [:]
+    withPresence: Bool = false
   ) {
     if channels.isEmpty, groups.isEmpty {
       return
@@ -209,9 +208,9 @@ public class SubscriptionSession {
     }
 
     // Create Endpoing
-    let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: timetoken,
-                                            region: previousTokenResponse?.region.description,
-                                            state: nil, heartbeat: configuration.durationUntilTimeout,
+    let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: cursor?.timetoken,
+                                            region: cursor?.region.description,
+                                            heartbeat: configuration.durationUntilTimeout,
                                             filter: configuration.filterExpression),
                                  configuration: configuration)
 
@@ -318,7 +317,7 @@ public class SubscriptionSession {
                   return .messageActionRemoved(messageAction)
                 }
               case .presence:
-                guard let presence = PubNubPresenceBase(from: message) else {
+                guard let presence = PubNubPresenceChangeBase(from: message) else {
                   return .messageReceived(PubNubMessageBase(from: message))
                 }
 

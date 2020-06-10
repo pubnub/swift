@@ -41,7 +41,7 @@ extension PubNub {
     shouldCompress: Bool = false,
     with networkConfiguration: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<(PubNubMessageAction), Error>) -> Void)?
+    completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
     publish(
       channel: channel,

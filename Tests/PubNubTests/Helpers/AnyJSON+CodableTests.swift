@@ -333,21 +333,6 @@ class AnyJSONCodableTests: XCTestCase {
     }
   }
 
-  func testDecodeIntoCodable() {
-    let value = PresenceChannelsPayload(channels: ["docs6": [:], "channelSwift": [:], "docs5": [:], "docs3": [:]])
-    let json = AnyJSON(value)
-
-    guard let data = json.jsonData else {
-      return XCTFail("Could not create data from JSON")
-    }
-
-    let decoded = try? Constant.jsonDecoder.decode(PresenceChannelsPayload.self, from: data)
-    XCTAssertEqual(value, decoded)
-
-    let jsonDecoded = try? json.decode(PresenceChannelsPayload.self)
-    XCTAssertEqual(value, jsonDecoded)
-  }
-
   // MARK: - AnyJSONCodingKey
 
   func testCodingKeys_IntValue() {

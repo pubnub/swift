@@ -82,16 +82,14 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let testChannel = channelName
+    let presence = PubNubPresenceBase(channel: testChannel, occupancy: 1, occupants: ["pn-12"], occupantsState: [:])
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName]) { result in
+      .hereNow(on: [testChannel]) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count,
-                         payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -108,16 +106,17 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let testChannel = channelName
+    let presence = PubNubPresenceBase(
+      channel: testChannel, occupancy: 1, occupants: ["pn-12"],
+      occupantsState: ["pn-12": ["SubKey": "SubValue"]]
+    )
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count,
-                         payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -134,13 +133,16 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let testChannel = channelName
+    let presence = PubNubPresenceBase(
+      channel: testChannel, occupancy: 0, occupants: [], occupantsState: [:]
+    )
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
-          XCTAssertEqual(payload.totalChannels, 0)
-          XCTAssertEqual(payload.totalOccupancy, 0)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -159,16 +161,13 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let presence = PubNubPresenceBase(channel: "TestChannel", occupancy: 1, occupants: ["pn-12"], occupantsState: [:])
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count,
-                         payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -185,16 +184,16 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let presence = PubNubPresenceBase(
+      channel: "TestChannel", occupancy: 1,
+      occupants: ["pn-12"], occupantsState: ["pn-12": ["SubKey": "SubValue"]]
+    )
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count,
-                         payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -212,10 +211,10 @@ extension PresenceRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
+          XCTAssertTrue(payload.isEmpty)
           XCTAssertEqual(payload.totalChannels, 0)
           XCTAssertEqual(payload.totalOccupancy, 0)
         case let .failure(error):
@@ -236,15 +235,18 @@ extension PresenceRouterTests {
 
     let channelName = "TestChannel"
 
+    let presence = PubNubPresenceBase(
+      channel: "TestChannel", occupancy: 2,
+      occupants: [], occupantsState: [:]
+    )
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [channelName, otherChannel], includeUUIDs: false, also: true) { result in
+      .hereNow(on: [channelName, otherChannel], includeUUIDs: false, includeState: true) { result in
         switch result {
         case let .success(payload):
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
           XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count, 0)
+          XCTAssertEqual(payload.totalOccupancy, 2)
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }
@@ -291,16 +293,16 @@ extension PresenceRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let presence = PubNubPresenceBase(
+      channel: "TestChannel", occupancy: 1,
+      occupants: ["pn-12"], occupantsState: [:]
+    )
+
     PubNub(configuration: config, session: sessions.session)
-      .hereNow(on: [], includeUUIDs: true, also: true) { result in
+      .hereNow(on: [], includeUUIDs: true, includeState: true) { result in
         switch result {
         case let .success(payload):
-          XCTAssertEqual(payload.totalChannels, 1)
-          XCTAssertEqual(payload.channels.count, payload.totalChannels)
-          XCTAssertEqual(payload.channels.first?.key, self.channelName)
-          XCTAssertEqual(payload.channels.first?.value.occupancy, payload.totalOccupancy)
-          XCTAssertEqual(payload.channels.first?.value.occupants.count,
-                         payload.channels.first?.value.occupancy)
+          XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
         case let .failure(error):
           XCTFail("Here Now request failed with error: \(error.localizedDescription)")
         }

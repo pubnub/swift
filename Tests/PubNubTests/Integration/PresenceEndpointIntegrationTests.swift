@@ -39,15 +39,16 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     var configuration = PubNubConfiguration(from: testsBundle)
     configuration.durationUntilTimeout = 11
     let client = PubNub(configuration: configuration)
-    let testChannel = "testHereNow_SingleChannel_Stateless"
+    let testChannel = "testHereNow_SingleChannel_Statelesssss"
 
     let performHereNow = {
       // Here Now Test
-      client.hereNow(on: [testChannel]) { result in
+      client.hereNow(on: [testChannel], also: true) { result in
         switch result {
-        case let .success(response):
-          let channelPresence = response.channels[testChannel]
-          XCTAssertNotNil(channelPresence)
+        case let .success(channels):
+          XCTAssertNotNil(channels[testChannel])
+          XCTAssertGreaterThan(channels.totalChannels, 0)
+          XCTAssertGreaterThan(channels.totalOccupancy, 0)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -57,7 +58,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let listener = SubscriptionListener()
     listener.didReceivePresence = { event in
-      if event.channel == testChannel, event.actions.isJoin, event.actions.uuid == configuration.uuid {
+      if event.channel == testChannel, event.actions.join(contains: configuration.uuid) {
         performHereNow()
       }
     }
@@ -66,11 +67,12 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     client.subscribe(to: [testChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [hereNowExpect], timeout: 10.0)
+    wait(for: [hereNowExpect], timeout: 1000.0)
   }
 
   func testHereNow_SingleChannel_State() {
     let hereNowExpect = expectation(description: "Here Now Response")
+    let setStateExpect = expectation(description: "Set State Response")
 
     var configuration = PubNubConfiguration(from: testsBundle)
     configuration.durationUntilTimeout = 11
@@ -81,29 +83,44 @@ class PresenceEndpointIntegrationTests: XCTestCase {
       // Here Now Test
       client.hereNow(on: [testChannel], also: true) { result in
         switch result {
-        case let .success(response):
-          let channel = response.channels[testChannel]
-          XCTAssertNotNil(channel)
-          XCTAssertEqual(channel?.occupants[configuration.uuid], ["StateKey": "StateValue"])
+        case let .success(channels):
+          XCTAssertNotNil(channels[testChannel])
+          XCTAssertEqual(
+            channels[testChannel]?.occupantsState[configuration.uuid]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
         hereNowExpect.fulfill()
       }
     }
+    let performSetState = {
+      // Here Now Test
+      client.setPresence(state: ["StateKey": "StateValue"], on: [testChannel]) { result in
+        switch result {
+        case let .success(channels):
+          XCTAssertEqual(channels.codableValue[rawValue: "StateKey"] as? String, "StateValue")
+          performHereNow()
+        case let .failure(error):
+          XCTFail("Failed due to error: \(error)")
+        }
+        setStateExpect.fulfill()
+      }
+    }
 
     let listener = SubscriptionListener()
     listener.didReceivePresence = { event in
-      if event.channel == testChannel, event.actions.isJoin, event.actions.uuid == configuration.uuid {
-        performHereNow()
+      if event.channel == testChannel, event.actions.join(contains: configuration.uuid) {
+        performSetState()
       }
     }
     client.add(listener)
 
-    client.subscribe(to: [testChannel], withPresence: true, setting: [testChannel: ["StateKey": "StateValue"]])
+    client.subscribe(to: [testChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [hereNowExpect], timeout: 10.0)
+    wait(for: [setStateExpect, hereNowExpect], timeout: 10.0)
   }
 
   func testHereNow_SingleChannel_EmptyPresence() {
@@ -116,8 +133,9 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     client.hereNow(on: [testChannel], also: true) { result in
       switch result {
-      case let .success(response):
-        XCTAssertTrue(response.channels.isEmpty)
+      case let .success(channels):
+        XCTAssertNotNil(channels[testChannel])
+        XCTAssertEqual(channels.totalOccupancy, 0)
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
@@ -142,9 +160,8 @@ class PresenceEndpointIntegrationTests: XCTestCase {
       // Here Now Test
       client.hereNow(on: [testChannel, otherChannel]) { result in
         switch result {
-        case let .success(response):
-          let channelPresence = response.channels[testChannel]
-          XCTAssertNotNil(channelPresence)
+        case let .success(channels):
+          XCTAssertNotNil(channels[testChannel])
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -154,7 +171,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let listener = SubscriptionListener()
     listener.didReceivePresence = { event in
-      if event.channel == testChannel, event.actions.isJoin, event.actions.uuid == configuration.uuid {
+      if event.channel == testChannel, event.actions.join(contains: configuration.uuid) {
         performHereNow()
       }
     }
@@ -168,6 +185,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
   func testHereNow_MultiChannel_State() {
     let hereNowExpect = expectation(description: "Here Now Response")
+    let setStateExpect = expectation(description: "Set State Response")
 
     var configuration = PubNubConfiguration(from: testsBundle)
     configuration.durationUntilTimeout = 11
@@ -179,29 +197,48 @@ class PresenceEndpointIntegrationTests: XCTestCase {
       // Here Now Test
       client.hereNow(on: [testChannel, otherChannel], also: true) { result in
         switch result {
-        case let .success(response):
-          let channel = response.channels[testChannel]
-          XCTAssertNotNil(channel)
-          XCTAssertEqual(channel?.occupants[configuration.uuid], ["StateKey": "StateValue"])
+        case let .success(channels):
+          XCTAssertNotNil(channels[testChannel])
+          XCTAssertEqual(
+            channels[testChannel]?.occupantsState[configuration.uuid]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
+          XCTAssertEqual(
+            channels[otherChannel]?.occupantsState[configuration.uuid]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
         hereNowExpect.fulfill()
       }
     }
+    let performSetState = {
+      // Here Now Test
+      client.setPresence(state: ["StateKey": "StateValue"], on: [testChannel, otherChannel]) { result in
+        switch result {
+        case let .success(channels):
+          XCTAssertEqual(channels.codableValue[rawValue: "StateKey"] as? String, "StateValue")
+          performHereNow()
+        case let .failure(error):
+          XCTFail("Failed due to error: \(error)")
+        }
+        setStateExpect.fulfill()
+      }
+    }
 
     let listener = SubscriptionListener()
     listener.didReceivePresence = { event in
-      if event.channel == testChannel, event.actions.isJoin, event.actions.uuid == configuration.uuid {
-        performHereNow()
+      if event.channel == testChannel, event.actions.join(contains: configuration.uuid) {
+        performSetState()
       }
     }
     client.add(listener)
 
-    client.subscribe(to: [testChannel], withPresence: true, setting: [testChannel: ["StateKey": "StateValue"]])
+    client.subscribe(to: [testChannel, otherChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [hereNowExpect], timeout: 10.0)
+    wait(for: [setStateExpect, hereNowExpect], timeout: 100.0)
   }
 
   func testHereNow_MultiChannel_EmptyPresence() {
@@ -215,8 +252,8 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     client.hereNow(on: [testChannel, otherChannel], also: true) { result in
       switch result {
-      case let .success(response):
-        XCTAssertTrue(response.channels.isEmpty)
+      case let .success(channels):
+        XCTAssertTrue(channels.isEmpty)
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }

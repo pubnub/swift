@@ -32,8 +32,9 @@ import Foundation
 struct SubscribeRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CaseAccessible, CustomStringConvertible {
-    case subscribe(channels: [String], groups: [String], timetoken: Timetoken?, region: String?,
-                   state: [String: [String: JSONCodable]]?, heartbeat: UInt?, filter: String?)
+    case subscribe(channels: [String], groups: [String],
+                   timetoken: Timetoken?, region: String?,
+                   heartbeat: UInt?, filter: String?)
 
     var description: String {
       switch self {
@@ -65,7 +66,7 @@ struct SubscribeRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case let .subscribe(channels, _, _, _, _, _, _):
+    case let .subscribe(channels, _, _, _, _, _):
       path = "/v2/subscribe/\(subscribeKey)/\(channels.commaOrCSVString.urlEncodeSlash)/0"
     }
 
@@ -76,25 +77,21 @@ struct SubscribeRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .subscribe(_, groups, timetoken, region, state, heartbeat, filter):
+    case let .subscribe(_, groups, timetoken, region, heartbeat, filter):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.appendIfPresent(key: .timetokenShort, value: timetoken?.description)
       query.appendIfPresent(key: .regionShort, value: region?.description)
       query.appendIfPresent(key: .filterExpr, value: filter)
       query.appendIfPresent(key: .heartbeat, value: heartbeat?.description)
-      return state?.mapValues { $0.mapValues { $0.codableValue } }
-        .encodableJSONString
-        .map { json in
-          query.append(URLQueryItem(key: .state, value: json))
-          return query
-        } ?? .success(query)
     }
+
+    return .success(query)
   }
 
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case let .subscribe(channels, groups, _, _, _, _, _):
+    case let .subscribe(channels, groups, _, _, _, _):
       return isInvalidForReason(
         (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
     }
@@ -332,9 +329,6 @@ struct SubscribeMessagePayload: Codable, Hashable {
     subscription = try container
       .decodeIfPresent(String.self, forKey: .subscription)?
       .trimmingPresenceChannelSuffix
-    channel = try container
-      .decode(String.self, forKey: .channel)
-      .trimmingPresenceChannelSuffix
     payload = try container.decode(AnyJSON.self, forKey: .payload)
     flags = try container.decode(Int.self, forKey: .flags)
     publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
@@ -344,17 +338,20 @@ struct SubscribeMessagePayload: Codable, Hashable {
     metadata = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
 
     let messageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
+    let fullChannel = try container.decode(String.self, forKey: .channel)
 
     if let messageType = messageType, let action = Action(rawValue: messageType) {
       self.messageType = action
     } else {
-      // Duck Type to determine if it's a presence payload
-      if let _ = try? payload.decode(SubscribePresencePayload.self) {
+      // If channel endswith -pnpres we assume it's a presence event
+      if fullChannel.isPresenceChannelName {
         self.messageType = .presence
       } else {
         self.messageType = .message
       }
     }
+
+    channel = fullChannel.trimmingPresenceChannelSuffix
   }
 
   func encode(to encoder: Encoder) throws {

@@ -35,7 +35,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
 
-    client.allChannelMetadata() { result in
+    client.allChannelMetadata { result in
       switch result {
       case let .success((channels, nextPage)):
         XCTAssertTrue(nextPage?.totalCount ?? 0 >= channels.count)
@@ -105,7 +105,7 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testCreateAndDeleteEndpoint", name: "Swift ITest"
     )
 
-    client.set(channel: testChannel) { response in
+    client.set(channel: testChannel) { _ in
       client.remove(channel: testChannel.metadataId) { result in
         switch result {
         case let .success(metadataId):
@@ -147,8 +147,8 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
             switch result {
             case let .success((memberships, _)):
               XCTAssertTrue(
-                memberships.contains(where:
-                  { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                memberships.contains(
+                  where: { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
                 )
               )
             case let .failure(error):
@@ -191,8 +191,8 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
           switch result {
           case let .success((memberships, _)):
             XCTAssertTrue(
-              memberships.contains(where:
-                { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+              memberships.contains(
+                where: { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
               )
             )
           case let .failure(error):

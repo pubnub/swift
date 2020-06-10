@@ -36,7 +36,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    client.allUUIDMetadata() { result in
+    client.allUUIDMetadata { result in
       switch result {
       case let .success((users, nextPage)):
         XCTAssertTrue(nextPage?.totalCount ?? 0 >= users.count)
@@ -138,7 +138,6 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       uuid: testUser, channel: testChannel
     )
 
-
     client.set(uuid: testUser) { _ in
       client.set(channel: testChannel) { _ in
         client.setMemberships(uuid: testUser.metadataId, channels: [membership]) { _ in
@@ -149,8 +148,9 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
             switch result {
             case let .success((memberships, _)):
               XCTAssertTrue(
-                memberships.contains(where:
-                  { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                memberships.contains(where: {
+                  $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId
+                }
                 )
               )
             case let .failure(error):
@@ -192,8 +192,9 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
           switch result {
           case let .success((memberships, _)):
             XCTAssertTrue(
-              memberships.contains(where:
-                { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+              memberships.contains(where: {
+                $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId
+              }
               )
             )
           case let .failure(error):

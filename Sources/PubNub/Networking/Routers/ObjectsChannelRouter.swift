@@ -87,7 +87,7 @@ struct ObjectsChannelRouter: HTTPRouter {
       path = "/v2/objects/\(subscribeKey)/channels"
     case let .fetch(metadataId, _):
       path = "/v2/objects/\(subscribeKey)/channels/\(metadataId.urlEncodeSlash)"
-    case .set(let metadata, _):
+    case let .set(metadata, _):
       path = "/v2/objects/\(subscribeKey)/channels/\(metadata.metadataId.urlEncodeSlash)"
     case let .remove(metadataId):
       path = "/v2/objects/\(subscribeKey)/channels/\(metadataId.urlEncodeSlash)"

@@ -1,4 +1,25 @@
 {
   "code": 200,
-  "body": {"status": 200, "message": "OK", "payload": {"channels": {"TestChannel": {"occupancy": 1, "uuids": [{"uuid": "pn-12", "state": {"SubKey": "SubValue"}}]}}, "total_channels": 1, "total_occupancy": 1}, "service": "Presence"}
+  "body": {
+    "status": 200,
+    "message": "OK",
+    "service": "Presence",
+    "payload": {
+      "channels": {
+        "TestChannel": {
+          "occupancy": 1,
+          "uuids": [
+            {
+              "uuid": "pn-12",
+              "state": {
+                "SubKey": "SubValue"
+              }
+            }
+          ]
+        }
+      },
+      "total_channels": 1,
+      "total_occupancy": 1
+    }
+  }
 }

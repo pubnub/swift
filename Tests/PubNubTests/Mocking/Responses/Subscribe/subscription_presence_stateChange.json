@@ -25,6 +25,35 @@
                   "occupancy": 0
               },
               "b": "TestChannel-pnpres"
+          },
+          {
+              "a": "4",
+              "f": 0,
+              "p": {
+                  "t": "15917398128382931",
+                  "r": 1
+              },
+              "k": "sub-c-1c91d154-3b83-11e9-b221-7a660e69c40f",
+              "c": "channelSwift-pnpres",
+              "u": {
+                  "pn_action": "leave",
+                  "pn_uuid": "firstSub",
+                  "pn_timestamp": 1591739812,
+                  "pn_occupancy": 1,
+                  "pn_ispresence": 1,
+                  "pn_channel": "channelSwift",
+                  "pn_state_stateKey": "Slkjasdflkj"
+              },
+              "d": {
+                  "action": "leave",
+                  "uuid": "someUser",
+                  "timestamp": 1591739812,
+                  "occupancy": 1,
+                  "data": {
+                      "stateKey": "Slkjasdflkj"
+                  }
+              },
+              "b": "channelSwift-pnpres"
           }
       ]
   }

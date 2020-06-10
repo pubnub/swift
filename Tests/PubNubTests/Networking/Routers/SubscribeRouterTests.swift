@@ -42,7 +42,7 @@ final class SubscribeRouterTests: XCTestCase {
 
   func testSubscribe_Router() {
     let router = SubscribeRouter(.subscribe(channels: ["TestChannel"], groups: [], timetoken: 0,
-                                            region: nil, state: nil, heartbeat: nil, filter: nil),
+                                            region: nil, heartbeat: nil, filter: nil),
                                  configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Subscribe")
@@ -52,7 +52,7 @@ final class SubscribeRouterTests: XCTestCase {
 
   func testSubscribe_Router_ValidationError() {
     let router = SubscribeRouter(.subscribe(channels: [], groups: [], timetoken: 0,
-                                            region: nil, state: nil, heartbeat: nil, filter: nil),
+                                            region: nil, heartbeat: nil, filter: nil),
                                  configuration: config)
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
@@ -116,7 +116,10 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceivePresence = { [weak self] presence in
       XCTAssertEqual(presence.channel, self?.testChannel)
-      XCTAssertEqual(presence.actions, [.join(uuid: "db9c5e39-7c95-40f5-8d71-125765b6f561", time: 1_567_099_526)])
+      XCTAssertEqual(presence.actions, [
+        .join(uuids: ["db9c5e39-7c95-40f5-8d71-125765b6f561", "vqwqvae39-7c95-40f5-8d71-25234165142"]),
+        .leave(uuids: ["234vq2343-7c95-40f5-8d71-125765b6f561", "42vvsge39-7c95-40f5-8d71-25234165142"])
+      ])
 
       subscription.unsubscribeAll()
 
@@ -706,7 +709,7 @@ extension SubscribeRouterTests {
     }
     listener.didReceivePresence = { [weak self] presence in
       XCTAssertEqual(presence.channel, self?.testChannel)
-      XCTAssertEqual(presence.actions, [.join(uuid: "db9c5e39-7c95-40f5-8d71-125765b6f561", time: 1_567_099_526)])
+      XCTAssertEqual(presence.actions, [.join(uuids: ["db9c5e39-7c95-40f5-8d71-125765b6f561"])])
       presenceExpect.fulfill()
     }
     listener.didReceiveSignal = { [weak self] signal in

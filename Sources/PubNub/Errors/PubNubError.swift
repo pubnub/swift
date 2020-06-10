@@ -150,6 +150,7 @@ public struct PubNubError: Error {
     case pushNotEnabled
     case messageHistoryNotEnabled
     case messageDeletionNotEnabled
+    case multiplexingNotEnabled
 
     // Uncategorized
     case unknown
@@ -197,7 +198,7 @@ public struct PubNubError: Error {
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
            .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish:
         return .endpointResponse
-      case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled:
+      case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled
       case .unknown:
         return .uncategorized
@@ -395,6 +396,8 @@ extension EndpointResponseMessage {
       return .messageHistoryNotEnabled
     case .messageDeletionNotEnabled:
       return .messageDeletionNotEnabled
+    case .multiplexingNotEnabled:
+      return .multiplexingNotEnabled
     case .requestURITooLong:
       return .requestURITooLong
     case .serviceUnavailable:

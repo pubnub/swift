@@ -263,20 +263,17 @@ extension PubNub {
   ///   - and: List of channel groups to subscribe on
   ///   - at: The initial timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
-  ///   - setting: The object containing the state for the channel(s).
   public func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
     at timetoken: Timetoken? = nil,
     region: Int? = nil,
-    withPresence: Bool = false,
-    setting presenceState: [String: [String: JSONCodable]] = [:]
+    withPresence: Bool = false
   ) {
     subscription.subscribe(to: channels,
                            and: channelGroups,
                            at: SubscribeCursor(timetoken: timetoken, region: region),
-                           withPresence: withPresence,
-                           setting: presenceState)
+                           withPresence: withPresence)
   }
 
   /// Unsubscribe from channels and/or channel groups
@@ -351,9 +348,21 @@ extension PubNub {
     state: [String: JSONCodableScalar],
     on channels: [String],
     and groups: [String] = [],
-    completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<JSONCodable, Error>) -> Void)?
   ) {
-    subscription.setPresence(state: state, on: channels, and: groups, completion: completion)
+    let router = PresenceRouter(
+      .setState(channels: channels, groups: groups, state: state),
+      configuration: configuration
+    )
+
+    route(router,
+          responseDecoder: PresenceResponseDecoder<AnyPresencePayload<AnyJSON>>(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { $0.payload.payload })
+    }
   }
 
   /// Get state dictionary pairs from a specific subscriber uuid
@@ -366,9 +375,21 @@ extension PubNub {
     for uuid: String,
     on channels: [String],
     and groups: [String] = [],
-    completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<(uuid: String, stateByChannel: [String: JSONCodable]), Error>) -> Void)?
   ) {
-    subscription.getPresenceState(for: uuid, on: channels, and: groups, completion: completion)
+    let router = PresenceRouter(
+      .getState(uuid: uuid, channels: channels, groups: groups),
+      configuration: configuration
+    )
+
+    route(router,
+          responseDecoder: GetPresenceStateResponseDecoder(),
+          using: customSession,
+          respondOn: queue) { result in
+      completion?(result.map { (uuid: $0.payload.uuid, stateByChannel: $0.payload.channels) })
+    }
   }
 
   /// Obtain information about the current state of a channel
@@ -389,10 +410,10 @@ extension PubNub {
     on channels: [String],
     and groups: [String] = [],
     includeUUIDs: Bool = true,
-    also includeState: Bool = false,
+    includeState: Bool = false,
     using customSession: SessionReplaceable? = nil,
     respondOn queue: DispatchQueue = .main,
-    completion: ((Result<HereNowPayload, Error>) -> Void)?
+    completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
   ) {
     let router: PresenceRouter
     if channels.isEmpty, groups.isEmpty {
@@ -405,11 +426,13 @@ extension PubNub {
       )
     }
 
+    let decoder = HereNowResponseDecoder(channels: channels, groups: groups)
+
     route(router,
-          responseDecoder: HereNowResponseDecoder(),
+          responseDecoder: decoder,
           using: customSession,
           respondOn: queue) { result in
-      completion?(result.map { $0.payload.payload })
+      completion?(result.map { $0.payload.asPubNubPresenceBase })
     }
   }
 
@@ -426,10 +449,10 @@ extension PubNub {
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(PresenceRouter(.whereNow(uuid: uuid), configuration: configuration),
-          responseDecoder: PresenceResponseDecoder<WhereNowResponsePayload>(),
+          responseDecoder: PresenceResponseDecoder<AnyPresencePayload<WhereNowPayload>>(),
           using: customSession,
           respondOn: queue) { result in
-        completion?(result.map { [uuid: $0.payload.payload.channels] })
+      completion?(result.map { [uuid: $0.payload.payload.channels] })
     }
   }
 }
@@ -493,7 +516,7 @@ extension PubNub {
           responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
           using: customSession,
           respondOn: queue) { result in
-        completion?(result.map { [$0.payload.payload.group: $0.payload.payload.channels] })
+      completion?(result.map { [$0.payload.payload.group: $0.payload.payload.channels] })
     }
   }
 
@@ -537,7 +560,7 @@ extension PubNub {
           responseDecoder: GenericServiceResponseDecoder(),
           using: customSession,
           respondOn: queue) { result in
-            completion?(result.map { _ in [group: channels] })
+      completion?(result.map { _ in [group: channels] })
     }
   }
 }
@@ -576,7 +599,7 @@ extension PubNub {
   ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func modifyPushChannelRegistrations(
+  public func managePushChannelRegistrations(
     byRemoving removals: [String],
     thenAdding additions: [String],
     for deviceToken: Data,
@@ -586,7 +609,7 @@ extension PubNub {
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     let router = PushRouter(
-      .modifyPushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
+      .managePushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
       configuration: configuration
     )
 
@@ -596,6 +619,54 @@ extension PubNub {
           respondOn: queue) { result in
       completion?(result.map { $0.payload })
     }
+  }
+
+  /// Adds or removes push notification functionality on provided set of channels.
+  /// - Parameters:
+  ///   - byRemoving: The list of channels to remove the device registration from
+  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - for: A device token to identify the device for registration changes
+  ///   - of: The type of Remote Notification service used to send the notifications
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func addingPushChannelRegistrations(
+    _ additions: [String],
+    for deviceToken: Data,
+    of pushType: PushRouter.PushType = .apns,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    managePushChannelRegistrations(
+      byRemoving: [], thenAdding: additions,
+      for: deviceToken, of: pushType,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Adds or removes push notification functionality on provided set of channels.
+  /// - Parameters:
+  ///   - byRemoving: The list of channels to remove the device registration from
+  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - for: A device token to identify the device for registration changes
+  ///   - of: The type of Remote Notification service used to send the notifications
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removingPushChannelRegistrations(
+    _ removals: [String],
+    for deviceToken: Data,
+    of pushType: PushRouter.PushType = .apns,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    managePushChannelRegistrations(
+      byRemoving: removals, thenAdding: [],
+      for: deviceToken, of: pushType,
+      using: customSession, respondOn: queue, completion: completion
+    )
   }
 
   /// Disable push notifications from all channels which is registered with specified pushToken.
@@ -636,7 +707,7 @@ extension PubNub {
     respondOn queue: DispatchQueue = .main,
     completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
-    route(PushRouter(.modifyAPNS(pushToken: deviceToken, environment: environment,
+    route(PushRouter(.manageAPNS(pushToken: deviceToken, environment: environment,
                                  topic: topic, adding: [], removing: []),
                      configuration: configuration),
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
@@ -656,7 +727,7 @@ extension PubNub {
   ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func modifyAPNSDevicesOnChannels(
+  public func manageAPNSDevicesOnChannels(
     byRemoving removals: [String],
     thenAdding additions: [String],
     device token: Data,
@@ -667,7 +738,7 @@ extension PubNub {
     completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
   ) {
     let router = PushRouter(
-      .modifyAPNS(pushToken: token, environment: environment,
+      .manageAPNS(pushToken: token, environment: environment,
                   topic: topic, adding: additions, removing: removals),
       configuration: configuration
     )
@@ -687,6 +758,58 @@ extension PubNub {
     }
   }
 
+  /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  /// - Parameters:
+  ///   - byRemoving: The list of channels to remove the device registration from
+  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - device: The device to add/remove from the channels
+  ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
+  ///   - environment: The APS environment to register the device
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func addingAPNSDevicesOnChannels(
+    _ additions: [String],
+    device token: Data,
+    on topic: String,
+    environment: PushRouter.Environment = .development,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    manageAPNSDevicesOnChannels(
+      byRemoving: [], thenAdding: additions,
+      device: token, on: topic, environment: environment,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
+  /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  /// - Parameters:
+  ///   - byRemoving: The list of channels to remove the device registration from
+  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - device: The device to add/remove from the channels
+  ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
+  ///   - environment: The APS environment to register the device
+  ///   - using: Custom Networking session specific to this method call
+  ///   - respondOn: The queue the completion handler should be returned on
+  ///   - completion: The async result of the method call
+  public func removingAPNSDevicesOnChannels(
+    _ removals: [String],
+    device token: Data,
+    on topic: String,
+    environment: PushRouter.Environment = .development,
+    using customSession: SessionReplaceable? = nil,
+    respondOn queue: DispatchQueue = .main,
+    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+  ) {
+    manageAPNSDevicesOnChannels(
+      byRemoving: removals, thenAdding: [],
+      device: token, on: topic, environment: environment,
+      using: customSession, respondOn: queue, completion: completion
+    )
+  }
+
   /// Disable APNS push notifications from all channels which is registered with specified pushToken.
   /// - Parameters:
   ///   - for: The device token to remove from all channels
@@ -695,7 +818,7 @@ extension PubNub {
   ///   - using: Custom Networking session specific to this method call
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
-  public func removeAPNSPushDevice(
+  public func removeAllAPNSPushDevice(
     for deviceToken: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,

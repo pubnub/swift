@@ -62,7 +62,7 @@ public enum SubscriptionEvent {
   /// A change in the subscribed channels or groups has occurred
   case subscriptionChanged(SubscriptionChangeEvent)
   /// A presence change has been received
-  case presenceChanged(PubNubPresence)
+  case presenceChanged(PubNubPresenceChange)
   /// A User object has been updated
   case uuidMetadataSet(PubNubUUIDMetadataChangeset)
   /// A User object has been deleted
@@ -163,7 +163,7 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   /// Receiver for presence events
-  public var didReceivePresence: ((PubNubPresence) -> Void)?
+  public var didReceivePresence: ((PubNubPresenceChange) -> Void)?
   /// Receiver for signal events
   public var didReceiveSignal: ((PubNubMessage) -> Void)?
   /// Receiver for changes in the subscribe/unsubscribe status of channels/groups

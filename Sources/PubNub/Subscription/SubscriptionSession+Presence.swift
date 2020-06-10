@@ -125,7 +125,7 @@ extension SubscriptionSession {
     nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(on: .main, decoder: AnyJSONResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: AnyJSONResponseDecoder()) { result in
 
         completion(result.flatMap { response in
           let normalizedState: [String: [String: AnyJSON]]
@@ -141,20 +141,13 @@ extension SubscriptionSession {
             return .failure(error)
           }
 
-          // Update internal state for user
-          if uuid == self?.configuration.uuid {
-            self?.internalState.lockedWrite { state in
-              normalizedState.forEach { state.findAndUpdate($0.key, state: $0.value) }
-            }
-          }
-
           return .success(normalizedState)
         })
       }
   }
 
   public func setPresence(
-    state: [String: JSONCodable],
+    state: [String: JSONCodableScalar],
     on channels: [String],
     and groups: [String],
     completion: @escaping (Result<[String: [String: AnyJSON]], Error>) -> Void
@@ -165,18 +158,10 @@ extension SubscriptionSession {
     nonSubscribeSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-      .response(on: .main, decoder: SetPresenceStateResponseDecoder()) { [weak self] result in
+      .response(on: .main, decoder: SetPresenceStateResponseDecoder()) { result in
         completion(result.map { response in
           // Get mapping of channels/groups to new state
           let normalizedState = response.payload.normalizedPayload(using: channels + groups)
-
-          // Update state cache for channel(s) & group(s)
-          self?.internalState.lockedWrite { state in
-            normalizedState.forEach { state.findAndUpdate($0.key, state: $0.value) }
-          }
-
-          // Stop the subscription loop to pick up the new state
-          self?.reconnect(at: self?.previousTokenResponse?.timetoken)
 
           // Return State that matches current user
           return normalizedState

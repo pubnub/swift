@@ -36,7 +36,7 @@ public struct PubNubFCMPayload: Codable {
   /// The payload of the FCM notification
   /// - Warning: The key should not be a reserved word (`"from"`, `"message_type"`,
   /// or any word starting with `"google"` or `"gcm"`).
-  public let payload: JSONCodable
+  public let payload: JSONCodable?
   /// Basic notification template to use across all platforms.
   public let notification: FCMNotificationPayload?
   /// Android specific options for messages sent through [FCM connection server](https://goo.gl/4GLdUl).
@@ -48,7 +48,7 @@ public struct PubNubFCMPayload: Codable {
   /// Template for FCM SDK feature options to use across all platforms.
   public let options: FCMOptionsPayload?
   /// Target to send a message to
-  public let target: FCMTarget
+  public let target: FCMTarget?
 
   public enum CodingKeys: String, CodingKey {
     case payload = "data"
@@ -60,8 +60,8 @@ public struct PubNubFCMPayload: Codable {
   }
 
   public init(
-    payload: JSONCodable,
-    target: FCMTarget,
+    payload: JSONCodable?,
+    target: FCMTarget?,
     notification: FCMNotificationPayload? = nil,
     android: FCMAndroidPayload? = nil,
     webpush: FCMWebpushConfig? = nil,
@@ -78,7 +78,7 @@ public struct PubNubFCMPayload: Codable {
   }
 
   public init(from decoder: Decoder) throws {
-    target = try FCMTarget(from: decoder)
+    target = try? FCMTarget(from: decoder)
 
     let container = try decoder.container(keyedBy: CodingKeys.self)
     payload = try container.decode(AnyJSON.self, forKey: .payload)
@@ -91,10 +91,12 @@ public struct PubNubFCMPayload: Codable {
 
   public func encode(to encoder: Encoder) throws {
     // Preserve the key names of target
-    try target.encode(to: encoder)
+    if let target = target {
+      try target.encode(to: encoder)
+    }
 
     var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(payload.codableValue, forKey: .payload)
+    try container.encodeIfPresent(payload?.codableValue, forKey: .payload)
     try container.encode(notification, forKey: .notification)
     try container.encodeIfPresent(android, forKey: .android)
     try container.encodeIfPresent(webpush, forKey: .webpush)

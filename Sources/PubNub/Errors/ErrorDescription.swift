@@ -249,7 +249,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .malformedResponseBody:
       return "Response is valid JSON but not formatted as expected"
     case .badRequest:
-      return "An unexpected error ocurred while processing the request"
+      return "An unexpected error occurred while processing the request"
     case .unauthorized:
       return "Access was denied due to insufficient authentication/authorization"
     case .forbidden:
@@ -269,7 +269,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .malformedFilterExpression:
       return "The supplied filter expression was malformed"
     case .internalServiceError:
-      return "An unexpected error ocurred while processing the request"
+      return "An unexpected error occurred while processing the request"
     case .serviceUnavailable:
       return "The server took longer to respond than the maximum allowed processing time"
     case .invalidArguments:

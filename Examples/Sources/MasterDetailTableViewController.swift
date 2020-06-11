@@ -493,7 +493,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performHereNowRequest() {
-    pubnub.hereNow(on: ["channelSwift"], and: ["demo"], also: true) { result in
+    pubnub.hereNow(on: ["channelSwift"], and: ["demo"], includeState: true) { result in
       switch result {
       case let .success(response):
         print("Successful HereNow Response: \(response)")
@@ -617,7 +617,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performModifyPush(_ deviceToken: Data) {
-    pubnub.modifyPushChannelRegistrations(
+    pubnub.managePushChannelRegistrations(
       byRemoving: ["channelSwift"],
       thenAdding: ["channelSwift"],
       for: deviceToken

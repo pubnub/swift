@@ -45,7 +45,7 @@ class OnboardingSnippets: XCTestCase {
       client.publish(channel: "pubnub_onboarding_channel",
                      message: ["sender": configuration.uuid,
                                "content": "Hello From SDK_NAME SDK"]) { result in
-        _ = result.map { print("Successfully sent at \($0.timetoken)!") }
+        _ = result.map { print("Successfully sent at \($0)!") }
         publishExpect.fulfill()
       }
     }

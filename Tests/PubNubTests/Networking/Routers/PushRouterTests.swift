@@ -71,8 +71,8 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listPushChannelRegistrations(for: hexData) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.channels.isEmpty)
+        case let .success(channels):
+          XCTAssertFalse(channels.isEmpty)
         case let .failure(error):
           XCTFail("Push List request failed with error: \(error.localizedDescription)")
         }
@@ -96,8 +96,8 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listPushChannelRegistrations(for: hexData) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
+        case let .success(channels):
+          XCTAssertTrue(channels.isEmpty)
         case let .failure(error):
           XCTFail("Push List request failed with error: \(error.localizedDescription)")
         }
@@ -169,11 +169,13 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let testRemoved = testChannels
+
     PubNub(configuration: config, session: sessions.session)
       .managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, .acknowledge)
+        case let .success(response):
+          XCTAssertEqual(response.removed, testRemoved)
         case let .failure(error):
           XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
         }
@@ -269,12 +271,11 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .removeAllPushChannelRegistrations(for: hexData) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, .acknowledge)
+        case .success:
+          expectation.fulfill()
         case let .failure(error):
           XCTFail("Group List request failed with error: \(error.localizedDescription)")
         }
-        expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)
@@ -329,8 +330,8 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.channels.isEmpty)
+        case let .success(channels):
+          XCTAssertFalse(channels.isEmpty)
         case let .failure(error):
           XCTFail("Push List request failed with error: \(error.localizedDescription)")
         }
@@ -379,8 +380,8 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertTrue(payload.channels.isEmpty)
+        case let .success(channels):
+          XCTAssertTrue(channels.isEmpty)
         case let .failure(error):
           XCTFail("Push List request failed with error: \(error.localizedDescription)")
         }
@@ -401,12 +402,14 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
+    let testRemoved = testChannels
+
     PubNub(configuration: config, session: sessions.session)
       .manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
                                    device: hexData, on: "TestTopic") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, .acknowledge)
+        case let .success(response):
+          XCTAssertEqual(response.removed, testRemoved)
         case let .failure(error):
           XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
         }
@@ -511,12 +514,11 @@ extension PushRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.message, .acknowledge)
+        case .success:
+          expectation.fulfill()
         case let .failure(error):
           XCTFail("Group List request failed with error: \(error.localizedDescription)")
         }
-        expectation.fulfill()
       }
 
     wait(for: [expectation], timeout: 1.0)

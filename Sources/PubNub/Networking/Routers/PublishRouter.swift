@@ -212,10 +212,10 @@ struct PublishResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-public struct PublishResponsePayload: Codable, Hashable {
-  public let error: Int
-  public let message: String
-  public let timetoken: Timetoken
+struct PublishResponsePayload: Codable, Hashable {
+  let error: Int
+  let message: String
+  let timetoken: Timetoken
 
   public init(error: Int = 1, message: String = "Sent", timetoken: Timetoken) {
     self.error = error
@@ -223,7 +223,7 @@ public struct PublishResponsePayload: Codable, Hashable {
     self.timetoken = timetoken
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
 
     var optionalError: Int?
@@ -256,7 +256,7 @@ public struct PublishResponsePayload: Codable, Hashable {
     self.timetoken = timetoken
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
 
     try container.encode(error)

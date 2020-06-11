@@ -43,7 +43,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let performHereNow = {
       // Here Now Test
-      client.hereNow(on: [testChannel], also: true) { result in
+      client.hereNow(on: [testChannel], includeState: true) { result in
         switch result {
         case let .success(channels):
           XCTAssertNotNil(channels[testChannel])
@@ -67,7 +67,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     client.subscribe(to: [testChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [hereNowExpect], timeout: 1000.0)
+    wait(for: [hereNowExpect], timeout: 10.0)
   }
 
   func testHereNow_SingleChannel_State() {
@@ -81,7 +81,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let performHereNow = {
       // Here Now Test
-      client.hereNow(on: [testChannel], also: true) { result in
+      client.hereNow(on: [testChannel], includeState: true) { result in
         switch result {
         case let .success(channels):
           XCTAssertNotNil(channels[testChannel])
@@ -131,7 +131,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: configuration)
     let testChannel = "testHereNow_SingleChannel_EmptyPresence"
 
-    client.hereNow(on: [testChannel], also: true) { result in
+    client.hereNow(on: [testChannel], includeState: true) { result in
       switch result {
       case let .success(channels):
         XCTAssertNotNil(channels[testChannel])
@@ -195,7 +195,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let performHereNow = {
       // Here Now Test
-      client.hereNow(on: [testChannel, otherChannel], also: true) { result in
+      client.hereNow(on: [testChannel, otherChannel], includeState: true) { result in
         switch result {
         case let .success(channels):
           XCTAssertNotNil(channels[testChannel])
@@ -238,7 +238,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     client.subscribe(to: [testChannel, otherChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [setStateExpect, hereNowExpect], timeout: 100.0)
+    wait(for: [setStateExpect, hereNowExpect], timeout: 10.0)
   }
 
   func testHereNow_MultiChannel_EmptyPresence() {
@@ -250,7 +250,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     let testChannel = "testHereNow_MultiChannel_EmptyPresence"
     let otherChannel = "testHereNow_MultiChannel_EmptyPresence_Other"
 
-    client.hereNow(on: [testChannel, otherChannel], also: true) { result in
+    client.hereNow(on: [testChannel, otherChannel], includeState: true) { result in
       switch result {
       case let .success(channels):
         XCTAssertTrue(channels.isEmpty)

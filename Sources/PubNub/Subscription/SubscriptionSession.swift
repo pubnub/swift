@@ -36,6 +36,9 @@ public class SubscriptionSession {
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
+  // Mutable Customizations
+  var customFilter: String?
+
   var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
 
@@ -211,7 +214,7 @@ public class SubscriptionSession {
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: cursor?.timetoken,
                                             region: cursor?.region.description,
                                             heartbeat: configuration.durationUntilTimeout,
-                                            filter: configuration.filterExpression),
+                                            filter: customFilter ?? configuration.filterExpression),
                                  configuration: configuration)
 
     // Cancel previous request before starting new one
@@ -305,7 +308,8 @@ public class SubscriptionSession {
                 return objectAction.subscribeEvent
               case .messageAction:
                 guard let messageAction = PubNubMessageActionBase(from: message),
-                  let actionEvent = try? message.payload["event"]?.decode(SubscribeMessageActionPayload.Action.self)
+                  let actionEventString = message.payload[rawValue: "event"] as? String,
+                  let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
                 else {
                   return .messageReceived(PubNubMessageBase(from: message))
                 }

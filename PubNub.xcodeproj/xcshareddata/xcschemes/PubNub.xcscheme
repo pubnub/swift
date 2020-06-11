@@ -48,11 +48,6 @@
                BlueprintName = "PubNubTests"
                ReferencedContainer = "container:PubNub.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "SubscribeRouterTests/testSubscribe_Membership_Update()">
-               </Test>
-            </SkippedTests>
             <LocationScenarioReference
                identifier = "com.apple.dt.IDEFoundation.CurrentLocationScenarioIdentifier"
                referenceType = "1">

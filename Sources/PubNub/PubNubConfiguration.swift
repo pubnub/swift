@@ -44,22 +44,10 @@ public struct PubNubConfiguration: Hashable {
   ///   - and: The dictionary key used to search the Info Dictionary of the `Bundle` for the Subscribe Key Value
   public init(from bundle: Bundle = .main,
               using pubPlistKey: String = "PubNubPublishKey", and subPlistKey: String = "PubNubSubscribeKey") {
-    self.init(from: bundle.infoDictionary ?? [:], using: pubPlistKey, and: subPlistKey)
-  }
-
-  /// Creates a configuration from the contents of the specified Dictionary
-  ///
-  /// - Attention: It is recommended that you use this initializer only if you have a
-  /// custom way to pass your PubNub Publish and Subscribe keys without storing them
-  /// inside your source code/code repository.
-  ///
-  /// - Parameters:
-  ///   - from: The `Dictionary` that contains the Pub/Sub keys to use for the `PubNub` session.
-  ///   - using: The unique `Dictionary` key used to retrieve the stored PubNub Publish Key
-  ///   - and: The unique `Dictionary` key used to retrieve the stored PubNub Publish Key
-  public init(from infoDictionary: [String: Any], using pubDictKey: String, and subDictKey: String) {
-    self.init(publishKey: infoDictionary[pubDictKey] as? String,
-              subscribeKey: infoDictionary[subDictKey] as? String)
+    self.init(
+      publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
+      subscribeKey: bundle.infoDictionary?[subPlistKey] as? String
+    )
   }
 
   /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
@@ -69,8 +57,8 @@ public struct PubNubConfiguration: Hashable {
   /// inside your source code/code repository.
   ///
   /// - Parameters:
-  ///   - publishKey: The `Dictionary` that contains the Pub/Sub keys to use for the `PubNub` session.
-  ///   - subscribeKey: The unique `Dictionary` key used to retrieve the stored PubNub Publish Key
+  ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
+  ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
   public init(publishKey: String?, subscribeKey: String?) {
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey

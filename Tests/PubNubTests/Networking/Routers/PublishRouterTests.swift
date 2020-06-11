@@ -68,8 +68,8 @@ extension PublishRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .success(timetoken):
+          XCTAssertEqual(timetoken, 15_644_265_196_692_560)
         case let .failure(error):
           XCTFail("Publish request failed with error: \(error.localizedDescription)")
         }
@@ -252,8 +252,8 @@ extension PublishRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"], shouldCompress: true) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .success(timetoken):
+          XCTAssertEqual(timetoken, 15_644_265_196_692_560)
         case let .failure(error):
           XCTFail("Publish request failed with error: \(error.localizedDescription)")
         }
@@ -291,8 +291,8 @@ extension PublishRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .fire(channel: "Test", message: ["text": "Hello"], meta: ["metaKey": "metaValue"]) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .success(timetoken):
+          XCTAssertEqual(timetoken, 15_644_265_196_692_560)
         case let .failure(error):
           XCTFail("Publish request failed with error: \(error.localizedDescription)")
         }
@@ -330,8 +330,8 @@ extension PublishRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .signal(channel: "Test", message: ["text": "Hello"]) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.timetoken, 15_644_265_196_692_560)
+        case let .success(timetoken):
+          XCTAssertEqual(timetoken, 15_644_265_196_692_560)
         case let .failure(error):
           XCTFail("Signal request failed with error: \(error.localizedDescription)")
         }

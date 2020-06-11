@@ -93,18 +93,119 @@ public struct PubNub {
   func route<Decoder>(
     _ router: HTTPRouter,
     responseDecoder: Decoder,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration,
     completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
-    (customSession ?? networkSession)
+    (requestConfig.customSession ?? networkSession)
       .request(with: router, requestOperator: nil)
       .validate()
       .response(
-        on: queue,
+        on: requestConfig.responseQueue,
         decoder: responseDecoder,
         completion: completion
       )
+  }
+}
+
+// MARK: - Request Helpers
+
+extension PubNub {
+  public struct RequestConfiguration {
+    public var customSession: SessionReplaceable?
+    public var customConfiguration: RouterConfiguration?
+    public var responseQueue: DispatchQueue
+
+    public init(
+      customSession: SessionReplaceable? = nil,
+      customConfiguration: RouterConfiguration? = nil,
+      responseQueue: DispatchQueue = .main
+    ) {
+      self.customSession = customSession
+      self.customConfiguration = customConfiguration
+      self.responseQueue = responseQueue
+    }
+  }
+
+  public struct Page {
+    public var start: String?
+    public var end: String?
+
+    public init?(start: String?, end: String?) {
+      if start == nil, end == nil {
+        return nil
+      }
+
+      self.start = start
+      self.end = end
+    }
+  }
+
+  public struct IncludeFields {
+    public var customFields: Bool
+    public var totalCount: Bool
+
+    public init(custom: Bool = true, totalCount: Bool = true) {
+      customFields = custom
+      self.totalCount = totalCount
+    }
+  }
+
+  public struct MembershipInclude {
+    public var customFields: Bool
+    public var channelFields: Bool
+    public var channelCustomFields: Bool
+    public var totalCount: Bool
+
+    public init(
+      customFields: Bool = true,
+      channelFields: Bool = false,
+      channelCustomFields: Bool = false,
+      totalCount: Bool = false
+    ) {
+      self.customFields = customFields
+      self.channelFields = channelFields
+      self.channelCustomFields = channelCustomFields
+      self.totalCount = totalCount
+    }
+
+    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
+      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+
+      if customFields { includes.append(.custom) }
+      if channelFields { includes.append(.channel) }
+      if channelCustomFields { includes.append(.channelCustom) }
+
+      return includes.isEmpty ? nil : includes
+    }
+  }
+
+  public struct MemberInclude {
+    public var customFields: Bool
+    public var uuidFields: Bool
+    public var uuidCustomFields: Bool
+    public var totalCount: Bool
+
+    public init(
+      customFields: Bool = true,
+      uuidFields: Bool = false,
+      uuidCustomFields: Bool = false,
+      totalCount: Bool = false
+    ) {
+      self.customFields = customFields
+      self.uuidFields = uuidFields
+      self.uuidCustomFields = uuidCustomFields
+      self.totalCount = totalCount
+    }
+
+    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
+      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+
+      if customFields { includes.append(.custom) }
+      if uuidFields { includes.append(.uuid) }
+      if uuidCustomFields { includes.append(.uuidCustom) }
+
+      return includes.isEmpty ? nil : includes
+    }
   }
 }
 
@@ -117,15 +218,13 @@ extension PubNub {
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func time(
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<TimeResponsePayload, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
-    route(TimeRouter(.time, configuration: configuration),
+    route(TimeRouter(.time, configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: TimeResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.timetoken })
     }
   }
 }
@@ -158,9 +257,8 @@ extension PubNub {
     storeTTL: Int? = nil,
     meta: JSONCodable? = nil,
     shouldCompress: Bool = false,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     let router: PublishRouter
     if shouldCompress {
@@ -185,9 +283,8 @@ extension PubNub {
 
     route(router,
           responseDecoder: PublishResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.timetoken })
     }
   }
 
@@ -214,16 +311,14 @@ extension PubNub {
     channel: String,
     message: JSONCodable,
     meta: JSONCodable? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     route(PublishRouter(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
                         configuration: configuration),
           responseDecoder: PublishResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.timetoken })
     }
   }
 
@@ -239,16 +334,14 @@ extension PubNub {
   public func signal(
     channel: String,
     message: JSONCodable,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<PublishResponsePayload, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     route(PublishRouter(.signal(message: message.codableValue, channel: channel),
                         configuration: configuration),
           responseDecoder: PublishResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.timetoken })
     }
   }
 }
@@ -268,8 +361,11 @@ extension PubNub {
     and channelGroups: [String] = [],
     at timetoken: Timetoken? = nil,
     region: Int? = nil,
-    withPresence: Bool = false
+    withPresence: Bool = false,
+    filterOverride: String? = nil
   ) {
+    subscription.customFilter = filterOverride
+
     subscription.subscribe(to: channels,
                            and: channelGroups,
                            at: SubscribeCursor(timetoken: timetoken, region: region),
@@ -333,6 +429,14 @@ extension PubNub {
   public var connectionStatus: ConnectionStatus {
     return subscription.connectionStatus
   }
+
+  // An override for the default filter
+  var subscribeFilterOverride: String? {
+    get { return subscription.customFilter }
+    set {
+      subscription.customFilter = newValue
+    }
+  }
 }
 
 // MARK: - Presence Management
@@ -348,8 +452,7 @@ extension PubNub {
     state: [String: JSONCodableScalar],
     on channels: [String],
     and groups: [String] = [],
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<JSONCodable, Error>) -> Void)?
   ) {
     let router = PresenceRouter(
@@ -359,8 +462,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PresenceResponseDecoder<AnyPresencePayload<AnyJSON>>(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.payload })
     }
   }
@@ -375,8 +477,7 @@ extension PubNub {
     for uuid: String,
     on channels: [String],
     and groups: [String] = [],
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(uuid: String, stateByChannel: [String: JSONCodable]), Error>) -> Void)?
   ) {
     let router = PresenceRouter(
@@ -386,8 +487,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: GetPresenceStateResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { (uuid: $0.payload.uuid, stateByChannel: $0.payload.channels) })
     }
   }
@@ -411,8 +511,7 @@ extension PubNub {
     and groups: [String] = [],
     includeUUIDs: Bool = true,
     includeState: Bool = false,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
   ) {
     let router: PresenceRouter
@@ -430,8 +529,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: decoder,
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.asPubNubPresenceBase })
     }
   }
@@ -444,14 +542,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func whereNow(
     for uuid: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(PresenceRouter(.whereNow(uuid: uuid), configuration: configuration),
           responseDecoder: PresenceResponseDecoder<AnyPresencePayload<WhereNowPayload>>(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { [uuid: $0.payload.payload.channels] })
     }
   }
@@ -466,14 +562,12 @@ extension PubNub {
   ///   - respondOn: The queue the completion handler should be returned on
   ///   - completion: The async result of the method call
   public func listChannelGroups(
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.channelGroups, configuration: configuration),
           responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.payload.groups })
     }
   }
@@ -486,15 +580,13 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func delete(
     channelGroup: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
     route(
       ChannelGroupsRouter(.deleteGroup(group: channelGroup), configuration: configuration),
       responseDecoder: GenericServiceResponseDecoder(),
-      using: customSession,
-      respondOn: queue
+      custom: requestConfig
     ) { result in
       completion?(result.map { _ in channelGroup })
     }
@@ -508,14 +600,12 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func listChannels(
     for group: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.channelsForGroup(group: group), configuration: configuration),
           responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { [$0.payload.payload.group: $0.payload.payload.channels] })
     }
   }
@@ -530,14 +620,12 @@ extension PubNub {
   public func add(
     channels: [String],
     to group: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { _ in () })
     }
   }
@@ -552,14 +640,12 @@ extension PubNub {
   public func remove(
     channels: [String],
     from group: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.removeChannelsForGroup(group: group, channels: channels), configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { _ in [group: channels] })
     }
   }
@@ -578,15 +664,13 @@ extension PubNub {
   public func listPushChannelRegistrations(
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     route(PushRouter(.listPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.channels })
     }
   }
 
@@ -604,9 +688,8 @@ extension PubNub {
     thenAdding additions: [String],
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
     let router = PushRouter(
       .managePushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
@@ -615,9 +698,8 @@ extension PubNub {
 
     route(router,
           responseDecoder: ModifyPushResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
     }
   }
 
@@ -634,15 +716,14 @@ extension PubNub {
     _ additions: [String],
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     managePushChannelRegistrations(
       byRemoving: [], thenAdding: additions,
       for: deviceToken, of: pushType,
-      using: customSession, respondOn: queue, completion: completion
-    )
+      custom: requestConfig
+    ) { completion?($0.map { $0.added }) }
   }
 
   /// Adds or removes push notification functionality on provided set of channels.
@@ -658,15 +739,14 @@ extension PubNub {
     _ removals: [String],
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     managePushChannelRegistrations(
       byRemoving: removals, thenAdding: [],
       for: deviceToken, of: pushType,
-      using: customSession, respondOn: queue, completion: completion
-    )
+      custom: requestConfig
+    ) { completion?($0.map { $0.removed }) }
   }
 
   /// Disable push notifications from all channels which is registered with specified pushToken.
@@ -679,15 +759,13 @@ extension PubNub {
   public func removeAllPushChannelRegistrations(
     for deviceToken: Data,
     of pushType: PushRouter.PushType = .apns,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
           responseDecoder: ModifyPushResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { _ in () })
     }
   }
 
@@ -703,17 +781,15 @@ extension PubNub {
     for deviceToken: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<RegisteredPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     route(PushRouter(.manageAPNS(pushToken: deviceToken, environment: environment,
                                  topic: topic, adding: [], removing: []),
                      configuration: configuration),
           responseDecoder: RegisteredPushChannelsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { $0.payload.channels })
     }
   }
 
@@ -733,9 +809,8 @@ extension PubNub {
     device token: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
     let router = PushRouter(
       .manageAPNS(pushToken: token, environment: environment,
@@ -752,9 +827,8 @@ extension PubNub {
 
     route(router,
           responseDecoder: ModifyPushResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
     }
   }
 
@@ -773,15 +847,14 @@ extension PubNub {
     device token: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     manageAPNSDevicesOnChannels(
       byRemoving: [], thenAdding: additions,
       device: token, on: topic, environment: environment,
-      using: customSession, respondOn: queue, completion: completion
-    )
+      custom: requestConfig
+    ) { completion?($0.map { $0.removed }) }
   }
 
   /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
@@ -799,15 +872,14 @@ extension PubNub {
     device token: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<[String], Error>) -> Void)?
   ) {
     manageAPNSDevicesOnChannels(
       byRemoving: removals, thenAdding: [],
       device: token, on: topic, environment: environment,
-      using: customSession, respondOn: queue, completion: completion
-    )
+      custom: requestConfig
+    ) { completion?($0.map { $0.removed }) }
   }
 
   /// Disable APNS push notifications from all channels which is registered with specified pushToken.
@@ -822,16 +894,14 @@ extension PubNub {
     for deviceToken: Data,
     on topic: String,
     environment: PushRouter.Environment = .development,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<ModifiedPushChannelsPayloadResponse, Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
                      configuration: configuration),
           responseDecoder: ModifyPushResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
-      completion?(result.map { $0.payload })
+          custom: requestConfig) { result in
+      completion?(result.map { _ in () })
     }
   }
 }
@@ -866,8 +936,7 @@ extension PubNub {
     start: Timetoken? = nil,
     end: Timetoken? = nil,
     metaInResponse: Bool = false,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     let router: HistoryRouter
@@ -887,8 +956,7 @@ extension PubNub {
     route(
       router,
       responseDecoder: MessageHistoryResponseDecoder(),
-      using: customSession,
-      respondOn: queue
+      custom: requestConfig
     ) { result in
       completion?(result.map {
         (
@@ -911,15 +979,13 @@ extension PubNub {
     from channel: String,
     start stateTimetoken: Timetoken? = nil,
     end endTimetoken: Timetoken? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
     route(HistoryRouter(.delete(channel: channel, start: stateTimetoken, end: endTimetoken),
                         configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { _ in channel })
     }
   }
@@ -932,8 +998,7 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func messageCounts(
     channels: [String: Timetoken],
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
     let router = HistoryRouter(
@@ -943,8 +1008,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: MessageCountsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.channels })
     }
   }
@@ -959,8 +1023,7 @@ extension PubNub {
   public func messageCounts(
     channels: [String],
     timetoken: Timetoken = 1,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
     let router = HistoryRouter(
@@ -970,95 +1033,8 @@ extension PubNub {
 
     route(router,
           responseDecoder: MessageCountsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.channels })
-    }
-  }
-}
-
-// MARK: - Object Request Helpers
-
-extension PubNub {
-  public struct Page {
-    public let start: String?
-    public let end: String?
-
-    public init?(start: String?, end: String?) {
-      if start == nil, end == nil {
-        return nil
-      }
-
-      self.start = start
-      self.end = end
-    }
-  }
-
-  public struct IncludeFields {
-    public let customFields: Bool
-    public let totalCount: Bool
-
-    public init(custom: Bool = true, totalCount: Bool = true) {
-      customFields = custom
-      self.totalCount = totalCount
-    }
-  }
-
-  public struct MembershipInclude {
-    public let customFields: Bool
-    public let channelFields: Bool
-    public let channelCustomFields: Bool
-    public let totalCount: Bool
-
-    public init(
-      customFields: Bool = true,
-      channelFields: Bool = false,
-      channelCustomFields: Bool = false,
-      totalCount: Bool = false
-    ) {
-      self.customFields = customFields
-      self.channelFields = channelFields
-      self.channelCustomFields = channelCustomFields
-      self.totalCount = totalCount
-    }
-
-    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
-      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
-
-      if customFields { includes.append(.custom) }
-      if channelFields { includes.append(.channel) }
-      if channelCustomFields { includes.append(.channelCustom) }
-
-      return includes.isEmpty ? nil : includes
-    }
-  }
-
-  public struct MemberInclude {
-    public let customFields: Bool
-    public let uuidFields: Bool
-    public let uuidCustomFields: Bool
-    public let totalCount: Bool
-
-    public init(
-      customFields: Bool = true,
-      uuidFields: Bool = false,
-      uuidCustomFields: Bool = false,
-      totalCount: Bool = false
-    ) {
-      self.customFields = customFields
-      self.uuidFields = uuidFields
-      self.uuidCustomFields = uuidCustomFields
-      self.totalCount = totalCount
-    }
-
-    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
-      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
-
-      if customFields { includes.append(.custom) }
-      if uuidFields { includes.append(.uuid) }
-      if uuidCustomFields { includes.append(.uuidCustom) }
-
-      return includes.isEmpty ? nil : includes
     }
   }
 }
@@ -1082,8 +1058,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = 100,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubUUIDMetadata], PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
@@ -1094,8 +1069,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { (
         $0.payload.data,
         try? PubNubHashedPageBase(from: $0.payload)
@@ -1113,8 +1087,7 @@ extension PubNub {
   public func fetch(
     uuid metadata: String?,
     include customFields: Bool = true,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
@@ -1124,8 +1097,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubUUIDMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -1140,8 +1112,7 @@ extension PubNub {
   public func set(
     uuid metadata: PubNubUUIDMetadata,
     include customFields: Bool = true,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
@@ -1151,8 +1122,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubUUIDMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -1165,8 +1135,7 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func remove(
     uuid metadataId: String?,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
     // Capture the response or current configuration uuid
@@ -1179,8 +1148,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: GenericServiceResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { _ in metadataId })
     }
   }
@@ -1205,8 +1173,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubChannelMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -1217,8 +1184,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubChannelsMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { (
         $0.payload.data,
         try? PubNubHashedPageBase(from: $0.payload)
@@ -1236,8 +1202,7 @@ extension PubNub {
   public func fetch(
     channel metadataId: String,
     include customFields: Bool = true,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -1247,8 +1212,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubChannelMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -1263,8 +1227,7 @@ extension PubNub {
   public func set(
     channel metadata: PubNubChannelMetadata,
     include customFields: Bool = true,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -1274,8 +1237,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubChannelMetadataResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -1288,8 +1250,7 @@ extension PubNub {
   ///   - completion: The async result of the method call
   public func remove(
     channel metadataId: String,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -1299,8 +1260,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: GenericServiceResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { _ in metadataId })
     }
   }
@@ -1327,8 +1287,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.fetchMemberships(
@@ -1340,8 +1299,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { response in
         (
           response.payload.data.compactMap {
@@ -1371,8 +1329,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.fetchMembers(
@@ -1384,8 +1341,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { response in
         (
           response.payload.data.compactMap {
@@ -1416,14 +1372,13 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: memberships, removing: [],
       include: include, filter: filter, sort: sort, limit: limit, page: page,
-      using: customSession, respondOn: queue, completion: completion
+      custom: requestConfig, completion: completion
     )
   }
 
@@ -1446,14 +1401,13 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: [], removing: memberships,
       include: include, filter: filter, sort: sort, limit: limit, page: page,
-      using: customSession, respondOn: queue, completion: completion
+      custom: requestConfig, completion: completion
     )
   }
 
@@ -1479,8 +1433,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.setMemberships(
@@ -1494,8 +1447,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { response in
         (
           response.payload.data.compactMap {
@@ -1526,14 +1478,13 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: members, removing: [],
       include: include, filter: filter, sort: sort, limit: limit, page: page,
-      using: customSession, respondOn: queue, completion: completion
+      custom: requestConfig, completion: completion
     )
   }
 
@@ -1556,14 +1507,13 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: [], removing: members,
       include: include, filter: filter, sort: sort, limit: limit, page: page,
-      using: customSession, respondOn: queue, completion: completion
+      custom: requestConfig, completion: completion
     )
   }
 
@@ -1589,8 +1539,7 @@ extension PubNub {
     sort: String? = nil,
     limit: Int? = nil,
     page: Page? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.setMembers(
@@ -1604,8 +1553,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       completion?(result.map { response in
         (
           response.payload.data.compactMap {
@@ -1635,15 +1583,13 @@ extension PubNub {
     start: Timetoken? = nil,
     end: Timetoken? = nil,
     limit: Int? = nil,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<([PubNubMessageAction], PubNubBoundedPage?), Error>) -> Void)?
   ) {
     route(MessageActionsRouter(.fetch(channel: channel, start: start, end: end, limit: limit),
                                configuration: configuration),
           responseDecoder: MessageActionsResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       switch result {
       case let .success(response):
         completion?(.success((
@@ -1671,8 +1617,7 @@ extension PubNub {
     channel: String,
     type actionType: String, value: String,
     messageTimetoken: Timetoken,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
     let router = MessageActionsRouter(
@@ -1681,8 +1626,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: MessageActionResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       switch result {
       case let .success(response):
 
@@ -1713,9 +1657,9 @@ extension PubNub {
     channel: String,
     message timetoken: Timetoken,
     action actionTimetoken: Timetoken,
-    using customSession: SessionReplaceable? = nil,
-    respondOn queue: DispatchQueue = .main,
-    completion: ((Result<(String, Timetoken, Timetoken), Error>) -> Void)?
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    // swiftlint:disable:next large_tuple
+    completion: ((Result<(channel: String, message: Timetoken, action: Timetoken), Error>) -> Void)?
   ) {
     let router = MessageActionsRouter(
       .remove(channel: channel, message: timetoken, action: actionTimetoken),
@@ -1724,8 +1668,7 @@ extension PubNub {
 
     route(router,
           responseDecoder: DeleteResponseDecoder(),
-          using: customSession,
-          respondOn: queue) { result in
+          custom: requestConfig) { result in
       switch result {
       case let .success(response):
         if let errorPayload = response.payload.error {

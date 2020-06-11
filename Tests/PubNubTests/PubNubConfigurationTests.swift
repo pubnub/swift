@@ -73,18 +73,6 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
   }
 
-  func testInit_Dictionary() {
-    let infoDict = [publishDictionaryKey: "test_pub_key",
-                    subscribeDictionaryKey: "test_sub_key"]
-
-    let config = PubNubConfiguration(from: infoDict,
-                                     using: publishDictionaryKey,
-                                     and: subscribeDictionaryKey)
-
-    XCTAssertEqual(config.publishKey, infoDict[publishDictionaryKey])
-    XCTAssertEqual(config.subscribeKey, infoDict[subscribeDictionaryKey])
-  }
-
   func testInit_RawValues() {
     let config = PubNubConfiguration(publishKey: publishKeyValue,
                                      subscribeKey: subscribeKeyValue)

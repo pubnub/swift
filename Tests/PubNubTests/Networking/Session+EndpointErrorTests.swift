@@ -39,7 +39,7 @@ final class SessionEndpointErrorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    let config = PubNubConfiguration.default
+    let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey")
     pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {

@@ -39,7 +39,9 @@ final class SessionURLErrorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    pubnub = PubNub(configuration: .default, session: sessions.session)
+    let conig = PubNubConfiguration(publishKey: nil, subscribeKey: "")
+
+    pubnub = PubNub(configuration: conig, session: sessions.session)
     pubnub.time { result in
       switch result {
       case .success:

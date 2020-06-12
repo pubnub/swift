@@ -32,7 +32,7 @@ public protocol RouterConfiguration {
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   var publishKey: String? { get }
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
-  var subscribeKey: String? { get }
+  var subscribeKey: String { get }
   // UUID to be used as a device identifier
   var uuid: String { get }
   /// for further details.
@@ -55,10 +55,7 @@ extension RouterConfiguration {
 
   /// True if the subscribeKey exists and is not an empty `String`
   public var subscribeKeyExists: Bool {
-    guard let subscribeKey = subscribeKey, !subscribeKey.isEmpty else {
-      return false
-    }
-    return true
+    return !subscribeKey.isEmpty
   }
 
   /// True if the publishKey exists and is not an empty `String`
@@ -173,7 +170,7 @@ extension HTTPRouter {
   }
 
   var subscribeKey: String {
-    return configuration.subscribeKey?.urlEncodeSlash ?? ""
+    return configuration.subscribeKey.urlEncodeSlash
   }
 
   var publishKey: String {

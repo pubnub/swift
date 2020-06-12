@@ -24,6 +24,15 @@
 
 The PubNub Swift SDK doesn't contain any external dependencies.
 
+### [Swift Package Manager](https://github.com/apple/swift-package-manager)
+
+- Create or open your project inside of Xcode
+- Select File -> Swift Packages -> Add Package Dependency...
+- Search for PubNub and select the swift package owned by pubnub, and hit the Next button
+- Use the `Up to Next Major Version` rule spanning from `3.0.0` < `4.0.0`, and hit the Next button
+
+For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
+
 ### [CocoaPods](https://guides.cocoapods.org/using/using-cocoapods.html)
 
 ```ruby
@@ -31,7 +40,7 @@ The PubNub Swift SDK doesn't contain any external dependencies.
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 2.0'
+  pod 'PubNubSwift', '~> 3.0'
 end
 ```
 
@@ -50,7 +59,7 @@ Officially supported: Carthage 0.33 and up.
 Add this to `Cartfile`
 
 ```ruby
-github "pubnub/swift" ~> 2.0
+github "pubnub/swift" ~> 3.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:
@@ -58,15 +67,6 @@ Then in the directory containing your `Cartfile`, execute the following:
 ```bash
 carthage update
 ```
-
-### [Swift Package Manager](https://github.com/apple/swift-package-manager)
-
-- Create or open your project inside of Xcode
-- Select File -> Swift Packages -> Add Package Dependency...
-- Search for PubNub and select the swift package owned by pubnub, and hit the Next button
-- Use the `Up to Next Major Version` rule spanning from `2.0.0` < `3.0.0`, and hit the Next button
-
-For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
 
 ## Documentation
 

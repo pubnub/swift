@@ -40,7 +40,7 @@ extension ObjectsMembershipsRouterTests {
   func testMembershipFetch_Router() {
     let router = ObjectsMembershipsRouter(
       .fetchMemberships(uuidMetadataId: "TestUser", customFields: [], totalCount: false,
-                        filter: nil, sort: nil, limit: nil, start: nil, end: nil),
+                        filter: nil, sort: [], limit: nil, start: nil, end: nil),
       configuration: config
     )
 
@@ -53,7 +53,7 @@ extension ObjectsMembershipsRouterTests {
     let router = ObjectsMembershipsRouter(
       .fetchMemberships(
         uuidMetadataId: "", customFields: [], totalCount: false,
-        filter: nil, sort: nil, limit: nil, start: nil, end: nil
+        filter: nil, sort: [], limit: nil, start: nil, end: nil
       ),
       configuration: config
     )
@@ -139,7 +139,7 @@ extension ObjectsMembershipsRouterTests {
     let router = ObjectsMembershipsRouter(
       .setMemberships(uuidMetadataId: "TestUUID", customFields: [], totalCount: true,
                       changes: .init(set: [], delete: []),
-                      filter: "filter", sort: "sort", limit: 100, start: "Next", end: "last"),
+                      filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
       configuration: config
     )
 
@@ -152,7 +152,7 @@ extension ObjectsMembershipsRouterTests {
     let router = ObjectsMembershipsRouter(
       .setMemberships(uuidMetadataId: "", customFields: [], totalCount: true,
                       changes: .init(set: [], delete: []),
-                      filter: "filter", sort: "sort", limit: 100, start: "Next", end: "last"),
+                      filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
       configuration: config
     )
 
@@ -249,7 +249,7 @@ extension ObjectsMembershipsRouterTests {
   func testFetchMembers_Router() {
     let router = ObjectsMembershipsRouter(
       .fetchMembers(channelMetadataId: "TestUser", customFields: [], totalCount: false,
-                    filter: nil, sort: nil, limit: nil, start: nil, end: nil),
+                    filter: nil, sort: [], limit: nil, start: nil, end: nil),
       configuration: config
     )
 
@@ -261,7 +261,7 @@ extension ObjectsMembershipsRouterTests {
   func testFetchMembers_Router_ValidationError() {
     let router = ObjectsMembershipsRouter(
       .fetchMembers(channelMetadataId: "", customFields: [], totalCount: false,
-                    filter: nil, sort: nil, limit: nil, start: nil, end: nil),
+                    filter: nil, sort: [], limit: nil, start: nil, end: nil),
       configuration: config
     )
 
@@ -346,7 +346,7 @@ extension ObjectsMembershipsRouterTests {
     let router = ObjectsMembershipsRouter(
       .setMembers(channelMetadataId: "TestUUID", customFields: [], totalCount: true,
                   changes: .init(set: [], delete: []),
-                  filter: "filter", sort: "sort", limit: 100, start: "Next", end: "last"),
+                  filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
       configuration: config
     )
 
@@ -359,7 +359,7 @@ extension ObjectsMembershipsRouterTests {
     let router = ObjectsMembershipsRouter(
       .setMembers(channelMetadataId: "", customFields: [], totalCount: true,
                   changes: .init(set: [], delete: []),
-                  filter: "filter", sort: "sort", limit: 100, start: "Next", end: "last"),
+                  filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
       configuration: config
     )
 

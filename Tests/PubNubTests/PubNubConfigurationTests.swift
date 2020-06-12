@@ -42,12 +42,10 @@ class PubNubConfigurationTests: XCTestCase {
   let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   func testDefault() {
-    let config = PubNubConfiguration.default
-
-    XCTAssertEqual(config, PubNubConfiguration.default)
+    let config = PubNubConfiguration(publishKey: nil, subscribeKey: plistSubscribeKeyValue)
 
     XCTAssertNil(config.publishKey)
-    XCTAssertNil(config.subscribeKey)
+    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
     XCTAssertNil(config.cipherKey)
     XCTAssertNil(config.authKey)
     XCTAssertNotNil(config.uuid)
@@ -60,7 +58,7 @@ class PubNubConfigurationTests: XCTestCase {
   }
 
   func testDurationUntilTimeout_Floor() {
-    var config = PubNubConfiguration.default
+    var config = PubNubConfiguration(publishKey: nil, subscribeKey: "")
     config.durationUntilTimeout = 0
 
     XCTAssertEqual(config.durationUntilTimeout, 20)

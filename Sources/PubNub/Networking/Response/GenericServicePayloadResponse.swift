@@ -207,15 +207,15 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
   }
 }
 
-public struct GenericServicePayloadResponse: Codable, Hashable {
-  public let message: EndpointResponseMessage
-  public let details: [ErrorDetail]
-  public let service: String
-  public let status: Int
-  public let error: Bool
-  public let channels: [String: [String]]
+struct GenericServicePayloadResponse: Codable, Hashable {
+  let message: EndpointResponseMessage
+  let details: [ErrorDetail]
+  let service: String
+  let status: Int
+  let error: Bool
+  let channels: [String: [String]]
 
-  public init(
+  init(
     message: EndpointResponseMessage? = nil,
     details: [ErrorDetail] = [],
     service: String? = nil,
@@ -245,7 +245,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     case channels
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Different 'error message' response structures
@@ -284,7 +284,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
               channels: channels)
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(message.rawValue, forKey: .message)
     try container.encode(service, forKey: .service)
@@ -293,7 +293,7 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
     try container.encode(channels, forKey: .channels)
   }
 
-  public var pubnubReason: PubNubError.Reason? {
+  var pubnubReason: PubNubError.Reason? {
     if message.pubnubReason == .some(.unknown) {
       return PubNubError.Reason(rawValue: status)
     }
@@ -303,18 +303,18 @@ public struct GenericServicePayloadResponse: Codable, Hashable {
 
 // MARK: - Object Error Response
 
-public struct ErrorPayload: Codable, Hashable {
-  public let message: EndpointResponseMessage
-  public let source: String
-  public let details: [ErrorDetail]
+struct ErrorPayload: Codable, Hashable {
+  let message: EndpointResponseMessage
+  let source: String
+  let details: [ErrorDetail]
 
-  public init(message: EndpointResponseMessage, source: String, details: [ErrorDetail] = []) {
+  init(message: EndpointResponseMessage, source: String, details: [ErrorDetail] = []) {
     self.message = message
     self.source = source
     self.details = details
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     message = try container.decode(EndpointResponseMessage.self, forKey: .message)
@@ -323,12 +323,12 @@ public struct ErrorPayload: Codable, Hashable {
   }
 }
 
-public struct ErrorDetail: Codable, Hashable, CustomStringConvertible {
-  public let message: String
-  public let location: String
-  public let locationType: String
+struct ErrorDetail: Codable, Hashable, CustomStringConvertible {
+  let message: String
+  let location: String
+  let locationType: String
 
-  public var description: String {
+  var description: String {
     return message
   }
 }

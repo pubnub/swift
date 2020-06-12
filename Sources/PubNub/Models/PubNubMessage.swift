@@ -65,6 +65,7 @@ extension PubNubMessage {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubMessage` protocol
 public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   var concretePayload: AnyJSON
   public var publisher: String?

@@ -25,6 +25,6 @@
 	<key>PubNubPublishKey</key>
 	<string>demo</string>
 	<key>PubNubSubscribeKey</key>
-	<string>demo</string>
+	<string>sub-c-1c91d154-3b83-11e9-b221-7a660e69c40f</string>
 </dict>
 </plist>

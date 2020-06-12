@@ -45,9 +45,15 @@ public struct PubNub {
   // Global log instance for Logging issues/events
   public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
 
-  /// Creates a session with the specified configuration
+  /// Creates a PubNub session with the specified configuration
+  ///
+  /// - Parameters:
+  ///   - configuration: The default configurations that will be used
+  ///   - session: Session used for performing request/response REST calls
+  ///   - subscribeSession: The network session used for Subscription only
+  ///   - presenceSession: The network session used by Subscription for `leave` and `heartbeat` requests
   public init(
-    configuration: PubNubConfiguration = .default,
+    configuration: PubNubConfiguration,
     session: SessionReplaceable? = nil,
     subscribeSession: SessionReplaceable? = nil,
     presenceSession: SessionReplaceable? = nil
@@ -107,14 +113,63 @@ public struct PubNub {
   }
 }
 
+extension Array where Element == PubNub.ObjectSortField {
+  var urlValue: [String] {
+    return map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" }
+  }
+}
+
+extension Array where Element == PubNub.MembershipSortField {
+  var memberURLValue: [String] {
+    return map { "\($0.property.memberRawValue)\($0.ascending ? "" : ":desc")" }
+  }
+
+  var membershipURLValue: [String] {
+    return map { "\($0.property.membershipRawValue)\($0.ascending ? "" : ":desc")" }
+  }
+}
+
 // MARK: - Request Helpers
 
 extension PubNub {
+  /// The APNs Environment that notifications will be sent through
+  ///
+  /// This should match the value mapped to the `aps-environment` key in your Info.plist
+  ///
+  /// See [APS Environment Entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment)
+  /// for more information.
+  public enum PushEnvironment: String, Codable {
+    /// The APNs development environment.
+    case development
+    /// The APNs production environment.
+    case production
+  }
+
+  /// The identifier of the Push Service being used
+  public enum PushService: String, Codable {
+    /// Applee Push Notification Service
+    case apns
+    /// Firebase Cloude Messaging
+    case gcm
+    /// Microsoft Push Notification Service
+    case mpns
+  }
+
+  /// Configuration overrides for a single request
   public struct RequestConfiguration {
+    /// The custom Network session that that will be used to make the request
     public var customSession: SessionReplaceable?
+    /// The endpoint configuration used by the request
     public var customConfiguration: RouterConfiguration?
+    /// The response queue that will
     public var responseQueue: DispatchQueue
 
+    /// Default init for all fields
+    /// - Parameters:
+    ///   - customSession: The custom Network session that that will be used to make the request
+    ///   - customConfiguration: The endpoint configuration used by the request
+    ///   - responseQueue: The response queue that will
+    ///
     public init(
       customSession: SessionReplaceable? = nil,
       customConfiguration: RouterConfiguration? = nil,
@@ -126,36 +181,121 @@ extension PubNub {
     }
   }
 
-  public struct Page {
+  /// A start and end value for a PubNub paged request
+  public struct Page: PubNubHashedPage {
     public var start: String?
     public var end: String?
+    public let totalCount: Int? = nil
 
-    public init?(start: String?, end: String?) {
-      if start == nil, end == nil {
-        return nil
-      }
-
+    /// Default init
+    /// - Parameters:
+    ///   - start: The value of the  start of a next page
+    ///   - end: The value of the end of a slice of paged data
+    public init(start: String? = nil, end: String? = nil) {
       self.start = start
       self.end = end
     }
+
+    public init(from other: PubNubHashedPage) throws {
+      self.init(start: other.start, end: other.end)
+    }
   }
 
+  /// Fields that include additional data inside the response
   public struct IncludeFields {
+    /// The `custom` dictionary for the Object
     public var customFields: Bool
+    /// The `totalCount` of how many Objects are available
     public var totalCount: Bool
 
+    /// Default init
+    ///  - Parameters:
+    ///   - custom: Whether to include `custom` data in the response
+    ///   - totalCount: Whether to include `totalCount` in the response
     public init(custom: Bool = true, totalCount: Bool = true) {
       customFields = custom
       self.totalCount = totalCount
     }
   }
 
+  /// The sort properties for UUID and Channel metadata objects
+  public enum ObjectSortProperty: String {
+    /// Sort on the unique identifier property
+    case id
+    /// Sort on the name property
+    case name
+    /// Sort on the last updated property
+    case updated
+  }
+
+  /// The property and direction to sort a multi-object-metadata response
+  public struct ObjectSortField {
+    /// The property to sort by
+    public let property: ObjectSortProperty
+    /// The direction of the sort
+    public let ascending: Bool
+
+    public init(property: ObjectSortProperty, ascending: Bool = true) {
+      self.property = property
+      self.ascending = ascending
+    }
+  }
+
+  /// The sort properties for Membership metadata objects
+  public enum MembershipSortProperty {
+    /// Sort based on the nested object (UUID or Channel) belonging to the Membership
+    case object(ObjectSortProperty)
+    /// Sort on the last updated property of the Membership
+    case updated
+
+    func rawValue(_ objectType: String) -> String {
+      switch self {
+      case let .object(property):
+        return "\(objectType).\(property)"
+      case .updated:
+        return "updated"
+      }
+    }
+
+    var membershipRawValue: String {
+      return rawValue("channel")
+    }
+
+    var memberRawValue: String {
+      return rawValue("uuid")
+    }
+  }
+
+  /// The property and direction to sort a multi-membership-metadata response
+  public struct MembershipSortField {
+    /// The property to sort by
+    public let property: MembershipSortProperty
+    /// The direction of the sort
+    public let ascending: Bool
+
+    public init(property: MembershipSortProperty, ascending: Bool = true) {
+      self.property = property
+      self.ascending = ascending
+    }
+  }
+
+  /// Fields that include additional data inside a Membership metadata response
   public struct MembershipInclude {
+    /// The `custom` dictionary for the Object
     public var customFields: Bool
+    /// The `PubNubChannelMetadata` instance of the Membership
     public var channelFields: Bool
+    /// The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
     public var channelCustomFields: Bool
+    /// The `totalCount` of how many Objects are available
     public var totalCount: Bool
 
+    /// Default init
+    /// - Parameters:
+    ///   - customFields: The `custom` dictionary for the Object
+    ///   - channelFields: The `PubNubChannelMetadata` instance of the Membership
+    ///   - channelCustomFields: The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
+    ///   - totalCount The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       channelFields: Bool = false,
@@ -180,11 +320,21 @@ extension PubNub {
   }
 
   public struct MemberInclude {
+    /// The `custom` dictionary for the Object
     public var customFields: Bool
+    /// The `PubNubUUIDMetadata` instance of the Membership
     public var uuidFields: Bool
+    /// The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
     public var uuidCustomFields: Bool
+    /// The `totalCount` of how many Objects are available
     public var totalCount: Bool
 
+    /// Default init
+    /// - Parameters:
+    ///   - customFields: The `custom` dictionary for the Object
+    ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
+    ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
+    ///   - totalCount The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       uuidFields: Bool = false,
@@ -214,9 +364,10 @@ extension PubNub {
 extension PubNub {
   /// Get current `Timetoken` from System
   /// - Parameters:
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The  current`Timetoken`
+  ///     - **Failure**: An `Error` describing the failure
   public func time(
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
@@ -247,9 +398,10 @@ extension PubNub {
   ///   - storeTTL: Set a per message time to live in storage.
   ///   - meta: Publish extra metadata with the request.
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `Timetoken` of the published Message
+  ///     - **Failure**: An `Error` describing the failure
   public func publish(
     channel: String,
     message: JSONCodable,
@@ -304,9 +456,10 @@ extension PubNub {
   ///   - message: The message to publish
   ///   - meta: Publish extra metadata with the request.
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `Timetoken` of the published Message
+  ///     - **Failure**: An `Error` describing the failure
   public func fire(
     channel: String,
     message: JSONCodable,
@@ -328,9 +481,10 @@ extension PubNub {
   ///   - channel: The destination of the message
   ///   - message: The message to publish
   ///   - shouldCompress: Whether the message needs to be compressed before transmission
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `Timetoken` of the published Message
+  ///     - **Failure**: An `Error` describing the failure
   public func signal(
     channel: String,
     message: JSONCodable,
@@ -356,19 +510,20 @@ extension PubNub {
   ///   - and: List of channel groups to subscribe on
   ///   - at: The initial timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
+  ///   - region: The region code from a previous `SubscribeCursor`
+  ///   - filterOverride: Overrides the previous filter on the next successful request
   public func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
     at timetoken: Timetoken? = nil,
-    region: Int? = nil,
     withPresence: Bool = false,
     filterOverride: String? = nil
   ) {
-    subscription.customFilter = filterOverride
+    subscription.filterExpression = filterOverride
 
     subscription.subscribe(to: channels,
                            and: channelGroups,
-                           at: SubscribeCursor(timetoken: timetoken, region: region),
+                           at: SubscribeCursor(timetoken: timetoken),
                            withPresence: withPresence)
   }
 
@@ -396,8 +551,8 @@ extension PubNub {
   /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
   /// - Important: This subscription might be shared with multiple `PubNub` instances.
-  public func reconnect(at timetoken: Timetoken? = nil, region: Int? = nil) {
-    subscription.reconnect(at: SubscribeCursor(timetoken: timetoken, region: region))
+  public func reconnect(at timetoken: Timetoken? = nil) {
+    subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
   }
 
   /// The `Timetoken` used for the last successful subscription request
@@ -406,6 +561,7 @@ extension PubNub {
   }
 
   /// Add a listener to enable the receiving of subscription events
+  /// - Parameter listener: The subscription listener to be added
   public func add(_ listener: SubscriptionListener) {
     subscription.add(listener)
   }
@@ -430,11 +586,11 @@ extension PubNub {
     return subscription.connectionStatus
   }
 
-  // An override for the default filter
-  var subscribeFilterOverride: String? {
-    get { return subscription.customFilter }
+  /// An override for the default filter expression set during initialization
+  var subscribeFilterExpression: String? {
+    get { return subscription.filterExpression }
     set {
-      subscription.customFilter = newValue
+      subscription.filterExpression = newValue
     }
   }
 }
@@ -447,7 +603,9 @@ extension PubNub {
   ///   - state: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The presence State set as a `JSONCodable`
+  ///     - **Failure**: An `Error` describing the failure
   public func setPresence(
     state: [String: JSONCodableScalar],
     on channels: [String],
@@ -472,7 +630,9 @@ extension PubNub {
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing the UUID that set the State and a `Dictionary` of channels mapped to their respective State
+  ///     - **Failure**: An `Error` describing the failure
   public func getPresenceState(
     for uuid: String,
     on channels: [String],
@@ -501,11 +661,12 @@ extension PubNub {
   /// - Parameters:
   ///   - on: The list of channels to return occupancy results from.
   ///   - and: The list of channel groups to return occupancy results from.
-  ///   - includeUUIDs: `false` disables the return of uuids
-  ///   - also: `true` will return the subscribe state information if available
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - includeUUIDs: `true` will include the UUIDs of those present on the channel
+  ///   - includeState: `true` will return the presence channel state information if available
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Dictionary` of channels mapped to their respective `PubNubPresence`
+  ///     - **Failure**: An `Error` describing the failure
   public func hereNow(
     on channels: [String],
     and groups: [String] = [],
@@ -537,9 +698,10 @@ extension PubNub {
   /// Obtain information about the current list of channels a UUID is subscribed to
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**:  A `Dictionary` of UUIDs mapped to their respective `Array` of channels they have presence on
+  ///     - **Failure**: An `Error` describing the failure
   public func whereNow(
     for uuid: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -558,9 +720,10 @@ extension PubNub {
 extension PubNub {
   /// Lists all the channel groups
   /// - Parameters:
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: List of all channel-groups
+  ///     - **Failure**: An `Error` describing the failure
   public func listChannelGroups(
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
@@ -575,10 +738,12 @@ extension PubNub {
   /// Removes the channel group.
   /// - Parameters:
   ///   - channelGroup: The channel group to delete.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func delete(
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The channel-group that was removed
+  ///     - **Failure**: An `Error` describing the failure
+  ///   - result: A `Result` containing  either the removed channel-group  **or** an `Error`
+  public func remove(
     channelGroup: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
@@ -595,9 +760,10 @@ extension PubNub {
   /// Lists all the channels of the channel group.
   /// - Parameters:
   ///   - for: The channel group to list channels on.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they contain
+  ///     - **Failure**: An `Error` describing the failure
   public func listChannels(
     for group: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -614,19 +780,20 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: List of channels to add to the group
   ///   - to: The Channel Group to add the list of channels to.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they added
+  ///     - **Failure**: An `Error` describing the failure
   public func add(
     channels: [String],
     to group: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<Void, Error>) -> Void)?
+    completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
           custom: requestConfig) { result in
-      completion?(result.map { _ in () })
+      completion?(result.map { _ in [group: channels] })
     }
   }
 
@@ -634,9 +801,10 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: List of channels to remove from the group
   ///   - from: The Channel Group to remove the list of channels from
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they removed
+  ///     - **Failure**: An `Error` describing the failure
   public func remove(
     channels: [String],
     from group: String,
@@ -658,12 +826,13 @@ extension PubNub {
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: An `Array` of all channels registered to the device token
+  ///     - **Failure**: An `Error` describing the failure
   public func listPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: PushRouter.PushType = .apns,
+    of pushType: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -680,14 +849,15 @@ extension PubNub {
   ///   - thenAdding: The list of channels to add the device registration to
   ///   - for: A device token to identify the device for registration changes
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels added and an `Array` of channels removed for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
   public func managePushChannelRegistrations(
     byRemoving removals: [String],
     thenAdding additions: [String],
     for deviceToken: Data,
-    of pushType: PushRouter.PushType = .apns,
+    of pushType: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
@@ -705,17 +875,17 @@ extension PubNub {
 
   /// Adds or removes push notification functionality on provided set of channels.
   /// - Parameters:
-  ///   - byRemoving: The list of channels to remove the device registration from
-  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - additions: The list of channels to add the device registration to
   ///   - for: A device token to identify the device for registration changes
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func addingPushChannelRegistrations(
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels added for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
+  public func addPushChannelRegistrations(
     _ additions: [String],
     for deviceToken: Data,
-    of pushType: PushRouter.PushType = .apns,
+    of pushType: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -728,17 +898,17 @@ extension PubNub {
 
   /// Adds or removes push notification functionality on provided set of channels.
   /// - Parameters:
-  ///   - byRemoving: The list of channels to remove the device registration from
-  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - removals: The list of channels to remove the device registration from
   ///   - for: A device token to identify the device for registration changes
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func removingPushChannelRegistrations(
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels removed for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
+  public func removePushChannelRegistrations(
     _ removals: [String],
     for deviceToken: Data,
-    of pushType: PushRouter.PushType = .apns,
+    of pushType: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -753,12 +923,13 @@ extension PubNub {
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Void`indicating a success
+  ///     - **Failure**: An `Error` describing the failure
   public func removeAllPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: PushRouter.PushType = .apns,
+    of pushType: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
@@ -774,13 +945,14 @@ extension PubNub {
   ///   - for: The device token used during registration
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: An `Array` of all channels registered to the device token
+  ///     - **Failure**: An `Error` describing the failure
   public func listAPNSChannelsOnDevice(
     for deviceToken: Data,
     on topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PushEnvironment = .development,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -800,15 +972,16 @@ extension PubNub {
   ///   - device: The device to add/remove from the channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels added and an `Array` of channels removed for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
   public func manageAPNSDevicesOnChannels(
     byRemoving removals: [String],
     thenAdding additions: [String],
     device token: Data,
     on topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PushEnvironment = .development,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
@@ -834,19 +1007,19 @@ extension PubNub {
 
   /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
   /// - Parameters:
-  ///   - byRemoving: The list of channels to remove the device registration from
-  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - additions: The list of channels to add the device registration to
   ///   - device: The device to add/remove from the channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func addingAPNSDevicesOnChannels(
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels added for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
+  public func addAPNSDevicesOnChannels(
     _ additions: [String],
     device token: Data,
     on topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PushEnvironment = .development,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -859,19 +1032,19 @@ extension PubNub {
 
   /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
   /// - Parameters:
-  ///   - byRemoving: The list of channels to remove the device registration from
-  ///   - thenAdding: The list of channels to add the device registration to
+  ///   - removals: The list of channels to remove the device registration from
   ///   - device: The device to add/remove from the channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
-  public func removingAPNSDevicesOnChannels(
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of channels removed for notifications on a specific device token
+  ///     - **Failure**: An `Error` describing the failure
+  public func removeAPNSDevicesOnChannels(
     _ removals: [String],
     device token: Data,
     on topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PushEnvironment = .development,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -887,13 +1060,14 @@ extension PubNub {
   ///   - for: The device token to remove from all channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Void`indicating a success
+  ///     - **Failure**: An `Error` describing the failure
   public func removeAllAPNSPushDevice(
     for deviceToken: Data,
     on topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PushEnvironment = .development,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
@@ -922,20 +1096,17 @@ extension PubNub {
   /// - Parameters:
   ///   - for: List of channels to fetch history messages from.
   ///   - fetchActions: Include MessageAction in response
-  ///   - max: The max number of messages to retrieve.
-  ///   - start: Time token delimiting the start of time slice (exclusive) to pull messages from.
-  ///   - end: Time token delimiting the end of time slice (inclusive) to pull messages from.
-  ///   - metaInResponse: If `true` the meta properties of messages will be returned as well (if existing).
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - includeMeta: If `true` the meta properties of messages will be returned as well (if existing).
+  ///   - page: The criteria used to page through history
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` of a `Dictionary` of channels mapped to an `Array` their respective `PubNubMessages`, and the next request `PubNubBoundedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func fetchMessageHistory(
     for channels: [String],
     fetchActions actions: Bool = false,
-    limit: Int? = nil,
-    start: Timetoken? = nil,
-    end: Timetoken? = nil,
-    metaInResponse: Bool = false,
+    includeMeta: Bool = false,
+    page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
@@ -943,12 +1114,12 @@ extension PubNub {
     if actions {
       router = HistoryRouter(
         .fetchWithActions(channel: channels.first ?? "",
-                          max: limit, start: start, end: end, includeMeta: metaInResponse),
+                          max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
         configuration: configuration
       )
     } else {
       router = HistoryRouter(
-        .fetch(channels: channels, max: limit, start: start, end: end, includeMeta: metaInResponse),
+        .fetch(channels: channels, max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
         configuration: configuration
       )
     }
@@ -961,7 +1132,7 @@ extension PubNub {
       completion?(result.map {
         (
           messagesByChannel: $0.payload.asPubNubMessagesByChannel,
-          next: $0.payload.asBoundedPage(end: end, limit: limit)
+          next: $0.payload.asBoundedPage(end: page?.end, limit: page?.limit)
         )
       })
     }
@@ -972,30 +1143,33 @@ extension PubNub {
   ///   - from: The channel to delete the messages from.
   ///   - start: Time token delimiting the start of time slice (exclusive) to delete messages from.
   ///   - end: Time token delimiting the end of time slice (inclusive) to delete messages from.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Void`indicating a success
+  ///     - **Failure**: An `Error` describing the failure
   public func deleteMessageHistory(
     from channel: String,
-    start stateTimetoken: Timetoken? = nil,
-    end endTimetoken: Timetoken? = nil,
+    start: Timetoken? = nil,
+    end: Timetoken? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<String, Error>) -> Void)?
+    completion: ((Result<Void, Error>) -> Void)?
   ) {
-    route(HistoryRouter(.delete(channel: channel, start: stateTimetoken, end: endTimetoken),
-                        configuration: configuration),
-          responseDecoder: GenericServiceResponseDecoder(),
-          custom: requestConfig) { result in
-      completion?(result.map { _ in channel })
+    route(
+      HistoryRouter(.delete(channel: channel, start: start, end: end), configuration: configuration),
+      responseDecoder: GenericServiceResponseDecoder(),
+      custom: requestConfig
+    ) { result in
+      completion?(result.map { _ in () })
     }
   }
 
   /// Returns the number of messages published for one of more channels using a channel specific time token
   /// - Parameters:
   ///   - channels: Dictionary of channel and the timetoken to get the message count for.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A`Dictionary` of channels mapped to their respective message count
+  ///     - **Failure**: An `Error` describing the failure
   public func messageCounts(
     channels: [String: Timetoken],
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -1017,9 +1191,10 @@ extension PubNub {
   /// - Parameters:
   ///   - channels: The channel to delete the messages from.
   ///   - timetoken: The timetoken for all channels in the list to get message counts for.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Dictionary` of channels mapped to their respective message count
+  ///     - **Failure**: An `Error` describing the failure
   public func messageCounts(
     channels: [String],
     timetoken: Timetoken = 1,
@@ -1042,28 +1217,32 @@ extension PubNub {
 // MARK: - UUID Metadat Objects
 
 extension PubNub {
-  /// Returns a paginated list of user objects, optionally including each user's custom data object.
+  /// Gets metadata for all UUIDs
+  ///
+  /// Returns a paginated list of metadata objects for UUIDS, optionally including custom data objects.
   /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUUIDMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func allUUIDMetadata(
     include: IncludeFields = IncludeFields(),
     filter: String? = nil,
-    sort: String? = nil,
+    sort: [ObjectSortField] = [],
     limit: Int? = 100,
-    page: Page? = nil,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubUUIDMetadata], PubNubHashedPage?), Error>) -> Void)?
+    completion: ((Result<(uuids: [PubNubUUIDMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
       .all(customFields: include.customFields, totalCount: include.totalCount,
-           filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end),
+           filter: filter, sort: sort.urlValue,
+           limit: limit, start: page?.start, end: page?.end),
       configuration: configuration
     )
 
@@ -1071,19 +1250,22 @@ extension PubNub {
           responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { (
-        $0.payload.data,
-        try? PubNubHashedPageBase(from: $0.payload)
+        uuids: $0.payload.data,
+        next: try? PubNubHashedPageBase(from: $0.payload)
       ) })
     }
   }
 
-  /// Returns the specified user object
+  /// Get Metadata for a UUID
+  ///
+  /// Returns metadata for the specified UUID including the UUID's custom data.
   /// - Parameters:
-  ///   - uuid: The unique identifier of the PubNub user object to delete.
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubUUIDMetadata` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
   public func fetch(
     uuid metadata: String?,
     include customFields: Bool = true,
@@ -1091,7 +1273,8 @@ extension PubNub {
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
-      .fetch(metadataId: metadata ?? configuration.uuid, customFields: customFields),
+      .fetch(metadataId: metadata ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
+             customFields: customFields),
       configuration: configuration
     )
 
@@ -1102,13 +1285,16 @@ extension PubNub {
     }
   }
 
-  /// Creates a user with the specified properties
+  /// Set UUID Metadata
+  ///
+  ///  Set metadata for a UUID in the database. Returns the UUID metadata including the user's custom data.
   /// - Parameters:
-  ///   - uuid: The `PubNubUser` protocol object to create
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - uuid: The `PubNubUUIDMetadata` to set
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubUUIDMetadata` containing the set changes
+  ///     - **Failure**: An `Error` describing the failure
   public func set(
     uuid metadata: PubNubUUIDMetadata,
     include customFields: Bool = true,
@@ -1127,19 +1313,22 @@ extension PubNub {
     }
   }
 
-  /// Deletes the specified user object.
+  /// Remove UUID Metadata
+  ///
+  /// Remove metadata for a specified UUID.
   /// - Parameters:
-  ///   - uuid: The unique identifier of the PubNub user object to delete.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - uuid: Unique UUID Metadata identifier to remove. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The UUID identifier of the removed object
+  ///     - **Failure**: An `Error` describing the failure
   public func remove(
     uuid metadataId: String?,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
     // Capture the response or current configuration uuid
-    let metadataId = metadataId ?? configuration.uuid
+    let metadataId = metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsUUIDRouter(
       .remove(metadataId: metadataId),
@@ -1157,28 +1346,32 @@ extension PubNub {
 // MARK: - Channel Metadata Objects
 
 extension PubNub {
-  /// Returns a paginated list of `SpaceObject` objects, optionally including each space's custom data object.
+  /// Get Metadata for All Channels
+  ///
+  ///  Returns a paginated list of metadata objects for channels, optionally including custom data objects.
   /// - Parameters:
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the spaces from
-  ///   - end: The end paging hash string to retrieve the spaces from
-  ///   - count: A flag denoting whether to return the total count of spaces
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubChannelMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func allChannelMetadata(
     include: IncludeFields = IncludeFields(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [ObjectSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubChannelMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
       .all(customFields: include.customFields, totalCount: include.totalCount,
-           filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end),
+           filter: filter, sort: sort.map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" },
+           limit: limit, start: page?.start, end: page?.end),
       configuration: configuration
     )
 
@@ -1186,19 +1379,22 @@ extension PubNub {
           responseDecoder: PubNubChannelsMetadataResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { (
-        $0.payload.data,
-        try? PubNubHashedPageBase(from: $0.payload)
+        channels: $0.payload.data,
+        next: try? PubNubHashedPageBase(from: $0.payload)
       ) })
     }
   }
 
-  /// Returns the specified space object
+  /// Get Metadata for a Channel
+  ///
+  /// Returns metadata for the specified channel including the channel's custom data.
   /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space object to delete.
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - channel: Unique Channel Metadata identifier
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubChannelMetadata` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
   public func fetch(
     channel metadataId: String,
     include customFields: Bool = true,
@@ -1217,13 +1413,16 @@ extension PubNub {
     }
   }
 
-  /// Creates a space with the specified properties
+  /// Set Channel Metadata
+  ///
+  /// Set metadata for a channel in the database.
   /// - Parameters:
-  ///   - space: The `PubNubSpace` protocol object to create
-  ///   - include: Whether to include the custom field in the fetch response
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - channel: The `PubNubChannelMetadata` to set
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubChannelMetadata` containing the set changes
+  ///     - **Failure**: An `Error` describing the failure
   public func set(
     channel metadata: PubNubChannelMetadata,
     include customFields: Bool = true,
@@ -1242,12 +1441,15 @@ extension PubNub {
     }
   }
 
-  /// Deletes the specified space object.
+  /// Remove Channel Metadata
+  ///
+  /// Remove metadata for a specified channel
   /// - Parameters:
-  ///   - spaceID: The unique identifier of the PubNub space object to delete.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - channel: Unique Channel Metadata identifier to remove.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The Channel identifier of the removed object
+  ///     - **Failure**: An `Error` describing the failure
   public func remove(
     channel metadataId: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -1269,72 +1471,85 @@ extension PubNub {
 // MARK: - Memberships
 
 extension PubNub {
-  /// Get the specified user's space memberships.
+  /// Get Channel Memberships
+  ///
+  /// The method returns a list of channel memberships for a user. It does not return a user's subscriptions.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func fetchMemberships(
-    uuid metadataId: String,
+    uuid: String?,
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
-    let router = ObjectsMembershipsRouter(.fetchMemberships(
-      uuidMetadataId: metadataId, customFields: include.customIncludes,
-      totalCount: include.totalCount, filter: filter, sort: sort,
-      limit: limit, start: page?.start, end: page?.end
-    ),
-                                          configuration: configuration)
+    let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+
+    let router = ObjectsMembershipsRouter(
+      .fetchMemberships(
+        uuidMetadataId: metadataId,
+        customFields: include.customIncludes,
+        totalCount: include.totalCount, filter: filter,
+        sort: sort.membershipURLValue,
+        limit: limit, start: page?.start, end: page?.end
+      ),
+      configuration: configuration
+    )
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { response in
         (
-          response.payload.data.compactMap {
+          memberships: response.payload.data.compactMap {
             PubNubMembershipMetadataBase(from: $0, other: metadataId)
           },
-          try? PubNubHashedPageBase(from: response.payload)
+          next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
     }
   }
 
-  /// Get the specified user's space memberships.
+  /// Get Channel Members
+  ///
+  /// The method returns a list of members in a channel. The list will include user metadata for members that have additional metadata stored in the database.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - channel: Unique Channel identifier.
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func fetchMembers(
     channel metadataId: String,
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.fetchMembers(
       channelMetadataId: metadataId, customFields: include.customIncludes,
-      totalCount: include.totalCount, filter: filter, sort: sort,
+      totalCount: include.totalCount, filter: filter,
+      sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ),
                                           configuration: configuration)
@@ -1344,10 +1559,10 @@ extension PubNub {
           custom: requestConfig) { result in
       completion?(result.map { response in
         (
-          response.payload.data.compactMap {
+          memberships: response.payload.data.compactMap {
             PubNubMembershipMetadataBase(from: $0, other: metadataId)
           },
-          try? PubNubHashedPageBase(from: response.payload)
+          next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
     }
@@ -1355,25 +1570,27 @@ extension PubNub {
 
   /// Get the specified user's space memberships.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func setMemberships(
-    uuid metadataId: String,
+    uuid metadataId: String?,
     channels memberships: [PubNubMembershipMetadata],
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: memberships, removing: [],
@@ -1384,25 +1601,27 @@ extension PubNub {
 
   /// Get the specified user's space memberships.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func removeMemberships(
-    uuid metadataId: String,
+    uuid metadataId: String?,
     channels memberships: [PubNubMembershipMetadata],
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
-    sort: String? = nil,
+    sort: [MembershipSortField] = [],
     limit: Int? = nil,
-    page: Page? = nil,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: [], removing: memberships,
@@ -1413,36 +1632,40 @@ extension PubNub {
 
   /// Modifty the list of space memberships for a given user
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - seting: The list of space identifiers to update for the user
-  ///   - removing: The list of space identifiers to remove the user from
-  ///   - include: List of custom fields (if any) to include in the response
+  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func manageMemberships(
-    uuid metadataId: String,
+    uuid: String?,
     setting channelMembershipSets: [PubNubMembershipMetadata],
     removing channelMembershipDeletes: [PubNubMembershipMetadata],
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
+    let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+
     let router = ObjectsMembershipsRouter(.setMemberships(
       uuidMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
       changes: .init(
         set: channelMembershipSets.map { .init(metadataId: $0.channelMetadataId, custom: $0.custom) },
         delete: channelMembershipDeletes.map { .init(metadataId: $0.channelMetadataId, custom: $0.custom) }
       ),
-      filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end
+      filter: filter, sort: sort.membershipURLValue,
+      limit: limit, start: page?.start, end: page?.end
     ), configuration: configuration)
 
     route(router,
@@ -1450,10 +1673,10 @@ extension PubNub {
           custom: requestConfig) { result in
       completion?(result.map { response in
         (
-          response.payload.data.compactMap {
+          memberships: response.payload.data.compactMap {
             PubNubMembershipMetadataBase(from: $0, other: metadataId)
           },
-          try? PubNubHashedPageBase(from: response.payload)
+          next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
     }
@@ -1461,25 +1684,27 @@ extension PubNub {
 
   /// Get the specified user's space memberships.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - channel: Unique Channel identifier.
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func setMembers(
     channel metadataId: String,
     uuids members: [PubNubMembershipMetadata],
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: members, removing: [],
@@ -1490,57 +1715,60 @@ extension PubNub {
 
   /// Get the specified user's space memberships.
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - include: Whether to include the custom field in the fetch response
+  ///   - channel: Unique Channel identifier.
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func removeMembers(
     channel metadataId: String,
     uuids members: [PubNubMembershipMetadata],
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: [], removing: members,
-      include: include, filter: filter, sort: sort, limit: limit, page: page,
-      custom: requestConfig, completion: completion
+      include: include, filter: filter, sort: sort,
+      limit: limit, page: page, custom: requestConfig, completion: completion
     )
   }
 
   /// Modifty the list of space memberships for a given user
   /// - Parameters:
-  ///   - userID: The unique identifier of the PubNub user
-  ///   - seting: The list of space identifiers to update for the user
-  ///   - removing: The list of space identifiers to remove the user from
-  ///   - include: List of custom fields (if any) to include in the response
+  ///   - channel: Unique Channel identifier.
+  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
   ///   - limit: The number of objects to retrieve at a time
-  ///   - start: The start paging hash string to retrieve the users from
-  ///   - end: The end paging hash string to retrieve the users from
-  ///   - count: A flag denoting whether to return the total count of users
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func manageMembers(
     channel metadataId: String,
     setting uuidMembershipSets: [PubNubMembershipMetadata],
     removing uuidMembershipDeletes: [PubNubMembershipMetadata],
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
-    sort: String? = nil,
-    limit: Int? = nil,
-    page: Page? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMembershipMetadata], PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.setMembers(
       channelMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
@@ -1548,7 +1776,8 @@ extension PubNub {
         set: uuidMembershipSets.map { .init(metadataId: $0.uuidMetadataId, custom: $0.custom) },
         delete: uuidMembershipDeletes.map { .init(metadataId: $0.uuidMetadataId, custom: $0.custom) }
       ),
-      filter: filter, sort: sort, limit: limit, start: page?.start, end: page?.end
+      filter: filter, sort: sort.memberURLValue,
+      limit: limit, start: page?.start, end: page?.end
     ), configuration: configuration)
 
     route(router,
@@ -1556,10 +1785,10 @@ extension PubNub {
           custom: requestConfig) { result in
       completion?(result.map { response in
         (
-          response.payload.data.compactMap {
+          memberships: response.payload.data.compactMap {
             PubNubMembershipMetadataBase(from: $0, other: metadataId)
           },
-          try? PubNubHashedPageBase(from: response.payload)
+          next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
     }
@@ -1575,26 +1804,28 @@ extension PubNub {
   ///   - start: Action timetoken denoting the start of the range requested (exclusive).
   ///   - end: Action timetoken denoting the end of the range requested (inclusive).
   ///   - limit: The max number of message actions to retrieve per request
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: An `Array` of `PubNubMessageAction` for the request channel, and the next request `PubNubBoundedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   public func fetchMessageActions(
     channel: String,
-    start: Timetoken? = nil,
-    end: Timetoken? = nil,
-    limit: Int? = nil,
+    page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<([PubNubMessageAction], PubNubBoundedPage?), Error>) -> Void)?
+    completion: ((Result<(actions: [PubNubMessageAction], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
-    route(MessageActionsRouter(.fetch(channel: channel, start: start, end: end, limit: limit),
-                               configuration: configuration),
-          responseDecoder: MessageActionsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      MessageActionsRouter(
+        .fetch(channel: channel, start: page?.start, end: page?.end, limit: page?.limit), configuration: configuration
+      ),
+      responseDecoder: MessageActionsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       switch result {
       case let .success(response):
         completion?(.success((
-          response.payload.actions.map { PubNubMessageActionBase(from: $0, on: channel) },
-          PubNubBoundedPageBase(
+          actions: response.payload.actions.map { PubNubMessageActionBase(from: $0, on: channel) },
+          next: PubNubBoundedPageBase(
             start: response.payload.start, end: response.payload.end, limit: response.payload.limit
           )
         )))
@@ -1610,9 +1841,10 @@ extension PubNub {
   ///   - type: The Message Action's type
   ///   - value: The Message Action's value
   ///   - messageTimetoken: The publish timetoken of a parent message.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubMessageAction` that was added
+  ///     - **Failure**: An `Error` describing the failure
   public func addMessageAction(
     channel: String,
     type actionType: String, value: String,
@@ -1650,9 +1882,10 @@ extension PubNub {
   ///   - channel: The name of the channel
   ///   - message: The publish timetoken of a parent message.
   ///   - action: The action timetoken of a message action to be removed.
-  ///   - using: Custom Networking session specific to this method call
-  ///   - respondOn: The queue the completion handler should be returned on
-  ///   - completion: The async result of the method call
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing the channel, message timetoken, and action timetoken of the action that was removed
+  ///     - **Failure**: An `Error` describing the failure
   public func removeMessageActions(
     channel: String,
     message timetoken: Timetoken,

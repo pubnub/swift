@@ -29,27 +29,18 @@ import Foundation
 
 // MARK: - Router
 
-public struct PushRouter: HTTPRouter {
-  public enum Environment: String, Codable {
-    case development
-    case production
-  }
-
-  public enum PushType: String, Codable {
-    case apns
-    case gcm
-    case mpns
-  }
-
+struct PushRouter: HTTPRouter {
   // Nested Endpoint
-  public enum Endpoint: CustomStringConvertible {
-    case listPushChannels(pushToken: Data, pushType: PushType)
-    case managePushChannels(pushToken: Data, pushType: PushType, joining: [String], leaving: [String])
-    case removeAllPushChannels(pushToken: Data, pushType: PushType)
-    case manageAPNS(pushToken: Data, environment: Environment, topic: String, adding: [String], removing: [String])
-    case removeAllAPNS(pushToken: Data, environment: Environment, topic: String)
+  enum Endpoint: CustomStringConvertible {
+    case listPushChannels(pushToken: Data, pushType: PubNub.PushService)
+    case managePushChannels(pushToken: Data, pushType: PubNub.PushService, joining: [String], leaving: [String])
+    case removeAllPushChannels(pushToken: Data, pushType: PubNub.PushService)
+    case manageAPNS(
+      pushToken: Data, environment: PubNub.PushEnvironment, topic: String, adding: [String], removing: [String]
+    )
+    case removeAllAPNS(pushToken: Data, environment: PubNub.PushEnvironment, topic: String)
 
-    public var description: String {
+    var description: String {
       switch self {
       case .listPushChannels:
         return "List Push Channels"
@@ -101,19 +92,19 @@ public struct PushRouter: HTTPRouter {
     self.configuration = configuration
   }
 
-  public var endpoint: Endpoint
-  public var configuration: RouterConfiguration
+  var endpoint: Endpoint
+  var configuration: RouterConfiguration
 
   // Protocol Properties
-  public var service: PubNubService {
+  var service: PubNubService {
     return .push
   }
 
-  public var category: String {
+  var category: String {
     return endpoint.description
   }
 
-  public var path: Result<String, Error> {
+  var path: Result<String, Error> {
     let path: String
 
     switch endpoint {
@@ -131,7 +122,7 @@ public struct PushRouter: HTTPRouter {
     return .success(path)
   }
 
-  public var queryItems: Result<[URLQueryItem], Error> {
+  var queryItems: Result<[URLQueryItem], Error> {
     var query = defaultQueryItems
 
     switch endpoint {
@@ -156,7 +147,7 @@ public struct PushRouter: HTTPRouter {
     return .success(query)
   }
 
-  public var pamVersion: PAMVersionRequirement {
+  var pamVersion: PAMVersionRequirement {
     switch endpoint {
     case .listPushChannels:
       return .none
@@ -166,7 +157,7 @@ public struct PushRouter: HTTPRouter {
   }
 
   // Validated
-  public var validationErrorDetail: String? {
+  var validationErrorDetail: String? {
     switch endpoint {
     case let .listPushChannels(pushToken, _):
       return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
@@ -269,6 +260,6 @@ struct RegisteredPushChannelsPayloadResponse: Codable {
   let channels: [String]
 }
 
-public struct ErrorMessagePayloadResponse: Codable {
+struct ErrorMessagePayloadResponse: Codable {
   let error: String
 }

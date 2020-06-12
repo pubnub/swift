@@ -1,3 +1,5 @@
+line_length:
+  ignores_comments: true
 disabled_rules:
   - identifier_name
 excluded:

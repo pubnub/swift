@@ -24,7 +24,6 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //  THE SOFTWARE.
 //
-// swiftlint:disable file_length line_length
 
 import Foundation
 
@@ -71,7 +70,7 @@ public struct PubNubPushTarget: Codable, Hashable {
   /// This will populate the APN's `apns-topic` header
   public let topic: String
   /// The APS environment
-  public let environment: PushRouter.Environment
+  public let environment: PubNub.PushEnvironment
   /// Devices that should not receive this notification
   ///
   /// This is likely the senders device token
@@ -85,7 +84,7 @@ public struct PubNubPushTarget: Codable, Hashable {
 
   public init(
     topic: String,
-    environment: PushRouter.Environment = .development,
+    environment: PubNub.PushEnvironment = .development,
     excludedDevices: [String]? = nil
   ) {
     self.topic = topic
@@ -399,5 +398,3 @@ public struct APSCriticalSound: Codable, Hashable {
     self.volume = volume
   }
 }
-
-// swiftlint:enable file_length line_length

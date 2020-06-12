@@ -36,8 +36,8 @@ public class SubscriptionSession {
   let configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
-  // Mutable Customizations
-  var customFilter: String?
+  /// PSV2 feature to subscribe with a custom filter expression.
+  public var filterExpression: String?
 
   var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
@@ -95,6 +95,8 @@ public class SubscriptionSession {
   ) {
     self.configuration = configuration
     var mutableSession = subscribeSession
+
+    filterExpression = configuration.filterExpression
 
     nonSubscribeSession = presenceSession
 
@@ -214,7 +216,7 @@ public class SubscriptionSession {
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups, timetoken: cursor?.timetoken,
                                             region: cursor?.region.description,
                                             heartbeat: configuration.durationUntilTimeout,
-                                            filter: customFilter ?? configuration.filterExpression),
+                                            filter: filterExpression),
                                  configuration: configuration)
 
     // Cancel previous request before starting new one

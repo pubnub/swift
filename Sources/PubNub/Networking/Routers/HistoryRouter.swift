@@ -349,7 +349,7 @@ struct MessageHistoryMessageAction: Codable, Hashable {
     actionTimetoken = Timetoken(try container.decode(String.self, forKey: .actionTimetoken)) ?? 0
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(uuid, forKey: .uuid)
@@ -363,7 +363,7 @@ struct MessageCountsResponseDecoder: ResponseDecoder {
   typealias Payload = MessageCountsResponsePayload
 }
 
-public struct MessageCountsResponsePayload: Codable, Hashable {
+struct MessageCountsResponsePayload: Codable, Hashable {
   let status: Int
   let error: Bool
   let errorMessage: String

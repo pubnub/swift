@@ -93,7 +93,7 @@ class OnboardingSnippets: XCTestCase {
 
     // Fetch last 10 messages
     let performMessageFetch = {
-      client.fetchMessageHistory(for: ["pubnub_onboarding_channel"], limit: 10) { result in
+      client.fetchMessageHistory(for: ["pubnub_onboarding_channel"]) { result in
         switch result {
         case let .success((actions, nextPage)):
           XCTAssertNotNil(actions["pubnub_onboarding_channel"])

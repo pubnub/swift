@@ -124,7 +124,7 @@ extension ChannelGroupsRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .delete(channelGroup: testGroupName) { result in
+      .remove(channelGroup: testGroupName) { result in
         switch result {
         case .success:
           expectation.fulfill()

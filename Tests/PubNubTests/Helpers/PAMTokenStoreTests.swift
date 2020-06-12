@@ -31,6 +31,7 @@ import XCTest
 // swiftlint:disable line_length
 
 class PAMTokenStoreTests: XCTestCase {
+  let config = PubNubConfiguration(publishKey: "", subscribeKey: "")
   static let version2Token = "p0F2AkF0Gl15f0JDdHRsGQWgQ3Jlc6REY2hhbqBDZ3JwoEN1c3KhbHVzZXItcmFpLTM3NxgfQ3NwY6BDcGF0pERjaGFuoENncnCgQ3VzcqBDc3BjoERtZXRhoENzaWdYIIOAScVS/Ws+OEq9W8NbZ7f+CPX9zUYGU0c1NPoxTzkE"
   static let userGroupToken = "p0F2AkF0Gl15f0JDdHRsGQWgQ3Jlc6REY2hhbqBDZ3JwoEN1c3KhaHRlc3RVc2VyGB9Dc3BjoWl0ZXN0U3BhY2UQQ3BhdKREY2hhbqBDZ3JwoEN1c3KgQ3NwY6BEbWV0YaBDc2lnWCCDgEnFUv1rPjhKvVvDW2e3/gj1/c1GBlNHNTT6MU85BA=="
 
@@ -47,7 +48,7 @@ class PAMTokenStoreTests: XCTestCase {
 
 extension PAMTokenStoreTests {
   func testGetToken() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     // Test for found
@@ -56,7 +57,7 @@ extension PAMTokenStoreTests {
   }
 
   func testGetToken_NotFound() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     let token = pubnub.getToken(for: "testNone")
@@ -64,7 +65,7 @@ extension PAMTokenStoreTests {
   }
 
   func testGetTokenByResource() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     let token = // Test for found
@@ -73,7 +74,7 @@ extension PAMTokenStoreTests {
   }
 
   func testGetTokenByResource_NotFound() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     // Test for not found
@@ -82,7 +83,7 @@ extension PAMTokenStoreTests {
   }
 
   func testGetTokens() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     let tokens = pubnub.getTokens(by: .user)
@@ -90,7 +91,7 @@ extension PAMTokenStoreTests {
   }
 
   func testGetAllTokens() {
-    var pubnub = PubNub()
+    var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     let tokens = pubnub.getAllTokens()

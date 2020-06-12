@@ -31,6 +31,7 @@ import XCTest
 class RequestRetrierTests: XCTestCase {
   let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
   var retryCount = 0
+  let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey")
 
   var expectations = [XCTestExpectation]()
 
@@ -83,7 +84,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: .default, session: sessions.session).time { result in
+    PubNub(configuration: config, session: sessions.session).time { result in
       switch result {
       case let .success(timetoken):
         XCTAssertEqual(timetoken, 15_643_405_135_132_358)
@@ -141,7 +142,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: .default, session: sessions.session).time { result in
+    PubNub(configuration: config, session: sessions.session).time { result in
       switch result {
       case .success:
         XCTFail("Time request should fail")
@@ -209,7 +210,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: .default, session: sessions.session).time { result in
+    PubNub(configuration: config, session: sessions.session).time { result in
       switch result {
       case let .success(timetoken):
         XCTAssertEqual(timetoken, 15_643_405_135_132_358)

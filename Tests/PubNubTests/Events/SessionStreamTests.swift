@@ -98,7 +98,7 @@ class SessionStreamTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    pubnub = PubNub(configuration: .default, session: sessions.session)
+    pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {
       case let .success(timetoken):

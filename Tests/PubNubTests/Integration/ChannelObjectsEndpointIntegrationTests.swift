@@ -1,5 +1,5 @@
 //
-//  SpaceObjectsEndpointIntegrationTests.swift
+//  ChannelObjectsEndpointIntegrationTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -28,14 +28,14 @@
 import PubNub
 import XCTest
 
-class SpaceObjectsEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: SpaceObjectsEndpointIntegrationTests.self))
+class ChannelObjectsEndpointIntegrationTests: XCTestCase {
+  let config = PubNubConfiguration(from: Bundle(for: ChannelObjectsEndpointIntegrationTests.self))
 
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
 
-    client.allChannelMetadata { result in
+    client.allChannelMetadata(sort: [.init(property: .name)]) { result in
       switch result {
       case let .success((channels, nextPage)):
         XCTAssertTrue(nextPage?.totalCount ?? 0 >= channels.count)
@@ -186,7 +186,8 @@ class SpaceObjectsEndpointIntegrationTests: XCTestCase {
           channel: testChannel.metadataId,
           setting: [membership],
           removing: [membership],
-          include: .init(uuidFields: true, uuidCustomFields: true)
+          include: .init(uuidFields: true, uuidCustomFields: true),
+          sort: [.init(property: .object(.id)), .init(property: .updated)]
         ) { result in
           switch result {
           case let .success((memberships, _)):

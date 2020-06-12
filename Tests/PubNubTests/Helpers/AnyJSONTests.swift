@@ -55,8 +55,7 @@ class AnyJSONTests: XCTestCase {
     let message: JSONCodable = ["$": "35.75", "HI": "b62", "t": "BO"]
     let channel = "AuctioniPhone11ProSimRider"
     guard let messageJSONString = message.jsonStringify,
-      let pubKey = config.publishKey,
-      let subKey = config.subscribeKey else {
+      let pubKey = config.publishKey else {
       return
     }
 
@@ -64,7 +63,7 @@ class AnyJSONTests: XCTestCase {
     urlComponents.scheme = config.urlScheme
     urlComponents.host = config.origin
 
-    urlComponents.path = "/signal/\(pubKey)/\(subKey)/0/\(channel.urlEncodeSlash)/0/\(messageJSONString)"
+    urlComponents.path = "/signal/\(pubKey)/\(config.subscribeKey)/0/\(channel.urlEncodeSlash)/0/\(messageJSONString)"
     // URL will double encode our attempts to sanitize '/' inside path inputs
     urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
 

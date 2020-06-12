@@ -1,5 +1,5 @@
 //
-//  PubNubPresenceChange.swift
+//  PubNubPresence.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -29,10 +29,17 @@ import Foundation
 
 // MARK: Outbound Protocol
 
+/// A protocol that represents Precence for a PubNub Channel
 public protocol PubNubPresence {
+  /// The channel identifier
   var channel: String { get }
+  /// The total number of UUIDs present on the channel
   var occupancy: Int { get set }
+  /// The known UUIDs present on the channel
+  ///
+  /// The `count` of this Array may differ from the `occupancy` field
   var occupants: [String] { get set }
+  /// The Dictionary of UUIDs mapped to their respective presence state data
   var occupantsState: [String: JSONCodable] { get set }
 
   /// Allows for converting  between different MessageEvent types
@@ -62,15 +69,18 @@ extension PubNubPresence {
 }
 
 extension Dictionary where Key == String, Value == PubNubPresence {
+  /// The total channels (keys) that this object contains
   public var totalChannels: Int {
     return keys.count
   }
 
+  /// The total occupancy of all the channels in this `Dictioanry`
   public var totalOccupancy: Int {
     return values.reduce(0) { $0 + $1.occupancy }
   }
 }
 
+/// The default implementation of the `PubNubPresence` protocol
 public struct PubNubPresenceBase: PubNubPresence, Hashable {
   public let channel: String
   public var occupancy: Int
@@ -119,6 +129,8 @@ extension Dictionary where Key == String, Value == HereNowChannelsPayload {
     return presenceByChannel
   }
 }
+
+// MARK: - Presence Change
 
 public enum PubNubPresenceChangeAction: CaseAccessible, Hashable {
   case join(uuids: [String])
@@ -213,7 +225,7 @@ extension PubNubPresenceChange {
 
 // MARK: Concrete Base Class
 
-/// The concrete base object that represents a `PubNubPrecence`
+/// The default implementation of the `PubNubPresenceChange` protocol
 public struct PubNubPresenceChangeBase: PubNubPresenceChange, Hashable {
   public var actions: [PubNubPresenceChangeAction]
   /// Occupance of the channel at the time of the event
@@ -248,7 +260,7 @@ public struct PubNubPresenceChangeBase: PubNubPresenceChange, Hashable {
     )
   }
 
-  /// Attempts to create a `PubNubPresence` from  a SubscribeMessagePayload
+  /// Attempts to initialize from  a `SubscribeMessagePayload`
   ///
   /// This will fail if the `payload` proprety of the `SubscribeMessagePayload` cannot be
   /// decoded into a `SubscribePresencePayload`.

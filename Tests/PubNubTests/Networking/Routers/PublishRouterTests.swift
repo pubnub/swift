@@ -177,7 +177,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: nil)
+    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "")
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
@@ -201,7 +201,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: nil)
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "")
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in

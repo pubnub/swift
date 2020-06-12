@@ -30,7 +30,7 @@ import Foundation
 struct ObjectsChannelRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case all(
-      customFields: Bool, totalCount: Bool, filter: String?, sort: String?, limit: Int?, start: String?, end: String?
+      customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
     case fetch(metadataId: String, customFields: Bool)
     case set(metadata: PubNubChannelMetadata, customFields: Bool)
@@ -101,7 +101,7 @@ struct ObjectsChannelRouter: HTTPRouter {
     switch endpoint {
     case let .all(customFields, totalCount, filter, sort, limit, start, end):
       query.appendIfPresent(key: .filter, value: filter)
-      query.appendIfPresent(key: .sort, value: sort)
+      query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
       query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)

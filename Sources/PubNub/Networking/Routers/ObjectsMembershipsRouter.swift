@@ -31,23 +31,23 @@ struct ObjectsMembershipsRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case fetchMemberships(
       uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
-      filter: String?, sort: String?,
+      filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case fetchMembers(
       channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
-      filter: String?, sort: String?,
+      filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case setMemberships(
       uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
       changes: SetMembershipRequestBody,
-      filter: String?, sort: String?, limit: Int?, start: String?, end: String?
+      filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
     case setMembers(
       channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
       changes: SetMembersRequestBody,
-      filter: String?, sort: String?, limit: Int?, start: String?, end: String?
+      filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
 
     var description: String {
@@ -197,7 +197,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     case let .fetchMemberships(_, customFields, totalCount, filter, sort, limit, start, end),
          let .fetchMembers(_, customFields, totalCount, filter, sort, limit, start, end):
       query.appendIfPresent(key: .filter, value: filter)
-      query.appendIfPresent(key: .sort, value: sort)
+      query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
       query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
@@ -206,7 +206,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     case let .setMemberships(_, customFields, totalCount, _, filter, sort, limit, start, end),
          let .setMembers(_, customFields, totalCount, _, filter, sort, limit, start, end):
       query.appendIfPresent(key: .filter, value: filter)
-      query.appendIfPresent(key: .sort, value: sort)
+      query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
       query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)

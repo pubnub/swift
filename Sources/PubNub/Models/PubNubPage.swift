@@ -59,6 +59,7 @@ extension PubNubBoundedPage {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubBoundedPage` protocol
 public struct PubNubBoundedPageBase: PubNubBoundedPage, Codable, Hashable {
   public let start: Timetoken?
   public let end: Timetoken?
@@ -113,6 +114,7 @@ extension PubNubHashedPage {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubHashedPage` protocol
 public struct PubNubHashedPageBase: PubNubHashedPage, Codable, Hashable {
   public var start: String?
   public var end: String?

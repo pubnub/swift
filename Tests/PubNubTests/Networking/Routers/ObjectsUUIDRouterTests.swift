@@ -40,7 +40,7 @@ extension ObjectsUUIDRouterTests {
   func testAll_Router() {
     let router = ObjectsUUIDRouter(
       .all(customFields: true, totalCount: true, filter: "filter",
-           sort: "sort", limit: 100, start: "start", end: "end"),
+           sort: ["sort"], limit: 100, start: "start", end: "end"),
       configuration: config
     )
 
@@ -52,7 +52,7 @@ extension ObjectsUUIDRouterTests {
   func testAll_Router_ValidationError() {
     let router = ObjectsUUIDRouter(
       .all(customFields: true, totalCount: true, filter: "filter",
-           sort: "sort", limit: 100, start: "start", end: "end"),
+           sort: ["sort"], limit: 100, start: "start", end: "end"),
       configuration: config
     )
 

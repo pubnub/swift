@@ -76,6 +76,7 @@ extension PubNubMessageAction {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubMessageAction` protocol
 public struct PubNubMessageActionBase: PubNubMessageAction, Codable, Hashable {
   /// The type of action
   public let actionType: String

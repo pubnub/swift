@@ -199,6 +199,7 @@ enum QueryKey: String {
   case environment
   case filter
   case sort
+  case descending = "desc"
 }
 
 /// The PubNub Key requirement for a given Endpoint

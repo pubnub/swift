@@ -38,7 +38,7 @@ public struct PubNubError: Error {
   public let underlying: Error?
 
   let coorelation: [CorrelationIdentifier]
-  let affected: [AffectedValue]
+  public let affected: [AffectedValue]
 
   let router: HTTPRouter?
 
@@ -58,7 +58,7 @@ public struct PubNubError: Error {
     case urlTask(Int)
   }
 
-  enum AffectedValue: CaseAccessible, Hashable {
+  public enum AffectedValue: CaseAccessible, Hashable {
     case uuid(UUID)
     case string(String)
     case data(Data)
@@ -170,6 +170,7 @@ public struct PubNubError: Error {
     case internalServiceError = 500
     case serviceUnavailable = 503
 
+    /// The domain this error belongs to
     public var domain: PubNubError.Domain {
       switch self {
       case .missingRequiredParameter, .invalidEndpointType, .missingPublishKey,
@@ -330,20 +331,32 @@ extension PubNubError {
 // MARK: - Cross-Type Equatable
 
 extension Optional where Wrapped == PubNubError {
+  /// Returns a Boolean value indicating whether two values are equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func == (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason == rhs
   }
 
+  /// Returns a Boolean value indicating whether two values are not equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func != (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason != rhs
   }
 }
 
 extension Optional where Wrapped == PubNubError.Reason {
+  /// Returns a Boolean value indicating whether two values are equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func == (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs == rhs?.reason
   }
 
+  /// Returns a Boolean value indicating whether two values are not equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func != (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs != rhs?.reason
   }
@@ -352,6 +365,7 @@ extension Optional where Wrapped == PubNubError.Reason {
 // MARK: - Conversions
 
 extension PubNubError {
+  /// The underlying `URLError`, if one exists
   public var urlError: URLError? {
     return underlying?.urlError
   }

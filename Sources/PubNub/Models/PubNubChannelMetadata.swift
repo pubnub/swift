@@ -29,14 +29,19 @@ import Foundation
 
 // MARK: Outbound Protocol
 
+/// A object capable of representing PubNub Channel Metadata
 public protocol PubNubChannelMetadata {
+  /// The unique identifier of the Channel
   var metadataId: String { get }
+  /// The name of the Channel
   var name: String { get set }
+  /// Text describing the purpose of the channel
   var channelDescription: String? { get set }
-
+  /// The last updated timestamp for the object
   var updated: Date? { get set }
+  /// The caching identifier for the object
   var eTag: String? { get set }
-
+  /// All custom fields set on the object
   var custom: [String: JSONCodableScalar]? { get set }
 
   /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
@@ -44,10 +49,17 @@ public protocol PubNubChannelMetadata {
 }
 
 extension PubNubChannelMetadata {
+  /// Converts this protocol into a custom type
+  /// - Parameter into: The explicit type for the returned value
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubChannelMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
+  /// Converts this protocol into a custom type
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubChannelMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
@@ -60,6 +72,7 @@ extension PubNubChannelMetadata {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubChannelMetadata` protocol
 public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
   public let metadataId: String
   public var name: String

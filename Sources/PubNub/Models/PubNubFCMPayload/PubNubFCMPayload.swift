@@ -50,7 +50,7 @@ public struct PubNubFCMPayload: Codable {
   /// Target to send a message to
   public let target: FCMTarget?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case payload = "data"
     case notification
     case android
@@ -116,7 +116,7 @@ public enum FCMTarget: Codable, Hashable {
   /// e.g. "'foo' in topics && 'bar' in topics".
   case condition(String)
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case token
     case topic
     case condition
@@ -181,7 +181,7 @@ public struct FCMOptionsPayload: Codable, Hashable {
   /// Label associated with the message's analytics data.
   public let analyticsLabel: String?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case analyticsLabel = "analytics_label"
   }
 
@@ -203,7 +203,7 @@ public struct FCMApnsConfig: Codable, Hashable {
   /// Options for features provided by the FCM SDK for iOS.
   public let options: FCMApnsFcmOptions?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case headers
     case payload
     case options = "fcm_options"
@@ -248,7 +248,7 @@ public struct FCMApnsFcmOptions: Codable, Hashable {
   /// If present, it will override `FCMNotificationPayload.image`.
   public let image: String?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case analyticsLabel = "analytics_label"
     case image
   }

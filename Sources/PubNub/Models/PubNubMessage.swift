@@ -49,10 +49,17 @@ public protocol PubNubMessage {
 }
 
 extension PubNubMessage {
+  /// Converts this protocol into a custom type
+  /// - Parameter into: The explicit type for the returned value
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubMessage>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
+  /// Converts this protocol into a custom type
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubMessage>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {

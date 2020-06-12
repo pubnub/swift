@@ -38,7 +38,7 @@ struct AnyJSONResponseDecoder: ResponseDecoder {
 // MARK: - Response Body
 
 /// The codified message returned by the `Endpoint`
-public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
+enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleByStringLiteral {
   case acknowledge
   case badRequest
   case conflict
@@ -141,7 +141,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
     }
   }
 
-  public var rawValue: String {
+  var rawValue: String {
     switch self {
     case .acknowledge:
       return "OK"
@@ -202,7 +202,7 @@ public enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, Expres
     }
   }
 
-  public init(stringLiteral value: String) {
+  init(stringLiteral value: String) {
     self.init(rawValue: value)
   }
 }

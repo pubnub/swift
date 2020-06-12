@@ -1,0 +1,9 @@
+clean: true
+author: PubNub
+author_url: http://pubnub.com/
+github_url: https://github.com/pubnub/swift/
+root_url: https://pubnub.github.io/swift/
+module: PubNub
+module_version: 3.0.0
+output: docs
+theme: fullwidth

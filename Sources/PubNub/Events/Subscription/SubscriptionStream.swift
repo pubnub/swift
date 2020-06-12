@@ -132,19 +132,19 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     case removed(PubNubMessageAction)
   }
 
-  /// All the changes that can be received for User objects
+  /// All the changes that can be received for Metadata objects
   public enum ObjectMetadataChangeEvents {
-    ///
+    /// The changeset for the UUID object that changed
     case setUUID(PubNubUUIDMetadataChangeset)
-    ///
+    /// The unique identifer of the UUID that was removed
     case removedUUID(metadataId: String)
-    ///
+    /// The changeset for the Channel object that changed
     case setChannel(PubNubChannelMetadataChangeset)
-    ///
+    /// The unique identifer of the Channel that was removed
     case removedChannel(metadataId: String)
-    ///
+    /// The `PubNubMembershipMetadata` of the set Membership
     case setMembership(PubNubMembershipMetadata)
-    ///
+    ///The `PubNubMembershipMetadata` of the removed Membership
     case removedMembership(PubNubMembershipMetadata)
   }
 

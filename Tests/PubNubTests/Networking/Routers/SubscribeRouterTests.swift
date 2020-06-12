@@ -249,7 +249,7 @@ extension SubscribeRouterTests {
     XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
     defer { listener.cancel() }
-    wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
+    wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 100.0)
   }
 
   // swiftlint:disable:next cyclomatic_complexity

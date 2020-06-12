@@ -69,7 +69,7 @@ extension PAMTokenStoreTests {
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     let token = // Test for found
-      pubnub.getToken(for: "testSpace", with: .space)
+      pubnub.getToken(for: "testSpace", with: .channel)
     XCTAssertEqual(token, PAMTokenStoreTests.testToken)
   }
 
@@ -78,7 +78,7 @@ extension PAMTokenStoreTests {
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
     // Test for not found
-    let token = pubnub.getToken(for: "testSpace", with: .user)
+    let token = pubnub.getToken(for: "testSpace", with: .uuid)
     XCTAssertNil(token)
   }
 
@@ -86,7 +86,7 @@ extension PAMTokenStoreTests {
     var pubnub = PubNub(configuration: config)
     pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
 
-    let tokens = pubnub.getTokens(by: .user)
+    let tokens = pubnub.getTokens(by: .uuid)
     XCTAssertEqual(tokens.count, 1)
   }
 
@@ -116,8 +116,8 @@ extension PAMTokenStoreTests {
     XCTAssertEqual(token, PAMTokenStoreTests.testToken)
 
     let tokens = tms.getAllTokens()
-    XCTAssertEqual(tokens[.user]?.count, 2)
-    XCTAssertEqual(tokens[.space]?.count, 1)
+    XCTAssertEqual(tokens[.uuid]?.count, 2)
+    XCTAssertEqual(tokens[.channel]?.count, 1)
   }
 
   // swiftlint:enable line_length

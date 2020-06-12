@@ -223,11 +223,3 @@ public enum PAMVersionRequirement {
   /// A key from a version 3 PAM grant is required
   case version3
 }
-
-public enum CustomIncludeField: String, Codable {
-  case custom
-  case user
-  case customUser = "user.custom"
-  case space
-  case customSpace = "space.custom"
-}

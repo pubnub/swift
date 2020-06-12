@@ -29,16 +29,21 @@ import Foundation
 
 // MARK: Outbound Protocol
 
+/// A object capable of representing PubNub Membership Metadata
 public protocol PubNubMembershipMetadata {
+  /// The unique identifier of the associated UUID
   var uuidMetadataId: String { get }
+  /// The unique identifier of the associated Channel
   var channelMetadataId: String { get }
-
+  /// The associated UUID metadata
   var uuid: PubNubUUIDMetadata? { get set }
+  /// The associated Channel metadata
   var channel: PubNubChannelMetadata? { get set }
-
+  /// The last updated timestamp for the object
   var updated: Date? { get set }
+  /// The caching identifier for the object
   var eTag: String? { get set }
-
+  /// All custom fields set on the object
   var custom: [String: JSONCodableScalar]? { get set }
 
   /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
@@ -46,10 +51,17 @@ public protocol PubNubMembershipMetadata {
 }
 
 extension PubNubMembershipMetadata {
+  /// Converts this protocol into a custom type
+  /// - Parameter into: The explicit type for the returned value
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubMembershipMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
+  /// Converts this protocol into a custom type
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubMembershipMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
@@ -62,6 +74,7 @@ extension PubNubMembershipMetadata {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubMembershipMetadata` protocol
 public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public let uuidMetadataId: String
   public let channelMetadataId: String

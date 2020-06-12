@@ -27,107 +27,107 @@
 
 import Foundation
 
-public struct ErrorDescription {
-  public static let stringEncodingFailure: String = {
+struct ErrorDescription {
+  static let stringEncodingFailure: String = {
     "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
   }()
 
-  public static let defaultRecoverySuggestion: String = {
+  static let defaultRecoverySuggestion: String = {
     "No recover suggestion was provided."
   }()
 
-  public static let missingCryptoKey: String = {
+  static let missingCryptoKey: String = {
     "Missing cipher key from `PubNubConfiguration`"
   }()
 
-  public static let rootLevelDecoding: String = {
+  static let rootLevelDecoding: String = {
     "AnyJSON could not decode invalid root-level JSON object"
   }()
 
-  public static let keyedContainerDecoding: String = {
+  static let keyedContainerDecoding: String = {
     "AnyJSON could not decode value inside `KeyedDecodingContainer`"
   }()
 
-  public static let unkeyedContainerDecoding: String = {
+  static let unkeyedContainerDecoding: String = {
     "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
   }()
 
-  public static let rootLevelEncoding: String = {
+  static let rootLevelEncoding: String = {
     "AnyJSON could not encode invalid root-level JSON object"
   }()
 
-  public static let pushNotEnabled: String = {
+  static let pushNotEnabled: String = {
     "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
   }()
 
-  public static let messageDeletionNotEnabled: String = {
+  static let messageDeletionNotEnabled: String = {
     // swiftlint:disable:next line_length
     "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
   }()
 
-  public static let messageHistoryNotEnabled: String = {
+  static let messageHistoryNotEnabled: String = {
     "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
   }()
 
-  public static let cryptoStringEncodeFailed: String = {
+  static let cryptoStringEncodeFailed: String = {
     "Decrypted payload failed to String encode using default Coder string encoding"
   }()
 }
 
 extension ErrorDescription {
-  public static let emptyChannelString: String = {
+  static let emptyChannelString: String = {
     "Channel is an empty `String`"
   }()
 
-  public static let emptyChannelArray: String = {
+  static let emptyChannelArray: String = {
     "Channels is an empty `Array`"
   }()
 
-  public static let emptyGroupString: String = {
+  static let emptyGroupString: String = {
     "Group is an empty `String`"
   }()
 
-  public static let missingChannelsAnyGroups: String = {
+  static let missingChannelsAnyGroups: String = {
     "No Channels or Groups were provided"
   }()
 
-  public static let missingTimetoken: String = {
+  static let missingTimetoken: String = {
     "No `Timetoken` value provided"
   }()
 
-  public static let invalidHistoryTimetokens: String = {
+  static let invalidHistoryTimetokens: String = {
     "Timetokens `Array` count does not match Channels `Array` count"
   }()
 
-  public static let invalidMessageAction: String = {
+  static let invalidMessageAction: String = {
     "Message Action is invalid"
   }()
 
-  public static let emptyMessagePayload: String = {
+  static let emptyMessagePayload: String = {
     "Message is an empty Object"
   }()
 
-  public static let emptyUUIDString: String = {
+  static let emptyUUIDString: String = {
     "UUID is an empty `String`"
   }()
 
-  public static let emptyDeviceTokenData: String = {
+  static let emptyDeviceTokenData: String = {
     "Device Token is an empty `Data`"
   }()
 
-  public static let emptyUUIDMetadataId: String = {
+  static let emptyUUIDMetadataId: String = {
     "The UUID MetadataId `String` cannot be empty"
   }()
 
-  public static let invalidUUIDMetadata: String = {
+  static let invalidUUIDMetadata: String = {
     "The Object is not valid UUID Metadata"
   }()
 
-  public static let emptyChannelMetadataId: String = {
+  static let emptyChannelMetadataId: String = {
     "The Channel MetadataId `String` cannot be empty"
   }()
 
-  public static let invalidChannelMetadata: String = {
+  static let invalidChannelMetadata: String = {
     "The Object is not a valid Channel Metadata"
   }()
 }

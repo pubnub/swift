@@ -48,7 +48,5 @@ public typealias PAMResourceType = PAMTokenManagementSystem.Resource
 
 // MARK: - Closures
 
-/// A closure that accepts no input and returns `Void`
-public typealias EmptyClosure = () -> Void
 /// A closure capable of validating a network response
-public typealias ValidationClosure = (HTTPRouter, URLRequest, HTTPURLResponse, Data?) -> Error?
+typealias ValidationClosure = (HTTPRouter, URLRequest, HTTPURLResponse, Data?) -> Error?

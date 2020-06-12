@@ -41,7 +41,7 @@ public struct FCMWebpushConfig: Codable, Hashable {
   /// Options for features provided by the FCM SDK for Web.
   public let options: FCMWebpushFcmOptions?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case headers
     case notification
     case options = "fcm_options"

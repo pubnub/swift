@@ -29,16 +29,23 @@ import Foundation
 
 // MARK: Outbound Protocol
 
+/// A object capable of representing PubNub UUID Metadata
 public protocol PubNubUUIDMetadata {
+  /// The unique identifier of the UUID
   var metadataId: String { get }
+  /// The name of the UUID
   var name: String { get set }
+  /// The external identifier for the object
   var externalId: String? { get set }
+  /// The profile URL for the object
   var profileURL: String? { get set }
+  /// The email address of the object
   var email: String? { get set }
-
+  /// The last updated timestamp for the object
   var updated: Date? { get set }
+  /// The caching identifier for the object
   var eTag: String? { get set }
-
+  /// All custom fields set on the object
   var custom: [String: JSONCodableScalar]? { get set }
 
   /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
@@ -46,10 +53,17 @@ public protocol PubNubUUIDMetadata {
 }
 
 extension PubNubUUIDMetadata {
+  /// Converts this protocol into a custom type
+  /// - Parameter into: The explicit type for the returned value
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubUUIDMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
+  /// Converts this protocol into a custom type
+  /// - Returns: The protocol intiailized as a custom type
+  /// - Throws: An error why the custom type was unable to be created using this protocol instance
   public func transcode<T: PubNubUUIDMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
@@ -62,6 +76,7 @@ extension PubNubUUIDMetadata {
 
 // MARK: Concrete Base Class
 
+/// The default implementation of the `PubNubUUIDMetadata` protocol
 public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   public let metadataId: String
   public var name: String

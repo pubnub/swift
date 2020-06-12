@@ -91,6 +91,7 @@ public struct PubNubPresenceBase: PubNubPresence, Hashable {
     set { concreteOccupantsState = newValue.mapValues { $0.codableValue } }
   }
 
+  /// The default init
   public init(
     channel: String,
     occupancy: Int,
@@ -132,10 +133,15 @@ extension Dictionary where Key == String, Value == HereNowChannelsPayload {
 
 // MARK: - Presence Change
 
+/// The change in presence that took place on that channel
 public enum PubNubPresenceChangeAction: CaseAccessible, Hashable {
+  /// The list of UUIDs that joined the channel
   case join(uuids: [String])
+  /// The list of UUIDs that left the channel
   case leave(uuids: [String])
+  /// The list of UUIDs that timed-out on the channel
   case timeout(uuids: [String])
+  /// The UUID and the presence state that changed for that UUID
   case stateChange(uuid: String, state: JSONCodable)
 
   public static func == (lhs: PubNubPresenceChangeAction, rhs: PubNubPresenceChangeAction) -> Bool {
@@ -165,14 +171,18 @@ public enum PubNubPresenceChangeAction: CaseAccessible, Hashable {
 }
 
 extension Array where Element == PubNubPresenceChangeAction {
+  /// Whether the array contains a `PubNubPresenceChangeAction.join` that contains the UUID
+  /// - Parameter contains: The unique identifier to search for
   public func join(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.join]?.contains(uuid) ?? false })
   }
-
+  /// Whether the array contains a `PubNubPresenceChangeAction.leave` that contains the UUID
+  /// - Parameter contains: The unique identifier to search for
   public func leave(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.leave]?.contains(uuid) ?? false })
   }
-
+  /// Whether the array contains a `PubNubPresenceChangeAction.timeout` that contains the UUID
+  /// - Parameter contains: The unique identifier to search for
   public func timeout(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.timeout]?.contains(uuid) ?? false })
   }

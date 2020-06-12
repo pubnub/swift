@@ -4,3 +4,4 @@ gem "cocoapods"
 
 gem "fastlane"
 gem "slather"
+gem "jazzy"

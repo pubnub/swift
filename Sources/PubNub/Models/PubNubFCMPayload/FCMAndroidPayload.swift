@@ -52,7 +52,7 @@ public struct FCMAndroidPayload: Codable, Hashable {
   /// Options for features provided by the FCM SDK for Android.
   public let options: FCMOptionsPayload?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case collapseKey = "collapse_key"
     case priority
     case ttl
@@ -261,7 +261,7 @@ public struct FCMAndroidNotification: Codable, Hashable {
   /// If present, it will override `FCMNotificationPayload.image`.
   public let image: String?
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case title
     case body
     case icon
@@ -396,7 +396,7 @@ public struct FCMAndroidLightSettings: Codable, Hashable {
   /// Along with `onDuration`, define the blink rate of LED flashes.
   public let offDuration: String
 
-  public enum CodingKeys: String, CodingKey {
+  enum CodingKeys: String, CodingKey {
     case color
     case onDuration = "light_on_duration"
     case offDuration = "light_off_duration"

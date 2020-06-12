@@ -45,6 +45,11 @@ Generates Code Coverage Files
 fastlane build_example
 ```
 Builds the SDK Example app
+### generate_docs
+```
+fastlane generate_docs
+```
+Generate Documentation
 
 ----
 

@@ -140,7 +140,6 @@
 		357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8722E69B0800C18250 /* DispatchQueue+PubNub.swift */; };
 		357AEB8A22E6A02F00C18250 /* Error+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8922E6A02F00C18250 /* Error+PubNubTests.swift */; };
 		357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AEB8B22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift */; };
-		357BC346235E0CC7009C2A67 /* PubNubErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */; };
 		357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */; };
 		3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A59322F0C74100B12E5E /* RequestMutatorTests.swift */; };
 		3580A5A222F13C6500B12E5E /* SessionStreamAwait.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */; };
@@ -459,7 +458,6 @@
 		357AEB8722E69B0800C18250 /* DispatchQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+PubNub.swift"; sourceTree = "<group>"; };
 		357AEB8922E6A02F00C18250 /* Error+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+PubNubTests.swift"; sourceTree = "<group>"; };
 		357AEB8B22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+PubNubTests.swift"; sourceTree = "<group>"; };
-		357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubErrorTests.swift; sourceTree = SOURCE_ROOT; };
 		357D1C1A22CB04C4003625BA /* Bool+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+PubNub.swift"; sourceTree = "<group>"; };
 		3580A59322F0C74100B12E5E /* RequestMutatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestMutatorTests.swift; sourceTree = "<group>"; };
 		3580A59922F1217E00B12E5E /* ErrorDescription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorDescription.swift; sourceTree = "<group>"; };
@@ -988,14 +986,6 @@
 			path = Networking;
 			sourceTree = "<group>";
 		};
-		3580A5A522F14DA700B12E5E /* Errors */ = {
-			isa = PBXGroup;
-			children = (
-				357BC341235E0B95009C2A67 /* PubNubErrorTests.swift */,
-			);
-			path = Errors;
-			sourceTree = "<group>";
-		};
 		3580A5A622F14DB700B12E5E /* Events */ = {
 			isa = PBXGroup;
 			children = (
@@ -1173,6 +1163,8 @@
 		35EA73F622B1916800D97BF0 /* Deployment */ = {
 			isa = PBXGroup;
 			children = (
+				35DA9AAC2331674000867989 /* .swiftformat */,
+				35DA9AAB2331674000867989 /* .swiftlint.yml */,
 				35DA9AAA2331674000867989 /* .travis.yml */,
 				359287D0232881AD0046F7A2 /* .pubnub.yml */,
 				35D42CE8232C0FCA008EB0F6 /* Fastfile */,
@@ -1206,8 +1198,6 @@
 			isa = PBXGroup;
 			children = (
 				OBJ_23 /* README.md */,
-				35DA9AAC2331674000867989 /* .swiftformat */,
-				35DA9AAB2331674000867989 /* .swiftlint.yml */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
@@ -1336,7 +1326,6 @@
 				3580A5A322F14D5200B12E5E /* Mocking */,
 				OBJ_15 /* PubNubTests.swift */,
 				359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */,
-				3580A5A522F14DA700B12E5E /* Errors */,
 				35458BA1230CB32F0085B502 /* Subscription */,
 				3580A5A422F14D6000B12E5E /* Networking */,
 				3580A5A622F14DB700B12E5E /* Events */,
@@ -1811,7 +1800,6 @@
 				35CF54A0248D96320099FE81 /* SubscribeRouterTests.swift in Sources */,
 				35CF54A1248DA6430099FE81 /* ObjectsChannelRouterTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,
-				357BC346235E0CC7009C2A67 /* PubNubErrorTests.swift in Sources */,
 				35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */,
 				3557CDF8237F4611004BBACC /* MessageActionsRouterTests.swift in Sources */,
 				35CDFEAD22E7655700F3B9F2 /* URL+PubNubTests.swift in Sources */,

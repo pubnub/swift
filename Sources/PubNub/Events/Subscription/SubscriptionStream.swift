@@ -144,7 +144,7 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     case removedChannel(metadataId: String)
     /// The `PubNubMembershipMetadata` of the set Membership
     case setMembership(PubNubMembershipMetadata)
-    ///The `PubNubMembershipMetadata` of the removed Membership
+    /// The `PubNubMembershipMetadata` of the removed Membership
     case removedMembership(PubNubMembershipMetadata)
   }
 

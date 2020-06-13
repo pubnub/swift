@@ -46,7 +46,7 @@ extension JSONCodable {
     return AnyJSON(self)
   }
 
-  /// True if the underlying value is a scalar JSON element; false if it's a Colletion
+  /// True if the underlying value is a scalar JSON element; false if it's a Collection
   public var isScalar: Bool {
     return codableValue.value.isScalar
   }

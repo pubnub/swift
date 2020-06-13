@@ -68,11 +68,10 @@ public struct PubNubUUIDMetadataChangeset {
   /// - Returns: A copy of the object with the patched chagnes, or the passed object if changes could not be applied
   public func apply(to object: PubNubUUIDMetadata) -> PubNubUUIDMetadata {
     guard metadataId == object.metadataId,
-          eTag != object.eTag,
-          updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
+      eTag != object.eTag,
+      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
       return object
     }
-
 
     // Create mutable copy
     var patchedObject = object
@@ -126,8 +125,8 @@ public struct PubNubChannelMetadataChangeset {
   /// - Returns: A copy of the object with the patched chagnes, or the passed object if changes could not be applied
   public func apply(to object: PubNubChannelMetadata) -> PubNubChannelMetadata {
     guard metadataId == object.metadataId,
-          eTag != object.eTag,
-          updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
+      eTag != object.eTag,
+      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
       return object
     }
 

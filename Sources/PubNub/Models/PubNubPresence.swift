@@ -176,11 +176,13 @@ extension Array where Element == PubNubPresenceChangeAction {
   public func join(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.join]?.contains(uuid) ?? false })
   }
+
   /// Whether the array contains a `PubNubPresenceChangeAction.leave` that contains the UUID
   /// - Parameter contains: The unique identifier to search for
   public func leave(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.leave]?.contains(uuid) ?? false })
   }
+
   /// Whether the array contains a `PubNubPresenceChangeAction.timeout` that contains the UUID
   /// - Parameter contains: The unique identifier to search for
   public func timeout(contains uuid: String) -> Bool {

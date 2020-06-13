@@ -224,6 +224,7 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   override func viewDidLoad() {
     super.viewDidLoad()
 
@@ -240,19 +241,19 @@ class MasterDetailTableViewController: UITableViewController {
     self.listener?.didReceiveBatchSubscription = { events in
       for event in events {
         switch event {
-        case .messageReceived(let message):
+        case let .messageReceived(message):
           print("The \(message.channel) channel received a message at \(message.published)")
           if let subscription = message.subscription {
             print("The channel-group or wildcard that matched this channel was \(subscription)")
           }
           print("The message is \(message.payload) and was sent by \(message.publisher ?? "")")
-        case .signalReceived(let signal):
+        case let .signalReceived(signal):
           print("The \(signal.channel) channel received a message at \(signal.published)")
           if let subscription = signal.subscription {
             print("The channel-group or wildcard that matched this channel was \(subscription)")
           }
           print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
-        case .connectionStatusChanged(let connectionChange):
+        case let .connectionStatusChanged(connectionChange):
           switch connectionChange {
           case .connecting:
             print("Status connecting...")
@@ -265,7 +266,7 @@ class MasterDetailTableViewController: UITableViewController {
           case .disconnectedUnexpectedly:
             print("Status disconnected unexpectedly!")
           }
-        case .subscriptionChanged(let subscribeChange):
+        case let .subscriptionChanged(subscribeChange):
           switch subscribeChange {
           case let .subscribed(channels, groups):
             print("\(channels) and \(groups) were added to subscription")
@@ -275,7 +276,7 @@ class MasterDetailTableViewController: UITableViewController {
           case let .unsubscribed(channels, groups):
             print("\(channels) and \(groups) were removed from subscription")
           }
-        case .presenceChanged(let presenceChange):
+        case let .presenceChanged(presenceChange):
           print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")
           for action in presenceChange.actions {
             switch action {
@@ -289,30 +290,30 @@ class MasterDetailTableViewController: UITableViewController {
               print("\(uuid) changed their presence state to \(state) at \(presenceChange.timetoken)")
             }
           }
-        case .uuidMetadataSet(let uuidMetadataChange):
+        case let .uuidMetadataSet(uuidMetadataChange):
           print("Changes were made to \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated)")
           print("To apply the change, fetch a matching object and call uuidMetadataChange.apply(to: otherUUIDMetadata)")
-        case .uuidMetadataRemoved(let metadataId):
+        case let .uuidMetadataRemoved(metadataId):
           print("Metadata for the uuid \(metadataId) has been removed")
-        case .channelMetadataSet(let channelMetadata):
+        case let .channelMetadataSet(channelMetadata):
           print("Changes were made to \(channelMetadata.metadataId) at \(channelMetadata.updated)")
           print("To apply the change, fetch a matching object and call channelMetadata.apply(to: otherUUIDMetadata)")
-        case .channelMetadataRemoved(let metadataId):
+        case let .channelMetadataRemoved(metadataId):
           print("Metadata for the channel \(metadataId) has been removed")
-        case .membershipMetadataSet(let membership):
+        case let .membershipMetadataSet(membership):
           print("A membership was set between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
-        case .membershipMetadataRemoved(let membership):
+        case let .membershipMetadataRemoved(membership):
           print("A membership was removed between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
-        case .messageActionAdded(let messageAction):
+        case let .messageActionAdded(messageAction):
           print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
           print("This action was created at \(messageAction.actionTimetoken)")
           print("This action has a type of \(messageAction.actionType) and has a value of \(messageAction.actionValue)")
-        case .messageActionRemoved(let messageAction):
+        case let .messageActionRemoved(messageAction):
           print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
           print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
-        case .subscribeError(let error):
+        case let .subscribeError(error):
           print("The following error was generated during subscription \(error.localizedDescription)")
-          print("If a `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+          print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
         }
       }
     }

@@ -126,7 +126,6 @@ extension PubNubHashedPage {
   }
 }
 
-
 // MARK: Concrete Base Class
 
 /// The default implementation of the `PubNubHashedPage` protocol

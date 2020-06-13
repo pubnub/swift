@@ -37,9 +37,9 @@ public struct PAMTokenManagementSystem {
   internal var channels: [String: PAMToken]
   internal var uuids: [String: PAMToken]
 
-  public init(users: [String: PAMToken] = [:], spaces: [String: PAMToken] = [:]) {
-    self.uuids = users
-    self.channels = spaces
+  public init(uuids: [String: PAMToken] = [:], channels: [String: PAMToken] = [:]) {
+    self.uuids = uuids
+    self.channels = channels
   }
 
   public init(store: PAMTokenManagementSystem) {
@@ -92,11 +92,11 @@ public struct PAMTokenManagementSystem {
     // Attach the original auth string for reuse on APIs
     token.rawValue = tokenString
 
-    for user in token.resources.users.keys {
+    for user in token.resources.uuidObjects.keys {
       uuids[user] = token
     }
 
-    for space in token.resources.spaces.keys {
+    for space in token.resources.channelObjects.keys {
       channels[space] = token
     }
   }
@@ -165,14 +165,14 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
   public let channels: [String: PAMPermission]
   public let groups: [String: PAMPermission]
 
-  public let users: [String: PAMPermission]
-  public let spaces: [String: PAMPermission]
+  public let uuidObjects: [String: PAMPermission]
+  public let channelObjects: [String: PAMPermission]
 
   enum CodingKeys: String, CodingKey {
     case channels = "chan"
     case groups = "grp"
-    case users = "usr"
-    case spaces = "spc"
+    case uuidObjects = "usr"
+    case channelObjects = "spc"
   }
 }
 

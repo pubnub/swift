@@ -36,8 +36,8 @@ class PAMTokenStoreTests: XCTestCase {
   static let userGroupToken = "p0F2AkF0Gl15f0JDdHRsGQWgQ3Jlc6REY2hhbqBDZ3JwoEN1c3KhaHRlc3RVc2VyGB9Dc3BjoWl0ZXN0U3BhY2UQQ3BhdKREY2hhbqBDZ3JwoEN1c3KgQ3NwY6BEbWV0YaBDc2lnWCCDgEnFUv1rPjhKvVvDW2e3/gj1/c1GBlNHNTT6MU85BA=="
 
   static let testToken = PAMToken(version: 2, timestamp: 1_568_243_522, ttl: 1440,
-                                  resources: .init(channels: [:], groups: [:], users: ["testUser": .all], spaces: ["testSpace": .create]),
-                                  patterns: .init(channels: [:], groups: [:], users: [:], spaces: [:]),
+                                  resources: .init(channels: [:], groups: [:], uuidObjects: ["testUser": .all], channelObjects: ["testSpace": .create]),
+                                  patterns: .init(channels: [:], groups: [:], uuidObjects: [:], channelObjects: [:]),
                                   meta: [:], signature: "838049C552FD6B3E384ABD5BC35B67B7FE08F5FDCD460653473534FA314F3904", rawValue: userGroupToken)
 
   var testUsers = ["testUser": testToken]
@@ -49,7 +49,7 @@ class PAMTokenStoreTests: XCTestCase {
 extension PAMTokenStoreTests {
   func testGetToken() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     // Test for found
     let token = pubnub.getToken(for: "testUser")
@@ -58,7 +58,7 @@ extension PAMTokenStoreTests {
 
   func testGetToken_NotFound() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     let token = pubnub.getToken(for: "testNone")
     XCTAssertNil(token)
@@ -66,7 +66,7 @@ extension PAMTokenStoreTests {
 
   func testGetTokenByResource() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     let token = // Test for found
       pubnub.getToken(for: "testSpace", with: .channel)
@@ -75,7 +75,7 @@ extension PAMTokenStoreTests {
 
   func testGetTokenByResource_NotFound() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     // Test for not found
     let token = pubnub.getToken(for: "testSpace", with: .uuid)
@@ -84,7 +84,7 @@ extension PAMTokenStoreTests {
 
   func testGetTokens() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     let tokens = pubnub.getTokens(by: .uuid)
     XCTAssertEqual(tokens.count, 1)
@@ -92,7 +92,7 @@ extension PAMTokenStoreTests {
 
   func testGetAllTokens() {
     var pubnub = PubNub(configuration: config)
-    pubnub.tokenStore = PAMTokenManagementSystem(users: testUsers, spaces: testSpaces)
+    pubnub.tokenStore = PAMTokenManagementSystem(uuids: testUsers, channels: testSpaces)
 
     let tokens = pubnub.getAllTokens()
     XCTAssertEqual(tokens.count, 2)

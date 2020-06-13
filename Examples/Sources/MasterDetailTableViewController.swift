@@ -237,20 +237,84 @@ class MasterDetailTableViewController: UITableViewController {
     self.listener = listener
     pubnub.subscription.add(listener)
 
-    self.listener?.didReceiveMessage = { message in
-      print("Message Received: \(message)")
-    }
-
-    self.listener?.didReceiveSignal = { signal in
-      print("Signal Received: \(signal)")
-    }
-
-    self.listener?.didReceiveStatus = { result in
-      print("Status Received: \(result)")
-    }
-
-    self.listener?.didReceivePresence = { result in
-      print("Presence Received: \(result)")
+    self.listener?.didReceiveBatchSubscription = { events in
+      for event in events {
+        switch event {
+        case .messageReceived(let message):
+          print("The \(message.channel) channel received a message at \(message.published)")
+          if let subscription = message.subscription {
+            print("The channel-group or wildcard that matched this channel was \(subscription)")
+          }
+          print("The message is \(message.payload) and was sent by \(message.publisher ?? "")")
+        case .signalReceived(let signal):
+          print("The \(signal.channel) channel received a message at \(signal.published)")
+          if let subscription = signal.subscription {
+            print("The channel-group or wildcard that matched this channel was \(subscription)")
+          }
+          print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
+        case .connectionStatusChanged(let connectionChange):
+          switch connectionChange {
+          case .connecting:
+            print("Status connecting...")
+          case .connected:
+            print("Status connected!")
+          case .reconnecting:
+            print("Status reconnecting...")
+          case .disconnected:
+            print("Status disconnected")
+          case .disconnectedUnexpectedly:
+            print("Status disconnected unexpectedly!")
+          }
+        case .subscriptionChanged(let subscribeChange):
+          switch subscribeChange {
+          case let .subscribed(channels, groups):
+            print("\(channels) and \(groups) were added to subscription")
+          case let .responseHeader(channels, groups, previous, next):
+            print("\(channels) and \(groups) recevied a response at \(previous?.timetoken ?? 0)")
+            print("\(next?.timetoken ?? 0) will be used as the new timetoken")
+          case let .unsubscribed(channels, groups):
+            print("\(channels) and \(groups) were removed from subscription")
+          }
+        case .presenceChanged(let presenceChange):
+          print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")
+          for action in presenceChange.actions {
+            switch action {
+            case let .join(uuids):
+              print("The following list of occupants joined at \(presenceChange.timetoken): \(uuids)")
+            case let .leave(uuids):
+              print("The following list of occupants left at \(presenceChange.timetoken): \(uuids)")
+            case let .timeout(uuids):
+              print("The following list of occupants timed-out at \(presenceChange.timetoken): \(uuids)")
+            case let .stateChange(uuid, state):
+              print("\(uuid) changed their presence state to \(state) at \(presenceChange.timetoken)")
+            }
+          }
+        case .uuidMetadataSet(let uuidMetadataChange):
+          print("Changes were made to \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated)")
+          print("To apply the change, fetch a matching object and call uuidMetadataChange.apply(to: otherUUIDMetadata)")
+        case .uuidMetadataRemoved(let metadataId):
+          print("Metadata for the uuid \(metadataId) has been removed")
+        case .channelMetadataSet(let channelMetadata):
+          print("Changes were made to \(channelMetadata.metadataId) at \(channelMetadata.updated)")
+          print("To apply the change, fetch a matching object and call channelMetadata.apply(to: otherUUIDMetadata)")
+        case .channelMetadataRemoved(let metadataId):
+          print("Metadata for the channel \(metadataId) has been removed")
+        case .membershipMetadataSet(let membership):
+          print("A membership was set between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+        case .membershipMetadataRemoved(let membership):
+          print("A membership was removed between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+        case .messageActionAdded(let messageAction):
+          print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
+          print("This action was created at \(messageAction.actionTimetoken)")
+          print("This action has a type of \(messageAction.actionType) and has a value of \(messageAction.actionValue)")
+        case .messageActionRemoved(let messageAction):
+          print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
+          print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
+        case .subscribeError(let error):
+          print("The following error was generated during subscription \(error.localizedDescription)")
+          print("If a `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+        }
+      }
     }
   }
 
@@ -559,7 +623,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performDeleteGroupRequest() {
-    pubnub.delete(channelGroup: "SwiftGroup") { result in
+    pubnub.remove(channelGroup: "SwiftGroup") { result in
       switch result {
       case let .success(response):
         print("Successful Delete Group Response: \(response)")
@@ -581,10 +645,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performHistoryFetch() {
-    pubnub.fetchMessageHistory(for: ["channelSwift"],
-                               limit: 25,
-                               start: nil,
-                               end: nil) { result in
+    pubnub.fetchMessageHistory(for: ["channelSwift"]) { result in
       switch result {
       case let .success(response):
         print("Successful History Fetch Response: \(response)")

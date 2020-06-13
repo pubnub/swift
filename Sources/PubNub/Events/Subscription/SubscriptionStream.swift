@@ -174,8 +174,10 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
 
   public func emitDidReceiveBatch(subscription batch: [SubscriptionEvent]) {
+    let supressCancellationErrors = self.supressCancellationErrors
     queue.async { [weak self] in
-      self?.didReceiveBatchSubscription?(batch)
+      // We also want to filter out cancellation errors
+      self?.didReceiveBatchSubscription?(batch.filter { !($0.isCancellationError && supressCancellationErrors) })
 
       for event in batch {
         self?.emitDidReceive(subscription: event)

@@ -72,9 +72,9 @@ public enum SubscriptionEvent {
   /// A Space object has been deleted
   case channelMetadataRemoved(metadataId: String)
   /// A Membership object has been updated
-  case membershipSet(PubNubMembershipMetadata)
+  case membershipMetadataSet(PubNubMembershipMetadata)
   /// A Membership object has been deleted
-  case membershipRemoved(PubNubMembershipMetadata)
+  case membershipMetadataRemoved(PubNubMembershipMetadata)
   /// A MessageAction was added to a published message
   case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
@@ -213,9 +213,9 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveObjectMetadataEvent?(.setChannel(metadata))
       case let .channelMetadataRemoved(channelMetadataId):
         self?.didReceiveObjectMetadataEvent?(.removedChannel(metadataId: channelMetadataId))
-      case let .membershipSet(membership):
+      case let .membershipMetadataSet(membership):
         self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
-      case let .membershipRemoved(membership):
+      case let .membershipMetadataRemoved(membership):
         self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
       case let .messageActionAdded(action):
         self?.didReceiveMessageAction?(.added(action))

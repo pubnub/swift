@@ -40,3 +40,4 @@ ___
 
 ### PubNub API Response Changes
 * The custom objects found inside the success Results for many APIs have been replaced with primitives or common protocols
+* Most of the protocol provided as responses or events can be converted directly into their custom object using the `transcode()` function

@@ -96,10 +96,10 @@ extension SubscribeObjectMetadataPayload: Codable {
       subscribeEvent = .channelMetadataRemoved(metadataId: try nestedContainer.decode(String.self, forKey: .metadataId))
     case (.membership, .set):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
-      subscribeEvent = .membershipSet(membership)
+      subscribeEvent = .membershipMetadataSet(membership)
     case (.membership, .delete):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
-      subscribeEvent = .membershipRemoved(membership)
+      subscribeEvent = .membershipMetadataRemoved(membership)
     }
   }
 
@@ -122,7 +122,7 @@ extension SubscribeObjectMetadataPayload: Codable {
     case let .channelMetadataRemoved(metadataId):
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
-    case let .membershipSet(membership), let .membershipRemoved(membership):
+    case let .membershipMetadataSet(membership), let .membershipMetadataRemoved(membership):
       try container.encode(try membership.transcode(into: PubNubMembershipMetadataBase.self), forKey: .subscribeEvent)
     default:
       break

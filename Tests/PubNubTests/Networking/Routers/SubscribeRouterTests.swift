@@ -457,7 +457,7 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .membershipSet(membership):
+      case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
 
@@ -520,7 +520,7 @@ extension SubscribeRouterTests {
         if status == .disconnected {
           statusExpect.fulfill()
         }
-      case let .membershipRemoved(membership):
+      case let .membershipMetadataRemoved(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
       case let .subscriptionChanged(change):

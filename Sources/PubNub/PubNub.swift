@@ -1568,7 +1568,7 @@ extension PubNub {
     }
   }
 
-  /// Get the specified user's space memberships.
+  /// Set Channel memberships for a UUID.
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -1599,7 +1599,7 @@ extension PubNub {
     )
   }
 
-  /// Get the specified user's space memberships.
+  /// Remove Channel memberships for a UUID.
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -1630,7 +1630,7 @@ extension PubNub {
     )
   }
 
-  /// Modifty the list of space memberships for a given user
+  /// Modify the Channel membership list for a UUID
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -1713,7 +1713,7 @@ extension PubNub {
     )
   }
 
-  /// Get the specified user's space memberships.
+  /// Remove UUID members from a Channel.
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
@@ -1744,7 +1744,7 @@ extension PubNub {
     )
   }
 
-  /// Modifty the list of space memberships for a given user
+  /// Modify the UUID member list for a Channel
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided

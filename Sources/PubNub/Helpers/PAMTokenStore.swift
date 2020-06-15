@@ -92,12 +92,12 @@ public struct PAMTokenManagementSystem {
     // Attach the original auth string for reuse on APIs
     token.rawValue = tokenString
 
-    for user in token.resources.uuidObjects.keys {
-      uuids[user] = token
+    for uuid in token.resources.uuidObjects.keys {
+      uuids[uuid] = token
     }
 
-    for space in token.resources.channelObjects.keys {
-      channels[space] = token
+    for channel in token.resources.channelObjects.keys {
+      channels[channel] = token
     }
   }
 

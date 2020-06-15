@@ -75,7 +75,7 @@ class PushIntegrationTests: XCTestCase {
     ) { [unowned self] result in
 
       // List Channels
-      client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
+      client.listAPNSPushChannelRegistrations(for: token, on: self.pushTopic) { result in
         switch result {
         case let .success(channels):
           XCTAssertEqual(channels.first, self.channel)
@@ -106,7 +106,7 @@ class PushIntegrationTests: XCTestCase {
       byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
       client.removeAllAPNSPushDevice(for: token, on: self.pushTopic) { _ in
-        client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
+        client.listAPNSPushChannelRegistrations(for: token, on: self.pushTopic) { result in
           switch result {
           case let .success(channels):
             XCTAssertEqual(channels.isEmpty, true)

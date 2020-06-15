@@ -328,7 +328,7 @@ extension PushRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
         switch result {
         case let .success(channels):
           XCTAssertFalse(channels.isEmpty)
@@ -353,7 +353,7 @@ extension PushRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
         switch result {
         case .success:
           XCTFail("This should not succeed")
@@ -378,7 +378,7 @@ extension PushRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .listAPNSChannelsOnDevice(for: hexData, on: "TestTopic") { result in
+      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
         switch result {
         case let .success(channels):
           XCTAssertTrue(channels.isEmpty)

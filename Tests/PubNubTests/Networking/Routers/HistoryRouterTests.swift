@@ -295,7 +295,7 @@ extension HistoryRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
+      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
         switch result {
         case let .success((messagesByChannel, next)):
           XCTAssertEqual(messagesByChannel[self.testChannel]?.count, 2)
@@ -319,7 +319,7 @@ extension HistoryRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
+      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
         switch result {
         case let .success((messagesByChannel, next)):
           XCTAssertTrue(messagesByChannel.isEmpty)

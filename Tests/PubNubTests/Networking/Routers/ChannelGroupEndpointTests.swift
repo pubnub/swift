@@ -166,9 +166,9 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listChannels(for: testGroupName) { result in
         switch result {
-        case let .success(channelByGroupId):
-          XCTAssertEqual(channelByGroupId.keys.first, self.testGroupName)
-          XCTAssertFalse(channelByGroupId[self.testGroupName]?.isEmpty ?? true)
+        case let .success(response):
+          XCTAssertEqual(response.group, self.testGroupName)
+          XCTAssertFalse(response.channels.isEmpty)
         case let .failure(error):
           XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
         }
@@ -188,9 +188,9 @@ extension ChannelGroupsRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .listChannels(for: testGroupName) { result in
         switch result {
-        case let .success(channslByGroupId):
-          XCTAssertEqual(channslByGroupId.keys.first, self.testGroupName)
-          XCTAssertTrue(channslByGroupId[self.testGroupName]?.isEmpty ?? false)
+        case let .success(response):
+          XCTAssertEqual(response.group, self.testGroupName)
+          XCTAssertTrue(response.channels.isEmpty)
         case let .failure(error):
           XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
         }

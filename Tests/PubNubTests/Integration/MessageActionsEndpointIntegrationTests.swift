@@ -160,7 +160,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(messageAction.actionType, actionType)
         XCTAssertEqual(messageAction.actionValue, actionValue)
 
-        client.fetchMessageHistory(for: [self.testChannel], fetchActions: true) { historyResult in
+        client.fetchMessageHistory(for: [self.testChannel], includeActions: true) { historyResult in
           switch historyResult {
           case let .success((messages, _)):
             let channelHistory = messages[self.testChannel]

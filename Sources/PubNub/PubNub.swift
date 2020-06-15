@@ -366,7 +366,7 @@ extension PubNub {
   /// - Parameters:
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The  current`Timetoken`
+  ///     - **Success**: The current `Timetoken`
   ///     - **Failure**: An `Error` describing the failure
   public func time(
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -762,17 +762,17 @@ extension PubNub {
   ///   - for: The channel group to list channels on.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they contain
+  ///     - **Success**: A `Tuple` containing the channel-group and the `Array` of  its channels
   ///     - **Failure**: An `Error` describing the failure
   public func listChannels(
     for group: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<[String: [String]], Error>) -> Void)?
+    completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.channelsForGroup(group: group), configuration: configuration),
           responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
           custom: requestConfig) { result in
-      completion?(result.map { [$0.payload.payload.group: $0.payload.payload.channels] })
+      completion?(result.map { ($0.payload.payload.group, $0.payload.payload.channels) })
     }
   }
 
@@ -782,18 +782,18 @@ extension PubNub {
   ///   - to: The Channel Group to add the list of channels to.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they added
+  ///     - **Success**: A `Tuple` containing the channel-group and the `Array` of channels added
   ///     - **Failure**: An `Error` describing the failure
   public func add(
     channels: [String],
     to group: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<[String: [String]], Error>) -> Void)?
+    completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
           custom: requestConfig) { result in
-      completion?(result.map { _ in [group: channels] })
+      completion?(result.map { _ in (group, channels) })
     }
   }
 
@@ -803,18 +803,18 @@ extension PubNub {
   ///   - from: The Channel Group to remove the list of channels from
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Dictionary` of channel-groups mapped to their respective `Array` of channels they removed
+  ///     - **Success**: A `Tuple` containing the channel-group and the `Array` of channels removed
   ///     - **Failure**: An `Error` describing the failure
   public func remove(
     channels: [String],
     from group: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<[String: [String]], Error>) -> Void)?
+    completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     route(ChannelGroupsRouter(.removeChannelsForGroup(group: group, channels: channels), configuration: configuration),
           responseDecoder: GenericServiceResponseDecoder(),
           custom: requestConfig) { result in
-      completion?(result.map { _ in [group: channels] })
+      completion?(result.map { _ in (group, channels) })
     }
   }
 }
@@ -880,7 +880,7 @@ extension PubNub {
   ///   - of: The type of Remote Notification service used to send the notifications
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of channels added for notifications on a specific device token
+  ///     - **Success**: An `Array` of channels added for notifications on a specific device token
   ///     - **Failure**: An `Error` describing the failure
   public func addPushChannelRegistrations(
     _ additions: [String],
@@ -903,7 +903,7 @@ extension PubNub {
   ///   - of: The type of Remote Notification service used to send the notifications
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of channels removed for notifications on a specific device token
+  ///     - **Success**: An `Array` of channels removed from notifications on a specific device token
   ///     - **Failure**: An `Error` describing the failure
   public func removePushChannelRegistrations(
     _ removals: [String],
@@ -949,7 +949,7 @@ extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An `Array` of all channels registered to the device token
   ///     - **Failure**: An `Error` describing the failure
-  public func listAPNSChannelsOnDevice(
+  public func listAPNSPushChannelRegistrations(
     for deviceToken: Data,
     on topic: String,
     environment: PushEnvironment = .development,
@@ -1005,7 +1005,7 @@ extension PubNub {
     }
   }
 
-  /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  /// Enable APNS2 push notifications on provided set of channels.
   /// - Parameters:
   ///   - additions: The list of channels to add the device registration to
   ///   - device: The device to add/remove from the channels
@@ -1013,7 +1013,7 @@ extension PubNub {
   ///   - environment: The APS environment to register the device
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of channels added for notifications on a specific device token
+  ///     - **Success**:An `Array` of channels added for notifications on a specific device token
   ///     - **Failure**: An `Error` describing the failure
   public func addAPNSDevicesOnChannels(
     _ additions: [String],
@@ -1030,15 +1030,15 @@ extension PubNub {
     ) { completion?($0.map { $0.removed }) }
   }
 
-  /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  /// Disables APNS2 push notifications on provided set of channels.
   /// - Parameters:
-  ///   - removals: The list of channels to remove the device registration from
+  ///   - removals: The list of channels to disable registration
   ///   - device: The device to add/remove from the channels
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
   ///   - environment: The APS environment to register the device
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of channels removed for notifications on a specific device token
+  ///     - **Success**:An `Array` of channels disabled from notifications on a specific device token
   ///     - **Failure**: An `Error` describing the failure
   public func removeAPNSDevicesOnChannels(
     _ removals: [String],
@@ -1095,16 +1095,16 @@ extension PubNub {
   ///
   /// - Parameters:
   ///   - for: List of channels to fetch history messages from.
-  ///   - fetchActions: Include MessageAction in response
-  ///   - includeMeta: If `true` the meta properties of messages will be returned as well (if existing).
-  ///   - page: The criteria used to page through history
+  ///   - includeActions: If `true` any Message Actions will be included in the response
+  ///   - includeMeta: If `true` the meta properties of messages will be included in the response
+  ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` of a `Dictionary` of channels mapped to an `Array` their respective `PubNubMessages`, and the next request `PubNubBoundedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   public func fetchMessageHistory(
     for channels: [String],
-    fetchActions actions: Bool = false,
+    includeActions actions: Bool = false,
     includeMeta: Bool = false,
     page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -1145,7 +1145,7 @@ extension PubNub {
   ///   - end: Time token delimiting the end of time slice (inclusive) to delete messages from.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Void`indicating a success
+  ///     - **Success**: A `Void` indicating a success
   ///     - **Failure**: An `Error` describing the failure
   public func deleteMessageHistory(
     from channel: String,
@@ -1168,7 +1168,7 @@ extension PubNub {
   ///   - channels: Dictionary of channel and the timetoken to get the message count for.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A`Dictionary` of channels mapped to their respective message count
+  ///     - **Success**: A `Dictionary` of channels mapped to their respective message count
   ///     - **Failure**: An `Error` describing the failure
   public func messageCounts(
     channels: [String: Timetoken],
@@ -1219,7 +1219,7 @@ extension PubNub {
 extension PubNub {
   /// Gets metadata for all UUIDs
   ///
-  /// Returns a paginated list of metadata objects for UUIDS, optionally including custom data objects.
+  /// Returns a paginated list of UUID Metadata objects, optionally including the custom data object for each.
   /// - Parameters:
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -1258,7 +1258,7 @@ extension PubNub {
 
   /// Get Metadata for a UUID
   ///
-  /// Returns metadata for the specified UUID including the UUID's custom data.
+  /// Returns metadata for the specified UUID, optionally including the custom data object for each.
   /// - Parameters:
   ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
@@ -1287,7 +1287,7 @@ extension PubNub {
 
   /// Set UUID Metadata
   ///
-  ///  Set metadata for a UUID in the database. Returns the UUID metadata including the user's custom data.
+  ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
   /// - Parameters:
   ///   - uuid: The `PubNubUUIDMetadata` to set
   ///   - include: Include respective additional fields in the response.
@@ -1801,9 +1801,7 @@ extension PubNub {
   /// Fetch a list of Message Actions for a channel
   /// - Parameters:
   ///   - channel: The name of the channel
-  ///   - start: Action timetoken denoting the start of the range requested (exclusive).
-  ///   - end: Action timetoken denoting the end of the range requested (inclusive).
-  ///   - limit: The max number of message actions to retrieve per request
+  ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An `Array` of `PubNubMessageAction` for the request channel, and the next request `PubNubBoundedPage` (if one exists)
@@ -1847,7 +1845,8 @@ extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   public func addMessageAction(
     channel: String,
-    type actionType: String, value: String,
+    type actionType: String,
+    value: String,
     messageTimetoken: Timetoken,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubMessageAction, Error>) -> Void)?
@@ -1884,7 +1883,7 @@ extension PubNub {
   ///   - action: The action timetoken of a message action to be removed.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing the channel, message timetoken, and action timetoken of the action that was removed
+  ///     - **Success**: A `Tuple` containing the channel, message `Timetoken`, and action `Timetoken` of the action that was removed
   ///     - **Failure**: An `Error` describing the failure
   public func removeMessageActions(
     channel: String,

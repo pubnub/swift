@@ -74,7 +74,7 @@ public extension Array where Element == URLQueryItem {
   /// Creates a new query item with a csv string value and appends only if the value is not empty
   mutating func appendIfNotEmpty(name: String, value: [String]) {
     if !value.isEmpty {
-      append(URLQueryItem(name: name, value: value.csvString))
+      append(URLQueryItem(name: name, value: value.csvString.urlEncodeSlash))
     }
   }
 

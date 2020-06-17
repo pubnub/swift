@@ -1,0 +1,29 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": [
+      {
+        "channel": {
+          "id": "FirstChannel",
+          "name": "First Channel",
+          "description": "Channel Description",
+          "updated": "2019-09-29T13:07:45.807503Z",
+          "eTag": "ChanneleTag"
+        },
+        "custom": null,
+        "updated": "2019-10-02T18:07:52.858703Z",
+        "eTag": "FirstETag"
+      },
+      {
+        "channel": {
+          "id": "LastChannel"
+        },
+        "updated": "2019-09-29T19:46:28.84402Z",
+        "eTag": "LastETag"
+      }
+    ],
+    "totalCount": 2,
+    "next": "NextPage"
+  }
+}

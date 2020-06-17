@@ -191,9 +191,15 @@ struct PublishResponseDecoder: ResponseDecoder {
   func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     do {
       let decodedPayload = try Constant.jsonDecoder.decode(PublishResponsePayload.self, from: data)
+      let reason = EndpointResponseMessage(rawValue: decodedPayload.message).pubnubReason
+      if reason == .unknown {
+        return PubNubError(reason: reason, router: router, request: request, response: response,
+                           additional: [ErrorDetail(message: decodedPayload.message,
+                                                    location: "unknown",
+                                                    locationType: "unknown")])
+      }
 
-      return PubNubError(reason: EndpointResponseMessage(rawValue: decodedPayload.message).pubnubReason,
-                         router: router, request: request, response: response)
+      return PubNubError(reason: reason, router: router, request: request, response: response, additional: [])
     } catch {
       if let defaultError = decodeDefaultError(router: router, request: request, response: response, for: data) {
         return defaultError
@@ -206,10 +212,10 @@ struct PublishResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-public struct PublishResponsePayload: Codable, Hashable {
-  public let error: Int
-  public let message: String
-  public let timetoken: Timetoken
+struct PublishResponsePayload: Codable, Hashable {
+  let error: Int
+  let message: String
+  let timetoken: Timetoken
 
   public init(error: Int = 1, message: String = "Sent", timetoken: Timetoken) {
     self.error = error
@@ -217,7 +223,7 @@ public struct PublishResponsePayload: Codable, Hashable {
     self.timetoken = timetoken
   }
 
-  public init(from decoder: Decoder) throws {
+  init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
 
     var optionalError: Int?
@@ -250,7 +256,7 @@ public struct PublishResponsePayload: Codable, Hashable {
     self.timetoken = timetoken
   }
 
-  public func encode(to encoder: Encoder) throws {
+  func encode(to encoder: Encoder) throws {
     var container = encoder.unkeyedContainer()
 
     try container.encode(error)

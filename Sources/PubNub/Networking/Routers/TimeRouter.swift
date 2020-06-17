@@ -100,6 +100,6 @@ struct TimeResponseDecoder: ResponseDecoder {
 
 // MARK: - Response Body
 
-public struct TimeResponsePayload: Codable, Hashable {
-  public let timetoken: Timetoken
+struct TimeResponsePayload: Codable, Hashable {
+  let timetoken: Timetoken
 }

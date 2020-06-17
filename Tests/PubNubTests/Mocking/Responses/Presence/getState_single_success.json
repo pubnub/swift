@@ -1,0 +1,13 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "message": "OK",
+    "payload": {
+      "text": "hey"
+    },
+    "uuid": "TestDuplicateUUID",
+    "channel": "channelSwift",
+    "service": "Presence"
+  }
+}

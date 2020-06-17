@@ -44,11 +44,11 @@ class PushIntegrationTests: XCTestCase {
     }
 
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
-    client.modifyPushChannelRegistrations(byRemoving: [], thenAdding: ["foo1", "foo2"], for: token) { result in
+    client.managePushChannelRegistrations(byRemoving: [], thenAdding: ["foo1", "foo2"], for: token) { result in
       switch result {
-      case let .success(response):
+      case let .success(channels):
 
-        print("Added APNS to \(response.channels)")
+        print("Added APNS to \(channels)")
 
       case let .failure(error):
         print("Could not add APNS on channels: \(self.channel). ERROR: \(error.localizedDescription)")
@@ -70,15 +70,15 @@ class PushIntegrationTests: XCTestCase {
     }
 
     // Add a channel
-    client.modifyAPNSDevicesOnChannels(
+    client.manageAPNSDevicesOnChannels(
       byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
 
       // List Channels
-      client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
+      client.listAPNSPushChannelRegistrations(for: token, on: self.pushTopic) { result in
         switch result {
-        case let .success(response):
-          XCTAssertEqual(response.channels.first, self.channel)
+        case let .success(channels):
+          XCTAssertEqual(channels.first, self.channel)
         case let .failure(error):
           XCTFail("List APNS call failed due to \(error.localizedDescription)")
         }
@@ -102,14 +102,14 @@ class PushIntegrationTests: XCTestCase {
     }
 
     // Add a channel
-    client.modifyAPNSDevicesOnChannels(
+    client.manageAPNSDevicesOnChannels(
       byRemoving: [], thenAdding: [channel], device: token, on: pushTopic
     ) { [unowned self] result in
-      client.removeAPNSPushDevice(for: token, on: self.pushTopic) { result in
-        client.listAPNSChannelsOnDevice(for: token, on: self.pushTopic) { result in
+      client.removeAllAPNSPushDevice(for: token, on: self.pushTopic) { _ in
+        client.listAPNSPushChannelRegistrations(for: token, on: self.pushTopic) { result in
           switch result {
-          case let .success(response):
-            XCTAssertEqual(response.channels.isEmpty, true)
+          case let .success(channels):
+            XCTAssertEqual(channels.isEmpty, true)
           case let .failure(error):
             XCTFail("List APNS call failed due to \(error.localizedDescription)")
           }

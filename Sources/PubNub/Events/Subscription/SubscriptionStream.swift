@@ -31,6 +31,10 @@ import Foundation
 public enum SubscriptionChangeEvent {
   /// The channels or groups that have successfully been subscribed
   case subscribed(channels: [PubNubChannel], groups: [PubNubChannel])
+  /// The response header for one or more subscription events
+  case responseHeader(
+    channels: [PubNubChannel], groups: [PubNubChannel], previous: SubscribeCursor?, next: SubscribeCursor?
+  )
   /// The channels or groups that have successfully been unsubscribed
   case unsubscribed(channels: [PubNubChannel], groups: [PubNubChannel])
 
@@ -39,6 +43,8 @@ public enum SubscriptionChangeEvent {
     switch self {
     case let .subscribed(channels, groups):
       return !channels.isEmpty || !groups.isEmpty
+    case .responseHeader:
+      return false
     case let .unsubscribed(channels, groups):
       return !channels.isEmpty || !groups.isEmpty
     }
@@ -48,33 +54,31 @@ public enum SubscriptionChangeEvent {
 /// All the possible events related to PubNub subscription
 public enum SubscriptionEvent {
   /// A message has been received
-  case messageReceived(MessageEvent)
+  case messageReceived(PubNubMessage)
   /// A signal has been received
-  case signalReceived(MessageEvent)
+  case signalReceived(PubNubMessage)
   /// A change in the subscription connection has occurred
   case connectionStatusChanged(ConnectionStatus)
   /// A change in the subscribed channels or groups has occurred
   case subscriptionChanged(SubscriptionChangeEvent)
   /// A presence change has been received
-  case presenceChanged(PresenceEvent)
+  case presenceChanged(PubNubPresenceChange)
   /// A User object has been updated
-  case userUpdated(UserEvent)
+  case uuidMetadataSet(PubNubUUIDMetadataChangeset)
   /// A User object has been deleted
-  case userDeleted(IdentifierEvent)
+  case uuidMetadataRemoved(metadataId: String)
   /// A Space object has been updated
-  case spaceUpdated(SpaceEvent)
+  case channelMetadataSet(PubNubChannelMetadataChangeset)
   /// A Space object has been deleted
-  case spaceDeleted(IdentifierEvent)
-  /// A Membership object has been added
-  case membershipAdded(MembershipEvent)
+  case channelMetadataRemoved(metadataId: String)
   /// A Membership object has been updated
-  case membershipUpdated(MembershipEvent)
+  case membershipMetadataSet(PubNubMembershipMetadata)
   /// A Membership object has been deleted
-  case membershipDeleted(MembershipIdentifiable)
+  case membershipMetadataRemoved(PubNubMembershipMetadata)
   /// A MessageAction was added to a published message
-  case messageActionAdded(MessageActionEvent)
+  case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
-  case messageActionRemoved(MessageActionEvent)
+  case messageActionRemoved(PubNubMessageAction)
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -94,10 +98,12 @@ public protocol SubscriptionStream: EventStreamReceiver {
   /// The emitter used to broadcast `SubscriptionEvent` to its receivers
   /// - Parameter subscription: The event to be broadcast
   func emitDidReceive(subscription event: SubscriptionEvent)
+  func emitDidReceiveBatch(subscription event: [SubscriptionEvent])
 }
 
 extension SubscriptionStream {
   func emitDidReceive(subscription _: SubscriptionEvent) { /* no-op */ }
+  func emitDidReceiveBatch(subscription _: [SubscriptionEvent]) { /* no-op */ }
 }
 
 /// Listener that will emit events related to PubNub subscription and presence APIs
@@ -118,26 +124,66 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     cancel()
   }
 
+  /// The type of action the Message Action event represents
+  public enum MessageActionEvent: CaseAccessible {
+    /// The Message Action was added to a message
+    case added(PubNubMessageAction)
+    /// The Message Action was removed from a message
+    case removed(PubNubMessageAction)
+  }
+
+  /// All the changes that can be received for Metadata objects
+  public enum ObjectMetadataChangeEvents {
+    /// The changeset for the UUID object that changed
+    case setUUID(PubNubUUIDMetadataChangeset)
+    /// The unique identifer of the UUID that was removed
+    case removedUUID(metadataId: String)
+    /// The changeset for the Channel object that changed
+    case setChannel(PubNubChannelMetadataChangeset)
+    /// The unique identifer of the Channel that was removed
+    case removedChannel(metadataId: String)
+    /// The `PubNubMembershipMetadata` of the set Membership
+    case setMembership(PubNubMembershipMetadata)
+    /// The `PubNubMembershipMetadata` of the removed Membership
+    case removedMembership(PubNubMembershipMetadata)
+  }
+
+  /// Event that either contains a change to the subscription connection or a subscription error
+  public typealias StatusEvent = Result<ConnectionStatus, PubNubError>
+
+  /// Batched subscription event that possibly contains multiple message events
+  ///
+  /// This will also emit individual events to `didReceiveSubscription`
+  public var didReceiveBatchSubscription: (([SubscriptionEvent]) -> Void)?
+
   /// Receiver for all subscription events
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
   /// Receiver for message events
-  public var didReceiveMessage: ((MessageEvent) -> Void)?
+  public var didReceiveMessage: ((PubNubMessage) -> Void)?
   /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   /// Receiver for presence events
-  public var didReceivePresence: ((PresenceEvent) -> Void)?
+  public var didReceivePresence: ((PubNubPresenceChange) -> Void)?
   /// Receiver for signal events
-  public var didReceiveSignal: ((MessageEvent) -> Void)?
+  public var didReceiveSignal: ((PubNubMessage) -> Void)?
   /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
   public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
-  /// Receiver for User update and delete events
-  public var didReceiveUserEvent: ((UserEvents) -> Void)?
-  /// Receiver for Space update and delete events
-  public var didReceiveSpaceEvent: ((SpaceEvents) -> Void)?
-  /// Receiver for Membership join, update, and leave events
-  public var didReceiveMembershipEvent: ((MembershipEvents) -> Void)?
+  ///
+  public var didReceiveObjectMetadataEvent: ((ObjectMetadataChangeEvents) -> Void)?
   /// Receiver for message action events
-  public var didReceiveMessageAction: ((MessageActionEvents) -> Void)?
+  public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
+
+  public func emitDidReceiveBatch(subscription batch: [SubscriptionEvent]) {
+    let supressCancellationErrors = self.supressCancellationErrors
+    queue.async { [weak self] in
+      // We also want to filter out cancellation errors
+      self?.didReceiveBatchSubscription?(batch.filter { !($0.isCancellationError && supressCancellationErrors) })
+
+      for event in batch {
+        self?.emitDidReceive(subscription: event)
+      }
+    }
+  }
 
   // swiftlint:disable:next cyclomatic_complexity
   public func emitDidReceive(subscription event: SubscriptionEvent) {
@@ -161,20 +207,18 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveSubscriptionChange?(change)
       case let .presenceChanged(presence):
         self?.didReceivePresence?(presence)
-      case let .userUpdated(user):
-        self?.didReceiveUserEvent?(.updated(user))
-      case let .userDeleted(user):
-        self?.didReceiveUserEvent?(.deleted(user))
-      case let .spaceUpdated(space):
-        self?.didReceiveSpaceEvent?(.updated(space))
-      case let .spaceDeleted(space):
-        self?.didReceiveSpaceEvent?(.deleted(space))
-      case let .membershipAdded(membership):
-        self?.didReceiveMembershipEvent?(.userAddedOnSpace(membership))
-      case let .membershipUpdated(membership):
-        self?.didReceiveMembershipEvent?(.userUpdatedOnSpace(membership))
-      case let .membershipDeleted(membership):
-        self?.didReceiveMembershipEvent?(.userDeletedFromSpace(membership))
+      case let .uuidMetadataSet(metadata):
+        self?.didReceiveObjectMetadataEvent?(.setUUID(metadata))
+      case let .uuidMetadataRemoved(metadataId):
+        self?.didReceiveObjectMetadataEvent?(.removedUUID(metadataId: metadataId))
+      case let .channelMetadataSet(metadata):
+        self?.didReceiveObjectMetadataEvent?(.setChannel(metadata))
+      case let .channelMetadataRemoved(channelMetadataId):
+        self?.didReceiveObjectMetadataEvent?(.removedChannel(metadataId: channelMetadataId))
+      case let .membershipMetadataSet(membership):
+        self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
+      case let .membershipMetadataRemoved(membership):
+        self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
       case let .messageActionAdded(action):
         self?.didReceiveMessageAction?(.added(action))
       case let .messageActionRemoved(action):

@@ -99,6 +99,19 @@ public struct PubNubChannel: Hashable {
     presenceId = id.presenceChannelName
     isPresenceSubscribed = withPresence
   }
+
+  /// Detects if the string is a Presence channel name and sets the appropriate values
+  public init(channel: String) {
+    if channel.isPresenceChannelName {
+      id = channel.trimmingPresenceChannelSuffix
+      presenceId = channel
+      isPresenceSubscribed = true
+    } else {
+      id = channel
+      presenceId = channel.presenceChannelName
+      isPresenceSubscribed = false
+    }
+  }
 }
 
 extension PubNubChannel: Codable {

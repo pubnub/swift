@@ -46,75 +46,34 @@ extension JSONCodable {
     return AnyJSON(self)
   }
 
+  /// True if the underlying value is a scalar JSON element; false if it's a Collection
   public var isScalar: Bool {
     return codableValue.value.isScalar
   }
 
   /// A `Result` that is either the underlying value as a JSON `String` or an error why it couldn't be created
-  var jsonStringifyResult: Result<String, Error> {
+  public var jsonStringifyResult: Result<String, Error> {
     return codableValue.jsonStringifyResult
   }
 
   /// The underlying value as a JSON `String` if it could be created
-  var jsonStringify: String? {
+  public var jsonStringify: String? {
     return codableValue.jsonStringify
   }
 
   /// A `Result` that is either the underlying value as JSON Encoded `Data` or an error why it couldn't be created
-  var jsonDataResult: Result<Data, Error> {
+  public var jsonDataResult: Result<Data, Error> {
     return codableValue.jsonDataResult
   }
 
   /// The underlying value as a JSON encoded `Data` if it could be created
-  var jsonData: Data? {
+  public var jsonData: Data? {
     return codableValue.jsonData
-  }
-}
-
-extension JSONCodable where Self: Equatable {
-  /// A bridge that allows for `Equatable` functionality on non-concrete types
-  func isEqual(_ other: JSONCodable?) -> Bool {
-    guard let otherSelf = other as? Self else {
-      return false
-    }
-    return self == otherSelf
-  }
-}
-
-extension Array: JSONCodable where Element: JSONCodable {}
-extension Dictionary: JSONCodable where Key == String, Value: JSONCodable {}
-
-extension AnyJSON: JSONCodable {
-  public var codableValue: AnyJSON {
-    return self
-  }
-
-  public var rawValue: Any {
-    return underlyingValue
-  }
-}
-
-// MARK: JSONCodableScalar
-
-/// An object that can be represented as JSON Scalar values
-public protocol JSONCodableScalar: JSONCodable {
-  /// The concrete type used during `Codable` operations
-  var scalarValue: JSONCodableScalarType { get }
-}
-
-extension JSONCodableScalar {
-  public var codableValue: AnyJSON {
-    return AnyJSON(scalarValue.underlying)
-  }
-
-  /// The underlying value as an `Any`
-  public var rawValue: Any {
-    return scalarValue.underlying.rawValue
   }
 
   /// Whether the underlying value is coded to Null
   public var isNil: Bool {
-    return scalarValue.underlying.isNil
+    return codableValue.isNil
   }
 
   /// The underlying value as a `String` or nil if the value was not a `String`
@@ -148,6 +107,38 @@ extension JSONCodableScalar {
       return data
     }
     return nil
+  }
+}
+
+extension Array: JSONCodable where Element: JSONCodable {}
+extension Dictionary: JSONCodable where Key == String, Value: JSONCodable {}
+
+extension AnyJSON: JSONCodable {
+  public var codableValue: AnyJSON {
+    return self
+  }
+
+  public var rawValue: Any {
+    return underlyingValue
+  }
+}
+
+// MARK: JSONCodableScalar
+
+/// An object that can be represented as JSON Scalar values
+public protocol JSONCodableScalar: JSONCodable {
+  /// The concrete type used during `Codable` operations
+  var scalarValue: JSONCodableScalarType { get }
+}
+
+extension JSONCodableScalar {
+  public var codableValue: AnyJSON {
+    return AnyJSON(scalarValue.underlying)
+  }
+
+  /// The underlying value as an `Any`
+  public var rawValue: Any {
+    return scalarValue.underlying.rawValue
   }
 }
 

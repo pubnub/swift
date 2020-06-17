@@ -44,18 +44,19 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    let messageAction = ConcreteMessageAction(type: "reaction", value: "smiley_face")
+    let actionType = "reaction"
+    let actionValue = "smiley_face"
 
     let listener = SubscriptionListener()
     listener.didReceiveMessageAction = { event in
       switch event {
       case let .added(action):
-        XCTAssertEqual(action.type, messageAction.type)
-        XCTAssertEqual(action.value, messageAction.value)
+        XCTAssertEqual(action.actionType, actionType)
+        XCTAssertEqual(action.actionValue, actionValue)
         addedEventExcept.fulfill()
       case let .removed(action):
-        XCTAssertEqual(action.type, messageAction.type)
-        XCTAssertEqual(action.value, messageAction.value)
+        XCTAssertEqual(action.actionType, actionType)
+        XCTAssertEqual(action.actionValue, actionValue)
         removedEventExcept.fulfill()
       }
     }
@@ -67,29 +68,29 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
           client.publishWithMessageAction(
             channel: self.testChannel,
             message: "Hello!",
-            messageAction: messageAction
+            actionType: actionType, actionValue: actionValue
           ) { [unowned self] publishResult in
             switch publishResult {
-            case let .success(publishResponse):
-              XCTAssertEqual(publishResponse.action.uuid, configuration.uuid)
-              XCTAssertEqual(publishResponse.action.type, messageAction.type)
-              XCTAssertEqual(publishResponse.action.value, messageAction.value)
+            case let .success(messageAction):
+              XCTAssertEqual(messageAction.publisher, configuration.uuid)
+              XCTAssertEqual(messageAction.actionType, actionType)
+              XCTAssertEqual(messageAction.actionValue, actionValue)
 
               // Fetch the Message
               client.fetchMessageActions(channel: self.testChannel) { [unowned self] actionResult in
                 switch actionResult {
-                case let .success(fetchResponse):
+                case let .success((messageActions, _)):
                   // Assert that we successfully published to server
-                  XCTAssertNotNil(fetchResponse.actions.filter { $0 == publishResponse.action })
+                  XCTAssertNotNil(messageActions.filter { $0.actionTimetoken == messageAction.actionTimetoken })
                   // Remove the message
                   client.removeMessageActions(
                     channel: self.testChannel,
-                    message: publishResponse.action.messageTimetoken,
-                    action: publishResponse.action.actionTimetoken
+                    message: messageAction.messageTimetoken,
+                    action: messageAction.actionTimetoken
                   ) { removeResult in
                     switch removeResult {
-                    case let .success(removeResponse):
-                      XCTAssertEqual(removeResponse.message, .acknowledge)
+                    case let .success((channel, _, _)):
+                      XCTAssertEqual(channel, self.testChannel)
                     case .failure:
                       XCTFail("Failed Fetching Message Actions")
                     }
@@ -145,27 +146,27 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    let messageAction = ConcreteMessageAction(type: "reaction", value: "smiley_face")
+    let actionType = "reaction"
+    let actionValue = "smiley_face"
 
     client.publishWithMessageAction(
       channel: testChannel,
       message: "Hello!",
-      messageAction: messageAction
+      actionType: actionType, actionValue: actionValue
     ) { [unowned self] publishResult in
       switch publishResult {
-      case let .success(publishResponse):
-        XCTAssertEqual(publishResponse.action.uuid, configuration.uuid)
-        XCTAssertEqual(publishResponse.action.type, messageAction.type)
-        XCTAssertEqual(publishResponse.action.value, messageAction.value)
+      case let .success(messageAction):
+        XCTAssertEqual(messageAction.publisher, configuration.uuid)
+        XCTAssertEqual(messageAction.actionType, actionType)
+        XCTAssertEqual(messageAction.actionValue, actionValue)
 
-        client.fetchMessageHistory(for: [self.testChannel], fetchActions: true) { historyResult in
+        client.fetchMessageHistory(for: [self.testChannel], includeActions: true) { historyResult in
           switch historyResult {
-          case let .success(channels):
-            let channelHistory = channels[self.testChannel]
+          case let .success((messages, _)):
+            let channelHistory = messages[self.testChannel]
             XCTAssertNotNil(channelHistory)
-            let message = channelHistory?.messages
-              .filter { $0.timetoken == publishResponse.action.messageTimetoken }
 
+            let message = channelHistory?.filter { $0.published == messageAction.messageTimetoken }
             XCTAssertNotNil(message)
           case .failure:
             XCTFail("Failed Fetching Message Actions")

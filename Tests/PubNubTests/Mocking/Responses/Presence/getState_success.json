@@ -1,4 +1,16 @@
 {
   "code": 200,
-  "body": {"status": 200, "message": "OK", "payload": {"channels": {"channelSwift": {"text": "hey"}, "test": {"text": "hey"}, "channel": {"text": "hey"}}}, "uuid": "db9c5e39-7c95-40f5-8d71-125765b6f561", "service": "Presence"}
+  "body": {
+    "status": 200,
+    "message": "OK",
+    "payload": {
+      "channels": {
+        "channelSwift": {"text": "hey"},
+        "test": {"text": "hey"},
+        "channel": {"text": "hey"}
+      }
+    },
+    "uuid": "db9c5e39-7c95-40f5-8d71-125765b6f561",
+    "service": "Presence"
+  }
 }

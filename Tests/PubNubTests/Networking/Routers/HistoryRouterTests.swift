@@ -81,13 +81,12 @@ extension HistoryRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.count, 1)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          XCTAssertEqual(messagesByChannel.keys.count, 1)
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertNil(channelMessages?.messages.first?.meta)
+          XCTAssertNil(channelMessages?.first?.metadata)
+          XCTAssertEqual(next?.start, 15_653_750_239_963_666)
         case let .failure(error):
           XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
         }
@@ -107,13 +106,12 @@ extension HistoryRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.count, 1)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          XCTAssertEqual(messagesByChannel.keys.count, 1)
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertNotNil(channelMessages?.messages.first?.meta)
+          XCTAssertNotNil(channelMessages?.first?.metadata)
+          XCTAssertEqual(next?.start, 15_654_070_724_737_575)
         case let .failure(error):
           XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
         }
@@ -133,13 +131,12 @@ extension HistoryRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertGreaterThan(payload.count, 1)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          XCTAssertEqual(messagesByChannel.keys.count, 2)
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertNotNil(channelMessages?.messages.first?.meta)
+          XCTAssertNotNil(channelMessages?.first?.metadata)
+          XCTAssertEqual(next?.start, 15_654_070_724_737_575)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -162,13 +159,11 @@ extension HistoryRouterTests {
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.boolOptional, true)
+          XCTAssertEqual(channelMessages?.first?.payload.boolOptional, true)
+          XCTAssertEqual(next?.start, 15_657_268_328_421_957)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -191,14 +186,13 @@ extension HistoryRouterTests {
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
-          XCTAssertEqual(channelMessages?.messages.first?.message.dataOptional?.base64EncodedString(),
-                         "s3+CcEE2QZ/Lh9CaPieJnQ==")
+          XCTAssertEqual(
+            channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ=="
+          )
+          XCTAssertEqual(next?.start, 15_657_268_328_421_957)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -220,16 +214,14 @@ extension HistoryRouterTests {
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertFalse(payload.isEmpty)
-          let channelMessages = payload[self.testChannel]
+        case let .success((messagesByChannel, next)):
+          let channelMessages = messagesByChannel[self.testChannel]
           XCTAssertNotNil(channelMessages)
-          XCTAssertNotEqual(channelMessages?.startTimetoken, 0)
-          XCTAssertNotEqual(channelMessages?.endTimetoken, 0)
           // Unencrypted Value
-          XCTAssertEqual(channelMessages?.messages.first?.message.stringOptional, "Hello")
+          XCTAssertEqual(channelMessages?.first?.payload.stringOptional, "Hello")
           // Encrypted Value
-          XCTAssertEqual(channelMessages?.messages.last?.message.boolOptional, true)
+          XCTAssertEqual(channelMessages?.last?.payload.boolOptional, true)
+          XCTAssertEqual(next?.start, 15_653_750_239_963_666)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -249,8 +241,9 @@ extension HistoryRouterTests {
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertTrue(payload.isEmpty)
+        case let .success((messagesByChannel, next)):
+          XCTAssertTrue(messagesByChannel.isEmpty)
+          XCTAssertNil(next)
         case let .failure(error):
           XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
         }
@@ -294,14 +287,6 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testFetchWithActions_Decode_MissingTimetoken() {
-    guard let action = ["uuid": "UUIDString", "actionTimetoken": "notTimetoken"].jsonData else {
-      return XCTFail("Could not convert object to data")
-    }
-
-    XCTAssertEqual(try? JSONDecoder().decode(MessageActionHistory.self, from: action).actionTimetoken, 0)
-  }
-
   func testFetchWithActions_Success() {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
@@ -309,20 +294,14 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let messageAction = MessageActionPayload(uuid: "otheruser", type: "reaction", value: "smiley_face",
-                                             actionTimetoken: 15_724_677_187_827_310,
-                                             messageTimetoken: 15_724_676_552_283_948)
-
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
+      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
         switch result {
-        case let .success(payload):
-          XCTAssertEqual(payload.count, 1)
-          let channelHistory = payload[self.testChannel]
-          XCTAssertEqual(channelHistory?.messages.count, 2)
-          XCTAssertEqual(channelHistory?.messages.first?.actions.count, 3)
-          XCTAssertTrue(channelHistory?.messages.first?.actions.contains(messageAction) ?? false)
-          XCTAssertEqual(channelHistory?.messages.last?.actions.count, 0)
+        case let .success((messagesByChannel, next)):
+          XCTAssertEqual(messagesByChannel[self.testChannel]?.count, 2)
+          XCTAssertEqual(messagesByChannel[self.testChannel]?.first?.actions.count, 3)
+          XCTAssertEqual(messagesByChannel[self.testChannel]?.last?.actions.count, 0)
+          XCTAssertEqual(next?.start, 15_724_676_552_283_948)
         case let .failure(error):
           XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
         }
@@ -340,10 +319,11 @@ extension HistoryRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], fetchActions: true) { result in
+      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
         switch result {
-        case let .success(channels):
-          XCTAssertEqual(channels.count, 0)
+        case let .success((messagesByChannel, next)):
+          XCTAssertTrue(messagesByChannel.isEmpty)
+          XCTAssertNil(next)
         case let .failure(error):
           XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
         }
@@ -393,12 +373,11 @@ extension HistoryRouterTests {
 
     PubNub(configuration: config, session: sessions.session).deleteMessageHistory(from: testChannel) { result in
       switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.message, .acknowledge)
+      case .success:
+        expectation.fulfill()
       case let .failure(error):
         XCTFail("Delete History request failed with error: \(error.localizedDescription)")
       }
-      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
@@ -413,8 +392,8 @@ extension HistoryRouterTests {
 
     PubNub(configuration: config, session: sessions.session).deleteMessageHistory(from: testChannel) { result in
       switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.message, .acknowledge)
+      case .success:
+        XCTFail("Request should not succeed")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError, PubNubError(.messageDeletionNotEnabled))
       }
@@ -548,41 +527,6 @@ extension HistoryRouterTests {
       }
 
     wait(for: [expectation], timeout: 1.0)
-  }
-}
-
-// MARK: - MessageHistory ResponseDecoder
-
-extension HistoryRouterTests {
-  func testMessageHistoryResponse_Deocde_missingChannels() {
-    let data: [String: JSONCodableScalar] = ["status": 0, "error": false, "error_message": "Test Message"]
-
-    guard let json = data.mapValues({ $0.codableValue }).jsonData else {
-      return XCTFail("Could not convert object to data")
-    }
-
-    XCTAssertEqual(try? JSONDecoder().decode(MessageHistoryResponse.self, from: json).channels.isEmpty, true)
-  }
-
-  func testMessageHistoryChannelPayload_Decode_InvalidTimetokenStrings() {
-    let data: [Any] = []
-
-    guard let json = AnyJSON(data).jsonData else {
-      return XCTFail("Could not convert object to data")
-    }
-
-    guard let payload = try? JSONDecoder().decode(MessageHistoryChannelPayload.self, from: json) else {
-      return XCTFail("Could not decode object from data")
-    }
-
-    XCTAssertEqual(payload.startTimetoken, 0)
-    XCTAssertEqual(payload.endTimetoken, 0)
-  }
-
-  func testMessageHistoryChannelPayload_isEmpty() {
-    let payload = MessageHistoryChannelPayload(messags: [])
-
-    XCTAssertEqual(payload.isEmpty, true)
   }
 }
 

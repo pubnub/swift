@@ -33,7 +33,11 @@ public struct AnyJSON {
 
   /// Create an `AnyJSON` from an `Any`
   public init(_ value: Any) {
-    self.value = AnyJSONType(rawValue: value)
+    if let anyJSON = value as? AnyJSON {
+      self.value = anyJSON.value
+    } else {
+      self.value = AnyJSONType(rawValue: value)
+    }
   }
 
   /// Create an `AnyJSON` from a JSON string

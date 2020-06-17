@@ -1,0 +1,455 @@
+//
+//  ObjectsMembershipsRouterTests.swift
+//
+//  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
+//  Copyright © 2020 PubNub Inc.
+//  https://www.pubnub.com/
+//  https://www.pubnub.com/terms
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in
+//  all copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//  THE SOFTWARE.
+//
+
+@testable import PubNub
+import XCTest
+
+final class ObjectsMembershipsRouterTests: XCTestCase {
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let testChannel = PubNubChannelMetadataBase(name: "TestChannel")
+  let testUser = PubNubUUIDMetadataBase(name: "TestUser")
+}
+
+// MARK: - Fetch Memberships Tests
+
+extension ObjectsMembershipsRouterTests {
+  func testMembershipFetch_Router() {
+    let router = ObjectsMembershipsRouter(
+      .fetchMemberships(uuidMetadataId: "TestUser", customFields: [], totalCount: false,
+                        filter: nil, sort: [], limit: nil, start: nil, end: nil),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.endpoint.description, "Fetch the Membership Metadata for a UUID")
+    XCTAssertEqual(router.category, "Fetch the Membership Metadata for a UUID")
+    XCTAssertEqual(router.service, .objects)
+  }
+
+  func testMembershipFetch_Router_ValidationError() {
+    let router = ObjectsMembershipsRouter(
+      .fetchMemberships(
+        uuidMetadataId: "", customFields: [], totalCount: false,
+        filter: nil, sort: [], limit: nil, start: nil, end: nil
+      ),
+      configuration: config
+    )
+
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testMembershipFetch_Success() {
+    let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
+      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstChannel = PubNubChannelMetadataBase(
+      metadataId: "FirstChannel", name: "First Channel",
+      channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
+    )
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
+      channel: firstChannel,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(
+      configuration: config, session: sessions.session
+    ).fetchMemberships(uuid: "TestUser"
+    ) { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testMembershipFetch_Success_Empty() {
+    let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_all_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let testPage = PubNubHashedPageBase(start: "NextPage")
+
+    PubNub(configuration: config, session: sessions.session)
+      .fetchMemberships(uuid: "TestUser"
+      ) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertTrue(memberships.isEmpty)
+          XCTAssertEqual(try? nextPage?.transcode(), testPage)
+
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK: - Set Memberships Tests
+
+extension ObjectsMembershipsRouterTests {
+  func testMembershipSet_Router() {
+    let router = ObjectsMembershipsRouter(
+      .setMemberships(uuidMetadataId: "TestUUID", customFields: [], totalCount: true,
+                      changes: .init(set: [], delete: []),
+                      filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.endpoint.description, "Set the Membership Metadata for a UUID")
+    XCTAssertEqual(router.category, "Set the Membership Metadata for a UUID")
+    XCTAssertEqual(router.service, .objects)
+  }
+
+  func testMembershipSet_Router_ValidationError() {
+    let router = ObjectsMembershipsRouter(
+      .setMemberships(uuidMetadataId: "", customFields: [], totalCount: true,
+                      changes: .init(set: [], delete: []),
+                      filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
+      configuration: config
+    )
+
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testMembershipSet_Success() {
+    let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
+      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstChannel = PubNubChannelMetadataBase(
+      metadataId: "FirstChannel", name: "First Channel",
+      channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
+    )
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
+      channel: firstChannel,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(configuration: config, session: sessions.session)
+      .setMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+          XCTAssertEqual(try? nextPage?.transcode(), page)
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testMembershipRemove_Success() {
+    let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
+      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstChannel = PubNubChannelMetadataBase(
+      metadataId: "FirstChannel", name: "First Channel",
+      channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
+    )
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
+      channel: firstChannel,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(configuration: config, session: sessions.session)
+      .removeMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+          XCTAssertEqual(try? nextPage?.transcode(), page)
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK: - Fetch Members Tests
+
+extension ObjectsMembershipsRouterTests {
+  func testFetchMembers_Router() {
+    let router = ObjectsMembershipsRouter(
+      .fetchMembers(channelMetadataId: "TestUser", customFields: [], totalCount: false,
+                    filter: nil, sort: [], limit: nil, start: nil, end: nil),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.endpoint.description, "Fetch the Membership Metadata of a Channel")
+    XCTAssertEqual(router.category, "Fetch the Membership Metadata of a Channel")
+    XCTAssertEqual(router.service, .objects)
+  }
+
+  func testFetchMembers_Router_ValidationError() {
+    let router = ObjectsMembershipsRouter(
+      .fetchMembers(channelMetadataId: "", customFields: [], totalCount: false,
+                    filter: nil, sort: [], limit: nil, start: nil, end: nil),
+      configuration: config
+    )
+
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testFetchMember_Success() {
+    let expectation = self.expectation(description: "Fetch Members Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
+      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstUUID = PubNubUUIDMetadataBase(
+      metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
+    )
+
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      uuid: firstUUID,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      custom: ["starred": true],
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(configuration: config, session: sessions.session)
+      .fetchMembers(channel: "TestChannel"
+      ) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+          XCTAssertEqual(try? nextPage?.transcode(), page)
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFetchMember_Success_Empty() {
+    let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_all_success_empty"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let testPage = PubNubHashedPageBase(start: "NextPage")
+
+    PubNub(configuration: config, session: sessions.session)
+      .fetchMembers(channel: "TestChannel"
+      ) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertTrue(memberships.isEmpty)
+          XCTAssertEqual(try? nextPage?.transcode(), testPage)
+
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
+// MARK: - Set Members Tests
+
+extension ObjectsMembershipsRouterTests {
+  func testMembersSet_Router() {
+    let router = ObjectsMembershipsRouter(
+      .setMembers(channelMetadataId: "TestUUID", customFields: [], totalCount: true,
+                  changes: .init(set: [], delete: []),
+                  filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.endpoint.description, "Set the Membership Metadata of a Channel")
+    XCTAssertEqual(router.category, "Set the Membership Metadata of a Channel")
+    XCTAssertEqual(router.service, .objects)
+  }
+
+  func testMembersSet_Router_ValidationError() {
+    let router = ObjectsMembershipsRouter(
+      .setMembers(channelMetadataId: "", customFields: [], totalCount: true,
+                  changes: .init(set: [], delete: []),
+                  filter: "filter", sort: ["sort"], limit: 100, start: "Next", end: "last"),
+      configuration: config
+    )
+
+    XCTAssertNotEqual(router.validationError?.pubNubError,
+                      PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testMember_Set_Success() {
+    let expectation = self.expectation(description: "Set Members Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
+      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstUUID = PubNubUUIDMetadataBase(
+      metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
+    )
+
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      uuid: firstUUID,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      custom: ["starred": true],
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(configuration: config, session: sessions.session)
+      .setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+          XCTAssertEqual(try? nextPage?.transcode(), page)
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testMember_Remove_Success() {
+    let expectation = self.expectation(description: "Remove Members Endpoint Expectation")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
+      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let firstUUID = PubNubUUIDMetadataBase(
+      metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
+    )
+
+    let firstMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      uuid: firstUUID,
+      updated: firstDate, eTag: "FirstETag"
+    )
+    let lastMembership = PubNubMembershipMetadataBase(
+      uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      custom: ["starred": true],
+      updated: lastDate, eTag: "LastETag"
+    )
+
+    let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
+
+    PubNub(configuration: config, session: sessions.session)
+      .setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
+        switch result {
+        case let .success((memberships, nextPage)):
+          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+          XCTAssertEqual(try? nextPage?.transcode(), page)
+        case let .failure(error):
+          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  // swiftlint:disable:next file_length
+}

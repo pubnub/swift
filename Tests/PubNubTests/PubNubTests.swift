@@ -33,15 +33,9 @@ final class PubNubTests: XCTestCase {
   var pubnub: PubNub!
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
 
-  func testInit_DefaultConfig() {
-    XCTAssertEqual(PubNub().configuration, PubNubConfiguration.default)
-  }
-
   func testInit_CustomConfig() {
-    let customConfig = PubNubConfiguration(from: testBundle)
+    let pubnub = PubNub(configuration: config)
 
-    let pubnub = PubNub(configuration: customConfig)
-
-    XCTAssertNotEqual(pubnub.configuration, PubNubConfiguration.default)
+    XCTAssertEqual(pubnub.configuration, config)
   }
 }

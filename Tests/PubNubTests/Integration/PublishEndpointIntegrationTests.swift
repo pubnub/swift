@@ -52,6 +52,28 @@ class PublishEndpointIntegrationTests: XCTestCase {
     wait(for: [publishExpect], timeout: 10.0)
   }
 
+  func testSignalTooLong() {
+    let publishExpect = expectation(description: "Publish Response")
+
+    // Instantiate PubNub
+    let configuration = PubNubConfiguration(from: testsBundle)
+    let client = PubNub(configuration: configuration)
+
+    client.signal(channel: "SwiftITest",
+                  message: ["$": "35.75", "HI": "b62", "t": "BO"]) { result in
+      switch result {
+      case .success:
+        XCTFail("Publish should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason,
+                       PubNubError.Reason.messageTooLong)
+      }
+      publishExpect.fulfill()
+    }
+
+    wait(for: [publishExpect], timeout: 10.0)
+  }
+
   func testCompressedPublishEndpoint() {
     let compressedPublishExpect = expectation(description: "Compressed Publish Response")
 

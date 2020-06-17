@@ -29,22 +29,22 @@ import Foundation
 
 public struct PAMTokenManagementSystem {
   public enum Resource {
-    case user
-    case space
+    case uuid
+    case channel
   }
 
   // Resource stores
-  internal var spaces: [String: PAMToken]
-  internal var users: [String: PAMToken]
+  internal var channels: [String: PAMToken]
+  internal var uuids: [String: PAMToken]
 
-  public init(users: [String: PAMToken] = [:], spaces: [String: PAMToken] = [:]) {
-    self.users = users
-    self.spaces = spaces
+  public init(uuids: [String: PAMToken] = [:], channels: [String: PAMToken] = [:]) {
+    self.uuids = uuids
+    self.channels = channels
   }
 
   public init(store: PAMTokenManagementSystem) {
-    users = store.users
-    spaces = store.spaces
+    uuids = store.uuids
+    channels = store.channels
   }
 
   /// Perfoms a lookup and returns a token for the specified resource type and ID
@@ -57,12 +57,12 @@ public struct PAMTokenManagementSystem {
   /// the TMS checks the resource stores in the following order: `User`, `Space`
   public func getToken(for identifier: String, with type: Resource? = nil) -> PAMToken? {
     switch type {
-    case .user?:
-      return users[identifier]
-    case .space?:
-      return spaces[identifier]
+    case .uuid?:
+      return uuids[identifier]
+    case .channel?:
+      return channels[identifier]
     default:
-      return users[identifier] ?? spaces[identifier]
+      return uuids[identifier] ?? channels[identifier]
     }
   }
 
@@ -70,17 +70,17 @@ public struct PAMTokenManagementSystem {
   /// - Returns: A dictionary of resource identifiers mapped to their PAM token
   public func getTokens(by resource: Resource) -> PAMTokenStore {
     switch resource {
-    case .user:
-      return users
-    case .space:
-      return spaces
+    case .uuid:
+      return uuids
+    case .channel:
+      return channels
     }
   }
 
   /// Returns a map of all tokens stored by the token management system
   /// - Returns: A dictionary of resource types mapped to resource identifier/token pairs
   public func getAllTokens() -> [Resource: PAMTokenStore] {
-    return [.user: users, .space: spaces]
+    return [.uuid: uuids, .channel: channels]
   }
 
   /// Stores a single token in the Token Management System for use in API calls.
@@ -92,12 +92,12 @@ public struct PAMTokenManagementSystem {
     // Attach the original auth string for reuse on APIs
     token.rawValue = tokenString
 
-    for user in token.resources.users.keys {
-      users[user] = token
+    for uuid in token.resources.uuidObjects.keys {
+      uuids[uuid] = token
     }
 
-    for space in token.resources.spaces.keys {
-      spaces[space] = token
+    for channel in token.resources.channelObjects.keys {
+      channels[channel] = token
     }
   }
 
@@ -165,14 +165,14 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
   public let channels: [String: PAMPermission]
   public let groups: [String: PAMPermission]
 
-  public let users: [String: PAMPermission]
-  public let spaces: [String: PAMPermission]
+  public let uuidObjects: [String: PAMPermission]
+  public let channelObjects: [String: PAMPermission]
 
   enum CodingKeys: String, CodingKey {
     case channels = "chan"
     case groups = "grp"
-    case users = "usr"
-    case spaces = "spc"
+    case uuidObjects = "usr"
+    case channelObjects = "spc"
   }
 }
 

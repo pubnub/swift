@@ -1,0 +1,36 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": [
+      {
+        "id": "WGWPWPJBRJ",
+        "name": "HNNCTGRURF",
+        "externalId": null,
+        "profileUrl": null,
+        "email": null,
+        "custom": null,
+        "updated": "2019-08-18T11:25:55.44977Z",
+        "eTag": "AY/Cz7edr46A3wE"
+      },
+      {
+        "id": "OSPULBRLGN",
+        "name": "VDUVIGRMWF",
+        "externalId": null,
+        "profileUrl": null,
+        "email": null,
+        "custom": {
+          "string": "String",
+          "int": 1,
+          "double": 1.1,
+          "bool": true
+        },
+        "updated": "2019-08-18T11:25:59.326105Z",
+        "eTag": "AeH55Y3T0a78Ew"
+      }
+    ],
+    "totalCount": 2,
+    "next": "NextPage",
+    "prev": "PrevPage"
+  }
+}

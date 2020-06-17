@@ -1,0 +1,32 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+        "t": "15915688907831308",
+        "r": 1
+    },
+    "m": [
+      {
+        "a": "4",
+        "f": 0,
+        "e": 2,
+        "p": {
+          "t": "15915688907796976",
+          "r": 1
+        },
+        "k": "demo",
+        "c": "TestUser",
+        "d": {
+          "source": "objects",
+          "version": "2.0",
+          "event": "delete",
+          "type": "uuid",
+          "data": {
+            "id": "TestUserID"
+          }
+        },
+        "b": "TestUser"
+      }
+    ]
+  }
+}

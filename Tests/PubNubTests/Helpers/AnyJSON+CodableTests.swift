@@ -127,22 +127,6 @@ class AnyJSONCodableTests: XCTestCase {
     }
   }
 
-  func testSubscribeResponse() {
-    guard let data = try? ImportTestResource.importResource("subscription_success") else {
-      return XCTFail("Couldn't import JSON Response")
-    }
-
-    XCTAssertNoThrow(try Constant.jsonDecoder.decode(SubscriptionResponsePayload.self, from: data))
-  }
-
-  func testPublishResponse() {
-    guard let data = try? ImportTestResource.importResource("publish_success") else {
-      return XCTFail("Couldn't import JSON Response")
-    }
-
-    XCTAssertNoThrow(try Constant.jsonDecoder.decode(AnyJSON.self, from: data))
-  }
-
   func testCompare_Single_String() {
     let testMessage = "abcdefg HIJKLMNO 123456789 !@#$%^&*()"
     let jsonString = AnyJSON(testMessage)
@@ -347,21 +331,6 @@ class AnyJSONCodableTests: XCTestCase {
         XCTFail("New errors types were added that need to be accounted for")
       }
     }
-  }
-
-  func testDecodeIntoCodable() {
-    let value = PresenceChannelsPayload(channels: ["docs6": [:], "channelSwift": [:], "docs5": [:], "docs3": [:]])
-    let json = AnyJSON(value)
-
-    guard let data = json.jsonData else {
-      return XCTFail("Could not create data from JSON")
-    }
-
-    let decoded = try? Constant.jsonDecoder.decode(PresenceChannelsPayload.self, from: data)
-    XCTAssertEqual(value, decoded)
-
-    let jsonDecoded = try? json.decode(PresenceChannelsPayload.self)
-    XCTAssertEqual(value, jsonDecoded)
   }
 
   // MARK: - AnyJSONCodingKey

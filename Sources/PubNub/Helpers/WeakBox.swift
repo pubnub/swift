@@ -28,19 +28,19 @@
 import Foundation
 
 /// A container that stores a `weak` reference to its `Element`
-public final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashable {
+final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashable {
   /// The stored element
-  public weak var underlying: Element?
+  weak var underlying: Element?
 
-  public init(_ value: Element?) {
+  init(_ value: Element?) {
     underlying = value
   }
 
-  public static func == (lhs: WeakBox<Element>, rhs: WeakBox<Element>) -> Bool {
+  static func == (lhs: WeakBox<Element>, rhs: WeakBox<Element>) -> Bool {
     return lhs.underlying == rhs.underlying
   }
 
-  public func hash(into hasher: inout Hasher) {
+  func hash(into hasher: inout Hasher) {
     hasher.combine(underlying)
   }
 }

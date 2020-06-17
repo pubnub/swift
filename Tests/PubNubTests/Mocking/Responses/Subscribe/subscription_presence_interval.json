@@ -1,0 +1,41 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "15614817397807903",
+      "r": 2
+    },
+    "m": [
+      {
+          "a": "4",
+          "f": 0,
+          "p": {
+              "t": "15917376047002528",
+              "r": 2
+          },
+          "k": "sub-c-1c91d154-3b83-11e9-b221-7a660e69c40f",
+          "c": "channelSwift-pnpres",
+          "u": {
+              "pn_action": "interval",
+              "pn_timestamp": 1591737604,
+              "pn_occupancy": 1,
+              "pn_timeout": [
+                  "otherSub"
+              ],
+              "pn_ispresence": 1,
+              "pn_channel": "channelSwift"
+          },
+          "d": {
+              "action": "interval",
+              "timestamp": 1591737604,
+              "occupancy": 1,
+              "timeout": [
+                  "otherSub"
+              ]
+          },
+          "b": "channelSwift-pnpres"
+      }
+    ]
+  }
+}
+

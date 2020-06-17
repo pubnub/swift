@@ -1,4 +1,4 @@
 {
   "code": 200,
-  "body": {"status": 200, "message": "OK", "payload": {"channels": []}, "service": "Presence"}
+  "body": {"status": 200, "message": "OK", "payload": {"channels": {}, "total_channels": 0, "total_occupancy": 0}, "service": "Presence"}
 }

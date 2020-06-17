@@ -98,11 +98,11 @@ class SessionStreamTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    pubnub = PubNub(configuration: .default, session: sessions.session)
+    pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {
-      case let .success(payload):
-        XCTAssertEqual(payload.timetoken, 15_643_405_135_132_358)
+      case let .success(timetoken):
+        XCTAssertEqual(timetoken, 15_643_405_135_132_358)
       case let .failure(error):
         XCTFail("Time request failed with error: \(error.localizedDescription)")
       }

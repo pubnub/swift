@@ -42,12 +42,10 @@ class PubNubConfigurationTests: XCTestCase {
   let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   func testDefault() {
-    let config = PubNubConfiguration.default
-
-    XCTAssertEqual(config, PubNubConfiguration.default)
+    let config = PubNubConfiguration(publishKey: nil, subscribeKey: plistSubscribeKeyValue)
 
     XCTAssertNil(config.publishKey)
-    XCTAssertNil(config.subscribeKey)
+    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
     XCTAssertNil(config.cipherKey)
     XCTAssertNil(config.authKey)
     XCTAssertNotNil(config.uuid)
@@ -60,7 +58,7 @@ class PubNubConfigurationTests: XCTestCase {
   }
 
   func testDurationUntilTimeout_Floor() {
-    var config = PubNubConfiguration.default
+    var config = PubNubConfiguration(publishKey: nil, subscribeKey: "")
     config.durationUntilTimeout = 0
 
     XCTAssertEqual(config.durationUntilTimeout, 20)
@@ -71,18 +69,6 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertEqual(config.publishKey, plistPublishKeyValue)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
-  }
-
-  func testInit_Dictionary() {
-    let infoDict = [publishDictionaryKey: "test_pub_key",
-                    subscribeDictionaryKey: "test_sub_key"]
-
-    let config = PubNubConfiguration(from: infoDict,
-                                     using: publishDictionaryKey,
-                                     and: subscribeDictionaryKey)
-
-    XCTAssertEqual(config.publishKey, infoDict[publishDictionaryKey])
-    XCTAssertEqual(config.subscribeKey, infoDict[subscribeDictionaryKey])
   }
 
   func testInit_RawValues() {

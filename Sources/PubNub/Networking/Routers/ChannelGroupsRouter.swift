@@ -146,27 +146,26 @@ struct ChannelGroupResponseDecoder<PayloadType>: ResponseDecoder where PayloadTy
 
 // MARK: - Response Body
 
-public struct AnyChannelGroupResponsePayload<Payload>: Codable where Payload: Codable {
-  public let status: Int
-  public let service: String
-  public let error: Bool
-
-  public let payload: Payload
+struct AnyChannelGroupResponsePayload<Payload>: Codable where Payload: Codable {
+  let status: Int
+  let service: String
+  let error: Bool
+  let payload: Payload
 }
 
 // List Groups, Channels
-public typealias ChannelListPayloadResponse = AnyChannelGroupResponsePayload<ChannelListPayload>
+typealias ChannelListPayloadResponse = AnyChannelGroupResponsePayload<ChannelListPayload>
 
-public struct ChannelListPayload: Codable {
-  public let group: String
-  public let channels: [String]
+struct ChannelListPayload: Codable {
+  let group: String
+  let channels: [String]
 }
 
-public typealias GroupListPayloadResponse = AnyChannelGroupResponsePayload<GroupListPayload>
+typealias GroupListPayloadResponse = AnyChannelGroupResponsePayload<GroupListPayload>
 
-public struct GroupListPayload: Codable {
+struct GroupListPayload: Codable {
   let namespace: String?
-  public let groups: [String]
+  let groups: [String]
 }
 
 // MARK: - Router Helpers
@@ -181,7 +180,7 @@ enum QueryKey: String {
   case regionShort = "tr"
   case state
   case heartbeat
-  case filter = "filter-expr"
+  case filterExpr = "filter-expr"
   case disableUUIDs = "disable_uuids"
   case remove
   case add
@@ -198,6 +197,9 @@ enum QueryKey: String {
   case limit
   case topic
   case environment
+  case filter
+  case sort
+  case descending = "desc"
 }
 
 /// The PubNub Key requirement for a given Endpoint
@@ -220,12 +222,4 @@ public enum PAMVersionRequirement {
   case version2
   /// A key from a version 3 PAM grant is required
   case version3
-}
-
-public enum CustomIncludeField: String, Codable {
-  case custom
-  case user
-  case customUser = "user.custom"
-  case space
-  case customSpace = "space.custom"
 }

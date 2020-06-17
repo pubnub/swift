@@ -1,0 +1,39 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "15702145904611519",
+      "r": 1
+    },
+    "m": [
+      {
+        "a": "4",
+        "f": 0,
+        "e": 2,
+        "p": {
+            "t": "15702145904285560",
+            "r": 2
+        },
+        "k": "demo",
+        "c": "TestUserID",
+        "d": {
+          "source": "objects",
+          "version": "2.0",
+          "event": "delete",
+          "type": "membership",
+          "data": {
+            "channel": {
+              "id": "TestSpaceID"
+            },
+            "uuid": {
+              "id": "TestUserID"
+            },
+            "updated": "2019-10-05T23:35:38.457823306Z",
+            "eTag": "TestETag"
+          }
+        },
+        "b": "TestUserID"
+      },
+    ]
+  }
+}

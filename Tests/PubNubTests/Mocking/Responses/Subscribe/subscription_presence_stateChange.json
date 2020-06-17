@@ -1,0 +1,60 @@
+{
+  "code": 200,
+  "body": {
+      "t": {
+          "t": "15910420241167072",
+          "r": 1
+      },
+      "m": [
+          {
+              "a": "3",
+              "f": 514,
+              "p": {
+                  "t": "15910420241218251",
+                  "r": 1
+              },
+              "k": "demo",
+              "c": "TestChannel-pnpres",
+              "d": {
+                  "action": "state-change",
+                  "uuid": "db9c5e39-7c95-40f5-8d71-125765b6f561",
+                  "timestamp": 1591042024,
+                  "data": {
+                      "key": "value"
+                  },
+                  "occupancy": 0
+              },
+              "b": "TestChannel-pnpres"
+          },
+          {
+              "a": "4",
+              "f": 0,
+              "p": {
+                  "t": "15917398128382931",
+                  "r": 1
+              },
+              "k": "sub-c-1c91d154-3b83-11e9-b221-7a660e69c40f",
+              "c": "channelSwift-pnpres",
+              "u": {
+                  "pn_action": "leave",
+                  "pn_uuid": "firstSub",
+                  "pn_timestamp": 1591739812,
+                  "pn_occupancy": 1,
+                  "pn_ispresence": 1,
+                  "pn_channel": "channelSwift",
+                  "pn_state_stateKey": "Slkjasdflkj"
+              },
+              "d": {
+                  "action": "leave",
+                  "uuid": "someUser",
+                  "timestamp": 1591739812,
+                  "occupancy": 1,
+                  "data": {
+                      "stateKey": "Slkjasdflkj"
+                  }
+              },
+              "b": "channelSwift-pnpres"
+          }
+      ]
+  }
+}

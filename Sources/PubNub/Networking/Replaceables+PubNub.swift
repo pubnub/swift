@@ -70,6 +70,8 @@ public protocol SessionReplaceable {
   var session: URLSessionReplaceable { get }
   /// The dispatch queue used to execute session operations
   var sessionQueue: DispatchQueue { get }
+  /// The `RequestOperator` that is attached to every request
+  var defaultRequestOperator: RequestOperator? { get set }
 
   var sessionStream: SessionStream? { get set }
 

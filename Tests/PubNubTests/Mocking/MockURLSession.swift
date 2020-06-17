@@ -142,7 +142,8 @@ extension MockURLSession {
   static func mockSession(
     for jsonResources: [String],
     raw dataResource: [Data] = [],
-    with stream: SessionStream? = nil
+    with stream: SessionStream? = nil,
+    request operators: RequestOperator? = nil
   ) throws -> (session: HTTPSession?, mockSession: MockURLSession) {
     let urlSession = MockURLSession(configuration: .ephemeral, delegate: HTTPSessionDelegate(), delegateQueue: .main)
 
@@ -196,7 +197,7 @@ extension MockURLSession {
     return (HTTPSession(session: urlSession,
                         delegate: delegate,
                         sessionQueue: delegateQueue,
-                        sessionStream: stream),
+                        sessionStream: stream).usingDefault(requestOperator: operators),
             urlSession)
   }
 }

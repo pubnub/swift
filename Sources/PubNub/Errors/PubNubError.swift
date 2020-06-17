@@ -38,7 +38,7 @@ public struct PubNubError: Error {
   public let underlying: Error?
 
   let coorelation: [CorrelationIdentifier]
-  let affected: [AffectedValue]
+  public let affected: [AffectedValue]
 
   let router: HTTPRouter?
 
@@ -58,14 +58,14 @@ public struct PubNubError: Error {
     case urlTask(Int)
   }
 
-  enum AffectedValue: CaseAccessible, Hashable {
+  public enum AffectedValue: CaseAccessible, Hashable {
     case uuid(UUID)
     case string(String)
     case data(Data)
     case request(URLRequest)
     case response(HTTPURLResponse)
     case json(AnyJSON)
-    case subscribe(TimetokenResponse)
+    case subscribe(SubscribeCursor)
   }
 
   /// The PubNubError specific Domain that groups together the different Reasons
@@ -144,11 +144,13 @@ public struct PubNubError: Error {
     case messageTooLong
     case invalidUUID
     case nothingToDelete
+    case failedToPublish
 
     // Service Not Enabled
     case pushNotEnabled
     case messageHistoryNotEnabled
     case messageDeletionNotEnabled
+    case multiplexingNotEnabled
 
     // Uncategorized
     case unknown
@@ -168,6 +170,7 @@ public struct PubNubError: Error {
     case internalServiceError = 500
     case serviceUnavailable = 503
 
+    /// The domain this error belongs to
     public var domain: PubNubError.Domain {
       switch self {
       case .missingRequiredParameter, .invalidEndpointType, .missingPublishKey,
@@ -194,9 +197,9 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish:
         return .endpointResponse
-      case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled:
+      case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled
       case .unknown:
         return .uncategorized
@@ -328,20 +331,32 @@ extension PubNubError {
 // MARK: - Cross-Type Equatable
 
 extension Optional where Wrapped == PubNubError {
+  /// Returns a Boolean value indicating whether two values are equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func == (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason == rhs
   }
 
+  /// Returns a Boolean value indicating whether two values are not equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func != (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason != rhs
   }
 }
 
 extension Optional where Wrapped == PubNubError.Reason {
+  /// Returns a Boolean value indicating whether two values are equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func == (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs == rhs?.reason
   }
 
+  /// Returns a Boolean value indicating whether two values are not equal.
+  /// - Parameter lhs: The value to compare
+  /// - Parameter rhs: The other value to compare
   public static func != (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs != rhs?.reason
   }
@@ -350,6 +365,7 @@ extension Optional where Wrapped == PubNubError.Reason {
 // MARK: - Conversions
 
 extension PubNubError {
+  /// The underlying `URLError`, if one exists
   public var urlError: URLError? {
     return underlying?.urlError
   }
@@ -394,6 +410,8 @@ extension EndpointResponseMessage {
       return .messageHistoryNotEnabled
     case .messageDeletionNotEnabled:
       return .messageDeletionNotEnabled
+    case .multiplexingNotEnabled:
+      return .multiplexingNotEnabled
     case .requestURITooLong:
       return .requestURITooLong
     case .serviceUnavailable:
@@ -408,8 +426,10 @@ extension EndpointResponseMessage {
       return .invalidUUID
     case .nothingToDelete:
       return .nothingToDelete
-    case .unknown, .successFailedToPublishEvent:
-      return nil
+    case .unknown:
+      return .unknown
+    case .successFailedToPublishEvent:
+      return .failedToPublish
     }
   }
 }

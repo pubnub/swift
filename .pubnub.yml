@@ -22,7 +22,7 @@ changelog:
     - text: "Request level configuration available for most PubNub APIs"
       type: enchancement
     date: 2020-06-17
-    version: v2.5.3
+    version: v3.0.0
   - changes:
     - text: "Payload and FCMTarget fields are now optional for PubNubPushMessage"
       type: enchancement

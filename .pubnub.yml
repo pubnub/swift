@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "2.5.3"
+version: "2.5.4"
 schema: 1
 changelog:
+  - changes:
+     - text: "Fixed crash when performing many requests simulataneously"
+       type: bug
+     date: 2020-06-25
+     version: v2.5.4
   - changes:
      - text: "Payload and FCMTarget fields are now optional for PubNubPushMessage"
        type: enchancement

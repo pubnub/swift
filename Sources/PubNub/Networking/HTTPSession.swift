@@ -171,23 +171,19 @@ final class HTTPSession {
     if request.isCancelled { return }
 
     // Perform any provided request mutations
-    if let mutator = self.mutator(for: request) {
-      mutator.mutate(urlRequest, for: self) { [weak self] result in
-        switch result {
-        case let .success(mutatedRequest):
-          self?.sessionQueue.async {
+    sessionQueue.async { [weak self] in
+      if let strongSelf = self, let mutator = strongSelf.mutator(for: request) {
+        mutator.mutate(urlRequest, for: strongSelf) { [weak self] result in
+          switch result {
+          case let .success(mutatedRequest):
             request.didMutate(urlRequest, to: mutatedRequest)
             self?.didCreateURLRequest(urlRequest, for: request)
-          }
-        case let .failure(error):
-          self?.sessionQueue.async {
+          case let .failure(error):
             request.didFailToMutate(urlRequest, with: error)
           }
         }
-      }
-    } else {
-      sessionQueue.async {
-        self.didCreateURLRequest(urlRequest, for: request)
+      } else {
+        self?.didCreateURLRequest(urlRequest, for: request)
       }
     }
   }

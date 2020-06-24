@@ -69,7 +69,7 @@ carthage update
 ```
 
 ## Migration Guides
-[PubNub 3.0 Migration Guide](https://github.com/pubnub/swift/blob/maste/Documentation/PubNub_3_0_Migration_Guide.md)
+[PubNub 3.0 Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
 
 ## Documentation
 

@@ -124,8 +124,10 @@ extension Request {
 
   func appendResponseCompletion(_ closure: @escaping (Result<EndpointResponse<Data>, Error>) -> Void) {
     // Add the completion closure to the request and wait for it to complete
-    atomicState.lockedWrite { mutableState in
-      mutableState.responseCompletionClosure = closure
+    requestQueue.async { [weak self] in
+      self?.atomicState.lockedWrite { mutableState in
+        mutableState.responseCompletionClosure = closure
+      }
     }
   }
 

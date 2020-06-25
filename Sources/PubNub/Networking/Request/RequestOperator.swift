@@ -126,7 +126,7 @@ public struct MultiplexRequestOperator: RequestOperator {
     // Flatten out any nested multiplex operators
     operators.forEach { requestOperator in
       if let multiplex = requestOperator as? MultiplexRequestOperator {
-        flatOperators.append(contentsOf: multiplex.operators)
+        multiplex.operators.forEach { flatOperators.append($0) }
       } else {
         flatOperators.append(requestOperator)
       }

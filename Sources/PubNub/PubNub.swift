@@ -1114,12 +1114,14 @@ extension PubNub {
     if actions {
       router = HistoryRouter(
         .fetchWithActions(channel: channels.first ?? "",
-                          max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
+                          max: page?.limit ?? 25, start: page?.start, end: page?.end, includeMeta: includeMeta),
         configuration: configuration
       )
     } else {
       router = HistoryRouter(
-        .fetch(channels: channels, max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
+        .fetch(channels: channels,
+               max: page?.limit ?? 25, start: page?.start, end: page?.end,
+               includeMeta: includeMeta),
         configuration: configuration
       )
     }

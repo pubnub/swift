@@ -101,11 +101,12 @@ public struct PubNubConfiguration: Hashable {
     self.useRequestId = useRequestId
     self.automaticRetry = automaticRetry
     self.urlSessionConfiguration = urlSessionConfiguration
-    self.durationUntilTimeout = durationUntilTimeout
     self.heartbeatInterval = heartbeatInterval
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
+
+    self.durationUntilTimeout = durationUntilTimeout
   }
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
@@ -139,7 +140,8 @@ public struct PubNubConfiguration: Hashable {
   /// How long (in seconds) the server will consider the client alive for presence
   ///
   /// - NOTE: The minimum value this field can be is 20
-  @BoundedValue(min: 20, max: UInt.max) public var durationUntilTimeout: UInt = 300
+  @BoundedValue(min: 20, max: UInt.max)
+  public var durationUntilTimeout: UInt = 300
 
   /// How often (in seconds) the client will announce itself to server
   ///

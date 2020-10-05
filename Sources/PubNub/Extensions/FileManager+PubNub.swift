@@ -87,4 +87,47 @@ extension FileManager {
     }
     return []
   }
+  
+  func makeUniqueFilename(_ url: URL) -> URL {
+    let origPath = url.deletingLastPathComponent().path
+    let origExtension = url.pathExtension
+    let origFilename = url.filenameWithoutExtension()
+    
+    var duplicateCount = 0
+    var tempFileURL = url
+    
+    while self.fileExists(atPath: tempFileURL.path) {
+      duplicateCount += 1
+  
+      tempFileURL = URL(fileURLWithPath:origPath)
+        .appendingPathComponent("\(origFilename)_\(duplicateCount).\(origExtension)")
+    }
+    
+    return tempFileURL
+  }
+  
+  func temporaryFile(using filename: String = UUID().uuidString, writing inputStream: InputStream?) throws -> URL {
+    // Background File
+    let tempDirectory: URL
+    if #available(iOS 10.0, macOS 10.12, macCatalyst 13.0, tvOS 10.0, watchOS 3.0, *) {
+      tempDirectory = FileManager.default.temporaryDirectory
+    } else {
+      // Fallback on earlier versions
+      tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+    }
+    let tempFileURL = tempDirectory.appendingPathComponent(filename)
+    
+    // Check if file exists for cache and return
+    if FileManager.default.fileExists(atPath: tempFileURL.path) {
+      return tempFileURL
+    }
+
+    guard let inputStream = inputStream else {
+      throw PubNubError(.missingRequiredParameter)
+    }
+    
+    try inputStream.writeEncodedData(to: tempFileURL)
+    
+    return tempFileURL
+  }
 }

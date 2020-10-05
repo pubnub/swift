@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "3.0.1"
+version: "3.1.0"
 schema: 1
 changelog:
+  - changes:
+    - text: "File upload/download support"
+      type: feature
+    date: 2020-10-06
+    version: v3.1.0
   - changes:
     - text: "Fixed crash when performing many requests simulataneously"
       type: bug

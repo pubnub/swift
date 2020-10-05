@@ -1,0 +1,53 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": {
+      "id": "edf21386-5017-480f-8e19-6b3d728ec31f",
+      "name": "hello-world"
+    },
+    "file_upload_request": {
+      "url": "https://pubnub-mnemosyne-files-us-west-1-prd.s3.amazonaws.com/",
+      "method": "POST",
+      "expiration_date": "2020-09-02T20:40:10Z",
+      "form_fields": [
+        {
+          "key": "tagging",
+          "value": "<Tagging><TagSet><Tag><Key>ObjectTTLInDays</Key><Value>3</Value></Tag></TagSet></Tagging>"
+        },
+        {
+          "key": "key",
+          "value": "some-key/MHAjt_7oirEzqk2-dZVD9bTlUYuXRaexi_ezJe30P-8/edf21386-5017-480f-8e19-6b3d728ec31f/hello-world"
+        },
+        {
+          "key": "Content-Type",
+          "value": "binary/octet-stream"
+        },
+        {
+          "key": "X-Amz-Credential",
+          "value": "AKIAY7AU6GQD5KWBS3FG/20200902/us-west-1/s3/aws4_request"
+        },
+        {
+          "key": "X-Amz-Security-Token",
+          "value": ""
+        },
+        {
+          "key": "X-Amz-Algorithm",
+          "value": "AWS4-HMAC-SHA256"
+        },
+        {
+          "key": "X-Amz-Date",
+          "value": "20200902T204010Z"
+        },
+        {
+          "key": "Policy",
+          "value": "CnsKCSJleHBpcmF0aW9uIjogIjIwMjAtMDktMDJUMjA6NDA6MTBaIiwKCSJjb25kaXRpb25zI"
+        },
+        {
+          "key": "X-Amz-Signature",
+          "value": "fbe68f60459872ea19d57d387c73d93f3a3c2d863e19e508bee9ba9065d83a71"
+        }
+      ]
+    }
+  }
+}

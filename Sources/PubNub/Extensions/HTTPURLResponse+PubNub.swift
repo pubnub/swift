@@ -32,6 +32,18 @@ extension HTTPURLResponse {
   public var isSuccessful: Bool {
     return HTTPURLResponse.successfulStatusCodes.contains(statusCode)
   }
+  
+  var statusCodeReason: PubNubError.Reason? {
+    if !isSuccessful {
+      let reason = PubNubError.Reason(
+        rawValue: statusCode
+      ) ?? .unknown
+      
+      return reason
+    }
+    
+    return nil
+  }
 
   /// Range of successful status codes from 200 to 299
   public static let successfulStatusCodes: Range<Int> = {

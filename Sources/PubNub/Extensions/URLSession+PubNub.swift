@@ -1,5 +1,5 @@
 //
-//  Typealias+PubNub.swift
+//  URLSession+PubNub.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2019 PubNub Inc.
@@ -27,29 +27,13 @@
 
 import Foundation
 
-// MARK: - Types
-
-/// 17-digit precision unix time (UTC) since 1970
-///
-/// - important: A 64-bit `Double` has a max precision of 15-digits, so
-///         any value derived from a `TimeInterval` will not be precise
-///         enough to rely on when querying PubNub system APIs
-public typealias Timetoken = UInt64
-
-typealias AtomicInt = Atomic<Int32>
-
-typealias QueryResult = Result<[URLQueryItem], Error>
-
-/// Token identifier keyed to the token currently being used
-public typealias PAMTokenStore = [String: PAMToken]
-
-/// The resource type for the cooresponding token
-public typealias PAMResourceType = PAMTokenManagementSystem.Resource
-
-// MARK: - Closures
-
-/// A closure capable of validating a network response
-typealias ValidationClosure = (HTTPRouter, URLRequest, HTTPURLResponse, Data?) -> Error?
-
-/// A snapshot of a File's tranmission progress
-public typealias ProgressBlock = ((bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)) -> Void
+extension URLSession {
+  func uploadTask(
+    withStreamedRequest request: URLRequest,
+    completionHandler: @escaping (Data?, URLResponse?, Error?
+  ) -> Void) -> URLSessionUploadTask {
+    let task = uploadTask(withStreamedRequest: request)
+    
+    return task
+  }
+}

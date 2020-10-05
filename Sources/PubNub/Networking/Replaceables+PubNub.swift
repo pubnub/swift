@@ -35,6 +35,8 @@ public protocol URLSessionReplaceable {
   init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?)
   /// An app-defined descriptive label for the session.
   var sessionDescription: String? { get set }
+  ///  The delegate assigned when this object was created.
+  var delegate: URLSessionDelegate? { get }
   /// The operation queue provided when this object was created.
   var delegateQueue: OperationQueue { get }
   /// A configuration object that defines behavior and policies for an URL session.
@@ -50,12 +52,57 @@ public protocol URLSessionReplaceable {
   /// cache policy, request type, and body data or body stream.
   /// - Returns: The new session data task.
   func dataTask(with request: URLRequest) -> URLSessionDataTask
+  /// Creates a task that performs an HTTP request for uploading the specified file.
+  ///
+  ///  An HTTP upload request is any request that contains a request body, such as a POST or PUT request. Upload tasks require you to create a request object so that you can provide metadata for the upload, like HTTP request headers.
+  ///
+  ///  After you create the task, you must start it by calling its `resume()` method. The task calls methods on the session’s delegate to provide you with the upload’s progress, response metadata, response data, and so on.
+  ///
+  /// - Parameters:
+  ///   - request: A URL request object that provides the URL, cache policy, request type, and so on.
+  /// - Returns: The new session data task.
+  func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask
+  /// Creates a task that performs an HTTP request for uploading the specified file.
+  ///
+  ///  An HTTP upload request is any request that contains a request body, such as a POST or PUT request. Upload tasks require you to create a request object so that you can provide metadata for the upload, like HTTP request headers.
+  ///
+  ///  After you create the task, you must start it by calling its resume() method. The task calls methods on the session’s delegate to provide you with the upload’s progress, response metadata, response data, and so on.
+  ///
+  /// - Parameters:
+  ///   - request: A URL request object that provides the URL, cache policy, request type, and so on. The body stream and body data in this request object are ignored.
+  ///   - fileURL: The URL of the file to upload.
+  /// - Returns: The new session data task.
+  func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask
+  /// Creates a download task that retrieves the contents of a URL based on the specified URL request object and saves the results to a file.
+  ///
+  ///  After you create the task, you must start it by calling its resume() method.
+  ///
+  /// - Parameter url: The URL to download.
+  /// - Returns: The new session download task.
+  func downloadTask(with url: URL) -> URLSessionDownloadTask
+  /// Creates a download task that retrieves the contents of a URL based on the specified URL request object and saves the results to a file.
+  ///
+  ///  After you create the task, you must start it by calling its resume() method.
+  ///
+  ///  For detailed usage information, including ways to obtain a resume data object, see
+  ///  [Pausing and Resuming Downloads](https://developer.apple.com/documentation/foundation/url_loading_system/pausing_and_resuming_downloads)
+  ///
+  /// - Parameter resumeData: A data object that provides the data necessary to resume a download.
+  /// - Returns: The new session download task.
+  func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask
   /// Cancels all outstanding tasks and then invalidates the session.
   ///
   /// Once invalidated, references to the delegate and callback objects are broken. After invalidation,
   /// session objects cannot be reused.
   /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
+}
+
+extension URLSessionReplaceable {
+  /// Whether the URLSession represented will perform requests in the background
+  var makesBackgroundRequests: Bool {
+    return configuration.identifier != nil
+  }
 }
 
 extension URLSession: URLSessionReplaceable {}

@@ -245,11 +245,18 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 
 struct ModifiedPushChannelsPayloadResponse: Codable {
   /// Response message
-  let message: EndpointResponseMessage = .acknowledge
+  let message: EndpointResponseMessage
   /// Channels that had push support added
   let added: [String]
   /// Channels that had push support removed
   let removed: [String]
+
+  init(message: EndpointResponseMessage = .acknowledge, added: [String], removed: [String]) {
+    self.message = message
+    self.added = added
+    self.removed = removed
+  }
+
   /// All channels that were modified
   var channels: [String] {
     return added + removed

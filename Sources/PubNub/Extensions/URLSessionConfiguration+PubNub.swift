@@ -42,6 +42,16 @@ public extension URLSessionConfiguration {
 
     return configuration
   }
+  
+  /// Default URLSession used when PubNub makes upload/download tasks
+  static var pubnubBackground: URLSessionConfiguration {
+    let config = URLSessionConfiguration.background(withIdentifier: "pubnub.background")
+    #if !targetEnvironment(simulator)
+    config.isDiscretionary = true
+    #endif
+    config.sessionSendsLaunchEvents = true
+    return config
+  }
 
   /// Default configuration for PubNub subscription URLSessions
   ///

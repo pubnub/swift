@@ -191,6 +191,8 @@ enum QueryKey: String {
   case count
   case max
   case includeMeta = "include_meta"
+  case includeMessageType = "include_message_type"
+  case includeUUID = "include_uuid"
   case timetoken
   case channelsTimetoken
   case include

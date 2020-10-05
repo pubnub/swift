@@ -123,7 +123,16 @@ public struct Constant {
   public static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
     decoder.dataDecodingStrategy = .base64
-    decoder.dateDecodingStrategy = .formatted(DateFormatter.iso8601)
+    decoder.dateDecodingStrategy = .custom { decoder -> Date in
+      let container = try decoder.singleValueContainer()
+      let dateString = try container.decode(String.self)
+
+      guard let date = DateFormatter.iso8601.date(from: dateString) ?? DateFormatter.iso8601_noMilliseconds.date(from: dateString) else {
+        throw DecodingError.typeMismatch(Date.self, DecodingError.Context(codingPath: [], debugDescription: "String is not a valid Date"))
+      }
+
+      return date
+    }
     decoder.nonConformingFloatDecodingStrategy = .convertFromString(
       positiveInfinity: positiveInfinty,
       negativeInfinity: negativeInfinty,

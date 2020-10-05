@@ -1,6 +1,6 @@
 language: objective-c
 os: osx
-osx_image: xcode11.5
+osx_image: xcode12
 rvm: 2.5.3
 cache:
   bundler: true

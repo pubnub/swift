@@ -72,7 +72,7 @@ extension PubNubConfiguration: RouterConfiguration {}
 /// HTTP method definitions.
 ///
 /// See https://tools.ietf.org/html/rfc7231#section-4.3
-public enum HTTPMethod: String {
+public enum HTTPMethod: String, Codable {
   case connect = "CONNECT"
   case delete = "DELETE"
   case get = "GET"
@@ -86,6 +86,7 @@ public enum HTTPMethod: String {
 
 public enum PubNubService: String {
   case channelGroup = "Channel Group"
+  case fileManagement = "File Management"
   case history = "History"
   case messageActions = "Message Actions"
   case objects = "Objects"

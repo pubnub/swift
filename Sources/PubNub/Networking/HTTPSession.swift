@@ -173,7 +173,7 @@ final class HTTPSession {
     // Perform any provided request mutations
     sessionQueue.async { [weak self] in
       if let strongSelf = self, let mutator = strongSelf.mutator(for: request) {
-        mutator.mutate(urlRequest, for: strongSelf) { [weak self] result in
+        mutator.mutate(urlRequest, for: strongSelf) { result in
           switch result {
           case let .success(mutatedRequest):
             request.didMutate(urlRequest, to: mutatedRequest)

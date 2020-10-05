@@ -291,9 +291,27 @@ struct SubscribeMessagePayload: Codable, Hashable {
     case signal = 1
     case object = 2
     case messageAction = 3
+    case file = 4
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
+    
+    var asPubNubMessageType: PubNubMessageType {
+      switch self {
+      case .message:
+        return .message
+      case .signal:
+        return .signal
+      case .object:
+        return .object
+      case .messageAction:
+        return .messageAction
+      case .file:
+        return .file
+      case .presence:
+        return .unknown
+      }
+    }
   }
 
   init(

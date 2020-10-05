@@ -81,6 +81,8 @@ public struct PubNubError: Error {
     case serviceNotEnabled
     case uncategorized
     case cancellation
+    case fileManagement
+    case streamFailure
   }
 
   /// The Reason that causes a PubNubError to occur
@@ -104,6 +106,11 @@ public struct PubNubError: Error {
     // Request Processing
     case requestMutatorFailure
     case requestRetryFailed
+    
+    // Background Session
+    case backgroundUpdatesDisabled
+    case backgroundInsufficientResources
+    case backgroundUserForceQuitApplication
 
     // Request Transmission
     case timedOut
@@ -145,6 +152,16 @@ public struct PubNubError: Error {
     case invalidUUID
     case nothingToDelete
     case failedToPublish
+    
+    // Stream Errors
+    case streamCouldNotBeInitialized
+    case inputStreamFailure
+    case outputStreamFailure
+    
+    // File Management
+    case fileMissingAtPath
+    case fileTooLarge
+    case fileAccessDenied
 
     // Service Not Enabled
     case pushNotEnabled
@@ -153,6 +170,7 @@ public struct PubNubError: Error {
     case multiplexingNotEnabled
 
     // Uncategorized
+    case protocolTranscodingFailure
     case unknown
 
     // HTTP Response Code Errors
@@ -184,7 +202,8 @@ public struct PubNubError: Error {
         return .requestProcessing
       case .timedOut, .nameResolutionFailure, .invalidURL,
            .connectionFailure, .connectionOverDataFailure, .connectionLost,
-           .secureConnectionFailure, .certificateTrustFailure:
+           .secureConnectionFailure, .certificateTrustFailure, .backgroundUpdatesDisabled,
+           .backgroundInsufficientResources, .backgroundUserForceQuitApplication:
         return .requestTransmission
       case .clientCancelled, .sessionDeinitialized, .sessionInvalidated, .longPollingRestart:
         return .cancellation
@@ -201,8 +220,12 @@ public struct PubNubError: Error {
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled
-      case .unknown:
+      case .unknown, .protocolTranscodingFailure:
         return .uncategorized
+      case .streamCouldNotBeInitialized, .inputStreamFailure, .outputStreamFailure:
+        return .streamFailure
+      case .fileTooLarge, .fileMissingAtPath, .fileAccessDenied:
+        return .fileManagement
       }
     }
   }
@@ -459,10 +482,28 @@ extension AnyJSONError {
 }
 
 extension URLError {
+  
+  var pubnubCancellationReason: PubNubError.Reason {
+    if #available(iOS 13.0, *) {
+      switch backgroundTaskCancelledReason {
+      case .some(.backgroundUpdatesDisabled):
+        return .backgroundUpdatesDisabled
+      case .some(.insufficientSystemResources):
+        return .backgroundInsufficientResources
+      case .some(.userForceQuitApplication):
+        return .backgroundUserForceQuitApplication
+      default:
+        return .clientCancelled
+      }
+    } else {
+      return .clientCancelled
+    }
+  }
+  
   var pubnubReason: PubNubError.Reason? {
     switch code {
     case .cancelled:
-      return .clientCancelled
+      return pubnubCancellationReason
     case .unknown:
       return .unknown
     case .timedOut:
@@ -479,7 +520,8 @@ extension URLError {
       return .connectionLost
     case .secureConnectionFailed:
       return .secureConnectionFailure
-    case .serverCertificateHasBadDate,
+    case .appTransportSecurityRequiresSecureConnection,
+        .serverCertificateHasBadDate,
          .serverCertificateUntrusted,
          .serverCertificateHasUnknownRoot,
          .serverCertificateNotYetValid,
@@ -493,9 +535,6 @@ extension URLError {
     case .dataLengthExceedsMaximum:
       return .dataLengthExceedsMaximum
     default:
-      if #available(iOS 9.0, macOS 10.11, *), code == .appTransportSecurityRequiresSecureConnection {
-        return .certificateTrustFailure
-      }
       return nil
     }
   }

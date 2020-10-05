@@ -41,4 +41,32 @@ public extension URLRequest {
       httpMethod = newValue?.rawValue
     }
   }
+  
+  internal init(from response: GenerateUploadURLResponse, uploading fileURL: URL) throws {
+    self.init(url: response.uploadRequestURL)
+    self.method = response.uploadMethod
+    
+    // File Prefix
+    var prefixData = Data()
+    prefixData.append(response.uploadFormFields.map { $0.multipartyDescription(boundary: response.uploadRequestId) }.joined())
+    prefixData.append("--\(response.uploadRequestId)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(response.filename)\"\r\n")
+    prefixData.append("Content-Type: \(fileURL.mimeType)\r\n\r\n")
+
+    // Get InputStream from File
+    guard let fileStream = InputStream(url: fileURL) else {
+      throw PubNubError(.streamCouldNotBeInitialized, additional: [fileURL.absoluteString])
+    }
+
+    // File Postfix
+    var postfixData = Data()
+    postfixData.append("\r\n--\(response.uploadRequestId)--")
+  
+    let inputStream = MultipartInputStream(inputStreams: [InputStream(data: prefixData), fileStream, InputStream(data: postfixData)])
+    
+    self.httpBodyStream = inputStream
+
+    // Headers
+    self.setValue("multipart/form-data; boundary=\(response.uploadRequestId)", forHTTPHeaderField: "Content-Type")
+    self.setValue("\(prefixData.count + fileURL.sizeOf + postfixData.count)", forHTTPHeaderField: "Content-Length")
+  }
 }

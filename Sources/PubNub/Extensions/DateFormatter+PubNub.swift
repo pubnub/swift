@@ -42,4 +42,13 @@ extension DateFormatter {
     iso8601DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
     return iso8601DateFormatter
   }()
+
+  static let iso8601_noMilliseconds: DateFormatter = {
+    let iso8601DateFormatter = DateFormatter()
+
+    iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    iso8601DateFormatter.locale = Locale(identifier: "en_US_POSIX")
+    iso8601DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+    return iso8601DateFormatter
+  }()
 }

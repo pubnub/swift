@@ -26,6 +26,13 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
+
+#if os(iOS) || os(watchOS) || os(tvOS)
+import MobileCoreServices
+#elseif os(macOS)
+import CoreServices
+#endif
 
 public extension URL {
   /// Appends a news query items to an existing URL
@@ -53,5 +60,30 @@ public extension URL {
       return fileSize
     }
     return 0
+  }
+
+
+  var mimeType: String {
+    if #available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0,*) {
+      if let mimeType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType {
+        return mimeType
+      }
+    } else {
+      if let id = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as CFString, nil)?.takeRetainedValue(),
+         let mimeType = UTTypeCopyPreferredTagWithClass(id, kUTTagClassMIMEType)?.takeRetainedValue() {
+        return mimeType as String
+      }
+    }
+    return "application/octet-stream"
+  }
+  
+  internal func filenameWithoutExtension() -> String {
+    // Default to last path if either path or extension are empty
+    if pathExtension.isEmpty || lastPathComponent.isEmpty {
+      return lastPathComponent
+    }
+
+    // pathExtension.count + 1 represents the extension and the assumed '.' seperator
+    return String(lastPathComponent.prefix(lastPathComponent.count - (pathExtension.count + 1)))
   }
 }

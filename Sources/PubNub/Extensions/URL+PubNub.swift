@@ -75,9 +75,9 @@ public extension URL {
       } else {
         return preferenceIdentifier() ?? "application/octet-stream"
       }
-    #else
-      return preferenceIdentifier() ?? "application/octet-stream"
     #endif
+    
+    return preferenceIdentifier() ?? "application/octet-stream"
   }
 
   private func preferenceIdentifier() -> String? {

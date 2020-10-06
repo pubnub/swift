@@ -29,19 +29,18 @@ import Foundation
 
 /// An `InputStream` that can combine multiple streams into a single stream
 class MultipartInputStream: InputStream {
-
   let inputStreams: [InputStream]
 
   private var currentIndex: Int
   private var _streamStatus: Stream.Status
   private var _streamError: Error?
-  private var _delegate: StreamDelegate?
+  private weak var _delegate: StreamDelegate?
 
   init(inputStreams: [InputStream]) {
     self.inputStreams = inputStreams
-    self.currentIndex = 0
-    self._streamStatus = .notOpen
-    self._streamError = nil
+    currentIndex = 0
+    _streamStatus = .notOpen
+    _streamError = nil
 
     // required because `init()` is not marked as a designated initializer
     super.init(data: Data())
@@ -49,11 +48,11 @@ class MultipartInputStream: InputStream {
 
   // Subclass
   override var streamStatus: Stream.Status {
-      return _streamStatus
+    return _streamStatus
   }
 
   override var streamError: Error? {
-      return _streamError
+    return _streamError
   }
 
   override var delegate: StreamDelegate? {
@@ -75,7 +74,7 @@ class MultipartInputStream: InputStream {
     while totalNumberOfBytesRead < maxLength {
       // Close stream at the end of index
       if currentIndex == inputStreams.count {
-        self.close()
+        close()
         break
       }
 
@@ -88,7 +87,7 @@ class MultipartInputStream: InputStream {
 
       // If at the end, then go to the next stream index
       if !currentInputStream.hasBytesAvailable {
-        self.currentIndex += 1
+        currentIndex += 1
         continue
       }
 
@@ -98,22 +97,25 @@ class MultipartInputStream: InputStream {
       switch currentInputStream.read(&buffer[totalNumberOfBytesRead], maxLength: remainingLength) {
       case let value where value < 0:
         // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
-        self._streamError = currentInputStream.streamError
-        self._streamStatus = .error
+        _streamError = currentInputStream.streamError
+        _streamStatus = .error
         return value
       case let value where value > 0:
         // A positive number indicates the number of bytes read.
         totalNumberOfBytesRead += value
       default:
         // 0 represents end of the current buffer
-        self.currentIndex += 1
+        currentIndex += 1
       }
     }
 
     return totalNumberOfBytesRead
   }
 
-  override func getBuffer(_ buffer: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>, length len: UnsafeMutablePointer<Int>) -> Bool {
+  override func getBuffer(
+    _: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>,
+    length _: UnsafeMutablePointer<Int>
+  ) -> Bool {
     return false
   }
 
@@ -122,24 +124,24 @@ class MultipartInputStream: InputStream {
   }
 
   override func open() {
-    guard self._streamStatus == .open else {
+    guard _streamStatus == .open else {
       return
     }
-    self._streamStatus = .open
+    _streamStatus = .open
   }
 
   override func close() {
-    self._streamStatus = .closed
+    _streamStatus = .closed
   }
 
-  override func property(forKey key: Stream.PropertyKey) -> Any? {
+  override func property(forKey _: Stream.PropertyKey) -> Any? {
     return nil
   }
 
-  override func setProperty(_ property: Any?, forKey key: Stream.PropertyKey) -> Bool {
+  override func setProperty(_: Any?, forKey _: Stream.PropertyKey) -> Bool {
     return false
   }
 
-  override func schedule(in aRunLoop: RunLoop, forMode mode: RunLoop.Mode) { /* no-op */ }
-  override func remove(from aRunLoop: RunLoop, forMode mode: RunLoop.Mode) { /* no-op */ }
+  override func schedule(in _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
+  override func remove(from _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
 }

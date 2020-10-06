@@ -55,7 +55,8 @@ class AnyJSONTests: XCTestCase {
     let message: JSONCodable = ["$": "35.75", "HI": "b62", "t": "BO"]
     let channel = "AuctioniPhone11ProSimRider"
     guard let messageJSONString = message.jsonStringify,
-      let pubKey = config.publishKey else {
+      let pubKey = config.publishKey
+    else {
       return
     }
 
@@ -68,7 +69,8 @@ class AnyJSONTests: XCTestCase {
     urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
 
     guard let url = urlComponents.url,
-      let urlData = url.description.split(separator: "/").last?.data(using: .utf8) else {
+      let urlData = url.description.split(separator: "/").last?.data(using: .utf8)
+    else {
       return
     }
 

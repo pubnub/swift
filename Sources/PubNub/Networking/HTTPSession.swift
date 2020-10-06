@@ -32,7 +32,7 @@ import Foundation
 /// An object that coordinates a group of related network data transfer tasks.
 final class HTTPSession {
   /// The unique identifier for this object
-  let sessionID: UUID = UUID()
+  let sessionID = UUID()
   /// The underlying `URLSession` used to execute the network tasks
   let session: URLSessionReplaceable
   /// The dispatch queue used to execute session operations

@@ -106,7 +106,7 @@ public struct PubNubError: Error {
     // Request Processing
     case requestMutatorFailure
     case requestRetryFailed
-    
+
     // Background Session
     case backgroundUpdatesDisabled
     case backgroundInsufficientResources
@@ -152,12 +152,12 @@ public struct PubNubError: Error {
     case invalidUUID
     case nothingToDelete
     case failedToPublish
-    
+
     // Stream Errors
     case streamCouldNotBeInitialized
     case inputStreamFailure
     case outputStreamFailure
-    
+
     // File Management
     case fileMissingAtPath
     case fileTooLarge
@@ -482,9 +482,8 @@ extension AnyJSONError {
 }
 
 extension URLError {
-  
   var pubnubCancellationReason: PubNubError.Reason {
-    if #available(iOS 13.0, *) {
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
       switch backgroundTaskCancelledReason {
       case .some(.backgroundUpdatesDisabled):
         return .backgroundUpdatesDisabled
@@ -499,7 +498,7 @@ extension URLError {
       return .clientCancelled
     }
   }
-  
+
   var pubnubReason: PubNubError.Reason? {
     switch code {
     case .cancelled:
@@ -521,7 +520,7 @@ extension URLError {
     case .secureConnectionFailed:
       return .secureConnectionFailure
     case .appTransportSecurityRequiresSecureConnection,
-        .serverCertificateHasBadDate,
+         .serverCertificateHasBadDate,
          .serverCertificateUntrusted,
          .serverCertificateHasUnknownRoot,
          .serverCertificateNotYetValid,

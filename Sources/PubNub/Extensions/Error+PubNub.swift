@@ -71,13 +71,13 @@ extension Error {
   public var decodingError: DecodingError? {
     return self as? DecodingError
   }
-  
+
   /// Partial download data that can be used to resume a previous download
   var resumeData: Data? {
     if let data = (self as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data {
       return data
     }
-    
+
     return nil
   }
 }

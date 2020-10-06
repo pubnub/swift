@@ -295,7 +295,7 @@ struct SubscribeMessagePayload: Codable, Hashable {
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
-    
+
     var asPubNubMessageType: PubNubMessageType {
       switch self {
       case .message:

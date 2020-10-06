@@ -107,7 +107,8 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_presence_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -149,7 +150,8 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_signal_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -191,7 +193,8 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidSet_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -259,7 +262,8 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidRemove_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -317,7 +321,8 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_channelSet_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -381,7 +386,8 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_channelRemove_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -439,7 +445,8 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipSet_success",
-                                                              "cancelled"]).session else {
+                                                              "cancelled"]).session
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -619,7 +626,7 @@ extension SubscribeRouterTests {
     wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
+  // swiftlint:disable:next cyclomatic_complexity function_body_length
   func testSubscribe_MessageAction_Removed() {
     let actionExpect = XCTestExpectation(description: "Message Action Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
@@ -627,7 +634,8 @@ extension SubscribeRouterTests {
 
     guard let session = try? MockURLSession
       .mockSession(for: ["subscription_removeMessageAction_success"])
-      .session else {
+      .session
+    else {
       return XCTFail("Could not create mock url session")
     }
 

@@ -80,33 +80,44 @@ extension FileManager {
   /// - Parameter directory: The URL of the directory to search in
   /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
   public func files(in directory: URL) -> [URL] {
-    if let fileURLs = try? contentsOfDirectory(at: directory,
-                                               includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],
-                                               options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles]) {
+    if let fileURLs = try? contentsOfDirectory(
+      at: directory,
+      includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],
+      options: [.skipsSubdirectoryDescendants, .skipsHiddenFiles]
+    ) {
       return fileURLs
     }
     return []
   }
-  
+
   func makeUniqueFilename(_ url: URL) -> URL {
     let origPath = url.deletingLastPathComponent().path
     let origExtension = url.pathExtension
     let origFilename = url.filenameWithoutExtension()
-    
+
     var duplicateCount = 0
     var tempFileURL = url
-    
-    while self.fileExists(atPath: tempFileURL.path) {
+
+    while fileExists(atPath: tempFileURL.path) {
       duplicateCount += 1
-  
-      tempFileURL = URL(fileURLWithPath:origPath)
+
+      tempFileURL = URL(fileURLWithPath: origPath)
         .appendingPathComponent("\(origFilename)_\(duplicateCount).\(origExtension)")
     }
-    
+
     return tempFileURL
   }
-  
-  func temporaryFile(using filename: String = UUID().uuidString, writing inputStream: InputStream?) throws -> URL {
+
+  /// Writes the contents of the provided `InputStream` to a temporary file with the corresponding filename
+  ///
+  /// - Parameters:
+  ///   - filename: The filename of the temporary file
+  ///   - inputStream: The `InputStream` that will be written
+  /// - Returns: The `URL` containing the contents of the `InputStream`
+  /// - Throws: The error that occurred while writing to the File
+  public func temporaryFile(
+    using filename: String = UUID().uuidString, writing inputStream: InputStream?
+  ) throws -> URL {
     // Background File
     let tempDirectory: URL
     if #available(iOS 10.0, macOS 10.12, macCatalyst 13.0, tvOS 10.0, watchOS 3.0, *) {
@@ -116,7 +127,7 @@ extension FileManager {
       tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
     }
     let tempFileURL = tempDirectory.appendingPathComponent(filename)
-    
+
     // Check if file exists for cache and return
     if FileManager.default.fileExists(atPath: tempFileURL.path) {
       return tempFileURL
@@ -125,9 +136,9 @@ extension FileManager {
     guard let inputStream = inputStream else {
       throw PubNubError(.missingRequiredParameter)
     }
-    
+
     try inputStream.writeEncodedData(to: tempFileURL)
-    
+
     return tempFileURL
   }
 }

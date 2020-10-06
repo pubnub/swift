@@ -62,8 +62,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let exampleToken = Data(hexEncodedString: "740f4707bebcf74f9b7c25d48e3358945f6aa01da5ddb387462c7eaf61bb78ad")
     UserDefaults.standard.set(exampleToken, forKey: "DeviceToken")
   }
-  
-  func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
+
+  func application(
+    _: UIApplication, handleEventsForBackgroundURLSession identifier: String,
+    completionHandler _: @escaping () -> Void
+  ) {
     print("application handleEventsForBackgroundURLSession \(identifier)")
   }
 }

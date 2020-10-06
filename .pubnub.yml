@@ -7,6 +7,12 @@ changelog:
   - changes:
     - text: "File upload/download support"
       type: feature
+    - text: "Added includeUUID and includeMessageType flags to History"
+      type: feature
+    - text: "History will now has a default limit of 100 for single-channel and 25 for multichannel requests"
+      type: enchancement
+    - text: "Removed depcreated platform version support to align with Xcode 12 warnings"
+      type: enchancement
     date: 2020-10-06
     version: v3.1.0
   - changes:
@@ -327,6 +333,12 @@ features:
     - OBJECTS-REMOVE-CHANNEL-MEMBERS-V2
     - OBJECTS-MANAGE-MEMBERSHIPS-V2
     - OBJECTS-MANAGE-CHANNEL-MEMBERS-V2
+  files:
+    - FILES-DELETE-FILE
+    - FILES-DOWNLOAD-FILE
+    - FILES-GET-FILE-URL
+    - FILES-LIST-FILES
+    - FILES-SEND-FILE
   message-actions:
     - MESSAGE-ACTIONS-GET
     - MESSAGE-ACTIONS-ADD
@@ -336,7 +348,7 @@ features:
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 8.0 or higher
-      - macOS 10.10 or higher
+      - iOS 9.0 or higher
+      - macOS 10.11 or higher
       - tvOS 9.0 or higher
       - watchOS 2.0 or higher

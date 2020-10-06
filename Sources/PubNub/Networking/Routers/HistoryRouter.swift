@@ -32,8 +32,14 @@ import Foundation
 struct HistoryRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case fetch(channels: [String], max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool, includeMessageType: Bool, includeUUID: Bool)
-    case fetchWithActions(channel: String, max: Int?, start: Timetoken?, end: Timetoken?, includeMeta: Bool, includeMessageType: Bool, includeUUID: Bool)
+    case fetch(
+      channels: [String], max: Int?, start: Timetoken?, end: Timetoken?,
+      includeMeta: Bool, includeMessageType: Bool, includeUUID: Bool
+    )
+    case fetchWithActions(
+      channel: String, max: Int?, start: Timetoken?, end: Timetoken?,
+      includeMeta: Bool, includeMessageType: Bool, includeUUID: Bool
+    )
     case delete(channel: String, start: Timetoken?, end: Timetoken?)
     case messageCounts(channels: [String], timetoken: Timetoken?, channelsTimetoken: [Timetoken]?)
 
@@ -395,4 +401,6 @@ struct MessageCountsResponsePayload: Codable, Hashable {
     case errorMessage = "error_message"
     case channels
   }
+
+  // swiftlint:disable:next file_length
 }

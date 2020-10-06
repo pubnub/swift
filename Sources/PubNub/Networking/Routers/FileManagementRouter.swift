@@ -53,7 +53,6 @@ struct FileManagementRouter: HTTPRouter {
         return "Redirects to a download URL for the given file"
       case .delete:
         return "Delete a file"
-
       }
     }
   }
@@ -104,8 +103,10 @@ struct FileManagementRouter: HTTPRouter {
     case let .list(channel, _, _):
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files"
     case let .fetchURL(channel, fileId, filename):
+      // swiftlint:disable:next line_length
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     case let .delete(channel, fileId, filename):
+      // swiftlint:disable:next line_length
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     }
     return .success(path)
@@ -123,7 +124,6 @@ struct FileManagementRouter: HTTPRouter {
   }
 
   var body: Result<Data?, Error> {
-
     switch endpoint {
     case let .generateURL(_, body):
       return .success(try? Constant.jsonEncoder.encode(body))
@@ -182,7 +182,6 @@ struct FileGeneralSuccessResponseDecoder: ResponseDecoder {
   typealias Payload = GeneralSuccessResponse
 }
 
-
 // MARK: - Response Body
 
 struct GeneralSuccessResponse: Codable {
@@ -197,6 +196,8 @@ struct ListFilesSuccessResponse: Codable {
   let data: [FileInfo]
   /// URL-safe token to get the next batch of files
   let next: String?
+  /// URL-safe token to get the prev batch of files
+  let prev: String?
   /// Number of files returned
   let count: Int
 }
@@ -211,8 +212,9 @@ struct FileInfo: PubNubFile {
   var size: Int64
   /// ISO 8601 date and time the file was uploaded
   var created: Date
-  
+
   // MARK: PubNubFile
+
   var custom: JSONCodable?
   var channel: String = ""
   var contentType: String = ""
@@ -231,7 +233,7 @@ struct FileInfo: PubNubFile {
     case size
     case created
   }
-  
+
   init(
     fileId: String,
     filename: String,
@@ -243,7 +245,7 @@ struct FileInfo: PubNubFile {
     self.size = size
     self.created = created
   }
-  
+
   init(from other: PubNubFile) throws {
     guard let created = other.createdDate else {
       throw PubNubError(
@@ -251,7 +253,7 @@ struct FileInfo: PubNubFile {
         additional: [String(describing: FileInfo.self), String(describing: other)]
       )
     }
-    
+
     self.init(fileId: other.fileId, filename: other.filename, size: other.size, created: created)
   }
 }
@@ -271,10 +273,10 @@ struct FormField: Codable {
 struct GenerateUploadURLResponse: Codable {
   /// Status code
   let status: Int
-  
+
   let filename: String
   let fileId: String
-  
+
   let uploadRequestURL: URL
   let uploadMethod: HTTPMethod
   let uploadFormFields: [FormField]
@@ -301,42 +303,46 @@ struct GenerateUploadURLResponse: Codable {
     case data
     case fileRequest = "file_upload_request"
   }
-  
+
   enum FileCodingKeys: String, CodingKey {
     case fileId = "id"
     case filename = "name"
   }
-  
+
   enum FileRequestCodingKeys: String, CodingKey {
     case url
     case method
     case fields = "form_fields"
     case expiration = "expiration_date"
   }
-  
+
   init(from decoder: Decoder) throws {
     let rootContainer = try decoder.container(keyedBy: CodingKeys.self)
-    self.status = try rootContainer.decode(Int.self, forKey: .status)
-    
+    status = try rootContainer.decode(Int.self, forKey: .status)
+
     let fileContainer = try rootContainer.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .data)
-    self.fileId = try fileContainer.decode(String.self, forKey: .fileId)
-    self.filename = try fileContainer.decode(String.self, forKey: .filename)
-    
-    let uploadRequestContainer = try rootContainer.nestedContainer(keyedBy: FileRequestCodingKeys.self, forKey: .fileRequest)
-    self.uploadRequestURL = try uploadRequestContainer.decode(URL.self, forKey: .url)
-    self.uploadMethod = try uploadRequestContainer.decode(HTTPMethod.self, forKey: .method)
-    self.uploadFormFields = try uploadRequestContainer.decode([FormField].self, forKey: .fields)
+    fileId = try fileContainer.decode(String.self, forKey: .fileId)
+    filename = try fileContainer.decode(String.self, forKey: .filename)
+
+    let uploadRequestContainer = try rootContainer.nestedContainer(
+      keyedBy: FileRequestCodingKeys.self, forKey: .fileRequest
+    )
+    uploadRequestURL = try uploadRequestContainer.decode(URL.self, forKey: .url)
+    uploadMethod = try uploadRequestContainer.decode(HTTPMethod.self, forKey: .method)
+    uploadFormFields = try uploadRequestContainer.decode([FormField].self, forKey: .fields)
   }
-  
+
   func encode(to encoder: Encoder) throws {
     var rootContainer = encoder.container(keyedBy: CodingKeys.self)
     try rootContainer.encode(status, forKey: .status)
-    
+
     var fileContainer = rootContainer.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .data)
     try fileContainer.encode(fileId, forKey: .fileId)
     try fileContainer.encode(filename, forKey: .filename)
-    
-    var uploadRequestContainer = rootContainer.nestedContainer(keyedBy: FileRequestCodingKeys.self, forKey: .fileRequest)
+
+    var uploadRequestContainer = rootContainer.nestedContainer(
+      keyedBy: FileRequestCodingKeys.self, forKey: .fileRequest
+    )
     try uploadRequestContainer.encode(uploadRequestURL, forKey: .url)
     try uploadRequestContainer.encode(uploadMethod, forKey: .method)
     try uploadRequestContainer.encode(uploadFormFields, forKey: .fields)
@@ -348,7 +354,7 @@ struct FileUploadError: Codable, Hashable {
   var message: String
   var requestId: String
   var hostId: String
-  
+
   var condition: String?
   var maxSizeAllowed: String?
   var proposedSize: String?
@@ -358,12 +364,12 @@ struct FileUploadError: Codable, Hashable {
     case message = "Message"
     case requestId = "RequestId"
     case hostId = "HostId"
-    
+
     case condition = "Condition"
     case maxSizeAllowed = "MaxSizeAllowed"
     case proposedSize = "ProposedSize"
   }
-  
+
   var asPubNubError: PubNubError {
     switch code {
     case "EntityTooLarge":
@@ -376,12 +382,10 @@ struct FileUploadError: Codable, Hashable {
   }
 }
 
-
-// MARK:- Publish Request Body
+// MARK: - Publish Request Body
 
 /// The message structure used by all SDKs to denote a published message
 struct FilePublishPayload: PubNubFile {
-
   /// The additional payload published along with the file
   var additionalDetails: JSONCodable? {
     get {
@@ -391,8 +395,9 @@ struct FilePublishPayload: PubNubFile {
       additionalDetailsConcrete = newValue?.codableValue
     }
   }
+
   var additionalDetailsConcrete: AnyJSON?
-  
+
   /// The ID of file on the server
   var fileId: String
   /// The name of the file on the server
@@ -401,23 +406,22 @@ struct FilePublishPayload: PubNubFile {
   var size: Int64
   /// The MIME Type of the file
   var contentType: String
-  
+
   var concreteCustom: AnyJSON?
   public var custom: JSONCodable? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }
-    
+
   var channel: String
   var createdDate: Date?
-  
+
   var concreteMessage: AnyJSON?
   public var message: JSONCodable? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }
-    
-  
+
   init(
     channel: String,
     fileId: String,
@@ -435,7 +439,7 @@ struct FilePublishPayload: PubNubFile {
     self.createdDate = createdDate
     self.custom = custom
   }
-  
+
   init(from other: PubNubFile) {
     self.init(
       channel: other.channel,
@@ -447,15 +451,15 @@ struct FilePublishPayload: PubNubFile {
       custom: other.custom
     )
   }
-  
+
   // MARK: Codable
-  
+
   enum CodingKeys: String, CodingKey {
-    case message = "message"
+    case message
     case file
     case channel
   }
-  
+
   enum FileCodingKeys: String, CodingKey {
     case id
     case name
@@ -463,24 +467,24 @@ struct FilePublishPayload: PubNubFile {
     case mimeType = "mime-type"
     case custom
   }
-  
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.concreteMessage = try container.decodeIfPresent(AnyJSON.self, forKey: .message)
-    self.channel = try container.decodeIfPresent(String.self, forKey: .channel) ?? ""
+    concreteMessage = try container.decodeIfPresent(AnyJSON.self, forKey: .message)
+    channel = try container.decodeIfPresent(String.self, forKey: .channel) ?? ""
 
     let fileContainer = try container.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .file)
-    self.fileId = try fileContainer.decode(String.self, forKey: .id)
-    self.filename = try fileContainer.decode(String.self, forKey: .name)
-    self.size = try fileContainer.decode(Int64.self, forKey: .size)
-    self.contentType = try fileContainer.decode(String.self, forKey: .mimeType)
-    self.concreteCustom = try fileContainer.decodeIfPresent(AnyJSON.self, forKey: .custom)
+    fileId = try fileContainer.decode(String.self, forKey: .id)
+    filename = try fileContainer.decode(String.self, forKey: .name)
+    size = try fileContainer.decode(Int64.self, forKey: .size)
+    contentType = try fileContainer.decode(String.self, forKey: .mimeType)
+    concreteCustom = try fileContainer.decodeIfPresent(AnyJSON.self, forKey: .custom)
   }
-  
+
   func encode(to encoder: Encoder) throws {
     var rootContainer = encoder.container(keyedBy: CodingKeys.self)
     try rootContainer.encodeIfPresent(concreteMessage, forKey: .message)
-    
+
     var fileContainer = rootContainer.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .file)
     try fileContainer.encode(fileId, forKey: .id)
     try fileContainer.encode(filename, forKey: .name)
@@ -495,19 +499,21 @@ extension FilePublishPayload: Validated {
     if fileId.isEmpty {
       return PubNubError(.missingRequiredParameter, additional: ["fieldId"])
     }
-    
+
     if filename.isEmpty {
       return PubNubError(.missingRequiredParameter, additional: ["filename"])
     }
-    
+
     if contentType.isEmpty {
       return PubNubError(.missingRequiredParameter, additional: ["contentType"])
     }
-    
+
     return nil
   }
-  
+
   var validationErrorDetail: String? {
     return validationError?.localizedDescription
   }
+
+  // swiftlint:disable:next file_length
 }

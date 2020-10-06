@@ -112,7 +112,8 @@ public struct PubNubMessageActionBase: PubNubMessageAction, Codable, Hashable {
   /// Attempts to create a PubNubMessageAction from a Subscription Response Message
   init?(from subscribe: SubscribeMessagePayload) {
     guard let messageAction = try? subscribe.payload.decode(SubscribeMessageActionPayload.self),
-      let publisher = subscribe.publisher else {
+      let publisher = subscribe.publisher
+    else {
       return nil
     }
 

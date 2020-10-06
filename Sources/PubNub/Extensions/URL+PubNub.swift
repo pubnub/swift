@@ -26,12 +26,16 @@
 //
 
 import Foundation
-import UniformTypeIdentifiers
+
+// NOTE: Still currently in beta for macOS https://developer.apple.com/documentation/uniformtypeidentifiers/
+#if canImport(UniformTypeIdentifiers)
+  import UniformTypeIdentifiers
+#endif
 
 #if os(iOS) || os(watchOS) || os(tvOS)
-import MobileCoreServices
+  import MobileCoreServices
 #elseif os(macOS)
-import CoreServices
+  import CoreServices
 #endif
 
 public extension URL {
@@ -62,21 +66,32 @@ public extension URL {
     return 0
   }
 
-
   var mimeType: String {
-    if #available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0,*) {
-      if let mimeType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType {
-        return mimeType
+    #if canImport(UniformTypeIdentifiers)
+      if #available(iOS 14.0, macOS 10.16, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *) {
+        if let mimeType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType {
+          return mimeType
+        }
+      } else {
+        return preferenceIdentifier() ?? "application/octet-stream"
       }
-    } else {
-      if let id = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as CFString, nil)?.takeRetainedValue(),
-         let mimeType = UTTypeCopyPreferredTagWithClass(id, kUTTagClassMIMEType)?.takeRetainedValue() {
-        return mimeType as String
-      }
-    }
-    return "application/octet-stream"
+    #else
+      return preferenceIdentifier() ?? "application/octet-stream"
+    #endif
   }
-  
+
+  private func preferenceIdentifier() -> String? {
+    let fileExtension = UTTypeCreatePreferredIdentifierForTag(
+      kUTTagClassFilenameExtension, pathExtension as CFString, nil
+    )
+
+    if let fileExt = fileExtension?.takeRetainedValue(),
+      let mimeType = UTTypeCopyPreferredTagWithClass(fileExt, kUTTagClassMIMEType)?.takeRetainedValue() {
+      return mimeType as String
+    }
+    return nil
+  }
+
   internal func filenameWithoutExtension() -> String {
     // Default to last path if either path or extension are empty
     if pathExtension.isEmpty || lastPathComponent.isEmpty {

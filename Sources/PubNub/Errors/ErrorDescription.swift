@@ -134,7 +134,7 @@ extension ErrorDescription {
   static let emptyFilenameString: String = {
     "The required Filename `String` is empty"
   }()
-  
+
   static let emptyFileIdString: String = {
     "The required FileId `String` is empty"
   }()

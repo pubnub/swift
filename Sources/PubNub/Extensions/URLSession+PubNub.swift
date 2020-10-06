@@ -30,10 +30,10 @@ import Foundation
 extension URLSession {
   func uploadTask(
     withStreamedRequest request: URLRequest,
-    completionHandler: @escaping (Data?, URLResponse?, Error?
-  ) -> Void) -> URLSessionUploadTask {
+    completionHandler _: @escaping (Data?, URLResponse?, Error?) -> Void
+  ) -> URLSessionUploadTask {
     let task = uploadTask(withStreamedRequest: request)
-    
+
     return task
   }
 }

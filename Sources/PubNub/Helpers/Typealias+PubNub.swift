@@ -51,5 +51,7 @@ public typealias PAMResourceType = PAMTokenManagementSystem.Resource
 /// A closure capable of validating a network response
 typealias ValidationClosure = (HTTPRouter, URLRequest, HTTPURLResponse, Data?) -> Error?
 
+public typealias ProgressTuple = (bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)
+
 /// A snapshot of a File's tranmission progress
-public typealias ProgressBlock = ((bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64)) -> Void
+public typealias ProgressBlock = (ProgressTuple) -> Void

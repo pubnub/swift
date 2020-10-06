@@ -29,11 +29,13 @@ import Foundation
 
 extension OperationQueue {
   /// Convenience init that initializes and configures `OperationQueue`
-  convenience init(qualityOfService: QualityOfService = .default,
-                   maxConcurrentOperationCount: Int = OperationQueue.defaultMaxConcurrentOperationCount,
-                   underlyingQueue: DispatchQueue? = nil,
-                   name: String? = nil,
-                   startSuspended: Bool = false) {
+  convenience init(
+    qualityOfService: QualityOfService = .default,
+    maxConcurrentOperationCount: Int = OperationQueue.defaultMaxConcurrentOperationCount,
+    underlyingQueue: DispatchQueue? = nil,
+    name: String? = nil,
+    startSuspended: Bool = false
+  ) {
     self.init()
     self.qualityOfService = qualityOfService
     self.maxConcurrentOperationCount = maxConcurrentOperationCount

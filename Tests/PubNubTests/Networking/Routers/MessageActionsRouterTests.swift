@@ -468,7 +468,8 @@ extension MessageActionsRouterTests {
 
   func testMessageActionPayload_Decode_InvalidTimetokenStrings() {
     guard let action = ["uuid": "UUIDString", "type": "ActionType", "value": "ValueType",
-                        "actionTimetoken": "notTimetoken", "messageTimetoken": "notTimetoken"].jsonData else {
+                        "actionTimetoken": "notTimetoken", "messageTimetoken": "notTimetoken"].jsonData
+    else {
       return XCTFail("Could not convert object to data")
     }
     let payload = try? JSONDecoder().decode(MessageActionPayload.self, from: action)

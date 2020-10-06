@@ -33,7 +33,7 @@ public enum PubNubMessageType: Int, Codable, Hashable {
   case object = 2
   case messageAction = 3
   case file = 4
-  
+
   case unknown = 999
 }
 
@@ -93,7 +93,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var subscription: String?
   public var published: Timetoken
   var concreteMetadata: AnyJSON?
-  
+
   public var messageType: PubNubMessageType
 
   public var payload: JSONCodable {

@@ -25,11 +25,9 @@
 //  THE SOFTWARE.
 //
 
-
 import Foundation
 
 class XMLSerialization: NSObject {
-  
   enum XMLError: Error {
     case malformedXML
   }
@@ -63,7 +61,7 @@ class XMLSerialization: NSObject {
       self.value = value
       self.children = children
     }
-    
+
     init(key: String, value: Any) {
       switch value {
       case let value as String:
@@ -74,7 +72,7 @@ class XMLSerialization: NSObject {
         self.init(key: key, value: nil, children: [])
       }
     }
-    
+
     /// Output as a dictionary
     func toDictionary() -> [String: Any] {
       // There was no nested values
@@ -99,7 +97,7 @@ class XMLSerialization: NSObject {
 
     mutating func append(_ string: String) {
       if value != nil {
-        self.value?.append(string)
+        value?.append(string)
       } else {
         value = string
       }
@@ -129,13 +127,12 @@ class XMLSerialization: NSObject {
 
     return try parser.parse(with: data)?.toDictionary() ?? [:]
   }
-    
+
   static func toXMLString(root key: String, header: Header = Header(), from dictionary: [String: Any]) -> String {
-   
     guard let header = header.toXMLString() else {
       return ""
     }
-    
+
     return "\(header)\(Element(key: key, value: dictionary).toXMLString())"
   }
 
@@ -152,7 +149,7 @@ class XMLSerialization: NSObject {
     }
   }
 
-  func withCurrentElement(_ body: (inout Element) throws -> ()) rethrows {
+  func withCurrentElement(_ body: (inout Element) throws -> Void) rethrows {
     guard !stack.isEmpty else {
       return
     }
@@ -164,27 +161,27 @@ class XMLSerialization: NSObject {
 // MARK: Delegate
 
 extension XMLSerialization: XMLParserDelegate {
-  func parserDidStartDocument(_ parser: XMLParser) {
+  func parserDidStartDocument(_: XMLParser) {
     root = nil
     stack = []
   }
 
   func parser(
-    _ parser: XMLParser,
+    _: XMLParser,
     didStartElement elementName: String,
-    namespaceURI: String?,
-    qualifiedName qName: String?,
-    attributes attributeDict: [String : String] = [:]
+    namespaceURI _: String?,
+    qualifiedName _: String?,
+    attributes _: [String: String] = [:]
   ) {
     let element = Element(key: elementName)
     stack.append(element)
   }
 
   func parser(
-    _ parser: XMLParser,
-    didEndElement elementName: String,
-    namespaceURI: String?,
-    qualifiedName qName: String?
+    _: XMLParser,
+    didEndElement _: String,
+    namespaceURI _: String?,
+    qualifiedName _: String?
   ) {
     guard let element = stack.popLast() else { return }
 
@@ -197,7 +194,7 @@ extension XMLSerialization: XMLParserDelegate {
     }
   }
 
-  func parser(_ parser: XMLParser, foundCharacters string: String) {
+  func parser(_: XMLParser, foundCharacters string: String) {
     let processedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
 
     // Ignore line breaks and empty string

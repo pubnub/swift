@@ -96,10 +96,10 @@ extension Data {
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 // HIJKLMNO
     ]
   }()
-  
+
   mutating func append(_ string: String) {
     if let data = string.data(using: .utf8) {
-      self.append(data)
+      append(data)
     }
   }
 }

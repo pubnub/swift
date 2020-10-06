@@ -26,17 +26,18 @@
 
 import Foundation
 
-// MARK:- PubNubLocalFile
+// MARK: - PubNubLocalFile
 
+/// A file stored on a PubNub channel that can be mapped to a local resource
 public protocol PubNubLocalFile: PubNubFile {
   /// The local URL of the file
   var localFileURL: URL { get set }
-  
+  /// If the local filenames changes this can be used to track the remote filename
   var remoteFilename: String? { get }
-  
+
   /// Allows for converting  between different `PubNubLocalFile` types
   init(from other: PubNubLocalFile) throws
-  /// Allows for converting  between different `PubNubLocalFile` types
+  /// Map a local resource `URL` to  a `PubNubFile`
   init(from other: PubNubFile, withFile url: URL) throws
 }
 
@@ -44,37 +45,38 @@ public extension PubNubLocalFile {
   var size: Int64 {
     return Int64(localFileURL.sizeOf)
   }
-  
+
   var contentType: String {
     return localFileURL.mimeType
   }
-  
+
   var filename: String {
     return remoteFilename ?? localFileURL.lastPathComponent
   }
-  
+
   init(from other: PubNubFile, withFile url: URL) throws {
     try self.init(from: other)
-    
-    self.localFileURL = url
+
+    localFileURL = url
   }
 }
 
+/// A base concrete representation of a `PubNubLocalFile`
 public struct PubNubLocalFileBase: PubNubLocalFile {
   public var localFileURL: URL
   public var channel: String
-  
+
   public var fileId: String
   public var remoteFilename: String?
-  
+
   public var createdDate: Date?
-  
+
   var concreteCustom: AnyJSON?
   public var custom: JSONCodable? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }
-  
+
   public init(
     localFileURL: URL,
     channel: String,
@@ -90,7 +92,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
     self.custom = custom
     self.createdDate = createdDate
   }
-  
+
   public init(from other: PubNubLocalFile) {
     self.init(
       localFileURL: other.localFileURL,
@@ -108,10 +110,10 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
         additional: [String(describing: PubNubLocalFileBase.self), String(describing: other)]
       )
     }
-    
+
     self.init(from: otherLocalFile)
   }
-  
+
   init(fromFile url: URL, pubnub response: GenerateUploadURLResponse, on channel: String) {
     self.init(
       localFileURL: url,
@@ -120,7 +122,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
       remoteFilename: response.filename
     )
   }
-  
+
   public init(from other: PubNubFile, withFile url: URL) {
     self.init(
       localFileURL: url,
@@ -133,8 +135,9 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
   }
 }
 
-// MARK:- PubNubFile
+// MARK: - PubNubFile
 
+/// A file stored on a PubNub channel
 public protocol PubNubFile: JSONCodable {
   /// The channel the file is associated with
   var channel: String { get }
@@ -146,19 +149,19 @@ public protocol PubNubFile: JSONCodable {
   var size: Int64 { get }
   /// The MIME Type of the file
   var contentType: String { get }
-  
+
   /// ISO 8601 date and time the file was uploaded
   var createdDate: Date? { get set }
-  
+
   /// Custom payload that can be used to store additional file details
   var custom: JSONCodable? { get set }
-  
+
   /// Allows for converting  between different `PubNubFile` types
   init(from other: PubNubFile) throws
 }
 
+/// A base concrete representation of a `PubNubFile`
 public struct PubNubFileBase: PubNubFile {
-    
   public var channel: String
   public var fileId: String
   public var filename: String
@@ -171,7 +174,7 @@ public struct PubNubFileBase: PubNubFile {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }
-  
+
   public init(
     channel: String,
     fileId: String,
@@ -189,7 +192,7 @@ public struct PubNubFileBase: PubNubFile {
     self.createdDate = createdDate
     self.custom = custom
   }
-  
+
   public init(from other: PubNubFile) throws {
     self.init(
       channel: other.channel,
@@ -201,7 +204,7 @@ public struct PubNubFileBase: PubNubFile {
       custom: other.custom
     )
   }
-  
+
   init(from fileInfo: FileInfo, on channel: String) {
     self.init(
       channel: channel,
@@ -215,8 +218,9 @@ public struct PubNubFileBase: PubNubFile {
   }
 }
 
-// MARK:- PubNubFile Event
+// MARK: - PubNubFile Event
 
+/// A subscription event containing File information
 public protocol PubNubFileEvent {
   /// The channel for which the file belongs
   var channel: String { get }
@@ -235,7 +239,7 @@ public protocol PubNubFileEvent {
   var fileId: String { get }
   /// The name of the file on the server
   var filename: String { get }
-  
+
   /// Allows for converting  between different `PubNubFileEvent` types
   init(from other: PubNubFileEvent) throws
 }
@@ -248,7 +252,7 @@ public struct PubNubFileEventBase: PubNubFileEvent {
   public var channelGroup: String?
   public var publisher: String
   public var timetoken: Timetoken
-  
+
   var concreteMessage: AnyJSON?
   public var message: JSONCodable? {
     get {
@@ -258,7 +262,7 @@ public struct PubNubFileEventBase: PubNubFileEvent {
       concreteMessage = newValue?.codableValue
     }
   }
-  
+
   var concreteMeta: AnyJSON?
   public var metadata: JSONCodable? {
     get {
@@ -268,10 +272,10 @@ public struct PubNubFileEventBase: PubNubFileEvent {
       concreteMeta = newValue?.codableValue
     }
   }
-  
+
   public var fileId: String
   public var filename: String
-  
+
   public init(
     channel: String,
     channelGroup: String?,
@@ -286,12 +290,12 @@ public struct PubNubFileEventBase: PubNubFileEvent {
     self.channelGroup = channelGroup
     self.publisher = publisher
     self.timetoken = timetoken
-    self.concreteMessage = message?.codableValue
-    self.concreteMeta = metadata?.codableValue
+    concreteMessage = message?.codableValue
+    concreteMeta = metadata?.codableValue
     self.fileId = fileId
     self.filename = filename
   }
-  
+
   public init(from other: PubNubFileEvent) throws {
     self.init(
       channel: other.channel,
@@ -304,14 +308,14 @@ public struct PubNubFileEventBase: PubNubFileEvent {
       filename: other.filename
     )
   }
-  
+
   init(from subscription: SubscribeMessagePayload) throws {
     let fileInfo = try subscription.payload.decode(FilePublishPayload.self)
-    
+
     guard let publisher = subscription.publisher else {
       throw PubNubError(.missingRequiredParameter, additional: ["publisher"])
     }
-    
+
     self.init(
       channel: subscription.channel,
       channelGroup: subscription.subscription,

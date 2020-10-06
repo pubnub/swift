@@ -40,7 +40,8 @@ class RequestIdOperatorTests: XCTestCase {
                                                                attributes: .concurrent))
 
     guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: sessionListener) else {
+                                                         with: sessionListener)
+    else {
       return XCTFail("Could not create mock url session")
     }
 

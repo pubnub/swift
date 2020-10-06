@@ -42,7 +42,8 @@ class SessionStreamTests: XCTestCase {
     let multiplexStream = MultiplexSessionStream([closureStream])
 
     guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: multiplexStream) else {
+                                                         with: multiplexStream)
+    else {
       return XCTFail("Could not create mock url session")
     }
 

@@ -102,10 +102,12 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   /// Collection of returned `URLError.Code` objects that will trigger a retry
   public let retryableURLErrorCodes: Set<URLError.Code>
 
-  public init(retryLimit: UInt = 2,
-              policy: ReconnectionPolicy = .defaultExponential,
-              retryableHTTPStatusCodes: Set<Int> = [500],
-              retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes) {
+  public init(
+    retryLimit: UInt = 2,
+    policy: ReconnectionPolicy = .defaultExponential,
+    retryableHTTPStatusCodes: Set<Int> = [500],
+    retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes
+  ) {
     switch policy {
     case let .exponential(base, scale, max):
       switch (true, true) {

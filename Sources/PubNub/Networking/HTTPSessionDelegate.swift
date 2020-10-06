@@ -78,9 +78,11 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 
-  func urlSession(_ session: URLSession,
-                  didReceive challenge: URLAuthenticationChallenge,
-                  completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+  func urlSession(
+    _ session: URLSession,
+    didReceive challenge: URLAuthenticationChallenge,
+    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+  ) {
     sessionBridge?.sessionStream?.emitURLSession(session, didReceive: challenge)
 
     completionHandler(.performDefaultHandling, nil)

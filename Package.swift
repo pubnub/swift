@@ -37,7 +37,7 @@ let package = Package(
   name: "PubNub",
   platforms: [
     .iOS(.v9),
-    .macOS(.v10_10),
+    .macOS(.v10_11),
     .tvOS(.v9),
     .watchOS(.v2)
   ],

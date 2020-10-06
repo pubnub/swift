@@ -124,6 +124,14 @@ extension PubNubHashedPage {
 
     return try T(from: self)
   }
+
+  public var next: String? {
+    return start
+  }
+
+  public var prev: String? {
+    return end
+  }
 }
 
 // MARK: Concrete Base Class

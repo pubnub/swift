@@ -219,6 +219,7 @@
 		35AC162F2486C9A400A66030 /* PubNubMessageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC162E2486C9A400A66030 /* PubNubMessageAction.swift */; };
 		35AC16332487179400A66030 /* PubNubPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC16322487179400A66030 /* PubNubPage.swift */; };
 		35AE6A3224FD6CEE00BBFA37 /* FileManagementRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE6A3124FD6CEE00BBFA37 /* FileManagementRouter.swift */; };
+		35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B0ACE2252BE36C00537A18 /* File+PubNub.swift */; };
 		35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B38249233AAB8C0028803F /* JSONCodable.swift */; };
 		35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */; };
 		35C6B6DD22F501780054F242 /* Encodable+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */; };
@@ -562,6 +563,7 @@
 		35AE6A3124FD6CEE00BBFA37 /* FileManagementRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagementRouter.swift; sourceTree = "<group>"; };
 		35AE6A3425000A3800BBFA37 /* file_list_success_empty.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = file_list_success_empty.json; sourceTree = "<group>"; };
 		35AE6A3525000AC700BBFA37 /* FileManagementRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagementRouterTests.swift; sourceTree = "<group>"; };
+		35B0ACE2252BE36C00537A18 /* File+PubNub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "File+PubNub.swift"; sourceTree = "<group>"; };
 		35B38249233AAB8C0028803F /* JSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCodable.swift; sourceTree = "<group>"; };
 		35B6FBAE22F226F4005EE490 /* NSNumber+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSNumber+PubNub.swift"; sourceTree = "<group>"; };
 		35B6FBB122F357A7005EE490 /* publish_invalid_json.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = publish_invalid_json.json; sourceTree = "<group>"; };
@@ -1177,6 +1179,14 @@
 			path = File;
 			sourceTree = "<group>";
 		};
+		35B0ACE4252BE37C00537A18 /* APIs */ = {
+			isa = PBXGroup;
+			children = (
+				35B0ACE2252BE36C00537A18 /* File+PubNub.swift */,
+			);
+			path = APIs;
+			sourceTree = "<group>";
+		};
 		35CDA4CA250FE30300218137 /* XML */ = {
 			isa = PBXGroup;
 			children = (
@@ -1419,6 +1429,7 @@
 			children = (
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
+				35B0ACE4252BE37C00537A18 /* APIs */,
 				3580A59B22F128A300B12E5E /* Errors */,
 				35A66A8522F8DB2E00AC67A9 /* Subscription */,
 				35AC16312487177500A66030 /* Models */,
@@ -1784,6 +1795,7 @@
 				35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */,
 				35CF54922489912F0099FE81 /* PubNubUUIDMetadata.swift in Sources */,
 				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
+				35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */,
 				35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */,
 				35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */,
 				35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */,
@@ -1994,7 +2006,7 @@
 		OBJ_28 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2010,7 +2022,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 3.0.1;
+				MARKETING_VERSION = 3.1.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -2018,7 +2030,6 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				TARGET_NAME = PubNub;
@@ -2028,7 +2039,7 @@
 		OBJ_29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				APPLICATION_EXTENSION_API_ONLY = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -2044,7 +2055,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 3.0.1;
+				MARKETING_VERSION = 3.1.0;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -2052,7 +2063,6 @@
 				PRODUCT_MODULE_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
 				TARGET_NAME = PubNub;
@@ -2103,11 +2113,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_SWIFT_FLAGS = "-DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE DEBUG";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -2159,10 +2168,9 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_SWIFT_FLAGS = "-DXcode";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) SWIFT_PACKAGE";
 				SWIFT_COMPILATION_MODE = wholemodule;

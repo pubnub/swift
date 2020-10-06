@@ -39,7 +39,7 @@ public struct PubNub {
   public let subscription: SubscriptionSession
   // PAM Token Manager
   internal var tokenStore: PAMTokenManagementSystem
-  
+
   public var fileSession: URLSessionReplaceable
   public var fileSessionManager: FileSessionManager? {
     fileSession.delegate as? FileSessionManager
@@ -96,7 +96,7 @@ public struct PubNub {
       with: subscribeSession,
       presenceSession: session
     )
-    
+
     tokenStore = PAMTokenManagementSystem()
 
     if let fileSession = fileSession {
@@ -311,7 +311,7 @@ extension PubNub {
     ///   - customFields: The `custom` dictionary for the Object
     ///   - channelFields: The `PubNubChannelMetadata` instance of the Membership
     ///   - channelCustomFields: The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
-    ///   - totalCount The `totalCount` of how many Objects are available
+    ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       channelFields: Bool = false,
@@ -350,7 +350,7 @@ extension PubNub {
     ///   - customFields: The `custom` dictionary for the Object
     ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
     ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
-    ///   - totalCount The `totalCount` of how many Objects are available
+    ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       uuidFields: Bool = false,
@@ -1113,6 +1113,8 @@ extension PubNub {
   ///   - for: List of channels to fetch history messages from.
   ///   - includeActions: If `true` any Message Actions will be included in the response
   ///   - includeMeta: If `true` the meta properties of messages will be included in the response
+  ///   - includeUUID: If `true` the UUID of the message publisher will be included with each message in the response
+  ///   - includeMessageType: If `true` the message type will be included with each message
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -1577,7 +1579,7 @@ extension PubNub {
       sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ),
-                                          configuration: configuration)
+    configuration: configuration)
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
@@ -1942,293 +1944,6 @@ extension PubNub {
         completion?(.failure(error))
       }
     }
-  }
-}
-
-// MARK: - File
-
-public extension PubNub {
-
-  /// Retrieve list of files uploaded to `Channel`
-  func listFiles(
-    channel: String, limit: Int = 100, next: String? = nil,
-    custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(files: [PubNubFile], next: String?), Error>) -> Void)?
-  ) {
-    route(
-      FileManagementRouter(.list(channel: channel, limit: limit, next: next), configuration: configuration),
-      responseDecoder: FileListResponseDecoder(),
-      custom: requestConfig
-    ) { result in
-      switch result {
-      case let .success(response):
-        completion?(.success((
-          files: response.payload.data.map { PubNubFileBase(from: $0, on: channel) },
-          next: response.payload.next
-        )))
-      case let .failure(error):
-        completion?(.failure(error))
-      }
-    }
-  }
-  
-  /// Delete file from specified `Channel`
-  func remove(
-    channel: String, fileId: String, filename: String,
-    custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(channel: String, fileId: String), Error>) -> Void)?
-  ) {
-    route(
-      FileManagementRouter(.delete(channel: channel, fileId: fileId, filename: filename), configuration: configuration),
-      responseDecoder: FileGeneralSuccessResponseDecoder(),
-      custom: requestConfig
-    ) { result in
-      switch result {
-      case .success:
-        completion?(.success((channel: channel, fileId: fileId)))
-      case let .failure(error):
-        completion?(.failure(error))
-      }
-    }
-  }
-  
-  struct PublishFileRequest {
-    public var additionalMessage: JSONCodable?
-    public var store: Bool
-    public var ttl: Int?
-    public var meta: AnyJSON?
-    public var customRequestConfig: RequestConfiguration
-    
-    public init(
-      additionalMessage: JSONCodable? = nil,
-      store: Bool = false,
-      ttl: Int? = nil,
-      meta: AnyJSON? = nil,
-      customRequestConfig: RequestConfiguration = RequestConfiguration()
-    ) {
-      self.additionalMessage = additionalMessage
-      self.store = store
-      self.ttl = ttl
-      self.meta = meta
-      self.customRequestConfig = customRequestConfig
-    }
-  }
-  
-  // MARK: Upload File
-  
-  func generateFileUploadURLRequest(
-    local fileURL: URL, channel: String, replacingFilename: String? = nil,
-    custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(URLRequest, PubNubLocalFile), Error>) -> Void)?
-  ) {
-    route(
-      FileManagementRouter(.generateURL(channel: channel, body: .init(name: replacingFilename ?? fileURL.lastPathComponent)), configuration: configuration),
-      responseDecoder: FileGenerateResponseDecoder(),
-      custom: requestConfig
-    ) { result in
-      switch result {
-      case let .success(response):
-        do {
-          completion?(.success((
-            try URLRequest(from: response.payload, uploading: fileURL),
-            PubNubLocalFileBase(fromFile: fileURL, pubnub: response.payload, on: channel)
-          )))
-        } catch {
-          // Error Creating the Reqeust
-          completion?(.failure(error))
-        }
-      case let .failure(error):
-        // Error retrieving upoad url from PubNub
-        completion?(.failure(error))
-      }
-
-    }
-  }
-  
-  /// Create a URLSessionUploadTask for the URLSessionRequest based on the supported session state
-  func createFileURLSessionUploadTask(
-    request: URLRequest, session: URLSessionReplaceable,
-    backgroundFileCacheIdentifier: String
-  ) throws -> HTTPFileUploadTask {
-    
-    let urlSessionTask: URLSessionUploadTask
-    // If the session is background we need to save body to a file
-    if !session.makesBackgroundRequests {
-      urlSessionTask = session.uploadTask(withStreamedRequest: request)
-    } else {
-      // If it's a background upload we will create a temporary file
-      let uploadURL = try FileManager.default.temporaryFile(
-        using: backgroundFileCacheIdentifier,
-        writing: request.httpBodyStream
-      )
-      
-      urlSessionTask = session.uploadTask(with: request, fromFile: uploadURL)
-    }
-    
-    // Create `FileUploadTask`
-    let fileTask = HTTPFileUploadTask(
-      task: urlSessionTask,
-      session: session.configuration.identifier
-    )
-    
-    // Create task map inside Delegate if we're managing it
-    (session.delegate as? FileSessionManager)?.tasksByIdentifier[fileTask.taskIdentifier] = fileTask
-    
-    return fileTask
-  }
-  
-  /// Publish file message from specified `Channel`
-  func publish(
-    file: PubNubFile, request: PublishFileRequest,
-    completion: ((Result<Timetoken, Error>) -> Void)?
-  ) {
-    let fileMessage = FilePublishPayload(from: file)
-
-    let router = PublishRouter(
-      .file(message: fileMessage, channel: fileMessage.channel, shouldStore: request.store, ttl: request.ttl, meta: request.meta),
-      configuration: configuration
-    )
-    
-    route(router,
-          responseDecoder: PublishResponseDecoder(),
-          custom: request.customRequestConfig) { result in
-      completion?(result.map { $0.payload.timetoken })
-    }
-  }
-  
-  /// Upload file / data to specified `Channel`
-  func send(
-    local fileURL: URL, channel: String, replacingFilename: String? = nil,
-    publishRequest: PublishFileRequest = PublishFileRequest(),
-    custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    uploadTask: @escaping (HTTPFileUploadTask) -> Void,
-    completion: ((Result<(file: PubNubFile, publishedAt: Timetoken), Error>) -> Void)?
-  ) {
-    // Generate a File Upload URL from PubNub
-    generateFileUploadURLRequest(
-      local: fileURL, channel: channel, replacingFilename: replacingFilename, custom: requestConfig
-    ) { generateURLResult in
-      switch generateURLResult {
-      case let .success((request, localPubNubFile)):
-        let task: HTTPFileUploadTask
-        do {
-          task = try createFileURLSessionUploadTask(
-            request: request,
-            session: fileSession,
-            backgroundFileCacheIdentifier: localPubNubFile.fileId
-          )
-        } catch {
-          // Error creating the URLSessionTask for the upload
-          completion?(.failure(error))
-          return
-        }
-                  // Create a File Upload task
-        task.completionBlock = { uploadResult in
-          switch uploadResult {
-          case .success:
-            // Publish the File was uploaded
-            publish(file: localPubNubFile, request: publishRequest) { publishResult in
-              completion?(publishResult.map { (localPubNubFile, $0) })
-            }
-          case let .failure(uploadError):
-            // Error returned attempting to upload the file
-            completion?(.failure(uploadError))
-          }
-        }
-        
-        // Responsd with task
-        uploadTask(task)
-
-        // Start the upload
-        task.resume()
-        
-      case let .failure(error):
-        // Error retrieving the File Upload Request information from PubNub
-        completion?(.failure(error))
-      }
-    }
-  }
-
-  // MARK: File Download
-  
-  /// Get a file's direct download URL. This method doesn't make any API calls, and won't decrypt an encrypted file.
-  func fetchFileURL(channel: String, fileId: String, filename: String) throws -> URL {
-    return try FileManagementRouter(
-      .fetchURL(channel: channel, fileId: fileId, filename: filename),
-      configuration: configuration
-    ).asURL.get()
-  }
-  
-  func createFileURLSessionDownloadTask(
-    requestURL: URL, session: URLSessionReplaceable, downloadTo url: URL
-  ) -> HTTPFileDownloadTask {
-
-    let httpTask = HTTPFileDownloadTask(
-      task: session.downloadTask(with: requestURL),
-      session: session.configuration.identifier,
-      downloadTo: url
-    )
-    
-    // Create task map inside Delegate
-    (session.delegate as? FileSessionManager)?.tasksByIdentifier[httpTask.taskIdentifier] = httpTask
-    
-    return httpTask
-  }
-  
-  func createFileURLSessionDownloadTask(
-    resumeData: Data, session: URLSessionReplaceable, downloadTo url: URL
-  ) -> HTTPFileDownloadTask {
-
-    let httpTask = HTTPFileDownloadTask(
-      task: session.downloadTask(withResumeData: resumeData),
-      session: session.configuration.identifier,
-      downloadTo: url
-    )
-    
-    // Create task map inside Delegate
-    (session.delegate as? FileSessionManager)?.tasksByIdentifier[httpTask.taskIdentifier] = httpTask
-    
-    return httpTask
-  }
-
-  /// Download file from specified `Channel`
-  func download(
-    file: PubNubFile, downloadTo localFileURL: URL,
-    resumeData: Data? = nil,
-    downloadTask: @escaping (HTTPFileDownloadTask) -> Void,
-    completion: ((Result<PubNubLocalFile, Error>) -> Void)?
-  ) {
-    let task: HTTPFileDownloadTask
-    if let resumeData = resumeData {
-      task = createFileURLSessionDownloadTask(resumeData: resumeData, session: fileSession, downloadTo: localFileURL)
-    } else {
-      // URLSession will automatically redirect, so we can download directly from the fetchURL endpoint
-      do {
-        task = createFileURLSessionDownloadTask(
-          requestURL: try fetchFileURL(channel: file.channel, fileId: file.fileId, filename: file.filename),
-          session: fileSession,
-          downloadTo: localFileURL
-        )
-      } catch {
-        completion?(.failure(error))
-        return
-      }
-    }
-    
-    task.completionBlock = { result in
-      switch result {
-      case let .success(downloadURL):
-        completion?(.success(PubNubLocalFileBase(from: file, withFile: downloadURL)))
-      case let .failure(error):
-        completion?(.failure(error))
-      }
-    }
-
-    // Send the download Task
-    downloadTask(task)
-
-    // Start the download
-    task.resume()
   }
 }
 

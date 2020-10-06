@@ -218,7 +218,8 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
       guard let anyArray = anyJSONPayload.arrayOptional,
-        anyArray.first as? Int != nil, anyArray.last as? String != nil else {
+        anyArray.first as? Int != nil, anyArray.last as? String != nil
+      else {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 

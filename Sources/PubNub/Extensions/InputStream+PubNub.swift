@@ -32,51 +32,51 @@ extension InputStream {
     if FileManager.default.fileExists(atPath: fileURL.path) {
       throw PubNubError(.fileMissingAtPath, additional: [fileURL.path])
     }
-    
+
     guard let outputStream = OutputStream(url: fileURL, append: false) else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [fileURL.absoluteString])
     }
-    
+
     outputStream.open()
     defer { outputStream.close() }
-    
-    self.open()
+
+    open()
     defer { self.close() }
-    
-    while self.hasBytesAvailable {
+
+    while hasBytesAvailable {
       var buffer = [UInt8](repeating: 0, count: 1024)
-      let bytesRead = self.read(&buffer, maxLength: 1024)
-      
+      let bytesRead = read(&buffer, maxLength: 1024)
+
       if let streamError = self.streamError {
         throw PubNubError(.inputStreamFailure, underlying: streamError)
       }
-      
+
       if bytesRead > 0 {
         if buffer.count != bytesRead {
-          buffer = Array(buffer[0..<bytesRead])
+          buffer = Array(buffer[0 ..< bytesRead])
         }
-        
+
         try write(&buffer, to: outputStream)
       } else {
         break
       }
     }
   }
-  
+
   private func write(_ buffer: inout [UInt8], to outputStream: OutputStream) throws {
     var bytesToWrite = buffer.count
-    
+
     while bytesToWrite > 0, outputStream.hasSpaceAvailable {
       let bytesWritten = outputStream.write(buffer, maxLength: bytesToWrite)
-      
+
       if let error = outputStream.streamError {
         throw PubNubError(.outputStreamFailure, underlying: error)
       }
-      
+
       bytesToWrite -= bytesWritten
-      
+
       if bytesToWrite > 0 {
-        buffer = Array(buffer[bytesWritten..<buffer.count])
+        buffer = Array(buffer[bytesWritten ..< buffer.count])
       }
     }
   }

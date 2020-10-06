@@ -29,24 +29,33 @@ import Foundation
 
 class XMLDecoder {
   // MARK: - Constructing a XML Decoder
+
   /// Initializes `self` with default strategies.
   public init() {}
 
   // MARK: - Decoding Values
 
   /// Decodes a top-level value of the given type from the given XML representation.
-  open func decode<T : Decodable>(_ type: T.Type, from data: Data) throws -> T {
+  open func decode<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
     let topLevel: [String: Any]
     do {
-        topLevel = try XMLSerialization.parse(from: data)
+      topLevel = try XMLSerialization.parse(from: data)
     } catch {
-        throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: [], debugDescription: "The given data was not valid XML.", underlyingError: error))
+      throw DecodingError.dataCorrupted(
+        DecodingError.Context(
+          codingPath: [], debugDescription: "The given data was not valid XML.", underlyingError: error
+        )
+      )
     }
 
     let decoder = _XMLDecoder(referencing: topLevel)
 
     guard let value = try decoder.unbox(topLevel, as: type) else {
-        throw DecodingError.valueNotFound(type, DecodingError.Context(codingPath: [], debugDescription: "The given data did not contain a top-level value."))
+      throw DecodingError.valueNotFound(
+        type, DecodingError.Context(
+          codingPath: [], debugDescription: "The given data did not contain a top-level value."
+        )
+      )
     }
 
     return value
@@ -65,7 +74,7 @@ class _XMLDecoder: Decoder {
     self.codingPath = codingPath
   }
 
-  func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key : CodingKey {
+  func container<Key>(keyedBy _: Key.Type) throws -> KeyedDecodingContainer<Key> where Key: CodingKey {
     guard !(storage.topContainer is NSNull) else {
       throw DecodingError.valueNotFound(
         KeyedDecodingContainer<Key>.self,
@@ -140,7 +149,6 @@ private struct _XMLKeyedDecodingContainer<Key: CodingKey> {
 }
 
 extension _XMLKeyedDecodingContainer: KeyedDecodingContainerProtocol {
-
   var allKeys: [Key] {
     return container.keys.compactMap { Key(stringValue: $0) }
   }
@@ -1168,7 +1176,7 @@ extension _XMLDecoder: SingleValueDecodingContainer {
     return value
   }
 
-  func decode<T>(_ type: T.Type) throws -> T where T : Decodable {
+  func decode<T>(_ type: T.Type) throws -> T where T: Decodable {
     guard let value = try unbox(expectNonNull(type), as: type) else {
       throw DecodingError._typeMismatch(at: [], expectation: type, reality: storage.topContainer)
     }
@@ -1247,7 +1255,7 @@ extension _XMLDecoder {
   }
 }
 
-// MARK:- Storage
+// MARK: - Storage
 
 internal struct XMLDecodingContainer {
   /// The container stack.
@@ -1279,12 +1287,12 @@ internal struct XMLDecodingContainer {
   }
 }
 
-// MARK:- CodingKey
+// MARK: - CodingKey
 
 struct XMLCodingKey: CodingKey {
   var stringValue: String
   var intValue: Int?
-  
+
   init?(stringValue: String) {
     self.stringValue = stringValue
     intValue = nil

@@ -26,10 +26,8 @@
 //
 // swiftlint:disable file_length
 
-import UIKit
 import Foundation
-
-
+import UIKit
 
 import PubNub
 
@@ -39,7 +37,6 @@ class MasterDetailTableViewController: UITableViewController {
 
   var listener: SubscriptionListener?
   var kvoToken: NSKeyValueObservation?
-
 
   let masterDetailCellID = "MasterDetailCell"
 
@@ -205,7 +202,7 @@ class MasterDetailTableViewController: UITableViewController {
       }
     }
   }
-  
+
   enum FileRow: Int, CaseIterable {
     case list
     case send
@@ -316,7 +313,7 @@ class MasterDetailTableViewController: UITableViewController {
         case let .messageActionRemoved(messageAction):
           print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
           print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
-        case .fileUploaded(let file):
+        case let .fileUploaded(file):
           print("A file was uplaoded \(file)")
         case let .subscribeError(error):
           print("The following error was generated during subscription \(error.localizedDescription)")
@@ -726,9 +723,9 @@ class MasterDetailTableViewController: UITableViewController {
       break
     }
   }
-  
+
   // MARK: File Endpoints
-  
+
   func didSelectFileSection(at row: Int) {
     switch FileRow(rawValue: row) {
     case .some(.list):
@@ -745,20 +742,20 @@ class MasterDetailTableViewController: UITableViewController {
       return
     }
   }
-  
+
   func performFileList() {
     pubnub.listFiles(channel: "file_channel") { result in
       switch result {
-      case .success((let files, let next)):
+      case let .success((files, next)):
         print("File List result:")
         files.forEach { print($0) }
         print("File List next page: \(next ?? "nil")")
-      case .failure(let error):
+      case let .failure(error):
         print("File List error: \(error)")
       }
     }
   }
-      
+
   func performFileSend() {
     // Upload
     guard let fileURL = Bundle.main.url(forResource: "sample", withExtension: "txt") else {
@@ -770,7 +767,7 @@ class MasterDetailTableViewController: UITableViewController {
       local: fileURL,
       channel: "file_channel",
       replacingFilename: "sample.txt"
-    ) { [unowned self] (task) in
+    ) { [unowned self] task in
       print("File upload task \(task)")
 
       self.present(
@@ -782,29 +779,35 @@ class MasterDetailTableViewController: UITableViewController {
       self.dismiss(animated: true, completion: nil)
     }
   }
-  
+
   func performFileDownload() {
     // Download
-    guard var documentsURL = try? FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false) else {
+    guard var documentsURL = try? FileManager.default.url(
+      for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false
+    ) else {
       print("Could not generate download URL for file")
       return
     }
     documentsURL.appendPathComponent("sample.txt")
-    
+
     // NOTE: Swap out for the correct ID or connect to listFiles
-    let file = PubNubLocalFileBase(localFileURL: documentsURL, channel: "file_channel", fileId: "089ac9ab-2d97-42f7-af1c-0c840ccbace4")
-    
+    let file = PubNubLocalFileBase(
+      localFileURL: documentsURL,
+      channel: "file_channel",
+      fileId: "089ac9ab-2d97-42f7-af1c-0c840ccbace4"
+    )
+
     pubnub.download(
       file: file, downloadTo: file.localFileURL
     ) { task in
       print("Download \(task)")
-      
+
       self.present(self.progressAlertView(for: task.progress), animated: true, completion: nil)
 
-    } completion: {  result in
-      
+    } completion: { result in
+
       self.dismiss(animated: true, completion: nil)
-      
+
       switch result {
       case let .success(localFile):
         print("Finished Downloading \(localFile)")
@@ -816,21 +819,23 @@ class MasterDetailTableViewController: UITableViewController {
       }
     }
   }
-  
+
   func perfromFileRemove() {
     // Remove
-    pubnub.remove(channel: "file_channel", fileId: "49e34e3f-883d-49e0-9508-356cf2261673", filename: "sample.txt") { result in
+    pubnub.remove(
+      channel: "file_channel", fileId: "49e34e3f-883d-49e0-9508-356cf2261673", filename: "sample.txt"
+    ) { result in
       print("Remove \(result)")
     }
   }
-  
+
   func performPublishFileMessage() {
     guard let fileURL = Bundle.main.url(forResource: "sample", withExtension: "pdf") else {
       print("Couldn't find file!")
       return
-      // we found the file in our bundle!
+        // we found the file in our bundle!
     }
-    
+
     // NOTE: Swap out for the correct ID or connect to listFiles
     let localFile = PubNubLocalFileBase(
       localFileURL: fileURL,
@@ -844,7 +849,7 @@ class MasterDetailTableViewController: UITableViewController {
       print("File Message result \(result)")
     }
   }
-  
+
   func progressAlertView(for progress: Progress) -> UIAlertController {
     let alert = UIAlertController(title: "File Status", message: "Transferring...", preferredStyle: .alert)
     let progressView = UIProgressView(progressViewStyle: .default)
@@ -858,7 +863,7 @@ class MasterDetailTableViewController: UITableViewController {
 
 extension MasterDetailTableViewController: UIDocumentInteractionControllerDelegate {
   func documentInteractionControllerViewControllerForPreview(
-    _ controller: UIDocumentInteractionController
+    _: UIDocumentInteractionController
   ) -> UIViewController {
     return self
   }

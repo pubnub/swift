@@ -73,7 +73,7 @@ extension FileManagementRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .send(channel: testChannel, filename: testFilename, fileURL: URL(string: "")!) { result in
+      .send(channel: testChannel, filename: testFilename, fileURL: URL(fileURLWithPath: ".")) { result in
         switch result {
         case let .success(fileRequest):
           XCTAssertEqual(fileRequest.method, .post)

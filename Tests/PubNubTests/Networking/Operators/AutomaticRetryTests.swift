@@ -195,14 +195,14 @@ class AutomaticRetryTests: XCTestCase {
     let maxRetryCount = 5
     let scale = 2.0
     let base: UInt = 2
-    let maxDelay: UInt = UInt.max
+    let maxDelay = UInt.max
 
     let delayForRetry = [4.0, 8.0, 16.0, 32.0, 64.0]
 
     for count in 1 ... maxRetryCount {
       XCTAssertEqual(AutomaticRetry.ReconnectionPolicy
         .exponential(base: base, scale: scale, maxDelay: maxDelay).delay(for: count),
-                     delayForRetry[count - 1])
+        delayForRetry[count - 1])
     }
   }
 
@@ -217,7 +217,7 @@ class AutomaticRetryTests: XCTestCase {
     for count in 1 ... maxRetryCount {
       XCTAssertEqual(AutomaticRetry.ReconnectionPolicy
         .exponential(base: base, scale: scale, maxDelay: maxDelay).delay(for: count),
-                     delayForRetry[count - 1])
+        delayForRetry[count - 1])
     }
   }
 }

@@ -42,14 +42,18 @@ public extension URLSessionConfiguration {
 
     return configuration
   }
-  
+
   /// Default URLSession used when PubNub makes upload/download tasks
   static var pubnubBackground: URLSessionConfiguration {
     let config = URLSessionConfiguration.background(withIdentifier: "pubnub.background")
     #if !targetEnvironment(simulator)
-    config.isDiscretionary = true
+      config.isDiscretionary = true
     #endif
-    config.sessionSendsLaunchEvents = true
+
+    // NOTE: Still in beta on macOS https://developer.apple.com/documentation/foundation/urlsessionconfiguration/1617174-sessionsendslaunchevents
+    #if !os(macOS)
+      config.sessionSendsLaunchEvents = true
+    #endif
     return config
   }
 

@@ -246,16 +246,6 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   }
 }
 
-// extension HTTPFileDownloadTask: URLSessionDownloadTaskReplaceable {
-//  public var resumeData: Data? {
-//    return (urlSessionTask as? URLSessionDownloadTaskReplaceable)?.resumeData
-//  }
-//
-//  public func cancel(byProducingResumeData resumeData: @escaping (Data?) -> Void) {
-//    (urlSessionTask as? URLSessionDownloadTaskReplaceable)?.cancel(byProducingResumeData: resumeData)
-//  }
-// }
-
 // MARK: - FileSessionManager
 
 open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownloadDelegate {

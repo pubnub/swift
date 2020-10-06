@@ -43,7 +43,10 @@ final class HistoryRouterTests: XCTestCase {
 extension HistoryRouterTests {
   func testFetch_Router() {
     let router = HistoryRouter(
-      .fetch(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(
+        channels: testMultiChannels, max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 
@@ -54,7 +57,10 @@ extension HistoryRouterTests {
 
   func testFetch_Router_ValidationError() {
     let router = HistoryRouter(
-      .fetch(channels: [], max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(
+        channels: [], max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 
@@ -64,7 +70,10 @@ extension HistoryRouterTests {
 
   func testFetch_Router_firstChannel() {
     let router = HistoryRouter(
-      .fetch(channels: testMultiChannels, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetch(
+        channels: testMultiChannels, max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 
@@ -259,7 +268,10 @@ extension HistoryRouterTests {
 extension HistoryRouterTests {
   func testFetchWithActions_Router() {
     let router = HistoryRouter(
-      .fetchWithActions(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetchWithActions(
+        channel: testChannel, max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 
@@ -270,7 +282,10 @@ extension HistoryRouterTests {
 
   func testFetchWithActions_Router_ValidationError() {
     let router = HistoryRouter(
-      .fetchWithActions(channel: "", max: nil, start: nil, end: nil, includeMeta: false),
+      .fetchWithActions(
+        channel: "", max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 
@@ -280,7 +295,10 @@ extension HistoryRouterTests {
 
   func testFetchWithActions_Router_firstChannel() {
     let router = HistoryRouter(
-      .fetchWithActions(channel: testChannel, max: nil, start: nil, end: nil, includeMeta: false),
+      .fetchWithActions(
+        channel: testChannel, max: nil, start: nil, end: nil,
+        includeMeta: false, includeMessageType: false, includeUUID: false
+      ),
       configuration: config
     )
 

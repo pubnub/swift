@@ -46,10 +46,9 @@ extension FileManagementRouterTests {
     }
 
     PubNub(configuration: config, session: sessions.session)
-      .listFiles(channel: testChannel) { [weak self] result in
+      .listFiles(channel: testChannel) { result in
         switch result {
-        case let .success((channel, files, next)):
-          XCTAssertEqual(self?.testChannel, channel)
+        case let .success((files, next)):
           XCTAssertTrue(files.isEmpty)
           XCTAssertNil(next)
         case let .failure(error):
@@ -65,24 +64,5 @@ extension FileManagementRouterTests {
 // Send Endpoint
 
 extension FileManagementRouterTests {
-  func test_Send_Success_Empty() {
-    let expectation = self.expectation(description: "Send Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_generateURL_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    PubNub(configuration: config, session: sessions.session)
-      .send(channel: testChannel, filename: testFilename, fileURL: URL(fileURLWithPath: ".")) { result in
-        switch result {
-        case let .success(fileRequest):
-          XCTAssertEqual(fileRequest.method, .post)
-        case let .failure(error):
-          XCTFail("Send failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
-      }
-
-    wait(for: [expectation], timeout: 1.0)
-  }
+  func test_Send_Success_Empty() {}
 }

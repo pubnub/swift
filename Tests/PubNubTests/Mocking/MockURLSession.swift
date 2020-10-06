@@ -71,7 +71,17 @@ class MockURLSessionTask: URLSessionDataTask {
   }
 }
 
+class MockURLSessionUploadTask: URLSessionUploadTask {
+  
+}
+
+class MockURLSessionDownloadTask: URLSessionDownloadTask {
+  
+}
+
 class MockURLSession: URLSessionReplaceable {
+  var delegate: URLSessionDelegate?
+  
   var configuration: URLSessionConfiguration
   var urlSessionEvents: URLSessionDelegate?
   var delegateQueue: OperationQueue
@@ -131,6 +141,22 @@ class MockURLSession: URLSessionReplaceable {
     }
 
     return task
+  }
+  
+  func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
+    return MockURLSessionUploadTask()
+  }
+  
+  func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask {
+    return MockURLSessionUploadTask()
+  }
+  
+  func downloadTask(with url: URL) -> URLSessionDownloadTask {
+    return MockURLSessionDownloadTask()
+  }
+  
+  func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
+    return MockURLSessionDownloadTask()
   }
 
   func invalidateAndCancel() {

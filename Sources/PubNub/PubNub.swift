@@ -1012,12 +1012,12 @@ extension PubNub {
         .failure(PubNubError(.missingRequiredParameter,
                              router: router,
                              additional: [ErrorDescription.missingChannelsAnyGroups])))
-    }
-
-    route(router,
-          responseDecoder: ModifyPushResponseDecoder(),
-          custom: requestConfig) { result in
-      completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
+    } else {
+      route(router,
+            responseDecoder: ModifyPushResponseDecoder(),
+            custom: requestConfig) { result in
+        completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
+      }
     }
   }
 

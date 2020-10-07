@@ -408,7 +408,7 @@ struct FilePublishPayload: PubNubFile {
   var contentType: String
 
   var concreteCustom: AnyJSON?
-  public var custom: JSONCodable? {
+  var custom: JSONCodable? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }
@@ -417,7 +417,7 @@ struct FilePublishPayload: PubNubFile {
   var createdDate: Date?
 
   var concreteMessage: AnyJSON?
-  public var message: JSONCodable? {
+  var message: JSONCodable? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.codableValue }
   }

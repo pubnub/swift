@@ -193,7 +193,7 @@ public struct PubNubFileBase: PubNubFile {
     self.custom = custom
   }
 
-  public init(from other: PubNubFile) throws {
+  public init(from other: PubNubFile) {
     self.init(
       channel: other.channel,
       fileId: other.fileId,
@@ -222,23 +222,18 @@ public struct PubNubFileBase: PubNubFile {
 
 /// A subscription event containing File information
 public protocol PubNubFileEvent {
-  /// The channel for which the file belongs
-  var channel: String { get }
   /// The channel group or wildcard subscription match
   var channelGroup: String? { get }
   /// The UUID responsible for uploading the file
   var publisher: String { get }
   /// The timetoken of the file upload
   var timetoken: Timetoken { get }
+  /// The file object that was published
+  var file: PubNubFile { get }
   /// The additional message published along with the file
-  var message: JSONCodable? { get }
+  var additionalMessage: JSONCodable? { get }
   /// Meta information for the event
   var metadata: JSONCodable? { get }
-
-  /// The unique identifier for the file
-  var fileId: String { get }
-  /// The name of the file on the server
-  var filename: String { get }
 
   /// Allows for converting  between different `PubNubFileEvent` types
   init(from other: PubNubFileEvent) throws
@@ -248,18 +243,22 @@ public protocol PubNubFileEvent {
 
 /// A concrete representation of a `PubNubFileEvent`
 public struct PubNubFileEventBase: PubNubFileEvent {
-  public var channel: String
   public var channelGroup: String?
   public var publisher: String
   public var timetoken: Timetoken
 
-  var concreteMessage: AnyJSON?
-  public var message: JSONCodable? {
+  var concreteFile: PubNubFileBase
+  public var file: PubNubFile {
+    return concreteFile
+  }
+
+  var concreteAdditionalMessage: AnyJSON?
+  public var additionalMessage: JSONCodable? {
     get {
-      return concreteMessage
+      return concreteAdditionalMessage
     }
     set {
-      concreteMessage = newValue?.codableValue
+      concreteAdditionalMessage = newValue?.codableValue
     }
   }
 
@@ -273,58 +272,57 @@ public struct PubNubFileEventBase: PubNubFileEvent {
     }
   }
 
-  public var fileId: String
-  public var filename: String
-
   public init(
-    channel: String,
+    file: PubNubFile,
     channelGroup: String?,
     publisher: String,
     timetoken: Timetoken,
-    message: JSONCodable?,
-    metadata: JSONCodable?,
-    fileId: String,
-    filename: String
+    additionalMessage: JSONCodable?,
+    metadata: JSONCodable?
   ) {
-    self.channel = channel
+    concreteFile = PubNubFileBase(from: file)
     self.channelGroup = channelGroup
     self.publisher = publisher
     self.timetoken = timetoken
-    concreteMessage = message?.codableValue
-    concreteMeta = metadata?.codableValue
-    self.fileId = fileId
-    self.filename = filename
+    self.additionalMessage = additionalMessage
+    self.metadata = metadata
   }
 
   public init(from other: PubNubFileEvent) throws {
     self.init(
-      channel: other.channel,
+      file: other.file,
       channelGroup: other.channelGroup,
       publisher: other.publisher,
       timetoken: other.timetoken,
-      message: other.message,
-      metadata: other.metadata,
-      fileId: other.fileId,
-      filename: other.filename
+      additionalMessage: other.additionalMessage,
+      metadata: other.metadata
     )
   }
 
   init(from subscription: SubscribeMessagePayload) throws {
-    let fileInfo = try subscription.payload.decode(FilePublishPayload.self)
+    let filePayload = try subscription.payload.decode(FilePublishPayload.self)
 
     guard let publisher = subscription.publisher else {
       throw PubNubError(.missingRequiredParameter, additional: ["publisher"])
     }
 
-    self.init(
+    let file = PubNubFileBase(
       channel: subscription.channel,
+      fileId: filePayload.fileId,
+      filename: filePayload.filename,
+      size: filePayload.size,
+      contentType: filePayload.contentType,
+      createdDate: filePayload.createdDate,
+      custom: filePayload.custom
+    )
+
+    self.init(
+      file: file,
       channelGroup: subscription.subscription,
       publisher: publisher,
       timetoken: subscription.publishTimetoken.timetoken,
-      message: fileInfo.additionalDetails,
-      metadata: subscription.metadata,
-      fileId: fileInfo.fileId,
-      filename: fileInfo.filename
+      additionalMessage: filePayload.additionalDetails,
+      metadata: subscription.metadata
     )
   }
 }

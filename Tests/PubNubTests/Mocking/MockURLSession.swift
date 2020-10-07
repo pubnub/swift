@@ -71,17 +71,13 @@ class MockURLSessionTask: URLSessionDataTask {
   }
 }
 
-class MockURLSessionUploadTask: URLSessionUploadTask {
-  
-}
+class MockURLSessionUploadTask: URLSessionUploadTask {}
 
-class MockURLSessionDownloadTask: URLSessionDownloadTask {
-  
-}
+class MockURLSessionDownloadTask: URLSessionDownloadTask {}
 
 class MockURLSession: URLSessionReplaceable {
-  var delegate: URLSessionDelegate?
-  
+  weak var delegate: URLSessionDelegate?
+
   var configuration: URLSessionConfiguration
   var urlSessionEvents: URLSessionDelegate?
   var delegateQueue: OperationQueue
@@ -142,20 +138,20 @@ class MockURLSession: URLSessionReplaceable {
 
     return task
   }
-  
-  func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
+
+  func uploadTask(withStreamedRequest _: URLRequest) -> URLSessionUploadTask {
     return MockURLSessionUploadTask()
   }
-  
-  func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask {
+
+  func uploadTask(with _: URLRequest, fromFile _: URL) -> URLSessionUploadTask {
     return MockURLSessionUploadTask()
   }
-  
-  func downloadTask(with url: URL) -> URLSessionDownloadTask {
+
+  func downloadTask(with _: URL) -> URLSessionDownloadTask {
     return MockURLSessionDownloadTask()
   }
-  
-  func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
+
+  func downloadTask(withResumeData _: Data) -> URLSessionDownloadTask {
     return MockURLSessionDownloadTask()
   }
 

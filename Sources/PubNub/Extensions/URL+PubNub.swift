@@ -72,10 +72,10 @@ public extension URL {
         guard let mimeType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType else {
           return "application/octet-stream"
         }
-        
+
         return mimeType
       }
-    
+
       return preferenceIdentifier() ?? "application/octet-stream"
     #else
       return preferenceIdentifier() ?? "application/octet-stream"

@@ -42,6 +42,16 @@ extension JSONCodable {
     return self
   }
 
+  /// Decodes an instance of the indicated type
+  public func decode<T>(_ type: T.Type) throws -> T where T: JSONCodable {
+    return try Constant.jsonDecoder.decode(type, from: Constant.jsonEncoder.encode(self))
+  }
+
+  /// Return the value for the key if the underlying JSONCodable is a keyed container
+  public subscript(rawValue key: String) -> Any? {
+    return codableValue[rawValue: key]
+  }
+
   public var codableValue: AnyJSON {
     return AnyJSON(self)
   }

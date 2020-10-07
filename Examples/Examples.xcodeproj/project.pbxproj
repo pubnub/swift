@@ -8,8 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		3503519C23EE2C6E006DFDC3 /* PubNub in Frameworks */ = {isa = PBXBuildFile; productRef = 3503519B23EE2C6E006DFDC3 /* PubNub */; };
-		3508DC2825096B43005215E2 /* sample.txt in Resources */ = {isa = PBXBuildFile; fileRef = 3508DC2725096B43005215E2 /* sample.txt */; };
 		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
+		357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4EB252D067800099EB7 /* FileAPIViewController.swift */; };
+		357AD4EE252D087800099EB7 /* FileAPI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 357AD4ED252D087800099EB7 /* FileAPI.storyboard */; };
+		357AD4F2252E2FFF00099EB7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4F1252E2FFF00099EB7 /* FileTableViewCell.swift */; };
+		357AD4F4252E302900099EB7 /* LocalFileExample.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4F3252E302900099EB7 /* LocalFileExample.swift */; };
 		359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779722B7FEF600B6B46F /* AppDelegate.swift */; };
 		359F779D22B7FEF700B6B46F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F779B22B7FEF700B6B46F /* Main.storyboard */; };
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
@@ -42,8 +45,11 @@
 
 /* Begin PBXFileReference section */
 		3503519D23EE2C88006DFDC3 /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ..; sourceTree = "<group>"; };
-		3508DC2725096B43005215E2 /* sample.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = sample.txt; sourceTree = "<group>"; };
 		35304F9022FF64D4006A02CA /* iOS Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS Example.entitlements"; sourceTree = SOURCE_ROOT; };
+		357AD4EB252D067800099EB7 /* FileAPIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAPIViewController.swift; sourceTree = "<group>"; };
+		357AD4ED252D087800099EB7 /* FileAPI.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = FileAPI.storyboard; sourceTree = "<group>"; };
+		357AD4F1252E2FFF00099EB7 /* FileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
+		357AD4F3252E302900099EB7 /* LocalFileExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFileExample.swift; sourceTree = "<group>"; };
 		359F779422B7FEF600B6B46F /* iOS Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		359F779722B7FEF600B6B46F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterDetailTableViewController.swift; sourceTree = "<group>"; };
@@ -67,6 +73,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		357AD4F0252E2FD600099EB7 /* File */ = {
+			isa = PBXGroup;
+			children = (
+				357AD4EB252D067800099EB7 /* FileAPIViewController.swift */,
+				357AD4F1252E2FFF00099EB7 /* FileTableViewCell.swift */,
+				357AD4F3252E302900099EB7 /* LocalFileExample.swift */,
+			);
+			path = File;
+			sourceTree = "<group>";
+		};
 		359F778B22B7FEF600B6B46F = {
 			isa = PBXGroup;
 			children = (
@@ -107,11 +123,11 @@
 		359F77CF22B8070900B6B46F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				357AD4ED252D087800099EB7 /* FileAPI.storyboard */,
 				359F779B22B7FEF700B6B46F /* Main.storyboard */,
 				359F779E22B7FEF700B6B46F /* Assets.xcassets */,
 				359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */,
 				359F77A322B7FEF700B6B46F /* Info.plist */,
-				3508DC2725096B43005215E2 /* sample.txt */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -122,6 +138,7 @@
 				359F779722B7FEF600B6B46F /* AppDelegate.swift */,
 				359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */,
 				35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */,
+				357AD4F0252E2FD600099EB7 /* File */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -199,7 +216,7 @@
 			files = (
 				359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */,
 				359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */,
-				3508DC2825096B43005215E2 /* sample.txt in Resources */,
+				357AD4EE252D087800099EB7 /* FileAPI.storyboard in Resources */,
 				359F779D22B7FEF700B6B46F /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,9 +228,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				357AD4F4252E302900099EB7 /* LocalFileExample.swift in Sources */,
 				35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */,
 				3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */,
+				357AD4F2252E2FFF00099EB7 /* FileTableViewCell.swift in Sources */,
 				359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */,
+				357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -291,7 +311,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -350,7 +370,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -370,13 +390,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = SWP6YYM4L9;
+				DEVELOPMENT_TEAM = 8XP4D6N55Z;
 				INFOPLIST_FILE = "Example-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = lane.craig.swiftSdkiOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swiftSDK.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -390,13 +410,13 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = SWP6YYM4L9;
+				DEVELOPMENT_TEAM = 8XP4D6N55Z;
 				INFOPLIST_FILE = "Example-iOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = lane.craig.swiftSdkiOS;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swiftSDK.example;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

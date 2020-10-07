@@ -42,6 +42,22 @@ class MasterDetailTableViewController: UITableViewController {
 
   enum SegueId: String {
     case config = "MasterDetailToConfigDetail"
+    case fileAPI = "MasterDetailToFileAPI"
+  }
+
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    super.prepare(for: segue, sender: sender)
+
+    switch SegueId(rawValue: segue.identifier ?? "") {
+    case .some(.config):
+      let configVC = segue.destination as? ConfigDetailTableViewController
+      configVC?.config = pubnub.configuration
+    case .some(.fileAPI):
+      let fileAPIController = segue.destination as? FileAPIViewController
+      fileAPIController?.pubnub = pubnub
+    default:
+      break
+    }
   }
 
   enum Section: Int, CaseIterable {
@@ -51,7 +67,6 @@ class MasterDetailTableViewController: UITableViewController {
     case groups = 3
     case history = 4
     case push = 5
-    case file = 6
 
     var title: String {
       switch self {
@@ -67,8 +82,6 @@ class MasterDetailTableViewController: UITableViewController {
         return "Message History"
       case .push:
         return "Push Notifications"
-      case .file:
-        return "File"
       }
     }
 
@@ -86,19 +99,20 @@ class MasterDetailTableViewController: UITableViewController {
         return HistoryRow.allCases.count
       case .push:
         return PushRow.allCases.count
-      case .file:
-        return FileRow.allCases.count
       }
     }
   }
 
   enum PubNubRow: Int, CaseIterable {
     case config = 0
+    case file = 1
 
     var title: String {
       switch self {
       case .config:
         return "Configuration"
+      case .file:
+        return "File"
       }
     }
   }
@@ -199,29 +213,6 @@ class MasterDetailTableViewController: UITableViewController {
         return "Fetch Message History"
       case .deleteMessageHistory:
         return "Delete Message History"
-      }
-    }
-  }
-
-  enum FileRow: Int, CaseIterable {
-    case list
-    case send
-    case download
-    case remove
-    case publishFileMessage
-
-    var title: String {
-      switch self {
-      case .list:
-        return "File List"
-      case .send:
-        return "Send File"
-      case .download:
-        return "Download File"
-      case .remove:
-        return "Remove File"
-      case .publishFileMessage:
-        return "Publish File Message"
       }
     }
   }
@@ -363,8 +354,6 @@ class MasterDetailTableViewController: UITableViewController {
       cell.textLabel?.text = HistoryRow(rawValue: indexPath.row)?.title
     case .some(.push):
       cell.textLabel?.text = PushRow(rawValue: indexPath.row)?.title
-    case .some(.file):
-      cell.textLabel?.text = FileRow(rawValue: indexPath.row)?.title
     default:
       break
     }
@@ -388,8 +377,6 @@ class MasterDetailTableViewController: UITableViewController {
       didSelectHistorySection(at: indexPath.row)
     case .some(.push):
       didSelectPushSection(at: indexPath.row)
-    case .some(.file):
-      didSelectFileSection(at: indexPath.row)
     default:
       break
     }
@@ -399,6 +386,8 @@ class MasterDetailTableViewController: UITableViewController {
     switch PubNubRow(rawValue: row) {
     case .some(.config):
       performSegue(withIdentifier: SegueId.config.rawValue, sender: self)
+    case .some(.file):
+      performSegue(withIdentifier: SegueId.fileAPI.rawValue, sender: self)
     case .none:
       break
     }
@@ -528,11 +517,11 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performSubscribeRequest() {
-    pubnub.subscribe(to: ["channelSwift", "file_channel"], withPresence: true)
+    pubnub.subscribe(to: ["channelSwift"], withPresence: true)
   }
 
   func performUnsubscribeRequest() {
-    pubnub.unsubscribe(from: ["channelSwift", "file_channel"])
+    pubnub.unsubscribe(from: ["channelSwift"])
   }
 
   func performSetState() {
@@ -654,7 +643,7 @@ class MasterDetailTableViewController: UITableViewController {
   }
 
   func performHistoryFetch() {
-    pubnub.fetchMessageHistory(for: ["channelSwift", "file_channel"]) { result in
+    pubnub.fetchMessageHistory(for: ["channelSwift"]) { result in
       switch result {
       case let .success(response):
         print("Successful History Fetch Response: \(response)")
@@ -712,161 +701,5 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    super.prepare(for: segue, sender: sender)
-
-    switch SegueId(rawValue: segue.identifier ?? "") {
-    case .config?:
-      let configVC = segue.destination as? ConfigDetailTableViewController
-      configVC?.config = pubnub.configuration
-    default:
-      break
-    }
-  }
-
-  // MARK: File Endpoints
-
-  func didSelectFileSection(at row: Int) {
-    switch FileRow(rawValue: row) {
-    case .some(.list):
-      performFileList()
-    case .some(.send):
-      performFileSend()
-    case .some(.download):
-      performFileDownload()
-    case .some(.remove):
-      perfromFileRemove()
-    case .some(.publishFileMessage):
-      performPublishFileMessage()
-    case .none:
-      return
-    }
-  }
-
-  func performFileList() {
-    pubnub.listFiles(channel: "file_channel") { result in
-      switch result {
-      case let .success((files, next)):
-        print("File List result:")
-        files.forEach { print($0) }
-        print("File List next page: \(next ?? "nil")")
-      case let .failure(error):
-        print("File List error: \(error)")
-      }
-    }
-  }
-
-  func performFileSend() {
-    // Upload
-    guard let fileURL = Bundle.main.url(forResource: "sample", withExtension: "txt") else {
-      print("Couldn't find file!")
-      return
-    }
-
-    pubnub.send(
-      local: fileURL,
-      channel: "file_channel",
-      replacingFilename: "sample.txt"
-    ) { [unowned self] task in
-      print("File upload task \(task)")
-
-      self.present(
-        self.progressAlertView(for: task.progress), animated: true, completion: nil
-      )
-
-    } completion: { result in
-      print("File upload result \(result)")
-      self.dismiss(animated: true, completion: nil)
-    }
-  }
-
-  func performFileDownload() {
-    // Download
-    guard var documentsURL = try? FileManager.default.url(
-      for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false
-    ) else {
-      print("Could not generate download URL for file")
-      return
-    }
-    documentsURL.appendPathComponent("sample.txt")
-
-    // NOTE: Swap out for the correct ID or connect to listFiles
-    let file = PubNubLocalFileBase(
-      localFileURL: documentsURL,
-      channel: "file_channel",
-      fileId: "089ac9ab-2d97-42f7-af1c-0c840ccbace4"
-    )
-
-    pubnub.download(
-      file: file, downloadTo: file.localFileURL
-    ) { task in
-      print("Download \(task)")
-
-      self.present(self.progressAlertView(for: task.progress), animated: true, completion: nil)
-
-    } completion: { result in
-
-      self.dismiss(animated: true, completion: nil)
-
-      switch result {
-      case let .success(localFile):
-        print("Finished Downloading \(localFile)")
-        let documentViewr = UIDocumentInteractionController(url: localFile.localFileURL)
-        documentViewr.delegate = self
-        documentViewr.presentPreview(animated: true)
-      case let .failure(error):
-        print("Failed to download \(error)")
-      }
-    }
-  }
-
-  func perfromFileRemove() {
-    // Remove
-    pubnub.remove(
-      channel: "file_channel", fileId: "49e34e3f-883d-49e0-9508-356cf2261673", filename: "sample.txt"
-    ) { result in
-      print("Remove \(result)")
-    }
-  }
-
-  func performPublishFileMessage() {
-    guard let fileURL = Bundle.main.url(forResource: "sample", withExtension: "pdf") else {
-      print("Couldn't find file!")
-      return
-        // we found the file in our bundle!
-    }
-
-    // NOTE: Swap out for the correct ID or connect to listFiles
-    let localFile = PubNubLocalFileBase(
-      localFileURL: fileURL,
-      channel: "file_channel",
-      fileId: "1018d848-bdf2-4e6a-a332-7ddcf1301390"
-    )
-    pubnub.publish(
-      file: localFile,
-      request: .init(additionalMessage: "This is a sample document")
-    ) { result in
-      print("File Message result \(result)")
-    }
-  }
-
-  func progressAlertView(for progress: Progress) -> UIAlertController {
-    let alert = UIAlertController(title: "File Status", message: "Transferring...", preferredStyle: .alert)
-    let progressView = UIProgressView(progressViewStyle: .default)
-    progressView.setProgress(0.0, animated: true)
-    progressView.frame = CGRect(x: 10, y: 70, width: 250, height: 0)
-    progressView.observedProgress = progress
-    alert.view.addSubview(progressView)
-    return alert
-  }
+  // swiftlint:endable file_length
 }
-
-extension MasterDetailTableViewController: UIDocumentInteractionControllerDelegate {
-  func documentInteractionControllerViewControllerForPreview(
-    _: UIDocumentInteractionController
-  ) -> UIViewController {
-    return self
-  }
-}
-
-// swiftlint:endable file_length

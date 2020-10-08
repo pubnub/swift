@@ -29,34 +29,42 @@ import Foundation
 
 // MARK: Protocol Extensions
 
-extension URLSessionTask { //: URLSessionTaskReplaceable {
+extension URLSessionTask {
   public var httpResponse: HTTPURLResponse? {
     return response as? HTTPURLResponse
   }
 }
 
-extension URLSessionDownloadTask { //: URLSessionDownloadTaskReplaceable {
+extension URLSessionDownloadTask {
   public var resumeData: Data? {
     return error?.resumeData
   }
 }
 
-// extension URLSessionUploadTask: URLSessionUploadTaskReplaceable {}
-
 // MARK: - Base Class
 
+/// A file-based task performed in a URL session.
 public class HTTPFileTask: Hashable {
+  /// The underlying URLSessionTask that is being processed
   public private(set) var urlSessionTask: URLSessionTask
 
+  /// A representation of the overall task progress.
   public let progress: Progress
   var progressBlock: ProgressBlock?
 
+  var responseError: Error?
+
+  /// The background identifier of the URLSession that is processing this task
   public let sessionIdentifier: String?
 
+  /// Creates a new task based on an existing URLSessionTask and the URLSession that created it
+  ///
+  /// To ensure delegate events are not missed, this `init` should be used before calling `resume()` on the `URLSessionTask` for the first time
   public init(task: URLSessionTask, session identifier: String?) {
     urlSessionTask = task
     sessionIdentifier = identifier
 
+    // We have to create/update the Progress manually for older platform versions
     if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
       self.progress = task.progress
     } else {
@@ -110,44 +118,51 @@ public class HTTPFileTask: Hashable {
   }
 }
 
-extension HTTPFileTask { //: URLSessionTaskReplaceable {
+// MARK: Convenience access from URLSessionTask
+
+extension HTTPFileTask {
+  /// An error object that indicates why the task failed.
+  ///
+  /// This value is nil if the task is still active or if the transfer completed successfully.
   public var error: Error? {
-    return urlSessionTask.error
+    return urlSessionTask.error ?? responseError
   }
 
-  public var state: URLSessionTask.State {
-    return urlSessionTask.state
-  }
-
-  public var priority: Float {
-    get {
-      return urlSessionTask.priority
-    }
-    set {
-      urlSessionTask.priority = newValue
-    }
-  }
-
+  /// An identifier uniquely identifying the task within a given session.
+  ///
+  /// This value is unique only within the context of a single session; tasks in other sessions may have the same taskIdentifier value.
   public var taskIdentifier: Int {
     return urlSessionTask.taskIdentifier
   }
 
-  public var httpResponse: HTTPURLResponse? {
+  /// The server’s response to the currently active request.
+  ///
+  /// This object provides information about the request as provided by the server. This information always includes the original URL.
+  public var response: HTTPURLResponse? {
     return urlSessionTask.httpResponse
   }
 
-  public var countOfBytesExpectedToReceive: Int64 {
-    return urlSessionTask.countOfBytesExpectedToReceive
-  }
-
+  /// Temporarily suspends a task.
+  ///
+  /// A task, while suspended, produces no network traffic and is not subject to timeouts. A download task can continue transferring data at a later time. All other tasks must start over when resumed.
   public func suspend() {
     urlSessionTask.suspend()
   }
 
+  /// Resumes the task, if it is suspended.
+  ///
+  /// Newly-initialized tasks begin in a suspended state, so you need to call this method to start the task.
   public func resume() {
     urlSessionTask.resume()
   }
 
+  /// Cancels the task
+  ///
+  /// This method returns immediately, marking the task as being canceled.
+  /// Once a task is marked as being canceled, `urlSession(_:task:didCompleteWithError:) `will be sent to the task delegate, passing an error in the domain `NSURLErrorDomain` with the code `NSURLErrorCancelled`.
+  /// A task may, under some circumstances, send messages to its delegate before the cancelation is acknowledged.
+  ///
+  /// This method may be called on a task that is suspended.
   public func cancel() {
     urlSessionTask.cancel()
   }
@@ -155,12 +170,13 @@ extension HTTPFileTask { //: URLSessionTaskReplaceable {
 
 // MARK: - Uploading
 
-public class HTTPFileUploadTask: HTTPFileTask { // , URLSessionUploadTaskReplaceable {
-  var responseData: Data?
+// A File-based URL session task that uploads data to the network in a request body or directy from a file URL
+public class HTTPFileUploadTask: HTTPFileTask {
+  // The body of the response
+  public var responseData: Data?
   public var completionBlock: ((Result<Void, Error>) -> Void)?
 
   func didReceieve(data: Data) {
-    print("didReceieve data \(data.base64EncodedString())")
     if responseData == nil {
       responseData = data
     } else {
@@ -184,9 +200,16 @@ public class HTTPFileUploadTask: HTTPFileTask { // , URLSessionUploadTaskReplace
     // If there is response data then its and XMLError
     if let data = responseData, !data.isEmpty {
       do {
-        let xmlError = try XMLDecoder().decode(FileUploadError.self, from: data)
-        completionBlock?(.failure(xmlError.asPubNubError))
+        // Attempt to decode the error
+        let xmlError = try XMLDecoder().decode(FileUploadError.self, from: data).asPubNubError
+
+        // Update the response Error
+        responseError = xmlError
+
+        completionBlock?(.failure(xmlError))
       } catch {
+        responseError = error
+
         completionBlock?(.failure(error))
       }
       return
@@ -194,6 +217,7 @@ public class HTTPFileUploadTask: HTTPFileTask { // , URLSessionUploadTaskReplace
 
     // If the response was an error, then return the status code as error
     if let error = responseCodeError() {
+      responseError = error
       completionBlock?(.failure(error))
       return
     }
@@ -204,6 +228,7 @@ public class HTTPFileUploadTask: HTTPFileTask { // , URLSessionUploadTaskReplace
 
 // MARK: - Downloading
 
+/// A File-based URL session task that stores downloaded data to a local file.
 public class HTTPFileDownloadTask: HTTPFileTask {
   public var completionBlock: ((Result<URL, Error>) -> Void)?
 
@@ -229,12 +254,15 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
     // If the response was an error, then return the status code as error
     if let error = responseCodeError() {
+      responseError = error
       completionBlock?(.failure(error))
       return
     }
 
     guard let url = downloadURL else {
-      completionBlock?(.failure(PubNubError(.fileMissingAtPath)))
+      let missingFileError = PubNubError(.fileMissingAtPath)
+      responseError = missingFileError
+      completionBlock?(.failure(missingFileError))
       return
     }
 
@@ -331,7 +359,6 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       let fileManager = FileManager.default
 
       let fileURL = fileManager.makeUniqueFilename(fileDownloadTask.destinationURL)
-      print("Move to \(fileURL.absoluteString)")
 
       try fileManager.moveItem(at: location, to: fileURL)
 

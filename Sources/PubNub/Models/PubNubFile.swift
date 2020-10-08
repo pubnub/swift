@@ -31,9 +31,9 @@ import Foundation
 /// A file stored on a PubNub channel that can be mapped to a local resource
 public protocol PubNubLocalFile: PubNubFile {
   /// The local URL of the file
-  var localFileURL: URL { get set }
+  var fileURL: URL { get set }
   /// If the local filenames changes this can be used to track the remote filename
-  var remoteFilename: String? { get }
+  var remoteFilename: String { get }
 
   /// Allows for converting  between different `PubNubLocalFile` types
   init(from other: PubNubLocalFile) throws
@@ -43,31 +43,35 @@ public protocol PubNubLocalFile: PubNubFile {
 
 public extension PubNubLocalFile {
   var size: Int64 {
-    return Int64(localFileURL.sizeOf)
+    return Int64(fileURL.sizeOf)
   }
 
   var contentType: String {
-    return localFileURL.mimeType
+    return fileURL.mimeType
   }
 
   var filename: String {
-    return remoteFilename ?? localFileURL.lastPathComponent
+    return fileURL.lastPathComponent
+  }
+
+  var remoteFilename: String {
+    return filename
   }
 
   init(from other: PubNubFile, withFile url: URL) throws {
     try self.init(from: other)
 
-    localFileURL = url
+    fileURL = url
   }
 }
 
 /// A base concrete representation of a `PubNubLocalFile`
 public struct PubNubLocalFileBase: PubNubLocalFile {
-  public var localFileURL: URL
+  public var fileURL: URL
   public var channel: String
 
   public var fileId: String
-  public var remoteFilename: String?
+  public var remoteFilename: String
 
   public var createdDate: Date?
 
@@ -78,14 +82,14 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
   }
 
   public init(
-    localFileURL: URL,
+    fileURL: URL,
     channel: String,
     fileId: String,
-    remoteFilename: String? = nil,
+    remoteFilename: String,
     custom: JSONCodable? = nil,
     createdDate: Date? = nil
   ) {
-    self.localFileURL = localFileURL
+    self.fileURL = fileURL
     self.channel = channel
     self.fileId = fileId
     self.remoteFilename = remoteFilename
@@ -95,9 +99,10 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
 
   public init(from other: PubNubLocalFile) {
     self.init(
-      localFileURL: other.localFileURL,
+      fileURL: other.fileURL,
       channel: other.channel,
       fileId: other.fileId,
+      remoteFilename: other.remoteFilename,
       custom: other.custom,
       createdDate: other.createdDate
     )
@@ -116,7 +121,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
 
   init(fromFile url: URL, pubnub response: GenerateUploadURLResponse, on channel: String) {
     self.init(
-      localFileURL: url,
+      fileURL: url,
       channel: channel,
       fileId: response.fileId,
       remoteFilename: response.filename
@@ -125,7 +130,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
 
   public init(from other: PubNubFile, withFile url: URL) {
     self.init(
-      localFileURL: url,
+      fileURL: url,
       channel: other.channel,
       fileId: other.fileId,
       remoteFilename: other.filename,

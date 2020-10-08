@@ -96,11 +96,11 @@ public extension PubNub {
     /// The optional message that will be include alongside the File information
     public var additionalMessage: JSONCodable?
     /// If true the published message is stored in history.
-    public var store: Bool
+    public var store: Bool?
     /// Set a per message time to live in storage.
     public var ttl: Int?
     /// Additional metadata to publish alongside the file
-    public var meta: AnyJSON?
+    public var meta: JSONCodable?
     /// Custom configuration overrides for this request
     public var customRequestConfig: RequestConfiguration
 
@@ -113,9 +113,9 @@ public extension PubNub {
     ///   - customRequestConfig: Custom configuration overrides for this request
     public init(
       additionalMessage: JSONCodable? = nil,
-      store: Bool = false,
+      store: Bool? = nil,
       ttl: Int? = nil,
-      meta: AnyJSON? = nil,
+      meta: JSONCodable? = nil,
       customRequestConfig: RequestConfiguration = RequestConfiguration()
     ) {
       self.additionalMessage = additionalMessage
@@ -137,13 +137,13 @@ public extension PubNub {
   /// - Warning: The `URLRequest` will expire shortly after creation, so it should be processed immidately and not cached.
   /// - Parameters:
   ///   - fileURL: The URL of the file that will be eventually uploaded
-  ///   - replacingFilename: A replacment filename that will be used by the server
+  ///   - replacingFilename: A replacement filename that will be used by the server, otherwise the `lastPathComponent` of the `fileURL` will be used
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the `URLRequest` to upload the `fileURL` and the PubNub file object representing the `fileURL`
   ///     - **Failure**: An `Error` describing the failure
   func generateFileUploadURLRequest(
-    local fileURL: URL, channel: String, replacingFilename: String? = nil,
+    using fileURL: URL, channel: String, replacingFilename: String? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(URLRequest, PubNubLocalFile), Error>) -> Void)?
   ) {
@@ -231,7 +231,7 @@ public extension PubNub {
     let router = PublishRouter(
       .file(
         message: fileMessage, channel: fileMessage.channel,
-        shouldStore: request.store, ttl: request.ttl, meta: request.meta
+        shouldStore: request.store, ttl: request.ttl, meta: request.meta?.codableValue
       ),
       configuration: configuration
     )
@@ -253,25 +253,25 @@ public extension PubNub {
   ///  - Note: The `fileSession` property is the `URLSession` that procsses the file upload, and is configured to be a background session by default
   ///
   /// - Parameters:
-  ///   - local: The local file to upload
-  ///   - channel: `Channel` for the file.
-  ///   - replacingFilename: The filename that should appear when uploaded.  Defaults to using the same filename as `local`
+  ///   - fileURL: The local file to upload
+  ///   - channel: `Channel` for the file
+  ///   - replacingFilename: A replacement filename that will be used by the server, otherwise the `lastPathComponent` of the `fileURL` will be used
   ///   - publishRequest: The request configuration object when the file is published to PubNub
-  ///   - custom: Custom configuration overrides when generating the File Upload URLRequest
-  ///   - uploadTask: The file upload task executing the upload
+  ///   - custom: Custom configuration overrides when generating the File Upload `URLRequest`
+  ///   - uploadTask: The file upload task executing the upload; contains a reference to the actual `URLSessionUploadTask`
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the uploaded `PubNubLocalFile` object, and the `Timetoken` of the published message
   ///     - **Failure**: An `Error` describing the failure
   func send(
-    local fileURL: URL, channel: String, replacingFilename: String? = nil,
+    file url: URL, channel: String, replacingFilename: String? = nil,
     publishRequest: PublishFileRequest = PublishFileRequest(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    uploadTask: @escaping (HTTPFileUploadTask) -> Void,
+    uploadTask: @escaping (HTTPFileUploadTask) -> Void = { _ in },
     completion: ((Result<(file: PubNubLocalFile, publishedAt: Timetoken), Error>) -> Void)?
   ) {
     // Generate a File Upload URL from PubNub
     generateFileUploadURLRequest(
-      local: fileURL, channel: channel, replacingFilename: replacingFilename, custom: requestConfig
+      using: url, channel: channel, replacingFilename: replacingFilename, custom: requestConfig
     ) { generateURLResult in
       switch generateURLResult {
       case let .success((request, localPubNubFile)):
@@ -279,7 +279,7 @@ public extension PubNub {
         do {
           task = try createFileURLSessionUploadTask(
             request: request,
-            session: fileSession,
+            session: fileURLSession,
             backgroundFileCacheIdentifier: localPubNubFile.fileId
           )
         } catch {
@@ -396,13 +396,15 @@ public extension PubNub {
   ) {
     let task: HTTPFileDownloadTask
     if let resumeData = resumeData {
-      task = createFileURLSessionDownloadTask(.resumeData(resumeData), session: fileSession, downloadTo: localFileURL)
+      task = createFileURLSessionDownloadTask(
+        .resumeData(resumeData), session: fileURLSession, downloadTo: localFileURL
+      )
     } else {
       // URLSession will automatically redirect, so we can download directly from the fetchURL endpoint
       do {
         task = createFileURLSessionDownloadTask(
           .requestURL(try generateFileDownloadURL(channel: file.channel, fileId: file.fileId, filename: file.filename)),
-          session: fileSession,
+          session: fileURLSession,
           downloadTo: localFileURL
         )
       } catch {

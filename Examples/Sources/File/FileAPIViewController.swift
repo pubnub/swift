@@ -202,7 +202,7 @@ class FileAPIViewController: UIViewController {
         self?.reloadFiles()
 
       case let .failure(error):
-        print("File List error: \(error)")
+        print("File List eUIProgressViewrror: \(error)")
       }
 
       self?.dismiss(animated: true)
@@ -215,7 +215,7 @@ class FileAPIViewController: UIViewController {
       print("The \(file) already exists in all places")
     case (true, false):
       print("The \(file) should start uploading")
-      send(file.localFileURL, channel: file.channel)
+      send(file.fileURL, channel: file.channel)
 
     case (false, true):
       print("The \(file) should start downloding")
@@ -229,9 +229,9 @@ class FileAPIViewController: UIViewController {
 
   func send(_ url: URL, channel: String) {
     pubnub.send(
-      local: url,
+      file: url,
       channel: channel
-    ) { [weak self] task in
+    ) { [weak self] (task: HTTPFileUploadTask) in
       DispatchQueue.main.async {
         if let progressView = self?.progressAlertView(for: task.progress, direction: .upload) {
           self?.present(progressView, animated: true)
@@ -260,8 +260,8 @@ class FileAPIViewController: UIViewController {
 
   func download(_ file: LocalFileExample) {
     pubnub.download(
-      file: file, downloadTo: file.localFileURL
-    ) { [weak self] task in
+      file: file, downloadTo: file.fileURL
+    ) { [weak self] (task: HTTPFileDownloadTask) in
       DispatchQueue.main.async {
         if let progressView = self?.progressAlertView(for: task.progress, direction: .download) {
           self?.present(progressView, animated: true)
@@ -337,7 +337,7 @@ extension FileAPIViewController: UITableViewDataSource {
     let file = fileDataSource[indexPath.row]
 
     let view = UIContextualAction(style: .normal, title: "View") { _, _, completion in
-      let documentViewer = UIDocumentInteractionController(url: file.localFileURL)
+      let documentViewer = UIDocumentInteractionController(url: file.fileURL)
       documentViewer.delegate = self
       documentViewer.presentPreview(animated: true)
       completion(true)
@@ -346,7 +346,7 @@ extension FileAPIViewController: UITableViewDataSource {
     let delete = UIContextualAction(style: .destructive, title: "Remove") { _, _, completion in
       self.present(self.alertViewController(direction: .remove), animated: true)
       self.pubnub.remove(channel: file.channel, fileId: file.fileId, filename: file.filename) { [weak self] _ in
-        try? FileManager.default.removeItem(at: file.localFileURL)
+        try? FileManager.default.removeItem(at: file.fileURL)
 
         self?.fileDataSource.removeAll(where: { $0.fileId == file.fileId })
 

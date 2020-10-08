@@ -35,7 +35,7 @@ enum FileError: Error {
 }
 
 struct LocalFileExample: PubNubLocalFile {
-  var localFileURL: URL
+  var fileURL: URL
   var channel: String
 
   var fileId: String
@@ -46,7 +46,7 @@ struct LocalFileExample: PubNubLocalFile {
   var createdDate: Date?
 
   var existsLocally: Bool {
-    return FileManager.default.fileExists(atPath: localFileURL.path)
+    return FileManager.default.fileExists(atPath: fileURL.path)
   }
 
   var existsRemotely: Bool {
@@ -59,7 +59,7 @@ struct LocalFileExample: PubNubLocalFile {
   }
 
   init(from url: URL, for channel: String) throws {
-    localFileURL = url
+    fileURL = url
     self.channel = channel
 
     let filenameSplit = url.lastPathComponent.split(separator: ":")
@@ -74,7 +74,7 @@ struct LocalFileExample: PubNubLocalFile {
   }
 
   init(from other: PubNubLocalFile) throws {
-    try self.init(from: other.localFileURL, for: other.channel)
+    try self.init(from: other.fileURL, for: other.channel)
   }
 
   init(from other: PubNubFile) throws {

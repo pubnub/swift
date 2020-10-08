@@ -1,14 +1,14 @@
 language: objective-c
 os: osx
 osx_image: xcode12
-rvm: 2.5.3
+rvm: 2.6.6
 cache:
   bundler: true
   directories:
   - .build # Swift Package Manager
   - /Users/travis/.rvm/ # RVM
 before_install:
-  - gem install -v 2.0.1 bundler
+  - gem install -v 2.1.4 bundler
 stages:
   - name: "Unit Tests"
     if: type = push

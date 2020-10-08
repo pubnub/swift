@@ -27,6 +27,8 @@
 
 import Foundation
 
+@testable import PubNub
+
 /// `XMLEncoder` facilitates the encoding of `Encodable` values into XML.
 class XMLEncoder {
   /// Contextual user-provided information for use during encoding.
@@ -35,7 +37,7 @@ class XMLEncoder {
   // MARK: Constructing a XML Encoder
 
   /// Initializes `self` with default strategies.
-  public init() {}
+  init() {}
 
   // MARK: - Encoding Values
 
@@ -61,22 +63,22 @@ class XMLEncoder {
   }
 }
 
-internal class _XMLEncoder: Encoder {
+class _XMLEncoder: Encoder {
   /// The encoder's storage.
-  internal var storage: _XMLEncodingStorage
+  var storage: _XMLEncodingStorage
 
   // This documentation comment was inherited from Encoder.
-  public var codingPath: [CodingKey]
+  var codingPath: [CodingKey]
 
   // This documentation comment was inherited from Encoder.
-  public var userInfo: [CodingUserInfoKey: Any] {
+  var userInfo: [CodingUserInfoKey: Any] {
     return [:]
   }
 
   // MARK: - Initialization
 
   /// Initializes `self` with the given top-level encoder options.
-  internal init(codingPath: [CodingKey] = []) {
+  init(codingPath: [CodingKey] = []) {
     storage = _XMLEncodingStorage()
     self.codingPath = codingPath
   }
@@ -84,7 +86,7 @@ internal class _XMLEncoder: Encoder {
   /// Returns whether a new element can be encoded at this coding path.
   ///
   /// `true` if an element has not yet been encoded at this coding path; `false` otherwise.
-  internal var canEncodeNewValue: Bool {
+  var canEncodeNewValue: Bool {
     // Every time a new value gets encoded, the key it's encoded for is pushed onto the coding path (even if it's a nil key from an unkeyed container).
     // At the same time, every time a container is requested, a new value gets pushed onto the storage stack.
     // If there are more values on the storage stack than on the coding path, it means the value is requesting more than one container, which violates the precondition.
@@ -96,7 +98,7 @@ internal class _XMLEncoder: Encoder {
 
   // MARK: - Encoder Methods
 
-  public func container<Key>(keyedBy _: Key.Type) -> KeyedEncodingContainer<Key> {
+  func container<Key>(keyedBy _: Key.Type) -> KeyedEncodingContainer<Key> {
     // If an existing keyed container was already requested, return that one.
     let topContainer: NSMutableDictionary
     if canEncodeNewValue {
@@ -118,7 +120,7 @@ internal class _XMLEncoder: Encoder {
     return KeyedEncodingContainer(container)
   }
 
-  public func unkeyedContainer() -> UnkeyedEncodingContainer {
+  func unkeyedContainer() -> UnkeyedEncodingContainer {
     // If an existing unkeyed container was already requested, return that one.
     let topContainer: NSMutableArray
     if canEncodeNewValue {
@@ -137,7 +139,7 @@ internal class _XMLEncoder: Encoder {
     return _XMLUnkeyedEncodingContainer(referencing: self, codingPath: codingPath, wrapping: topContainer)
   }
 
-  public func singleValueContainer() -> SingleValueEncodingContainer {
+  func singleValueContainer() -> SingleValueEncodingContainer {
     return self
   }
 }
@@ -156,7 +158,7 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
   private let container: NSMutableDictionary
 
   /// The path of coding keys taken to get to this point in encoding.
-  public private(set) var codingPath: [CodingKey]
+  private(set) var codingPath: [CodingKey]
 
   // MARK: - Initialization
 
@@ -169,95 +171,95 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
 
   // MARK: - KeyedEncodingContainerProtocol Methods
 
-  public mutating func encodeNil(forKey key: Key) throws {
+  mutating func encodeNil(forKey key: Key) throws {
     container[key.stringValue] = NSNull()
   }
 
-  public mutating func encode(_ value: Bool, forKey key: Key) throws {
+  mutating func encode(_ value: Bool, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Int, forKey key: Key) throws {
+  mutating func encode(_ value: Int, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Int8, forKey key: Key) throws {
+  mutating func encode(_ value: Int8, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Int16, forKey key: Key) throws {
+  mutating func encode(_ value: Int16, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Int32, forKey key: Key) throws {
+  mutating func encode(_ value: Int32, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Int64, forKey key: Key) throws {
+  mutating func encode(_ value: Int64, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: UInt, forKey key: Key) throws {
+  mutating func encode(_ value: UInt, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: UInt8, forKey key: Key) throws {
+  mutating func encode(_ value: UInt8, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: UInt16, forKey key: Key) throws {
+  mutating func encode(_ value: UInt16, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: UInt32, forKey key: Key) throws {
+  mutating func encode(_ value: UInt32, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: UInt64, forKey key: Key) throws {
+  mutating func encode(_ value: UInt64, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: String, forKey key: Key) throws {
+  mutating func encode(_ value: String, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = encoder.box(value)
   }
 
-  public mutating func encode(_ value: Float, forKey key: Key) throws {
+  mutating func encode(_ value: Float, forKey key: Key) throws {
     // Since the float may be invalid and throw, the coding path needs to contain this key.
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
@@ -265,7 +267,7 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
     container[key.stringValue] = try encoder.box(value)
   }
 
-  public mutating func encode(_ value: Double, forKey key: Key) throws {
+  mutating func encode(_ value: Double, forKey key: Key) throws {
     // Since the double may be invalid and throw, the coding path needs to contain this key.
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
@@ -273,14 +275,14 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
     container[key.stringValue] = try encoder.box(value)
   }
 
-  public mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
+  mutating func encode<T: Encodable>(_ value: T, forKey key: Key) throws {
     encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
 
     container[key.stringValue] = try encoder.box(value)
   }
 
-  public mutating func nestedContainer<NestedKey>(
+  mutating func nestedContainer<NestedKey>(
     keyedBy _: NestedKey.Type, forKey key: Key
   ) -> KeyedEncodingContainer<NestedKey> {
     let dictionary = NSMutableDictionary()
@@ -295,7 +297,7 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
     return KeyedEncodingContainer(container)
   }
 
-  public mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
+  mutating func nestedUnkeyedContainer(forKey key: Key) -> UnkeyedEncodingContainer {
     let array = NSMutableArray()
     container[key.stringValue] = array
 
@@ -304,13 +306,13 @@ private struct XMLCodingKeyedEncodingContainer<K: CodingKey>: KeyedEncodingConta
     return _XMLUnkeyedEncodingContainer(referencing: encoder, codingPath: codingPath, wrapping: array)
   }
 
-  public mutating func superEncoder() -> Encoder {
+  mutating func superEncoder() -> Encoder {
     return _XMLReferencingEncoder(
       referencing: encoder, key: XMLCodingKey.super, convertedKey: XMLCodingKey.super, wrapping: container
     )
   }
 
-  public mutating func superEncoder(forKey key: Key) -> Encoder {
+  mutating func superEncoder(forKey key: Key) -> Encoder {
     return _XMLReferencingEncoder(referencing: encoder, key: key, convertedKey: key, wrapping: container)
   }
 }
@@ -325,10 +327,10 @@ private struct _XMLUnkeyedEncodingContainer: UnkeyedEncodingContainer {
   private let container: NSMutableArray
 
   /// The path of coding keys taken to get to this point in encoding.
-  public private(set) var codingPath: [CodingKey]
+  private(set) var codingPath: [CodingKey]
 
   /// The number of elements encoded into the container.
-  public var count: Int {
+  var count: Int {
     return container.count
   }
 
@@ -343,41 +345,41 @@ private struct _XMLUnkeyedEncodingContainer: UnkeyedEncodingContainer {
 
   // MARK: - UnkeyedEncodingContainer Methods
 
-  public mutating func encodeNil() throws { container.add(NSNull()) }
-  public mutating func encode(_ value: Bool) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: Int) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: Int8) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: Int16) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: Int32) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: Int64) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: UInt) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: UInt8) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: UInt16) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: UInt32) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: UInt64) throws { container.add(encoder.box(value)) }
-  public mutating func encode(_ value: String) throws { container.add(encoder.box(value)) }
+  mutating func encodeNil() throws { container.add(NSNull()) }
+  mutating func encode(_ value: Bool) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: Int) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: Int8) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: Int16) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: Int32) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: Int64) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: UInt) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: UInt8) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: UInt16) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: UInt32) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: UInt64) throws { container.add(encoder.box(value)) }
+  mutating func encode(_ value: String) throws { container.add(encoder.box(value)) }
 
-  public mutating func encode(_ value: Float) throws {
+  mutating func encode(_ value: Float) throws {
     // Since the float may be invalid and throw, the coding path needs to contain this key.
     encoder.codingPath.append(XMLCodingKey(index: count))
     defer { self.encoder.codingPath.removeLast() }
     container.add(try encoder.box(value))
   }
 
-  public mutating func encode(_ value: Double) throws {
+  mutating func encode(_ value: Double) throws {
     // Since the double may be invalid and throw, the coding path needs to contain this key.
     encoder.codingPath.append(XMLCodingKey(index: count))
     defer { self.encoder.codingPath.removeLast() }
     container.add(try encoder.box(value))
   }
 
-  public mutating func encode<T: Encodable>(_ value: T) throws {
+  mutating func encode<T: Encodable>(_ value: T) throws {
     encoder.codingPath.append(XMLCodingKey(index: count))
     defer { self.encoder.codingPath.removeLast() }
     container.add(try encoder.box(value))
   }
 
-  public mutating func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> {
+  mutating func nestedContainer<NestedKey>(keyedBy _: NestedKey.Type) -> KeyedEncodingContainer<NestedKey> {
     codingPath.append(XMLCodingKey(index: count))
     defer { self.codingPath.removeLast() }
 
@@ -390,7 +392,7 @@ private struct _XMLUnkeyedEncodingContainer: UnkeyedEncodingContainer {
     return KeyedEncodingContainer(container)
   }
 
-  public mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
+  mutating func nestedUnkeyedContainer() -> UnkeyedEncodingContainer {
     codingPath.append(XMLCodingKey(index: count))
     defer { self.codingPath.removeLast() }
 
@@ -399,7 +401,7 @@ private struct _XMLUnkeyedEncodingContainer: UnkeyedEncodingContainer {
     return _XMLUnkeyedEncodingContainer(referencing: encoder, codingPath: codingPath, wrapping: array)
   }
 
-  public mutating func superEncoder() -> Encoder {
+  mutating func superEncoder() -> Encoder {
     return _XMLReferencingEncoder(referencing: encoder, at: container.count, wrapping: container)
   }
 }
@@ -414,82 +416,82 @@ extension _XMLEncoder: SingleValueEncodingContainer {
     )
   }
 
-  public func encodeNil() throws {
+  func encodeNil() throws {
     assertCanEncodeNewValue()
     storage.push(container: NSNull())
   }
 
-  public func encode(_ value: Bool) throws {
+  func encode(_ value: Bool) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Int) throws {
+  func encode(_ value: Int) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Int8) throws {
+  func encode(_ value: Int8) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Int16) throws {
+  func encode(_ value: Int16) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Int32) throws {
+  func encode(_ value: Int32) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Int64) throws {
+  func encode(_ value: Int64) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: UInt) throws {
+  func encode(_ value: UInt) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: UInt8) throws {
+  func encode(_ value: UInt8) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: UInt16) throws {
+  func encode(_ value: UInt16) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: UInt32) throws {
+  func encode(_ value: UInt32) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: UInt64) throws {
+  func encode(_ value: UInt64) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: String) throws {
+  func encode(_ value: String) throws {
     assertCanEncodeNewValue()
     storage.push(container: box(value))
   }
 
-  public func encode(_ value: Float) throws {
+  func encode(_ value: Float) throws {
     assertCanEncodeNewValue()
     try storage.push(container: box(value))
   }
 
-  public func encode(_ value: Double) throws {
+  func encode(_ value: Double) throws {
     assertCanEncodeNewValue()
     try storage.push(container: box(value))
   }
 
-  public func encode<T: Encodable>(_ value: T) throws {
+  func encode<T: Encodable>(_ value: T) throws {
     assertCanEncodeNewValue()
     try storage.push(container: box(value))
   }
@@ -510,20 +512,20 @@ extension _XMLEncoder {
   fileprivate func box(_ value: UInt64) -> NSObject { return NSNumber(value: value) }
   fileprivate func box(_ value: String) -> NSObject { return NSString(string: value) }
 
-  internal func box(_ value: Float) throws -> NSObject {
+  func box(_ value: Float) throws -> NSObject {
     return NSNumber(value: value)
   }
 
-  internal func box(_ value: Double) throws -> NSObject {
+  func box(_ value: Double) throws -> NSObject {
     return NSNumber(value: value)
   }
 
-  internal func box(_ value: Date) throws -> NSObject {
+  func box(_ value: Date) throws -> NSObject {
     try value.encode(to: self)
     return storage.popContainer()
   }
 
-  internal func box(_ value: Data) throws -> NSObject {
+  func box(_ value: Data) throws -> NSObject {
     try value.encode(to: self)
     return storage.popContainer()
   }
@@ -560,7 +562,7 @@ extension _XMLEncoder {
 
 /// _XMLReferencingEncoder is a special subclass of _XMLEncoder which has its own storage, but references the contents of a different encoder.
 /// It's used in superEncoder(), which returns a new encoder for encoding a superclass -- the lifetime of the encoder should not escape the scope it's created in, but it doesn't necessarily know when it's done being used (to write to the original container).
-internal class _XMLReferencingEncoder: _XMLEncoder {
+class _XMLReferencingEncoder: _XMLEncoder {
   // MARK: Reference types.
 
   /// The type of container we're referencing.
@@ -575,7 +577,7 @@ internal class _XMLReferencingEncoder: _XMLEncoder {
   // MARK: - Properties
 
   /// The encoder we're referencing.
-  internal let encoder: _XMLEncoder
+  let encoder: _XMLEncoder
 
   /// The container reference itself.
   private let reference: Reference
@@ -583,7 +585,7 @@ internal class _XMLReferencingEncoder: _XMLEncoder {
   // MARK: - Initialization
 
   /// Initializes `self` by referencing the given array container in the given encoder.
-  internal init(referencing encoder: _XMLEncoder, at index: Int, wrapping array: NSMutableArray) {
+  init(referencing encoder: _XMLEncoder, at index: Int, wrapping array: NSMutableArray) {
     self.encoder = encoder
     reference = .array(array, index)
     super.init(codingPath: encoder.codingPath)
@@ -592,7 +594,7 @@ internal class _XMLReferencingEncoder: _XMLEncoder {
   }
 
   /// Initializes `self` by referencing the given dictionary container in the given encoder.
-  internal init(
+  init(
     referencing encoder: _XMLEncoder,
     key: CodingKey,
     convertedKey: CodingKey,
@@ -607,7 +609,7 @@ internal class _XMLReferencingEncoder: _XMLEncoder {
 
   // MARK: - Coding Path Operations
 
-  override internal var canEncodeNewValue: Bool {
+  override var canEncodeNewValue: Bool {
     // With a regular encoder, the storage and coding path grow together.
     // A referencing encoder, however, inherits its parents coding path, as well as the key it was created for.
     // We have to take this into account.
@@ -637,41 +639,41 @@ internal class _XMLReferencingEncoder: _XMLEncoder {
 
 // MARK: - Encoding Storage
 
-internal struct _XMLEncodingStorage {
+struct _XMLEncodingStorage {
   // MARK: Properties
 
   /// The container stack.
   /// Elements may be any one of the XML types (NSNull, NSNumber, NSString, NSArray, NSDictionary).
-  internal private(set) var containers: [NSObject] = []
+  private(set) var containers: [NSObject] = []
 
   // MARK: - Initialization
 
   /// Initializes `self` with no containers.
-  internal init() {}
+  init() {}
 
   // MARK: - Modifying the Stack
 
-  internal var count: Int {
+  var count: Int {
     return containers.count
   }
 
-  internal mutating func pushKeyedContainer() -> NSMutableDictionary {
+  mutating func pushKeyedContainer() -> NSMutableDictionary {
     let dictionary = NSMutableDictionary()
     containers.append(dictionary)
     return dictionary
   }
 
-  internal mutating func pushUnkeyedContainer() -> NSMutableArray {
+  mutating func pushUnkeyedContainer() -> NSMutableArray {
     let array = NSMutableArray()
     containers.append(array)
     return array
   }
 
-  internal mutating func push(container: NSObject) {
+  mutating func push(container: NSObject) {
     containers.append(container)
   }
 
-  internal mutating func popContainer() -> NSObject {
+  mutating func popContainer() -> NSObject {
     precondition(!containers.isEmpty, "Empty container stack.")
     return containers.popLast() ?? NSNull()
   }

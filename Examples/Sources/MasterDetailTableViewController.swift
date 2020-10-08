@@ -36,7 +36,6 @@ class MasterDetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
   var listener: SubscriptionListener?
-  var kvoToken: NSKeyValueObservation?
 
   let masterDetailCellID = "MasterDetailCell"
 

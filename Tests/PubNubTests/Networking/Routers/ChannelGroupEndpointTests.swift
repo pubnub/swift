@@ -252,19 +252,19 @@ extension ChannelGroupsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["maximumChannelCountExceeded_Message"]) else {
       return XCTFail("Could not create mock url session")
     }
-    
+
     let pubnub = PubNub(configuration: config, session: sessions.session)
 
     pubnub.add(channels: testChannels, to: testGroupName) { result in
-        print(result)
-        switch result {
-        case .success:
-          XCTFail("Add Channel request should fail")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.maxChannelGroupCountExceeded))
-        }
-        expectation.fulfill()
+      print(result)
+      switch result {
+      case .success:
+        XCTFail("Add Channel request should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.maxChannelGroupCountExceeded))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

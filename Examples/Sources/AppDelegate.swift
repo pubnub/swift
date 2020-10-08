@@ -36,7 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   // swiftlint:disable:next discouraged_optional_collection
   func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     // Override point for customization after application launch.
-//    UIApplication.shared.registerForRemoteNotifications()
+    UIApplication.shared.registerForRemoteNotifications()
 
     PubNub.log.levels = [.all]
 
@@ -67,6 +67,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     _: UIApplication, handleEventsForBackgroundURLSession identifier: String,
     completionHandler _: @escaping () -> Void
   ) {
-    print("application handleEventsForBackgroundURLSession \(identifier)")
+    print("Background requests can be possibly resumed by creating a URLSession with this identifier \(identifier)")
   }
 }

@@ -39,10 +39,11 @@ public struct PubNub {
   public let subscription: SubscriptionSession
   // PAM Token Manager
   internal var tokenStore: PAMTokenManagementSystem
-
+  /// The URLSession used when making File upload/download requests
   public var fileSession: URLSessionReplaceable
+  /// The URLSessionDelegate used by the `fileSession` to handle file responses
   public var fileSessionManager: FileSessionManager? {
-    fileSession.delegate as? FileSessionManager
+    return fileSession.delegate as? FileSessionManager
   }
 
   /// Global log instance for the PubNub SDK

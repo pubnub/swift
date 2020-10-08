@@ -73,13 +73,13 @@ class MockURLSessionDataTask: URLSessionDataTask {
 
 class MockURLSessionUploadTask: URLSessionUploadTask {
   var mockSession: URLSessionReplaceable
-  
+
   var mockRequest: URLRequest
   var mockResponse: HTTPURLResponse?
-  
+
   var mockData: Data?
   var mockError: Error?
-  
+
   var mockIdentifier: Int
 
   init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
@@ -88,14 +88,21 @@ class MockURLSessionUploadTask: URLSessionUploadTask {
     mockRequest = request
   }
 }
+
+extension URLSessionTask {
+  var downloadResumeData: Data? {
+    return (self as? URLSessionDownloadTask)?.resumeData
+  }
+}
+
 class MockURLSessionDownloadTask: URLSessionDownloadTask {
   var mockSession: URLSessionReplaceable
   var mockRequest: URLRequest
-  
+
   var mockResponse: HTTPURLResponse?
   var mockDownloadLocation: URL?
   var mockError: Error?
-  
+
   var mockIdentifier: Int
 
   init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
@@ -139,7 +146,7 @@ class MockURLSession: URLSessionReplaceable {
     actualSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
     actualSession.sessionDescription = sessionDescription
   }
-  
+
   convenience init(
     tasks: [URLSessionTask],
     configuration: URLSessionConfiguration = .ephemeral,
@@ -147,7 +154,7 @@ class MockURLSession: URLSessionReplaceable {
     delegateQueue: OperationQueue? = .main
   ) {
     self.init(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
-    self.state.lockedWrite { $0.tasks = tasks }
+    state.lockedWrite { $0.tasks = tasks }
   }
 
   var dataDelegate: URLSessionDataDelegate? {
@@ -164,7 +171,7 @@ class MockURLSession: URLSessionReplaceable {
         print("Failed to resumed due to weak self")
         return
       }
-  
+
       let taskIndex = strongSelf.state.lockedRead { $0.tasks.firstIndex(of: task) ?? 0 }
 
       if let mockTask = strongSelf.responseForDataTask?(task, taskIndex) {
@@ -172,38 +179,58 @@ class MockURLSession: URLSessionReplaceable {
         if let data = mockTask.mockData {
           strongSelf.dataDelegate?.urlSession?(strongSelf.actualSession, dataTask: task, didReceive: data)
         }
-        strongSelf.dataDelegate?.urlSession?(strongSelf.actualSession, task: mockTask, didCompleteWithError: mockTask.error)
+        strongSelf.dataDelegate?.urlSession?(
+          strongSelf.actualSession,
+          task: mockTask,
+          didCompleteWithError: mockTask.error
+        )
       }
     }
   }
-  
+
   func resume(task: MockURLSessionUploadTask) {
     delegateQueue.addOperation { [weak self] in
       guard let strongSelf = self else {
         print("Failed to resumed due to weak self")
         return
       }
-      
+
       if let data = task.mockData {
-        (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, dataTask: task, didReceive: data)
+        (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(
+          strongSelf.actualSession,
+          dataTask: task,
+          didReceive: data
+        )
       }
-      
-      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, task: task, didCompleteWithError: task.error)
+
+      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(
+        strongSelf.actualSession,
+        task: task,
+        didCompleteWithError: task.error
+      )
     }
   }
-  
+
   func resume(task: MockURLSessionDownloadTask) {
     delegateQueue.addOperation { [weak self] in
       guard let strongSelf = self else {
         print("Failed to resumed due to weak self")
         return
       }
-      
+
       if let location = task.mockDownloadLocation {
-        (strongSelf.delegate as? URLSessionDownloadDelegate)?.urlSession(strongSelf.actualSession, downloadTask: task, didFinishDownloadingTo: location)
+        (strongSelf.delegate as? URLSessionDownloadDelegate)?.urlSession(
+          strongSelf.actualSession,
+          downloadTask: task,
+          didFinishDownloadingTo: location
+        )
       }
-      
-      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, task: task, didCompleteWithError: task.error)
+
+      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(
+        strongSelf.actualSession,
+        task: task,
+        didCompleteWithError: task.error
+      )
     }
   }
 
@@ -218,31 +245,35 @@ class MockURLSession: URLSessionReplaceable {
   }
 
   func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
-    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }) as? URLSessionUploadTask else {
+    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }),
+      let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
-    return task
+    return uplaodTask
   }
 
-  func uploadTask(with request: URLRequest, fromFile url: URL) -> URLSessionUploadTask {
-    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }) as? URLSessionUploadTask else {
+  func uploadTask(with request: URLRequest, fromFile _: URL) -> URLSessionUploadTask {
+    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }),
+      let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
-    return task
+    return uplaodTask
   }
 
   func downloadTask(with url: URL) -> URLSessionDownloadTask {
-    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest?.url == url } }) as? URLSessionDownloadTask else {
+    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest?.url == url } }),
+      let downloadTask = task as? MockURLSessionDownloadTask else {
       fatalError("Task not found for matching request \(url)")
     }
-    return task
+    return downloadTask
   }
 
   func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
-    guard let task = self.state.lockedRead({ $0.tasks.first { ($0 as? MockURLSessionDownloadTask)?.resumeData == resumeData } }) as? URLSessionDownloadTask else {
+    guard let task = state.lockedRead({ $0.tasks.first { $0.downloadResumeData == resumeData } }),
+      let downloadTask = task as? URLSessionDownloadTask else {
       fatalError("Task not found for matching request \(resumeData)")
     }
-    return task
+    return downloadTask
   }
 
   func invalidateAndCancel() {

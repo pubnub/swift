@@ -68,7 +68,7 @@ public extension URL {
 
   var mimeType: String {
     #if canImport(UniformTypeIdentifiers)
-      if #available(iOS 14.0, macOS 10.16, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *) {
+      if #available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *) {
         guard let mimeType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType else {
           return "application/octet-stream"
         }

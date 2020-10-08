@@ -74,7 +74,7 @@ struct FileManagementRouter: HTTPRouter {
 
   // Protocol Properties
   var service: PubNubService {
-    return .channelGroup
+    return .fileManagement
   }
 
   var category: String {

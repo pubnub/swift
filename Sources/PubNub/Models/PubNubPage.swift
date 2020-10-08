@@ -125,10 +125,16 @@ extension PubNubHashedPage {
     return try T(from: self)
   }
 
+  /// Convenience to align with the `next` parameter of certain APIs
+  ///
+  /// This is the same as calling `start`
   public var next: String? {
     return start
   }
 
+  /// Convenience to align with the `prev` parameter of certain APIs
+  ///
+  /// This is the same as calling `end`
   public var prev: String? {
     return end
   }

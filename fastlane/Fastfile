@@ -20,6 +20,9 @@ before_all do |lane, opts|
   Encoding.default_internal = Encoding::UTF_8
 
   setup_travis if ENV["TRAVIS_CI"]
+  
+  ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120"
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "10"
 end
 
 desc "Executes SDK Unit Tests"

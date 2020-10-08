@@ -71,7 +71,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
-      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.mockRequest)
+      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
       self.retryCount += 1
       switch self.retryCount {
       case 1:
@@ -129,7 +129,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
-      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.mockRequest)
+      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
       self.retryCount += 1
       switch self.retryCount {
       case 1:
@@ -161,7 +161,7 @@ class RequestRetrierTests: XCTestCase {
   }
 
   func getRetryError(
-    from _: MockURLSessionTask,
+    from _: MockURLSessionDataTask,
     for _: URLError.Code,
     and _: URLError.Code
   ) -> Error? {
@@ -196,7 +196,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
-      let urlRequest = sessions.mockSession.tasks.first?.mockRequest
+      let urlRequest = sessions.mockSession.tasks.first?.originalRequest
       XCTAssertEqual(request.urlRequest, urlRequest)
       self.retryCount += 1
       switch self.retryCount {

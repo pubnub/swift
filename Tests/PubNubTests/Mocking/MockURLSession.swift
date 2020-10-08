@@ -28,7 +28,7 @@
 import Foundation
 @testable import PubNub
 
-class MockURLSessionTask: URLSessionDataTask {
+class MockURLSessionDataTask: URLSessionDataTask {
   var mockSession: URLSessionReplaceable
   var mockRequest: URLRequest
   var mockState: URLSessionTask.State = .suspended
@@ -71,34 +71,67 @@ class MockURLSessionTask: URLSessionDataTask {
   }
 }
 
-class MockURLSessionUploadTask: URLSessionUploadTask {}
+class MockURLSessionUploadTask: URLSessionUploadTask {
+  var mockSession: URLSessionReplaceable
+  
+  var mockRequest: URLRequest
+  var mockResponse: HTTPURLResponse?
+  
+  var mockData: Data?
+  var mockError: Error?
+  
+  var mockIdentifier: Int
 
-class MockURLSessionDownloadTask: URLSessionDownloadTask {}
+  init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
+    mockIdentifier = identifier
+    mockSession = session
+    mockRequest = request
+  }
+}
+class MockURLSessionDownloadTask: URLSessionDownloadTask {
+  var mockSession: URLSessionReplaceable
+  var mockRequest: URLRequest
+  
+  var mockResponse: HTTPURLResponse?
+  var mockDownloadLocation: URL?
+  var mockError: Error?
+  
+  var mockIdentifier: Int
+
+  init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
+    mockIdentifier = identifier
+    mockSession = session
+    mockRequest = request
+  }
+}
 
 class MockURLSession: URLSessionReplaceable {
   weak var delegate: URLSessionDelegate?
 
   var configuration: URLSessionConfiguration
-  var urlSessionEvents: URLSessionDelegate?
   var delegateQueue: OperationQueue
   var sessionDescription: String?
 
   let actualSession: URLSession
 
   struct InternalState {
-    var tasks = [MockURLSessionTask]()
+    var tasks = [URLSessionTask]()
   }
 
   var state = Atomic(InternalState())
-  var tasks: [MockURLSessionTask] {
+  var tasks: [URLSessionTask] {
     return state.lockedRead { $0.tasks }
   }
 
-  var responseForTask: ((MockURLSessionTask, Int) -> (MockURLSessionTask?))?
+  var responseForDataTask: ((MockURLSessionDataTask, Int) -> (MockURLSessionDataTask?))?
 
-  required init(configuration: URLSessionConfiguration, delegate: URLSessionDelegate?, delegateQueue: OperationQueue?) {
+  required init(
+    configuration: URLSessionConfiguration = .ephemeral,
+    delegate: URLSessionDelegate? = HTTPSessionDelegate(),
+    delegateQueue: OperationQueue? = .main
+  ) {
     self.configuration = configuration
-    urlSessionEvents = delegate
+    self.delegate = delegate
     self.delegateQueue = delegateQueue ?? .main
 
     sessionDescription = "MockURLSession Description"
@@ -106,31 +139,76 @@ class MockURLSession: URLSessionReplaceable {
     actualSession = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
     actualSession.sessionDescription = sessionDescription
   }
+  
+  convenience init(
+    tasks: [URLSessionTask],
+    configuration: URLSessionConfiguration = .ephemeral,
+    delegate: URLSessionDelegate? = FileSessionManager(),
+    delegateQueue: OperationQueue? = .main
+  ) {
+    self.init(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
+    self.state.lockedWrite { $0.tasks = tasks }
+  }
 
   var dataDelegate: URLSessionDataDelegate? {
-    return urlSessionEvents as? URLSessionDataDelegate
+    return delegate as? URLSessionDataDelegate
   }
 
   var sessionDelegate: HTTPSessionDelegate? {
-    return urlSessionEvents as? HTTPSessionDelegate
+    return delegate as? HTTPSessionDelegate
   }
 
-  func resume(task: MockURLSessionTask) {
-    delegateQueue.addOperation {
-      let taskIndex = self.state.lockedRead { $0.tasks.firstIndex(of: task) ?? 0 }
+  func resume(task: MockURLSessionDataTask) {
+    delegateQueue.addOperation { [weak self] in
+      guard let strongSelf = self else {
+        print("Failed to resumed due to weak self")
+        return
+      }
+  
+      let taskIndex = strongSelf.state.lockedRead { $0.tasks.firstIndex(of: task) ?? 0 }
 
-      if let mockTask = self.responseForTask?(task, taskIndex) {
+      if let mockTask = strongSelf.responseForDataTask?(task, taskIndex) {
         mockTask.mockState = .completed
         if let data = mockTask.mockData {
-          self.dataDelegate?.urlSession?(self.actualSession, dataTask: task, didReceive: data)
+          strongSelf.dataDelegate?.urlSession?(strongSelf.actualSession, dataTask: task, didReceive: data)
         }
-        self.dataDelegate?.urlSession?(self.actualSession, task: mockTask, didCompleteWithError: mockTask.error)
+        strongSelf.dataDelegate?.urlSession?(strongSelf.actualSession, task: mockTask, didCompleteWithError: mockTask.error)
       }
+    }
+  }
+  
+  func resume(task: MockURLSessionUploadTask) {
+    delegateQueue.addOperation { [weak self] in
+      guard let strongSelf = self else {
+        print("Failed to resumed due to weak self")
+        return
+      }
+      
+      if let data = task.mockData {
+        (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, dataTask: task, didReceive: data)
+      }
+      
+      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, task: task, didCompleteWithError: task.error)
+    }
+  }
+  
+  func resume(task: MockURLSessionDownloadTask) {
+    delegateQueue.addOperation { [weak self] in
+      guard let strongSelf = self else {
+        print("Failed to resumed due to weak self")
+        return
+      }
+      
+      if let location = task.mockDownloadLocation {
+        (strongSelf.delegate as? URLSessionDownloadDelegate)?.urlSession(strongSelf.actualSession, downloadTask: task, didFinishDownloadingTo: location)
+      }
+      
+      (strongSelf.delegate as? URLSessionDataDelegate)?.urlSession?(strongSelf.actualSession, task: task, didCompleteWithError: task.error)
     }
   }
 
   func dataTask(with request: URLRequest) -> URLSessionDataTask {
-    let task = MockURLSessionTask(identifier: state.lockedRead { $0.tasks.count }, session: self, request: request)
+    let task = MockURLSessionDataTask(identifier: state.lockedRead { $0.tasks.count }, session: self, request: request)
 
     state.lockedWrite { atomicState in
       atomicState.tasks.append(task)
@@ -139,20 +217,32 @@ class MockURLSession: URLSessionReplaceable {
     return task
   }
 
-  func uploadTask(withStreamedRequest _: URLRequest) -> URLSessionUploadTask {
-    return MockURLSessionUploadTask()
+  func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
+    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }) as? URLSessionUploadTask else {
+      fatalError("Task not found for matching request \(request)")
+    }
+    return task
   }
 
-  func uploadTask(with _: URLRequest, fromFile _: URL) -> URLSessionUploadTask {
-    return MockURLSessionUploadTask()
+  func uploadTask(with request: URLRequest, fromFile url: URL) -> URLSessionUploadTask {
+    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }) as? URLSessionUploadTask else {
+      fatalError("Task not found for matching request \(request)")
+    }
+    return task
   }
 
-  func downloadTask(with _: URL) -> URLSessionDownloadTask {
-    return MockURLSessionDownloadTask()
+  func downloadTask(with url: URL) -> URLSessionDownloadTask {
+    guard let task = self.state.lockedRead({ $0.tasks.first { $0.originalRequest?.url == url } }) as? URLSessionDownloadTask else {
+      fatalError("Task not found for matching request \(url)")
+    }
+    return task
   }
 
-  func downloadTask(withResumeData _: Data) -> URLSessionDownloadTask {
-    return MockURLSessionDownloadTask()
+  func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
+    guard let task = self.state.lockedRead({ $0.tasks.first { ($0 as? MockURLSessionDownloadTask)?.resumeData == resumeData } }) as? URLSessionDownloadTask else {
+      fatalError("Task not found for matching request \(resumeData)")
+    }
+    return task
   }
 
   func invalidateAndCancel() {
@@ -169,7 +259,7 @@ extension MockURLSession {
   ) throws -> (session: HTTPSession?, mockSession: MockURLSession) {
     let urlSession = MockURLSession(configuration: .ephemeral, delegate: HTTPSessionDelegate(), delegateQueue: .main)
 
-    urlSession.responseForTask = { mockTask, index in
+    urlSession.responseForDataTask = { mockTask, index in
       guard jsonResources.count + dataResource.count > index else {
         print("Index out of range for next task")
         return nil

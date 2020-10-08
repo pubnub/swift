@@ -79,6 +79,7 @@
 				357AD4EB252D067800099EB7 /* FileAPIViewController.swift */,
 				357AD4F1252E2FFF00099EB7 /* FileTableViewCell.swift */,
 				357AD4F3252E302900099EB7 /* LocalFileExample.swift */,
+				357AD4ED252D087800099EB7 /* FileAPI.storyboard */,
 			);
 			path = File;
 			sourceTree = "<group>";
@@ -123,7 +124,6 @@
 		359F77CF22B8070900B6B46F /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				357AD4ED252D087800099EB7 /* FileAPI.storyboard */,
 				359F779B22B7FEF700B6B46F /* Main.storyboard */,
 				359F779E22B7FEF700B6B46F /* Assets.xcassets */,
 				359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */,

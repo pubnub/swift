@@ -161,7 +161,7 @@ class FileAPIViewController: UIViewController {
       }
 
       // Get the files from the channel directory
-      let files = self.fileManager.files(in: channelDirectory)
+      let files = fileManager.files(in: channelDirectory)
 
       // Convert file
       fileDataSource = files.compactMap { try? LocalFileExample(from: $0, for: channel) }

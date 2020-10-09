@@ -280,7 +280,6 @@ struct GenerateUploadURLResponse: Codable {
   let uploadRequestURL: URL
   let uploadMethod: HTTPMethod
   let uploadFormFields: [FormField]
-  let uploadRequestId = UUID().uuidString
 
   init(
     status: Int,

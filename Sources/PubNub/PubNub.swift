@@ -755,7 +755,7 @@ extension PubNub {
 
   /// Removes the channel group.
   /// - Parameters:
-  ///   - channelGroup: The channel group to delete.
+  ///   - channelGroup: The channel group to remove.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The channel-group that was removed

@@ -34,7 +34,7 @@ enum FileError: Error {
   case missingLocalFile
 }
 
-struct LocalFileExample: PubNubLocalFile {
+struct LocalFileExample: PubNubLocalFile, Hashable  {
   var fileURL: URL
   var channel: String
 
@@ -68,29 +68,40 @@ struct LocalFileExample: PubNubLocalFile {
       let filenameSubstring = filenameSplit.last else {
       throw FileError.fileNameError
     }
-
-    fileId = String(fileIdSubstring)
+    
+    if fileIdSubstring == filenameSubstring {
+      fileId = "LOCALONLY"
+    } else {
+      fileId = String(fileIdSubstring)
+    }
+    
     filename = String(filenameSubstring)
   }
 
   init(from other: PubNubLocalFile) throws {
-    try self.init(from: other.fileURL, for: other.channel)
+    if !other.fileURL.pathComponents.allSatisfy({ $0 != "tmp" }) {
+      let newURL = try FileManager.default.url(
+        for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false
+      ).appendingPathComponent(other.channel).appendingPathComponent("\(other.fileId):\(other.remoteFilename)")
+      
+      try FileManager.default.copyItem(at: other.fileURL, to: newURL)
+      
+      try self.init(from: newURL, for: other.channel)
+    } else {
+      try self.init(from: other.fileURL, for: other.channel)
+    }
   }
 
   init(from other: PubNubFile) throws {
-    if let otherLocal = other as? PubNubLocalFile {
-      try self.init(from: otherLocal)
-    } else {
-      let manager = FileManager.default
+    let manager = FileManager.default
 
-      let remoteURL = try manager
-        .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-        .appendingPathComponent(other.channel)
-        .appendingPathComponent("\(other.fileId):\(other.filename)")
+    let remoteURL = try manager
+      .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+      .appendingPathComponent(other.channel)
+      .appendingPathComponent("\(other.fileId):\(other.filename)")
 
-      print("Created file at \(remoteURL)")
+    print("Created file at \(remoteURL)")
 
-      try self.init(from: remoteURL, for: other.channel)
-    }
+    try self.init(from: remoteURL, for: other.channel)
   }
 }

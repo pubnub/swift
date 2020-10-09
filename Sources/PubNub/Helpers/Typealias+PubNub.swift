@@ -55,3 +55,8 @@ public typealias ProgressTuple = (bytesWritten: Int64, totalBytesWritten: Int64,
 
 /// A snapshot of a File's tranmission progress
 public typealias ProgressBlock = (ProgressTuple) -> Void
+
+// MARK: - Tuples
+
+/// A `Tuple` containing the `URLRequest` to upload the `fileURL`, and the fileId/filename the uploaded file will have once uploaded
+public typealias FileUploadTuple = (request: URLRequest, fileId: String, filename: String)

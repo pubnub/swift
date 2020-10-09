@@ -172,8 +172,9 @@ extension HTTPFileTask {
 
 // A File-based URL session task that uploads data to the network in a request body or directy from a file URL
 public class HTTPFileUploadTask: HTTPFileTask {
-  // The body of the response
+  /// The body of the response
   public var responseData: Data?
+  /// The  block that is called when the task completes
   public var completionBlock: ((Result<Void, Error>) -> Void)?
 
   func didReceieve(data: Data) {
@@ -230,8 +231,15 @@ public class HTTPFileUploadTask: HTTPFileTask {
 
 /// A File-based URL session task that stores downloaded data to a local file.
 public class HTTPFileDownloadTask: HTTPFileTask {
+  /// The  block that is called when the task completes
   public var completionBlock: ((Result<URL, Error>) -> Void)?
 
+  /// Cancels a download and calls a callback with resume data for later use.
+  public func cancel(byProducingResumeData: @escaping (Data?) -> Void) {
+    (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
+  }
+
+  /// The location where the temporary downloaded file should be copied
   public private(set) var destinationURL: URL
   var downloadURL: URL?
 
@@ -392,4 +400,6 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       totalBytesExpectedToWrite: totalBytesExpectedToWrite
     )
   }
+
+  // swiftlint:disable:next file_length
 }

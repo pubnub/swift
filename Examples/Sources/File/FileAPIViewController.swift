@@ -63,7 +63,6 @@ class FileAPIViewController: UIViewController {
     // Setup File Listener
     let listener = SubscriptionListener()
     listener.didReceiveFileUpload = { [weak self] event in
-      print("Recieved a file \(event)")
       if let localFile = try? LocalFileExample(from: event.file) {
         self?.fileDataSource.append(localFile)
         self?.reloadFiles()
@@ -78,24 +77,6 @@ class FileAPIViewController: UIViewController {
     )
   }
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-
-    pubnub.reconnect()
-  }
-
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-
-    pubnub.disconnect()
-  }
-
-  override func viewDidDisappear(_ animated: Bool) {
-    super.viewDidDisappear(animated)
-
-    dismiss(animated: true)
-  }
-
   // MARK: Action Outlets
 
   @IBAction func changeChannelPressed(_: Any) {
@@ -107,7 +88,9 @@ class FileAPIViewController: UIViewController {
   @IBAction func uploadFilePicker(_: Any) {
     let picker: UIDocumentPickerViewController
     if #available(iOS 14.0, macCatalyst 13.0, *) {
-      picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data])
+      // We copy to get the file into our app space; otherwise it's temporary URL
+      // If you only care about uploading the file, and now storing the entire file locally then you can avoid copying here
+      picker = UIDocumentPickerViewController(forOpeningContentTypes: [.data], asCopy: true)
     } else {
       picker = UIDocumentPickerViewController(documentTypes: ["public.data"], in: .import)
     }
@@ -135,7 +118,9 @@ class FileAPIViewController: UIViewController {
 
   func reloadFiles() {
     DispatchQueue.main.async { [weak self] in
-      self?.fileDataSource.sort(by: { $0.fileId < $1.fileId })
+      guard let strongSelf = self else { return }
+      // Dirty way to de-duplicate a List
+      strongSelf.fileDataSource = Array(Set(strongSelf.fileDataSource)).sorted(by: { $0.fileId < $1.fileId })
       self?.tableView.reloadData()
     }
   }
@@ -176,7 +161,7 @@ class FileAPIViewController: UIViewController {
       }
 
       // Get the files from the channel directory
-      let files = FileManager.default.files(in: channelDirectory)
+      let files = self.fileManager.files(in: channelDirectory)
 
       // Convert file
       fileDataSource = files.compactMap { try? LocalFileExample(from: $0, for: channel) }
@@ -186,7 +171,6 @@ class FileAPIViewController: UIViewController {
     pubnub.listFiles(channel: channel) { [weak self] result in
       switch result {
       case let .success((files, _)):
-        print("Files returned \(files)")
 
         files.forEach { file in
           // Check if the fileId exists, and replace
@@ -240,7 +224,6 @@ class FileAPIViewController: UIViewController {
     } completion: { [weak self] result in
       switch result {
       case let .success((newFile, _)):
-
         if let newLocal = try? LocalFileExample(from: newFile) {
           self?.fileDataSource.removeAll(where: { $0.fileId == newLocal.fileId })
           self?.fileDataSource.append(newLocal)
@@ -260,7 +243,7 @@ class FileAPIViewController: UIViewController {
 
   func download(_ file: LocalFileExample) {
     pubnub.download(
-      file: file, downloadTo: file.fileURL
+      file: file, toFileURL: file.fileURL
     ) { [weak self] (task: HTTPFileDownloadTask) in
       DispatchQueue.main.async {
         if let progressView = self?.progressAlertView(for: task.progress, direction: .download) {

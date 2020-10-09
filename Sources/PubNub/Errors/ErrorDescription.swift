@@ -321,11 +321,11 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .failedToPublish:
       return "The operation successfully stored the value, but failed to publish"
     case .fileTooLarge:
-      return "Your proposed upload exceeds the maximum allowed object size."
+      return "Your proposed upload exceeds the maximum allowed object size"
     case .protocolTranscodingFailure:
       return "Conversion between underlying protocol types failed due to incompatible Type requirements"
     case .streamCouldNotBeInitialized:
-      return "A Stream could not be created with the "
+      return "A Stream could not be created with the from the resource provided"
     case .inputStreamFailure:
       return "An `InputStream` failed due to the contained underlying error"
     case .outputStreamFailure:

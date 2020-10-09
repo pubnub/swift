@@ -42,6 +42,7 @@ public extension URLRequest {
     }
   }
 
+  /// Creates  a multipart-form request based on a generated url response and a file URL
   internal init(from response: GenerateUploadURLResponse, uploading fileURL: URL) throws {
     self.init(url: response.uploadRequestURL)
     method = response.uploadMethod
@@ -49,10 +50,10 @@ public extension URLRequest {
     // File Prefix
     var prefixData = Data()
     prefixData.append(
-      response.uploadFormFields.map { $0.multipartyDescription(boundary: response.uploadRequestId) }.joined()
+      response.uploadFormFields.map { $0.multipartyDescription(boundary: response.fileId) }.joined()
     )
     // swiftlint:disable:next line_length
-    prefixData.append("--\(response.uploadRequestId)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(response.filename)\"\r\n")
+    prefixData.append("--\(response.fileId)\r\nContent-Disposition: form-data; name=\"file\"; filename=\"\(response.filename)\"\r\n")
     prefixData.append("Content-Type: \(fileURL.mimeType)\r\n\r\n")
 
     // Get InputStream from File
@@ -62,7 +63,7 @@ public extension URLRequest {
 
     // File Postfix
     var postfixData = Data()
-    postfixData.append("\r\n--\(response.uploadRequestId)--")
+    postfixData.append("\r\n--\(response.fileId)--")
 
     let inputStream = MultipartInputStream(
       inputStreams: [InputStream(data: prefixData), fileStream, InputStream(data: postfixData)]
@@ -71,7 +72,7 @@ public extension URLRequest {
     httpBodyStream = inputStream
 
     // Headers
-    setValue("multipart/form-data; boundary=\(response.uploadRequestId)", forHTTPHeaderField: "Content-Type")
+    setValue("multipart/form-data; boundary=\(response.fileId)", forHTTPHeaderField: "Content-Type")
     setValue("\(prefixData.count + fileURL.sizeOf + postfixData.count)", forHTTPHeaderField: "Content-Length")
   }
 }

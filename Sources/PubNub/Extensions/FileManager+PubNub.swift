@@ -116,7 +116,7 @@ extension FileManager {
   /// - Returns: The `URL` containing the contents of the `InputStream`
   /// - Throws: The error that occurred while writing to the File
   public func temporaryFile(
-    using filename: String = UUID().uuidString, writing inputStream: InputStream?
+    using filename: String = UUID().uuidString, writing inputStream: InputStream?, purgeExisting: Bool = false
   ) throws -> URL {
     // Background File
     let tempDirectory: URL
@@ -129,8 +129,12 @@ extension FileManager {
     let tempFileURL = tempDirectory.appendingPathComponent(filename)
 
     // Check if file exists for cache and return
-    if FileManager.default.fileExists(atPath: tempFileURL.path) {
-      return tempFileURL
+    if fileExists(atPath: tempFileURL.path) {
+      if purgeExisting {
+        try removeItem(at: tempFileURL)
+      } else {
+        return tempFileURL
+      }
     }
 
     guard let inputStream = inputStream else {

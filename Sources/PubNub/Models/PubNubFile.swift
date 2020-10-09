@@ -85,14 +85,14 @@ public struct PubNubLocalFileBase: PubNubLocalFile {
     fileURL: URL,
     channel: String,
     fileId: String,
-    remoteFilename: String,
+    remoteFilename: String? = nil,
     custom: JSONCodable? = nil,
     createdDate: Date? = nil
   ) {
     self.fileURL = fileURL
     self.channel = channel
     self.fileId = fileId
-    self.remoteFilename = remoteFilename
+    self.remoteFilename = remoteFilename ?? fileURL.lastPathComponent
     self.custom = custom
     self.createdDate = createdDate
   }
@@ -186,8 +186,8 @@ public struct PubNubFileBase: PubNubFile {
     filename: String,
     size: Int64,
     contentType: String,
-    createdDate: Date?,
-    custom: JSONCodable?
+    createdDate: Date? = nil,
+    custom: JSONCodable? = nil
   ) {
     self.channel = channel
     self.fileId = fileId

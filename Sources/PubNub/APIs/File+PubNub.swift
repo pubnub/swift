@@ -64,8 +64,8 @@ public extension PubNub {
   /// Remove file from specified `Channel`
   /// - Parameters:
   ///   - channel: The name of the channel
-  ///   - fileId: Unique identifier of the file to be deleted.
-  ///   - filename: Name of the file to be deleted.
+  ///   - fileId: Unique identifier of the file to be removed.
+  ///   - filename: Name of the file to be removed.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the `channel` and `fileId` of the removed file
@@ -140,12 +140,12 @@ public extension PubNub {
   ///   - replacingFilename: A replacement filename that will be used by the server, otherwise the `lastPathComponent` of the `fileURL` will be used
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing the `URLRequest` to upload the `fileURL` and the PubNub file object representing the `fileURL`
+  ///     - **Success**: A `Tuple` containing the `URLRequest` to upload the `fileURL`, and the fileId/filename the uploaded file will have once uploaded
   ///     - **Failure**: An `Error` describing the failure
   func generateFileUploadURLRequest(
     using fileURL: URL, channel: String, replacingFilename: String? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(URLRequest, PubNubLocalFile), Error>) -> Void)?
+    completion: ((Result<FileUploadTuple, Error>) -> Void)?
   ) {
     route(
       FileManagementRouter(
@@ -160,7 +160,8 @@ public extension PubNub {
         do {
           completion?(.success((
             try URLRequest(from: response.payload, uploading: fileURL),
-            PubNubLocalFileBase(fromFile: fileURL, pubnub: response.payload, on: channel)
+            response.payload.fileId,
+            response.payload.filename
           )))
         } catch {
           // Error Creating the Reqeust
@@ -255,7 +256,7 @@ public extension PubNub {
   /// - Parameters:
   ///   - fileURL: The local file to upload
   ///   - channel: `Channel` for the file
-  ///   - replacingFilename: A replacement filename that will be used by the server, otherwise the `lastPathComponent` of the `fileURL` will be used
+  ///   - replacingFilename: A replacement filename under which the uploaded file is stored, otherwise the `lastPathComponent` of the `fileURL` will be used
   ///   - publishRequest: The request configuration object when the file is published to PubNub
   ///   - custom: Custom configuration overrides when generating the File Upload `URLRequest`
   ///   - uploadTask: The file upload task executing the upload; contains a reference to the actual `URLSessionUploadTask`
@@ -274,13 +275,13 @@ public extension PubNub {
       using: url, channel: channel, replacingFilename: replacingFilename, custom: requestConfig
     ) { generateURLResult in
       switch generateURLResult {
-      case let .success((request, localPubNubFile)):
+      case let .success((request, fileId, filename)):
         let task: HTTPFileUploadTask
         do {
           task = try createFileURLSessionUploadTask(
             request: request,
             session: fileURLSession,
-            backgroundFileCacheIdentifier: localPubNubFile.fileId
+            backgroundFileCacheIdentifier: fileId
           )
         } catch {
           // Error creating the URLSessionTask for the upload
@@ -291,9 +292,18 @@ public extension PubNub {
         task.completionBlock = { uploadResult in
           switch uploadResult {
           case .success:
+            let localFile = PubNubLocalFileBase(
+              fileURL: url,
+              channel: channel,
+              fileId: fileId,
+              remoteFilename: filename
+            )
             // Publish the File was uploaded
-            publish(file: localPubNubFile, request: publishRequest) { publishResult in
-              completion?(publishResult.map { (localPubNubFile, $0) })
+            publish(
+              file: localFile,
+              request: publishRequest
+            ) { publishResult in
+              completion?(publishResult.map { (localFile, $0) })
             }
           case let .failure(uploadError):
             // Error returned attempting to upload the file
@@ -318,11 +328,13 @@ public extension PubNub {
 
   /// Generate a file's direct download URL.
   ///
+  /// - Note:The returned URL is used to download a file independent of the `PubNub` instance, and not to be used with the PubNub `download(file:downloadTo:resumeData:completion:)` function.
+  ///
   /// This method doesn't make any API calls, but the URL construction might change and should not be cached
   /// - Parameters:
   ///   - channel: The `PubNubFile` representing the uploaded File
-  ///   - fileId: The request configuration object
-  ///   - filename: The async `Result` of the method call
+  ///   - fileId: Unique file identifier which has been assigned during file upload.
+  ///   - filename: Name under which the uploaded file is stored.
   /// - Returns:The URL where the file can be downloaded
   /// - Throws: An error if the URL could be created
   func generateFileDownloadURL(channel: String, fileId: String, filename: String) throws -> URL {
@@ -382,16 +394,16 @@ public extension PubNub {
   ///
   /// - Parameters:
   ///   - file: The `PubNubFile` that should be downloaded
-  ///   - downloadTo: The file URL where the file should be downloaded to
+  ///   - localFileURL: The file URL where the file should be downloaded to. This is should not be the URL returned from `generateFileDownloadURL`
   ///   - resumeData: A data object that provides the data necessary to resume a download.
   ///   - downloadTask: The file download task executing the upload
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubLocalFile` that was downloaded.  The  `localFileURL` property might be different from what was requested to avoid duplciated filenames
+  ///     - **Success**: The `PubNubLocalFile` that was downloaded. The `fileURL` of this object might be different from the `toFileURL` in the request if a file already exists at that location.
   ///     - **Failure**: An `Error` describing the failure
   func download(
-    file: PubNubFile, downloadTo localFileURL: URL,
+    file: PubNubFile, toFileURL localFileURL: URL,
     resumeData: Data? = nil,
-    downloadTask: @escaping (HTTPFileDownloadTask) -> Void,
+    downloadTask: @escaping (HTTPFileDownloadTask) -> Void = { _ in },
     completion: ((Result<PubNubLocalFile, Error>) -> Void)?
   ) {
     let task: HTTPFileDownloadTask

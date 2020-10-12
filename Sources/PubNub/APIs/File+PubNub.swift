@@ -249,7 +249,7 @@ public extension PubNub {
     }
   }
 
-  // TOOD: How to handle crypto oeprations?  If we alredy have the data we just process normally, but for everything else?
+  /// Content that can be uploaded as a `File` to PubNub
   enum FileUploadContent: CustomStringConvertible, CustomDebugStringConvertible {
     /// A URL to an existing file
     case file(url: URL)
@@ -334,7 +334,7 @@ public extension PubNub {
   /// - Parameters:
   ///   - fileURL: The local file to upload
   ///   - channel: `Channel` for the file
-  ///   - remoteFilename: A replacement filename under which the uploaded file is stored
+  ///   - remoteFilename: The name of the content when uploaded
   ///   - publishRequest: The request configuration object when the file is published to PubNub
   ///   - custom: Custom configuration overrides when generating the File Upload `URLRequest`
   ///   - uploadTask: The file upload task executing the upload; contains a reference to the actual `URLSessionUploadTask`
@@ -482,7 +482,7 @@ public extension PubNub {
   ///   - resumeData: A data object that provides the data necessary to resume a download.
   ///   - downloadTask: The file download task executing the upload
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubLocalFile` that was downloaded. The `fileURL` of this object might be different from the `toFileURL` in the request if a file already exists at that location.
+  ///     - **Success**: A `Tuple` containing the `HTTPFileUploadTask` that completed,, and the `PubNubLocalFile` that was downloaded. The `fileURL` of this object might be different from the `toFileURL` in the request if a file already exists at that location.
   ///     - **Failure**: An `Error` describing the failure
   func download(
     file: PubNubFile, toFileURL localFileURL: URL,

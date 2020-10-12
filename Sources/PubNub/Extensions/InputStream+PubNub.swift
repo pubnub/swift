@@ -63,8 +63,9 @@ extension InputStream {
     }
   }
 
-  private func write(_ buffer: inout [UInt8], to outputStream: OutputStream) throws {
-    var bytesToWrite = buffer.count
+  @discardableResult
+  private func write(_ buffer: inout [UInt8], totalBytes: Int? = nil, to outputStream: OutputStream) throws -> Int {
+    var bytesToWrite = totalBytes ?? buffer.count
 
     while bytesToWrite > 0, outputStream.hasSpaceAvailable {
       let bytesWritten = outputStream.write(buffer, maxLength: bytesToWrite)
@@ -79,5 +80,12 @@ extension InputStream {
         buffer = Array(buffer[bytesWritten ..< buffer.count])
       }
     }
+
+    if bytesToWrite > 0 {
+      // There are still bytes left to be written, but the OutputStream is full
+      throw PubNubError(.unknown)
+    }
+
+    return totalBytes ?? buffer.count
   }
 }

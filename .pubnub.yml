@@ -5,6 +5,8 @@ version: "3.1.0"
 schema: 1
 changelog:
   - changes:
+    - text: "CryptoStream and CryptoInputStream can be used to perform crypto operations on streams of data"
+      type: feature
     - text: "File upload/download support"
       type: feature
     - text: "Added includeUUID and includeMessageType flags to History"

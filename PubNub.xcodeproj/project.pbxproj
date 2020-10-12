@@ -44,10 +44,14 @@
 		350EFBDC22C951F700FA33AA /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDB22C951F700FA33AA /* Request.swift */; };
 		350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */; };
 		350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBE322C95FED00FA33AA /* Atomic.swift */; };
+		35133196253115C500242CC2 /* CryptoStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35133195253115C500242CC2 /* CryptoStream.swift */; };
 		3513AB2723A967D9002D4B57 /* PAMTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */; };
 		3513AB2923A96803002D4B57 /* PAMTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2823A96803002D4B57 /* PAMTokenStore.swift */; };
 		3520962F2358D64C00A641DF /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
 		352096302358D67000A641DF /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
+		352224EE253397AA00A5B330 /* CryptoInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 352224ED253397AA00A5B330 /* CryptoInputStream.swift */; };
+		352224FD2533D15A00A5B330 /* file_upload_sample_encrypted.txt in Resources */ = {isa = PBXBuildFile; fileRef = 352224FB2533D15A00A5B330 /* file_upload_sample_encrypted.txt */; };
+		352224FE2533D15A00A5B330 /* file_upload_sample.txt in Resources */ = {isa = PBXBuildFile; fileRef = 352224FC2533D15A00A5B330 /* file_upload_sample.txt */; };
 		35270C0323AC124800501388 /* CBORDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35270C0223AC124800501388 /* CBORDecoder.swift */; };
 		35277A7022D6B3F90083B9B6 /* URL+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */; };
 		35293A7A2368F9680049A71F /* MessageActionsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35293A792368F9680049A71F /* MessageActionsRouter.swift */; };
@@ -372,8 +376,12 @@
 		350EFBDD22C9520400FA33AA /* EndpointResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointResponse.swift; sourceTree = "<group>"; };
 		350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLocking+PubNub.swift"; sourceTree = "<group>"; };
 		350EFBE322C95FED00FA33AA /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
+		35133195253115C500242CC2 /* CryptoStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoStream.swift; sourceTree = "<group>"; };
 		3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStoreTests.swift; sourceTree = "<group>"; };
 		3513AB2823A96803002D4B57 /* PAMTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStore.swift; sourceTree = "<group>"; };
+		352224ED253397AA00A5B330 /* CryptoInputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoInputStream.swift; sourceTree = "<group>"; };
+		352224FB2533D15A00A5B330 /* file_upload_sample_encrypted.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = file_upload_sample_encrypted.txt; sourceTree = "<group>"; };
+		352224FC2533D15A00A5B330 /* file_upload_sample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = file_upload_sample.txt; sourceTree = "<group>"; };
 		35270C0223AC124800501388 /* CBORDecoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBORDecoder.swift; sourceTree = "<group>"; };
 		35277A6622D673090083B9B6 /* HTTPSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPSessionDelegate.swift; sourceTree = "<group>"; };
 		35277A6F22D6B3F90083B9B6 /* URL+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+PubNub.swift"; sourceTree = "<group>"; };
@@ -703,6 +711,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		352224EC2533979200A5B330 /* Streams */ = {
+			isa = PBXGroup;
+			children = (
+				357CA287251D3C9100BC40D3 /* MultipartInputStream.swift */,
+				352224ED253397AA00A5B330 /* CryptoInputStream.swift */,
+			);
+			path = Streams;
+			sourceTree = "<group>";
+		};
+		3522250B25340B8900A5B330 /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
+				35133195253115C500242CC2 /* CryptoStream.swift */,
+			);
+			path = Crypto;
+			sourceTree = "<group>";
+		};
 		35293A7B2369EF4B0049A71F /* MessageActions */ = {
 			isa = PBXGroup;
 			children = (
@@ -838,12 +864,12 @@
 				3556E37124806E33004FDC25 /* CaseAccessible.swift */,
 				3585A02223C63ECE00FDA860 /* CBOR */,
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
-				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
+				3522250B25340B8900A5B330 /* Crypto */,
 				35B38249233AAB8C0028803F /* JSONCodable.swift */,
-				357CA287251D3C9100BC40D3 /* MultipartInputStream.swift */,
 				3513AB2823A96803002D4B57 /* PAMTokenStore.swift */,
 				3559978B230A02B7000BCFD1 /* PubNubLogger.swift */,
 				35599798230C5878000BCFD1 /* LogWriter.swift */,
+				352224EC2533979200A5B330 /* Streams */,
 				355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */,
 				35304F8922FE5425006A02CA /* Validated.swift */,
 				35CDA4CA250FE30300218137 /* XML */,
@@ -1169,6 +1195,8 @@
 			isa = PBXGroup;
 			children = (
 				35AE6A3425000A3800BBFA37 /* file_list_success_empty.json */,
+				352224FB2533D15A00A5B330 /* file_upload_sample_encrypted.txt */,
+				352224FC2533D15A00A5B330 /* file_upload_sample.txt */,
 				35C8FDCA25003A9F0069E89E /* file_generateURL_success.json */,
 				35FAD719250993EE0099D0E5 /* file_delete_success.json */,
 			);
@@ -1646,6 +1674,7 @@
 				35C8FDC925001EE10069E89E /* file_list_success_empty.json in Resources */,
 				35293A852369F00C0049A71F /* addMessageAction_success_207.json in Resources */,
 				355997852307966C000BCFD1 /* message_counts_error_serviceNotEnabled.json in Resources */,
+				352224FE2533D15A00A5B330 /* file_upload_sample.txt in Resources */,
 				35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */,
 				350BC4132339530200011262 /* objects_error_409.json in Resources */,
 				35059782234964A0007DC06E /* subscription_uuidRemove_success.json in Resources */,
@@ -1657,6 +1686,7 @@
 				35A6C79422FB96BE00E97CC5 /* maximumChannelCountExceeded_Message.json in Resources */,
 				3562DBCC23450FDE006DFFBC /* objects_channel_all_success_empty.json in Resources */,
 				35A66A9822F9B72500AC67A9 /* getState_success.json in Resources */,
+				352224FD2533D15A00A5B330 /* file_upload_sample_encrypted.txt in Resources */,
 				35FE93EA22EF93A90051C455 /* cannotConnectToHost.json in Resources */,
 				35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */,
 				35A6C7B322FBD9D200E97CC5 /* push_remove_all_success.json in Resources */,
@@ -1792,6 +1822,7 @@
 				35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */,
 				35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */,
 				35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */,
+				35133196253115C500242CC2 /* CryptoStream.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */,
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
@@ -1802,6 +1833,7 @@
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
 				3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
+				352224EE253397AA00A5B330 /* CryptoInputStream.swift in Sources */,
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,

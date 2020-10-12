@@ -95,14 +95,14 @@ class MultipartInputStream: InputStream {
 
       // Read buffer from current input stream
       switch currentInputStream.read(&buffer[totalNumberOfBytesRead], maxLength: remainingLength) {
-      case let value where value < 0:
+      case let bytesRead where bytesRead < 0:
         // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
         _streamError = currentInputStream.streamError
         _streamStatus = .error
-        return value
-      case let value where value > 0:
+        return bytesRead
+      case let bytesRead where bytesRead > 0:
         // A positive number indicates the number of bytes read.
-        totalNumberOfBytesRead += value
+        totalNumberOfBytesRead += bytesRead
       default:
         // 0 represents end of the current buffer
         currentIndex += 1

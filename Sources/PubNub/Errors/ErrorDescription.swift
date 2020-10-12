@@ -340,6 +340,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "System canceled the background task because the user force-quit the application"
     case .fileAccessDenied:
       return "File was unable to be obtained from file provider; regenerate URL and retry"
+    case .fileContentLength:
+      return "The Content-Length was incorrect for the content being uploaded"
     }
   }
 

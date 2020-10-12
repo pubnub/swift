@@ -60,3 +60,6 @@ public typealias ProgressBlock = (ProgressTuple) -> Void
 
 /// A `Tuple` containing the `URLRequest` to upload the `fileURL`, and the fileId/filename the uploaded file will have once uploaded
 public typealias FileUploadTuple = (request: URLRequest, fileId: String, filename: String)
+
+/// A `Tuple` containing the `HTTPFileUploadTask` that completed, the `PubNubFile` that was uploaded, and the `Timetoken` when it was published
+public typealias FileUploadSendSuccess = (task: HTTPFileUploadTask, file: PubNubFile, publishedAt: Timetoken)

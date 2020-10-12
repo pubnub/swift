@@ -84,7 +84,7 @@ class CryptoTests: XCTestCase {
 
     // Validate common key value
     XCTAssertEqual("NTQ5YzNlNGZjOGEzNDRmZThhNzMxOTQ3ODg4ZTRhMDE=",
-                   crypto.key?.base64EncodedString())
+                   crypto.key.base64EncodedString())
 
     let message = "\"Hello there!\""
     guard let messageData = message.data(using: .utf8) else {
@@ -93,7 +93,7 @@ class CryptoTests: XCTestCase {
 
     do {
       // Validate Common IV
-      let ivData = try Crypto.initializationVector.get()
+      let ivData = try Crypto.staticInitializationVector()
       XCTAssertEqual(ivData.base64EncodedString(), "MDEyMzQ1Njc4OTAxMjM0NQ==")
 
       let encryptedMessage = try crypto.encrypt(encoded: messageData).get()
@@ -106,7 +106,107 @@ class CryptoTests: XCTestCase {
       XCTAssertEqual(message,
                      String(bytes: decrypted, encoding: .utf8))
     } catch {
-      XCTFail("Crypto failed due to \(error.localizedDescription)")
+      XCTFail("Crypto failed due to \(error)")
+    }
+  }
+
+  func testOtherSDK_RandomIV() {
+    guard let crypto = Crypto(key: "enigma", withRandomIV: true) else {
+      return XCTFail("Could not create crypto instance")
+    }
+
+    let plaintext = "yay!"
+    let otherSDKBase64 = "MTIzNDU2Nzg5MDEyMzQ1NjdnONoCgo0wbuMGGMmfMX0="
+
+    do {
+      let swiftEncryptedString = try crypto.encrypt(plaintext: plaintext).get()
+
+      let swiftDecryptedString = try crypto.decrypt(
+        base64Encoded: swiftEncryptedString
+      ).get()
+
+      XCTAssertEqual(plaintext, swiftDecryptedString)
+
+      guard let otherData = Data(base64Encoded: otherSDKBase64) else {
+        return XCTFail("Could not create data from Base64")
+      }
+
+      let otherDecrypted = try crypto.decrypt(
+        encrypted: otherData
+      ).get()
+
+      print(otherDecrypted.map { $0 })
+      print("Decrypted \(otherDecrypted.count) bytes \(otherDecrypted.base64EncodedString())")
+
+      XCTAssertEqual(plaintext, String(data: otherDecrypted, encoding: .utf8))
+    } catch {
+      XCTFail("Crypto failed due to \(error)")
+    }
+  }
+
+  func testStreamOtherSDK() {
+    guard let crypto = Crypto(key: "enigma", withRandomIV: true) else {
+      return XCTFail("Could not create crypto instance")
+    }
+
+    do {
+      let ecrypted = try ImportTestResource.importResource("file_upload_sample_encrypted", withExtension: "txt")
+      let final = try ImportTestResource.importResource("file_upload_sample", withExtension: "txt")
+      let finalString = String(data: final, encoding: .utf8)
+
+      XCTAssertEqual(finalString?.isEmpty, false)
+
+      let decryptedStream = CryptoInputStream(.decrypt, data: ecrypted, with: crypto)
+      let decryptedURL = try FileManager.default.temporaryFile(
+        using: "decryptedStream",
+        writing: decryptedStream,
+        purgeExisting: true
+      )
+      let decrypted = try Data(contentsOf: decryptedURL)
+
+      XCTAssertEqual(finalString, String(data: decrypted, encoding: .utf8))
+
+    } catch {
+      XCTFail("Could not write to temp file \(error)")
+    }
+  }
+
+  func testStreamEncryptDecrypt() {
+    guard let crypto = Crypto(key: "enigma", withRandomIV: true) else {
+      return XCTFail("Could not create crypto instance")
+    }
+
+    do {
+      guard let plainTextURL = ImportTestResource.testsBundle.url(
+        forResource: "file_upload_sample", withExtension: "txt"
+      ) else {
+        return XCTFail("Could not get the URL for resource")
+      }
+      guard let plaintextString = String(data: try Data(contentsOf: plainTextURL), encoding: .utf8) else {
+        return XCTFail("Could not create string from data")
+      }
+
+      XCTAssertEqual(plaintextString.isEmpty, false)
+
+      let encryptedStream = CryptoInputStream(.encrypt, url: plainTextURL, with: crypto)
+      let encryptedURL = try FileManager.default.temporaryFile(
+        using: "encryptedStream",
+        writing: encryptedStream,
+        purgeExisting: true
+      )
+
+      let decryptedStream = CryptoInputStream(.decrypt, url: encryptedURL, with: crypto)
+      let decryptedURL = try FileManager.default.temporaryFile(
+        using: "decryptedStream",
+        writing: decryptedStream,
+        purgeExisting: true
+      )
+      let decryptedString = String(data: try Data(contentsOf: decryptedURL), encoding: .utf8)
+
+      XCTAssertEqual(plaintextString, decryptedString)
+
+    } catch {
+      XCTFail("Could not write to temp file \(error)")
     }
   }
 
@@ -115,13 +215,13 @@ class CryptoTests: XCTestCase {
   func testValidateKeySize() {
     let aesCipher = Crypto.Cipher.aes
 
-    XCTAssertNil(aesCipher.validate(keySize: kCCKeySizeAES128))
+    XCTAssertNoThrow(try aesCipher.validate(keySize: kCCKeySizeAES128))
   }
 
   func testValidateKeySize_Failure() {
     let aesCipher = Crypto.Cipher.aes
 
-    XCTAssertNotNil(aesCipher.validate(keySize: 0))
+    XCTAssertThrowsError(try aesCipher.validate(keySize: 0))
   }
 
   // MARK: - CryptoError

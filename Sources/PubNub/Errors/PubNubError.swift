@@ -162,6 +162,7 @@ public struct PubNubError: Error {
     case fileMissingAtPath
     case fileTooLarge
     case fileAccessDenied
+    case fileContentLength
 
     // Service Not Enabled
     case pushNotEnabled
@@ -224,7 +225,7 @@ public struct PubNubError: Error {
         return .uncategorized
       case .streamCouldNotBeInitialized, .inputStreamFailure, .outputStreamFailure:
         return .streamFailure
-      case .fileTooLarge, .fileMissingAtPath, .fileAccessDenied:
+      case .fileTooLarge, .fileMissingAtPath, .fileAccessDenied, .fileContentLength:
         return .fileManagement
       }
     }

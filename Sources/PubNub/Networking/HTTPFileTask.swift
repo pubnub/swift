@@ -233,6 +233,8 @@ public class HTTPFileUploadTask: HTTPFileTask {
 public class HTTPFileDownloadTask: HTTPFileTask {
   /// The  block that is called when the task completes
   public var completionBlock: ((Result<URL, Error>) -> Void)?
+  /// The crypto object that will attempt to decrypt the file
+  public var crypto: Crypto?
 
   /// Cancels a download and calls a callback with resume data for later use.
   public func cancel(byProducingResumeData: @escaping (Data?) -> Void) {
@@ -243,8 +245,9 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   public private(set) var destinationURL: URL
   var downloadURL: URL?
 
-  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL) {
+  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, crypto: Crypto?) {
     destinationURL = url
+    self.crypto = crypto
 
     super.init(task: task, session: identifier)
   }
@@ -365,10 +368,17 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
 
     do {
       let fileManager = FileManager.default
-
       let fileURL = fileManager.makeUniqueFilename(fileDownloadTask.destinationURL)
 
-      try fileManager.moveItem(at: location, to: fileURL)
+      if let crypto = fileDownloadTask.crypto {
+        // If we were provided a crypto object we should try and decrypt the file
+        guard let secureStream = CryptoInputStream(.decrypt, url: location, with: crypto) else {
+          throw PubNubError(.streamCouldNotBeInitialized, additional: [location.absoluteString])
+        }
+        try secureStream.writeEncodedData(to: fileURL)
+      } else {
+        try fileManager.moveItem(at: location, to: fileURL)
+      }
 
       didDownload?(session, downloadTask, fileURL)
       (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: fileURL)

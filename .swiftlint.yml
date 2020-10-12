@@ -3,6 +3,8 @@ line_length:
 disabled_rules:
   - identifier_name
   - type_name
+  - function_body_length
+  - function_parameter_count
 excluded:
   - .build
   - bundle

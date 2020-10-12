@@ -221,6 +221,7 @@ class MasterDetailTableViewController: UITableViewController {
     super.viewDidLoad()
 
     var config = PubNubConfiguration()
+    // Uncomment the next line to encrypt messages/files
 //    config.cipherKey = Crypto(key: "MyCoolCipherKey")
     config.automaticRetry = AutomaticRetry(retryLimit: 500, policy: .linear(delay: 0.25))
 

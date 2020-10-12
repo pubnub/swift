@@ -199,7 +199,7 @@ class FileAPIViewController: UIViewController {
       print("The \(file) already exists in all places")
     case (true, false):
       print("The \(file) should start uploading")
-      send(file.fileURL, channel: file.channel)
+      send(.file(url: file.fileURL), channel: file.channel)
 
     case (false, true):
       print("The \(file) should start downloding")
@@ -211,10 +211,13 @@ class FileAPIViewController: UIViewController {
     }
   }
 
-  func send(_ url: URL, channel: String) {
+  func send(_ content: PubNub.FileUploadContent, channel: String) {
+    let remoteFilename = (content.rawContent as? URL)?.lastPathComponent ?? "unknown.txt"
+
     pubnub.send(
-      file: url,
-      channel: channel
+      content,
+      channel: channel,
+      remoteFilename: remoteFilename
     ) { [weak self] (task: HTTPFileUploadTask) in
       DispatchQueue.main.async {
         if let progressView = self?.progressAlertView(for: task.progress, direction: .upload) {
@@ -223,12 +226,16 @@ class FileAPIViewController: UIViewController {
       }
     } completion: { [weak self] result in
       switch result {
-      case let .success((newFile, _)):
+      case let .success((_, newFile as PubNubLocalFile, _)):
         if let newLocal = try? LocalFileExample(from: newFile) {
           self?.fileDataSource.removeAll(where: { $0.fileId == newLocal.fileId })
           self?.fileDataSource.append(newLocal)
         }
-
+      case let .success(response):
+        if let newFile = try? LocalFileExample(from: response.file) {
+          self?.fileDataSource.removeAll(where: { $0.fileId == newFile.fileId })
+          self?.fileDataSource.append(newFile)
+        }
       case let .failure(error):
         print("Error uploading file \(error)")
       }
@@ -252,9 +259,9 @@ class FileAPIViewController: UIViewController {
       }
     } completion: { [weak self] result in
       switch result {
-      case let .success(newFile):
+      case let .success(response):
 
-        if let newLocal = try? LocalFileExample(from: newFile) {
+        if let newLocal = try? LocalFileExample(from: response.file) {
           self?.fileDataSource.removeAll(where: { $0.fileId == newLocal.fileId })
           self?.fileDataSource.append(newLocal)
         }
@@ -367,7 +374,7 @@ extension FileAPIViewController: UIDocumentPickerDelegate {
   func documentPicker(_: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
     if let channel = channelInput.text {
       for url in urls {
-        send(url, channel: channel)
+        send(.file(url: url), channel: channel)
       }
     }
   }

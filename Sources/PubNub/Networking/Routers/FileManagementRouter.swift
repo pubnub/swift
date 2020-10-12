@@ -217,7 +217,7 @@ struct FileInfo: PubNubFile {
 
   var custom: JSONCodable?
   var channel: String = ""
-  var contentType: String = ""
+  var contentType: String?
   var createdDate: Date? {
     get { return created }
     set {
@@ -373,10 +373,12 @@ struct FileUploadError: Codable, Hashable {
     switch code {
     case "EntityTooLarge":
       return PubNubError(.fileTooLarge, additional: [message])
-    case "AccessDenied":
+    case "AccessDenied", "TokenRefreshRequired":
       return PubNubError(.fileAccessDenied, additional: [message])
+    case "MalformedPOSTRequest":
+      return PubNubError(.fileContentLength, additional: [message])
     default:
-      return PubNubError(.unknown)
+      return PubNubError(.unknown, additional: [code, message])
     }
   }
 }
@@ -404,7 +406,7 @@ struct FilePublishPayload: PubNubFile {
   /// The size in bytes of the file
   var size: Int64
   /// The MIME Type of the file
-  var contentType: String
+  var contentType: String?
 
   var concreteCustom: AnyJSON?
   var custom: JSONCodable? {
@@ -426,7 +428,7 @@ struct FilePublishPayload: PubNubFile {
     fileId: String,
     filename: String,
     size: Int64,
-    contentType: String,
+    contentType: String?,
     createdDate: Date?,
     custom: JSONCodable?
   ) {
@@ -503,7 +505,7 @@ extension FilePublishPayload: Validated {
       return PubNubError(.missingRequiredParameter, additional: ["filename"])
     }
 
-    if contentType.isEmpty {
+    if contentType == nil, contentType?.isEmpty ?? true {
       return PubNubError(.missingRequiredParameter, additional: ["contentType"])
     }
 

@@ -137,19 +137,21 @@ public extension PubNub {
   /// - Warning: The `URLRequest` will expire shortly after creation, so it should be processed immidately and not cached.
   /// - Parameters:
   ///   - fileURL: The URL of the file that will be eventually uploaded
-  ///   - replacingFilename: A replacement filename that will be used by the server, otherwise the `lastPathComponent` of the `fileURL` will be used
+  ///   - remoteFilename: A replacement filename that will be used by the server
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the `URLRequest` to upload the `fileURL`, and the fileId/filename the uploaded file will have once uploaded
   ///     - **Failure**: An `Error` describing the failure
   func generateFileUploadURLRequest(
-    using fileURL: URL, channel: String, replacingFilename: String? = nil,
+    _ content: FileUploadContent,
+    channel: String,
+    remoteFilename: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<FileUploadTuple, Error>) -> Void)?
   ) {
     route(
       FileManagementRouter(
-        .generateURL(channel: channel, body: .init(name: replacingFilename ?? fileURL.lastPathComponent)),
+        .generateURL(channel: channel, body: .init(name: remoteFilename)),
         configuration: configuration
       ),
       responseDecoder: FileGenerateResponseDecoder(),
@@ -158,8 +160,9 @@ public extension PubNub {
       switch result {
       case let .success(response):
         do {
+          let autoCrypto = configuration.cipherKey ?? self.configuration.cipherKey
           completion?(.success((
-            try URLRequest(from: response.payload, uploading: fileURL),
+            try URLRequest(from: response.payload, uploading: content, crypto: autoCrypto),
             response.payload.fileId,
             response.payload.filename
           )))
@@ -187,7 +190,8 @@ public extension PubNub {
   /// - Returns: The new file upload task. The `urlSessionTask` property can be used to access the underlying `URLSessionUploadTask`
   /// - Throws: The error that occurred while creating the temprorary file to upload
   func createFileURLSessionUploadTask(
-    request: URLRequest, session: URLSessionReplaceable,
+    request: URLRequest,
+    session: URLSessionReplaceable,
     backgroundFileCacheIdentifier: String
   ) throws -> HTTPFileUploadTask {
     let urlSessionTask: URLSessionUploadTask
@@ -224,7 +228,8 @@ public extension PubNub {
   ///     - **Success**: The `Timetoken` of the published Message
   ///     - **Failure**: An `Error` describing the failure
   func publish(
-    file: PubNubFile, request: PublishFileRequest,
+    file: PubNubFile,
+    request: PublishFileRequest,
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     let fileMessage = FilePublishPayload(from: file)
@@ -244,6 +249,79 @@ public extension PubNub {
     }
   }
 
+  // TOOD: How to handle crypto oeprations?  If we alredy have the data we just process normally, but for everything else?
+  enum FileUploadContent: CustomStringConvertible, CustomDebugStringConvertible {
+    /// A URL to an existing file
+    case file(url: URL)
+    /// The raw content of a file and the content type that best describes it
+    case data(_ data: Data, contentType: String?)
+    /// A stream of data, the content type of that stream, and the total length of the stream in bytes
+    case stream(_ stream: InputStream, contentType: String?, contentLength: Int)
+
+    public var contentLength: Int {
+      switch self {
+      case let .file(url):
+        return url.sizeOf
+      case let .data(data, _):
+        return data.count
+      case let .stream(_, _, contentLength):
+        return contentLength
+      }
+    }
+
+    public var rawContent: Any {
+      switch self {
+      case let .file(url):
+        return url
+      case let .data(data, _):
+        return data
+      case let .stream(stream, _, _):
+        return stream
+      }
+    }
+
+    public func contentType<T>(_: T.Type) -> T? {
+      return rawContent as? T
+    }
+
+    public var inputStream: InputStream? {
+      switch self {
+      case let .file(url):
+        return InputStream(url: url)
+      case let .data(data, _):
+        return InputStream(data: data)
+      case let .stream(stream, _, _):
+        return stream
+      }
+    }
+
+    public var contentType: String {
+      switch self {
+      case let .file(url):
+        return url.contentType ?? "application/octet-stream"
+      case let .data(_, contentType):
+        return contentType ?? "application/octet-stream"
+      case let .stream(_, contentType, _):
+        return contentType ?? "application/octet-stream"
+      }
+    }
+
+    public var description: String {
+      switch self {
+      case let .file(url):
+        return url.description
+      case let .data(data, _):
+        return data.description
+      case let .stream(stream, _, _):
+        return stream.description
+      }
+    }
+
+    public var debugDescription: String {
+      return "\(description); Content-Length: \(contentLength); Content-Type: \(contentType)"
+    }
+  }
+
   /// Upload file / data to specified `Channel`
   ///
   /// This method is a combination of the functionality found in:
@@ -256,23 +334,25 @@ public extension PubNub {
   /// - Parameters:
   ///   - fileURL: The local file to upload
   ///   - channel: `Channel` for the file
-  ///   - replacingFilename: A replacement filename under which the uploaded file is stored, otherwise the `lastPathComponent` of the `fileURL` will be used
+  ///   - remoteFilename: A replacement filename under which the uploaded file is stored
   ///   - publishRequest: The request configuration object when the file is published to PubNub
   ///   - custom: Custom configuration overrides when generating the File Upload `URLRequest`
   ///   - uploadTask: The file upload task executing the upload; contains a reference to the actual `URLSessionUploadTask`
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing the uploaded `PubNubLocalFile` object, and the `Timetoken` of the published message
+  ///     - **Success**: A `Tuple` containing the `HTTPFileUploadTask` that completed, the `PubNubFile` or `PubNubLocalFile` that was uploaded, and the `Timetoken` when it was published
   ///     - **Failure**: An `Error` describing the failure
   func send(
-    file url: URL, channel: String, replacingFilename: String? = nil,
+    _ content: FileUploadContent,
+    channel: String,
+    remoteFilename: String,
     publishRequest: PublishFileRequest = PublishFileRequest(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     uploadTask: @escaping (HTTPFileUploadTask) -> Void = { _ in },
-    completion: ((Result<(file: PubNubLocalFile, publishedAt: Timetoken), Error>) -> Void)?
+    completion: ((Result<FileUploadSendSuccess, Error>) -> Void)?
   ) {
     // Generate a File Upload URL from PubNub
     generateFileUploadURLRequest(
-      using: url, channel: channel, replacingFilename: replacingFilename, custom: requestConfig
+      content, channel: channel, remoteFilename: remoteFilename, custom: requestConfig
     ) { generateURLResult in
       switch generateURLResult {
       case let .success((request, fileId, filename)):
@@ -288,22 +368,25 @@ public extension PubNub {
           completion?(.failure(error))
           return
         }
+
         // Create a File Upload task
         task.completionBlock = { uploadResult in
           switch uploadResult {
           case .success:
-            let localFile = PubNubLocalFileBase(
-              fileURL: url,
+            let localFile = PubNubFileBase.createBaseType(
               channel: channel,
               fileId: fileId,
-              remoteFilename: filename
+              filename: filename,
+              size: Int64(content.contentLength),
+              contentType: content.contentType,
+              fileURL: content.rawContent as? URL
             )
             // Publish the File was uploaded
             publish(
               file: localFile,
               request: publishRequest
             ) { publishResult in
-              completion?(publishResult.map { (localFile, $0) })
+              completion?(publishResult.map { (task: task, file: localFile, publishedAt: $0) })
             }
           case let .failure(uploadError):
             // Error returned attempting to upload the file
@@ -362,7 +445,7 @@ public extension PubNub {
   ///   - downloadTo: The async `Result` of the method call
   /// - Returns: The new file download task. The `urlSessionTask` property can be used to access the underlying `URLSessionDownloadTask`
   func createFileURLSessionDownloadTask(
-    _ taskType: FileDownloadTaskType, session: URLSessionReplaceable, downloadTo url: URL
+    _ taskType: FileDownloadTaskType, session: URLSessionReplaceable, downloadTo url: URL, decrypt: Crypto? = nil
   ) -> HTTPFileDownloadTask {
     let downloadTask: URLSessionDownloadTask
     switch taskType {
@@ -375,7 +458,8 @@ public extension PubNub {
     let httpTask = HTTPFileDownloadTask(
       task: downloadTask,
       session: session.configuration.identifier,
-      downloadTo: url
+      downloadTo: url,
+      crypto: decrypt ?? configuration.cipherKey
     )
 
     // Create task map inside Delegate
@@ -404,7 +488,7 @@ public extension PubNub {
     file: PubNubFile, toFileURL localFileURL: URL,
     resumeData: Data? = nil,
     downloadTask: @escaping (HTTPFileDownloadTask) -> Void = { _ in },
-    completion: ((Result<PubNubLocalFile, Error>) -> Void)?
+    completion: ((Result<(task: HTTPFileDownloadTask, file: PubNubLocalFile), Error>) -> Void)?
   ) {
     let task: HTTPFileDownloadTask
     if let resumeData = resumeData {
@@ -428,7 +512,10 @@ public extension PubNub {
     task.completionBlock = { result in
       switch result {
       case let .success(downloadURL):
-        completion?(.success(PubNubLocalFileBase(from: file, withFile: downloadURL)))
+        completion?(.success((
+          task: task,
+          file: PubNubLocalFileBase(from: file, withFile: downloadURL)
+        )))
       case let .failure(error):
         completion?(.failure(error))
       }

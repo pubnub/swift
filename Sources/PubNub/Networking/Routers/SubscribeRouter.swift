@@ -174,6 +174,8 @@ struct SubscribeDecoder: ResponseDecoder {
         messages[index] = decrypt(crypto, message: message)
       case .signal:
         messages[index] = decrypt(crypto, message: message)
+      case .file:
+        messages[index] = decrypt(crypto, message: message)
       default:
         messages[index] = message
       }

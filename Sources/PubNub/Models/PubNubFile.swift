@@ -46,8 +46,8 @@ public extension PubNubLocalFile {
     return Int64(fileURL.sizeOf)
   }
 
-  var contentType: String {
-    return fileURL.mimeType
+  var contentType: String? {
+    return fileURL.contentType
   }
 
   var filename: String {
@@ -153,7 +153,7 @@ public protocol PubNubFile: JSONCodable {
   /// Size, in bytes, of the stored file
   var size: Int64 { get }
   /// The MIME Type of the file
-  var contentType: String { get }
+  var contentType: String? { get }
 
   /// ISO 8601 date and time the file was uploaded
   var createdDate: Date? { get set }
@@ -165,13 +165,47 @@ public protocol PubNubFile: JSONCodable {
   init(from other: PubNubFile) throws
 }
 
+extension PubNubFile {
+  public static func createBaseType(
+    channel: String,
+    fileId: String,
+    filename: String,
+    size: Int64,
+    contentType: String?,
+    fileURL: URL?,
+    createdDate: Date? = nil,
+    custom: JSONCodable? = nil
+  ) -> PubNubFile {
+    if let fileURL = fileURL {
+      return PubNubLocalFileBase(
+        fileURL: fileURL,
+        channel: channel,
+        fileId: fileId,
+        remoteFilename: filename,
+        custom: custom,
+        createdDate: createdDate
+      )
+    } else {
+      return PubNubFileBase(
+        channel: channel,
+        fileId: fileId,
+        filename: filename,
+        size: size,
+        contentType: contentType,
+        createdDate: createdDate,
+        custom: custom
+      )
+    }
+  }
+}
+
 /// A base concrete representation of a `PubNubFile`
 public struct PubNubFileBase: PubNubFile {
   public var channel: String
   public var fileId: String
   public var filename: String
   public var size: Int64
-  public var contentType: String
+  public var contentType: String?
   public var createdDate: Date?
 
   var concreteCustom: AnyJSON?
@@ -185,7 +219,7 @@ public struct PubNubFileBase: PubNubFile {
     fileId: String,
     filename: String,
     size: Int64,
-    contentType: String,
+    contentType: String?,
     createdDate: Date? = nil,
     custom: JSONCodable? = nil
   ) {

@@ -63,8 +63,8 @@ extension URLErrorResource {
 struct ImportTestResource {
   static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
-  static func importResource(_ filename: String) throws -> Data {
-    guard let url = testsBundle.url(forResource: filename, withExtension: "json") else {
+  static func importResource(_ filename: String, withExtension ext: String = "json") throws -> Data {
+    guard let url = testsBundle.url(forResource: filename, withExtension: ext) else {
       throw ImportTestResourceError.jsonResourceNotFound
     }
     guard let data = try? Data(contentsOf: url, options: .mappedIfSafe) else {

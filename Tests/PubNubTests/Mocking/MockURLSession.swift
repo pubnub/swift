@@ -109,6 +109,10 @@ class MockURLSessionUploadTask: URLSessionUploadTask {
   override var countOfBytesExpectedToReceive: Int64 {
     return 0
   }
+  
+  override var progress: Progress {
+    return Progress(totalUnitCount: 0)
+  }
 
   override func resume() {
     mockState = .running
@@ -183,6 +187,10 @@ class MockURLSessionDownloadTask: URLSessionDownloadTask {
 
   override var countOfBytesExpectedToReceive: Int64 {
     return 0
+  }
+  
+  override var progress: Progress {
+    return Progress(totalUnitCount: 0)
   }
 
   override func resume() {

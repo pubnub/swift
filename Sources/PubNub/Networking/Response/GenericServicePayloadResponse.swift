@@ -123,11 +123,11 @@ enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleBy
     case "Multiplexing not enabled":
       self = .multiplexingNotEnabled
     default:
-      self = EndpointResponseMessage.rawValueStartsWith(rawValue)
+      self = EndpointResponseMessage.rawValueMatches(rawValue)
     }
   }
 
-  static func rawValueStartsWith(_ message: String) -> EndpointResponseMessage {
+  static func rawValueMatches(_ message: String) -> EndpointResponseMessage {
     if message.starts(with: "Not Found ") {
       return .notFound
     } else if message.starts(with: ErrorDescription.pushNotEnabled) {
@@ -136,6 +136,8 @@ enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleBy
       return .messageDeletionNotEnabled
     } else if message.starts(with: ErrorDescription.messageHistoryNotEnabled) {
       return .messageHistoryNotEnabled
+    } else if message.range(of: #"[I|i](nvalid).*(parameter|character)[s]*"#, options: .regularExpression) != nil {
+      return .invalidCharacter
     } else {
       return .unknown(message: message)
     }
@@ -307,11 +309,13 @@ struct ErrorPayload: Codable, Hashable {
   let message: EndpointResponseMessage
   let source: String
   let details: [ErrorDetail]
+  let code: Int
 
-  init(message: EndpointResponseMessage, source: String, details: [ErrorDetail] = []) {
+  init(message: EndpointResponseMessage, source: String, details: [ErrorDetail] = [], code: Int = -1) {
     self.message = message
     self.source = source
     self.details = details
+    self.code = code
   }
 
   init(from decoder: Decoder) throws {
@@ -320,6 +324,7 @@ struct ErrorPayload: Codable, Hashable {
     message = try container.decode(EndpointResponseMessage.self, forKey: .message)
     source = try container.decode(String.self, forKey: .source)
     details = try container.decodeIfPresent([ErrorDetail].self, forKey: .details) ?? []
+    code = try container.decodeIfPresent(Int.self, forKey: .code) ?? -1
   }
 }
 

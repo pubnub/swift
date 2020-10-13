@@ -108,6 +108,16 @@ extension FileManager {
     return tempFileURL
   }
 
+  /// Get a temporary directory for all support versions
+  internal var tempDirectory: URL {
+    if #available(iOS 10.0, macOS 10.12, macCatalyst 13.0, tvOS 10.0, watchOS 3.0, *) {
+      return FileManager.default.temporaryDirectory
+    } else {
+      // Fallback on earlier versions
+      return URL(fileURLWithPath: NSTemporaryDirectory())
+    }
+  }
+
   /// Writes the contents of the provided `InputStream` to a temporary file with the corresponding filename
   ///
   /// - Parameters:
@@ -119,13 +129,6 @@ extension FileManager {
     using filename: String = UUID().uuidString, writing inputStream: InputStream?, purgeExisting: Bool = false
   ) throws -> URL {
     // Background File
-    let tempDirectory: URL
-    if #available(iOS 10.0, macOS 10.12, macCatalyst 13.0, tvOS 10.0, watchOS 3.0, *) {
-      tempDirectory = FileManager.default.temporaryDirectory
-    } else {
-      // Fallback on earlier versions
-      tempDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
-    }
     let tempFileURL = tempDirectory.appendingPathComponent(filename)
 
     // Check if file exists for cache and return

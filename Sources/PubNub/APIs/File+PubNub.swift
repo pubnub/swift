@@ -40,7 +40,7 @@ public extension PubNub {
   ///     - **Success**: A `Tuple` containing the list of Files for the channel, and the cursor for the `next` page if the list count exceeded the requested limit
   ///     - **Failure**: An `Error` describing the failure
   func listFiles(
-    channel: String, limit: Int = 100, next: String? = nil,
+    channel: String, limit: UInt = 100, next: String? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(files: [PubNubFile], next: String?), Error>) -> Void)?
   ) {
@@ -63,15 +63,15 @@ public extension PubNub {
 
   /// Remove file from specified `Channel`
   /// - Parameters:
-  ///   - channel: The name of the channel
   ///   - fileId: Unique identifier of the file to be removed.
   ///   - filename: Name of the file to be removed.
+  ///   - channel: The name of the channel
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the `channel` and `fileId` of the removed file
   ///     - **Failure**: An `Error` describing the failure
   func remove(
-    channel: String, fileId: String, filename: String,
+    fileId: String, filename: String, channel: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(channel: String, fileId: String), Error>) -> Void)?
   ) {
@@ -236,7 +236,7 @@ public extension PubNub {
 
     let router = PublishRouter(
       .file(
-        message: fileMessage, channel: fileMessage.channel,
+        message: fileMessage,
         shouldStore: request.store, ttl: request.ttl, meta: request.meta?.codableValue
       ),
       configuration: configuration
@@ -389,8 +389,8 @@ public extension PubNub {
               completion?(publishResult.map { (task: task, file: localFile, publishedAt: $0) })
             }
           case let .failure(uploadError):
-            // Error returned attempting to upload the file
             completion?(.failure(uploadError))
+            // Error returned attempting to upload the file
           }
         }
 

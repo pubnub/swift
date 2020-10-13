@@ -49,36 +49,6 @@ class AnyJSONTests: XCTestCase {
     }
   }
 
-  func testbyteSize() {
-    let config = PubNubConfiguration(publishKey: "pub-c-ea156c6c-c5cb-4870-b264-499afff37cac",
-                                     subscribeKey: "sub-c-2e2b364a-856e-11ea-885f-2621b2dc68c7")
-    let message: JSONCodable = ["$": "35.75", "HI": "b62", "t": "BO"]
-    let channel = "AuctioniPhone11ProSimRider"
-    guard let messageJSONString = message.jsonStringify,
-      let pubKey = config.publishKey
-    else {
-      return
-    }
-
-    var urlComponents = URLComponents()
-    urlComponents.scheme = config.urlScheme
-    urlComponents.host = config.origin
-
-    urlComponents.path = "/signal/\(pubKey)/\(config.subscribeKey)/0/\(channel.urlEncodeSlash)/0/\(messageJSONString)"
-    // URL will double encode our attempts to sanitize '/' inside path inputs
-    urlComponents.percentEncodedPath = urlComponents.percentEncodedPath.decodeDoubleEncodedSlash
-
-    guard let url = urlComponents.url,
-      let urlData = url.description.split(separator: "/").last?.data(using: .utf8)
-    else {
-      return
-    }
-
-    let byteCount = ByteCountFormatter().string(fromByteCount: Int64(urlData.count))
-
-    print("The payload size is roughly \(byteCount)")
-  }
-
   // MARK: Hashable
 
   func testCompare_Codable() {

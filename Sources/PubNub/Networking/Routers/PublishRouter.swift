@@ -36,7 +36,7 @@ struct PublishRouter: HTTPRouter {
     case compressedPublish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
     case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
     case signal(message: AnyJSON, channel: String)
-    case file(message: FilePublishPayload, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case file(message: FilePublishPayload, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
 
     var description: String {
       switch self {
@@ -85,9 +85,9 @@ struct PublishRouter: HTTPRouter {
     case let .signal(message, channel):
       return append(message: message,
                     to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
-    case let .file(message, channel, _, _, _):
+    case let .file(message, _, _, _):
       return append(message: message,
-                    to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+                    to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/")
     }
   }
 
@@ -113,7 +113,7 @@ struct PublishRouter: HTTPRouter {
       return parsePublish(query: &query, store: false, ttl: 0, meta: meta)
     case .signal:
       break
-    case let .file(_, _, shouldStore, ttl, meta):
+    case let .file(_, shouldStore, ttl, meta):
       return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
     }
 
@@ -187,10 +187,8 @@ struct PublishRouter: HTTPRouter {
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
-    case let .file(message, channel, _, _, _):
-      return message.validationErrorDetail ?? isInvalidForReason(
-        (channel.isEmpty, ErrorDescription.emptyChannelString)
-      )
+    case let .file(message, _, _, _):
+      return message.validationErrorDetail
     }
   }
 }

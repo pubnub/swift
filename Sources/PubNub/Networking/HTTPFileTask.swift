@@ -100,8 +100,13 @@ public class HTTPFileTask: Hashable {
 
   func responseCodeError() -> Error? {
     // If the response was an error, then return the status code as error
-    if let reason = urlSessionTask.httpResponse?.statusCodeReason {
-      return PubNubError(reason)
+    if let response = response, let reason = response.statusCodeReason {
+      return PubNubError(
+        reason: reason,
+        router: nil,
+        request: urlSessionTask.currentRequest,
+        response: response
+      )
     }
 
     return nil
@@ -206,11 +211,9 @@ public class HTTPFileUploadTask: HTTPFileTask {
 
         // Update the response Error
         responseError = xmlError
-
         completionBlock?(.failure(xmlError))
       } catch {
         responseError = error
-
         completionBlock?(.failure(error))
       }
       return
@@ -236,14 +239,17 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   /// The crypto object that will attempt to decrypt the file
   public var crypto: Crypto?
 
+  /// The location where the temporary downloaded file should be copied
+  public private(set) var destinationURL: URL
+  /// If an automatic decryption took place this is the URL of the downloaded file
+  public private(set) var encryptedURL: URL?
+  /// The temporary location the file was downloaded to
+  var downloadURL: URL?
+
   /// Cancels a download and calls a callback with resume data for later use.
   public func cancel(byProducingResumeData: @escaping (Data?) -> Void) {
     (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
   }
-
-  /// The location where the temporary downloaded file should be copied
-  public private(set) var destinationURL: URL
-  var downloadURL: URL?
 
   init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, crypto: Crypto?) {
     destinationURL = url
@@ -252,10 +258,43 @@ public class HTTPFileDownloadTask: HTTPFileTask {
     super.init(task: task, session: identifier)
   }
 
+  func decrypt(_ encryptedURL: URL, to outpuURL: URL, using crypto: Crypto) throws {
+    // If we were provided a crypto object we should try and decrypt the file
+    guard let secureStream = CryptoInputStream(.decrypt, url: encryptedURL, with: crypto) else {
+      throw PubNubError(.streamCouldNotBeInitialized, additional: [encryptedURL.absoluteString])
+    }
+    try secureStream.writeEncodedData(to: outpuURL)
+  }
+
+  open func temporaryURL() -> URL {
+    return FileManager.default
+      .tempDirectory
+      .appendingPathComponent("\(sessionIdentifier ?? UUID().uuidString)-\(taskIdentifier)")
+  }
+
   // MARK: URLSessionDownloadTaskDelegate methods
 
   override func didError(_ error: Error) {
     super.didError(error)
+
+    responseError = error
+
+    // If a file exists at the download location then we need to read the contents to determine the error
+    if let url = downloadURL, FileManager.default.fileExists(atPath: url.path), let data = try? Data(contentsOf: url) {
+      if let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data) {
+        let error = PubNubError(
+          reason: generalErrorPayload.pubnubReason,
+          router: nil, request: urlSessionTask.currentRequest, response: response,
+          additional: generalErrorPayload.details
+        )
+
+        completionBlock?(.failure(error))
+      } else if let xmlError = try? XMLDecoder().decode(FileUploadError.self, from: data).asPubNubError {
+        completionBlock?(.failure(xmlError))
+      }
+
+      return
+    }
 
     completionBlock?(.failure(error))
   }
@@ -265,19 +304,44 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
     // If the response was an error, then return the status code as error
     if let error = responseCodeError() {
+      return didError(error)
+    }
+
+    // If the URL doesn't exist, then we create a missing file error
+    guard let url = downloadURL, FileManager.default.fileExists(atPath: url.path) else {
+      return didError(PubNubError(.fileMissingAtPath))
+    }
+
+    // Post process the file
+    do {
+      let fileManager = FileManager.default
+
+      // Update destination to be a unique file
+      destinationURL = fileManager.makeUniqueFilename(destinationURL)
+
+      if let crypto = crypto {
+        // Set the encrypted in case something goes wrong
+        encryptedURL = url
+
+        // If we were provided a crypto object we should try and decrypt the file
+        guard let secureStream = CryptoInputStream(.decrypt, url: url, with: crypto) else {
+          throw PubNubError(.streamCouldNotBeInitialized, additional: [url.absoluteString])
+        }
+        try secureStream.writeEncodedData(to: destinationURL)
+      } else {
+        try fileManager.moveItem(at: url, to: destinationURL)
+      }
+
+      completionBlock?(.success(destinationURL))
+    } catch {
+      PubNub.log.warn(
+        "Could not move file to \(destinationURL.absoluteString) due to \(error.localizedDescription)"
+      )
+      // Set the error to alert that even though a file was retrieved the destination is wrong
       responseError = error
-      completionBlock?(.failure(error))
-      return
+      // Return the temporary file
+      completionBlock?(.success(url))
     }
-
-    guard let url = downloadURL else {
-      let missingFileError = PubNubError(.fileMissingAtPath)
-      responseError = missingFileError
-      completionBlock?(.failure(missingFileError))
-      return
-    }
-
-    completionBlock?(.success(url))
   }
 
   func didDownload(to tempURL: URL) {
@@ -366,25 +430,17 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       return
     }
 
+    let temporaryURL = fileDownloadTask.temporaryURL()
+
     do {
-      let fileManager = FileManager.default
-      let fileURL = fileManager.makeUniqueFilename(fileDownloadTask.destinationURL)
+      // Move file to a temporary location or it's lost at the end of this scope
+      try FileManager.default.moveItem(at: location, to: temporaryURL)
 
-      if let crypto = fileDownloadTask.crypto {
-        // If we were provided a crypto object we should try and decrypt the file
-        guard let secureStream = CryptoInputStream(.decrypt, url: location, with: crypto) else {
-          throw PubNubError(.streamCouldNotBeInitialized, additional: [location.absoluteString])
-        }
-        try secureStream.writeEncodedData(to: fileURL)
-      } else {
-        try fileManager.moveItem(at: location, to: fileURL)
-      }
-
-      didDownload?(session, downloadTask, fileURL)
-      (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: fileURL)
+      didDownload?(session, downloadTask, temporaryURL)
+      (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: temporaryURL)
     } catch {
       PubNub.log.warn(
-        "Could not move file to \(fileDownloadTask.destinationURL.absoluteString) due to \(error.localizedDescription)"
+        "Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)"
       )
       didError?(session, downloadTask, error)
       tasksByIdentifier[downloadTask.taskIdentifier]?.didError(error)

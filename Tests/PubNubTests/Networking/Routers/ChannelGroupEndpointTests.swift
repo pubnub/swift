@@ -256,7 +256,6 @@ extension ChannelGroupsRouterTests {
     let pubnub = PubNub(configuration: config, session: sessions.session)
 
     pubnub.add(channels: testChannels, to: testGroupName) { result in
-      print(result)
       switch result {
       case .success:
         XCTFail("Add Channel request should fail")
@@ -278,7 +277,6 @@ extension ChannelGroupsRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .add(channels: testChannels, to: testGroupName) { result in
-        print("Result: \(result)")
         switch result {
         case .success:
           XCTFail("Add Channel request should fail")

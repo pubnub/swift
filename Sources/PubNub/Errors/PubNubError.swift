@@ -178,6 +178,7 @@ public struct PubNubError: Error {
     // Don't put non-response code errors below here
     case badRequest = 400
     case unauthorized = 401
+    case serviceNotEnabled = 402
     case forbidden = 403
     case resourceNotFound = 404
     case conflict = 409
@@ -217,7 +218,7 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish, .serviceNotEnabled:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled
@@ -251,23 +252,36 @@ public struct PubNubError: Error {
 
   init(
     reason: Reason?,
-    router: HTTPRouter,
-    request: URLRequest,
-    response: HTTPURLResponse,
+    router: HTTPRouter?,
+    request: URLRequest?,
+    response: HTTPURLResponse?,
     additional details: [ErrorDetail]? = nil
   ) {
-    let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
+    var reasonOrResponse = reason
+
+    var affectedValues = [AffectedValue]()
+
+    if let request = request {
+      affectedValues.append(.request(request))
+    }
+    if let response = response {
+      reasonOrResponse = reasonOrResponse ?? Reason(rawValue: response.statusCode)
+      affectedValues.append(.response(response))
+    }
 
     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
               router: router,
               additional: details?.compactMap { $0.message } ?? [],
-              affected: [.request(request), .response(response)])
+              affected: affectedValues)
   }
 
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {
-    self.init(PubNubError.Reason(rawValue: response.statusCode) ?? .unknown,
-              router: router,
-              affected: [.request(request), .response(response)])
+    self.init(
+      reason: PubNubError.Reason(rawValue: response.statusCode),
+      router: router,
+      request: request,
+      response: response
+    )
   }
 
   init<ResponseType>(

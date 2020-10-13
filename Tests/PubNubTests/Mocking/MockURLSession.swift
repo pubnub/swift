@@ -29,7 +29,7 @@ import Foundation
 @testable import PubNub
 
 class MockURLSessionDataTask: URLSessionDataTask {
-  var mockSession: URLSessionReplaceable
+  weak var mockSession: MockURLSession?
   var mockRequest: URLRequest
   var mockState: URLSessionTask.State = .suspended
   var mockResponse: HTTPURLResponse?
@@ -59,12 +59,12 @@ class MockURLSessionDataTask: URLSessionDataTask {
 
   override func resume() {
     mockState = .running
-    (mockSession as? MockURLSession)?.resume(task: self)
+    mockSession?.resume(task: self)
   }
 
   override func cancel() {}
 
-  init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
+  init(identifier: Int, session: MockURLSession?, request: URLRequest) {
     mockIdentifier = identifier
     mockSession = session
     mockRequest = request
@@ -72,20 +72,64 @@ class MockURLSessionDataTask: URLSessionDataTask {
 }
 
 class MockURLSessionUploadTask: URLSessionUploadTask {
-  var mockSession: URLSessionReplaceable
+  weak var mockSession: MockURLSession?
+  var mockIdentifier: Int
+  var mockState: URLSessionTask.State = .suspended
 
-  var mockRequest: URLRequest
+  var mockRequest: URLRequest?
   var mockResponse: HTTPURLResponse?
 
   var mockData: Data?
   var mockError: Error?
 
-  var mockIdentifier: Int
+  override var response: URLResponse? {
+    return mockResponse
+  }
 
-  init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
+  override var originalRequest: URLRequest? {
+    return mockRequest
+  }
+
+  override var error: Error? {
+    return mockError
+  }
+
+  override var state: URLSessionTask.State {
+    return mockState
+  }
+
+  override var taskIdentifier: Int {
+    return mockIdentifier
+  }
+
+  override func resume() {
+    mockState = .running
+    mockSession?.resume(task: self)
+  }
+
+  init(
+    identifier: Int,
+    request: URLRequest? = nil,
+    response: HTTPURLResponse? = nil,
+    data: Data? = nil,
+    error: Error? = nil
+  ) {
     mockIdentifier = identifier
-    mockSession = session
     mockRequest = request
+    mockData = data
+    mockResponse = response
+    mockError = error
+  }
+}
+
+extension HTTPURLResponse {
+  convenience init?(url: URL? = nil, statusCode: Int, headerFields: [String: String]? = nil) {
+    self.init(
+      url: url ?? URL(fileURLWithPath: ""),
+      statusCode: statusCode,
+      httpVersion: "1.1",
+      headerFields: headerFields
+    )
   }
 }
 
@@ -96,19 +140,52 @@ extension URLSessionTask {
 }
 
 class MockURLSessionDownloadTask: URLSessionDownloadTask {
-  var mockSession: URLSessionReplaceable
-  var mockRequest: URLRequest
+  var mockIdentifier: Int
+  weak var mockSession: MockURLSession?
 
+  var mockState: URLSessionTask.State = .suspended
+  var mockRequest: URLRequest?
   var mockResponse: HTTPURLResponse?
   var mockDownloadLocation: URL?
   var mockError: Error?
 
-  var mockIdentifier: Int
+  override var response: URLResponse? {
+    return mockResponse
+  }
 
-  init(identifier: Int, session: URLSessionReplaceable, request: URLRequest) {
+  override var originalRequest: URLRequest? {
+    return mockRequest
+  }
+
+  override var error: Error? {
+    return mockError
+  }
+
+  override var state: URLSessionTask.State {
+    return mockState
+  }
+
+  override var taskIdentifier: Int {
+    return mockIdentifier
+  }
+
+  override func resume() {
+    mockState = .running
+    mockSession?.resume(task: self)
+  }
+
+  init(
+    identifier: Int,
+    request: URLRequest? = nil,
+    response: HTTPURLResponse? = nil,
+    url: URL? = nil,
+    error: Error? = nil
+  ) {
     mockIdentifier = identifier
-    mockSession = session
     mockRequest = request
+    mockDownloadLocation = url
+    mockResponse = response
+    mockError = error
   }
 }
 
@@ -154,7 +231,13 @@ class MockURLSession: URLSessionReplaceable {
     delegateQueue: OperationQueue? = .main
   ) {
     self.init(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
-    state.lockedWrite { $0.tasks = tasks }
+
+    tasks.forEach { task in
+      (task as? MockURLSessionDownloadTask)?.mockSession = self
+      (task as? MockURLSessionUploadTask)?.mockSession = self
+    }
+
+    state.lockedWrite { $0.tasks = tasks.reversed() }
   }
 
   var dataDelegate: URLSessionDataDelegate? {
@@ -168,8 +251,7 @@ class MockURLSession: URLSessionReplaceable {
   func resume(task: MockURLSessionDataTask) {
     delegateQueue.addOperation { [weak self] in
       guard let strongSelf = self else {
-        print("Failed to resumed due to weak self")
-        return
+        fatalError("Failed to resumed due to weak self")
       }
 
       let taskIndex = strongSelf.state.lockedRead { $0.tasks.firstIndex(of: task) ?? 0 }
@@ -191,8 +273,7 @@ class MockURLSession: URLSessionReplaceable {
   func resume(task: MockURLSessionUploadTask) {
     delegateQueue.addOperation { [weak self] in
       guard let strongSelf = self else {
-        print("Failed to resumed due to weak self")
-        return
+        fatalError("Failed to resumed due to weak self")
       }
 
       if let data = task.mockData {
@@ -214,8 +295,7 @@ class MockURLSession: URLSessionReplaceable {
   func resume(task: MockURLSessionDownloadTask) {
     delegateQueue.addOperation { [weak self] in
       guard let strongSelf = self else {
-        print("Failed to resumed due to weak self")
-        return
+        fatalError("Failed to resumed due to weak self")
       }
 
       if let location = task.mockDownloadLocation {
@@ -245,7 +325,7 @@ class MockURLSession: URLSessionReplaceable {
   }
 
   func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
-    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }),
+    guard let task = state.lockedWrite({ $0.tasks.popLast() }),
       let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
@@ -253,7 +333,7 @@ class MockURLSession: URLSessionReplaceable {
   }
 
   func uploadTask(with request: URLRequest, fromFile _: URL) -> URLSessionUploadTask {
-    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest == request } }),
+    guard let task = state.lockedWrite({ $0.tasks.popLast() }),
       let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
@@ -261,7 +341,7 @@ class MockURLSession: URLSessionReplaceable {
   }
 
   func downloadTask(with url: URL) -> URLSessionDownloadTask {
-    guard let task = state.lockedRead({ $0.tasks.first { $0.originalRequest?.url == url } }),
+    guard let task = state.lockedWrite({ $0.tasks.popLast() }),
       let downloadTask = task as? MockURLSessionDownloadTask else {
       fatalError("Task not found for matching request \(url)")
     }
@@ -269,7 +349,7 @@ class MockURLSession: URLSessionReplaceable {
   }
 
   func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
-    guard let task = state.lockedRead({ $0.tasks.first { $0.downloadResumeData == resumeData } }),
+    guard let task = state.lockedWrite({ $0.tasks.popLast() }),
       let downloadTask = task as? URLSessionDownloadTask else {
       fatalError("Task not found for matching request \(resumeData)")
     }
@@ -292,13 +372,11 @@ extension MockURLSession {
 
     urlSession.responseForDataTask = { mockTask, index in
       guard jsonResources.count + dataResource.count > index else {
-        print("Index out of range for next task")
-        return nil
+        fatalError("Index out of range for next task")
       }
 
       guard let url = mockTask.mockRequest.url else {
-        print("Could not get url from mock task")
-        return nil
+        fatalError("Could not get url from mock task")
       }
 
       if !dataResource.isEmpty, dataResource.count > index {
@@ -343,4 +421,6 @@ extension MockURLSession {
                         sessionStream: stream).usingDefault(requestOperator: operators),
             urlSession)
   }
+
+  // swiftlint:disable:next file_length
 }

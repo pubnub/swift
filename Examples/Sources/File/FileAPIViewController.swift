@@ -335,7 +335,7 @@ extension FileAPIViewController: UITableViewDataSource {
 
     let delete = UIContextualAction(style: .destructive, title: "Remove") { _, _, completion in
       self.present(self.alertViewController(direction: .remove), animated: true)
-      self.pubnub.remove(channel: file.channel, fileId: file.fileId, filename: file.filename) { [weak self] _ in
+      self.pubnub.remove(fileId: file.fileId, filename: file.filename, channel: file.channel) { [weak self] _ in
         try? FileManager.default.removeItem(at: file.fileURL)
 
         self?.fileDataSource.removeAll(where: { $0.fileId == file.fileId })

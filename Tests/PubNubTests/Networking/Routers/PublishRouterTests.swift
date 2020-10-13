@@ -33,6 +33,8 @@ final class PublishRouterTests: XCTestCase {
 
   let testMessage: AnyJSON = "Test Message"
   let testChannel = "TestChannel"
+  let testFileId = "FileId"
+  let testFilename = "exampe.txt"
 }
 
 // MARK: - Publish
@@ -264,6 +266,105 @@ extension PublishRouterTests {
   }
 }
 
+// MARK: - File
+
+extension PublishRouterTests {
+  func testFile_Router() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.endpoint.description, "Publish a File Message")
+    XCTAssertEqual(router.category, "Publish a File Message")
+    XCTAssertEqual(router.service, .publish)
+  }
+
+  func testFile_Router_ValidationError_EmptyChannel() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: "", fileId: testFileId, filename: testFilename),
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testFile_Router_ValidationError_EmptyFileId() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: testChannel, fileId: "", filename: testFilename),
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testFile_Router_ValidationError_EmptyFilename() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: ""),
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+  }
+
+  func testFile_Success() {
+    let expectation = self.expectation(description: "Publish Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let file = FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename)
+
+    PubNub(configuration: config, session: sessions.session)
+      .publish(file: file, request: .init(additionalMessage: ["text": "Hello"])) { result in
+        switch result {
+        case let .success(timetoken):
+          XCTAssertEqual(timetoken, 15_644_265_196_692_560)
+        case let .failure(error):
+          XCTFail("Publish request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testFile_MessageTooLongError() {
+    let expectation = self.expectation(description: "Message Response Received")
+
+    guard let sessions = try? MockURLSession.mockSession(for: ["publish_message_too_large"]) else {
+      return XCTFail("Could not create mock url session")
+    }
+
+    let file = FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename)
+
+    PubNub(configuration: config, session: sessions.session)
+      .publish(file: file, request: .init(additionalMessage: ["text": "Hello"])) { result in
+        switch result {
+        case .success:
+          XCTFail("Message request should fail")
+        case let .failure(error):
+          XCTAssertNotNil(error.pubNubError)
+          XCTAssertEqual(error.pubNubError, PubNubError(.messageTooLong))
+          XCTAssertTrue(error.pubNubError == .messageTooLong)
+        }
+        expectation.fulfill()
+      }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+}
+
 // MARK: - Fire
 
 extension PublishRouterTests {
@@ -378,7 +479,6 @@ extension PublishRouterTests {
         case let .failure(error):
           XCTAssertNotNil(error.pubNubError)
           XCTAssertEqual(error.pubNubError, PubNubError(.messageTooLong))
-          print(error)
         }
         expectation.fulfill()
       }

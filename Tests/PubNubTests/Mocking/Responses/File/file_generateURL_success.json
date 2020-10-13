@@ -3,8 +3,8 @@
   "body": {
     "status": 200,
     "data": {
-      "id": "edf21386-5017-480f-8e19-6b3d728ec31f",
-      "name": "hello-world"
+      "id": "TestFileId",
+      "name": "TestFile.txt"
     },
     "file_upload_request": {
       "url": "https://pubnub-mnemosyne-files-us-west-1-prd.s3.amazonaws.com/",

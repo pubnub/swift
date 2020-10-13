@@ -342,6 +342,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "File was unable to be obtained from file provider; regenerate URL and retry"
     case .fileContentLength:
       return "The Content-Length was incorrect for the content being uploaded"
+    case .serviceNotEnabled:
+      return "The PubNub Service that you're attempting to use has not be enabled for your keyset."
     }
   }
 

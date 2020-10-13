@@ -37,7 +37,7 @@ struct FileManagementRouter: HTTPRouter {
     /// Upload file / data to specified `Channel`
     case generateURL(channel: String, body: GenerateURLRequestBody)
     /// Retrieve list of files uploaded to `Channel`
-    case list(channel: String, limit: Int, next: String?)
+    case list(channel: String, limit: UInt, next: String?)
     /// Get a file's direct download URL. This method doesn't make any API calls, and won't decrypt an encrypted file.
     case fetchURL(channel: String, fileId: String, filename: String)
     /// Delete file from specified `Channel`
@@ -358,6 +358,24 @@ struct FileUploadError: Codable, Hashable {
   var maxSizeAllowed: String?
   var proposedSize: String?
 
+  init(
+    code: String,
+    message: String,
+    requestId: String,
+    hostId: String,
+    condition: String? = nil,
+    maxSizeAllowed: String? = nil,
+    proposedSize: String? = nil
+  ) {
+    self.code = code
+    self.message = message
+    self.requestId = requestId
+    self.hostId = hostId
+    self.condition = condition
+    self.maxSizeAllowed = maxSizeAllowed
+    self.proposedSize = proposedSize
+  }
+
   enum CodingKeys: String, CodingKey {
     case code = "Code"
     case message = "Message"
@@ -427,16 +445,16 @@ struct FilePublishPayload: PubNubFile {
     channel: String,
     fileId: String,
     filename: String,
-    size: Int64,
-    contentType: String?,
-    createdDate: Date?,
-    custom: JSONCodable?
+    size: Int64 = 0,
+    contentType: String? = nil,
+    createdDate: Date? = nil,
+    custom: JSONCodable? = nil
   ) {
     self.channel = channel
     self.fileId = fileId
     self.filename = filename
     self.size = size
-    self.contentType = contentType
+    self.contentType = contentType ?? "application/octet-stream"
     self.createdDate = createdDate
     self.custom = custom
   }
@@ -498,22 +516,22 @@ struct FilePublishPayload: PubNubFile {
 extension FilePublishPayload: Validated {
   var validationError: Error? {
     if fileId.isEmpty {
-      return PubNubError(.missingRequiredParameter, additional: ["fieldId"])
+      return PubNubError(.missingRequiredParameter, additional: [ErrorDescription.emptyFileIdString])
     }
 
     if filename.isEmpty {
-      return PubNubError(.missingRequiredParameter, additional: ["filename"])
+      return PubNubError(.missingRequiredParameter, additional: [ErrorDescription.emptyFilenameString])
     }
 
-    if contentType == nil, contentType?.isEmpty ?? true {
-      return PubNubError(.missingRequiredParameter, additional: ["contentType"])
+    if channel.isEmpty {
+      return PubNubError(.missingRequiredParameter, additional: [ErrorDescription.emptyChannelString])
     }
 
     return nil
   }
 
   var validationErrorDetail: String? {
-    return validationError?.localizedDescription
+    return validationError?.pubNubError?.details.first
   }
 
   // swiftlint:disable:next file_length

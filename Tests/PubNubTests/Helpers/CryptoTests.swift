@@ -135,9 +135,6 @@ class CryptoTests: XCTestCase {
         encrypted: otherData
       ).get()
 
-      print(otherDecrypted.map { $0 })
-      print("Decrypted \(otherDecrypted.count) bytes \(otherDecrypted.base64EncodedString())")
-
       XCTAssertEqual(plaintext, String(data: otherDecrypted, encoding: .utf8))
     } catch {
       XCTFail("Crypto failed due to \(error)")

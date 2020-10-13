@@ -1,0 +1,11 @@
+{
+  "code": 400,
+  "body": {
+    "status": 400,
+    "error": {
+      "message": "[channel] contains invalid characters",
+      "source": "Files",
+      "code": 3001
+    }
+  }
+}

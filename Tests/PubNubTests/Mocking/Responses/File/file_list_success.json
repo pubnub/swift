@@ -1,0 +1,17 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": [
+        {
+          "name": "TestFile.txt",
+          "id": "TestFileId",
+          "size": 8864,
+          "created": "2020-10-12T16:21:56Z"
+        }
+    ],
+    "next": null,
+    "count": 1
+  }
+}
+

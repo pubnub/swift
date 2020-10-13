@@ -71,7 +71,6 @@ public extension URLRequest {
 
     // If we were given a Crypto payload we should convert the stream to a secure stream
     if let crypto = crypto {
-      print("Doing the crypto")
       let cryptoStream = CryptoInputStream(
         .encrypt, input: contentStream, contentLength: content.contentLength, with: crypto
       )

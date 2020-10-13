@@ -90,6 +90,10 @@ class MockURLSessionUploadTask: URLSessionUploadTask {
     return mockRequest
   }
 
+  override var currentRequest: URLRequest? {
+    return mockRequest
+  }
+
   override var error: Error? {
     return mockError
   }
@@ -100,6 +104,10 @@ class MockURLSessionUploadTask: URLSessionUploadTask {
 
   override var taskIdentifier: Int {
     return mockIdentifier
+  }
+
+  override var countOfBytesExpectedToReceive: Int64 {
+    return 0
   }
 
   override func resume() {
@@ -157,6 +165,10 @@ class MockURLSessionDownloadTask: URLSessionDownloadTask {
     return mockRequest
   }
 
+  override var currentRequest: URLRequest? {
+    return mockRequest
+  }
+
   override var error: Error? {
     return mockError
   }
@@ -167,6 +179,10 @@ class MockURLSessionDownloadTask: URLSessionDownloadTask {
 
   override var taskIdentifier: Int {
     return mockIdentifier
+  }
+
+  override var countOfBytesExpectedToReceive: Int64 {
+    return 0
   }
 
   override func resume() {

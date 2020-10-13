@@ -262,6 +262,9 @@ extension FileManagementRouterTests {
     let expectation = self.expectation(description: "testDownload_Success")
 
     let tempFile = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success.txt")
+    if FileManager.default.fileExists(atPath: tempFile.path) {
+      try? FileManager.default.removeItem(at: tempFile)
+    }
 
     let testFile = PubNubLocalFileBase(fileURL: tempFile, channel: testChannel, fileId: testFileId)
 

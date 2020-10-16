@@ -215,7 +215,6 @@ struct FileInfo: PubNubFile {
 
   // MARK: PubNubFile
 
-  var custom: JSONCodable?
   var channel: String = ""
   var contentType: String?
   var createdDate: Date? {
@@ -483,7 +482,6 @@ struct FilePublishPayload: PubNubFile, Hashable {
     case name
     case size
     case mimeType = "mime-type"
-    case custom
   }
 
   init(from decoder: Decoder) throws {

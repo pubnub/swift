@@ -272,8 +272,9 @@ extension PubNubChannelMetadataChangeset: Codable {
     if let description = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .channelDescription) {
       changes.append(.stringOptional(\.channelDescription, description.value))
     }
-    if let custom = try container
-      .decodeIfPresent(ValueOptionJSON<[String: JSONCodableScalarType]>.self, forKey: .custom) {
+    if let custom = try container.decodeIfPresent(
+      ValueOptionJSON<[String: JSONCodableScalarType]>.self, forKey: .custom
+    ) {
       changes.append(.customOptional(\.custom, custom.value))
     }
     self.changes = changes

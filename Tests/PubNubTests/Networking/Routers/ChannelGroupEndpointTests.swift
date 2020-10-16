@@ -253,17 +253,17 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .add(channels: testChannels, to: testGroupName) { result in
-        print(result)
-        switch result {
-        case .success:
-          XCTFail("Add Channel request should fail")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.maxChannelGroupCountExceeded))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+
+    pubnub.add(channels: testChannels, to: testGroupName) { result in
+      switch result {
+      case .success:
+        XCTFail("Add Channel request should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.maxChannelGroupCountExceeded))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -277,7 +277,6 @@ extension ChannelGroupsRouterTests {
 
     PubNub(configuration: config, session: sessions.session)
       .add(channels: testChannels, to: testGroupName) { result in
-        print("Result: \(result)")
         switch result {
         case .success:
           XCTFail("Add Channel request should fail")

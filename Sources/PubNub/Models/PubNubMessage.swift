@@ -27,6 +27,16 @@
 
 import Foundation
 
+public enum PubNubMessageType: Int, Codable, Hashable {
+  case message = 0
+  case signal = 1
+  case object = 2
+  case messageAction = 3
+  case file = 4
+
+  case unknown = 999
+}
+
 /// An event representing a message
 public protocol PubNubMessage {
   /// The message sent on the channel
@@ -43,6 +53,8 @@ public protocol PubNubMessage {
   var published: Timetoken { get set }
   /// Meta information for the message
   var metadata: JSONCodable? { get set }
+  /// The type of message that was received
+  var messageType: PubNubMessageType { get set }
 
   /// Allows for transcoding between different MessageEvent types
   init(from other: PubNubMessage) throws
@@ -81,6 +93,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var subscription: String?
   public var published: Timetoken
   var concreteMetadata: AnyJSON?
+
+  public var messageType: PubNubMessageType
 
   public var payload: JSONCodable {
     get { return concretePayload }
@@ -137,11 +151,12 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.init(
       payload: history.message,
       actions: actions,
-      publisher: nil,
+      publisher: history.uuid,
       channel: channel,
       subscription: nil,
       published: history.timetoken,
-      metadata: history.meta
+      metadata: history.meta,
+      messageType: history.messageType ?? .unknown
     )
   }
 
@@ -152,7 +167,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     channel: String,
     subscription: String?,
     published: Timetoken,
-    metadata: AnyJSON?
+    metadata: AnyJSON?,
+    messageType: PubNubMessageType = .unknown
   ) {
     concretePayload = payload
     concreteMessageActions = actions
@@ -161,6 +177,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.subscription = subscription
     self.published = published
     concreteMetadata = metadata
+    self.messageType = messageType
   }
 }
 

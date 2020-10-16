@@ -36,6 +36,7 @@ struct PublishRouter: HTTPRouter {
     case compressedPublish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
     case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
     case signal(message: AnyJSON, channel: String)
+    case file(message: FilePublishPayload, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
 
     var description: String {
       switch self {
@@ -47,6 +48,8 @@ struct PublishRouter: HTTPRouter {
         return "Fire"
       case .signal:
         return "Signal"
+      case .file:
+        return "Publish a File Message"
       }
     }
   }
@@ -82,10 +85,13 @@ struct PublishRouter: HTTPRouter {
     case let .signal(message, channel):
       return append(message: message,
                     to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .file(message, _, _, _):
+      return append(message: message,
+                    to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/")
     }
   }
 
-  func append(message: AnyJSON, to partialPath: String) -> Result<String, Error> {
+  func append(message: JSONCodable, to partialPath: String) -> Result<String, Error> {
     if let crypto = configuration.cipherKey {
       return message.jsonDataResult.flatMap { jsonData in
         crypto.encrypt(encoded: jsonData)
@@ -107,6 +113,8 @@ struct PublishRouter: HTTPRouter {
       return parsePublish(query: &query, store: false, ttl: 0, meta: meta)
     case .signal:
       break
+    case let .file(_, shouldStore, ttl, meta):
+      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
     }
 
     return .success(query)
@@ -179,6 +187,8 @@ struct PublishRouter: HTTPRouter {
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
+    case let .file(message, _, _, _):
+      return message.validationErrorDetail
     }
   }
 }

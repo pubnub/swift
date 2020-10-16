@@ -322,6 +322,12 @@ public class SubscriptionSession {
                 case .removed:
                   return .messageActionRemoved(messageAction)
                 }
+              case .file:
+                // Attempt to decode as a File Message, then fallback to General if fails
+                guard let fileMessage = try? PubNubFileEventBase(from: message) else {
+                  return .messageReceived(PubNubMessageBase(from: message))
+                }
+                return .fileUploaded(fileMessage)
               case .presence:
                 guard let presence = PubNubPresenceChangeBase(from: message) else {
                   return .messageReceived(PubNubMessageBase(from: message))

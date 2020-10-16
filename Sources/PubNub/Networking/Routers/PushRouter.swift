@@ -218,7 +218,8 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
       guard let anyArray = anyJSONPayload.arrayOptional,
-        anyArray.first as? Int != nil, anyArray.last as? String != nil else {
+        anyArray.first as? Int != nil, anyArray.last as? String != nil
+      else {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
@@ -245,11 +246,18 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
 
 struct ModifiedPushChannelsPayloadResponse: Codable {
   /// Response message
-  let message: EndpointResponseMessage = .acknowledge
+  let message: EndpointResponseMessage
   /// Channels that had push support added
   let added: [String]
   /// Channels that had push support removed
   let removed: [String]
+
+  init(message: EndpointResponseMessage = .acknowledge, added: [String], removed: [String]) {
+    self.message = message
+    self.added = added
+    self.removed = removed
+  }
+
   /// All channels that were modified
   var channels: [String] {
     return added + removed

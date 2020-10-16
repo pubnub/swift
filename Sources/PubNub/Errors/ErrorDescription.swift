@@ -130,6 +130,14 @@ extension ErrorDescription {
   static let invalidChannelMetadata: String = {
     "The Object is not a valid Channel Metadata"
   }()
+
+  static let emptyFilenameString: String = {
+    "The required Filename `String` is empty"
+  }()
+
+  static let emptyFileIdString: String = {
+    "The required FileId `String` is empty"
+  }()
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {
@@ -180,6 +188,10 @@ extension PubNubError.Domain: CustomStringConvertible {
       return "An unknown error has occurred"
     case .cancellation:
       return "The request was cancelled before completing"
+    case .fileManagement:
+      return "An error was received from the File Management proxy"
+    case .streamFailure:
+      return "Failure during Stream transmission"
     }
   }
 }
@@ -308,6 +320,30 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "Reason could not be parsed from existing strings"
     case .failedToPublish:
       return "The operation successfully stored the value, but failed to publish"
+    case .fileTooLarge:
+      return "Your proposed upload exceeds the maximum allowed object size"
+    case .protocolTranscodingFailure:
+      return "Conversion between underlying protocol types failed due to incompatible Type requirements"
+    case .streamCouldNotBeInitialized:
+      return "A Stream could not be created with the from the resource provided"
+    case .inputStreamFailure:
+      return "An `InputStream` failed due to the contained underlying error"
+    case .outputStreamFailure:
+      return "An `OutputStream` failed due to the contained underlying error"
+    case .fileMissingAtPath:
+      return "A File did not exist at the specified path.  Ensure the URL is not nil, and it paths to a file"
+    case .backgroundUpdatesDisabled:
+      return "System canceled the background task because background tasks are disabled."
+    case .backgroundInsufficientResources:
+      return "System canceled the background task because it lacks sufficient resources to perform the task."
+    case .backgroundUserForceQuitApplication:
+      return "System canceled the background task because the user force-quit the application"
+    case .fileAccessDenied:
+      return "File was unable to be obtained from file provider; regenerate URL and retry"
+    case .fileContentLength:
+      return "The Content-Length was incorrect for the content being uploaded"
+    case .serviceNotEnabled:
+      return "The PubNub Service that you're attempting to use has not be enabled for your keyset."
     }
   }
 

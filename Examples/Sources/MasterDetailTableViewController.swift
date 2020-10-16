@@ -26,6 +26,7 @@
 //
 // swiftlint:disable file_length
 
+import Foundation
 import UIKit
 
 import PubNub
@@ -40,9 +41,25 @@ class MasterDetailTableViewController: UITableViewController {
 
   enum SegueId: String {
     case config = "MasterDetailToConfigDetail"
+    case fileAPI = "MasterDetailToFileAPI"
   }
 
-  enum Section: Int {
+  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    super.prepare(for: segue, sender: sender)
+
+    switch SegueId(rawValue: segue.identifier ?? "") {
+    case .some(.config):
+      let configVC = segue.destination as? ConfigDetailTableViewController
+      configVC?.config = pubnub.configuration
+    case .some(.fileAPI):
+      let fileAPIController = segue.destination as? FileAPIViewController
+      fileAPIController?.pubnub = pubnub
+    default:
+      break
+    }
+  }
+
+  enum Section: Int, CaseIterable {
     case pubnub = 0
     case endpoints = 1
     case presence = 2
@@ -70,41 +87,36 @@ class MasterDetailTableViewController: UITableViewController {
     var rowCount: Int {
       switch self {
       case .pubnub:
-        return PubNubRow.rowCount
+        return PubNubRow.allCases.count
       case .endpoints:
-        return EndpointRow.rowCount
+        return EndpointRow.allCases.count
       case .presence:
-        return PresenceRow.rowCount
+        return PresenceRow.allCases.count
       case .groups:
-        return ChannelGroupRow.rowCount
+        return ChannelGroupRow.allCases.count
       case .history:
-        return HistoryRow.rowCount
+        return HistoryRow.allCases.count
       case .push:
-        return PushRow.rowCount
+        return PushRow.allCases.count
       }
-    }
-
-    static var sectionCount: Int {
-      return 6
     }
   }
 
-  enum PubNubRow: Int {
+  enum PubNubRow: Int, CaseIterable {
     case config = 0
+    case file = 1
 
     var title: String {
       switch self {
       case .config:
         return "Configuration"
+      case .file:
+        return "File"
       }
-    }
-
-    static var rowCount: Int {
-      return 1
     }
   }
 
-  enum EndpointRow: Int {
+  enum EndpointRow: Int, CaseIterable {
     case time = 0
     case publish = 1
     case signal = 2
@@ -131,13 +143,9 @@ class MasterDetailTableViewController: UITableViewController {
         return "Set State"
       }
     }
-
-    static var rowCount: Int {
-      return 7
-    }
   }
 
-  enum PresenceRow: Int {
+  enum PresenceRow: Int, CaseIterable {
     case hereNow = 0
     case whereNow = 1
 
@@ -149,13 +157,9 @@ class MasterDetailTableViewController: UITableViewController {
         return "Where Now"
       }
     }
-
-    static var rowCount: Int {
-      return 2
-    }
   }
 
-  enum ChannelGroupRow: Int {
+  enum ChannelGroupRow: Int, CaseIterable {
     case listGroups = 0
     case listChannels = 1
     case addChannels = 2
@@ -176,13 +180,9 @@ class MasterDetailTableViewController: UITableViewController {
         return "Delete Group"
       }
     }
-
-    static var rowCount: Int {
-      return 5
-    }
   }
 
-  enum PushRow: Int {
+  enum PushRow: Int, CaseIterable {
     case listPushChannels
     case modifyPushChannels
     case deletePushChannels
@@ -197,13 +197,9 @@ class MasterDetailTableViewController: UITableViewController {
         return "Delete Push Channels"
       }
     }
-
-    static var rowCount: Int {
-      return 3
-    }
   }
 
-  enum HistoryRow: Int {
+  enum HistoryRow: Int, CaseIterable {
     case messageCount
     case fetchMessageHistory
     case deleteMessageHistory
@@ -218,10 +214,6 @@ class MasterDetailTableViewController: UITableViewController {
         return "Delete Message History"
       }
     }
-
-    static var rowCount: Int {
-      return 3
-    }
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
@@ -229,7 +221,8 @@ class MasterDetailTableViewController: UITableViewController {
     super.viewDidLoad()
 
     var config = PubNubConfiguration()
-    config.cipherKey = Crypto(key: "MyCoolCipherKey")
+    // Uncomment the next line to encrypt messages/files
+//    config.cipherKey = Crypto(key: "MyCoolCipherKey")
     config.automaticRetry = AutomaticRetry(retryLimit: 500, policy: .linear(delay: 0.25))
 
     pubnub = PubNub(configuration: config)
@@ -311,6 +304,8 @@ class MasterDetailTableViewController: UITableViewController {
         case let .messageActionRemoved(messageAction):
           print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
           print("A message action with the timetoken of \(messageAction.actionTimetoken) has been removed")
+        case let .fileUploaded(file):
+          print("A file was uplaoded \(file)")
         case let .subscribeError(error):
           print("The following error was generated during subscription \(error.localizedDescription)")
           print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
@@ -326,7 +321,7 @@ class MasterDetailTableViewController: UITableViewController {
   override func numberOfSections(in tableView: UITableView) -> Int {
     super.numberOfSections(in: tableView)
 
-    return Section.sectionCount
+    return Section.allCases.count
   }
 
   override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
@@ -391,6 +386,8 @@ class MasterDetailTableViewController: UITableViewController {
     switch PubNubRow(rawValue: row) {
     case .some(.config):
       performSegue(withIdentifier: SegueId.config.rawValue, sender: self)
+    case .some(.file):
+      performSegue(withIdentifier: SegueId.fileAPI.rawValue, sender: self)
     case .none:
       break
     }
@@ -704,17 +701,5 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-    super.prepare(for: segue, sender: sender)
-
-    switch SegueId(rawValue: segue.identifier ?? "") {
-    case .config?:
-      let configVC = segue.destination as? ConfigDetailTableViewController
-      configVC?.config = pubnub.configuration
-    default:
-      break
-    }
-  }
+  // swiftlint:endable file_length
 }
-
-// swiftlint:endable file_length

@@ -81,6 +81,8 @@ public struct PubNubError: Error {
     case serviceNotEnabled
     case uncategorized
     case cancellation
+    case fileManagement
+    case streamFailure
   }
 
   /// The Reason that causes a PubNubError to occur
@@ -104,6 +106,11 @@ public struct PubNubError: Error {
     // Request Processing
     case requestMutatorFailure
     case requestRetryFailed
+
+    // Background Session
+    case backgroundUpdatesDisabled
+    case backgroundInsufficientResources
+    case backgroundUserForceQuitApplication
 
     // Request Transmission
     case timedOut
@@ -146,6 +153,17 @@ public struct PubNubError: Error {
     case nothingToDelete
     case failedToPublish
 
+    // Stream Errors
+    case streamCouldNotBeInitialized
+    case inputStreamFailure
+    case outputStreamFailure
+
+    // File Management
+    case fileMissingAtPath
+    case fileTooLarge
+    case fileAccessDenied
+    case fileContentLength
+
     // Service Not Enabled
     case pushNotEnabled
     case messageHistoryNotEnabled
@@ -153,12 +171,14 @@ public struct PubNubError: Error {
     case multiplexingNotEnabled
 
     // Uncategorized
+    case protocolTranscodingFailure
     case unknown
 
     // HTTP Response Code Errors
     // Don't put non-response code errors below here
     case badRequest = 400
     case unauthorized = 401
+    case serviceNotEnabled = 402
     case forbidden = 403
     case resourceNotFound = 404
     case conflict = 409
@@ -184,7 +204,8 @@ public struct PubNubError: Error {
         return .requestProcessing
       case .timedOut, .nameResolutionFailure, .invalidURL,
            .connectionFailure, .connectionOverDataFailure, .connectionLost,
-           .secureConnectionFailure, .certificateTrustFailure:
+           .secureConnectionFailure, .certificateTrustFailure, .backgroundUpdatesDisabled,
+           .backgroundInsufficientResources, .backgroundUserForceQuitApplication:
         return .requestTransmission
       case .clientCancelled, .sessionDeinitialized, .sessionInvalidated, .longPollingRestart:
         return .cancellation
@@ -197,12 +218,16 @@ public struct PubNubError: Error {
            .requestContainedInvalidJSON, .serviceUnavailable, .messageCountExceededMaximum,
            .badRequest, .conflict, .preconditionFailed, .tooManyRequests, .unsupportedType,
            .unauthorized, .forbidden, .resourceNotFound, .requestURITooLong, .malformedFilterExpression,
-           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish:
+           .internalServiceError, .messageTooLong, .invalidUUID, .nothingToDelete, .failedToPublish, .serviceNotEnabled:
         return .endpointResponse
       case .pushNotEnabled, .messageDeletionNotEnabled, .messageHistoryNotEnabled, .multiplexingNotEnabled:
         return .serviceNotEnabled
-      case .unknown:
+      case .unknown, .protocolTranscodingFailure:
         return .uncategorized
+      case .streamCouldNotBeInitialized, .inputStreamFailure, .outputStreamFailure:
+        return .streamFailure
+      case .fileTooLarge, .fileMissingAtPath, .fileAccessDenied, .fileContentLength:
+        return .fileManagement
       }
     }
   }
@@ -227,23 +252,36 @@ public struct PubNubError: Error {
 
   init(
     reason: Reason?,
-    router: HTTPRouter,
-    request: URLRequest,
-    response: HTTPURLResponse,
+    router: HTTPRouter?,
+    request: URLRequest?,
+    response: HTTPURLResponse?,
     additional details: [ErrorDetail]? = nil
   ) {
-    let reasonOrResponse = reason ?? Reason(rawValue: response.statusCode)
+    var reasonOrResponse = reason
+
+    var affectedValues = [AffectedValue]()
+
+    if let request = request {
+      affectedValues.append(.request(request))
+    }
+    if let response = response {
+      reasonOrResponse = reasonOrResponse ?? Reason(rawValue: response.statusCode)
+      affectedValues.append(.response(response))
+    }
 
     self.init(reasonOrResponse ?? .unrecognizedStatusCode,
               router: router,
               additional: details?.compactMap { $0.message } ?? [],
-              affected: [.request(request), .response(response)])
+              affected: affectedValues)
   }
 
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {
-    self.init(PubNubError.Reason(rawValue: response.statusCode) ?? .unknown,
-              router: router,
-              affected: [.request(request), .response(response)])
+    self.init(
+      reason: PubNubError.Reason(rawValue: response.statusCode),
+      router: router,
+      request: request,
+      response: response
+    )
   }
 
   init<ResponseType>(
@@ -459,10 +497,27 @@ extension AnyJSONError {
 }
 
 extension URLError {
+  var pubnubCancellationReason: PubNubError.Reason {
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
+      switch backgroundTaskCancelledReason {
+      case .some(.backgroundUpdatesDisabled):
+        return .backgroundUpdatesDisabled
+      case .some(.insufficientSystemResources):
+        return .backgroundInsufficientResources
+      case .some(.userForceQuitApplication):
+        return .backgroundUserForceQuitApplication
+      default:
+        return .clientCancelled
+      }
+    } else {
+      return .clientCancelled
+    }
+  }
+
   var pubnubReason: PubNubError.Reason? {
     switch code {
     case .cancelled:
-      return .clientCancelled
+      return pubnubCancellationReason
     case .unknown:
       return .unknown
     case .timedOut:
@@ -479,7 +534,8 @@ extension URLError {
       return .connectionLost
     case .secureConnectionFailed:
       return .secureConnectionFailure
-    case .serverCertificateHasBadDate,
+    case .appTransportSecurityRequiresSecureConnection,
+         .serverCertificateHasBadDate,
          .serverCertificateUntrusted,
          .serverCertificateHasUnknownRoot,
          .serverCertificateNotYetValid,
@@ -493,9 +549,6 @@ extension URLError {
     case .dataLengthExceedsMaximum:
       return .dataLengthExceedsMaximum
     default:
-      if #available(iOS 9.0, macOS 10.11, *), code == .appTransportSecurityRequiresSecureConnection {
-        return .certificateTrustFailure
-      }
       return nil
     }
   }

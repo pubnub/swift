@@ -30,7 +30,7 @@ import XCTest
 
 class EventStreamTests: XCTestCase {
   struct NewStream: EventStreamReceiver, Hashable {
-    var uuid: UUID = UUID()
+    var uuid = UUID()
   }
 
   func testDefaultProtocol() {
@@ -45,7 +45,7 @@ class EventStreamTests: XCTestCase {
     let expectation = self.expectation(description: "Listener Token")
 
     DispatchQueue.main.async {
-      let token: ListenerToken = ListenerToken {
+      let token = ListenerToken {
         expectation.fulfill()
       }
 
@@ -58,7 +58,7 @@ class EventStreamTests: XCTestCase {
   func testListenerToken_Fire_Cancel() {
     let expectation = self.expectation(description: "Listener Token")
 
-    let token: ListenerToken = ListenerToken {
+    let token = ListenerToken {
       expectation.fulfill()
     }
 

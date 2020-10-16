@@ -209,7 +209,7 @@ public protocol PubNubPresenceChange {
   /// Meta information for the message
   var metadata: JSONCodable? { get }
 
-  /// Allows for converting  between different MessageEvent types
+  /// Allows for converting  between different `PubNubPresenceChange` types
   init(from other: PubNubPresenceChange) throws
 }
 

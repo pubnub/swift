@@ -30,7 +30,7 @@ import XCTest
 
 class SubscriptionListenerTests: XCTestCase {
   struct MockStatusStream: SubscriptionStream {
-    let uuid: UUID = UUID()
+    let uuid = UUID()
 
     var statusEvent: ((SubscriptionListener.StatusEvent) -> Void)?
 
@@ -40,7 +40,7 @@ class SubscriptionListenerTests: XCTestCase {
   }
 
   struct MockMessageStream: SubscriptionStream {
-    let uuid: UUID = UUID()
+    let uuid = UUID()
 
     var PubNubMessage: ((PubNubMessage) -> Void)?
 

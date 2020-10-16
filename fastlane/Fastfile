@@ -13,6 +13,7 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+# TODO: Could not find the iOS 12
 before_all do |lane, opts|
 
   # Need to use UTF-8 when using xcpretty
@@ -20,6 +21,9 @@ before_all do |lane, opts|
   Encoding.default_internal = Encoding::UTF_8
 
   setup_travis if ENV["TRAVIS_CI"]
+  
+  ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120"
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "10"
 end
 
 desc "Executes SDK Unit Tests"
@@ -32,8 +36,6 @@ lane :test do
     )
   else # Test using simulators
     ENV["DEVICES"].split(',').each do |device|
-      runtime = device.match(/(?:[\(])(.*)(?:\))/)[1].split('.').first
-
       scan(
         workspace: ENV['WORKSPACE'],
         scheme: ENV['SCHEME_SDK'],

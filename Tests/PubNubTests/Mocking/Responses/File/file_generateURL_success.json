@@ -1,0 +1,53 @@
+{
+  "code": 200,
+  "body": {
+    "status": 200,
+    "data": {
+      "id": "TestFileId",
+      "name": "TestFile.txt"
+    },
+    "file_upload_request": {
+      "url": "https://pubnub-mnemosyne-files-us-west-1-prd.s3.amazonaws.com/",
+      "method": "POST",
+      "expiration_date": "2020-09-02T20:40:10Z",
+      "form_fields": [
+        {
+          "key": "tagging",
+          "value": "<Tagging><TagSet><Tag><Key>ObjectTTLInDays</Key><Value>3</Value></Tag></TagSet></Tagging>"
+        },
+        {
+          "key": "key",
+          "value": "some-key/hashobject/uuid/hello-world"
+        },
+        {
+          "key": "Content-Type",
+          "value": "binary/octet-stream"
+        },
+        {
+          "key": "X-Amz-Credential",
+          "value": "AKIAY7AU6GQD5KWBS3FG/20200902/us-west-1/s3/aws4_request"
+        },
+        {
+          "key": "X-Amz-Security-Token",
+          "value": ""
+        },
+        {
+          "key": "X-Amz-Algorithm",
+          "value": "AWS4-HMAC-SHA256"
+        },
+        {
+          "key": "X-Amz-Date",
+          "value": "20200902T204010Z"
+        },
+        {
+          "key": "Policy",
+          "value": "somepolicyhash"
+        },
+        {
+          "key": "X-Amz-Signature",
+          "value": "somesignaturehash"
+        }
+      ]
+    }
+  }
+}

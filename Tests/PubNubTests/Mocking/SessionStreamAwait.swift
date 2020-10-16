@@ -147,7 +147,6 @@ final class SessionExpector {
   }
 
   func expectDidRetryRequest(fullfil count: Int = 1, closure: @escaping (RequestReplaceable) -> Void) {
-    print("expectDidRetryRequest")
     let expectation = XCTestExpectation(description: "didRetryRequest")
     expectation.expectedFulfillmentCount = count
     sessionListener.didRetryRequest = { request in

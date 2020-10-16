@@ -1,0 +1,11 @@
+{
+  "code": 402,
+  "body": {
+    "status": 402,
+    "error": {
+        "message": "Files service not enabled for subkey",
+        "source": "Files",
+        "code": 3005
+    }
+  }
+}

@@ -79,6 +79,8 @@ public enum SubscriptionEvent {
   case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
   case messageActionRemoved(PubNubMessageAction)
+  /// A File was uploaded to storage
+  case fileUploaded(PubNubFileEvent)
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -168,10 +170,12 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   public var didReceiveSignal: ((PubNubMessage) -> Void)?
   /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
   public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
-  ///
+  /// Receiver for Object Metadata Events
   public var didReceiveObjectMetadataEvent: ((ObjectMetadataChangeEvents) -> Void)?
   /// Receiver for message action events
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
+  /// Receiver for File Upload events
+  public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
 
   public func emitDidReceiveBatch(subscription batch: [SubscriptionEvent]) {
     let supressCancellationErrors = self.supressCancellationErrors
@@ -223,6 +227,8 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveMessageAction?(.added(action))
       case let .messageActionRemoved(action):
         self?.didReceiveMessageAction?(.removed(action))
+      case let .fileUploaded(file):
+        self?.didReceiveFileUpload?(file)
       case let .subscribeError(error):
         self?.didReceiveStatus?(.failure(error))
       }

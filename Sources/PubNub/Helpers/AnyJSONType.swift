@@ -516,7 +516,7 @@ extension AnyJSONType {
   var jsonEncodedData: Result<Data, Error> {
     switch self {
     case .string, .integer, .double, .boolean, .null:
-      return self.stringify.flatMap { string -> Result<Data, Error> in
+      return stringify.flatMap { string -> Result<Data, Error> in
         if let data = string.data(using: .utf8) {
           return .success(data)
         }

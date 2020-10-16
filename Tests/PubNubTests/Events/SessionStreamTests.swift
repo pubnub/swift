@@ -42,7 +42,8 @@ class SessionStreamTests: XCTestCase {
     let multiplexStream = MultiplexSessionStream([closureStream])
 
     guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: multiplexStream) else {
+                                                         with: multiplexStream)
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -60,32 +61,32 @@ class SessionStreamTests: XCTestCase {
 
     sessionExpector.expectDidCreateTask { request, task in
       let mockTask = sessions.mockSession.tasks.first
-      XCTAssertEqual(request.urlRequest, mockTask?.mockRequest)
+      XCTAssertEqual(request.urlRequest, mockTask?.originalRequest)
       XCTAssertEqual(task.taskIdentifier, mockTask?.taskIdentifier)
     }
 
     sessionExpector.expectDidResumeTask { request, task in
       let mockTask = sessions.mockSession.tasks.first
-      XCTAssertEqual(request.urlRequest, mockTask?.mockRequest)
+      XCTAssertEqual(request.urlRequest, mockTask?.originalRequest)
       XCTAssertEqual(task.taskIdentifier, mockTask?.taskIdentifier)
     }
 
     sessionExpector.expectDidCompleteTask { request, task in
       let mockTask = sessions.mockSession.tasks.first
-      XCTAssertEqual(request.urlRequest, mockTask?.mockRequest)
+      XCTAssertEqual(request.urlRequest, mockTask?.originalRequest)
       XCTAssertEqual(task.taskIdentifier, mockTask?.taskIdentifier)
     }
 
     sessionExpector.expectDidResumeRequest { request in
-      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.mockRequest)
+      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
     }
 
     sessionExpector.expectDidFinishRequest { request in
-      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.mockRequest)
+      XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
     }
 
     sessionExpector.expectDidReceiveURLSessionData { urlSession, task, data in
-      let mockTask = sessions.mockSession.tasks.first
+      let mockTask = sessions.mockSession.tasks.first as? MockURLSessionDataTask
       XCTAssertEqual(urlSession.sessionDescription, sessions.mockSession.sessionDescription)
       XCTAssertEqual(task.taskIdentifier, mockTask?.taskIdentifier)
       XCTAssertEqual(data, mockTask?.mockData)

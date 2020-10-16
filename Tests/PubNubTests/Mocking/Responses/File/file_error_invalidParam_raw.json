@@ -1,0 +1,8 @@
+{
+  "status": 400,
+  "error": {
+    "source": "Files",
+    "message": "Invalid limit parameter. Limit must be an integer between 1 and 100 (inclusive).",
+    "code": 3001
+  }
+}

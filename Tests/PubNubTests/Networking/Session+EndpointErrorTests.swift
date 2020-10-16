@@ -47,13 +47,15 @@ final class SessionEndpointErrorTests: XCTestCase {
         XCTFail("Publish request should fail")
       case let .failure(error):
         guard let task = sessions.mockSession.tasks.first,
-          let response = task.mockResponse else {
+          let request = task.originalRequest,
+          let response = task.httpResponse
+        else {
           return XCTFail("Could not get task")
         }
 
         let pubnubError = PubNubError(reason: payload?.pubnubReason,
                                       router: TimeRouter(.time, configuration: config),
-                                      request: task.mockRequest,
+                                      request: request,
                                       response: response)
 
         XCTAssertNotNil(error.pubNubError)

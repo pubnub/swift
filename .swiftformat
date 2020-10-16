@@ -2,6 +2,8 @@
 --indent 2
 --commas inline
 
+--disable wrapMultilineStatementBraces
+
 # file options
 --exclude .build
 

@@ -40,6 +40,13 @@ public struct PubNub {
   // PAM Token Manager
   internal var tokenStore: PAMTokenManagementSystem
 
+  /// The URLSession used when making File upload/download requests
+  public var fileURLSession: URLSessionReplaceable
+  /// The URLSessionDelegate used by the `fileSession` to handle file responses
+  public var fileSessionManager: FileSessionManager? {
+    return fileURLSession.delegate as? FileSessionManager
+  }
+
   /// Global log instance for the PubNub SDK
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
   // Global log instance for Logging issues/events
@@ -51,12 +58,11 @@ public struct PubNub {
   ///   - configuration: The default configurations that will be used
   ///   - session: Session used for performing request/response REST calls
   ///   - subscribeSession: The network session used for Subscription only
-  ///   - presenceSession: The network session used by Subscription for `leave` and `heartbeat` requests
   public init(
     configuration: PubNubConfiguration,
     session: SessionReplaceable? = nil,
     subscribeSession: SessionReplaceable? = nil,
-    presenceSession: SessionReplaceable? = nil
+    fileSession: URLSessionReplaceable? = nil
   ) {
     instanceID = UUID()
     self.configuration = configuration
@@ -90,10 +96,20 @@ public struct PubNub {
     subscription = SubscribeSessionFactory.shared.getSession(
       from: configuration,
       with: subscribeSession,
-      presenceSession: presenceSession
+      presenceSession: session
     )
 
     tokenStore = PAMTokenManagementSystem()
+
+    if let fileSession = fileSession {
+      fileURLSession = fileSession
+    } else {
+      fileURLSession = URLSession(
+        configuration: .pubnubBackground,
+        delegate: FileSessionManager(),
+        delegateQueue: .main
+      )
+    }
   }
 
   func route<Decoder>(
@@ -159,6 +175,8 @@ extension PubNub {
   public struct RequestConfiguration {
     /// The custom Network session that that will be used to make the request
     public var customSession: SessionReplaceable?
+    /// The custom crypto used to encrypt the request or decrypt the response
+    internal var crypto: Crypto?
     /// The endpoint configuration used by the request
     public var customConfiguration: RouterConfiguration?
     /// The response queue that will
@@ -295,7 +313,7 @@ extension PubNub {
     ///   - customFields: The `custom` dictionary for the Object
     ///   - channelFields: The `PubNubChannelMetadata` instance of the Membership
     ///   - channelCustomFields: The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
-    ///   - totalCount The `totalCount` of how many Objects are available
+    ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       channelFields: Bool = false,
@@ -334,7 +352,7 @@ extension PubNub {
     ///   - customFields: The `custom` dictionary for the Object
     ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
     ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
-    ///   - totalCount The `totalCount` of how many Objects are available
+    ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       uuidFields: Bool = false,
@@ -737,7 +755,7 @@ extension PubNub {
 
   /// Removes the channel group.
   /// - Parameters:
-  ///   - channelGroup: The channel group to delete.
+  ///   - channelGroup: The channel group to remove.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The channel-group that was removed
@@ -996,12 +1014,12 @@ extension PubNub {
         .failure(PubNubError(.missingRequiredParameter,
                              router: router,
                              additional: [ErrorDescription.missingChannelsAnyGroups])))
-    }
-
-    route(router,
-          responseDecoder: ModifyPushResponseDecoder(),
-          custom: requestConfig) { result in
-      completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
+    } else {
+      route(router,
+            responseDecoder: ModifyPushResponseDecoder(),
+            custom: requestConfig) { result in
+        completion?(result.map { (added: $0.payload.added, removed: $0.payload.removed) })
+      }
     }
   }
 
@@ -1097,6 +1115,8 @@ extension PubNub {
   ///   - for: List of channels to fetch history messages from.
   ///   - includeActions: If `true` any Message Actions will be included in the response
   ///   - includeMeta: If `true` the meta properties of messages will be included in the response
+  ///   - includeUUID: If `true` the UUID of the message publisher will be included with each message in the response
+  ///   - includeMessageType: If `true` the message type will be included with each message
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -1104,22 +1124,43 @@ extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   public func fetchMessageHistory(
     for channels: [String],
-    includeActions actions: Bool = false,
-    includeMeta: Bool = false,
+    includeActions: Bool = false, includeMeta: Bool = false,
+    includeUUID: Bool = true, includeMessageType: Bool = true,
     page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     let router: HistoryRouter
-    if actions {
+
+    switch (channels.count > 1, includeActions) {
+    case (_, true):
       router = HistoryRouter(
-        .fetchWithActions(channel: channels.first ?? "",
-                          max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
+        .fetchWithActions(
+          channel: channels.first ?? "",
+          max: page?.limit ?? 25, start: page?.start, end: page?.end,
+          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeUUID: includeUUID
+        ),
         configuration: configuration
       )
-    } else {
+    case (false, _):
       router = HistoryRouter(
-        .fetch(channels: channels, max: page?.limit, start: page?.start, end: page?.end, includeMeta: includeMeta),
+        .fetch(
+          channels: channels, max: page?.limit ?? 100,
+          start: page?.start, end: page?.end,
+          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeUUID: includeUUID
+        ),
+        configuration: configuration
+      )
+    case (true, _):
+      router = HistoryRouter(
+        .fetch(
+          channels: channels, max: page?.limit ?? 25,
+          start: page?.start, end: page?.end,
+          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeUUID: includeUUID
+        ),
         configuration: configuration
       )
     }
@@ -1552,7 +1593,7 @@ extension PubNub {
       sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ),
-                                          configuration: configuration)
+    configuration: configuration)
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),

@@ -77,7 +77,7 @@ final class Request {
   }
 
   let sessionID: UUID
-  let requestID: UUID = UUID()
+  let requestID = UUID()
   let router: HTTPRouter
   let requestQueue: DispatchQueue
   let requestOperator: RequestOperator?
@@ -336,7 +336,7 @@ final class Request {
       }
 
       if let request = state.urlRequests.last,
-        let response = state.tasks.last?.response as? HTTPURLResponse,
+        let response = state.tasks.last?.httpResponse,
         let data = state.responesData {
         return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
       }
@@ -413,7 +413,8 @@ extension Request {
         let request = self?.urlRequest,
         let response = self?.urlResponse,
         let router = self?.router,
-        let data = self?.data else {
+        let data = self?.data
+      else {
         return
       }
 

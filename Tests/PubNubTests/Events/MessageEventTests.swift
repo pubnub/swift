@@ -73,7 +73,8 @@ class MessageEventTests: XCTestCase {
   func testMessageEvent_MessageResponse() {
     guard let messageData = message.data(using: .utf8),
       let event = try? Constant.jsonDecoder.decode(MessageResponse.self,
-                                                   from: messageData) as MessageEvent else {
+                                                   from: messageData) as MessageEvent
+    else {
       return XCTFail("Could not create data from string")
     }
 
@@ -87,7 +88,8 @@ class MessageEventTests: XCTestCase {
   func testMessageEvent_Description() {
     guard let messageData = message.data(using: .utf8),
       let event = try? Constant.jsonDecoder.decode(MessageResponse.self,
-                                                   from: messageData) as MessageEvent else {
+                                                   from: messageData) as MessageEvent
+    else {
       return XCTFail("Could not create data from string")
     }
 
@@ -102,7 +104,8 @@ class MessageEventTests: XCTestCase {
   func testMessageEvent_Description_NoPublisher() {
     guard let messageData = messageNoPublisher.data(using: .utf8),
       let event = try? Constant.jsonDecoder.decode(MessageResponse.self,
-                                                   from: messageData) as MessageEvent else {
+                                                   from: messageData) as MessageEvent
+    else {
       return XCTFail("Could not create data from string")
     }
 

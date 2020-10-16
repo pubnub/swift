@@ -69,7 +69,8 @@ public struct PubNubUUIDMetadataChangeset {
   public func apply(to object: PubNubUUIDMetadata) -> PubNubUUIDMetadata {
     guard metadataId == object.metadataId,
       eTag != object.eTag,
-      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
+      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0
+    else {
       return object
     }
 
@@ -126,7 +127,8 @@ public struct PubNubChannelMetadataChangeset {
   public func apply(to object: PubNubChannelMetadata) -> PubNubChannelMetadata {
     guard metadataId == object.metadataId,
       eTag != object.eTag,
-      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0 else {
+      updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0
+    else {
       return object
     }
 

@@ -68,7 +68,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
       let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -166,7 +167,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
       let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -207,7 +209,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
       let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -275,7 +278,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
       let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -373,7 +377,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
       let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -415,7 +420,8 @@ extension ObjectsMembershipsRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
       let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z") else {
+      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+    else {
       return XCTFail("Could not create mock url session")
     }
 

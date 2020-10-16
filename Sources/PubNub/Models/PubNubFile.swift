@@ -97,25 +97,17 @@ public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
 
   public var createdDate: Date?
 
-  var concreteCustom: AnyJSON?
-  public var custom: JSONCodable? {
-    get { return concreteCustom }
-    set { concreteCustom = newValue?.codableValue }
-  }
-
   public init(
     fileURL: URL,
     channel: String,
     fileId: String,
     remoteFilename: String? = nil,
-    custom: JSONCodable? = nil,
     createdDate: Date? = nil
   ) {
     self.fileURL = fileURL
     self.channel = channel
     self.fileId = fileId
     self.remoteFilename = remoteFilename ?? fileURL.lastPathComponent
-    self.custom = custom
     self.createdDate = createdDate
   }
 
@@ -125,7 +117,6 @@ public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
       channel: other.channel,
       fileId: other.fileId,
       remoteFilename: other.remoteFilename,
-      custom: other.custom,
       createdDate: other.createdDate
     )
   }
@@ -155,9 +146,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
       fileURL: url,
       channel: other.channel,
       fileId: other.fileId,
-      remoteFilename: other.filename,
-      custom: other.custom,
-      createdDate: other.createdDate
+      remoteFilename: other.filename
     )
   }
 }
@@ -179,9 +168,6 @@ public protocol PubNubFile: JSONCodable {
 
   /// ISO 8601 date and time the file was uploaded
   var createdDate: Date? { get set }
-
-  /// Custom payload that can be used to store additional file details
-  var custom: JSONCodable? { get set }
 
   /// Allows for converting  between different `PubNubFile` types
   init(from other: PubNubFile) throws
@@ -215,8 +201,7 @@ extension PubNubFile {
     size: Int64,
     contentType: String?,
     fileURL: URL?,
-    createdDate: Date? = nil,
-    custom: JSONCodable? = nil
+    createdDate: Date? = nil
   ) -> PubNubFile {
     if let fileURL = fileURL {
       return PubNubLocalFileBase(
@@ -224,7 +209,6 @@ extension PubNubFile {
         channel: channel,
         fileId: fileId,
         remoteFilename: filename,
-        custom: custom,
         createdDate: createdDate
       )
     } else {
@@ -234,8 +218,7 @@ extension PubNubFile {
         filename: filename,
         size: size,
         contentType: contentType,
-        createdDate: createdDate,
-        custom: custom
+        createdDate: createdDate
       )
     }
   }
@@ -250,20 +233,13 @@ public struct PubNubFileBase: PubNubFile, Hashable {
   public var contentType: String?
   public var createdDate: Date?
 
-  var concreteCustom: AnyJSON?
-  public var custom: JSONCodable? {
-    get { return concreteCustom }
-    set { concreteCustom = newValue?.codableValue }
-  }
-
   public init(
     channel: String,
     fileId: String,
     filename: String,
     size: Int64,
     contentType: String?,
-    createdDate: Date? = nil,
-    custom: JSONCodable? = nil
+    createdDate: Date? = nil
   ) {
     self.channel = channel
     self.fileId = fileId
@@ -271,7 +247,6 @@ public struct PubNubFileBase: PubNubFile, Hashable {
     self.size = size
     self.contentType = contentType
     self.createdDate = createdDate
-    self.custom = custom
   }
 
   public init(from other: PubNubFile) {
@@ -281,8 +256,7 @@ public struct PubNubFileBase: PubNubFile, Hashable {
       filename: other.filename,
       size: other.size,
       contentType: other.contentType,
-      createdDate: other.createdDate,
-      custom: other.custom
+      createdDate: other.createdDate
     )
   }
 
@@ -293,8 +267,7 @@ public struct PubNubFileBase: PubNubFile, Hashable {
       filename: fileInfo.filename,
       size: fileInfo.size,
       contentType: fileInfo.contentType,
-      createdDate: fileInfo.created,
-      custom: fileInfo.custom
+      createdDate: fileInfo.created
     )
   }
 }
@@ -415,8 +388,7 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
       filename: filePayload.filename,
       size: filePayload.size,
       contentType: filePayload.contentType,
-      createdDate: filePayload.createdDate,
-      custom: filePayload.custom
+      createdDate: filePayload.createdDate
     )
 
     self.init(

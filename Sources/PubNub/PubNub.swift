@@ -1131,20 +1131,32 @@ extension PubNub {
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     let router: HistoryRouter
-    if includeActions {
+
+    switch (channels.count > 1, includeActions) {
+    case (_, true):
       router = HistoryRouter(
         .fetchWithActions(
           channel: channels.first ?? "",
-          max: page?.limit ?? 100, start: page?.start, end: page?.end,
+          max: page?.limit ?? 25, start: page?.start, end: page?.end,
           includeMeta: includeMeta, includeMessageType: includeMessageType,
           includeUUID: includeUUID
         ),
         configuration: configuration
       )
-    } else {
+    case (false, _):
       router = HistoryRouter(
         .fetch(
           channels: channels, max: page?.limit ?? 100,
+          start: page?.start, end: page?.end,
+          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeUUID: includeUUID
+        ),
+        configuration: configuration
+      )
+    case (true, _):
+      router = HistoryRouter(
+        .fetch(
+          channels: channels, max: page?.limit ?? 25,
           start: page?.start, end: page?.end,
           includeMeta: includeMeta, includeMessageType: includeMessageType,
           includeUUID: includeUUID

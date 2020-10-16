@@ -404,7 +404,7 @@ struct FileUploadError: Codable, Hashable {
 // MARK: - Publish Request Body
 
 /// The message structure used by all SDKs to denote a published message
-struct FilePublishPayload: PubNubFile {
+struct FilePublishPayload: PubNubFile, Hashable {
   /// The additional payload published along with the file
   var additionalDetails: JSONCodable? {
     get {
@@ -426,20 +426,8 @@ struct FilePublishPayload: PubNubFile {
   /// The MIME Type of the file
   var contentType: String?
 
-  var concreteCustom: AnyJSON?
-  var custom: JSONCodable? {
-    get { return concreteCustom }
-    set { concreteCustom = newValue?.codableValue }
-  }
-
   var channel: String
   var createdDate: Date?
-
-  var concreteMessage: AnyJSON?
-  var message: JSONCodable? {
-    get { return concreteCustom }
-    set { concreteCustom = newValue?.codableValue }
-  }
 
   init(
     channel: String,
@@ -448,15 +436,15 @@ struct FilePublishPayload: PubNubFile {
     size: Int64 = 0,
     contentType: String? = nil,
     createdDate: Date? = nil,
-    custom: JSONCodable? = nil
+    additionalDetails: JSONCodable? = nil
   ) {
     self.channel = channel
     self.fileId = fileId
     self.filename = filename
     self.size = size
-    self.contentType = contentType ?? "application/octet-stream"
+    self.contentType = contentType
     self.createdDate = createdDate
-    self.custom = custom
+    self.additionalDetails = additionalDetails
   }
 
   init(from other: PubNubFile) {
@@ -466,8 +454,19 @@ struct FilePublishPayload: PubNubFile {
       filename: other.filename,
       size: other.size,
       contentType: other.contentType,
+      createdDate: other.createdDate
+    )
+  }
+
+  init(from other: PubNubFile, additional message: JSONCodable?) {
+    self.init(
+      channel: other.channel,
+      fileId: other.fileId,
+      filename: other.filename,
+      size: other.size,
+      contentType: other.contentType,
       createdDate: other.createdDate,
-      custom: other.custom
+      additionalDetails: message
     )
   }
 
@@ -489,27 +488,25 @@ struct FilePublishPayload: PubNubFile {
 
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    concreteMessage = try container.decodeIfPresent(AnyJSON.self, forKey: .message)
+    additionalDetailsConcrete = try container.decodeIfPresent(AnyJSON.self, forKey: .message)
     channel = try container.decodeIfPresent(String.self, forKey: .channel) ?? ""
 
     let fileContainer = try container.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .file)
     fileId = try fileContainer.decode(String.self, forKey: .id)
     filename = try fileContainer.decode(String.self, forKey: .name)
-    size = try fileContainer.decode(Int64.self, forKey: .size)
-    contentType = try fileContainer.decode(String.self, forKey: .mimeType)
-    concreteCustom = try fileContainer.decodeIfPresent(AnyJSON.self, forKey: .custom)
+    size = try fileContainer.decodeIfPresent(Int64.self, forKey: .size) ?? 0
+    contentType = try fileContainer.decodeIfPresent(String.self, forKey: .mimeType)
   }
 
   func encode(to encoder: Encoder) throws {
     var rootContainer = encoder.container(keyedBy: CodingKeys.self)
-    try rootContainer.encodeIfPresent(concreteMessage, forKey: .message)
+    try rootContainer.encodeIfPresent(additionalDetailsConcrete, forKey: .message)
 
     var fileContainer = rootContainer.nestedContainer(keyedBy: FileCodingKeys.self, forKey: .file)
     try fileContainer.encode(fileId, forKey: .id)
     try fileContainer.encode(filename, forKey: .name)
     try fileContainer.encode(size, forKey: .size)
     try fileContainer.encode(contentType, forKey: .mimeType)
-    try fileContainer.encodeIfPresent(concreteCustom, forKey: .custom)
   }
 }
 

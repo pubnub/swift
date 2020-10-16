@@ -98,6 +98,62 @@ public enum PubNubService: String {
   case unknown = "Unknown"
 }
 
+enum QueryKey: String {
+  case meta
+  case store
+  case ttl
+  case norep
+  case channelGroup = "channel-group"
+  case timetokenShort = "tt"
+  case regionShort = "tr"
+  case state
+  case heartbeat
+  case filterExpr = "filter-expr"
+  case disableUUIDs = "disable_uuids"
+  case remove
+  case add
+  case type
+  case start
+  case end
+  case channel
+  case count
+  case max
+  case includeMeta = "include_meta"
+  case includeMessageType = "include_message_type"
+  case includeUUID = "include_uuid"
+  case timetoken
+  case channelsTimetoken
+  case include
+  case limit
+  case topic
+  case environment
+  case filter
+  case sort
+  case descending = "desc"
+}
+
+/// The PubNub Key requirement for a given Endpoint
+public enum PNKeyRequirement: String {
+  /// No key is required
+  case none = "None"
+  /// Only a publish key is required
+  case publish = "Publish"
+  /// Only a subscribe key is required
+  case subscribe = "Subscribe"
+  /// Both a subscribe and publish key are required
+  case publishAndSubscribe = "Publish & Subscribe"
+}
+
+/// The PubNub PAM version for a given Endpoint
+public enum PAMVersionRequirement {
+  /// No PAM is needed for this endpoint
+  case none
+  /// A key from a version 2 PAM grant is required
+  case version2
+  /// A key from a version 3 PAM grant is required
+  case version3
+}
+
 // MARK: - Router
 
 /// Collects together and assembles the separate pieces used to create an URLRequest

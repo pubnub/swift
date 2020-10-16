@@ -90,6 +90,7 @@
 		353F78C42527934500FFB72C /* InputStream+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 353F78C32527934400FFB72C /* InputStream+PubNub.swift */; };
 		35403F802535F5AF004B978E /* file_error_invalidParam_raw.json in Resources */ = {isa = PBXBuildFile; fileRef = 35403F7F2535F5AF004B978E /* file_error_invalidParam_raw.json */; };
 		35403F8A253617A8004B978E /* XMLCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35403F89253617A8004B978E /* XMLCodingTests.swift */; };
+		35403FA6253960DD004B978E /* publish_file_body_raw.json in Resources */ = {isa = PBXBuildFile; fileRef = 35403FA5253960DD004B978E /* publish_file_body_raw.json */; };
 		35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */; };
 		35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
 		35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
@@ -428,6 +429,7 @@
 		353F78C32527934400FFB72C /* InputStream+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "InputStream+PubNub.swift"; sourceTree = "<group>"; };
 		35403F7F2535F5AF004B978E /* file_error_invalidParam_raw.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = file_error_invalidParam_raw.json; sourceTree = "<group>"; };
 		35403F89253617A8004B978E /* XMLCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLCodingTests.swift; sourceTree = "<group>"; };
+		35403FA5253960DD004B978E /* publish_file_body_raw.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = publish_file_body_raw.json; sourceTree = "<group>"; };
 		35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeSessionFactoryTests.swift; sourceTree = "<group>"; };
 		35458BA4230D8E500085B502 /* TestLogWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestLogWriter.swift; sourceTree = "<group>"; };
 		35458BA6230D91BB0085B502 /* TestSetup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestSetup.swift; sourceTree = "<group>"; };
@@ -940,6 +942,7 @@
 			isa = PBXGroup;
 			children = (
 				350D7B232488402400B6DCEC /* signal_message_too_large.json */,
+				35403FA5253960DD004B978E /* publish_file_body_raw.json */,
 				357AEB7A22E693C000C18250 /* publish_invalid_key.json */,
 				35EE2EC4235F69A5006183E9 /* publish_message_too_large.json */,
 				35FE93C622EF80AB0051C455 /* publish_success.json */,
@@ -1635,6 +1638,7 @@
 				35A6C78322FB2E9800E97CC5 /* herenow_success_empty.json in Resources */,
 				35FE93E822EF93A90051C455 /* notConnectedToInternet.json in Resources */,
 				35FE940A22EFA0040051C455 /* forbidden_StatusCode.json in Resources */,
+				35403FA6253960DD004B978E /* publish_file_body_raw.json in Resources */,
 				35FE93BB22EE9C3E0051C455 /* resourceNotFound_Message.json in Resources */,
 				35FE93FA22EF93A90051C455 /* callIsActive.json in Resources */,
 				35FE93FE22EF93A90051C455 /* dataLengthExceedsMaximum.json in Resources */,

@@ -45,6 +45,10 @@ class MockURLSessionDataTask: URLSessionDataTask {
     return mockRequest
   }
 
+  override var currentRequest: URLRequest? {
+    return mockRequest
+  }
+
   override var error: Error? {
     return mockError
   }

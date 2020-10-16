@@ -53,11 +53,6 @@ struct LocalFileExample: PubNubLocalFile, Hashable {
     return fileId != "LOCALONLY"
   }
 
-  var custom: JSONCodable? {
-    get { return nil }
-    set { _ = newValue }
-  }
-
   init(from url: URL, for channel: String) throws {
     fileURL = url
     self.channel = channel

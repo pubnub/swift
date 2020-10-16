@@ -232,7 +232,7 @@ public extension PubNub {
     request: PublishFileRequest,
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
-    let fileMessage = FilePublishPayload(from: file)
+    let fileMessage = FilePublishPayload(from: file, additional: request.additionalMessage)
 
     let router = PublishRouter(
       .file(

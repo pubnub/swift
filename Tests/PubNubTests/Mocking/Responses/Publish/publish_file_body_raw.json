@@ -1,0 +1,7 @@
+{
+  "message": {"purpose": "file testing"},
+  "file": {
+    "id": "FileId",
+    "name": "exampe.txt"
+  }
+}

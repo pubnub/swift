@@ -17,7 +17,7 @@
         },
         {
           "key": "key",
-          "value": "some-key/MHAjt_7oirEzqk2-dZVD9bTlUYuXRaexi_ezJe30P-8/edf21386-5017-480f-8e19-6b3d728ec31f/hello-world"
+          "value": "some-key/hashobject/uuid/hello-world"
         },
         {
           "key": "Content-Type",
@@ -41,11 +41,11 @@
         },
         {
           "key": "Policy",
-          "value": "CnsKCSJleHBpcmF0aW9uIjogIjIwMjAtMDktMDJUMjA6NDA6MTBaIiwKCSJjb25kaXRpb25zI"
+          "value": "somepolicyhash"
         },
         {
           "key": "X-Amz-Signature",
-          "value": "fbe68f60459872ea19d57d387c73d93f3a3c2d863e19e508bee9ba9065d83a71"
+          "value": "somesignaturehash"
         }
       ]
     }

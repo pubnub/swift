@@ -35,6 +35,7 @@ final class PublishRouterTests: XCTestCase {
   let testChannel = "TestChannel"
   let testFileId = "FileId"
   let testFilename = "exampe.txt"
+  let testCustom = ["purpose": "file testing"]
 }
 
 // MARK: - Publish
@@ -281,6 +282,23 @@ extension PublishRouterTests {
     XCTAssertEqual(router.endpoint.description, "Publish a File Message")
     XCTAssertEqual(router.category, "Publish a File Message")
     XCTAssertEqual(router.service, .publish)
+  }
+
+  func testFile_Router_Validate_Message() {
+    let file = FilePublishPayload(
+      channel: "",
+      fileId: testFileId, filename: testFilename,
+      additionalDetails: testCustom
+    )
+
+    do {
+      let jsonMessage = try ImportTestResource.importResource("publish_file_body_raw")
+      let jsonFilePublish = try Constant.jsonDecoder.decode(FilePublishPayload.self, from: jsonMessage)
+
+      XCTAssertEqual(file, jsonFilePublish)
+    } catch {
+      XCTFail("Could not create test resources due to \(error)")
+    }
   }
 
   func testFile_Router_ValidationError_EmptyChannel() {

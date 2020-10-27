@@ -7,11 +7,18 @@
 [![Build Status](https://travis-ci.org/pubnub/swift.svg?branch=master)](https://travis-ci.org/pubnub/swift)
 [![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=pubnub/swift&utm_campaign=Badge_Grade)
 
+This is the official PubNub Swift SDK repository.
+
+PubNub takes care of the infrastructure and APIs needed for the realtime communication layer of your application. Work on your app's logic and let PubNub handle sending and receiving data across the world in less than 100ms.
+
 * [Requirements](#requirements)
-* [Installation](#installation)
-* [Migration](#migration)
-* [Communication](#communication)
+* [Get keys](#get-keys)
+* [Set up your project](#set-up-your-project)
+* [Configure PubNub](#configure-pubnub)
+* [Add event listeners](#add-event-listeners)
+* [Publish and subscribe](#publish-and-subscribe)
 * [Documentation](#documentation)
+* [Support](#support)
 * [License](#license)
 
 ## Requirements

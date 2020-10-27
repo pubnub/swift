@@ -139,9 +139,8 @@ pubnub.subscribe(to: ["my_channel"])
 
 ## Documentation
 
-* [Build your first realtime JS app with PubNub](https://www.pubnub.com/docs/platform/quickstarts/javascript)
-* [API reference for JavaScript (web)](https://www.pubnub.com/docs/web-javascript/pubnub-javascript-sdk)
-* [API reference for JavaScript (Node.js)](https://www.pubnub.com/docs/nodejs-javascript/pubnub-javascript-sdk)
+* [Build your first realtime Swift app with PubNub](https://www.pubnub.com/docs/platform/quickstarts/swift)
+* [API reference for Swift](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk)
 * [PubNub Swift SDK 3.x Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
 
 ## Support

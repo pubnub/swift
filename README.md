@@ -7,29 +7,35 @@
 [![Build Status](https://travis-ci.org/pubnub/swift.svg?branch=master)](https://travis-ci.org/pubnub/swift)
 [![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=pubnub/swift&utm_campaign=Badge_Grade)
 
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Migration](#migration)
-- [Communication](#communication)
-- [Documentation](#documentation)
-- [License](#license)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Migration](#migration)
+* [Communication](#communication)
+* [Documentation](#documentation)
+* [License](#license)
 
 ## Requirements
 
-- iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
-- Xcode 11+
-- Swift 5+
-
-## Installation
+* iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
+* Xcode 11+
+* Swift 5+
 
 The PubNub Swift SDK doesn't contain any external dependencies.
 
+## Get Keys
+
+You will need the publish and subscribe keys to authenticate your app. Get your keys from the [Admin Portal](https://dashboard.pubnub.com/).
+
+## Set up Your Project
+
+You have several options to set up your project. We provide instructions here for [Swift Package Manager](#swift-package-manager), [CocoaPods](#cocoapods), and [Carthage](#carthage).
+
 ### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
-- Create or open your project inside of Xcode
-- Select File -> Swift Packages -> Add Package Dependency...
-- Search for PubNub and select the swift package owned by pubnub, and hit the Next button
-- Use the `Up to Next Major Version` rule spanning from `3.0.0` < `4.0.0`, and hit the Next button
+1. Create or open your project inside of Xcode
+1. Navigate to File > Swift Packages > Add Package Dependency
+1. Search for PubNub and select the swift package owned by pubnub, and hit the Next button
+1. Use the `Up to Next Major Version` rule spanning from `3.0.0` < `4.0.0`, and hit the Next button
 
 For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
 
@@ -56,7 +62,7 @@ pod install
 
 Officially supported: Carthage 0.33 and up.
 
-Add this to `Cartfile`
+Add the following to `Cartfile`:
 
 ```ruby
 github "pubnub/swift" ~> 3.0
@@ -68,17 +74,79 @@ Then in the directory containing your `Cartfile`, execute the following:
 carthage update
 ```
 
-## Migration Guides
+## Configure PubNub
 
-[PubNub 3.0 Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
+1. Import the module named `PubNub` inside your AppDelegate:
+
+    ```swift
+    import UIKit
+    import PubNub // <- Here is our PubNub module import.
+    ```
+
+1. Create and configure a PubNub object:
+
+    ```swift
+    var config = PubNubConfiguration(
+      publishKey: "myPublishKey",
+      subscribeKey: "mySubscribeKey",
+      uuid: "myUniqueUUID"
+    )
+    let pubnub = PubNub(configuration: config)
+    ```
+
+## Add Listeners
+
+```swift
+// Create a new listener instance
+let listener = SubscriptionListener()
+
+// Add listener event callbacks
+listener.didReceiveSubscription = { event in
+  switch event {
+  case let .messageReceived(message):
+    print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
+  case let .connectionStatusChanged(status):
+    print("Status Received: \(status)")
+  case let .presenceChanged(presence):
+    print("Presence Received: \(presence)")
+  case let .subscribeError(error):
+    print("Subscription Error \(error)")
+  default:
+    break
+  }
+}
+
+// Start receiving subscription events
+pubnub.add(listener)
+```
+
+> NOTE: You can check the UUID of the publisher of a particular message by checking the `message.publisher` property in the subscription listener. You must also provide a default value for `publisher`, as the `UUID` parameter is optional.
+
+## Publish and Subscribe
+
+```swift
+pubnub.publish(channel: "my_channel", message: "Test Message!") { result in
+  switch result {
+  case let .success(timetoken):
+    print("The message was successfully published at: \(timetoken)")
+  case let .failure(error):
+    print("Handle response error: \(error.localizedDescription)")
+  }
+}
+
+pubnub.subscribe(to: ["my_channel"])
+```
 
 ## Documentation
 
-Check out our official [docs page](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk).
+* [Build your first realtime JS app with PubNub](https://www.pubnub.com/docs/platform/quickstarts/javascript)
+* [API reference for JavaScript (web)](https://www.pubnub.com/docs/web-javascript/pubnub-javascript-sdk)
+* [API reference for JavaScript (Node.js)](https://www.pubnub.com/docs/nodejs-javascript/pubnub-javascript-sdk)
+* [PubNub Swift SDK 3.x Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
 
-## Communication
+## Support
 
-If you **need help** or have a **general question**, contact [support](mailto:support@pubnub.com)
+If you **need help** or have a **general question**, contact <support@pubnub.com>.
 
 ## License
 

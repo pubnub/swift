@@ -22,11 +22,11 @@
 
 The PubNub Swift SDK doesn't contain any external dependencies.
 
-## Get Keys
+## Get keys
 
 You will need the publish and subscribe keys to authenticate your app. Get your keys from the [Admin Portal](https://dashboard.pubnub.com/).
 
-## Set up Your Project
+## Set up your project
 
 You have several options to set up your project. We provide instructions here for [Swift Package Manager](#swift-package-manager), [CocoaPods](#cocoapods), and [Carthage](#carthage).
 
@@ -94,7 +94,7 @@ carthage update
     let pubnub = PubNub(configuration: config)
     ```
 
-## Add Listeners
+## Add event listeners
 
 ```swift
 // Create a new listener instance
@@ -122,7 +122,7 @@ pubnub.add(listener)
 
 > NOTE: You can check the UUID of the publisher of a particular message by checking the `message.publisher` property in the subscription listener. You must also provide a default value for `publisher`, as the `UUID` parameter is optional.
 
-## Publish and Subscribe
+## Publish and subscribe
 
 ```swift
 pubnub.publish(channel: "my_channel", message: "Test Message!") { result in

@@ -7,18 +7,18 @@
 [![Build Status](https://travis-ci.org/pubnub/swift.svg?branch=master)](https://travis-ci.org/pubnub/swift)
 [![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=pubnub/swift&utm_campaign=Badge_Grade)
 
--   [Requirements](#requirements)
--   [Installation](#installation)
--   [Migration](#migration)
--   [Communication](#communication)
--   [Documentation](#documentation)
--   [License](#license)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Migration](#migration)
+- [Communication](#communication)
+- [Documentation](#documentation)
+- [License](#license)
 
 ## Requirements
 
--   iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
--   Xcode 11+
--   Swift 5+
+- iOS 8.0+ / macOS 10.10+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
+- Xcode 11+
+- Swift 5+
 
 ## Installation
 
@@ -69,6 +69,7 @@ carthage update
 ```
 
 ## Migration Guides
+
 [PubNub 3.0 Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
 
 ## Documentation

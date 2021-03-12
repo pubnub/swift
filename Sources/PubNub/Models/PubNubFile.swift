@@ -32,8 +32,6 @@ import Foundation
 public protocol PubNubLocalFile: PubNubFile {
   /// The local URL of the file
   var fileURL: URL { get set }
-  /// If the local filenames changes this can be used to track the remote filename
-  var remoteFilename: String { get }
 
   /// Allows for converting  between different `PubNubLocalFile` types
   init(from other: PubNubLocalFile) throws
@@ -42,20 +40,24 @@ public protocol PubNubLocalFile: PubNubFile {
 }
 
 public extension PubNubLocalFile {
-  var size: Int64 {
+  /// PubNub  defined name for a file
+  var remoteFilename: String {
+    return filename
+  }
+  
+  /// Size, in bytes, of the local file
+  var localSize: Int64 {
     return Int64(fileURL.sizeOf)
   }
 
-  var contentType: String? {
+  /// The MIME Type of the local file
+  var localContentType: String? {
     return fileURL.contentType
   }
 
-  var filename: String {
+  /// Name for the local file
+  var localFilename: String {
     return fileURL.lastPathComponent
-  }
-
-  var remoteFilename: String {
-    return filename
   }
 
   init(from other: PubNubFile, withFile url: URL) throws {
@@ -89,34 +91,41 @@ extension PubNubLocalFile {
 
 /// A base concrete representation of a `PubNubLocalFile`
 public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
-  public var fileURL: URL
   public var channel: String
-
   public var fileId: String
-  public var remoteFilename: String
-
+  public var filename: String
+  public var size: Int64
+  public var contentType: String?
   public var createdDate: Date?
 
+  public var fileURL: URL
+
   public init(
-    fileURL: URL,
     channel: String,
     fileId: String,
-    remoteFilename: String? = nil,
+    filename: String,
+    size: Int64,
+    contentType: String?,
+    fileURL: URL,
     createdDate: Date? = nil
   ) {
-    self.fileURL = fileURL
     self.channel = channel
     self.fileId = fileId
-    self.remoteFilename = remoteFilename ?? fileURL.lastPathComponent
+    self.filename = filename
+    self.size = size
+    self.contentType = contentType
+    self.fileURL = fileURL
     self.createdDate = createdDate
   }
 
   public init(from other: PubNubLocalFile) {
     self.init(
-      fileURL: other.fileURL,
       channel: other.channel,
       fileId: other.fileId,
-      remoteFilename: other.remoteFilename,
+      filename: other.filename,
+      size: other.size,
+      contentType: other.contentType,
+      fileURL: other.fileURL,
       createdDate: other.createdDate
     )
   }
@@ -134,19 +143,41 @@ public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
 
   init(fromFile url: URL, pubnub response: GenerateUploadURLResponse, on channel: String) {
     self.init(
-      fileURL: url,
       channel: channel,
       fileId: response.fileId,
-      remoteFilename: response.filename
+      filename: response.filename,
+      size: Int64(url.sizeOf),
+      contentType: url.contentType,
+      fileURL: url
+    )
+  }
+  
+  public init(
+    channel: String,
+    fileId: String,
+    fileURL: URL,
+    createdDate: Date? = nil
+  ) {
+    self.init(
+      channel: channel,
+      fileId: fileId,
+      filename: fileURL.lastPathComponent,
+      size: Int64(fileURL.sizeOf),
+      contentType: fileURL.contentType,
+      fileURL: fileURL,
+      createdDate: createdDate
     )
   }
 
   public init(from other: PubNubFile, withFile url: URL) {
     self.init(
-      fileURL: url,
       channel: other.channel,
       fileId: other.fileId,
-      remoteFilename: other.filename
+      filename: other.filename,
+      size: other.size,
+      contentType: other.contentType,
+      fileURL: url,
+      createdDate: other.createdDate
     )
   }
 }
@@ -205,10 +236,12 @@ extension PubNubFile {
   ) -> PubNubFile {
     if let fileURL = fileURL {
       return PubNubLocalFileBase(
-        fileURL: fileURL,
         channel: channel,
         fileId: fileId,
-        remoteFilename: filename,
+        filename: filename,
+        size: size,
+        contentType: contentType,
+        fileURL: fileURL,
         createdDate: createdDate
       )
     } else {

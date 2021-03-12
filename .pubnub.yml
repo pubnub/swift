@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "3.1.0"
+version: "3.1.1"
 schema: 1
 changelog:
+  - changes:
+    - text: "FileEvents will contain the file name stored with PubNub and not the local filename (if different)"
+      type: bug
+    - text: "PubNub model objects are now Hashable"
+      type: enchancement
+    date: 2021-3-12
+    version: v3.1.1
   - changes:
     - text: "CryptoStream and CryptoInputStream can be used to perform crypto operations on streams of data"
       type: feature

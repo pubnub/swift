@@ -40,12 +40,13 @@ struct LocalFileExample: PubNubLocalFile, Hashable {
 
   var fileId: String
   var filename: String
-  
+
   var size: Int64 {
     return localSize
   }
+
   var contentType: String?
-  
+
   var createdDate: Date?
 
   var existsLocally: Bool {
@@ -110,6 +111,6 @@ public struct FilePublishMessage: JSONCodable {
     case modify
     case remove
   }
-  
+
   var operation: Operation
 }

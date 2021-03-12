@@ -44,7 +44,7 @@ public extension PubNubLocalFile {
   var remoteFilename: String {
     return filename
   }
-  
+
   /// Size, in bytes, of the local file
   var localSize: Int64 {
     return Int64(fileURL.sizeOf)
@@ -151,7 +151,7 @@ public struct PubNubLocalFileBase: PubNubLocalFile, Hashable {
       fileURL: url
     )
   }
-  
+
   public init(
     channel: String,
     fileId: String,

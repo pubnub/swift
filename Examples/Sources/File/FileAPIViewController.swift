@@ -63,7 +63,8 @@ class FileAPIViewController: UIViewController {
     // Setup File Listener
     let listener = SubscriptionListener()
     listener.didReceiveFileUpload = { [weak self] event in
-      if let localFile = try? LocalFileExample(from: event.file), let message = try? event.additionalMessage?.decode(FilePublishMessage.self) {
+      if let localFile = try? LocalFileExample(from: event.file),
+        let message = try? event.additionalMessage?.decode(FilePublishMessage.self) {
         switch message.operation {
         case .upload:
           self?.fileDataSource.append(localFile)
@@ -285,9 +286,11 @@ class FileAPIViewController: UIViewController {
       }
     }
   }
-  
+
   func notifyRemove(file: LocalFileExample) {
-    pubnub.publish(file: file, request: .init(additionalMessage: FilePublishMessage(operation: .remove), store: true)) { result in
+    pubnub.publish(
+      file: file, request: .init(additionalMessage: FilePublishMessage(operation: .remove), store: true)
+    ) { result in
       switch result {
       case let .success(timetoken):
         print("Successful remove message at \(timetoken)")
@@ -358,7 +361,7 @@ extension FileAPIViewController: UITableViewDataSource {
         try? FileManager.default.removeItem(at: file.fileURL)
 
         self?.notifyRemove(file: file)
-        
+
         self?.fileDataSource.removeAll(where: { $0.fileId == file.fileId })
 
         self?.tableView.reloadData()
@@ -399,4 +402,6 @@ extension FileAPIViewController: UIDocumentPickerDelegate {
       }
     }
   }
+
+  // swiftlint:disable:next file_length
 }

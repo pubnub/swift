@@ -154,7 +154,7 @@ extension PubNub {
   ///
   /// See [APS Environment Entitlement](https://developer.apple.com/documentation/bundleresources/entitlements/aps-environment)
   /// for more information.
-  public enum PushEnvironment: String, Codable {
+  public enum PushEnvironment: String, Codable, Hashable {
     /// The APNs development environment.
     case development
     /// The APNs production environment.
@@ -162,7 +162,7 @@ extension PubNub {
   }
 
   /// The identifier of the Push Service being used
-  public enum PushService: String, Codable {
+  public enum PushService: String, Codable, Hashable {
     /// Applee Push Notification Service
     case apns
     /// Firebase Cloude Messaging
@@ -200,7 +200,7 @@ extension PubNub {
   }
 
   /// A start and end value for a PubNub paged request
-  public struct Page: PubNubHashedPage {
+  public struct Page: PubNubHashedPage, Hashable {
     public var start: String?
     public var end: String?
     public let totalCount: Int? = nil
@@ -220,7 +220,7 @@ extension PubNub {
   }
 
   /// Fields that include additional data inside the response
-  public struct IncludeFields {
+  public struct IncludeFields: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
     /// The `totalCount` of how many Objects are available
@@ -237,7 +237,7 @@ extension PubNub {
   }
 
   /// The sort properties for UUID and Channel metadata objects
-  public enum ObjectSortProperty: String {
+  public enum ObjectSortProperty: String, Hashable {
     /// Sort on the unique identifier property
     case id
     /// Sort on the name property
@@ -247,7 +247,7 @@ extension PubNub {
   }
 
   /// The property and direction to sort a multi-object-metadata response
-  public struct ObjectSortField {
+  public struct ObjectSortField: Hashable {
     /// The property to sort by
     public let property: ObjectSortProperty
     /// The direction of the sort
@@ -260,7 +260,7 @@ extension PubNub {
   }
 
   /// The sort properties for Membership metadata objects
-  public enum MembershipSortProperty {
+  public enum MembershipSortProperty: Hashable {
     /// Sort based on the nested object (UUID or Channel) belonging to the Membership
     case object(ObjectSortProperty)
     /// Sort on the last updated property of the Membership
@@ -285,7 +285,7 @@ extension PubNub {
   }
 
   /// The property and direction to sort a multi-membership-metadata response
-  public struct MembershipSortField {
+  public struct MembershipSortField: Hashable {
     /// The property to sort by
     public let property: MembershipSortProperty
     /// The direction of the sort
@@ -298,7 +298,7 @@ extension PubNub {
   }
 
   /// Fields that include additional data inside a Membership metadata response
-  public struct MembershipInclude {
+  public struct MembershipInclude: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
     /// The `PubNubChannelMetadata` instance of the Membership
@@ -337,7 +337,7 @@ extension PubNub {
     }
   }
 
-  public struct MemberInclude {
+  public struct MemberInclude: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
     /// The `PubNubUUIDMetadata` instance of the Membership
@@ -1407,7 +1407,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
       .all(customFields: include.customFields, totalCount: include.totalCount,
@@ -1534,7 +1534,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
@@ -1585,7 +1585,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.fetchMembers(
       channelMetadataId: metadataId, customFields: include.customIncludes,
@@ -1631,7 +1631,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: memberships, removing: [],
@@ -1662,7 +1662,7 @@ extension PubNub {
     limit: Int? = nil,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMemberships(
       uuid: metadataId, setting: [], removing: memberships,
@@ -1695,7 +1695,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
@@ -1745,7 +1745,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: members, removing: [],
@@ -1776,7 +1776,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMembers(
       channel: metadataId, setting: [], removing: members,
@@ -1809,7 +1809,7 @@ extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPageBase?), Error>) -> Void)?
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.setMembers(
       channelMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,

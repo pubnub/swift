@@ -266,7 +266,7 @@ extension FileManagementRouterTests {
       try? FileManager.default.removeItem(at: tempFile)
     }
 
-    let testFile = PubNubLocalFileBase(fileURL: tempFile, channel: testChannel, fileId: testFileId)
+    let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: tempFile)
 
     guard let testURL = try? ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt"),
       let testData = try? Data(contentsOf: testURL) else {
@@ -306,7 +306,7 @@ extension FileManagementRouterTests {
 
     let tempFile = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success_ResumeData.txt")
     let downloadURL = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success.txt")
-    let testFile = PubNubLocalFileBase(fileURL: tempFile, channel: testChannel, fileId: testFileId)
+    let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: tempFile)
 
     guard let testData = "Testing download resume data".data(using: .utf8) else {
       return XCTFail("Could not create required test data")
@@ -348,7 +348,7 @@ extension FileManagementRouterTests {
   func testDownload_Error_BadRequest() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
 
-    let testFile = PubNubLocalFileBase(fileURL: URL(fileURLWithPath: ""), channel: testChannel, fileId: testFileId)
+    let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
     let mockTask = MockURLSessionDownloadTask(identifier: 1)
     mockTask.mockDownloadLocation = try? ImportTestResource.resourceURL("file_error_invalidParam_raw")
@@ -376,7 +376,7 @@ extension FileManagementRouterTests {
   func testDownload_Error_ServiceNotEnabled() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
 
-    let testFile = PubNubLocalFileBase(fileURL: URL(fileURLWithPath: ""), channel: testChannel, fileId: testFileId)
+    let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
     let mockTask = MockURLSessionDownloadTask(identifier: 1)
     mockTask.mockDownloadLocation = try? ImportTestResource.resourceURL("file_error_notEnabled_raw")
@@ -404,7 +404,7 @@ extension FileManagementRouterTests {
   func testDownload_Error_InternalServiceError() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
 
-    let testFile = PubNubLocalFileBase(fileURL: URL(fileURLWithPath: ""), channel: testChannel, fileId: testFileId)
+    let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
     let mockTask = MockURLSessionDownloadTask(identifier: 1)
     mockTask.mockResponse = HTTPURLResponse(statusCode: 500)
@@ -475,7 +475,12 @@ extension FileManagementRouterTests {
     }
 
     let testFile = PubNubLocalFileBase(
-      fileURL: testURL, channel: testChannel, fileId: testFileId, remoteFilename: testFilename
+      channel: testChannel,
+      fileId: testFileId,
+      filename: testFilename,
+      size: Int64(testURL.sizeOf),
+      contentType: testURL.contentType,
+      fileURL: testURL
     )
 
     let mockTask = MockURLSessionUploadTask(identifier: 1)

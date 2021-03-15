@@ -298,7 +298,7 @@ public extension PubNub {
     public var contentType: String {
       switch self {
       case let .file(url):
-        return url.contentType ?? "application/octet-stream"
+        return url.contentType
       case let .data(_, contentType):
         return contentType ?? "application/octet-stream"
       case let .stream(_, contentType, _):

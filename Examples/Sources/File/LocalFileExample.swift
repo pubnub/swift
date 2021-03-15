@@ -41,7 +41,11 @@ struct LocalFileExample: PubNubLocalFile, Hashable {
   var fileId: String
   var filename: String
 
-  var remoteFilename: String?
+  var size: Int64 {
+    return localSize
+  }
+
+  var contentType: String?
 
   var createdDate: Date?
 
@@ -99,4 +103,14 @@ struct LocalFileExample: PubNubLocalFile, Hashable {
 
     try self.init(from: remoteURL, for: other.channel)
   }
+}
+
+public struct FilePublishMessage: JSONCodable {
+  enum Operation: Int, Codable {
+    case upload
+    case modify
+    case remove
+  }
+
+  var operation: Operation
 }

@@ -63,8 +63,16 @@ class FileAPIViewController: UIViewController {
     // Setup File Listener
     let listener = SubscriptionListener()
     listener.didReceiveFileUpload = { [weak self] event in
-      if let localFile = try? LocalFileExample(from: event.file) {
-        self?.fileDataSource.append(localFile)
+      if let localFile = try? LocalFileExample(from: event.file),
+        let message = try? event.additionalMessage?.decode(FilePublishMessage.self) {
+        switch message.operation {
+        case .upload:
+          self?.fileDataSource.append(localFile)
+        case .modify:
+          break
+        case .remove:
+          self?.fileDataSource.removeAll(where: { $0.fileId == localFile.fileId })
+        }
         self?.reloadFiles()
       }
     }
@@ -217,7 +225,8 @@ class FileAPIViewController: UIViewController {
     pubnub.send(
       content,
       channel: channel,
-      remoteFilename: remoteFilename
+      remoteFilename: remoteFilename,
+      publishRequest: .init(additionalMessage: FilePublishMessage(operation: .upload), store: true)
     ) { [weak self] (task: HTTPFileUploadTask) in
       DispatchQueue.main.async {
         if let progressView = self?.progressAlertView(for: task.progress, direction: .upload) {
@@ -274,6 +283,19 @@ class FileAPIViewController: UIViewController {
 
       DispatchQueue.main.async {
         self?.dismiss(animated: true)
+      }
+    }
+  }
+
+  func notifyRemove(file: LocalFileExample) {
+    pubnub.publish(
+      file: file, request: .init(additionalMessage: FilePublishMessage(operation: .remove), store: true)
+    ) { result in
+      switch result {
+      case let .success(timetoken):
+        print("Successful remove message at \(timetoken)")
+      case let .failure(error):
+        print("Error publishing remove message \(error)")
       }
     }
   }
@@ -338,6 +360,8 @@ extension FileAPIViewController: UITableViewDataSource {
       self.pubnub.remove(fileId: file.fileId, filename: file.filename, channel: file.channel) { [weak self] _ in
         try? FileManager.default.removeItem(at: file.fileURL)
 
+        self?.notifyRemove(file: file)
+
         self?.fileDataSource.removeAll(where: { $0.fileId == file.fileId })
 
         self?.tableView.reloadData()
@@ -378,4 +402,6 @@ extension FileAPIViewController: UIDocumentPickerDelegate {
       }
     }
   }
+
+  // swiftlint:disable:next file_length
 }

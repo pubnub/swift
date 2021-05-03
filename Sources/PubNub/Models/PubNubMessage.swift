@@ -125,7 +125,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       channel: other.channel,
       subscription: other.subscription,
       published: other.published,
-      metadata: other.metadata?.codableValue
+      metadata: other.metadata?.codableValue,
+      messageType: other.messageType
     )
   }
 
@@ -137,7 +138,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       channel: subscribe.channel,
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
-      metadata: subscribe.metadata
+      metadata: subscribe.metadata,
+      messageType: subscribe.messageType.asPubNubMessageType
     )
   }
 

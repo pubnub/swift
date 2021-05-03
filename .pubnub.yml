@@ -5,6 +5,11 @@ version: "3.1.1"
 schema: 1
 changelog:
   - changes:
+    - text: "Subscribe Message events will have the correct messageType flag"
+      type: bug
+    date: 2021-4-30
+    version: v3.1.2
+  - changes:
     - text: "FileEvents will contain the file name stored with PubNub and not the local filename (if different)"
       type: bug
     - text: "PubNub model objects are now Hashable"

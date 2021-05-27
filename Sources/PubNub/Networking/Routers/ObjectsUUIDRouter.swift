@@ -57,7 +57,8 @@ struct ObjectsUUIDRouter: HTTPRouter {
     var profileURL: String?
     var email: String?
     var custom: [String: JSONCodableScalarType]?
-    
+
+    // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case name
       case externalId

@@ -58,7 +58,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest", profileURL: "http://example.com"
     )
 
-    client.set(uuid: testUser) { setResult in
+    client.set(uuid: testUser) { _ in
       client.fetch(uuid: testUser.metadataId) { result in
         switch result {
         case let .success(user):

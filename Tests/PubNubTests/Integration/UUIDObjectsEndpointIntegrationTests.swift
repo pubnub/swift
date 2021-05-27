@@ -55,14 +55,15 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
 
     let testUser = PubNubUUIDMetadataBase(
-      metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest"
+      metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest", profileURL: "http://example.com"
     )
 
-    client.set(uuid: testUser) { _ in
+    client.set(uuid: testUser) { setResult in
       client.fetch(uuid: testUser.metadataId) { result in
         switch result {
         case let .success(user):
           XCTAssertEqual(user.metadataId, testUser.metadataId)
+          XCTAssertEqual(user.profileURL, testUser.profileURL)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }

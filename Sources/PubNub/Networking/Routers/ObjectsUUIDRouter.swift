@@ -57,6 +57,14 @@ struct ObjectsUUIDRouter: HTTPRouter {
     var profileURL: String?
     var email: String?
     var custom: [String: JSONCodableScalarType]?
+    
+    enum CodingKeys: String, CodingKey {
+      case name
+      case externalId
+      case profileURL = "profileUrl"
+      case email
+      case custom
+    }
   }
 
   struct Include {

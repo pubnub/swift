@@ -77,9 +77,9 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(testMessage, decryptedString)
   }
     
-  func testRandomizedIVEncryptDecrypt() {
+  func testDefaultRandomizedIVEncryptDecrypt() {
     let testMessage = "Test Message To Be Encrypted"
-    guard let crypto = Crypto(key: "MyCoolCipherKey", withRandomIV: true) else {
+    guard let crypto = Crypto(key: "MyCoolCipherKey") else {
       return XCTFail("Could not create crypto instance")
     }
     guard let encryptedString1 = try? crypto.encrypt(plaintext: testMessage).get() else {

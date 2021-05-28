@@ -76,9 +76,31 @@ class CryptoTests: XCTestCase {
     let decryptedString = String(bytes: decryptedData, encoding: .utf8)?.reverseJSONDescription
     XCTAssertEqual(testMessage, decryptedString)
   }
+    
+  func testRandomizedIVEncryptDecrypt() {
+    let testMessage = "Test Message To Be Encrypted"
+    guard let crypto = Crypto(key: "MyCoolCipherKey", withRandomIV: true) else {
+      return XCTFail("Could not create crypto instance")
+    }
+    guard let encryptedString1 = try? crypto.encrypt(plaintext: testMessage).get() else {
+      return XCTFail("Encrypted Data should not be nil")
+    }
+    guard let encryptedString2 = try? crypto.encrypt(plaintext: testMessage).get() else {
+      return XCTFail("Encrypted Data should not be nil")
+    }
+    guard let decryptedString1 = try? crypto.decrypt(base64Encoded: encryptedString1).get() else {
+      return XCTFail("Decrypted Data should not be nil")
+    }
+    guard let decryptedString2 = try? crypto.decrypt(base64Encoded: encryptedString2).get() else {
+      return XCTFail("Decrypted Data should not be nil")
+    }
+    XCTAssertNotEqual(encryptedString1, encryptedString2)
+    XCTAssertEqual(decryptedString1, decryptedString2)
+    XCTAssertEqual(testMessage, decryptedString1)
+  }
 
   func testOtherSDKContractTest() {
-    guard let crypto = Crypto(key: "MyCoolCipherKey") else {
+    guard let crypto = Crypto(key: "MyCoolCipherKey", withRandomIV: false) else {
       return XCTFail("Could not create crypto instance")
     }
 

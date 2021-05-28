@@ -55,7 +55,7 @@ public struct Crypto: Hashable {
     }
   }
 
-  public init(key data: Data, cipher: Cipher = .aes, withRandomIV: Bool = false, encoding: String.Encoding = .utf8) {
+  public init(key data: Data, cipher: Cipher = .aes, withRandomIV: Bool = true, encoding: String.Encoding = .utf8) {
     key = data
     self.cipher = cipher
     defaultStringEncoding = encoding
@@ -79,7 +79,7 @@ public struct Crypto: Hashable {
   public init?(
     key: String,
     cipher: Cipher = .aes,
-    withRandomIV: Bool = false,
+    withRandomIV: Bool = true,
     encoding: String.Encoding = .utf8
   ) {
     guard let data = key.data(using: encoding), let keyData = SHA256.hash(data: data) else {

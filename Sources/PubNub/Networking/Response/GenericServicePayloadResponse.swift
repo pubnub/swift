@@ -207,6 +207,15 @@ enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleBy
   init(stringLiteral value: String) {
     self.init(rawValue: value)
   }
+
+  var unknownMessage: String? {
+    switch self {
+    case let .unknown(message):
+      return message
+    default:
+      return nil
+    }
+  }
 }
 
 struct GenericServicePayloadResponse: Codable, Hashable {
@@ -273,6 +282,9 @@ struct GenericServicePayloadResponse: Codable, Hashable {
       service = try container.decodeIfPresent(String.self, forKey: .service)
       error = nil
       isError = try container.decodeIfPresent(Bool.self, forKey: .error) ?? false
+      if let unknownMessage = message?.unknownMessage {
+        details = [ErrorDetail(message: unknownMessage, location: "Unknown", locationType: "Unknown")]
+      }
     }
 
     let status = try container.decodeIfPresent(Int.self, forKey: .status)

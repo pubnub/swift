@@ -7,19 +7,19 @@ changelog:
   - changes:
     - text: "Fix Coding issue when setting UUIDMetadata objects"
       type: bug
-    date: 2021-5-28
+    date: 2021-05-28
     version: v3.1.3
   - changes:
     - text: "Subscribe Message events will have the correct messageType flag"
       type: bug
-    date: 2021-4-30
+    date: 2021-04-30
     version: v3.1.2
   - changes:
     - text: "FileEvents will contain the file name stored with PubNub and not the local filename (if different)"
       type: bug
     - text: "PubNub model objects are now Hashable"
-      type: enchancement
-    date: 2021-3-12
+      type: improvement
+    date: 2021-03-12
     version: v3.1.1
   - changes:
     - text: "CryptoStream and CryptoInputStream can be used to perform crypto operations on streams of data"
@@ -29,9 +29,9 @@ changelog:
     - text: "Added includeUUID and includeMessageType flags to History"
       type: feature
     - text: "History will now has a default limit of 100 for single-channel and 25 for multichannel requests"
-      type: enchancement
+      type: improvement
     - text: "Removed depcreated platform version support to align with Xcode 12 warnings"
-      type: enchancement
+      type: improvement
     date: 2020-10-06
     version: v3.1.0
   - changes:
@@ -43,19 +43,19 @@ changelog:
     - text: "Added Objects v2 API and removed Objects v1 API"
       type: feature
     - text: "Replace PubNub API response objects with primitives or prtocols"
-      type: enchancement
+      type: improvement
     - text: "Replace Subscribe Event objects with primitives or prtocols"
-      type: enchancement
+      type: improvement
     - text: "Subscribe Listener now has a batched event handler"
-      type: enchancement
+      type: improvement
     - text: "Renamed several APIs to align naming across all APIs"
-      type: enchancement
+      type: improvement
     - text: "PubNubConfiguration properites can all be set through default init"
-      type: enchancement
+      type: improvement
     - text: "Reduced access control of objects that are not public facing"
-      type: enchancement
+      type: improvement
     - text: "Request level configuration available for most PubNub APIs"
-      type: enchancement
+      type: improvement
     date: 2020-06-17
     version: v3.0.0
   - changes:
@@ -65,7 +65,7 @@ changelog:
     version: v2.5.4
   - changes:
     - text: "Payload and FCMTarget fields are now optional for PubNubPushMessage"
-      type: enchancement
+      type: improvement
     - text: "Fixed an issue where nested presence state could be published"
       type: bug
     date: 2020-06-09
@@ -364,6 +364,175 @@ features:
     - MESSAGE-ACTIONS-REMOVE
   others:
     - CREATE-PUSH-PAYLOAD
+sdks:
+  - full-name: Swift SDK
+    short-name: Swift
+    artifacts:
+      - artifact-type: api-client
+        language: Swift
+        tier: 1
+        tags:
+          - Desktop
+          - Mobile
+        source-repository: https://github.com/pubnub/swift
+        documentation: https://www.pubnub.com/docs/sdks/swift
+        distributions:
+          - distribution-type: source
+            distribution-repository: GitHub
+            package-name: PubNub Swift SDK
+            location: https://github.com/pubnub/swift
+            supported-platforms:
+              supported-operating-systems:
+                macOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - OS X 10.11
+                  maximum-os-version:
+                    - macOS 11.4
+                  target-architecture:
+                    - arm64
+                    - x86_64
+                iOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - iOS 9.0
+                  maximum-os-version:
+                    - iOS 14.6
+                  target-architecture:
+                    - arm64
+                    - armv7
+                  target-devices:
+                    - iPhone
+                    - iPad
+                tvOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - tvOS 10.0
+                  maximum-os-version:
+                    - tvOS 14.6
+                  target-architecture:
+                    - arm64
+                  target-devices:
+                    - Apple TV
+                watchOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - watchOS 2.0
+                  maximum-os-version:
+                    - watchOS 7.5
+                  target-architecture:
+                    - armv7k
+                    - arm64_32
+                  target-devices:
+                    - Apple Watch
+          - distribution-type: package
+            distribution-repository: Swift Package
+            package-name: PubNub
+            location: https://github.com/pubnub/swift.git
+            supported-platforms:
+              supported-operating-systems:
+                macOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - OS X 10.11
+                  maximum-os-version:
+                    - macOS 11.4
+                  target-architecture:
+                    - arm64
+                    - x86_64
+                iOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - iOS 9.0
+                  maximum-os-version:
+                    - iOS 14.6
+                  target-architecture:
+                    - arm64
+                    - armv7
+                  target-devices:
+                    - iPhone
+                    - iPad
+                tvOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - tvOS 10.0
+                  maximum-os-version:
+                    - tvOS 14.6
+                  target-architecture:
+                    - arm64
+                  target-devices:
+                    - Apple TV
+                watchOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - watchOS 2.0
+                  maximum-os-version:
+                    - watchOS 7.5
+                  target-architecture:
+                    - armv7k
+                    - arm64_32
+                  target-devices:
+                    - Apple Watch
+          - distribution-type: package
+            distribution-repository: CocoaPods
+            package-name: PubNubSwift
+            location: https://cocoapods.org/pods/PubNubSwift
+            supported-platforms:
+              supported-operating-systems:
+                macOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - OS X 10.11
+                  maximum-os-version:
+                    - macOS 11.4
+                  target-architecture:
+                    - arm64
+                    - x86_64
+                iOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - iOS 9.0
+                  maximum-os-version:
+                    - iOS 14.6
+                  target-architecture:
+                    - arm64
+                    - armv7
+                  target-devices:
+                    - iPhone
+                    - iPad
+                tvOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - tvOS 10.0
+                  maximum-os-version:
+                    - tvOS 14.6
+                  target-architecture:
+                    - arm64
+                  target-devices:
+                    - Apple TV
+                watchOS:
+                  runtime-version:
+                    - Swift 5.x
+                  minimum-os-version:
+                    - watchOS 2.0
+                  maximum-os-version:
+                    - watchOS 7.5
+                  target-architecture:
+                    - armv7k
+                    - arm64_32
+                  target-devices:
+                    - Apple Watch
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:

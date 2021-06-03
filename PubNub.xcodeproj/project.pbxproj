@@ -686,6 +686,9 @@
 		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
+		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
+		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
@@ -1270,6 +1273,7 @@
 		35EA73F622B1916800D97BF0 /* Deployment */ = {
 			isa = PBXGroup;
 			children = (
+				793079142667C63700F23B72 /* .github */,
 				35DA9AAC2331674000867989 /* .swiftformat */,
 				35DA9AAB2331674000867989 /* .swiftlint.yml */,
 				35DA9AAA2331674000867989 /* .travis.yml */,
@@ -1416,6 +1420,24 @@
 				357AEB7622E6920300C18250 /* couldNotParseRequest.json */,
 			);
 			path = EndpointError;
+			sourceTree = "<group>";
+		};
+		793079142667C63700F23B72 /* .github */ = {
+			isa = PBXGroup;
+			children = (
+				793079152667C63700F23B72 /* CODEOWNERS */,
+				793079162667C63700F23B72 /* workflows */,
+			);
+			path = .github;
+			sourceTree = "<group>";
+		};
+		793079162667C63700F23B72 /* workflows */ = {
+			isa = PBXGroup;
+			children = (
+				793079172667C63700F23B72 /* validate-yml.js */,
+				793079182667C63700F23B72 /* validate-pubnub-yml.yml */,
+			);
+			path = workflows;
 			sourceTree = "<group>";
 		};
 		D2635DF922FCCE7A0097CF64 /* MessageCounts */ = {

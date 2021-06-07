@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "3.1.3"
+version: "4.0.0"
 schema: 1
 changelog:
+  - changes:
+    - text: "Crypto by default initialized with `randomizeIV` set to `true` which will encrypt / decrypt data with publish / subscribe / history API calls using randomized initialization vector"
+      type: feature
+    - text: "Add new `sdks` section to `.pubnub.yml` with information about available artifacts and distribution variants"
+      type: improvement
+    date: 2021-06-08
+    version: v4.0.0
   - changes:
     - text: "Custom error messages (from functions) will be included inside PubNub Error Details"
       type: improvement

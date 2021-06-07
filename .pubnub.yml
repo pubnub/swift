@@ -6,7 +6,7 @@ schema: 1
 changelog:
   - changes:
     - text: "Custom error messages (from functions) will be included inside PubNub Error Details"
-      type: enchancement
+      type: improvement
     - text: "Fix Coding issue when setting UUIDMetadata objects"
       type: bug
     date: 2021-05-28

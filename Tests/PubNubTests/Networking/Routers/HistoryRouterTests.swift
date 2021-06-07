@@ -163,7 +163,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
@@ -190,7 +190,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey")
+    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey", withRandomIV: false)
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in
@@ -218,7 +218,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString")
+    configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
 
     PubNub(configuration: configWithCipher, session: sessions.session)
       .fetchMessageHistory(for: testMultiChannels) { result in

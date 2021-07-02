@@ -438,7 +438,7 @@ extension PubNub {
                            shouldStore: shouldStore,
                            ttl: storeTTL,
                            meta: meta?.codableValue),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     } else {
       router = PublishRouter(
@@ -447,7 +447,7 @@ extension PubNub {
                  shouldStore: shouldStore,
                  ttl: storeTTL,
                  meta: meta?.codableValue),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     }
 
@@ -486,7 +486,7 @@ extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     route(PublishRouter(.fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
-                        configuration: configuration),
+                        configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: PublishResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { $0.payload.timetoken })
@@ -510,7 +510,7 @@ extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     route(PublishRouter(.signal(message: message.codableValue, channel: channel),
-                        configuration: configuration),
+                        configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: PublishResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { $0.payload.timetoken })
@@ -633,7 +633,7 @@ extension PubNub {
   ) {
     let router = PresenceRouter(
       .setState(channels: channels, groups: groups, state: state),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -660,7 +660,7 @@ extension PubNub {
   ) {
     let router = PresenceRouter(
       .getState(uuid: uuid, channels: channels, groups: groups),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -696,11 +696,11 @@ extension PubNub {
     let router: PresenceRouter
     if channels.isEmpty, groups.isEmpty {
       router = PresenceRouter(.hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState),
-                              configuration: configuration)
+                              configuration: requestConfig.customConfiguration ?? configuration)
     } else {
       router = PresenceRouter(
         .hereNow(channels: channels, groups: groups, includeUUIDs: includeUUIDs, includeState: includeState),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     }
 
@@ -725,7 +725,7 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
-    route(PresenceRouter(.whereNow(uuid: uuid), configuration: configuration),
+    route(PresenceRouter(.whereNow(uuid: uuid), configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: PresenceResponseDecoder<AnyPresencePayload<WhereNowPayload>>(),
           custom: requestConfig) { result in
       completion?(result.map { [uuid: $0.payload.payload.channels] })
@@ -746,7 +746,7 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
-    route(ChannelGroupsRouter(.channelGroups, configuration: configuration),
+    route(ChannelGroupsRouter(.channelGroups, configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
           custom: requestConfig) { result in
       completion?(result.map { $0.payload.payload.groups })
@@ -767,7 +767,10 @@ extension PubNub {
     completion: ((Result<String, Error>) -> Void)?
   ) {
     route(
-      ChannelGroupsRouter(.deleteGroup(group: channelGroup), configuration: configuration),
+      ChannelGroupsRouter(
+        .deleteGroup(group: channelGroup),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -787,9 +790,14 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
-    route(ChannelGroupsRouter(.channelsForGroup(group: group), configuration: configuration),
-          responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
-          custom: requestConfig) { result in
+    route(
+      ChannelGroupsRouter(
+        .channelsForGroup(group: group),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { ($0.payload.payload.group, $0.payload.payload.channels) })
     }
   }
@@ -808,9 +816,14 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
-    route(ChannelGroupsRouter(.addChannelsToGroup(group: group, channels: channels), configuration: configuration),
-          responseDecoder: GenericServiceResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      ChannelGroupsRouter(
+        .addChannelsToGroup(group: group, channels: channels),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: GenericServiceResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { _ in (group, channels) })
     }
   }
@@ -829,9 +842,14 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
-    route(ChannelGroupsRouter(.removeChannelsForGroup(group: group, channels: channels), configuration: configuration),
-          responseDecoder: GenericServiceResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      ChannelGroupsRouter(
+        .removeChannelsForGroup(group: group, channels: channels),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: GenericServiceResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { _ in (group, channels) })
     }
   }
@@ -854,9 +872,14 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
-    route(PushRouter(.listPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
-          responseDecoder: RegisteredPushChannelsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      PushRouter(
+        .listPushChannels(pushToken: deviceToken, pushType: pushType),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: RegisteredPushChannelsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.channels })
     }
   }
@@ -881,7 +904,7 @@ extension PubNub {
   ) {
     let router = PushRouter(
       .managePushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -951,9 +974,14 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
-    route(PushRouter(.removeAllPushChannels(pushToken: deviceToken, pushType: pushType), configuration: configuration),
-          responseDecoder: ModifyPushResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      PushRouter(
+        .removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: ModifyPushResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { _ in () })
     }
   }
@@ -974,11 +1002,16 @@ extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
-    route(PushRouter(.manageAPNS(pushToken: deviceToken, environment: environment,
-                                 topic: topic, adding: [], removing: []),
-                     configuration: configuration),
-          responseDecoder: RegisteredPushChannelsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      PushRouter(
+        .manageAPNS(
+          pushToken: deviceToken, environment: environment, topic: topic, adding: [], removing: []
+        ),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
+      responseDecoder: RegisteredPushChannelsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.channels })
     }
   }
@@ -1006,7 +1039,7 @@ extension PubNub {
     let router = PushRouter(
       .manageAPNS(pushToken: token, environment: environment,
                   topic: topic, adding: additions, removing: removals),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     if removals.isEmpty, additions.isEmpty {
@@ -1045,7 +1078,7 @@ extension PubNub {
       byRemoving: [], thenAdding: additions,
       device: token, on: topic, environment: environment,
       custom: requestConfig
-    ) { completion?($0.map { $0.removed }) }
+    ) { completion?($0.map { $0.added }) }
   }
 
   /// Disables APNS2 push notifications on provided set of channels.
@@ -1090,7 +1123,7 @@ extension PubNub {
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(PushRouter(.removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
-                     configuration: configuration),
+                     configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: ModifyPushResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { _ in () })
@@ -1141,7 +1174,7 @@ extension PubNub {
           includeMeta: includeMeta, includeMessageType: includeMessageType,
           includeUUID: includeUUID
         ),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     case (false, _):
       router = HistoryRouter(
@@ -1151,7 +1184,7 @@ extension PubNub {
           includeMeta: includeMeta, includeMessageType: includeMessageType,
           includeUUID: includeUUID
         ),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     case (true, _):
       router = HistoryRouter(
@@ -1161,7 +1194,7 @@ extension PubNub {
           includeMeta: includeMeta, includeMessageType: includeMessageType,
           includeUUID: includeUUID
         ),
-        configuration: configuration
+        configuration: requestConfig.customConfiguration ?? configuration
       )
     }
 
@@ -1196,7 +1229,10 @@ extension PubNub {
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     route(
-      HistoryRouter(.delete(channel: channel, start: start, end: end), configuration: configuration),
+      HistoryRouter(
+        .delete(channel: channel, start: start, end: end),
+        configuration: requestConfig.customConfiguration ?? configuration
+      ),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1218,7 +1254,7 @@ extension PubNub {
   ) {
     let router = HistoryRouter(
       .messageCounts(channels: channels.map { $0.key }, timetoken: nil, channelsTimetoken: channels.map { $0.value }),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1244,7 +1280,7 @@ extension PubNub {
   ) {
     let router = HistoryRouter(
       .messageCounts(channels: channels, timetoken: timetoken, channelsTimetoken: nil),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1284,7 +1320,7 @@ extension PubNub {
       .all(customFields: include.customFields, totalCount: include.totalCount,
            filter: filter, sort: sort.urlValue,
            limit: limit, start: page?.start, end: page?.end),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1316,7 +1352,7 @@ extension PubNub {
     let router = ObjectsUUIDRouter(
       .fetch(metadataId: metadata ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
              customFields: customFields),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1344,7 +1380,7 @@ extension PubNub {
   ) {
     let router = ObjectsUUIDRouter(
       .set(metadata: metadata, customFields: customFields),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1373,7 +1409,7 @@ extension PubNub {
 
     let router = ObjectsUUIDRouter(
       .remove(metadataId: metadataId),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1413,7 +1449,7 @@ extension PubNub {
       .all(customFields: include.customFields, totalCount: include.totalCount,
            filter: filter, sort: sort.map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" },
            limit: limit, start: page?.start, end: page?.end),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1444,7 +1480,7 @@ extension PubNub {
   ) {
     let router = ObjectsChannelRouter(
       .fetch(metadataId: metadataId, customFields: customFields),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1472,7 +1508,7 @@ extension PubNub {
   ) {
     let router = ObjectsChannelRouter(
       .set(metadata: metadata, customFields: customFields),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1498,7 +1534,7 @@ extension PubNub {
   ) {
     let router = ObjectsChannelRouter(
       .remove(metadataId: metadataId),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1546,7 +1582,7 @@ extension PubNub {
         sort: sort.membershipURLValue,
         limit: limit, start: page?.start, end: page?.end
       ),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1593,7 +1629,7 @@ extension PubNub {
       sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ),
-    configuration: configuration)
+    configuration: requestConfig.customConfiguration ?? configuration)
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
@@ -1707,7 +1743,7 @@ extension PubNub {
       ),
       filter: filter, sort: sort.membershipURLValue,
       limit: limit, start: page?.start, end: page?.end
-    ), configuration: configuration)
+    ), configuration: requestConfig.customConfiguration ?? configuration)
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
@@ -1819,7 +1855,7 @@ extension PubNub {
       ),
       filter: filter, sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
-    ), configuration: configuration)
+    ), configuration: requestConfig.customConfiguration ?? configuration)
 
     route(router,
           responseDecoder: PubNubMembershipsResponseDecoder(),
@@ -1855,7 +1891,8 @@ extension PubNub {
   ) {
     route(
       MessageActionsRouter(
-        .fetch(channel: channel, start: page?.start, end: page?.end, limit: page?.limit), configuration: configuration
+        .fetch(channel: channel, start: page?.start, end: page?.end, limit: page?.limit),
+        configuration: requestConfig.customConfiguration ?? configuration
       ),
       responseDecoder: MessageActionsResponseDecoder(),
       custom: requestConfig
@@ -1893,7 +1930,8 @@ extension PubNub {
     completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
     let router = MessageActionsRouter(
-      .add(channel: channel, type: actionType, value: value, timetoken: messageTimetoken), configuration: configuration
+      .add(channel: channel, type: actionType, value: value, timetoken: messageTimetoken),
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,
@@ -1936,7 +1974,7 @@ extension PubNub {
   ) {
     let router = MessageActionsRouter(
       .remove(channel: channel, message: timetoken, action: actionTimetoken),
-      configuration: configuration
+      configuration: requestConfig.customConfiguration ?? configuration
     )
 
     route(router,

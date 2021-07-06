@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.0.0"
+version: "4.0.1"
 schema: 1
 changelog:
+  - changes:
+    - text: "Adding APNS2 Devices will correctly return the devices that were added."
+      type: bug
+    - text: "Per request configuration changes will correct be applied to the outgoing request."
+      type: bug
+    date: 2021-07-07
+    version: v4.0.1
   - changes:
     - text: "Crypto by default initialized with `randomizeIV` set to `true` which will encrypt / decrypt data with publish / subscribe / history API calls using randomized initialization vector"
       type: feature

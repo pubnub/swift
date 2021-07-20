@@ -76,7 +76,7 @@ class CryptoTests: XCTestCase {
     let decryptedString = String(bytes: decryptedData, encoding: .utf8)?.reverseJSONDescription
     XCTAssertEqual(testMessage, decryptedString)
   }
-    
+
   func testDefaultRandomizedIVEncryptDecrypt() {
     let testMessage = "Test Message To Be Encrypted"
     guard let crypto = Crypto(key: "MyCoolCipherKey") else {

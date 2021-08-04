@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.0.1"
+version: "4.0.2"
 schema: 1
 changelog:
+  - changes:
+    - text: "Memory leaks with captured request in subscription loop."
+      type: bug
+    date: 2021-08-03
+    version: v4.0.2
   - changes:
     - text: "Subscribe Factory will hash additional values when comparing sessions"
       type: bug

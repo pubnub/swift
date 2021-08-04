@@ -225,6 +225,7 @@ public class SubscriptionSession {
     // Will compre this in the error response to see if we need to restart
     let nextSubscribe = longPollingSession
       .request(with: router, requestOperator: configuration.automaticRetry)
+    let currentSubscribeID = nextSubscribe.requestID
     request = nextSubscribe
 
     request?
@@ -353,7 +354,7 @@ public class SubscriptionSession {
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
             if self?.subscriptionCount == 0 {
               self?.connectionStatus = .disconnected
-            } else if self?.request?.requestID == nextSubscribe.requestID {
+            } else if self?.request?.requestID == currentSubscribeID {
               // No new request has been created so we'll reconnect here
               self?.reconnect(at: self?.previousTokenResponse)
             }

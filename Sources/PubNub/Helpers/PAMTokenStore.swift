@@ -91,14 +91,6 @@ public struct PAMTokenManagementSystem {
     }
     // Attach the original auth string for reuse on APIs
     token.rawValue = tokenString
-
-    for uuid in token.resources.uuidObjects.keys {
-      uuids[uuid] = token
-    }
-
-    for channel in token.resources.channelObjects.keys {
-      channels[channel] = token
-    }
   }
 
   /// Stores multiple tokens in the Token Management System for use in API calls.
@@ -140,6 +132,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
   public let version: Int
   public let timestamp: Int
   public let ttl: Int
+  public let authorizedUUID: String?
 
   public let resources: PAMTokenResource
   public let patterns: PAMTokenResource
@@ -154,25 +147,47 @@ public struct PAMToken: Codable, Equatable, Hashable {
     case version = "v"
     case timestamp = "t"
     case ttl
+    case authorizedUUID = "uuid"
     case resources = "res"
     case patterns = "pat"
     case meta
     case signature = "sig"
+  }
+  
+  
+  static func token(from token: String) -> PAMToken? {
+    guard let unescapedToken = token.unescapedPAMToken else {
+      PubNub.log.warn("PAM Token `\(token)` was not able to be properly escaped.")
+      return nil
+    }
+
+    guard let tokenData = Data(base64Encoded: unescapedToken) else {
+      PubNub.log.warn("PAM Token `\(token)` was not a valid base64 encoded string")
+      return nil
+    }
+    
+    return process(tokenData)
+  }
+  
+  internal static func process(_ token: Data) -> PAMToken? {
+    do {
+      return try CBORDecoder().decode(PAMToken.self, from: token)
+    } catch {
+      PubNub.log.error("PAM Token `\(token.hexEncodedString)` was not valid CBOR due to: \(error.localizedDescription)")
+      return nil
+    }
   }
 }
 
 public struct PAMTokenResource: Codable, Equatable, Hashable {
   public let channels: [String: PAMPermission]
   public let groups: [String: PAMPermission]
-
-  public let uuidObjects: [String: PAMPermission]
-  public let channelObjects: [String: PAMPermission]
+  public let uuids: [String: PAMPermission]
 
   enum CodingKeys: String, CodingKey {
     case channels = "chan"
     case groups = "grp"
-    case uuidObjects = "usr"
-    case channelObjects = "spc"
+    case uuids = "uuid"
   }
 }
 
@@ -186,12 +201,12 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public static let write = PAMPermission(rawValue: 1 << 1) // 2
   public static let manage = PAMPermission(rawValue: 1 << 2) // 4
   public static let delete = PAMPermission(rawValue: 1 << 3) // 8
-  public static let create = PAMPermission(rawValue: 1 << 4) // 16
-
-  public static let update: PAMPermission = [PAMPermission.read, PAMPermission.write]
-  public static let crud: PAMPermission = [PAMPermission.create, PAMPermission.update, PAMPermission.delete]
-
-  public static let all: PAMPermission = [PAMPermission.crud, PAMPermission.manage]
+  public static let get = PAMPermission(rawValue: 1 << 5) // 32
+  public static let update = PAMPermission(rawValue: 1 << 6) // 64
+  public static let join = PAMPermission(rawValue: 1 << 7) // 128
+  
+  public static let crud: PAMPermission = [PAMPermission.read, PAMPermission.write, PAMPermission.update, PAMPermission.delete]
+  public static let all: PAMPermission = [PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage]
 
   public init(rawValue: UInt32) {
     self.rawValue = rawValue
@@ -221,8 +236,14 @@ extension PAMPermission: CustomStringConvertible {
     if contains(.delete) {
       perm.append("delete")
     }
-    if contains(.create) {
-      perm.append("create")
+    if contains(.get) {
+      perm.append("get")
+    }
+    if contains(.update) {
+      perm.append("update")
+    }
+    if contains(.join) {
+      perm.append("join")
     }
 
     return perm.joined(separator: "|")

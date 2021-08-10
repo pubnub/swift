@@ -71,6 +71,7 @@ public struct PubNubConfiguration: Hashable {
     subscribeKey: String,
     cipherKey: Crypto? = nil,
     authKey: String? = nil,
+    token: String? = nil,
     uuid: String? = nil,
     useSecureConnections: Bool = true,
     origin: String = "ps.pndsn.com",
@@ -88,6 +89,7 @@ public struct PubNubConfiguration: Hashable {
     self.subscribeKey = subscribeKey
     self.cipherKey = cipherKey
     self.authKey = authKey
+    self.token = token
     self.uuid = uuid ?? UUID().pubnubString
     self.useSecureConnections = useSecureConnections
     self.origin = origin
@@ -116,6 +118,8 @@ public struct PubNubConfiguration: Hashable {
   public var cipherKey: Crypto?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
+  /// If Access Manager (PAM) is enabled, client will use  `token` instead of `authKey` on all requests
+  public var token: String?
   /// UUID to be used as a device identifier
   public var uuid: String
   /// If true, requests will be made over `https`, otherwise they will use 'http'

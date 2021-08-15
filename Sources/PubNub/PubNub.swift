@@ -37,8 +37,6 @@ public struct PubNub {
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
-  // PAM Token Manager
-  internal var tokenStore: PAMTokenManagementSystem
 
   /// The URLSession used when making File upload/download requests
   public var fileURLSession: URLSessionReplaceable
@@ -98,9 +96,7 @@ public struct PubNub {
       with: subscribeSession,
       presenceSession: session
     )
-
-    tokenStore = PAMTokenManagementSystem()
-
+    
     if let fileSession = fileSession {
       fileURLSession = fileSession
     } else {

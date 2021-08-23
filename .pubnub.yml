@@ -19,7 +19,7 @@ changelog:
     date: 2021-07-07
     version: v4.0.1
   - changes:
-    - text: "Crypto by default initialized with `randomizeIV` set to `true` which will encrypt / decrypt data with publish / subscribe / history API calls using randomized initialization vector"
+    - text: "BREAKING CHANGE: Crypto by default initialized with `randomizeIV` set to `true` which will encrypt / decrypt data with publish / subscribe / history API calls using randomized initialization vector"
       type: feature
     - text: "Add new `sdks` section to `.pubnub.yml` with information about available artifacts and distribution variants"
       type: improvement

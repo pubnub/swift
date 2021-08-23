@@ -32,7 +32,7 @@ public struct PubNub {
   /// Instance identifier
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
-  public var configuration: PubNubConfiguration
+  public private(set) var configuration: PubNubConfiguration
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
@@ -2040,7 +2040,7 @@ extension PubNub {
   /// Stores token for use in API calls.
   /// - Parameter token: The token to add to the Token Management System.
   public mutating func set(token: String) {
-    configuration.token = token
+    configuration.authToken = token
   }
 
   // swiftlint:disable:next file_length

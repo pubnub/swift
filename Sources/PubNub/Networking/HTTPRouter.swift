@@ -41,8 +41,8 @@ public protocol RouterConfiguration {
   var origin: String { get }
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   var authKey: String? { get }
-  /// If Access Manager (PAM) is enabled, client will use  `token` instead of `authKey` on all requests
-  var token: String? { get }
+  /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
+  var authToken: String? { get }
   /// If set, all communication will be encrypted with this key
   var cipherKey: Crypto? { get }
   /// Whether a request identifier should be included on outgoing requests
@@ -212,7 +212,7 @@ extension HTTPRouter {
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
     // Add PAM key if needed
-    if pamVersion != .none, let authKey = configuration.token ?? configuration.authKey {
+    if pamVersion != .none, let authKey = configuration.authToken ?? configuration.authKey {
       queryItems.append(URLQueryItem(name: "auth", value: authKey))
     }
 

@@ -68,7 +68,7 @@ extension PublishRouterTests {
 
   func testPublish_Success() {
     let expectation = self.expectation(description: "Publish Response Received")
-    config.token = "access-token"
+    config.authToken = "access-token"
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")

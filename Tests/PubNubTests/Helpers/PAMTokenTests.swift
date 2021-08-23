@@ -68,7 +68,7 @@ extension PAMTokenTests {
     var pubnub = PubNub(configuration: config)
     pubnub.set(token: "access-token")
     
-    XCTAssertEqual(pubnub.configuration.token, "access-token")
+    XCTAssertEqual(pubnub.configuration.authToken, "access-token")
   }
 
   // swiftlint:enable line_length

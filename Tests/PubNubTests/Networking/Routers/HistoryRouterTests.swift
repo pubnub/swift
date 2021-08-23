@@ -42,7 +42,7 @@ final class HistoryRouterTests: XCTestCase {
 
 extension HistoryRouterTests {
   func testFetch_Router() {
-    config.token = "access-token"
+    config.authToken = "access-token"
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
@@ -59,7 +59,7 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.category, "Fetch Message History")
     XCTAssertEqual(router.service, .history)
     XCTAssertNotNil(config.authKey)
-    XCTAssertNotNil(config.token)
+    XCTAssertNotNil(config.authToken)
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "access-token")))
   }
 

@@ -1,0 +1,12 @@
+{
+  ".pubnub.yml": [
+    { "pattern": "^version: \"(.+)\"$", "cleared": true }
+  ],
+  "PubNubSwift.podspec": [
+    { "pattern": "s.version.+'(.+)'", "cleared": true }
+  ],
+  "PubNub.xcodeproj/project.pbxproj": [
+    { "pattern": "MARKETING_VERSION = ([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?);", "cleared": true }
+  ]
+
+}

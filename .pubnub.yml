@@ -390,10 +390,10 @@ features:
 sdks:
   - full-name: Swift SDK
     short-name: Swift
+    tier: 1
     artifacts:
       - artifact-type: api-client
         language: Swift
-        tier: 1
         tags:
           - Desktop
           - Mobile

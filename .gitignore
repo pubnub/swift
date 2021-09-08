@@ -71,3 +71,7 @@ Carthage
 
 fastlane/report.xml
 fastlane/test_output
+
+# GitHub Actions #
+##################
+.github/.release

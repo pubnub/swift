@@ -45,8 +45,7 @@
 		350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */; };
 		350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350EFBE322C95FED00FA33AA /* Atomic.swift */; };
 		35133196253115C500242CC2 /* CryptoStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35133195253115C500242CC2 /* CryptoStream.swift */; };
-		3513AB2723A967D9002D4B57 /* PAMTokenStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */; };
-		3513AB2923A96803002D4B57 /* PAMTokenStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2823A96803002D4B57 /* PAMTokenStore.swift */; };
+		3513AB2723A967D9002D4B57 /* PAMTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3513AB2523A967C7002D4B57 /* PAMTokenTests.swift */; };
 		3520962F2358D64C00A641DF /* TestSetup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA6230D91BB0085B502 /* TestSetup.swift */; };
 		352096302358D67000A641DF /* TestLogWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35458BA4230D8E500085B502 /* TestLogWriter.swift */; };
 		352224EE253397AA00A5B330 /* CryptoInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 352224ED253397AA00A5B330 /* CryptoInputStream.swift */; };
@@ -335,6 +334,7 @@
 		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -384,8 +384,7 @@
 		350EFBDF22C9573F00FA33AA /* NSLocking+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSLocking+PubNub.swift"; sourceTree = "<group>"; };
 		350EFBE322C95FED00FA33AA /* Atomic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Atomic.swift; sourceTree = "<group>"; };
 		35133195253115C500242CC2 /* CryptoStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoStream.swift; sourceTree = "<group>"; };
-		3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStoreTests.swift; sourceTree = "<group>"; };
-		3513AB2823A96803002D4B57 /* PAMTokenStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenStore.swift; sourceTree = "<group>"; };
+		3513AB2523A967C7002D4B57 /* PAMTokenTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMTokenTests.swift; sourceTree = "<group>"; };
 		352224ED253397AA00A5B330 /* CryptoInputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoInputStream.swift; sourceTree = "<group>"; };
 		352224FB2533D15A00A5B330 /* file_upload_sample_encrypted.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = file_upload_sample_encrypted.txt; sourceTree = "<group>"; };
 		352224FC2533D15A00A5B330 /* file_upload_sample.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = file_upload_sample.txt; sourceTree = "<group>"; };
@@ -689,6 +688,7 @@
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
+		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
@@ -883,7 +883,7 @@
 				35089A0A22E56F1F002BCC94 /* Constants.swift */,
 				3522250B25340B8900A5B330 /* Crypto */,
 				35B38249233AAB8C0028803F /* JSONCodable.swift */,
-				3513AB2823A96803002D4B57 /* PAMTokenStore.swift */,
+				7951954D26C955CE001E308C /* PAMToken.swift */,
 				3559978B230A02B7000BCFD1 /* PubNubLogger.swift */,
 				35599798230C5878000BCFD1 /* LogWriter.swift */,
 				352224EC2533979200A5B330 /* Streams */,
@@ -1017,7 +1017,7 @@
 				35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */,
 				35D0615123035E4300FDB2F9 /* CryptoTests.swift */,
 				35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */,
-				3513AB2523A967C7002D4B57 /* PAMTokenStoreTests.swift */,
+				3513AB2523A967C7002D4B57 /* PAMTokenTests.swift */,
 				35D061592303A61500FDB2F9 /* ValidatedTests.swift */,
 				3559977A23073D53000BCFD1 /* WeakBoxTests.swift */,
 				35403F89253617A8004B978E /* XMLCodingTests.swift */,
@@ -1830,7 +1830,6 @@
 				35481BF6252275B5004E07B5 /* PubNubFile.swift in Sources */,
 				35CDA4CC2510031E00218137 /* XMLDecoder.swift in Sources */,
 				35D0615F2304830600FDB2F9 /* GenericServicePayloadResponse.swift in Sources */,
-				3513AB2923A96803002D4B57 /* PAMTokenStore.swift in Sources */,
 				35A66A8E22F911DB00AC67A9 /* SubscribeSessionFactory.swift in Sources */,
 				35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */,
 				35AC16332487179400A66030 /* PubNubPage.swift in Sources */,
@@ -1893,6 +1892,7 @@
 				3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */,
 				3557CE0723886434004BBACC /* PubNubAPNSPayload.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
+				7951954E26C955CE001E308C /* PAMToken.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
 				353F78C42527934500FFB72C /* InputStream+PubNub.swift in Sources */,
 				353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */,
@@ -1981,7 +1981,7 @@
 				357AEB8622E6979D00C18250 /* DateFormatter+PubNubTests.swift in Sources */,
 				357AEB8222E6949300C18250 /* Bool+PubNubTests.swift in Sources */,
 				35458BA5230D8E500085B502 /* TestLogWriter.swift in Sources */,
-				3513AB2723A967D9002D4B57 /* PAMTokenStoreTests.swift in Sources */,
+				3513AB2723A967D9002D4B57 /* PAMTokenTests.swift in Sources */,
 				3580A5A822F1583900B12E5E /* MockRequestOperators.swift in Sources */,
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,

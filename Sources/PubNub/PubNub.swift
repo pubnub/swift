@@ -2073,3 +2073,16 @@ extension PubNub {
 
   // swiftlint:disable:next file_length
 }
+
+
+// MARK: - Consumer
+
+extension PubNub {
+  /// Set consumer identifying value for components usage.
+  /// - Parameters:
+  ///   - identifier: Identifier of consumer with which value will be associated.
+  ///   - value: Value which should be associated with consumer identifier.
+  public mutating func setConsumer(identifier: String, value: String) {
+    self.configuration.consumerIdentifiers[identifier] = value
+  }
+}

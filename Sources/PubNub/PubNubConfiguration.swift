@@ -151,4 +151,7 @@ public struct PubNubConfiguration: Hashable {
   public var requestMessageCountThreshold: UInt
   /// PSV2 feature to subscribe with a custom filter expression.
   public var filterExpression: String?
+  
+  /// Ordered list of key-value pairs which identify various consumers.
+  internal var consumerIdentifiers: [String: String] = [:]
 }

@@ -62,13 +62,7 @@ public struct Constant {
   }()
 
   static let pubnubSwiftSDKVersion: String = {
-    guard let pubnubInfo = Bundle(for: HTTPSession.self).infoDictionary,
-      let build = pubnubInfo["CFBundleShortVersionString"]
-    else {
-      return "?.?.?"
-    }
-
-    return "\(build)"
+    "4.0.2"
   }()
 
   static let appBundleId: String = {
@@ -81,12 +75,12 @@ public struct Constant {
   }()
 
   static let appVersion: String = {
-    if let info = Bundle.main.infoDictionary,
+    "if let info = Bundle.main.infoDictionary,
       let bundleVersion = info["CFBundleShortVersionString"] as? String {
       return bundleVersion
     }
 
-    return "?.?.?"
+    return "?.?.?""
   }()
 
   static let pnSDKQueryParameterValue: String = {

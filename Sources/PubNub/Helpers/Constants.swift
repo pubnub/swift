@@ -75,12 +75,12 @@ public struct Constant {
   }()
 
   static let appVersion: String = {
-    "if let info = Bundle.main.infoDictionary,
+    if let info = Bundle.main.infoDictionary,
       let bundleVersion = info["CFBundleShortVersionString"] as? String {
       return bundleVersion
     }
 
-    return "?.?.?""
+    return "?.?.?"
   }()
 
   static let pnSDKQueryParameterValue: String = {

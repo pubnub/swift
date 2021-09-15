@@ -157,5 +157,5 @@ public struct PubNubConfiguration: Hashable {
   public var filterExpression: String?
   
   /// Ordered list of key-value pairs which identify various consumers.
-  internal var consumerIdentifiers: [String: String] = [:]
+  public var consumerIdentifiers: [String: String] = [:]
 }

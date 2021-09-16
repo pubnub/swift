@@ -47,6 +47,8 @@ public protocol RouterConfiguration {
   var cipherKey: Crypto? { get }
   /// Whether a request identifier should be included on outgoing requests
   var useRequestId: Bool { get }
+  /// Ordered list of key-value pairs which identify various consumers.
+  var consumerIdentifiers: [String: String] { get }
 }
 
 extension RouterConfiguration {
@@ -207,8 +209,16 @@ extension HTTPRouter {
   }
 
   var defaultQueryItems: [URLQueryItem] {
+    var pnSDKURLQueryItem = Constant.pnSDKURLQueryItem
+    
+    if !configuration.consumerIdentifiers.isEmpty, let pnsdk = pnSDKURLQueryItem.value {
+      var identifiers = Array(configuration.consumerIdentifiers.values)
+      identifiers.insert(pnsdk, at: 0)
+      pnSDKURLQueryItem = URLQueryItem(name: pnSDKURLQueryItem.name, value: identifiers.joined(separator: " "))
+    }
+    
     var queryItems = [
-      Constant.pnSDKURLQueryItem,
+      pnSDKURLQueryItem,
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
     // Add PAM key if needed

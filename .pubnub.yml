@@ -1,9 +1,22 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.0.2"
+version: "4.1.0"
 schema: 1
 changelog:
+  - date: 2021-09-16
+    version: 4.1.0
+    changes:
+      - type: feature
+        text: "Add ability to parse permissions from token provided by servers."
+      - type: feature
+        text: "Make it possible to add component identifiers for requests."
+      - type: bug
+        text: "Fix `bufferTooSmall` and make temporary buffers for files encryption / decryption adaptive in size to provided stream buffer size."
+      - type: bug
+        text: "Don't perform HEX-encoding of `Data` with FCM token which should be used as-is."
+      - type: improvement
+        text: "Use `token` instead of `authKey` (if specified) for query `auth`."
   - date: 2021-09-16
     version: 4.1.0
     changes:

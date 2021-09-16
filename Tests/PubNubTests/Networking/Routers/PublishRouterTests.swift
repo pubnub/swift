@@ -29,7 +29,7 @@
 import XCTest
 
 final class PublishRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", authKey: "auth-key")
 
   let testMessage: AnyJSON = "Test Message"
   let testChannel = "TestChannel"
@@ -46,7 +46,12 @@ extension PublishRouterTests {
       .publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
-
+    
+    guard let queryItems = try? router.queryItems.get() else {
+      return XCTAssert(false, "'queryItems' not set")
+    }
+    
+    XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "auth-key")))
     XCTAssertEqual(router.endpoint.description, "Publish")
     XCTAssertEqual(router.category, "Publish")
     XCTAssertEqual(router.service, .publish)
@@ -63,6 +68,7 @@ extension PublishRouterTests {
 
   func testPublish_Success() {
     let expectation = self.expectation(description: "Publish Response Received")
+    config.authToken = "access-token"
 
     guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
       return XCTFail("Could not create mock url session")

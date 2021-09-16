@@ -30,7 +30,7 @@
 import XCTest
 
 final class HistoryRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", authKey: "auth-key")
 
   let testChannel = "TestChannel"
 
@@ -42,6 +42,7 @@ final class HistoryRouterTests: XCTestCase {
 
 extension HistoryRouterTests {
   func testFetch_Router() {
+    config.authToken = "access-token"
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
@@ -49,10 +50,17 @@ extension HistoryRouterTests {
       ),
       configuration: config
     )
-
+    
+    guard let queryItems = try? router.queryItems.get() else {
+      return XCTAssert(false, "'queryItems' not set")
+    }
+    
     XCTAssertEqual(router.endpoint.description, "Fetch Message History")
     XCTAssertEqual(router.category, "Fetch Message History")
     XCTAssertEqual(router.service, .history)
+    XCTAssertNotNil(config.authKey)
+    XCTAssertNotNil(config.authToken)
+    XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "access-token")))
   }
 
   func testFetch_Router_ValidationError() {
@@ -86,7 +94,7 @@ extension HistoryRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success"]) else {
       return XCTFail("Could not create mock url session")
     }
-
+    
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {

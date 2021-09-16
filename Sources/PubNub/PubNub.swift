@@ -2042,10 +2042,7 @@ extension PubNub {
   public mutating func set(token: String) {
     configuration.authToken = token
   }
-
-  // swiftlint:disable:next file_length
 }
-
 
 // MARK: - Consumer
 
@@ -2058,3 +2055,5 @@ extension PubNub {
     self.configuration.consumerIdentifiers[identifier] = value
   }
 }
+
+// swiftlint:disable:next file_length

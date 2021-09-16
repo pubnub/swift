@@ -115,6 +115,10 @@ extension ErrorDescription {
     "Device Token is an empty `Data`"
   }()
 
+  static let malformedDeviceTokenData: String = {
+    "Device Token `Data` cannot be converted to `String`"
+  }()
+
   static let emptyUUIDMetadataId: String = {
     "The UUID MetadataId `String` cannot be empty"
   }()

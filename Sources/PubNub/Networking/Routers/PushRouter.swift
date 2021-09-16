@@ -84,6 +84,23 @@ struct PushRouter: HTTPRouter {
         return []
       }
     }
+
+    var pushToken: String? {
+      var service: PubNub.PushService = .apns
+      var token: Data
+
+      switch self {
+      case let .listPushChannels(pushToken, pushType),
+           let .managePushChannels(pushToken, pushType, _, _),
+           let .removeAllPushChannels(pushToken, pushType):
+        service = pushType
+        token = pushToken
+      case let .manageAPNS(pushToken, _, _, _, _), let .removeAllAPNS(pushToken, _, _):
+        token = pushToken
+      }
+
+      return service != .gcm ? token.hexEncodedString : String(data: token, encoding: .utf8)
+    }
   }
 
   // Init
@@ -107,17 +124,21 @@ struct PushRouter: HTTPRouter {
   var path: Result<String, Error> {
     let path: String
 
+    guard let pushToken = endpoint.pushToken else {
+      return .failure(PubNubError(.missingRequiredParameter, router: self, additional: [validationErrorDetail!]))
+    }
+
     switch endpoint {
-    case let .listPushChannels(pushToken, _):
-      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
-    case let .managePushChannels(pushToken, _, _, _):
-      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken.hexEncodedString)"
-    case let .removeAllPushChannels(token, _):
-      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(token.hexEncodedString)/remove"
-    case let .manageAPNS(token, _, _, _, _):
-      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)"
-    case let .removeAllAPNS(token, _, _):
-      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(token.hexEncodedString)/remove"
+    case .listPushChannels:
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken)"
+    case .managePushChannels:
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken)"
+    case .removeAllPushChannels:
+      path = "/v1/push/sub-key/\(subscribeKey)/devices/\(pushToken)/remove"
+    case .manageAPNS:
+      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(pushToken)"
+    case .removeAllAPNS:
+      path = "/v2/push/sub-key/\(subscribeKey)/devices-apns2/\(pushToken)/remove"
     }
     return .success(path)
   }
@@ -160,22 +181,31 @@ struct PushRouter: HTTPRouter {
   var validationErrorDetail: String? {
     switch endpoint {
     case let .listPushChannels(pushToken, _):
-      return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
+      return isInvalidForReason(
+        (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (endpoint.pushToken == nil, ErrorDescription.malformedDeviceTokenData)
+      )
     case let .managePushChannels(pushToken, _, addChannels, removeChannels):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (endpoint.pushToken == nil, ErrorDescription.malformedDeviceTokenData),
         (addChannels.isEmpty && removeChannels.isEmpty, ErrorDescription.emptyChannelArray)
       )
     case let .removeAllPushChannels(pushToken, _):
-      return isInvalidForReason((pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData))
+      return isInvalidForReason(
+        (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (endpoint.pushToken == nil, ErrorDescription.malformedDeviceTokenData)
+      )
     case let .manageAPNS(pushToken, _, topic, _, _):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (endpoint.pushToken == nil, ErrorDescription.malformedDeviceTokenData),
         (topic.isEmpty, ErrorDescription.emptyUUIDString)
       )
     case let .removeAllAPNS(pushToken, _, topic):
       return isInvalidForReason(
         (pushToken.isEmpty, ErrorDescription.emptyDeviceTokenData),
+        (endpoint.pushToken == nil, ErrorDescription.malformedDeviceTokenData),
         (topic.isEmpty, ErrorDescription.emptyUUIDString)
       )
     }

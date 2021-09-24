@@ -177,7 +177,7 @@ final class HTTPSession {
           switch result {
           case let .success(mutatedRequest):
             request.didMutate(urlRequest, to: mutatedRequest)
-            self?.didCreateURLRequest(urlRequest, for: request)
+            self?.didCreateURLRequest(mutatedRequest, for: request)
           case let .failure(error):
             request.didFailToMutate(urlRequest, with: error)
           }

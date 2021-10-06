@@ -304,6 +304,9 @@ changelog:
     date: 2019-08-23
     version: v1.0.0
 features:
+  access:
+    - ACCESS-PARSE-TOKEN
+    - ACCESS-SET-TOKEN
   channel-groups:
     - CHANNEL-GROUPS-ADD-CHANNELS
     - CHANNEL-GROUPS-REMOVE-CHANNELS
@@ -414,9 +417,9 @@ sdks:
         documentation: https://www.pubnub.com/docs/sdks/swift
         distributions:
           - distribution-type: source
-            distribution-repository: GitHub
-            package-name: PubNub Swift SDK
-            location: https://github.com/pubnub/swift
+            distribution-repository: GitHub release
+            package-name: PubNub
+            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:
@@ -465,6 +468,15 @@ sdks:
                     - arm64_32
                   target-devices:
                     - Apple Watch
+      - artifact-type: package
+        language: Swift
+        tier: 1
+        tags:
+          - Desktop
+          - Mobile
+        source-repository: https://github.com/pubnub/swift
+        documentation: https://www.pubnub.com/docs/sdks/swift
+        distributions:
           - distribution-type: package
             distribution-repository: Swift Package
             package-name: PubNub

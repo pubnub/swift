@@ -46,6 +46,15 @@ lane :test do
   end
 end
 
+desc "Executes Acceptance Tests"
+lane :contract_test do
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_SDK'],
+    device: ENV["DEVICE"]
+  )
+end
+
 desc "Generates Code Coverage Files"
 lane :code_coverage do
   scan(

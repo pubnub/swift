@@ -118,7 +118,7 @@
 		3558068A230F4C99005CDD92 /* InstanceIdOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35580687230F4B75005CDD92 /* InstanceIdOperatorTests.swift */; };
 		3558069A2311F968005CDD92 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355806992311F968005CDD92 /* SubscriptionStreamTests.swift */; };
 		3558069C231303D9005CDD92 /* AutomaticRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558069B231303D9005CDD92 /* AutomaticRetryTests.swift */; };
-		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
+		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
 		3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559977A23073D53000BCFD1 /* WeakBoxTests.swift */; };
 		3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */; };
 		3559978223079070000BCFD1 /* forbidden_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978023078F85000BCFD1 /* forbidden_Message.json */; };
@@ -334,11 +334,36 @@
 		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		718AF3167D527207590356DA /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
+		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
+		79657A98271A13F700BACEC5 /* PubNubSubscribeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8F270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift */; };
+		79657A99271A13F700BACEC5 /* PubNubHistoryContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C87270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift */; };
+		79657A9A271A13F700BACEC5 /* PubNubTimeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C91270FB29900515DF5 /* PubNubTimeContractTestSteps.swift */; };
+		79657A9B271A13F700BACEC5 /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C6C270EE6C900515DF5 /* PubNubContractTestCase.swift */; };
+		79657A9C271A13F700BACEC5 /* PubNubPushContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8B270FA37A00515DF5 /* PubNubPushContractTestSteps.swift */; };
+		79657A9D271A13F700BACEC5 /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C85270F971A00515DF5 /* PubNubFilesContractTestSteps.swift */; };
+		79657A9E271A13F700BACEC5 /* PubNubMessageActionsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C89270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift */; };
+		79657A9F271A13F700BACEC5 /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C6D270EE6C900515DF5 /* PubNubContractCucumberTest.m */; };
+		79657AA0271A13F700BACEC5 /* PubNubAccessContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C7C270F952C00515DF5 /* PubNubAccessContractTestSteps.swift */; };
+		79657AA1271A13F700BACEC5 /* PubNubPublishContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8D270FAEBA00515DF5 /* PubNubPublishContractTestSteps.swift */; };
+		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
+		79657AA6271A13F700BACEC5 /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79FB6C70270EE85C00515DF5 /* Features */; };
+		79FB6C6E270EE6C900515DF5 /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C6C270EE6C900515DF5 /* PubNubContractTestCase.swift */; };
+		79FB6C6F270EE6C900515DF5 /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C6D270EE6C900515DF5 /* PubNubContractCucumberTest.m */; };
+		79FB6C71270EE85C00515DF5 /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79FB6C70270EE85C00515DF5 /* Features */; };
+		79FB6C7D270F952D00515DF5 /* PubNubAccessContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C7C270F952C00515DF5 /* PubNubAccessContractTestSteps.swift */; };
+		79FB6C86270F971A00515DF5 /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C85270F971A00515DF5 /* PubNubFilesContractTestSteps.swift */; };
+		79FB6C88270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C87270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift */; };
+		79FB6C8A270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C89270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift */; };
+		79FB6C8C270FA37A00515DF5 /* PubNubPushContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8B270FA37A00515DF5 /* PubNubPushContractTestSteps.swift */; };
+		79FB6C8E270FAEBB00515DF5 /* PubNubPublishContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8D270FAEBA00515DF5 /* PubNubPublishContractTestSteps.swift */; };
+		79FB6C90270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C8F270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift */; };
+		79FB6C92270FB29900515DF5 /* PubNubTimeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB6C91270FB29900515DF5 /* PubNubTimeContractTestSteps.swift */; };
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
-		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
+		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -350,6 +375,20 @@
 			remoteInfo = PubNub;
 		};
 		35EA73F422B1916100D97BF0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "PubNub::PubNub";
+			remoteInfo = PubNub;
+		};
+		7941EE6D270E433F0054D9EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = OBJ_1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = "PubNub::PubNub";
+			remoteInfo = PubNub;
+		};
+		79657A95271A13F700BACEC5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = OBJ_1 /* Project object */;
 			proxyType = 1;
@@ -688,7 +727,22 @@
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
+		7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
+		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		79FB6C6B270EE6C900515DF5 /* PubNubContractTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "PubNubContractTests-Bridging-Header.h"; path = "Tests/PubNubContractTest/PubNubContractTests-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		79FB6C6C270EE6C900515DF5 /* PubNubContractTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PubNubContractTestCase.swift; path = Tests/PubNubContractTest/PubNubContractTestCase.swift; sourceTree = SOURCE_ROOT; };
+		79FB6C6D270EE6C900515DF5 /* PubNubContractCucumberTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PubNubContractCucumberTest.m; path = Tests/PubNubContractTest/PubNubContractCucumberTest.m; sourceTree = SOURCE_ROOT; };
+		79FB6C70270EE85C00515DF5 /* Features */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; name = Features; path = Tests/PubNubTests/Contracts/Features; sourceTree = SOURCE_ROOT; };
+		79FB6C7C270F952C00515DF5 /* PubNubAccessContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubAccessContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C85270F971A00515DF5 /* PubNubFilesContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFilesContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C87270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHistoryContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C89270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageActionsContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C8B270FA37A00515DF5 /* PubNubPushContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C8D270FAEBA00515DF5 /* PubNubPublishContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPublishContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C8F270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeContractTestSteps.swift; sourceTree = "<group>"; };
+		79FB6C91270FB29900515DF5 /* PubNubTimeContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTimeContractTestSteps.swift; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
@@ -697,8 +751,8 @@
 		OBJ_24 /* PubNubSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = PubNubSwift.podspec; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* PubNub.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PubNub.h; sourceTree = "<group>"; };
-		"PubNub::PubNub::Product" /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"PubNub::PubNubTests::Product" /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		PubNub::PubNub::Product /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		PubNub::PubNubTests::Product /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -707,6 +761,23 @@
 			buildActionMask = 0;
 			files = (
 				355806DB23145749005CDD92 /* PubNub.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7941EEA8270E433F0054D9EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */,
+				718AF3167D527207590356DA /* BuildFile in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79657AA2271A13F700BACEC5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 0;
+			files = (
+				79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1300,6 +1371,7 @@
 		35EA73F822B199FF00D97BF0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */,
 				35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */,
 			);
 			name = "Supporting Files";
@@ -1422,6 +1494,13 @@
 			path = EndpointError;
 			sourceTree = "<group>";
 		};
+		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		793079142667C63700F23B72 /* .github */ = {
 			isa = PBXGroup;
 			children = (
@@ -1440,6 +1519,98 @@
 			path = workflows;
 			sourceTree = "<group>";
 		};
+		79FB6C68270EE64700515DF5 /* Contracts */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C70270EE85C00515DF5 /* Features */,
+				79FB6C7A270F952C00515DF5 /* Steps */,
+				79FB6C6C270EE6C900515DF5 /* PubNubContractTestCase.swift */,
+				79FB6C6D270EE6C900515DF5 /* PubNubContractCucumberTest.m */,
+				79FB6C6B270EE6C900515DF5 /* PubNubContractTests-Bridging-Header.h */,
+			);
+			path = Contracts;
+			sourceTree = "<group>";
+		};
+		79FB6C7A270F952C00515DF5 /* Steps */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C7B270F952C00515DF5 /* Access */,
+				79FB6C7E270F96DF00515DF5 /* Files */,
+				79FB6C82270F96DF00515DF5 /* History */,
+				79FB6C7F270F96DF00515DF5 /* Message Actions */,
+				79FB6C80270F96DF00515DF5 /* Push */,
+				79FB6C84270F96DF00515DF5 /* Publish */,
+				79FB6C83270F96DF00515DF5 /* Subscribe */,
+				79FB6C81270F96DF00515DF5 /* Utilities */,
+			);
+			name = Steps;
+			path = Tests/PubNubContractTest/Steps;
+			sourceTree = SOURCE_ROOT;
+		};
+		79FB6C7B270F952C00515DF5 /* Access */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C7C270F952C00515DF5 /* PubNubAccessContractTestSteps.swift */,
+			);
+			path = Access;
+			sourceTree = "<group>";
+		};
+		79FB6C7E270F96DF00515DF5 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C85270F971A00515DF5 /* PubNubFilesContractTestSteps.swift */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
+		79FB6C7F270F96DF00515DF5 /* Message Actions */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C89270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift */,
+			);
+			path = "Message Actions";
+			sourceTree = "<group>";
+		};
+		79FB6C80270F96DF00515DF5 /* Push */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C8B270FA37A00515DF5 /* PubNubPushContractTestSteps.swift */,
+			);
+			path = Push;
+			sourceTree = "<group>";
+		};
+		79FB6C81270F96DF00515DF5 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C91270FB29900515DF5 /* PubNubTimeContractTestSteps.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		79FB6C82270F96DF00515DF5 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C87270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		79FB6C83270F96DF00515DF5 /* Subscribe */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C8F270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift */,
+			);
+			path = Subscribe;
+			sourceTree = "<group>";
+		};
+		79FB6C84270F96DF00515DF5 /* Publish */ = {
+			isa = PBXGroup;
+			children = (
+				79FB6C8D270FAEBA00515DF5 /* PubNubPublishContractTestSteps.swift */,
+			);
+			path = Publish;
+			sourceTree = "<group>";
+		};
 		D2635DF922FCCE7A0097CF64 /* MessageCounts */ = {
 			isa = PBXGroup;
 			children = (
@@ -1453,6 +1624,7 @@
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				79FB6C68270EE64700515DF5 /* Contracts */,
 				3558073823145A48005CDD92 /* Integration */,
 				3580A5A322F14D5200B12E5E /* Mocking */,
 				OBJ_15 /* PubNubTests.swift */,
@@ -1471,9 +1643,11 @@
 		OBJ_17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"PubNub::PubNubTests::Product" /* PubNubTests.xctest */,
-				"PubNub::PubNub::Product" /* PubNub.framework */,
+				PubNub::PubNubTests::Product /* PubNubTests.xctest */,
+				PubNub::PubNub::Product /* PubNub.framework */,
 				3558073723145749005CDD92 /* PubNubTests.xctest */,
+				7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */,
+				79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */,
 			);
 			name = Products;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -1486,6 +1660,7 @@
 				OBJ_7 /* Sources */,
 				OBJ_12 /* Tests */,
 				OBJ_17 /* Products */,
+				3DBD7CDD58292DFFDF108B95 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1530,7 +1705,43 @@
 			productReference = 3558073723145749005CDD92 /* PubNubTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		"PubNub::PubNub" /* PubNub */ = {
+		7941EE6B270E433F0054D9EF /* PubNubContractTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7941EF3D270E433F0054D9EF /* Build configuration list for PBXNativeTarget "PubNubContractTests" */;
+			buildPhases = (
+				7941EE6E270E433F0054D9EF /* Sources */,
+				7941EEA8270E433F0054D9EF /* Frameworks */,
+				7941EEAA270E433F0054D9EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7941EE6C270E433F0054D9EF /* PBXTargetDependency */,
+			);
+			name = PubNubContractTests;
+			productName = PubNubTests;
+			productReference = 7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		79657A93271A13F700BACEC5 /* PubNubContractTestsBeta */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 79657AA8271A13F700BACEC5 /* Build configuration list for PBXNativeTarget "PubNubContractTestsBeta" */;
+			buildPhases = (
+				79657A97271A13F700BACEC5 /* Sources */,
+				79657AA2271A13F700BACEC5 /* Frameworks */,
+				79657AA5271A13F700BACEC5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				79657A94271A13F700BACEC5 /* PBXTargetDependency */,
+			);
+			name = PubNubContractTestsBeta;
+			productName = PubNubTests;
+			productReference = 79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		PubNub::PubNub /* PubNub */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
@@ -1542,13 +1753,11 @@
 			dependencies = (
 			);
 			name = PubNub;
-			packageProductDependencies = (
-			);
 			productName = PubNub;
-			productReference = "PubNub::PubNub::Product" /* PubNub.framework */;
+			productReference = PubNub::PubNub::Product /* PubNub.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"PubNub::PubNubTests" /* PubNubTests */ = {
+		PubNub::PubNubTests /* PubNubTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_45 /* Build configuration list for PBXNativeTarget "PubNubTests" */;
 			buildPhases = (
@@ -1563,7 +1772,7 @@
 			);
 			name = PubNubTests;
 			productName = PubNubTests;
-			productReference = "PubNub::PubNubTests::Product" /* PubNubTests.xctest */;
+			productReference = PubNub::PubNubTests::Product /* PubNubTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -1573,9 +1782,14 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftMigration = 9999;
-				LastSwiftUpdateCheck = 1020;
+				LastSwiftUpdateCheck = 1300;
 				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = PubNub;
+				TargetAttributes = {
+					7941EE6B270E433F0054D9EF = {
+						LastSwiftMigration = 1300;
+					};
+				};
 			};
 			buildConfigurationList = OBJ_2 /* Build configuration list for PBXProject "PubNub" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -1586,14 +1800,14 @@
 				Base,
 			);
 			mainGroup = OBJ_5;
-			packageReferences = (
-			);
 			productRefGroup = OBJ_17 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"PubNub::PubNub" /* PubNub */,
-				"PubNub::PubNubTests" /* PubNubTests */,
+				PubNub::PubNub /* PubNub */,
+				PubNub::PubNubTests /* PubNubTests */,
+				7941EE6B270E433F0054D9EF /* PubNubContractTests */,
+				79657A93271A13F700BACEC5 /* PubNubContractTestsBeta */,
 				3558069D23145749005CDD92 /* PubNubIntegration */,
 				359152A222BA9F380048842D /* Linting */,
 			);
@@ -1761,6 +1975,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		7941EEAA270E433F0054D9EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79FB6C71270EE85C00515DF5 /* Features in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79657AA5271A13F700BACEC5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				79657AA6271A13F700BACEC5 /* Features in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -1818,6 +2048,40 @@
 				359287B82317294B0046F7A2 /* PublishEndpointIntegrationTests.swift in Sources */,
 				353D92AF23562A1100367B9F /* SubscriptionIntegrationTests.swift in Sources */,
 				3557CE032386054C004BBACC /* PushIntegrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7941EE6E270E433F0054D9EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				79FB6C90270FB03200515DF5 /* PubNubSubscribeContractTestSteps.swift in Sources */,
+				79FB6C88270F9DDB00515DF5 /* PubNubHistoryContractTestSteps.swift in Sources */,
+				79FB6C92270FB29900515DF5 /* PubNubTimeContractTestSteps.swift in Sources */,
+				79FB6C6E270EE6C900515DF5 /* PubNubContractTestCase.swift in Sources */,
+				79FB6C8C270FA37A00515DF5 /* PubNubPushContractTestSteps.swift in Sources */,
+				79FB6C86270F971A00515DF5 /* PubNubFilesContractTestSteps.swift in Sources */,
+				79FB6C8A270FA13E00515DF5 /* PubNubMessageActionsContractTestSteps.swift in Sources */,
+				79FB6C6F270EE6C900515DF5 /* PubNubContractCucumberTest.m in Sources */,
+				79FB6C7D270F952D00515DF5 /* PubNubAccessContractTestSteps.swift in Sources */,
+				79FB6C8E270FAEBB00515DF5 /* PubNubPublishContractTestSteps.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		79657A97271A13F700BACEC5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 0;
+			files = (
+				79657A98271A13F700BACEC5 /* PubNubSubscribeContractTestSteps.swift in Sources */,
+				79657A99271A13F700BACEC5 /* PubNubHistoryContractTestSteps.swift in Sources */,
+				79657A9A271A13F700BACEC5 /* PubNubTimeContractTestSteps.swift in Sources */,
+				79657A9B271A13F700BACEC5 /* PubNubContractTestCase.swift in Sources */,
+				79657A9C271A13F700BACEC5 /* PubNubPushContractTestSteps.swift in Sources */,
+				79657A9D271A13F700BACEC5 /* PubNubFilesContractTestSteps.swift in Sources */,
+				79657A9E271A13F700BACEC5 /* PubNubMessageActionsContractTestSteps.swift in Sources */,
+				79657A9F271A13F700BACEC5 /* PubNubContractCucumberTest.m in Sources */,
+				79657AA0271A13F700BACEC5 /* PubNubAccessContractTestSteps.swift in Sources */,
+				79657AA1271A13F700BACEC5 /* PubNubPublishContractTestSteps.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1998,12 +2262,22 @@
 /* Begin PBXTargetDependency section */
 		3558069E23145749005CDD92 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 3558069F23145749005CDD92 /* PBXContainerItemProxy */;
+		};
+		7941EE6C270E433F0054D9EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = PubNub::PubNub /* PubNub */;
+			targetProxy = 7941EE6D270E433F0054D9EF /* PBXContainerItemProxy */;
+		};
+		79657A94271A13F700BACEC5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = PubNub::PubNub /* PubNub */;
+			targetProxy = 79657A95271A13F700BACEC5 /* PBXContainerItemProxy */;
 		};
 		OBJ_52 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 35EA73F422B1916100D97BF0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -2074,6 +2348,148 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		7941EF3E270E433F0054D9EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Tests/PubNubContractTest/PubNubContractTests-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "PubNubContractTests-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = PubNubContractTests;
+			};
+			name = Debug;
+		};
+		7941EF3F270E433F0054D9EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Tests/PubNubContractTest/PubNubContractTests-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "PubNubContractTests-Swift.h";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = PubNubContractTests;
+			};
+			name = Release;
+		};
+		79657AA9271A13F700BACEC5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Tests/PubNubContractTest/PubNubContractTests-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "PubNubContractTests-Swift.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = PubNubContractTestsBeta;
+			};
+			name = Debug;
+		};
+		79657AAA271A13F700BACEC5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = "";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PLATFORM_DIR)/Developer/Library/Frameworks",
+				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				OTHER_CFLAGS = "$(inherited)";
+				OTHER_LDFLAGS = "$(inherited)";
+				OTHER_SWIFT_FLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
+				SWIFT_OBJC_BRIDGING_HEADER = "Tests/PubNubContractTest/PubNubContractTests-Bridging-Header.h";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "PubNubContractTests-Swift.h";
+				SWIFT_VERSION = 5.0;
+				TARGET_NAME = PubNubContractTestsBeta;
 			};
 			name = Release;
 		};
@@ -2329,6 +2745,24 @@
 			buildConfigurations = (
 				359152A622BA9F380048842D /* Debug */,
 				359152A722BA9F380048842D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		7941EF3D270E433F0054D9EF /* Build configuration list for PBXNativeTarget "PubNubContractTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7941EF3E270E433F0054D9EF /* Debug */,
+				7941EF3F270E433F0054D9EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		79657AA8271A13F700BACEC5 /* Build configuration list for PBXNativeTarget "PubNubContractTestsBeta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				79657AA9271A13F700BACEC5 /* Debug */,
+				79657AAA271A13F700BACEC5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -290,6 +290,14 @@ extension HTTPRouter {
         var urlComponents = URLComponents()
         urlComponents.scheme = configuration.urlScheme
         urlComponents.host = configuration.origin
+        
+        if configuration.origin.contains(":") {
+          let originComponents = configuration.origin.components(separatedBy: ":")
+          urlComponents.host = originComponents.first
+          if let port = originComponents.last, let portNumber = Int(port) {
+            urlComponents.port = portNumber
+          }
+        }
 
         urlComponents.path = path
         // URL will double encode our attempts to sanitize '/' inside path inputs

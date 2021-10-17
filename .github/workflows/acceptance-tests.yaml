@@ -1,0 +1,43 @@
+name: Acceptance tests
+
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:
+  acceptance-tests: 
+    name: Run Acceptance tests
+    runs-on: macos-11
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Checkout mock-server action
+        uses: actions/checkout@v2
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: deployment-tools
+      - name: Run mock server action
+        uses: ./deployment-tools/actions/mock-server
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          features-path: Tests/Support Files/Features
+      - name: Preapre Xcode environment
+        run: |
+          brew install fastlane
+          pod install
+      - name: Run stable acceptance tests
+        run: |
+          fastlane contract_test --env contract
+          mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
+      - name: Run beta acceptance tests
+        run: |
+          fastlane contract_test --env contract-beta
+          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+      - name: Upload acceptance tests reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: acceptance-test-reports
+          path: Tests/Results/*.json
+          retention-days: 7

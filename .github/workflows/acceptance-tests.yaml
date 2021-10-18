@@ -22,7 +22,7 @@ jobs:
         uses: ./deployment-tools/actions/mock-server
         with:
           token: ${{ secrets.GH_TOKEN }}
-          features-path: Tests/Support Files/Features
+          features-path: Tests/PubNubContractTest/Features/
       - name: Preapre Xcode environment
         run: |
           brew install fastlane

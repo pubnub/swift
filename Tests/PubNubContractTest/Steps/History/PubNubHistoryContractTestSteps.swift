@@ -66,12 +66,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
         return
       }
 
-      do {
-//        let (_, next) = try result.get()
-        XCTAssertNotNil(result.next)
-      } catch {
-        XCTAssert(false, "Last API call shouldn't fail.")
-      }
+      XCTAssertNotNil(result.next)
     }
     
     When("I fetch message history with message actions") { _, _ in

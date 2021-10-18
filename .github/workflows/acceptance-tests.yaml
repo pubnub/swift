@@ -33,7 +33,7 @@ jobs:
           mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
-          fastlane contract_test --env contract-beta
+          fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
           mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
       - name: Upload acceptance tests reports
         uses: actions/upload-artifact@v2

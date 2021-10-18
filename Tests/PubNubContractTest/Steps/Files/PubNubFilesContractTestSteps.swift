@@ -88,7 +88,7 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
     When("I download file") { _, _ in
       let downloadFileExpect = self.expectation(description: "Download file Response")
       
-      let file = PubNubFileBase(channel: "test", fileId: "identifier", filename: "name", size: 100, contentType: nil)
+      let file = PubNubFileBase(channel: "test", fileId: "identifier", filename: "name.txt", size: 258, contentType: nil)
       self.client.download(file: file, toFileURL: Bundle.main.bundleURL) { result in
         switch result {
         case let .success((task, file)):

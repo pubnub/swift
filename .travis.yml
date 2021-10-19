@@ -8,7 +8,8 @@ cache:
   - .build # Swift Package Manager
   - /Users/travis/.rvm/ # RVM
 before_install:
-  - gem install -v 2.1.4 bundler
+  - gem install bundler:2.1.4
+  - bundle update --bundler
 stages:
   - name: "Unit Tests"
     if: type = push

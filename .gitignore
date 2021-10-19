@@ -1,6 +1,10 @@
 ## macOS
 .DS_Store
 
+
+## Ruby
+Gemfile.lock
+
 ## Build generated
 build/
 DerivedData/

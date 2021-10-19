@@ -1,6 +1,7 @@
 language: objective-c
 osx_image: xcode12
 os: osx
+rvm: 2.7.2
 
 cache:
   bundler: true
@@ -9,11 +10,15 @@ cache:
   - .build # Swift Package Manager
   - /Users/travis/.rvm/ # RVM
 
+before_install:
+  - gem install bundler:2.1.4
+
 stages:
   - name: "Unit Tests"
     if: type = push
   - name: Validate
     if: type = pull_request
+
 jobs:
   include:
     - stage: Validate
@@ -32,6 +37,7 @@ jobs:
     - name: tvOS
       before_script: xcrun simctl list -j
       script: bundle exec fastlane test --env tvos
+
 before_cache:
   - rvm cleanup all
   - bundle clean

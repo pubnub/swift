@@ -11,6 +11,7 @@ cache:
   - /Users/travis/.rvm/ # RVM
 
 before_install:
+  - sudo gem update --system
   - gem query --local
 
 stages:

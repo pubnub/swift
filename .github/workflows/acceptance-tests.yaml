@@ -39,15 +39,15 @@ jobs:
           features-path: Tests/PubNubContractTest/Features/
       - name: Preapre Xcode environment
         run: |
-          brew install fastlane
+          bundle install --jobs=3 --retry=3
           pod install
       - name: Run stable acceptance tests
         run: |
-          fastlane contract_test --env contract
+          bundle exec fastlane contract_test --env contract
           mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
-          fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
+          bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
           mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
       - name: Upload acceptance tests reports
         uses: actions/upload-artifact@v2

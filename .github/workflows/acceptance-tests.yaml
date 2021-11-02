@@ -53,5 +53,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: acceptance-test-reports
-          path: Tests/Results/*.json
+          path: Results/*.json
           retention-days: 7

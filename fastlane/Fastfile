@@ -23,6 +23,7 @@ before_all do |lane, opts|
   setup_travis if ENV["TRAVIS_CI"]
   
   ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120"
+  ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
   ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "10"
 end
 
@@ -44,6 +45,15 @@ lane :test do
       )
     end
   end
+end
+
+desc "Executes Acceptance Tests"
+lane :contract_test do
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_SDK'],
+    device: ENV["DEVICE"]
+  )
 end
 
 desc "Generates Code Coverage Files"

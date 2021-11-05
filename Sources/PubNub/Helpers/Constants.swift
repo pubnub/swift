@@ -62,7 +62,7 @@ public struct Constant {
   }()
 
   static let pubnubSwiftSDKVersion: String = {
-    "4.1.0"
+    "4.1.1"
   }()
 
   static let appBundleId: String = {

@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.1.0"
+version: "4.1.1"
 schema: 1
 changelog:
+  - date: 2021-11-05
+    version: 4.1.1
+    changes:
+      - type: bug
+        text: "Fix issue because of which request with applied mutators not used."
   - date: 2021-09-16
     version: 4.1.0
     changes:
@@ -419,7 +424,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

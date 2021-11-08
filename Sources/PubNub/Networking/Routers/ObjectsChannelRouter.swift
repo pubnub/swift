@@ -52,7 +52,7 @@ struct ObjectsChannelRouter: HTTPRouter {
 
   // Custom request body object for .set endpoint
   struct SetChannelMetadataRequestBody: JSONCodable {
-    var name: String
+    var name: String?
     var description: String?
     var custom: [String: JSONCodableScalarType]?
   }
@@ -156,8 +156,7 @@ struct ObjectsChannelRouter: HTTPRouter {
       return isInvalidForReason((metadataId.isEmpty, ErrorDescription.emptyChannelMetadataId))
     case let .set(metadata, _):
       return isInvalidForReason(
-        (metadata.metadataId.isEmpty && metadata.name.isEmpty,
-         ErrorDescription.invalidChannelMetadata))
+        (metadata.metadataId.isEmpty, ErrorDescription.invalidChannelMetadata))
     case let .remove(metadataId):
       return isInvalidForReason((metadataId.isEmpty, ErrorDescription.emptyChannelMetadataId))
     }

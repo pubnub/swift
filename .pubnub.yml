@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.1.1"
+version: "4.1.2"
 schema: 1
 changelog:
+  - date: 2021-11-08
+    version: 4.1.2
+    changes:
+      - type: bug
+        text: "Make `name` field optional for channel and UUID metadata."
   - date: 2021-11-05
     version: 4.1.1
     changes:
@@ -424,7 +429,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

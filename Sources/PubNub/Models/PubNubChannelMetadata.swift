@@ -34,7 +34,7 @@ public protocol PubNubChannelMetadata {
   /// The unique identifier of the Channel
   var metadataId: String { get }
   /// The name of the Channel
-  var name: String { get set }
+  var name: String? { get set }
   /// Text describing the purpose of the channel
   var channelDescription: String? { get set }
   /// The last updated timestamp for the object
@@ -75,7 +75,7 @@ extension PubNubChannelMetadata {
 /// The default implementation of the `PubNubChannelMetadata` protocol
 public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
   public let metadataId: String
-  public var name: String
+  public var name: String?
   public var channelDescription: String?
 
   public var updated: Date?
@@ -89,7 +89,7 @@ public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
 
   public init(
     metadataId: String = UUID().uuidString,
-    name: String,
+    name: String? = nil,
     channelDescription: String? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
     updated: Date? = nil,

@@ -52,7 +52,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
 
   // Custom request body object for .set endpoint
   struct SetUUIDMetadataRequestBody: JSONCodable {
-    var name: String
+    var name: String?
     var externalId: String?
     var profileURL: String?
     var email: String?
@@ -167,7 +167,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
       return isInvalidForReason((metadataId.isEmpty, ErrorDescription.emptyUUIDMetadataId))
     case let .set(metadata, _):
       return isInvalidForReason(
-        (metadata.metadataId.isEmpty && metadata.name.isEmpty, ErrorDescription.invalidUUIDMetadata))
+        (metadata.metadataId.isEmpty, ErrorDescription.invalidUUIDMetadata))
     case let .remove(metadataId):
       return isInvalidForReason((metadataId.isEmpty, ErrorDescription.emptyUUIDMetadataId))
     }

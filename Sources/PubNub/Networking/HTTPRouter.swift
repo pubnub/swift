@@ -41,10 +41,14 @@ public protocol RouterConfiguration {
   var origin: String { get }
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   var authKey: String? { get }
+  /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
+  var authToken: String? { get }
   /// If set, all communication will be encrypted with this key
   var cipherKey: Crypto? { get }
   /// Whether a request identifier should be included on outgoing requests
   var useRequestId: Bool { get }
+  /// Ordered list of key-value pairs which identify various consumers.
+  var consumerIdentifiers: [String: String] { get }
 }
 
 extension RouterConfiguration {
@@ -205,12 +209,20 @@ extension HTTPRouter {
   }
 
   var defaultQueryItems: [URLQueryItem] {
+    var pnSDKURLQueryItem = Constant.pnSDKURLQueryItem
+    
+    if !configuration.consumerIdentifiers.isEmpty, let pnsdk = pnSDKURLQueryItem.value {
+      var identifiers = Array(configuration.consumerIdentifiers.values)
+      identifiers.insert(pnsdk, at: 0)
+      pnSDKURLQueryItem = URLQueryItem(name: pnSDKURLQueryItem.name, value: identifiers.joined(separator: " "))
+    }
+    
     var queryItems = [
-      Constant.pnSDKURLQueryItem,
+      pnSDKURLQueryItem,
       URLQueryItem(name: "uuid", value: configuration.uuid)
     ]
     // Add PAM key if needed
-    if pamVersion != .none, let authKey = configuration.authKey {
+    if pamVersion != .none, let authKey = configuration.authToken ?? configuration.authKey {
       queryItems.append(URLQueryItem(name: "auth", value: authKey))
     }
 
@@ -278,6 +290,14 @@ extension HTTPRouter {
         var urlComponents = URLComponents()
         urlComponents.scheme = configuration.urlScheme
         urlComponents.host = configuration.origin
+        
+        if configuration.origin.contains(":") {
+          let originComponents = configuration.origin.components(separatedBy: ":")
+          urlComponents.host = originComponents.first
+          if let port = originComponents.last, let portNumber = Int(port) {
+            urlComponents.port = portNumber
+          }
+        }
 
         urlComponents.path = path
         // URL will double encode our attempts to sanitize '/' inside path inputs

@@ -72,11 +72,13 @@ extension ObjectsMembershipsRouterTests {
     else {
       return XCTFail("Could not create mock url session")
     }
-
+    
     let firstChannel = PubNubChannelMetadataBase(
       metadataId: "FirstChannel", name: "First Channel",
       channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
     )
+    
+    let lastChannel = PubNubChannelMetadataBase(metadataId: "LastChannel")
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
       channel: firstChannel,
@@ -84,6 +86,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      channel: lastChannel,
       updated: lastDate, eTag: "LastETag"
     )
 
@@ -171,11 +174,12 @@ extension ObjectsMembershipsRouterTests {
     else {
       return XCTFail("Could not create mock url session")
     }
-
+    
     let firstChannel = PubNubChannelMetadataBase(
       metadataId: "FirstChannel", name: "First Channel",
       channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
     )
+    let lastChannel = PubNubChannelMetadataBase(metadataId: "LastChannel")
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
       channel: firstChannel,
@@ -183,6 +187,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      channel: lastChannel,
       updated: lastDate, eTag: "LastETag"
     )
 
@@ -218,6 +223,7 @@ extension ObjectsMembershipsRouterTests {
       metadataId: "FirstChannel", name: "First Channel",
       channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
     )
+    let lastChannel = PubNubChannelMetadataBase(metadataId: "LastChannel")
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
       channel: firstChannel,
@@ -225,6 +231,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: "LastChannel",
+      channel: lastChannel,
       updated: lastDate, eTag: "LastETag"
     )
 
@@ -286,6 +293,7 @@ extension ObjectsMembershipsRouterTests {
     let firstUUID = PubNubUUIDMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
+    let lastUUID = PubNubUUIDMetadataBase(metadataId: "LastUser")
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
@@ -294,6 +302,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )
@@ -305,6 +314,10 @@ extension ObjectsMembershipsRouterTests {
       ) { result in
         switch result {
         case let .success((memberships, nextPage)):
+          let membs1: [PubNubMembershipMetadataBase] = memberships.compactMap { try? $0.transcode() }
+          let membs2 = [firstMembership, lastMembership]
+          print("MEMBS 1: \(membs1)")
+          print("MEMBS 2: \(membs2)")
           XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
           XCTAssertEqual(try? nextPage?.transcode(), page)
         case let .failure(error):
@@ -381,10 +394,11 @@ extension ObjectsMembershipsRouterTests {
     else {
       return XCTFail("Could not create mock url session")
     }
-
+    
     let firstUUID = PubNubUUIDMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
+    let lastUUID = PubNubUUIDMetadataBase(metadataId: "LastUser")
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
@@ -393,6 +407,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )
@@ -428,6 +443,7 @@ extension ObjectsMembershipsRouterTests {
     let firstUUID = PubNubUUIDMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
+    let lastUUID = PubNubUUIDMetadataBase(metadataId: "LastUser")
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
@@ -436,6 +452,7 @@ extension ObjectsMembershipsRouterTests {
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )

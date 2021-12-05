@@ -451,9 +451,11 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-
+    
+    let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
+    let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(
-      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID", custom: ["something": true],
+      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID", uuid: uuid, channel: channel, custom: ["something": true],
       updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
     )
 
@@ -514,9 +516,11 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-
+    
+    let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
+    let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(
-      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
+      uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID", uuid: uuid, channel: channel,
       updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
     )
 

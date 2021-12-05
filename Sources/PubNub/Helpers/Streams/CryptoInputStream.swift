@@ -34,24 +34,26 @@ public class CryptoInputStream: InputStream {
   /// Estimated size of the final crypted output
   public var estimatedCryptoCount: Int = 0
 
+  // Stream with data which should be passed through cryptor.
   private var cipherStream: InputStream
-  private var rawContentLength: Int
+  private var rawDataBufferRead: Int = -1
+  private var rawDataBuffer: [UInt8]?
+  private var rawDataLength: Int
+  private var rawDataRead: Int = 0
 
   private var cryptoStream: CryptoStream?
   private var operation: Crypto.Operation
   private var crypto: Crypto
-
-  private var ivStream: InputStream?
-
+  
+  // Buffer for data which has been encrypted / decrypted from cipher stream.
+  private var cryptedBuffer: [UInt8]?
+  private var cryptedBufferRead: Int = -1
+  private var cryptedDataLength: Int = -1
+  private var cryptedDataFinalysed: Bool = false
   private var cryptedBytes: Int = 0
   private var totalCrypted: Int = 0
 
-  // Crypto Finalize Buffer Management
-  private var finalBufferOverlow: [UInt8] = []
-  private var finalBufferBytesRemaining = 0
-  private var currentFinalBufferIndex = 0
-
-  // Super helperss
+  // Super helpers
   private weak var _delegate: StreamDelegate?
   private var _streamStatus: Stream.Status = .notOpen
   private var _streamError: Error?
@@ -62,11 +64,11 @@ public class CryptoInputStream: InputStream {
     // We should always be using a random IV
     self.crypto.randomizeIV = true
 
-    rawContentLength = contentLength
+    rawDataLength = contentLength - (operation == .decrypt ? crypto.cipher.blockSize : 0)
     // The estimated content length is the IV length plus the crypted length
-    estimatedCryptoCount = crypto.cipher.blockSize + crypto.cipher.outputSize(from: rawContentLength)
+    estimatedCryptoCount = crypto.cipher.blockSize + crypto.cipher.outputSize(from: rawDataLength)
     cipherStream = input
-
+    
     // required because `init()` is not marked as a designated initializer
     super.init(data: Data())
   }
@@ -90,170 +92,169 @@ public class CryptoInputStream: InputStream {
   }
 
   deinit {
-    ivStream?.close()
-    cipherStream.close()
+    close()
+  }
+  
+  private var remainingRawBufferLength: Int {
+    guard let buffer = rawDataBuffer else {
+      return 0
+    }
+    
+    return rawDataBufferRead >= 0 ? buffer.count - rawDataBufferRead : 0
+  }
+  
+  private var remainingCryptedBufferLength: Int {
+    guard let buffer = cryptedBuffer else {
+      return 0
+    }
+    
+    return cryptedBufferRead >= 0 ? buffer.count - cryptedBufferRead : 0
   }
 
   // MARK: - Helpers
-
-  func readInitializationVectorBuffer(
-    _ buffer: UnsafeMutablePointer<UInt8>,
-    maxLength: Int,
-    inputStream: InputStream
-  ) -> Int {
-    var totalNumberOfBytesRead = 0
-
-    while totalNumberOfBytesRead < maxLength {
-      let remainingLength = maxLength - totalNumberOfBytesRead
-
-      if inputStream.streamStatus != .open {
-        inputStream.open()
-      }
-
-      // If the IV Stream has nothing more available then we move on
-      if !inputStream.hasBytesAvailable {
-        continue
-      }
-
-      // Read from the IV stream to prepend this to the encrypted payload
-      switch inputStream.read(&buffer[totalNumberOfBytesRead], maxLength: remainingLength) {
-      case let bytesRead where bytesRead < 0:
-        // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
-        _streamStatus = .error
-        _streamError = inputStream.streamError
-        return bytesRead
-
-      case let bytesRead where bytesRead > 0:
-        // A positive number indicates the number of bytes read.
-        totalNumberOfBytesRead += bytesRead
-
-      default:
-        // 0 represents end of the current buffer
-        continue
-      }
+  
+  private func fillRawDataBuffer(with bytes: Int) {
+    guard _streamStatus == .open && cipherStream.streamStatus == .open else {
+      return
     }
-
-    return totalNumberOfBytesRead
-  }
-
-  func write(
-    _ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int, inputBuffer: [UInt8],
-    inputBufferRemaining: inout Int, inputBufferCurrent: inout Int
-  ) -> Int {
-    // If the final buffer is larger than the ouput buffer
-    if finalBufferBytesRemaining > maxLength {
-      // Assign from the overflow buffer up to the max length
-      inputBuffer[inputBufferCurrent...].withUnsafeBufferPointer {
-        guard let baseAddress = $0.baseAddress else { return }
-        buffer.assign(from: baseAddress, count: maxLength)
-      }
-
-      // Update the remaining final buffer
-      inputBufferCurrent += maxLength
-      inputBufferRemaining -= maxLength
-
-      // Return the number of bytes written to the output buffer
-      return maxLength
-    } else {
-      // Assign from the overflow buffer up to the remaining length
-      inputBuffer[inputBufferCurrent...].withUnsafeBufferPointer {
-        guard let baseAddress = $0.baseAddress else { return }
-        buffer.assign(from: baseAddress, count: inputBufferRemaining)
-      }
-
-      // Cache the final bytes written to return
-      let bytesWritten = inputBufferRemaining
-
-      // Set the final buffer value to 0 to ensure that we're not doing any additional assignments
-      inputBufferRemaining = 0
-
-      // Return the number of bytes written to the output buffer
-      return bytesWritten
+    
+    var readBuffer = [UInt8](repeating: 0, count: bytes)
+    var previousRawDataBuffer: [UInt8]?
+    
+    if let buffer = rawDataBuffer, remainingRawBufferLength > 0 {
+      previousRawDataBuffer = Array(buffer[rawDataBufferRead...])
     }
-  }
-
-  // Returns- The number of bytes written to output
-  func finalizeCryptedBuffer(
-    _ buffer: UnsafeMutablePointer<UInt8>,
-    maxLength: Int,
-    cryptoStream: CryptoStream
-  ) -> Int {
-    // We have remaining bytes, so we should read from here
-    if !finalBufferOverlow.isEmpty {
-      // Write to buffer from the stored overflow buffer
-      return write(
-        buffer, maxLength: maxLength,
-        inputBuffer: finalBufferOverlow,
-        inputBufferRemaining: &finalBufferBytesRemaining,
-        inputBufferCurrent: &currentFinalBufferIndex
-      )
-    } else {
-      // Determine the output length of the final crypto block
-      let finalBufferLength = cryptoStream.getOutputLength()
-
-      // Return early if there is no more crypted bytes to write
-      if finalBufferLength == 0 {
-        return finalBufferLength
-      }
-
-      // The amount of bytes written from the `final` step
-      var finalCryptedBytes = 0
-
-      // If the final cyrpted buffer is larger than maxLength
-      // we will write the final crypted buffer to a temporary buffer
-      // and then continue reading from that until it's empty
-      if finalBufferLength > maxLength {
-        // Set the final buffer to equal the length of bytes remaining
-        finalBufferOverlow = [UInt8](repeating: 0, count: finalBufferLength)
-
-        do {
-          // Write the final cyrpted bytes to the overflow buffer
-          try cryptoStream.final(
-            &finalBufferOverlow,
-            maxLength: finalBufferLength,
-            cryptedBytes: &finalCryptedBytes
-          )
-        } catch {
-          _streamError = error
-          _streamStatus = .error
-          return -1
-        }
-
-        // Set the initial final buffer count to be the amount of bytes written
-        finalBufferBytesRemaining = finalBufferOverlow.count
-
-        // Write to buffer from the stored overflow buffer
-        return write(
-          buffer, maxLength: maxLength,
-          inputBuffer: finalBufferOverlow,
-          inputBufferRemaining: &finalBufferBytesRemaining,
-          inputBufferCurrent: &currentFinalBufferIndex
-        )
+    
+    rawDataBufferRead = -1
+    
+    switch cipherStream.read(&readBuffer, maxLength: bytes) {
+    case let bytesRead where bytesRead < 0:
+      _streamError = cipherStream.streamError
+      _streamStatus = .error
+    case let bytesRead where bytesRead >= 0:
+      rawDataBufferRead = 0
+      rawDataRead += bytesRead
+      
+      if let previousBuffer = previousRawDataBuffer, !previousBuffer.isEmpty {
+        rawDataBuffer = previousBuffer + readBuffer[..<bytesRead]
       } else {
-        // We can write directly to the output buffer as there is space available
-        do {
-          // There might be some reamining bytes in the crypto buffer that we need to process
-          try cryptoStream.final(
-            buffer,
-            maxLength: maxLength,
-            cryptedBytes: &finalCryptedBytes
-          )
-        } catch {
-          _streamError = error
-          _streamStatus = .error
-          return -1
-        }
-
-        // This might not be an error if the plaintext content length equals the cipher block size
-        // Otherwise something when wrong, but it's unclear what
-        if finalCryptedBytes == 0 && (rawContentLength % crypto.cipher.blockSize) != 0 {
-          PubNub.log.warn("The final crypto step failed to write data when it's possible it should have")
-        }
-
-        // Return the number of bytes written to the output buffer
-        return finalCryptedBytes
+        rawDataBuffer = Array(readBuffer[..<bytesRead])
       }
+    default:
+      break
     }
+  }
+  
+  private func fillCryptedDataBuffer() {
+    guard let readBuffer = rawDataBuffer else { return }
+    if _streamStatus == .error || _streamStatus == .closed || cryptedDataFinalysed {
+      return
+    }
+    
+    let finalyse = rawDataLength == rawDataRead
+    let readBufferSize = remainingRawBufferLength
+    let cryptorBufferSize = cryptoStream?.getOutputLength(inputLength: readBufferSize, isFinal: finalyse) ?? 0
+    let bytesToRead = finalyse ? readBufferSize : min(readBufferSize, cryptorBufferSize)
+    var previousCryptedDataBuffer: [UInt8]?
+    
+    if remainingCryptedBufferLength > 0, let buffer = cryptedBuffer {
+      previousCryptedDataBuffer = Array(buffer[cryptedBufferRead...])
+    }
+    
+    var writeBuffer = [UInt8](repeating: 0, count: cryptorBufferSize)
+    cryptedBufferRead = -1
+    var cryptedBytesLength = 0
+    
+    do {
+      try readBuffer.withUnsafeBytes {
+        if let baseAddress = $0.baseAddress {
+          try cryptoStream?.update(
+            bufferIn: baseAddress, byteCountIn: bytesToRead,
+            bufferOut: &writeBuffer, byteCapacityOut: cryptorBufferSize,
+            byteCountOut: &cryptedBytesLength
+          )
+        }
+      }
+    } catch {
+      _streamError = error
+      _streamStatus = .error
+      return
+    }
+    
+    if finalyse {
+      var finalBuffer = writeBuffer
+      let append = cryptedBytesLength > 0
+      
+      if append {
+        finalBuffer = [UInt8](repeating: 0, count: cryptorBufferSize)
+        writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
+      }
+      
+      do {
+        var finalCryptedBytesLength = 0
+        
+        // Write the final crypted bytes
+        try cryptoStream?.final(
+          &finalBuffer,
+          maxLength: cryptorBufferSize - cryptedBytesLength,
+          cryptedBytes: &finalCryptedBytesLength
+        )
+        
+        cryptedBytesLength += finalCryptedBytesLength
+        
+        if append {
+          writeBuffer += finalBuffer[..<finalCryptedBytesLength]
+        }
+      } catch {
+        _streamError = error
+        _streamStatus = .error
+        return
+      }
+    } else {
+      writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
+    }
+    
+    if let previousBuffer = previousCryptedDataBuffer, !previousBuffer.isEmpty {
+      cryptedBuffer = previousBuffer + writeBuffer
+    } else {
+      cryptedBuffer = writeBuffer
+    }
+    
+    cryptedBufferRead = 0
+    
+    if remainingRawBufferLength > bytesToRead {
+      rawDataBufferRead += bytesToRead
+    } else {
+      rawDataBufferRead = -1
+    }
+    
+    if finalyse {
+      cryptedDataFinalysed = true
+      rawDataBuffer = []
+    }
+  }
+  
+  private func readCryptedToBuffer(_ buffer: UnsafeMutablePointer<UInt8>, length: Int) -> Int {
+    if remainingCryptedBufferLength == 0 {
+      return 0
+    }
+    
+    guard let readBuffer = cryptedBuffer else { return -1 }
+    let bytesToRead = min(length, remainingCryptedBufferLength)
+    
+    // Assign from the overflow buffer up to the max length
+    readBuffer[cryptedBufferRead...].withUnsafeBufferPointer {
+      guard let baseAddress = $0.baseAddress else { return }
+      buffer.assign(from: baseAddress, count: bytesToRead)
+    }
+    
+    if remainingCryptedBufferLength > bytesToRead {
+      cryptedBufferRead += bytesToRead
+    } else {
+      cryptedBufferRead = -1
+    }
+    
+    return bytesToRead
   }
 
   func crypt(
@@ -263,82 +264,38 @@ public class CryptoInputStream: InputStream {
     readByteOffset: Int = 0,
     cryptoStream: CryptoStream
   ) -> Int {
-    var inputBuffer = [UInt8](repeating: 0, count: maxLength)
-    var totalNumberOfBytesRead = readByteOffset
-
-    while totalNumberOfBytesRead < maxLength {
-      let remainingLength = maxLength - totalNumberOfBytesRead
-
-      // Ensure that the plaintext stream is open
-      if inputStream.streamStatus != .open {
-        inputStream.open()
-      }
-
-      // We have reached the end of the underlying stream
-      if !inputStream.hasBytesAvailable {
-        // Write the final padded block
-        let bytesWritten = finalizeCryptedBuffer(
-          &outputBuffer[totalNumberOfBytesRead],
-          maxLength: remainingLength,
-          cryptoStream: cryptoStream
-        )
-
-        // Update the amount of bytes written this loop
-        totalNumberOfBytesRead += bytesWritten
-
-        // Close the stream only if we didn't fill the output buffer
-        if totalNumberOfBytesRead != maxLength {
-          close()
-        }
-
-        break
-      }
-
-      // Read up to the remaining buffer length from the underlying stream from the current pointer
-      switch inputStream.read(&inputBuffer[totalNumberOfBytesRead], maxLength: remainingLength) {
-      case let bytesRead where bytesRead < 0:
-        // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
-        _streamError = inputStream.streamError
-        _streamStatus = .error
-        return -1
-
-      case let bytesRead where bytesRead > 0:
-        // A positive number indicates the number of bytes read.
-
-        do {
-          // We need to get the raw buffer pointer from the start of the current bytes read
-          // then we can perfrom the crypter operation
-          try inputBuffer[totalNumberOfBytesRead...].withUnsafeBytes {
-            if let baseAddress = $0.baseAddress {
-              try cryptoStream.update(
-                bufferIn: baseAddress, byteCountIn: bytesRead,
-                bufferOut: &outputBuffer[totalNumberOfBytesRead], byteCapacityOut: remainingLength,
-                byteCountOut: &cryptedBytes
-              )
-            }
-          }
-        } catch {
-          _streamError = error
-          _streamStatus = .error
-          return -1
-        }
-
-        // A positive number indicates the number of bytes read.
-        totalNumberOfBytesRead += cryptedBytes
-
+    let rawBufferToRead = maxLength + crypto.cipher.blockSize - remainingCryptedBufferLength
+    var cryptedBytesToRead = maxLength
+    var bytesRead = 0
+    
+    if totalCrypted == 0 && remainingRawBufferLength > 0 {
+      cryptedBytesToRead -= remainingRawBufferLength
+    }
+    
+    fillRawDataBuffer(with: rawBufferToRead)
+    fillCryptedDataBuffer()
+    
+    if _streamStatus == .closed || _streamStatus == .error {
+      return _streamStatus == .error ? -1 : 0
+    }
+    
+    while cryptedBytesToRead > 0 && remainingCryptedBufferLength > 0 {
+      switch readCryptedToBuffer(outputBuffer, length: cryptedBytesToRead) {
+      case let cryptedBytesRead where cryptedBytesRead >= 0:
+        cryptedBytesToRead -= cryptedBytesRead
+        totalCrypted += cryptedBytesRead
+        bytesRead += cryptedBytesRead
       default:
-        // 0 represents end of the current buffer; We finalize the crypto process
-        continue
+        bytesRead = -1
       }
     }
-
-    return totalNumberOfBytesRead
+    
+    return _streamStatus == .error ? -1 : bytesRead
   }
+  
+  // MARK: - Encrypt
 
   func encrypt(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
-    // Temp variables
-    var totalNumberOfBytesRead = 0
-
     // Create Crypto if it does not exist
     let encryptStream: CryptoStream
     if let cryptoStream = self.cryptoStream {
@@ -347,23 +304,18 @@ public class CryptoInputStream: InputStream {
       // Init the Crypto Stream
       do {
         // Create a randomized buffer of data the length of the cipher block size
-        let initializationVectorBuffer = try Crypto.randomInitializationVector(byteCount: crypto.cipher.blockSize)
-        ivStream = InputStream(data: Data(bytes: initializationVectorBuffer, count: crypto.cipher.blockSize))
-
-        let bytesRead = readInitializationVectorBuffer(
-          buffer,
-          maxLength: crypto.cipher.blockSize,
-          inputStream: InputStream(data: Data(bytes: initializationVectorBuffer, count: crypto.cipher.blockSize))
-        )
-
-        // We need to add the bytes read to our total
-        totalNumberOfBytesRead += bytesRead
-
+        let ivBuffer = try Crypto.randomInitializationVector(byteCount: crypto.cipher.blockSize)
+        cryptedBuffer = ivBuffer
+        
+        cryptedBufferRead = 0
+        
         encryptStream = try CryptoStream(
           operation: operation, algorithm: crypto.cipher, options: Crypto.paddingLength,
           keyBuffer: crypto.key.map { $0 }, keyLength: crypto.key.count,
-          ivBuffer: initializationVectorBuffer
+          ivBuffer: ivBuffer
         )
+        
+        cryptedDataLength = encryptStream.getOutputLength(inputLength: rawDataLength, isFinal: true) + crypto.cipher.blockSize
       } catch {
         _streamError = error
         _streamStatus = .error
@@ -378,7 +330,7 @@ public class CryptoInputStream: InputStream {
       outputBuffer: buffer,
       maxLength: maxLength,
       inputStream: cipherStream,
-      readByteOffset: totalNumberOfBytesRead,
+      readByteOffset: 0,
       cryptoStream: encryptStream
     )
   }
@@ -393,12 +345,17 @@ public class CryptoInputStream: InputStream {
     } else {
       // Create a buffer to store the IV in that matches the cipher block size
       var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
-
-      _ = readInitializationVectorBuffer(
-        &initializationVectorBuffer,
-        maxLength: crypto.cipher.blockSize,
-        inputStream: cipherStream
-      )
+      
+      switch cipherStream.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) {
+      case let bytesRead where bytesRead < 0:
+        // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
+        _streamStatus = .error
+        _streamError = cipherStream.streamError
+        return bytesRead
+      default:
+        // 0 represents end of the current buffer
+        break
+      }
 
       // Init the Crypto Stream
       do {
@@ -425,7 +382,7 @@ public class CryptoInputStream: InputStream {
     )
   }
 
-  // MARK: Input Stream Subclass overrides
+  // MARK: - Input Stream Subclass overrides
 
   override public func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
     // If the stream is closed the end here
@@ -466,25 +423,35 @@ public class CryptoInputStream: InputStream {
   }
 
   override public func open() {
-    guard _streamStatus == .open else {
+    guard _streamStatus != .open else {
       return
     }
+    
     _streamStatus = .open
+    
+    if cipherStream.streamStatus == .notOpen {
+      cipherStream.open()
+    }
   }
 
   override public func close() {
-    ivStream?.close()
-    cipherStream.close()
-
-    _streamStatus = .closed
+    if _streamStatus != .error && _streamStatus != .closed {
+      _streamStatus = .closed
+    }
+    
+    if cipherStream.streamStatus != .error && cipherStream.streamStatus != .closed {
+      cipherStream.close()
+    }
+    
+    cryptedBuffer = nil
   }
 
-  override public func property(forKey _: Stream.PropertyKey) -> Any? {
-    return nil
+  override public func property(forKey key: Stream.PropertyKey) -> Any? {
+    return cipherStream.property(forKey: key)
   }
 
-  override public func setProperty(_: Any?, forKey _: Stream.PropertyKey) -> Bool {
-    return false
+  override public func setProperty(_ property: Any?, forKey key: Stream.PropertyKey) -> Bool {
+    return cipherStream.setProperty(property, forKey: key)
   }
 
   override public func schedule(in _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }

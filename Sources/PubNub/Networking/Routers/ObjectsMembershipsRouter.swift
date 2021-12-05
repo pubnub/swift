@@ -362,13 +362,9 @@ struct ObjectMetadataPartial: Codable {
     } else if let uuid = try? container.decodeIfPresent(PubNubUUIDMetadataBase.self, forKey: .uuid) {
       self.uuid = .init(metadataId: uuid.metadataId, metadataObject: uuid)
       channel = nil
-    } else if let nestedContainer = try? container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .channel) {
-      channel = .init(metadataId: try nestedContainer.decode(String.self, forKey: .id), metadataObject: nil)
-      uuid = nil
     } else {
-      let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .uuid)
-      uuid = .init(metadataId: try nestedContainer.decode(String.self, forKey: .id), metadataObject: nil)
       channel = nil
+      uuid = nil
     }
   }
 

@@ -1,0 +1,57 @@
+name: Acceptance tests
+
+on: 
+  push:
+  workflow_dispatch:
+
+jobs:
+  acceptance-tests: 
+    name: Run Acceptance tests
+    runs-on: macos-11
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Cache installed Pods
+        uses: actions/cache@v2
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+              ${{ runner.os }}-pods-
+      - name: Cache installed Gems
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+              ${{ runner.os }}-gem-
+      - name: Checkout mock-server action
+        uses: actions/checkout@v2
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: deployment-tools
+      - name: Run mock server action
+        uses: ./deployment-tools/actions/mock-server
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          features-path: Tests/PubNubContractTest/Features/
+      - name: Preapre Xcode environment
+        run: |
+          bundle install --jobs=3 --retry=3
+          pod install
+      - name: Run stable acceptance tests
+        run: |
+          bundle exec fastlane contract_test --env contract
+          mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
+      - name: Run beta acceptance tests
+        run: |
+          bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
+          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+      - name: Upload acceptance tests reports
+        uses: actions/upload-artifact@v2
+        with:
+          name: acceptance-test-reports
+          path: Results/*.json
+          retention-days: 7

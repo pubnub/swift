@@ -34,7 +34,7 @@ public protocol PubNubUUIDMetadata {
   /// The unique identifier of the UUID
   var metadataId: String { get }
   /// The name of the UUID
-  var name: String { get set }
+  var name: String? { get set }
   /// The external identifier for the object
   var externalId: String? { get set }
   /// The profile URL for the object
@@ -79,7 +79,7 @@ extension PubNubUUIDMetadata {
 /// The default implementation of the `PubNubUUIDMetadata` protocol
 public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   public let metadataId: String
-  public var name: String
+  public var name: String?
   public var externalId: String?
   public var profileURL: String?
   public var email: String?
@@ -94,7 +94,7 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
 
   public init(
     metadataId: String = UUID().uuidString,
-    name: String,
+    name: String? = nil,
     externalId: String? = nil,
     profileURL: String? = nil,
     email: String? = nil,

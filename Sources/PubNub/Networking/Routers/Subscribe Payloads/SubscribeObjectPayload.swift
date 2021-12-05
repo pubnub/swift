@@ -183,7 +183,7 @@ extension PubNubUUIDMetadataChangeset: Codable {
 
     var changes = [PubNubMetadataChange<PubNubUUIDMetadata>]()
     if let name = try container.decodeIfPresent(String.self, forKey: .name) {
-      changes.append(.string(\.name, name))
+      changes.append(.stringOptional(\.name, name))
     }
     if let externalId = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .externalId) {
       changes.append(.stringOptional(\.externalId, externalId.value))
@@ -267,7 +267,7 @@ extension PubNubChannelMetadataChangeset: Codable {
 
     var changes = [PubNubMetadataChange<PubNubChannelMetadata>]()
     if let name = try container.decodeIfPresent(String.self, forKey: .name) {
-      changes.append(.string(\.name, name))
+      changes.append(.stringOptional(\.name, name))
     }
     if let description = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .channelDescription) {
       changes.append(.stringOptional(\.channelDescription, description.value))

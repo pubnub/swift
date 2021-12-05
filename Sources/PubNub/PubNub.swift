@@ -32,13 +32,11 @@ public struct PubNub {
   /// Instance identifier
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
-  public let configuration: PubNubConfiguration
+  public private(set) var configuration: PubNubConfiguration
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
-  // PAM Token Manager
-  internal var tokenStore: PAMTokenManagementSystem
 
   /// The URLSession used when making File upload/download requests
   public var fileURLSession: URLSessionReplaceable
@@ -98,9 +96,7 @@ public struct PubNub {
       with: subscribeSession,
       presenceSession: session
     )
-
-    tokenStore = PAMTokenManagementSystem()
-
+    
     if let fileSession = fileSession {
       fileURLSession = fileSession
     } else {
@@ -163,7 +159,7 @@ extension PubNub {
 
   /// The identifier of the Push Service being used
   public enum PushService: String, Codable, Hashable {
-    /// Applee Push Notification Service
+    /// Apple Push Notification Service
     case apns
     /// Firebase Cloude Messaging
     case gcm
@@ -2034,42 +2030,30 @@ extension PubNub {
 // MARK: - PAM
 
 extension PubNub {
-  /// Perfoms a lookup and returns a token for the specified resource type and ID
-  /// - Parameters:
-  ///   - for: The resource ID for which the token is to be retrieved.
-  ///   - with: The resource type
-  /// - Returns: The assigned PAMToken if one exists; otherwise `nil`
-  ///
-  /// If no token is found for the supplied resource type and ID,
-  /// the TMS checks the resource stores in the following order: `User`, `Space`
-  public func getToken(for identifier: String, with type: PAMResourceType? = nil) -> PAMToken? {
-    return tokenStore.getToken(for: identifier, with: type)
+  /// Extract permissions from provided token,
+  /// - Parameter token: The token from which permissions should be extracted.
+  /// - Returns: PAMToken with permissions information.
+  public func parse(token: String) -> PAMToken? {
+    return PAMToken.token(from: token)
   }
 
-  /// Returns the token(s) for the specified resource type.
-  /// - Returns: A dictionary of resource identifiers mapped to their PAM token
-  public func getTokens(by type: PAMResourceType) -> PAMTokenStore {
-    return tokenStore.getTokens(by: type)
-  }
-
-  /// Returns a map of all tokens stored by the token management system
-  /// - Returns: A dictionary of resource types mapped to resource identifier/token pairs
-  public func getAllTokens() -> [PAMResourceType: PAMTokenStore] {
-    return tokenStore.getAllTokens()
-  }
-
-  /// Stores a single token in the Token Management System for use in API calls.
+  /// Stores token for use in API calls.
   /// - Parameter token: The token to add to the Token Management System.
   public mutating func set(token: String) {
-    tokenStore.set(token: token)
+    configuration.authToken = token
   }
-
-  /// Stores multiple tokens in the Token Management System for use in API calls.
-  /// - Parameters:
-  ///   - tokens: The list of tokens to add to the Token Management System.
-  public mutating func set(tokens: [String]) {
-    tokenStore.set(tokens: tokens)
-  }
-
-  // swiftlint:disable:next file_length
 }
+
+// MARK: - Consumer
+
+extension PubNub {
+  /// Set consumer identifying value for components usage.
+  /// - Parameters:
+  ///   - identifier: Identifier of consumer with which value will be associated.
+  ///   - value: Value which should be associated with consumer identifier.
+  public mutating func setConsumer(identifier: String, value: String) {
+    self.configuration.consumerIdentifiers[identifier] = value
+  }
+}
+
+// swiftlint:disable:next file_length

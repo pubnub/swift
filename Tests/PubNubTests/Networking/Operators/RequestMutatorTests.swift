@@ -30,7 +30,7 @@ import XCTest
 
 class RequestMutatorTests: XCTestCase {
   var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
 
   func testMultiplexOperation_Init() {
     let mutator = DefaultOperator()

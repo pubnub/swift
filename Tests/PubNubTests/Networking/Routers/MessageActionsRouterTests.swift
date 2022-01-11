@@ -29,7 +29,7 @@
 import XCTest
 
 final class MessageActionsRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
 }
 
 // MARK: - Fetch Message Actions Tests

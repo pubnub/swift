@@ -30,7 +30,7 @@ import XCTest
 
 class SessionStreamTests: XCTestCase {
   var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
 
   // swiftlint:disable:next function_body_length
   func testSessionStream_Closure() {

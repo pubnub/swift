@@ -30,7 +30,12 @@
 import XCTest
 
 final class HistoryRouterTests: XCTestCase {
-  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", authKey: "auth-key")
+  var config = PubNubConfiguration(
+    publishKey: "FakeTestString",
+    subscribeKey: "FakeTestString",
+    uuid: UUID().uuidString,
+    authKey: "auth-key"
+  )
 
   let testChannel = "TestChannel"
 

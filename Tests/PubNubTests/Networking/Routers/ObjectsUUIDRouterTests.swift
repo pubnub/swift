@@ -29,7 +29,7 @@
 import XCTest
 
 final class ObjectsUUIDRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
   let testUser = PubNubUUIDMetadataBase(name: "TestUser")
   let invalidUser = PubNubUUIDMetadataBase(name: "")
 }

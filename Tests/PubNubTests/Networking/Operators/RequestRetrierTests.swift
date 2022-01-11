@@ -31,7 +31,7 @@ import XCTest
 class RequestRetrierTests: XCTestCase {
   let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
   var retryCount = 0
-  let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey")
+  let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", uuid: UUID().uuidString)
 
   var expectations = [XCTestExpectation]()
 

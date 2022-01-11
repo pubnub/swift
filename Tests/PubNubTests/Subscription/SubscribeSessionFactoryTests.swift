@@ -30,7 +30,7 @@ import XCTest
 
 class SubscribeSessionFactoryTests: XCTestCase {
   func testLoggingSameInstance() {
-    let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey")
+    let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey", uuid: UUID().uuidString)
     let first = SubscribeSessionFactory.shared.getSession(from: config)
     let second = SubscribeSessionFactory.shared.getSession(from: config)
 
@@ -38,8 +38,8 @@ class SubscribeSessionFactoryTests: XCTestCase {
   }
 
   func testMutlipleInstances() {
-    let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey")
-    var newConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "OtherKey")
+    let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey", uuid: UUID().uuidString)
+    var newConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "OtherKey", uuid: UUID().uuidString)
     newConfig.authKey = "SomeNewKey"
 
     let first = SubscribeSessionFactory.shared.getSession(from: config)

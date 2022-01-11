@@ -40,20 +40,26 @@ public struct PubNubConfiguration: Hashable {
   /// - Parameters:
   ///   - from: `Bundle` that will provide the Info Dictionary containing the PubNub Pub/Sub keys.
   ///   - publishKeyAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the Publish Key Value
-  ///   - subscrbeKeyAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the Subscribe Key Value
+  ///   - subscribeKeyAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the Subscribe Key Value
+  ///   - uuidAt: The dictionary key used to search the Info Dictionary of the `Bundle` for the UUID value
   /// - Precondition: You must set a String value for the PubNub SubscribeKey
   public init(
     from bundle: Bundle = .main,
     publishKeyAt pubPlistKey: String = "PubNubPublishKey",
-    subscrbeKeyAt subPlistKey: String = "PubNubSubscribeKey"
+    subscribeKeyAt subPlistKey: String = "PubNubSubscribeKey",
+    uuidAt uuidPlistKey: String = "PubNubUuid"
   ) {
     guard let subscribeKey = bundle.infoDictionary?[subPlistKey] as? String else {
       preconditionFailure("The Subscribe Key was not found inside the plist file.")
     }
+    guard let uuid = bundle.infoDictionary?[uuidPlistKey] as? String else {
+      preconditionFailure("The uuid was not found inside the plist file.")
+    }
 
     self.init(
       publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
-      subscribeKey: subscribeKey
+      subscribeKey: subscribeKey,
+      uuid: uuid
     )
   }
 
@@ -69,10 +75,10 @@ public struct PubNubConfiguration: Hashable {
   public init(
     publishKey: String?,
     subscribeKey: String,
+    uuid: String,
     cipherKey: Crypto? = nil,
     authKey: String? = nil,
     authToken: String? = nil,
-    uuid: String? = nil,
     useSecureConnections: Bool = true,
     origin: String = "ps.pndsn.com",
     useInstanceId: Bool = false,
@@ -85,12 +91,17 @@ public struct PubNubConfiguration: Hashable {
     requestMessageCountThreshold: UInt = 100,
     filterExpression: String? = nil
   ) {
+    
+    guard uuid.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
+      preconditionFailure("UUID should not be empty.")
+    }
+    
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey
     self.cipherKey = cipherKey
     self.authKey = authKey
     self.authToken = authToken
-    self.uuid = uuid ?? UUID().pubnubString
+    self.uuid = uuid
     self.useSecureConnections = useSecureConnections
     self.origin = origin
     self.useInstanceId = useInstanceId

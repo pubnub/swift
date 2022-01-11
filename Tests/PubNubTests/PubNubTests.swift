@@ -31,7 +31,7 @@ import XCTest
 final class PubNubTests: XCTestCase {
   let testBundle = Bundle(for: PubNubTests.self)
   var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
 
   func testInit_CustomConfig() {
     let pubnub = PubNub(configuration: config)

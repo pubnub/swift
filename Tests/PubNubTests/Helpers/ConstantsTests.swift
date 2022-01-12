@@ -68,7 +68,7 @@ class ConstantsTests: XCTestCase {
   }
 
   func testAppVersion() {
-    XCTAssertNotEqual(Constant.appVersion, "?.?.?")
+    XCTAssertEqual(Constant.appVersion, "?.?.?")
   }
 
   func testDefaultUserAgent() {

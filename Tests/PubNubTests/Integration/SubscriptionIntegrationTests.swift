@@ -39,7 +39,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     let disconnectedExpect = expectation(description: "Disconnected Expectation")
 
     // Should return subscription key error
-    let configuration = PubNubConfiguration(publishKey: "", subscribeKey: "")
+    let configuration = PubNubConfiguration(publishKey: "", subscribeKey: "", uuid: UUID().uuidString)
     let pubnub = PubNub(configuration: configuration)
 
     let listener = SubscriptionListener()

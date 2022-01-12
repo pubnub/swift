@@ -29,7 +29,7 @@
 import XCTest
 
 final class SubscribeRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString")
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
   let testChannel = "TestChannel"
 
   let testAction = PubNubMessageActionBase(

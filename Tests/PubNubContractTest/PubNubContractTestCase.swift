@@ -43,6 +43,7 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _apiCallResults: [Any] = []
   fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                              subscribeKey: defaultSubscribeKey,
+                                                             uuid: UUID().uuidString, 
                                                              useSecureConnections: false,
                                                              origin: mockServerAddress,
                                                              supressLeaveEvents: true)
@@ -93,6 +94,7 @@ let defaultPublishKey = "demo-36"
   public func handleAfterHook() {
     self.currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                     subscribeKey: defaultSubscribeKey,
+                                                    uuid: UUID().uuidString, 
                                                     useSecureConnections: false,
                                                     origin: mockServerAddress,
                                                     supressLeaveEvents: true)

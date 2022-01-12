@@ -26,5 +26,7 @@
 	<string>demo</string>
 	<key>PubNubSubscribeKey</key>
 	<string>demo</string>
+	<key>PubNubUuid</key>
+	<string>test-uuid</string>
 </dict>
 </plist>

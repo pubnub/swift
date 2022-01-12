@@ -29,7 +29,12 @@
 import XCTest
 
 final class PublishRouterTests: XCTestCase {
-  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", authKey: "auth-key")
+  var config = PubNubConfiguration(
+    publishKey: "FakeTestString",
+    subscribeKey: "FakeTestString",
+    uuid: UUID().uuidString,
+    authKey: "auth-key"
+  )
 
   let testMessage: AnyJSON = "Test Message"
   let testChannel = "TestChannel"
@@ -162,7 +167,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey")
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey", uuid: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
@@ -186,7 +191,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "")
+    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "", uuid: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
@@ -210,7 +215,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "")
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "", uuid: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in

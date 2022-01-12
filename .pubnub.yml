@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "4.1.2"
+version: "5.0.0"
 schema: 1
 changelog:
+  - date: 2022-01-12
+    version: 5.0.0
+    changes:
+      - type: improvement
+        text: "BREAKING CHANGES: Disable automated `uuid` generation and make it mandatory to specify during PubNubConfiguration instance creation."
   - date: 2021-11-08
     version: 4.1.2
     changes:
@@ -429,7 +434,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/4.1.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/5.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

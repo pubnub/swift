@@ -2041,6 +2041,7 @@ extension PubNub {
   /// - Parameter token: The token to add to the Token Management System.
   public mutating func set(token: String) {
     configuration.authToken = token
+    subscription.configuration.authToken = token
   }
 }
 

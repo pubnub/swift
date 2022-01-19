@@ -113,6 +113,8 @@ public protocol SubscriptionConfiguration: RouterConfiguration {
   var requestMessageCountThreshold: UInt { get }
   /// PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? { get }
+  /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
+  override var authToken: String? { get set }
 }
 
 extension SubscriptionConfiguration {

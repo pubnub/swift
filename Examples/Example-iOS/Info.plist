@@ -6,6 +6,8 @@
 	<string>demo</string>
 	<key>PubNubSubscribeKey</key>
 	<string>demo</string>
+	<key>PubNubUuid</key>
+	<string>demo-user</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

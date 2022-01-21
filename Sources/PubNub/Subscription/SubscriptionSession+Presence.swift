@@ -111,3 +111,57 @@ extension SubscriptionSession {
       }
   }
 }
+
+// Presence utility functions
+extension SubscriptionSession {
+  // MARK: - Utility
+  
+  func iAmHere(
+    on channels: [String],
+    and groups: [String],
+    completion: @escaping (Result<Bool, Error>) -> Void
+  ) -> RequestReplaceable {
+    // Perform Heartbeat
+    let router = PresenceRouter(
+      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.durationUntilTimeout),
+      configuration: configuration
+    )
+    
+    let request = nonSubscribeSession
+      .request(with: router, requestOperator: configuration.automaticRetry)
+      .validate()
+    
+    request.response(on: .main, decoder: GenericServiceResponseDecoder()) { result in
+      switch result {
+      case .success:
+        completion(.success(true))
+      case let .failure(error):
+        completion(.failure(error))
+      }
+    }
+    
+    return request
+  }
+  
+  func iAmAway(
+    on channels: [String],
+    and groups: [String],
+    completion: @escaping (Result<Bool, Error>) -> Void
+  ) -> RequestReplaceable {
+    let router = PresenceRouter(.leave(channels: channels, groups: groups), configuration: configuration)
+    let request = nonSubscribeSession
+      .request(with: router, requestOperator: configuration.automaticRetry)
+      .validate()
+
+    request.response(on: .main, decoder: GenericServiceResponseDecoder()) { result in
+      switch result {
+      case .success:
+        completion(.success(true))
+      case let .failure(error):
+        completion(.failure(error))
+      }
+    }
+    
+    return request
+  }
+}

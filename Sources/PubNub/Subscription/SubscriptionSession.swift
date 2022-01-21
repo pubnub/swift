@@ -33,7 +33,7 @@ public class SubscriptionSession {
 
   public let uuid = UUID()
   let longPollingSession: SessionReplaceable
-  internal(set) var configuration: SubscriptionConfiguration
+  var configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
   /// PSV2 feature to subscribe with a custom filter expression.
@@ -456,6 +456,47 @@ public class SubscriptionSession {
     } else {
       reconnect(at: previousTokenResponse)
     }
+  }
+}
+
+// Subscribe utility functions
+extension SubscriptionSession {
+  // MARK: - Utility
+  
+  func handshake(
+    to channels: [String],
+    and groups: [String] = [],
+    completion: @escaping (Result<EndpointResponse<SubscribeDecoder.Payload>, Error>) -> Void
+  ) -> RequestReplaceable {
+    return receiveMessages(to: channels, and: groups, at: nil, completion: completion)
+  }
+  
+  func receiveMessages(
+    to channels: [String],
+    and groups: [String] = [],
+    at cursor: SubscribeCursor? = nil,
+    completion: @escaping (Result<EndpointResponse<SubscribeDecoder.Payload>, Error>) -> Void
+  ) -> RequestReplaceable {
+    // Create endpoint
+    let router = SubscribeRouter(.subscribe(channels: channels, groups: groups,
+                                            timetoken: cursor?.timetoken, region: cursor?.region,
+                                            heartbeat: configuration.durationUntilTimeout,
+                                            filter: filterExpression),
+                                 configuration: configuration)
+    let subscribeRequest = longPollingSession
+      .request(with: router, requestOperator: configuration.automaticRetry)
+      .validate()
+    
+    subscribeRequest.response(on: .main, decoder: SubscribeDecoder()) { result in
+      switch result {
+      case let .success(response):
+        completion(.success(response))
+      case let .failure(error):
+        completion(.failure(error))
+      }
+    }
+    
+    return subscribeRequest
   }
 }
 

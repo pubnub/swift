@@ -479,14 +479,14 @@ extension SubscriptionSession {
   ) -> RequestReplaceable {
     // Create endpoint
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups,
-                                            timetoken: cursor?.timetoken, region: cursor?.region,
+                                            timetoken: cursor?.timetoken, region: cursor?.region.description,
                                             heartbeat: configuration.durationUntilTimeout,
                                             filter: filterExpression),
                                  configuration: configuration)
     let subscribeRequest = longPollingSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
-    
+
     subscribeRequest.response(on: .main, decoder: SubscribeDecoder()) { result in
       switch result {
       case let .success(response):
@@ -495,7 +495,7 @@ extension SubscriptionSession {
         completion(.failure(error))
       }
     }
-    
+
     return subscribeRequest
   }
 }

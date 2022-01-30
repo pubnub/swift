@@ -33,7 +33,7 @@ public class SubscriptionSession {
 
   public let uuid = UUID()
   let longPollingSession: SessionReplaceable
-  internal(set) var configuration: SubscriptionConfiguration
+  var configuration: SubscriptionConfiguration
   let sessionStream: SessionListener
 
   /// PSV2 feature to subscribe with a custom filter expression.

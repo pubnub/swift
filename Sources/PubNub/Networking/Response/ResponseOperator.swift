@@ -95,7 +95,9 @@ extension ResponseDecoder {
 
     return PubNubError(reason: generalErrorPayload?.pubnubReason,
                        router: router, request: request, response: response,
-                       additional: generalErrorPayload?.details)
+                       additional: generalErrorPayload?.details,
+                       affectedChannels: generalErrorPayload?.affectedChannels,
+                       affectedChannelGroups: generalErrorPayload?.affectedChannelGroups)
   }
 }
 

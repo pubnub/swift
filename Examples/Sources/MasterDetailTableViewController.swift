@@ -308,6 +308,16 @@ class MasterDetailTableViewController: UITableViewController {
           print("A file was uplaoded \(file)")
         case let .subscribeError(error):
           print("The following error was generated during subscription \(error.localizedDescription)")
+          error.affected.forEach {
+            switch $0 {
+            case let .channels(affectedChannels):
+              print("Affected channels: \(affectedChannels)")
+            case let .channelGroups(affectedChannelGroups):
+              print("Affected channel groups: \(affectedChannelGroups)")
+            default:
+              break
+            }
+          }
           print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
         }
       }

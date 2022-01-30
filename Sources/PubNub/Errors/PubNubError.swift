@@ -66,6 +66,8 @@ public struct PubNubError: Error {
     case response(HTTPURLResponse)
     case json(AnyJSON)
     case subscribe(SubscribeCursor)
+    case channels([String])
+    case channelGroups([String])
   }
 
   /// The PubNubError specific Domain that groups together the different Reasons
@@ -255,7 +257,9 @@ public struct PubNubError: Error {
     router: HTTPRouter?,
     request: URLRequest?,
     response: HTTPURLResponse?,
-    additional details: [ErrorDetail]? = nil
+    additional details: [ErrorDetail]? = nil,
+    affectedChannels channels: [String]? = nil,
+    affectedChannelGroups channelGroups: [String]? = nil
   ) {
     var reasonOrResponse = reason
 
@@ -267,6 +271,12 @@ public struct PubNubError: Error {
     if let response = response {
       reasonOrResponse = reasonOrResponse ?? Reason(rawValue: response.statusCode)
       affectedValues.append(.response(response))
+    }
+    if let channels = channels {
+      affectedValues.append(.channels(channels))
+    }
+    if let channelGroups = channelGroups {
+      affectedValues.append(.channelGroups(channelGroups))
     }
 
     self.init(reasonOrResponse ?? .unrecognizedStatusCode,

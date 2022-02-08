@@ -225,6 +225,8 @@ struct GenericServicePayloadResponse: Codable, Hashable {
   let status: Int
   let error: Bool
   let channels: [String: [String]]
+  let affectedChannels: [String]?
+  let affectedChannelGroups: [String]?
 
   init(
     message: EndpointResponseMessage? = nil,
@@ -232,7 +234,9 @@ struct GenericServicePayloadResponse: Codable, Hashable {
     service: String? = nil,
     status: Int? = nil,
     error: Bool = false,
-    channels: [String: [String]] = [:]
+    channels: [String: [String]] = [:],
+    affectedChannels: [String]? = nil,
+    affectedChannelGroups: [String]? = nil
   ) {
     if !error, HTTPURLResponse.successfulStatusCodes.contains(status ?? 0) {
       self.message = .acknowledge
@@ -245,6 +249,8 @@ struct GenericServicePayloadResponse: Codable, Hashable {
     self.status = status ?? -1
     self.error = error
     self.channels = channels
+    self.affectedChannels = affectedChannels
+    self.affectedChannelGroups = affectedChannelGroups
   }
 
   enum CodingKeys: String, CodingKey {
@@ -254,6 +260,7 @@ struct GenericServicePayloadResponse: Codable, Hashable {
     case status
     case error
     case channels
+    case payload
   }
 
   init(from decoder: Decoder) throws {
@@ -289,13 +296,18 @@ struct GenericServicePayloadResponse: Codable, Hashable {
 
     let status = try container.decodeIfPresent(Int.self, forKey: .status)
     let channels = try container.decodeIfPresent([String: [String]].self, forKey: .channels) ?? [:]
+    let payload = try container.decodeIfPresent([String: [String]].self, forKey: .payload) ?? [:]
+    let affectedChannels: [String]? = payload["channels"]
+    let affectedChannelGroups: [String]? = payload["channel-groups"]
 
     self.init(message: message ?? error,
               details: details,
               service: service,
               status: status,
               error: isError,
-              channels: channels)
+              channels: channels,
+              affectedChannels: affectedChannels,
+              affectedChannelGroups: affectedChannelGroups)
   }
 
   func encode(to encoder: Encoder) throws {

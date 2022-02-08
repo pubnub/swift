@@ -478,12 +478,13 @@ extension SubscriptionSession {
     completion: @escaping (Result<EndpointResponse<SubscribeDecoder.Payload>, Error>) -> Void
   ) -> RequestReplaceable {
     // Create endpoint
+    let session = cursor != nil ? longPollingSession : nonSubscribeSession
     let router = SubscribeRouter(.subscribe(channels: channels, groups: groups,
                                             timetoken: cursor?.timetoken, region: cursor?.region.description,
                                             heartbeat: configuration.durationUntilTimeout,
                                             filter: filterExpression),
                                  configuration: configuration)
-    let subscribeRequest = longPollingSession
+    let subscribeRequest = session
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
 

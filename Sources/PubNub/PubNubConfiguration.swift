@@ -89,7 +89,8 @@ public struct PubNubConfiguration: Hashable {
     heartbeatInterval: UInt = 0,
     supressLeaveEvents: Bool = false,
     requestMessageCountThreshold: UInt = 100,
-    filterExpression: String? = nil
+    filterExpression: String? = nil,
+    enableSubscribeBeta: Bool = false
   ) {
     
     guard uuid.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
@@ -119,6 +120,7 @@ public struct PubNubConfiguration: Hashable {
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
+    self.enableSubscribeBeta = enableSubscribeBeta
   }
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
@@ -166,6 +168,9 @@ public struct PubNubConfiguration: Hashable {
   public var requestMessageCountThreshold: UInt
   /// PSV2 feature to subscribe with a custom filter expression.
   public var filterExpression: String?
+  
+  /// Whether beta version of subscribe / presence loop should be used or not.
+  public var enableSubscribeBeta: Bool
   
   /// Ordered list of key-value pairs which identify various consumers.
   public var consumerIdentifiers: [String: String] = [:]

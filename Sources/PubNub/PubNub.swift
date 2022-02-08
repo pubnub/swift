@@ -533,12 +533,16 @@ extension PubNub {
     withPresence: Bool = false,
     filterOverride: String? = nil
   ) {
-    subscription.filterExpression = filterOverride
+    if self.configuration.enableSubscribeBeta {
+      print("Not implemented")
+    } else {
+      subscription.filterExpression = filterOverride
 
-    subscription.subscribe(to: channels,
-                           and: channelGroups,
-                           at: SubscribeCursor(timetoken: timetoken),
-                           withPresence: withPresence)
+      subscription.subscribe(to: channels,
+                             and: channelGroups,
+                             at: SubscribeCursor(timetoken: timetoken),
+                             withPresence: withPresence)
+    }
   }
 
   /// Unsubscribe from channels and/or channel groups
@@ -548,25 +552,41 @@ extension PubNub {
   ///   - and: List of channel groups to unsubscribe from
   ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   public func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
-    subscription.unsubscribe(from: channels, and: channelGroups, presenceOnly: presenceOnly)
+    if self.configuration.enableSubscribeBeta {
+      print("Not implemented")
+    } else {
+      subscription.unsubscribe(from: channels, and: channelGroups, presenceOnly: presenceOnly)
+    }
   }
 
   /// Unsubscribe from all channels and channel groups
   public func unsubscribeAll() {
-    subscription.unsubscribeAll()
+    if self.configuration.enableSubscribeBeta {
+      print("Not implemented")
+    } else {
+      subscription.unsubscribeAll()
+    }
   }
 
   /// Stops the subscriptions in progress
   /// - Important: This subscription might be shared with multiple `PubNub` instances.
   public func disconnect() {
-    subscription.disconnect()
+    if self.configuration.enableSubscribeBeta {
+      print("Not implemented")
+    } else {
+      subscription.disconnect()
+    }
   }
 
-  /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
+  /// Reconnects to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
   /// - Important: This subscription might be shared with multiple `PubNub` instances.
   public func reconnect(at timetoken: Timetoken? = nil) {
-    subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
+    if self.configuration.enableSubscribeBeta {
+      print("Not implemented")
+    } else {
+      subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
+    }
   }
 
   /// The `Timetoken` used for the last successful subscription request

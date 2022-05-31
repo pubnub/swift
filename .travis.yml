@@ -1,6 +1,6 @@
 language: objective-c
 osx_image: xcode13.3
-rvm: 2.7.0
+rvm: 2.6.6
 os: osx
 
 cache:

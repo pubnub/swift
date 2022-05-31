@@ -521,7 +521,7 @@ extension _XMLKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = self.container[key.stringValue] else {
+    guard let value = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(
@@ -1247,7 +1247,7 @@ extension _XMLDecoder {
   }
 
   /// Returns the `Decodable` value as a `T` if it matches that type
-  internal func unbox<T: Decodable>(_ value: Any, as type: T.Type) throws -> T? {
+  func unbox<T: Decodable>(_ value: Any, as type: T.Type) throws -> T? {
     storage.push(value)
     defer { self.storage.popContainer() }
     // Use the types default decoable init

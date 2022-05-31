@@ -28,120 +28,66 @@
 import Foundation
 
 struct ErrorDescription {
-  static let stringEncodingFailure: String = {
-    "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
-  }()
+  static let stringEncodingFailure: String = "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
 
-  static let defaultRecoverySuggestion: String = {
-    "No recover suggestion was provided."
-  }()
+  static let defaultRecoverySuggestion: String = "No recover suggestion was provided."
 
-  static let missingCryptoKey: String = {
-    "Missing cipher key from `PubNubConfiguration`"
-  }()
+  static let missingCryptoKey: String = "Missing cipher key from `PubNubConfiguration`"
 
-  static let rootLevelDecoding: String = {
-    "AnyJSON could not decode invalid root-level JSON object"
-  }()
+  static let rootLevelDecoding: String = "AnyJSON could not decode invalid root-level JSON object"
 
-  static let keyedContainerDecoding: String = {
-    "AnyJSON could not decode value inside `KeyedDecodingContainer`"
-  }()
+  static let keyedContainerDecoding: String = "AnyJSON could not decode value inside `KeyedDecodingContainer`"
 
-  static let unkeyedContainerDecoding: String = {
-    "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
-  }()
+  static let unkeyedContainerDecoding: String = "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
 
-  static let rootLevelEncoding: String = {
-    "AnyJSON could not encode invalid root-level JSON object"
-  }()
+  static let rootLevelEncoding: String = "AnyJSON could not encode invalid root-level JSON object"
 
-  static let pushNotEnabled: String = {
-    "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
-  }()
+  static let pushNotEnabled: String = "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
 
   static let messageDeletionNotEnabled: String = {
     // swiftlint:disable:next line_length
     "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
   }()
 
-  static let messageHistoryNotEnabled: String = {
-    "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
-  }()
+  static let messageHistoryNotEnabled: String = "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
 
-  static let cryptoStringEncodeFailed: String = {
-    "Decrypted payload failed to String encode using default Coder string encoding"
-  }()
+  static let cryptoStringEncodeFailed: String = "Decrypted payload failed to String encode using default Coder string encoding"
 }
 
 extension ErrorDescription {
-  static let emptyChannelString: String = {
-    "Channel is an empty `String`"
-  }()
+  static let emptyChannelString: String = "Channel is an empty `String`"
 
-  static let emptyChannelArray: String = {
-    "Channels is an empty `Array`"
-  }()
+  static let emptyChannelArray: String = "Channels is an empty `Array`"
 
-  static let emptyGroupString: String = {
-    "Group is an empty `String`"
-  }()
+  static let emptyGroupString: String = "Group is an empty `String`"
 
-  static let missingChannelsAnyGroups: String = {
-    "No Channels or Groups were provided"
-  }()
+  static let missingChannelsAnyGroups: String = "No Channels or Groups were provided"
 
-  static let missingTimetoken: String = {
-    "No `Timetoken` value provided"
-  }()
+  static let missingTimetoken: String = "No `Timetoken` value provided"
 
-  static let invalidHistoryTimetokens: String = {
-    "Timetokens `Array` count does not match Channels `Array` count"
-  }()
+  static let invalidHistoryTimetokens: String = "Timetokens `Array` count does not match Channels `Array` count"
 
-  static let invalidMessageAction: String = {
-    "Message Action is invalid"
-  }()
+  static let invalidMessageAction: String = "Message Action is invalid"
 
-  static let emptyMessagePayload: String = {
-    "Message is an empty Object"
-  }()
+  static let emptyMessagePayload: String = "Message is an empty Object"
 
-  static let emptyUUIDString: String = {
-    "UUID is an empty `String`"
-  }()
+  static let emptyUUIDString: String = "UUID is an empty `String`"
 
-  static let emptyDeviceTokenData: String = {
-    "Device Token is an empty `Data`"
-  }()
+  static let emptyDeviceTokenData: String = "Device Token is an empty `Data`"
 
-  static let malformedDeviceTokenData: String = {
-    "Device Token `Data` cannot be converted to `String`"
-  }()
+  static let malformedDeviceTokenData: String = "Device Token `Data` cannot be converted to `String`"
 
-  static let emptyUUIDMetadataId: String = {
-    "The UUID MetadataId `String` cannot be empty"
-  }()
+  static let emptyUUIDMetadataId: String = "The UUID MetadataId `String` cannot be empty"
 
-  static let invalidUUIDMetadata: String = {
-    "The Object is not valid UUID Metadata"
-  }()
+  static let invalidUUIDMetadata: String = "The Object is not valid UUID Metadata"
 
-  static let emptyChannelMetadataId: String = {
-    "The Channel MetadataId `String` cannot be empty"
-  }()
+  static let emptyChannelMetadataId: String = "The Channel MetadataId `String` cannot be empty"
 
-  static let invalidChannelMetadata: String = {
-    "The Object is not a valid Channel Metadata"
-  }()
+  static let invalidChannelMetadata: String = "The Object is not a valid Channel Metadata"
 
-  static let emptyFilenameString: String = {
-    "The required Filename `String` is empty"
-  }()
+  static let emptyFilenameString: String = "The required Filename `String` is empty"
 
-  static let emptyFileIdString: String = {
-    "The required FileId `String` is empty"
-  }()
+  static let emptyFileIdString: String = "The required FileId `String` is empty"
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {

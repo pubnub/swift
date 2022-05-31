@@ -30,11 +30,11 @@ import Foundation
 // MARK: - PubNub Networking
 
 /// An object that coordinates a group of related network data transfer tasks.
-final class HTTPSession {
+public final class HTTPSession {
   /// The unique identifier for this object
-  let sessionID = UUID()
+  public let sessionID = UUID()
   /// The underlying `URLSession` used to execute the network tasks
-  let session: URLSessionReplaceable
+  public let session: URLSessionReplaceable
   /// The dispatch queue used to execute session operations
   public let sessionQueue: DispatchQueue
   /// The dispatch queue used to execute request operations
@@ -44,9 +44,9 @@ final class HTTPSession {
   /// The delegate that receives incoming network transmissions
   weak var delegate: HTTPSessionDelegate?
   /// The event stream that session activity status will emit to
-  var sessionStream: SessionStream?
+  public var sessionStream: SessionStream?
   /// The `RequestOperator` that is attached to every request
-  var defaultRequestOperator: RequestOperator?
+  public var defaultRequestOperator: RequestOperator?
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
   var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
 
@@ -72,7 +72,7 @@ final class HTTPSession {
     delegate.sessionBridge = self
   }
 
-  convenience init(
+  public convenience init(
     configuration: URLSessionConfiguration = .ephemeral,
     delegate: HTTPSessionDelegate = HTTPSessionDelegate(),
     sessionQueue: DispatchQueue = DispatchQueue(label: "com.pubnub.session.sessionQueue"),
@@ -109,7 +109,7 @@ final class HTTPSession {
   ///
   /// - parameter requestOperator: The default `RequestOperator`
   /// - returns: This `Session` object
-  func usingDefault(requestOperator: RequestOperator?) -> Self {
+  public func usingDefault(requestOperator: RequestOperator?) -> Self {
     defaultRequestOperator = requestOperator
     return self
   }
@@ -122,7 +122,7 @@ final class HTTPSession {
   ///   -  with: The `Router` used to create the `Request`
   ///   -  requestOperator: The operator specific to this `Request`
   /// - returns: This created `Request`
-  func request(
+  public func request(
     with router: HTTPRouter,
     requestOperator: RequestOperator? = nil
   ) -> RequestReplaceable {
@@ -236,7 +236,7 @@ final class HTTPSession {
   /// Once invalidated, references to the delegate and callback objects are broken.
   /// After invalidation, session objects cannot be reused.
   /// - Important: Calling this method on the session returned by the shared method has no effect.
-  func invalidateAndCancel() {
+  public func invalidateAndCancel() {
     // Ensure that we lock out task creation prior to invalidating
     isInvalidated = true
 

@@ -25,15 +25,14 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
 
 // Origin which should be used to reach mock server for contract testing.
 let mockServerAddress = "localhost:8090"
 let defaultSubscribeKey = "demo-36"
 let defaultPublishKey = "demo-36"
-
 
 @objc public class PubNubContractTestCase: XCTestCase {
   public var messageReceivedHandler: ((PubNubMessage, [PubNubMessage]) -> Void)?
@@ -43,41 +42,37 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _apiCallResults: [Any] = []
   fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                              subscribeKey: defaultSubscribeKey,
-                                                             uuid: UUID().uuidString, 
+                                                             uuid: UUID().uuidString,
                                                              useSecureConnections: false,
                                                              origin: mockServerAddress,
                                                              supressLeaveEvents: true)
   fileprivate static var currentClient: PubNub?
-  
-  public var configuration: PubNubConfiguration {
-    get { currentConfiguration }
-  }
-  
+
+  public var configuration: PubNubConfiguration { currentConfiguration }
+
   public var receivedStatuses: [SubscriptionListener.StatusEvent] {
     get { PubNubContractTestCase._receivedStatuses }
     set { PubNubContractTestCase._receivedStatuses = newValue }
   }
-  
+
   public var receivedMessages: [PubNubMessage] {
     get { PubNubContractTestCase._receivedMessages }
     set { PubNubContractTestCase._receivedMessages = newValue }
   }
-  
+
   public var apiCallResults: [Any] {
     get { PubNubContractTestCase._apiCallResults }
     set { PubNubContractTestCase._apiCallResults = newValue }
   }
-  
+
   public var client: PubNub {
-    get {
-      if PubNubContractTestCase.currentClient == nil {
-        PubNubContractTestCase.currentClient = PubNub(configuration: configuration)
-      }
-      
-      return PubNubContractTestCase.currentClient!
+    if PubNubContractTestCase.currentClient == nil {
+      PubNubContractTestCase.currentClient = PubNub(configuration: configuration)
     }
+
+    return PubNubContractTestCase.currentClient!
   }
-  
+
   public func startCucumberHookEventsListening() {
     NotificationCenter.default.addObserver(forName: .cucumberBeforeHook, object: nil, queue: nil) { [weak self] _ in
       self?.handleBeforeHook()
@@ -86,27 +81,27 @@ let defaultPublishKey = "demo-36"
       self?.handleAfterHook()
     }
   }
-  
+
   public func handleBeforeHook() {
     // Override if something custom required by test case.
   }
-  
+
   public func handleAfterHook() {
-    self.currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
-                                                    subscribeKey: defaultSubscribeKey,
-                                                    uuid: UUID().uuidString, 
-                                                    useSecureConnections: false,
-                                                    origin: mockServerAddress,
-                                                    supressLeaveEvents: true)
+    currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
+                                               subscribeKey: defaultSubscribeKey,
+                                               uuid: UUID().uuidString,
+                                               useSecureConnections: false,
+                                               origin: mockServerAddress,
+                                               supressLeaveEvents: true)
 
     PubNubContractTestCase.currentClient?.unsubscribeAll()
     PubNubContractTestCase.currentClient = nil
 
-    self.receivedStatuses.removeAll()
-    self.receivedMessages.removeAll()
-    self.apiCallResults.removeAll()
+    receivedStatuses.removeAll()
+    receivedMessages.removeAll()
+    apiCallResults.removeAll()
   }
-  
+
   @objc public func setup() {
     before { scenario in
       guard let scenario = scenario else { return }
@@ -115,7 +110,7 @@ let defaultPublishKey = "demo-36"
       }
       NotificationCenter.default.post(name: .cucumberBeforeHook, object: nil)
     }
-    
+
     after { scenario in
       guard let scenario = scenario else { return }
       if self.shouldSetupMockServerFor(scenario: scenario) {
@@ -123,19 +118,19 @@ let defaultPublishKey = "demo-36"
       }
       NotificationCenter.default.post(name: .cucumberAfterHook, object: nil)
     }
-    
+
     Given("the demo keyset") { _, _ in
       // Nothing to do. Demo keys set by default if not explicitly set.
     }
-    
+
     Given("the invalid keyset") { _, _ in
       // Nothing to do. Demo keys set by default if not explicitly set.
     }
-    
+
     Then("I receive successful response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
-      
+
       guard let result = lastResult else {
         XCTAssert(false, "Object is not Result type value")
         return
@@ -143,32 +138,31 @@ let defaultPublishKey = "demo-36"
 
       XCTAssertFalse(result is Error, "Last API call shouldn't fail.")
     }
-    
+
     Then("I receive error response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
-      
+
       guard let result = lastResult else {
         XCTAssert(false, "Object is not Result type value")
         return
       }
-      
+
       XCTAssertTrue(result is Error, "Last API call should report error")
     }
-    
-    PubNubAccessContractTestSteps.init().setup()
-    PubNubFilesContractTestSteps.init().setup()
-    PubNubHistoryContractTestSteps.init().setup()
-    PubNubMessageActionsContractTestSteps.init().setup()
-    PubNubPushContractTestSteps.init().setup()
-    PubNubPublishContractTestSteps.init().setup()
-    PubNubSubscribeContractTestSteps.init().setup()
-    PubNubTimeContractTestSteps.init().setup()
+
+    PubNubAccessContractTestSteps().setup()
+    PubNubFilesContractTestSteps().setup()
+    PubNubHistoryContractTestSteps().setup()
+    PubNubMessageActionsContractTestSteps().setup()
+    PubNubPushContractTestSteps().setup()
+    PubNubPublishContractTestSteps().setup()
+    PubNubSubscribeContractTestSteps().setup()
+    PubNubTimeContractTestSteps().setup()
   }
-  
-  
+
   // MARK: - Subscription
-  
+
   public func subscribeSynchronously(
     _ client: PubNub,
     to channels: [String] = [],
@@ -176,18 +170,18 @@ let defaultPublishKey = "demo-36"
     with presence: Bool = false,
     timetoken: Timetoken? = 0
   ) {
-    let subscribeStatusExpect = self.expectation(description: "Subscribe statuses")
+    let subscribeStatusExpect = expectation(description: "Subscribe statuses")
     subscribeStatusExpect.assertForOverFulfill = false
     let listener = SubscriptionListener()
 
     listener.didReceiveStatus = { [weak self] result in
       guard let strongSelf = self else { return }
       strongSelf.receivedStatuses.append(result)
-      
+
       if let handler = strongSelf.statusReceivedHandler {
         handler(result, strongSelf.receivedStatuses)
       }
-      
+
       switch result {
       case let .success(status):
         if status == .connected {
@@ -197,122 +191,120 @@ let defaultPublishKey = "demo-36"
         XCTAssert(false, "Unexpected connection status")
       }
     }
-    
+
     listener.didReceiveMessage = { [weak self] message in
       guard let strongSelf = self else { return }
       strongSelf.receivedMessages.append(message)
-      
+
       if let handler = strongSelf.messageReceivedHandler {
         handler(message, strongSelf.receivedMessages)
       }
     }
-    
+
     client.add(listener)
     client.subscribe(to: channels, and: groups, at: timetoken, withPresence: presence)
-    
-    self.wait(for: [subscribeStatusExpect], timeout: 10.0)
+
+    wait(for: [subscribeStatusExpect], timeout: 10.0)
   }
-  
-  public func waitForMessages(_ client: PubNub, count: Int) -> [PubNubMessage]? {
-    if self.receivedMessages.count < count {
-      let subscribeMessageExpect = self.expectation(description: "Subscribe messages")
+
+  public func waitForMessages(_: PubNub, count: Int) -> [PubNubMessage]? {
+    if receivedMessages.count < count {
+      let subscribeMessageExpect = expectation(description: "Subscribe messages")
       subscribeMessageExpect.assertForOverFulfill = false
-      self.messageReceivedHandler = { _, messages in
+      messageReceivedHandler = { _, messages in
         if messages.count >= count {
           subscribeMessageExpect.fulfill()
         }
       }
-      
-      self.wait(for: [subscribeMessageExpect], timeout: 30.0)
+
+      wait(for: [subscribeMessageExpect], timeout: 30.0)
     }
-    
-    if self.receivedMessages.count > count {
-      return Array(self.receivedMessages[..<count])
+
+    if receivedMessages.count > count {
+      return Array(receivedMessages[..<count])
     } else {
-      return self.receivedMessages.count > 0 ? self.receivedMessages : nil
+      return receivedMessages.count > 0 ? receivedMessages : nil
     }
   }
-  
-  
+
   // MARK: - Results handling
-  
+
   public func handleResult(result: Any) {
-    self.apiCallResults.append(result)
+    apiCallResults.append(result)
   }
-  
+
   public func lastResult() -> Any? {
-    self.apiCallResults.last
+    apiCallResults.last
   }
-  
-  
+
   // MARK: - Helpers
-  
-  public func checkTestingFeature(feature: String, userInfo: [AnyHashable : Any]) -> Bool {
+
+  public func checkTestingFeature(feature: String, userInfo: [AnyHashable: Any]) -> Bool {
     guard let testCase = userInfo["XCTestCase"] as? XCTestCase else {
       XCTAssert(false, "Unable to check tested feature.")
       return false
     }
-    
+
     return testCase.name.contains("CCI\(feature)")
   }
-  
+
   fileprivate func setupMockServerFor(scenario: CCIScenarioDefinition) -> Data? {
     guard let contract = contractFor(scenario: scenario) else { return nil }
     guard let url = URL(string: "http://\(mockServerAddress)/init?__contract__script__=\(contract)") else { return nil }
-    
+
     return synchronousMockServerRequestWith(url: url)
   }
-  
-  fileprivate func checkMockServerExpectationsFor(scenario: CCIScenarioDefinition) -> Data? {
+
+  fileprivate func checkMockServerExpectationsFor(scenario _: CCIScenarioDefinition) -> Data? {
     guard let url = URL(string: "http://\(mockServerAddress)/expect") else { return nil }
-    
+
     return synchronousMockServerRequestWith(url: url)
   }
-  
+
   fileprivate func synchronousMockServerRequestWith(url: URL) -> Data? {
-    let serverSetupExpect = self.expectation(description: "Files list Response")
+    let serverSetupExpect = expectation(description: "Files list Response")
     var responseData: Data?
-    
-    URLSession.shared.dataTask(with: url, completionHandler: { data, response, error in
+
+    URLSession.shared.dataTask(with: url, completionHandler: { data, _, error in
       responseData = data
       if let error = error {
         XCTAssertNil(error, "Mock server call error: \(error)")
       }
-      
+
       serverSetupExpect.fulfill()
     }).resume()
-    
-    self.wait(for: [serverSetupExpect], timeout: 5.0)
-    
+
+    wait(for: [serverSetupExpect], timeout: 5.0)
+
     return responseData
   }
-  
+
   fileprivate func shouldSetupMockServerFor(scenario: CCIScenarioDefinition?) -> Bool {
     contractFor(scenario: scenario) != nil
   }
-  
+
   fileprivate func contractFor(scenario: CCIScenarioDefinition?) -> String? {
     guard let scenario = scenario else { return nil }
     var contract: String?
-    
+
     for tag in scenario.tags {
       if tag.hasPrefix("contract=") {
         contract = tag.components(separatedBy: "=").last
         break
       }
     }
-    
+
     return contract
   }
-  
+
   public func waitFor(delay: TimeInterval) {
-    let waitExpectation = self.expectation(description: "Execution wait for \(delay)")
-    
+    let waitExpectation = expectation(description: "Execution wait for \(delay)")
+
     DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
       waitExpectation.fulfill()
     }
-    
-    self.wait(for: [waitExpectation], timeout: delay * 2)
+
+    wait(for: [waitExpectation], timeout: delay * 2)
   }
 }
 

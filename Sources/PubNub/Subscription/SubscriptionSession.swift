@@ -311,8 +311,8 @@ public class SubscriptionSession {
                 return objectAction.subscribeEvent
               case .messageAction:
                 guard let messageAction = PubNubMessageActionBase(from: message),
-                  let actionEventString = message.payload[rawValue: "event"] as? String,
-                  let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
+                      let actionEventString = message.payload[rawValue: "event"] as? String,
+                      let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
                 else {
                   return .messageReceived(PubNubMessageBase(from: message))
                 }

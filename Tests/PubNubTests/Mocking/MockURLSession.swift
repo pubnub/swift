@@ -354,7 +354,7 @@ class MockURLSession: URLSessionReplaceable {
 
   func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask {
     guard let task = state.lockedWrite({ $0.tasks.popLast() }),
-      let uplaodTask = task as? URLSessionUploadTask else {
+          let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
     return uplaodTask
@@ -362,7 +362,7 @@ class MockURLSession: URLSessionReplaceable {
 
   func uploadTask(with request: URLRequest, fromFile _: URL) -> URLSessionUploadTask {
     guard let task = state.lockedWrite({ $0.tasks.popLast() }),
-      let uplaodTask = task as? URLSessionUploadTask else {
+          let uplaodTask = task as? URLSessionUploadTask else {
       fatalError("Task not found for matching request \(request)")
     }
     return uplaodTask
@@ -370,7 +370,7 @@ class MockURLSession: URLSessionReplaceable {
 
   func downloadTask(with url: URL) -> URLSessionDownloadTask {
     guard let task = state.lockedWrite({ $0.tasks.popLast() }),
-      let downloadTask = task as? MockURLSessionDownloadTask else {
+          let downloadTask = task as? MockURLSessionDownloadTask else {
       fatalError("Task not found for matching request \(url)")
     }
     return downloadTask
@@ -378,7 +378,7 @@ class MockURLSession: URLSessionReplaceable {
 
   func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask {
     guard let task = state.lockedWrite({ $0.tasks.popLast() }),
-      let downloadTask = task as? URLSessionDownloadTask else {
+          let downloadTask = task as? URLSessionDownloadTask else {
       fatalError("Task not found for matching request \(resumeData)")
     }
     return downloadTask

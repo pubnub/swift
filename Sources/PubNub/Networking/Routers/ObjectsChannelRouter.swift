@@ -57,7 +57,7 @@ struct ObjectsChannelRouter: HTTPRouter {
     var custom: [String: JSONCodableScalarType]?
   }
 
-  struct Include {
+  enum Include {
     static let custom = "custom"
   }
 

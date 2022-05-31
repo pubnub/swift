@@ -138,9 +138,9 @@ extension PubNubChannel: Codable {
   }
 }
 
-extension Dictionary where Key == String, Value == PubNubChannel {
+public extension Dictionary where Key == String, Value == PubNubChannel {
   /// Inserts the provided channel if that channel doesn't already exist
-  public mutating func insert(_ channel: Value) -> Bool {
+  mutating func insert(_ channel: Value) -> Bool {
     if let match = self[channel.id], match == channel {
       return false
     }
@@ -150,7 +150,7 @@ extension Dictionary where Key == String, Value == PubNubChannel {
   }
 
   /// Updates the subscribedPresence state on the channel matching the provided name
-  public mutating func unsubscribePresence(_ id: String) -> Value? {
+  mutating func unsubscribePresence(_ id: String) -> Value? {
     if var match = self[id], match.isPresenceSubscribed {
       match.isPresenceSubscribed = false
       self[match.id] = match

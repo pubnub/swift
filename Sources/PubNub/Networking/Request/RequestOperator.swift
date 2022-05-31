@@ -66,8 +66,8 @@ public protocol RequestRetrier {
 /// An operation that performs some change on a request
 public protocol RequestOperator: RequestMutator, RequestRetrier {}
 
-extension RequestOperator {
-  public func mutate(
+public extension RequestOperator {
+  func mutate(
     _ urlRequest: URLRequest,
     for _: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
@@ -75,7 +75,7 @@ extension RequestOperator {
     completion(.success(urlRequest))
   }
 
-  public func retry(
+  func retry(
     _: RequestReplaceable,
     for _: SessionReplaceable,
     dueTo error: Error,
@@ -88,7 +88,7 @@ extension RequestOperator {
   ///
   /// - Parameter operators: The collection of operators to consolidate
   /// - Returns: A single `RequestOperator` that performs the functionality of the merged operators
-  public func merge(operators: [RequestOperator]) -> RequestOperator {
+  func merge(operators: [RequestOperator]) -> RequestOperator {
     var mergedOperators: [RequestOperator] = [self]
     mergedOperators.append(contentsOf: operators)
     return MultiplexRequestOperator(operators: mergedOperators)
@@ -98,7 +98,7 @@ extension RequestOperator {
   ///
   /// - Parameter requestOperator: The optional `RequestOperator` to merge
   /// - Returns: A single `RequestOperator` that performs the functionality of the merged operators
-  public func merge(requestOperator: RequestOperator?) -> RequestOperator {
+  func merge(requestOperator: RequestOperator?) -> RequestOperator {
     if let requestOperator = requestOperator {
       return merge(operators: [requestOperator])
     }

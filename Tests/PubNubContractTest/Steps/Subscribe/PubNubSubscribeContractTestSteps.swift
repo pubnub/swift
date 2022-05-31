@@ -25,46 +25,45 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
-
 
 public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
   fileprivate var cipherKey: Crypto?
-  
-  public override var configuration: PubNubConfiguration {
+
+  override public var configuration: PubNubConfiguration {
     var config = super.configuration
     config.cipherKey = cipherKey
     return config
   }
-  
-  public override func handleBeforeHook() {
-    self.cipherKey = nil
+
+  override public func handleBeforeHook() {
+    cipherKey = nil
     super.handleBeforeHook()
   }
-  
-  public override func setup() {
-    self.startCucumberHookEventsListening()
-    
+
+  override public func setup() {
+    startCucumberHookEventsListening()
+
     Given("the crypto keyset") { _, _ in
       self.cipherKey = Crypto(key: "enigma")
     }
-    
+
     Given("the invalid-crypto keyset") { _, _ in
       self.cipherKey = Crypto(key: "secret")
     }
-    
+
     When("I subscribe") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
       // Give some time to rotate received timetokens.
       self.waitFor(delay: 0.25)
     }
-    
+
     Then("I receive the message in my subscribe response") { _, userInfo in
       let messages = self.waitForMessages(self.client, count: 1)
       XCTAssertNotNil(messages)
-      
+
       if self.checkTestingFeature(feature: "Message encryption", userInfo: userInfo!) {
         if let message = messages?.last {
           XCTAssertEqual(message.payload.rawValue as! String, "hello world")
@@ -76,18 +75,18 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
         self.waitFor(delay: 0.25)
       }
     }
-    
+
     Then("an error is thrown") { _, _ in
       let messages = self.waitForMessages(self.client, count: 1)
       XCTAssertNotNil(messages)
-      
+
       if let message = messages?.last {
         let data = Data(base64Encoded: message.payload.rawValue as! String)
         XCTAssertNotNil(data, "Client shouldn't be able to decrypt message with wrong key.")
       } else {
         XCTAssert(false, "Expected at least on message")
       }
-      
+
       self.waitFor(delay: 0.25)
     }
   }

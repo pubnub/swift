@@ -111,9 +111,9 @@ private class _CBORDecoder: Decoder {
 
 // MARK: - Concrete Value Representations
 
-extension _CBORDecoder {
+private extension _CBORDecoder {
   /// Returns the given value unboxed from a container.
-  fileprivate func unbox(_ value: Any?, as type: Bool.Type) throws -> Bool? {
+  func unbox(_ value: Any?, as type: Bool.Type) throws -> Bool? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let bool = value as? Bool else {
@@ -123,7 +123,7 @@ extension _CBORDecoder {
     return bool
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Int.Type) throws -> Int? {
+  func unbox(_ value: Any?, as type: Int.Type) throws -> Int? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -140,7 +140,7 @@ extension _CBORDecoder {
     return int
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Int8.Type) throws -> Int8? {
+  func unbox(_ value: Any?, as type: Int8.Type) throws -> Int8? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -157,7 +157,7 @@ extension _CBORDecoder {
     return int8
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Int16.Type) throws -> Int16? {
+  func unbox(_ value: Any?, as type: Int16.Type) throws -> Int16? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -174,7 +174,7 @@ extension _CBORDecoder {
     return int16
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Int32.Type) throws -> Int32? {
+  func unbox(_ value: Any?, as type: Int32.Type) throws -> Int32? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -191,7 +191,7 @@ extension _CBORDecoder {
     return int32
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Int64.Type) throws -> Int64? {
+  func unbox(_ value: Any?, as type: Int64.Type) throws -> Int64? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -208,7 +208,7 @@ extension _CBORDecoder {
     return int64
   }
 
-  fileprivate func unbox(_ value: Any?, as type: UInt.Type) throws -> UInt? {
+  func unbox(_ value: Any?, as type: UInt.Type) throws -> UInt? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -225,7 +225,7 @@ extension _CBORDecoder {
     return uint
   }
 
-  fileprivate func unbox(_ value: Any?, as type: UInt8.Type) throws -> UInt8? {
+  func unbox(_ value: Any?, as type: UInt8.Type) throws -> UInt8? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -242,7 +242,7 @@ extension _CBORDecoder {
     return uint8
   }
 
-  fileprivate func unbox(_ value: Any?, as type: UInt16.Type) throws -> UInt16? {
+  func unbox(_ value: Any?, as type: UInt16.Type) throws -> UInt16? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -259,7 +259,7 @@ extension _CBORDecoder {
     return uint16
   }
 
-  fileprivate func unbox(_ value: Any?, as type: UInt32.Type) throws -> UInt32? {
+  func unbox(_ value: Any?, as type: UInt32.Type) throws -> UInt32? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -276,7 +276,7 @@ extension _CBORDecoder {
     return uint32
   }
 
-  fileprivate func unbox(_ value: Any?, as type: UInt64.Type) throws -> UInt64? {
+  func unbox(_ value: Any?, as type: UInt64.Type) throws -> UInt64? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse else {
@@ -293,7 +293,7 @@ extension _CBORDecoder {
     return uint64
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Float.Type) throws -> Float? {
+  func unbox(_ value: Any?, as type: Float.Type) throws -> Float? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     if let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
@@ -310,7 +310,7 @@ extension _CBORDecoder {
     throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
   }
 
-  fileprivate func unbox(_ value: Any?, as type: Double.Type) throws -> Double? {
+  func unbox(_ value: Any?, as type: Double.Type) throws -> Double? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     if let number = value as? NSNumber, number !== kCFBooleanTrue, number !== kCFBooleanFalse {
@@ -320,7 +320,7 @@ extension _CBORDecoder {
     throw DecodingError._typeMismatch(at: codingPath, expectation: type, reality: value)
   }
 
-  fileprivate func unbox(_ value: Any?, as type: String.Type) throws -> String? {
+  func unbox(_ value: Any?, as type: String.Type) throws -> String? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     guard let string = value as? String else {
@@ -330,7 +330,7 @@ extension _CBORDecoder {
     return string
   }
 
-  fileprivate func unbox(_ value: Any?, as _: Data.Type) throws -> Data? {
+  func unbox(_ value: Any?, as _: Data.Type) throws -> Data? {
     guard value != nil, !(value is NSNull) else { return nil }
 
     storage.push(container: value)
@@ -338,11 +338,11 @@ extension _CBORDecoder {
     return try Data(from: self)
   }
 
-  fileprivate func unbox<T: Decodable>(_ value: Any?, as type: T.Type) throws -> T? {
+  func unbox<T: Decodable>(_ value: Any?, as type: T.Type) throws -> T? {
     return try unbox_(value, as: type) as? T
   }
 
-  fileprivate func unbox_(_ value: Any?, as type: Decodable.Type) throws -> Any? {
+  func unbox_(_ value: Any?, as type: Decodable.Type) throws -> Any? {
     // There is no protocol container for Data objects, so unbox here
     if type == Data.self {
       guard let data = try unbox(value, as: Data.self) else { return nil }
@@ -761,7 +761,7 @@ extension _CBORKeyedDecodingContainer: KeyedDecodingContainerProtocol {
     decoder.codingPath.append(key)
     defer { self.decoder.codingPath.removeLast() }
 
-    guard let value = self.container[key.stringValue] else {
+    guard let value = container[key.stringValue] else {
       throw DecodingError.keyNotFound(
         key,
         DecodingError.Context(

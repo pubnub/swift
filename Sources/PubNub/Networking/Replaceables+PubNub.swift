@@ -142,6 +142,23 @@ public protocol SessionReplaceable {
   func invalidateAndCancel()
 }
 
+extension SessionReplaceable {
+  func route<Decoder>(
+    _ router: HTTPRouter,
+    responseDecoder: Decoder,
+    responseQueue: DispatchQueue = .main,
+    completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
+  ) where Decoder: ResponseDecoder {
+    request(with: router, requestOperator: nil)
+      .validate()
+      .response(
+        on: responseQueue,
+        decoder: responseDecoder,
+        completion: completion
+      )
+  }
+}
+
 extension HTTPSession: SessionReplaceable {}
 
 public protocol RequestReplaceable: AnyObject {

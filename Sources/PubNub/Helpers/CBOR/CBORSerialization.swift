@@ -47,7 +47,7 @@ internal struct CBORReader {
 }
 
 extension CBORReader {
-  internal func parseDictionary(from index: Index) throws -> ([String: Any], Index)? {
+  func parseDictionary(from index: Index) throws -> ([String: Any], Index)? {
     guard let (value, endIndex) = try parseValue(from: index) else {
       return nil
     }
@@ -59,7 +59,7 @@ extension CBORReader {
     return (dictionary, endIndex)
   }
 
-  internal func parseArray(from index: Index) throws -> ([Any], Index)? {
+  func parseArray(from index: Index) throws -> ([Any], Index)? {
     guard let (value, endIndex) = try parseValue(from: index) else {
       return nil
     }
@@ -71,7 +71,7 @@ extension CBORReader {
     return (array, endIndex)
   }
 
-  internal func parseArray(from index: Index, for count: Int) throws -> ([Any], Index)? {
+  func parseArray(from index: Index, for count: Int) throws -> ([Any], Index)? {
     var values = [Any]()
     var nextIndex = index
 
@@ -88,7 +88,7 @@ extension CBORReader {
     return (values, nextIndex)
   }
 
-  internal func parsePairs(from index: Index, for pairCount: Int) throws -> ([String: Any], Index)? {
+  func parsePairs(from index: Index, for pairCount: Int) throws -> ([String: Any], Index)? {
     var pairs = [String: Any]()
     var nextPairIndex = index
 
@@ -111,7 +111,7 @@ extension CBORReader {
   }
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
-  internal func parseValue(from index: Index) throws -> (Any, Index)? {
+  func parseValue(from index: Index) throws -> (Any, Index)? {
     // Pull out head value
     let value = source[index]
     // Get the next index

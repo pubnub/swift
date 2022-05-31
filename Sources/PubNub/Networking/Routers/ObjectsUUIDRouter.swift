@@ -68,7 +68,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
     }
   }
 
-  struct Include {
+  enum Include {
     static let custom = "custom"
   }
 

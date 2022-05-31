@@ -47,7 +47,7 @@ extension InputStream {
       var buffer = [UInt8](repeating: 0, count: 1024)
       let bytesRead = read(&buffer, maxLength: 1024)
 
-      if let streamError = self.streamError {
+      if let streamError = streamError {
         throw PubNubError(.inputStreamFailure, underlying: streamError)
       }
 

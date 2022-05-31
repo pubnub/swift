@@ -49,7 +49,7 @@ extension PushRouterTests {
     XCTAssertEqual(router.category, "List Push Channels")
     XCTAssertEqual(router.service, .push)
   }
-  
+
   func testListFCMPushProvisions_Router_TokenError() {
     guard let data = Data(hexEncodedString: "A1b2") else {
       return XCTFail("Could not encode Data from hex string")

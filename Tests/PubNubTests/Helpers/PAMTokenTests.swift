@@ -47,7 +47,7 @@ extension PAMTokenTests {
     guard let patterns = token?.patterns else {
       return XCTAssert(false, "'patterns' is missing")
     }
-    
+
     XCTAssertEqual(token?.authorizedUUID, "test-authorized-uuid")
     XCTAssertEqual(resources.channels.count, 1)
     XCTAssertEqual(resources.groups.count, 1)
@@ -55,7 +55,7 @@ extension PAMTokenTests {
     XCTAssertEqual(patterns.channels.count, 1)
     XCTAssertEqual(patterns.groups.count, 1)
     XCTAssertEqual(patterns.uuids.count, 1)
-    
+
     XCTAssertEqual(resources.channels["channel-1"], PAMPermission.all)
     XCTAssertEqual(resources.groups["channel_group-1"], [PAMPermission.read, PAMPermission.manage])
     XCTAssertEqual(resources.uuids["uuid-1"], [PAMPermission.delete, PAMPermission.get, PAMPermission.update])
@@ -65,18 +65,18 @@ extension PAMTokenTests {
   }
 
   func testSetToken() {
-    var pubnub = PubNub(configuration: config)
+    let pubnub = PubNub(configuration: config)
     pubnub.set(token: "access-token")
-    
+
     XCTAssertEqual(pubnub.configuration.authToken, "access-token")
     XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
   }
-  
+
   func testChangeToken() {
-    var pubnub = PubNub(configuration: config)
+    let pubnub = PubNub(configuration: config)
     pubnub.set(token: "access-token")
     pubnub.set(token: "access-token-updated")
-    
+
     XCTAssertEqual(pubnub.configuration.authToken, "access-token-updated")
     XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token-updated")
   }

@@ -27,14 +27,14 @@
 
 import Foundation
 
-extension Error {
+public extension Error {
   /// Instance cast as a `PubNubError`
-  public var pubNubError: PubNubError? {
+  var pubNubError: PubNubError? {
     return self as? PubNubError
   }
 
   /// Returns the `PubNubError.Reason` if one exists for the `Error`
-  var genericPubNubReason: PubNubError.Reason? {
+  internal var genericPubNubReason: PubNubError.Reason? {
     if let reason = urlError?.pubnubReason {
       return reason
     } else if let reason = anyJSON?.pubnubReason {
@@ -47,33 +47,33 @@ extension Error {
   }
 
   /// Instance cast as a `URLError`
-  public var urlError: URLError? {
+  var urlError: URLError? {
     return self as? URLError
   }
 
   /// Instance cast as a `AnyJSONError`
-  var anyJSON: AnyJSONError? {
+  internal var anyJSON: AnyJSONError? {
     return self as? AnyJSONError
   }
 
   /// If a cancellation was the cause of this error
-  public var isCancellationError: Bool {
+  var isCancellationError: Bool {
     return urlError?.code == .cancelled ||
       pubNubError?.subdomain == .cancellation
   }
 
   /// Instance cast as a `EncodingError`
-  public var encodingError: EncodingError? {
+  var encodingError: EncodingError? {
     return self as? EncodingError
   }
 
   /// Instance cast as a `DecodingError`
-  public var decodingError: DecodingError? {
+  var decodingError: DecodingError? {
     return self as? DecodingError
   }
 
   /// Partial download data that can be used to resume a previous download
-  var resumeData: Data? {
+  internal var resumeData: Data? {
     if let data = (self as NSError).userInfo[NSURLSessionDownloadTaskResumeData] as? Data {
       return data
     }

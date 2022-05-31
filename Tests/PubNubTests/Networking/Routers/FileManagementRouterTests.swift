@@ -269,7 +269,7 @@ extension FileManagementRouterTests {
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: tempFile)
 
     guard let testURL = try? ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt"),
-      let testData = try? Data(contentsOf: testURL) else {
+          let testData = try? Data(contentsOf: testURL) else {
       return XCTFail("Could not create required test data")
     }
 
@@ -284,19 +284,19 @@ extension FileManagementRouterTests {
         XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
       }
     completion: { result in
-      switch result {
-      case let .success(response):
-        XCTAssertEqual(response.task.taskIdentifier, mockTask.taskIdentifier)
-        XCTAssertEqual(try? response.file.transcode(), testFile)
-        XCTAssertEqual(try? Data(contentsOf: response.file.fileURL), testData)
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.task.taskIdentifier, mockTask.taskIdentifier)
+          XCTAssertEqual(try? response.file.transcode(), testFile)
+          XCTAssertEqual(try? Data(contentsOf: response.file.fileURL), testData)
 
-      case let .failure(error):
-        XCTFail("Request failed with error \(error)")
+        case let .failure(error):
+          XCTFail("Request failed with error \(error)")
+        }
+
+        try? FileManager.default.removeItem(at: tempFile)
+        expectation.fulfill()
       }
-
-      try? FileManager.default.removeItem(at: tempFile)
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -325,22 +325,22 @@ extension FileManagementRouterTests {
         XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
       }
     completion: { result in
-      switch result {
-      case let .success(response):
-        XCTAssertEqual(response.task.taskIdentifier, mockTask.taskIdentifier)
-        XCTAssertEqual(try? response.file.transcode(), testFile)
-        XCTAssertEqual(try? Data(contentsOf: response.file.fileURL), testData)
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.task.taskIdentifier, mockTask.taskIdentifier)
+          XCTAssertEqual(try? response.file.transcode(), testFile)
+          XCTAssertEqual(try? Data(contentsOf: response.file.fileURL), testData)
 
-      case let .failure(error):
-        XCTFail("Request failed with error \(error)")
+        case let .failure(error):
+          XCTFail("Request failed with error \(error)")
+        }
+
+        // Cleanup files
+        try? FileManager.default.removeItem(at: tempFile)
+        try? FileManager.default.removeItem(at: downloadURL)
+
+        expectation.fulfill()
       }
-
-      // Cleanup files
-      try? FileManager.default.removeItem(at: tempFile)
-      try? FileManager.default.removeItem(at: downloadURL)
-
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -361,14 +361,14 @@ extension FileManagementRouterTests {
         XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
       }
     completion: { result in
-      switch result {
-      case .success:
-        XCTFail("Request should not succeed")
-      case let .failure(error):
-        XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
+        switch result {
+        case .success:
+          XCTFail("Request should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -389,14 +389,14 @@ extension FileManagementRouterTests {
         XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
       }
     completion: { result in
-      switch result {
-      case .success:
-        XCTFail("Request should not succeed")
-      case let .failure(error):
-        XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
+        switch result {
+        case .success:
+          XCTFail("Request should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -416,14 +416,14 @@ extension FileManagementRouterTests {
         XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
       }
     completion: { result in
-      switch result {
-      case .success:
-        XCTFail("Request should not succeed")
-      case let .failure(error):
-        XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
+        switch result {
+        case .success:
+          XCTFail("Request should not succeed")
+        case let .failure(error):
+          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -487,11 +487,11 @@ extension FileManagementRouterTests {
     mockTask.mockResponse = HTTPURLResponse(statusCode: 202)
 
     let fileSession = MockURLSession(tasks: [mockTask])
+    let pubnub = PubNub(configuration: config, session: sessions.session, fileSession: fileSession)
 
-    PubNub(configuration: config, session: sessions.session, fileSession: fileSession)
-      .send(.file(url: testURL), channel: testChannel, remoteFilename: testFilename) { task in
-        XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
-      }
+    pubnub.send(.file(url: testURL), channel: testChannel, remoteFilename: testFilename) { task in
+      XCTAssertEqual(mockTask.mockIdentifier, task.taskIdentifier)
+    }
     completion: { result in
       switch result {
       case let .success(response):

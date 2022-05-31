@@ -27,6 +27,7 @@
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 public struct PubNubError: Error {
   // MARK: - Properties
 
@@ -378,43 +379,43 @@ extension PubNubError {
 
 // MARK: - Cross-Type Equatable
 
-extension Optional where Wrapped == PubNubError {
+public extension Optional where Wrapped == PubNubError {
   /// Returns a Boolean value indicating whether two values are equal.
   /// - Parameter lhs: The value to compare
   /// - Parameter rhs: The other value to compare
-  public static func == (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
+  static func == (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason == rhs
   }
 
   /// Returns a Boolean value indicating whether two values are not equal.
   /// - Parameter lhs: The value to compare
   /// - Parameter rhs: The other value to compare
-  public static func != (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
+  static func != (lhs: Optional, rhs: PubNubError.Reason?) -> Bool {
     return lhs?.reason != rhs
   }
 }
 
-extension Optional where Wrapped == PubNubError.Reason {
+public extension Optional where Wrapped == PubNubError.Reason {
   /// Returns a Boolean value indicating whether two values are equal.
   /// - Parameter lhs: The value to compare
   /// - Parameter rhs: The other value to compare
-  public static func == (lhs: Optional, rhs: PubNubError?) -> Bool {
+  static func == (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs == rhs?.reason
   }
 
   /// Returns a Boolean value indicating whether two values are not equal.
   /// - Parameter lhs: The value to compare
   /// - Parameter rhs: The other value to compare
-  public static func != (lhs: Optional, rhs: PubNubError?) -> Bool {
+  static func != (lhs: Optional, rhs: PubNubError?) -> Bool {
     return lhs != rhs?.reason
   }
 }
 
 // MARK: - Conversions
 
-extension PubNubError {
+public extension PubNubError {
   /// The underlying `URLError`, if one exists
-  public var urlError: URLError? {
+  var urlError: URLError? {
     return underlying?.urlError
   }
 }

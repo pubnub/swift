@@ -42,19 +42,19 @@ public protocol PubNubBoundedPage {
   init(from other: PubNubBoundedPage) throws
 }
 
-extension PubNubBoundedPage {
+public extension PubNubBoundedPage {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubBoundedPage>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubBoundedPage>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubBoundedPage>() throws -> T {
+  func transcode<T: PubNubBoundedPage>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -104,19 +104,19 @@ public protocol PubNubHashedPage {
   init(from other: PubNubHashedPage) throws
 }
 
-extension PubNubHashedPage {
+public extension PubNubHashedPage {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubHashedPage>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubHashedPage>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubHashedPage>() throws -> T {
+  func transcode<T: PubNubHashedPage>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -128,14 +128,14 @@ extension PubNubHashedPage {
   /// Convenience to align with the `next` parameter of certain APIs
   ///
   /// This is the same as calling `start`
-  public var next: String? {
+  var next: String? {
     return start
   }
 
   /// Convenience to align with the `prev` parameter of certain APIs
   ///
   /// This is the same as calling `end`
-  public var prev: String? {
+  var prev: String? {
     return end
   }
 }

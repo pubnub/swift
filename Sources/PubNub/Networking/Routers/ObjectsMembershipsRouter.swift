@@ -27,6 +27,24 @@
 
 import Foundation
 
+extension Collection where Element == ObjectsMembershipsRouter.MembershipInclude {
+  static func include(custom: Bool, space: Bool, spaceCustom: Bool) -> [ObjectsMembershipsRouter.MembershipInclude] {
+    var include = [ObjectsMembershipsRouter.MembershipInclude]()
+    if custom { include.append(.custom) }
+    if space { include.append(.channel) }
+    if spaceCustom { include.append(.channelCustom) }
+    return include
+  }
+
+  static func include(custom: Bool, user: Bool, userCustom: Bool) -> [ObjectsMembershipsRouter.MembershipInclude] {
+    var include = [ObjectsMembershipsRouter.MembershipInclude]()
+    if custom { include.append(.custom) }
+    if user { include.append(.uuid) }
+    if userCustom { include.append(.uuidCustom) }
+    return include
+  }
+}
+
 struct ObjectsMembershipsRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case fetchMemberships(
@@ -79,11 +97,13 @@ struct ObjectsMembershipsRouter: HTTPRouter {
 
   struct MembershipChange: JSONCodable {
     let metadataId: String
+    let status: String?
     let custom: [String: JSONCodableScalar]?
 
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case object = "channel"
+      case status
       case custom
     }
 
@@ -92,14 +112,16 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    init(metadataId: String, custom: [String: JSONCodableScalar]?) {
+    init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
+      self.status = status
       self.custom = custom
     }
 
     init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      status = try container.decodeIfPresent(String.self, forKey: .status)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
@@ -108,6 +130,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
+      try container.encodeIfPresent(status, forKey: .status)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
@@ -121,16 +144,19 @@ struct ObjectsMembershipsRouter: HTTPRouter {
 
   struct MemberChange: JSONCodable {
     let metadataId: String
+    let status: String?
     let custom: [String: JSONCodableScalar]?
 
-    init(metadataId: String, custom: [String: JSONCodableScalar]?) {
+    init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
+      self.status = status
       self.custom = custom
     }
 
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case object = "uuid"
+      case status
       case custom
     }
 
@@ -142,6 +168,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      status = try container.decodeIfPresent(String.self, forKey: .status)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
@@ -150,6 +177,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
+      try container.encodeIfPresent(status, forKey: .status)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
@@ -315,6 +343,7 @@ struct PubNubMembershipsResponsePayload: Codable {
 struct ObjectMetadataPartial: Codable {
   let channel: PartialMetadata<PubNubChannelMetadataBase>?
   let uuid: PartialMetadata<PubNubUUIDMetadataBase>?
+  let status: String?
   let custom: [String: JSONCodableScalarType]?
   let updated: Date
   let eTag: String
@@ -327,6 +356,7 @@ struct ObjectMetadataPartial: Codable {
   enum CodingKeys: String, CodingKey {
     case channel
     case uuid
+    case status
     case custom
     case updated
     case eTag
@@ -339,6 +369,7 @@ struct ObjectMetadataPartial: Codable {
   init(
     channel: PartialMetadata<PubNubChannelMetadataBase>?,
     uuid: PartialMetadata<PubNubUUIDMetadataBase>?,
+    status: String?,
     updated: Date,
     eTag: String,
     custom: [String: JSONCodableScalarType]?
@@ -346,6 +377,7 @@ struct ObjectMetadataPartial: Codable {
     self.channel = channel
     self.uuid = uuid
     self.updated = updated
+    self.status = status
     self.eTag = eTag
     self.custom = custom
   }
@@ -355,6 +387,8 @@ struct ObjectMetadataPartial: Codable {
     custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
+
+    status = try container.decodeIfPresent(String.self, forKey: .status)
 
     if let channel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.channel = .init(metadataId: channel.metadataId, metadataObject: channel)
@@ -372,6 +406,7 @@ struct ObjectMetadataPartial: Codable {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
+    try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(custom, forKey: .custom)
 
     if uuid?.metadataObject != nil || channel?.metadataObject != nil {
@@ -384,4 +419,5 @@ struct ObjectMetadataPartial: Codable {
       try uuidContainer.encodeIfPresent(uuid?.metadataId, forKey: .id)
     }
   }
+  // swiftlint:disable:next file_length
 }

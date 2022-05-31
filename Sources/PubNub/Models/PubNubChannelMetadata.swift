@@ -35,6 +35,10 @@ public protocol PubNubChannelMetadata {
   var metadataId: String { get }
   /// The name of the Channel
   var name: String? { get set }
+  /// The classification of ChannelMetadata
+  var type: String? { get set }
+  /// The current state of the ChannelMetadata
+  var status: String? { get set }
   /// Text describing the purpose of the channel
   var channelDescription: String? { get set }
   /// The last updated timestamp for the object
@@ -48,19 +52,19 @@ public protocol PubNubChannelMetadata {
   init(from other: PubNubChannelMetadata) throws
 }
 
-extension PubNubChannelMetadata {
+public extension PubNubChannelMetadata {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubChannelMetadata>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubChannelMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubChannelMetadata>() throws -> T {
+  func transcode<T: PubNubChannelMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -76,6 +80,8 @@ extension PubNubChannelMetadata {
 public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
   public let metadataId: String
   public var name: String?
+  public var type: String?
+  public var status: String?
   public var channelDescription: String?
 
   public var updated: Date?
@@ -90,6 +96,8 @@ public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
   public init(
     metadataId: String = UUID().uuidString,
     name: String? = nil,
+    type: String? = nil,
+    status: String? = nil,
     channelDescription: String? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
     updated: Date? = nil,
@@ -97,6 +105,8 @@ public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
   ) {
     self.metadataId = metadataId
     self.name = name
+    self.type = type
+    self.status = status
     self.channelDescription = channelDescription
     self.concreteCustom = concreteCustom?.mapValues { $0.scalarValue }
     self.updated = updated
@@ -119,6 +129,8 @@ extension PubNubChannelMetadataBase: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name
+    case type
+    case status
     case channelDescription = "description"
     case concreteCustom = "custom"
     case updated

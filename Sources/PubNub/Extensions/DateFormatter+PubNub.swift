@@ -27,14 +27,14 @@
 
 import Foundation
 
-extension DateFormatter {
+public extension DateFormatter {
   /// Returns a string representation of the current `date` formatted using the receiver’s current settings.
-  public var currentDateString: String {
+  var currentDateString: String {
     return string(from: Date())
   }
 
   /// DateFormatter class that generates and parses string representations of dates following the ISO 8601 standard
-  public static let iso8601: DateFormatter = {
+  static let iso8601: DateFormatter = {
     let iso8601DateFormatter = DateFormatter()
 
     iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -43,7 +43,7 @@ extension DateFormatter {
     return iso8601DateFormatter
   }()
 
-  static let iso8601_noMilliseconds: DateFormatter = {
+  internal static let iso8601_noMilliseconds: DateFormatter = {
     let iso8601DateFormatter = DateFormatter()
 
     iso8601DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"

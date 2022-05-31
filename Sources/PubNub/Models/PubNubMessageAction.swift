@@ -52,19 +52,19 @@ public protocol PubNubMessageAction {
   init(from other: PubNubMessageAction) throws
 }
 
-extension PubNubMessageAction {
+public extension PubNubMessageAction {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubMessageAction>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubMessageAction>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubMessageAction>() throws -> T {
+  func transcode<T: PubNubMessageAction>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -112,7 +112,7 @@ public struct PubNubMessageActionBase: PubNubMessageAction, Codable, Hashable {
   /// Attempts to create a PubNubMessageAction from a Subscription Response Message
   init?(from subscribe: SubscribeMessagePayload) {
     guard let messageAction = try? subscribe.payload.decode(SubscribeMessageActionPayload.self),
-      let publisher = subscribe.publisher
+          let publisher = subscribe.publisher
     else {
       return nil
     }

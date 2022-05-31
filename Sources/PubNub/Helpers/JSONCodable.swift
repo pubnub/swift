@@ -37,82 +37,82 @@ public protocol JSONCodable: Codable {
   var rawValue: Any { get }
 }
 
-extension JSONCodable {
-  public var rawValue: Any {
+public extension JSONCodable {
+  var rawValue: Any {
     return self
   }
 
   /// Decodes an instance of the indicated type
-  public func decode<T>(_ type: T.Type) throws -> T where T: JSONCodable {
+  func decode<T>(_ type: T.Type) throws -> T where T: JSONCodable {
     return try Constant.jsonDecoder.decode(type, from: Constant.jsonEncoder.encode(self))
   }
 
   /// Return the value for the key if the underlying JSONCodable is a keyed container
-  public subscript(rawValue key: String) -> Any? {
+  subscript(rawValue key: String) -> Any? {
     return codableValue[rawValue: key]
   }
 
-  public var codableValue: AnyJSON {
+  var codableValue: AnyJSON {
     return AnyJSON(self)
   }
 
   /// True if the underlying value is a scalar JSON element; false if it's a Collection
-  public var isScalar: Bool {
+  var isScalar: Bool {
     return codableValue.value.isScalar
   }
 
   /// A `Result` that is either the underlying value as a JSON `String` or an error why it couldn't be created
-  public var jsonStringifyResult: Result<String, Error> {
+  var jsonStringifyResult: Result<String, Error> {
     return codableValue.jsonStringifyResult
   }
 
   /// The underlying value as a JSON `String` if it could be created
-  public var jsonStringify: String? {
+  var jsonStringify: String? {
     return codableValue.jsonStringify
   }
 
   /// A `Result` that is either the underlying value as JSON Encoded `Data` or an error why it couldn't be created
-  public var jsonDataResult: Result<Data, Error> {
+  var jsonDataResult: Result<Data, Error> {
     return codableValue.jsonDataResult
   }
 
   /// The underlying value as a JSON encoded `Data` if it could be created
-  public var jsonData: Data? {
+  var jsonData: Data? {
     return codableValue.jsonData
   }
 
   /// Whether the underlying value is coded to Null
-  public var isNil: Bool {
+  var isNil: Bool {
     return codableValue.isNil
   }
 
   /// The underlying value as a `String` or nil if the value was not a `String`
-  public var stringOptional: String? {
+  var stringOptional: String? {
     return rawValue as? String
   }
 
   /// The underlying value as a `Int` or nil if the value was not a `Int`
-  public var intOptional: Int? {
+  var intOptional: Int? {
     return rawValue as? Int
   }
 
   /// The underlying value as a `Double` or nil if the value was not a `Double`
-  public var doubleOptional: Double? {
+  var doubleOptional: Double? {
     return rawValue as? Double
   }
 
   /// The underlying value as a `Bool` or nil if the value was not a `Bool`
-  public var boolOptional: Bool? {
+  var boolOptional: Bool? {
     return rawValue as? Bool
   }
 
   /// The underlying value as a `Date` or nil if the value was not a `Date`
-  public var dateOptional: Date? {
+  var dateOptional: Date? {
     return rawValue as? Date
   }
 
   /// The underlying value as a `Data` or nil if the value was not a `Data`
-  public var dataOptional: Data? {
+  var dataOptional: Data? {
     if let dataString = stringOptional, let data = Data(base64Encoded: dataString) {
       return data
     }
@@ -141,13 +141,13 @@ public protocol JSONCodableScalar: JSONCodable {
   var scalarValue: JSONCodableScalarType { get }
 }
 
-extension JSONCodableScalar {
-  public var codableValue: AnyJSON {
+public extension JSONCodableScalar {
+  var codableValue: AnyJSON {
     return AnyJSON(scalarValue.underlying)
   }
 
   /// The underlying value as an `Any`
-  public var rawValue: Any {
+  var rawValue: Any {
     return scalarValue.underlying.rawValue
   }
 }

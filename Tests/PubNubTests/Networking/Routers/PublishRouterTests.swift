@@ -51,11 +51,11 @@ extension PublishRouterTests {
       .publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
-    
+
     guard let queryItems = try? router.queryItems.get() else {
       return XCTAssert(false, "'queryItems' not set")
     }
-    
+
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "auth-key")))
     XCTAssertEqual(router.endpoint.description, "Publish")
     XCTAssertEqual(router.category, "Publish")

@@ -451,7 +451,7 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    
+
     let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
     let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(
@@ -516,7 +516,7 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    
+
     let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
     let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(

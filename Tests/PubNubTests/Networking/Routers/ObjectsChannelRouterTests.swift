@@ -64,8 +64,8 @@ extension ObjectsChannelRouterTests {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_all_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -222,7 +222,7 @@ extension ObjectsChannelRouterTests {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -369,7 +369,7 @@ extension ObjectsChannelRouterTests {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }

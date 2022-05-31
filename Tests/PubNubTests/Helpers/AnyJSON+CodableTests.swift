@@ -144,7 +144,7 @@ class AnyJSONCodableTests: XCTestCase {
     let jsonFromLiteral = AnyJSON("abcdefg HIJKLMNO 123456789 !@#$%^&*()")
 
     guard let jsonLiteralData = jsonFromLiteral.jsonData,
-      let jsonData = json.jsonData
+          let jsonData = json.jsonData
     else {
       return XCTFail("Couldn't create json data")
     }
@@ -167,7 +167,7 @@ class AnyJSONCodableTests: XCTestCase {
     let jsonFromLiteral = AnyJSON(11_123_123)
 
     guard let jsonLiteralData = jsonFromLiteral.jsonData,
-      let jsonData = json.jsonData
+          let jsonData = json.jsonData
     else {
       return XCTFail("Couldn't create json data")
     }
@@ -175,7 +175,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(jsonLiteralData, jsonData)
 
     guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
-      let valueStringJson = String(bytes: jsonData, encoding: .utf8)
+          let valueStringJson = String(bytes: jsonData, encoding: .utf8)
     else {
       return XCTFail("Could not convert data back into string intermediary")
     }
@@ -195,7 +195,7 @@ class AnyJSONCodableTests: XCTestCase {
     let jsonFromLiteral = AnyJSON(11123.2302342)
 
     guard let jsonLiteralData = jsonFromLiteral.jsonData,
-      let jsonData = json.jsonData
+          let jsonData = json.jsonData
     else {
       return XCTFail("Couldn't create json data")
     }
@@ -203,7 +203,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(jsonLiteralData, jsonData)
 
     guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
-      let valueStringJson = String(bytes: jsonData, encoding: .utf8)
+          let valueStringJson = String(bytes: jsonData, encoding: .utf8)
     else {
       return XCTFail("Could not convert data back into string intermediary")
     }
@@ -223,7 +223,7 @@ class AnyJSONCodableTests: XCTestCase {
     let jsonFromLiteral = AnyJSON(true)
 
     guard let jsonLiteralData = jsonFromLiteral.jsonData,
-      let jsonData = json.jsonData
+          let jsonData = json.jsonData
     else {
       return XCTFail("Couldn't create json data")
     }
@@ -231,7 +231,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(jsonLiteralData, jsonData)
 
     guard let valueStringLiteral = String(bytes: jsonLiteralData, encoding: .utf8),
-      let valueStringJson = String(bytes: jsonData, encoding: .utf8)
+          let valueStringJson = String(bytes: jsonData, encoding: .utf8)
     else {
       return XCTFail("Could not convert data back into string intermediary")
     }

@@ -47,8 +47,8 @@ final class SessionEndpointErrorTests: XCTestCase {
         XCTFail("Publish request should fail")
       case let .failure(error):
         guard let task = sessions.mockSession.tasks.first,
-          let request = task.originalRequest,
-          let response = task.httpResponse
+              let request = task.originalRequest,
+              let response = task.httpResponse
         else {
           return XCTFail("Could not get task")
         }

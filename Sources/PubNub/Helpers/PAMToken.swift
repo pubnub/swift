@@ -54,8 +54,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
     case meta
     case signature = "sig"
   }
-  
-  
+
   static func token(from token: String) -> PAMToken? {
     guard let unescapedToken = token.unescapedPAMToken else {
       PubNub.log.warn("PAM Token `\(token)` was not able to be properly escaped.")
@@ -66,10 +65,10 @@ public struct PAMToken: Codable, Equatable, Hashable {
       PubNub.log.warn("PAM Token `\(token)` was not a valid base64 encoded string")
       return nil
     }
-    
+
     return process(tokenData)
   }
-  
+
   internal static func process(_ token: Data) -> PAMToken? {
     do {
       return try CBORDecoder().decode(PAMToken.self, from: token)
@@ -105,9 +104,13 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public static let get = PAMPermission(rawValue: 1 << 5) // 32
   public static let update = PAMPermission(rawValue: 1 << 6) // 64
   public static let join = PAMPermission(rawValue: 1 << 7) // 128
-  
-  public static let crud: PAMPermission = [PAMPermission.read, PAMPermission.write, PAMPermission.update, PAMPermission.delete]
-  public static let all: PAMPermission = [PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage]
+
+  public static let crud: PAMPermission = [
+    PAMPermission.read, PAMPermission.write, PAMPermission.update, PAMPermission.delete
+  ]
+  public static let all: PAMPermission = [
+    PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage
+  ]
 
   public init(rawValue: UInt32) {
     self.rawValue = rawValue

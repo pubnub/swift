@@ -60,7 +60,7 @@ extension URLErrorResource {
   }
 }
 
-struct ImportTestResource {
+enum ImportTestResource {
   static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   static func importResource(_ filename: String, withExtension ext: String = "json") throws -> Data {

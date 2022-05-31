@@ -90,7 +90,7 @@ public class HTTPFileTask: Hashable {
 
   func updateProgress(bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
     // Progress is handled automatically on iOS 11+
-    if #unavailable(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0) {
+    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) { } else {
       progress.completedUnitCount = totalBytesWritten
     }
 

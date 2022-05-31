@@ -89,8 +89,7 @@ public struct PubNubConfiguration: Hashable {
     heartbeatInterval: UInt = 0,
     supressLeaveEvents: Bool = false,
     requestMessageCountThreshold: UInt = 100,
-    filterExpression: String? = nil,
-    enableSpacesBeta: Bool = false
+    filterExpression: String? = nil
   ) {
     guard uuid.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UUID should not be empty.")
@@ -119,7 +118,6 @@ public struct PubNubConfiguration: Hashable {
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
-    self.enableSpacesBeta = enableSpacesBeta
   }
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
@@ -170,6 +168,4 @@ public struct PubNubConfiguration: Hashable {
 
   /// Ordered list of key-value pairs which identify various consumers.
   public var consumerIdentifiers: [String: String] = [:]
-  /// Enable beta VSP functionality for Users, Spaces, and Memberships
-  public var enableSpacesBeta: Bool
 }

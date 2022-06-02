@@ -111,7 +111,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public init(
     uuidMetadataId: String,
     channelMetadataId: String,
-    status _: String? = nil,
+    status: String? = nil,
     uuid: PubNubUUIDMetadataBase? = nil,
     channel: PubNubChannelMetadataBase? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
@@ -123,6 +123,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     self.uuid = uuid
     self.channel = channel
     self.concreteCustom = concreteCustom?.mapValues { $0.scalarValue }
+    self.status = status
     self.updated = updated
     self.eTag = eTag
   }

@@ -57,12 +57,14 @@ public enum SubscriptionEvent {
   case messageReceived(PubNubMessage)
   /// A signal has been received
   case signalReceived(PubNubMessage)
+
   /// A change in the subscription connection has occurred
   case connectionStatusChanged(ConnectionStatus)
   /// A change in the subscribed channels or groups has occurred
   case subscriptionChanged(SubscriptionChangeEvent)
   /// A presence change has been received
   case presenceChanged(PubNubPresenceChange)
+
   /// A User object has been updated
   case uuidMetadataSet(PubNubUUIDMetadataChangeset)
   /// A User object has been deleted
@@ -75,6 +77,16 @@ public enum SubscriptionEvent {
   case membershipMetadataSet(PubNubMembershipMetadata)
   /// A Membership object has been deleted
   case membershipMetadataRemoved(PubNubMembershipMetadata)
+
+  case userUpdated(PubNubUser.Patcher)
+  case userRemoved(PubNubUser)
+
+  case spaceUpdated(PubNubSpace.Patcher)
+  case spaceRemoved(PubNubSpace)
+
+  case membershipUpdated(PubNubMembership)
+  case membershipRemoved(PubNubMembership)
+
   /// A MessageAction was added to a published message
   case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
@@ -150,6 +162,21 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     case removedMembership(PubNubMembershipMetadata)
   }
 
+  public enum PubNubUserChangeEvent {
+    case userUpdated(PubNubUser.Patcher)
+    case userRemoved(PubNubUser)
+  }
+
+  public enum PubNubSpaceChangeEvent {
+    case spaceUpdated(PubNubSpace.Patcher)
+    case spaceRemoved(PubNubSpace)
+  }
+
+  public enum PubNubMembershipChangeEvent {
+    case membershipUpdated(PubNubMembership)
+    case membershipRemoved(PubNubMembership)
+  }
+
   /// Event that either contains a change to the subscription connection or a subscription error
   public typealias StatusEvent = Result<ConnectionStatus, PubNubError>
 
@@ -176,6 +203,10 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
   /// Receiver for File Upload events
   public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
+
+  public var didReceivePubNubUserChange: ((PubNubUserChangeEvent) -> Void)?
+  public var didReceivePubNubSpaceChange: ((PubNubSpaceChangeEvent) -> Void)?
+  public var didReceivePubNubMembershipChange: ((PubNubMembershipChangeEvent) -> Void)?
 
   public func emitDidReceiveBatch(subscription batch: [SubscriptionEvent]) {
     let supressCancellationErrors = self.supressCancellationErrors
@@ -205,12 +236,14 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveMessage?(message)
       case let .signalReceived(signal):
         self?.didReceiveSignal?(signal)
+
       case let .connectionStatusChanged(status):
         self?.didReceiveStatus?(.success(status))
       case let .subscriptionChanged(change):
         self?.didReceiveSubscriptionChange?(change)
       case let .presenceChanged(presence):
         self?.didReceivePresence?(presence)
+
       case let .uuidMetadataSet(metadata):
         self?.didReceiveObjectMetadataEvent?(.setUUID(metadata))
       case let .uuidMetadataRemoved(metadataId):
@@ -223,6 +256,20 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
       case let .membershipMetadataRemoved(membership):
         self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
+
+      case let .userUpdated(user):
+        self?.didReceivePubNubUserChange?(.userUpdated(user))
+      case let .userRemoved(user):
+        self?.didReceivePubNubUserChange?(.userRemoved(user))
+      case let .spaceUpdated(space):
+        self?.didReceivePubNubSpaceChange?(.spaceUpdated(space))
+      case let .spaceRemoved(space):
+        self?.didReceivePubNubSpaceChange?(.spaceRemoved(space))
+      case let .membershipUpdated(membership):
+        self?.didReceivePubNubMembershipChange?(.membershipUpdated(membership))
+      case let .membershipRemoved(membership):
+        self?.didReceivePubNubMembershipChange?(.membershipRemoved(membership))
+
       case let .messageActionAdded(action):
         self?.didReceiveMessageAction?(.added(action))
       case let .messageActionRemoved(action):

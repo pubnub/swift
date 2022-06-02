@@ -298,45 +298,46 @@ public class SubscriptionSession {
 
               return false
             }
-            .map { message -> SubscriptionEvent in // Decode and eventify
+            .map { message -> [SubscriptionEvent] in // Decode and eventify
               switch message.messageType {
               case .message:
-                return .messageReceived(PubNubMessageBase(from: message))
+                return [.messageReceived(PubNubMessageBase(from: message))]
               case .signal:
-                return .signalReceived(PubNubMessageBase(from: message))
+                return [.signalReceived(PubNubMessageBase(from: message))]
               case .object:
                 guard let objectAction = try? message.payload.decode(SubscribeObjectMetadataPayload.self) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
+                  return [.messageReceived(PubNubMessageBase(from: message))]
                 }
-                return objectAction.subscribeEvent
+                return [objectAction.objectEvent, objectAction.vspEvent]
               case .messageAction:
                 guard let messageAction = PubNubMessageActionBase(from: message),
                       let actionEventString = message.payload[rawValue: "event"] as? String,
                       let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
                 else {
-                  return .messageReceived(PubNubMessageBase(from: message))
+                  return [.messageReceived(PubNubMessageBase(from: message))]
                 }
 
                 switch actionEvent {
                 case .added:
-                  return .messageActionAdded(messageAction)
+                  return [.messageActionAdded(messageAction)]
                 case .removed:
-                  return .messageActionRemoved(messageAction)
+                  return [.messageActionRemoved(messageAction)]
                 }
               case .file:
                 // Attempt to decode as a File Message, then fallback to General if fails
                 guard let fileMessage = try? PubNubFileEventBase(from: message) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
+                  return [.messageReceived(PubNubMessageBase(from: message))]
                 }
-                return .fileUploaded(fileMessage)
+                return [.fileUploaded(fileMessage)]
               case .presence:
                 guard let presence = PubNubPresenceChangeBase(from: message) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
+                  return [.messageReceived(PubNubMessageBase(from: message))]
                 }
 
-                return .presenceChanged(presence)
+                return [.presenceChanged(presence)]
               }
             }
+            .flatMap { $0 }
 
           self?.notify { $0.emitDidReceiveBatch(subscription: events) }
 

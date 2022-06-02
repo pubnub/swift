@@ -99,8 +99,8 @@ public extension PubNub {
       self.totalCount = totalCount
     }
 
-    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
-      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+    var customIncludes: [ObjectsMembershipsRouter.Include]? {
+      var includes = [ObjectsMembershipsRouter.Include]()
 
       if customFields { includes.append(.custom) }
       if channelFields { includes.append(.channel) }
@@ -138,8 +138,8 @@ public extension PubNub {
       self.totalCount = totalCount
     }
 
-    var customIncludes: [ObjectsMembershipsRouter.MembershipInclude]? {
-      var includes = [ObjectsMembershipsRouter.MembershipInclude]()
+    var customIncludes: [ObjectsMembershipsRouter.Include]? {
+      var includes = [ObjectsMembershipsRouter.Include]()
 
       if customFields { includes.append(.custom) }
       if uuidFields { includes.append(.uuid) }

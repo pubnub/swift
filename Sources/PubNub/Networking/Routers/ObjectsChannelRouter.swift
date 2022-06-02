@@ -59,6 +59,18 @@ struct ObjectsChannelRouter: HTTPRouter {
 
   enum Include {
     static let custom = "custom"
+    static let status = "status"
+    static let type = "type"
+
+    static func includes(custom: Bool) -> [String] {
+      var includes = [Include.status, Include.type]
+
+      if custom {
+        includes.append(Include.custom)
+      }
+
+      return includes
+    }
   }
 
   // Init
@@ -103,14 +115,14 @@ struct ObjectsChannelRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
     case let .fetch(_, customFields):
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
     case let .set(_, customFields):
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
     case .remove:
       break
     }

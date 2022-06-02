@@ -178,16 +178,6 @@ public class PubNubBaseModule: PubNubModule {
     self.networkSession = networkSession
     isConfigured = true
   }
-
-  public init() {
-    configuration = PubNubConfiguration(
-      publishKey: "not-configured",
-      subscribeKey: "not-configured",
-      uuid: "not-configured"
-    )
-
-    networkSession = HTTPSession(configuration: configuration.urlSessionConfiguration)
-  }
 }
 
 public final class PubNubUserModule: PubNubBaseModule, PubNubModuleIdentifiable {
@@ -215,6 +205,7 @@ public protocol FlatJSONCodable: JSONCodable {
 }
 
 public extension FlatJSONCodable {
+  /// Convience init that allows protocol conversion between diffferent FlatJSONCodable types
   init(flatJSON: [String: JSONCodableScalar]?) {
     if let flatJSON = flatJSON {
       self.init(flatJSON: flatJSON)
@@ -242,6 +233,93 @@ struct FlatJSON: FlatJSONCodable {
 
   init(flatJSON: [String: JSONCodableScalar]) {
     json = flatJSON.mapValues { $0.scalarValue }
+  }
+}
+
+/// Object that represents a possible change on an Optional object
+public enum OptionalChange<Wrapped> {
+  /// Target value should not be changed
+  case noChange
+  /// Target value should be updated to be `nil`
+  case none
+  /// Target value should be updated to be the `Wrapped` value
+  case some(Wrapped)
+
+  /// Whether this `OptionalChange` should mutate a target value
+  var hasChange: Bool {
+    switch self {
+    case .noChange:
+      return false
+    case .none:
+      return true
+    case .some:
+      return true
+    }
+  }
+
+  /// The associated value of the enum, if one exists
+  var underlying: Wrapped? {
+    switch self {
+    case .noChange:
+      return nil
+    case .none:
+      return nil
+    case let .some(value):
+      return value
+    }
+  }
+
+  /// Update a value based on the state of the `OptionalChange`
+  ///
+  ///  - parameter applying: The target `Wrapped` value to be updated
+  ///  - returns: The updated value, or the same value if there was no change
+  public func applying(_ value: Wrapped?) -> Wrapped? {
+    switch self {
+    case .noChange:
+      return value
+    case .none:
+      return nil
+    case let .some(newValue):
+      return newValue
+    }
+  }
+
+  /// Update a value based on the state of the `OptionalChange`
+  ///
+  ///  - parameter applying: A reference to the target `Wrapped` value to be updated
+  public func apply(_ value: inout Wrapped?) {
+    switch self {
+    case .noChange:
+      break
+    case .none:
+      value = nil
+    case let .some(newValue):
+      value = newValue
+    }
+  }
+}
+
+extension OptionalChange: Codable where Wrapped: Codable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+
+    if container.decodeNil() {
+      self = .none
+    } else {
+      self = .some(try container.decode(Wrapped.self))
+    }
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    switch self {
+    case let .some(value):
+      try container.encode(value)
+    case .none:
+      try container.encodeNil()
+    case .noChange:
+      break
+    }
   }
 }
 

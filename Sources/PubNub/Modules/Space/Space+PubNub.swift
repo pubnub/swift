@@ -27,14 +27,40 @@
 
 import Foundation
 
+/// Protocol interface to manage `PubNubSpace` entities using closures
 public protocol PubNubSpaceInterface {
+  /// Unique identifier of this module
+  static var moduleIdentifier: String { get }
+
+  /// Fetch a `PubNubSpace` using its unique identifier
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`.
+  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubSpace` object belonging to the identifier
+  ///     - **Failure**: `Error` describing the failure
   func fetchSpace(
     spaceId: String,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping (Result<PubNubSpace, Error>) -> Void
   )
 
+  /// Fetch all `PubNubSpace` that exist on a keyset
+  ///
+  /// - Parameters:
+  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - includeTotalCount: Should the next page include total amount of Space to fetch accessed via `next.totalCount`
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: `Tuple` containing an `Array` of `PubNubSpace`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: `Error` describing the failure
   func fetchSpaces(
     includeCustom: Bool,
     includeTotalCount: Bool,
@@ -42,10 +68,24 @@ public protocol PubNubSpaceInterface {
     sort: [PubNub.SpaceSort],
     limit: Int?,
     page: PubNubHashedPage?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(spaces: [PubNubSpace], next: PubNubHashedPage?), Error>) -> Void)
   )
 
+  /// Create a new `PubNubSpace`
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`.
+  ///   - name: The name of the Space
+  ///   - type: The classification of Space
+  ///   - status: The current state of the Space
+  ///   - description: Text describing the purpose of the Space
+  ///   - custom: All custom properties set on the Space
+  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: `PubNubSpace` that was created
+  ///     - **Failure**: `Error` describing the failure
   func createSpace(
     spaceId: String,
     name: String?,
@@ -54,10 +94,24 @@ public protocol PubNubSpaceInterface {
     description: String?,
     custom: FlatJSONCodable?,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubSpace, Error>) -> Void)?
   )
 
+  /// Updates an existing`PubNubSpace`
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`.
+  ///   - name: The name of the Space
+  ///   - type: The classification of Space
+  ///   - status: The current state of the Space
+  ///   - description: Text describing the purpose of the Space
+  ///   - custom: All custom properties set on the Space
+  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async`Result` of the method call
+  ///     - **Success**: `PubNubSpace` containing the updated changes
+  ///     - **Failure**: `Error` describing the failure
   func updateSpace(
     spaceId: String,
     name: String?,
@@ -66,13 +120,21 @@ public protocol PubNubSpaceInterface {
     description: String?,
     custom: FlatJSONCodable?,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubSpace, Error>) -> Void)?
   )
 
+  /// Removes a previously created `PubNubSpace` (if it existed)
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the removal was successful
+  ///     - **Failure**: An `Error` describing the failure
   func removeSpace(
     spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 }
@@ -80,6 +142,7 @@ public protocol PubNubSpaceInterface {
 // MARK: - Request Objects
 
 public extension PubNub {
+  /// All available fileds that can be sorted on for a `PubNubSpace`
   enum SpaceSort: Hashable {
     /// Sort on the unique identifier property
     case id(ascending: Bool)
@@ -92,6 +155,7 @@ public extension PubNub {
     /// Sort on the last updated property
     case updated(ascending: Bool)
 
+    /// The string representation of the field
     public var rawValue: String {
       switch self {
       case .id:
@@ -107,6 +171,7 @@ public extension PubNub {
       }
     }
 
+    /// Direction of the sort for the sort field
     public var ascending: Bool {
       switch self {
       case let .id(ascending):
@@ -122,6 +187,7 @@ public extension PubNub {
       }
     }
 
+    /// The finalized query parameter value for the sort field
     public var routerParameter: String {
       return "\(rawValue):\(ascending ? "" : "desc")"
     }
@@ -134,7 +200,7 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
   public func fetchSpace(
     spaceId: String,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping (Result<PubNubSpace, Error>) -> Void
   ) {
     let router = ObjectsChannelRouter(
@@ -159,7 +225,7 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
     sort: [PubNub.SpaceSort] = [],
     limit: Int? = 100,
     page: PubNubHashedPage? = nil,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping ((Result<(spaces: [PubNubSpace], next: PubNubHashedPage?), Error>) -> Void)
   ) {
     let router = ObjectsChannelRouter(
@@ -196,7 +262,7 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
     description: String? = nil,
     custom: FlatJSONCodable? = nil,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<PubNubSpace, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -232,7 +298,7 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
     description: String? = nil,
     custom: FlatJSONCodable? = nil,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<PubNubSpace, Error>) -> Void)?
   ) {
     createSpace(
@@ -243,14 +309,14 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
       description: description,
       custom: custom,
       includeCustom: includeCustom,
-      custom: requestConfig,
+      requestConfig: requestConfig,
       completion: completion
     )
   }
 
   public func removeSpace(
     spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
@@ -266,63 +332,5 @@ extension PubNubSpaceModule: PubNubSpaceInterface {
       ) { result in
         completion?(result.map { _ in () })
       }
-  }
-}
-
-// MARK: - Models
-
-public struct PubNubSpace {
-  /// The unique identifier of the Space
-  public var id: String
-  /// The name of the Space
-  public var name: String?
-  /// The classification of Space
-  public var type: String?
-  /// The current state of the Space
-  public var status: String?
-  /// Text describing the purpose of the Space
-  public var spaceDescription: String?
-
-  /// All custom fields set on the Space
-  public var custom: FlatJSONCodable?
-
-  /// The last updated timestamp for the Space
-  public var updated: Date?
-  /// The caching identifier for the Space
-  public var eTag: String?
-
-  public init(
-    id: String,
-    name: String? = nil,
-    type: String? = nil,
-    status: String? = nil,
-    spaceDescription: String? = nil,
-    custom: FlatJSONCodable? = nil,
-    updated: Date? = nil,
-    eTag: String? = nil
-  ) {
-    self.id = id
-    self.name = name
-    self.type = type
-    self.status = status
-    self.spaceDescription = spaceDescription
-    self.custom = custom
-    self.updated = updated
-    self.eTag = eTag
-  }
-}
-
-public extension PubNubChannelMetadata {
-  func convert() -> PubNubSpace {
-    return PubNubSpace(
-      id: metadataId,
-      name: name,
-      type: type,
-      status: status,
-      spaceDescription: channelDescription,
-      custom: FlatJSON(flatJSON: custom),
-      updated: updated,
-      eTag: eTag
-    )
   }
 }

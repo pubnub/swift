@@ -29,8 +29,6 @@ import Foundation
 
 /// The type of change that will be applied
 public enum PubNubMetadataChange<MetadataType> {
-  /// A String value along a predfined KeyPath
-  case string(WritableKeyPath<MetadataType, String>, String)
   /// An Optional String value along a predfined KeyPath
   case stringOptional(WritableKeyPath<MetadataType, String?>, String?)
   /// A custom `Dictionary` value along a predfined KeyPath
@@ -82,8 +80,6 @@ public struct PubNubUUIDMetadataChangeset {
     // Apply changes
     for change in changes {
       switch change {
-      case let .string(path, value):
-        patchedObject[keyPath: path] = value
       case let .stringOptional(path, value):
         patchedObject[keyPath: path] = value
       case let .customOptional(path, value):
@@ -140,8 +136,6 @@ public struct PubNubChannelMetadataChangeset {
     // Apply changes
     for change in changes {
       switch change {
-      case let .string(path, value):
-        patchedObject[keyPath: path] = value
       case let .stringOptional(path, value):
         patchedObject[keyPath: path] = value
       case let .customOptional(path, value):

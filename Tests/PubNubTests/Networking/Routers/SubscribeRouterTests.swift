@@ -189,16 +189,26 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidSet_success",
-                                                              "cancelled"]).session
-    else {
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_uuidSet_success", "cancelled"]
+    ).session else {
       return XCTFail("Could not create mock url session")
     }
 
     let baseUser = PubNubUUIDMetadataBase(metadataId: "TestUserID", name: "Not Real Name")
+    let patchedObjectUser = PubNubUUIDMetadataBase(
+      metadataId: "TestUserID",
+      name: "Test Name",
+      updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
+      eTag: "UserUpdateEtag"
+    )
+
+    let baseVspUser = baseUser.convert()
+    let patchedUser = patchedObjectUser.convert()
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -210,16 +220,14 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .uuidMetadataSet(changeset):
-        let updated = changeset.apply(to: baseUser)
         XCTAssertEqual(
-          try? updated.transcode(),
-          PubNubUUIDMetadataBase(
-            metadataId: "TestUserID", name: "Test Name",
-            updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"), eTag: "UserUpdateEtag"
-          )
+          try? changeset.apply(to: baseUser).transcode(), patchedObjectUser
         )
 
         objectExpect.fulfill()
+      case let .userUpdated(patcher):
+        XCTAssertEqual(patcher.applyTo(baseVspUser), patchedUser)
+        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -258,6 +266,7 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -279,6 +288,9 @@ extension SubscribeRouterTests {
       case let .uuidMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestUserID")
         objectExpect.fulfill()
+      case let .userRemoved(user):
+        XCTAssertEqual(user, PubNubUser(id: "TestUserID"))
+        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -317,6 +329,7 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length
   func testSubscribe_ChannelMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -326,7 +339,18 @@ extension SubscribeRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let baseSpace = PubNubChannelMetadataBase(metadataId: "TestSpaceID", name: "Not Real Name")
+    let baseChannel = PubNubChannelMetadataBase(
+      metadataId: "TestSpaceID", name: "Not Real Name", type: "someType"
+    )
+    let patchedChannel = PubNubChannelMetadataBase(
+      metadataId: "TestSpaceID",
+      name: "Test Name",
+      updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
+      eTag: "SpaceUpdateEtag"
+    )
+
+    let baseSpace = baseChannel.convert()
+    let patchedSpace = patchedChannel.convert()
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -338,16 +362,15 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .channelMetadataSet(changeset):
-        let updated = changeset.apply(to: baseSpace)
-
-        XCTAssertEqual(updated.metadataId, "TestSpaceID")
-        XCTAssertEqual(updated.name, "Test Name")
-        XCTAssertEqual(updated.channelDescription, nil)
-        XCTAssertNil(updated.custom)
-        XCTAssertEqual(updated.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(updated.eTag, "SpaceUpdateEtag")
-
+        print("Channel Changeset \(changeset)")
+        XCTAssertEqual(
+          try? changeset.apply(to: baseChannel).transcode(), patchedChannel
+        )
         objectExpect.fulfill()
+      case let .spaceUpdated(patcher):
+        print("Space Patcher \(patcher)")
+        XCTAssertEqual(patcher.applyTo(baseSpace), patchedSpace)
+        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         default:
@@ -382,6 +405,7 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_ChannelMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -403,6 +427,9 @@ extension SubscribeRouterTests {
       case let .channelMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestSpaceID")
         objectExpect.fulfill()
+      case let .spaceRemoved(space):
+        XCTAssertEqual(space, PubNubSpace(id: "TestSpaceID"))
+        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -441,6 +468,7 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -469,6 +497,9 @@ extension SubscribeRouterTests {
       case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
+      case let .membershipUpdated(membership):
+        XCTAssertEqual(membership, testMembership.convert())
+        vspExpect.fulfill()
 
       case let .subscriptionChanged(change):
         switch change {
@@ -508,6 +539,7 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
+    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -534,6 +566,9 @@ extension SubscribeRouterTests {
       case let .membershipMetadataRemoved(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
+      case let .membershipRemoved(membership):
+        XCTAssertEqual(membership, testMembership.convert())
+        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):

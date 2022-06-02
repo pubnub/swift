@@ -27,74 +27,164 @@
 
 import Foundation
 
+/// Protocol interface to manage `PubNubMembership` entities using closures
 public protocol PubNubMembershipInterface {
+  /// Unique identifier of this module
+  static var moduleIdentifier: String { get }
+
+  /// Fetch all `PubNubMembership` linked to a specific `PubNubUser.id`
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - includeCustom: Should the `PubNubMembership.custom` properties be included in the response
+  ///   - includeSpaceFields: Should the `PubNubSpace` properties be included in the response
+  ///   - includeSpaceCustomFields: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - includeTotalCount: Should the next page include total amount of Space to fetch accessed via `next.totalCount`
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: `Tuple` containing an `Array` of `PubNubMembership`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: `Error` describing the failure
   func fetchMemberships(
     userId: String?,
     includeCustom: Bool,
-    includeTotalCount: Bool,
     includeSpaceFields: Bool,
     includeSpaceCustomFields: Bool,
+    includeTotalCount: Bool,
     filter: String?,
     sort: [PubNub.SpaceMembershipSort],
     limit: Int?,
     page: PubNubHashedPage?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(memberships: [PubNubMembership], next: PubNubHashedPage?), Error>) -> Void)
   )
 
+  /// Fetch all `PubNubMembership` linked to a specific `PubNubSpace.id`
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`.
+  ///   - includeCustom: Should the `PubNubMembership.custom` properties be included in the response
+  ///   - includeSpaceFields: Should the `PubNubUser` properties be included in the response
+  ///   - includeSpaceCustomFields: Should the `PubNubUser.custom` properties be included in the response
+  ///   - includeTotalCount: Should the next page include total amount of Space to fetch accessed via `next.totalCount`
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: `Tuple` containing an `Array` of `PubNubMembership`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: `Error` describing the failure
   func fetchMemberships(
     spaceId: String,
     includeCustom: Bool,
-    includeTotalCount: Bool,
     includeUserFields: Bool,
     includeUserCustomFields: Bool,
+    includeTotalCount: Bool,
     filter: String?,
     sort: [PubNub.UserMembershipSort],
     limit: Int?,
     page: PubNubHashedPage?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(memberships: [PubNubMembership], next: PubNubHashedPage?), Error>) -> Void)
   )
 
+  /// Add a `PubNubMembership` relationship between a `PubNubSpace` and one or more `PubNubUser`
+  ///
+  /// - Parameters:
+  ///   - users: List of `PubNubUser`that will be associated with the `PubNubSpace`
+  ///   - spaceId: Unique identifier for the `PubNubSpace`
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func addMemberships(
-    users: [PubNubMembership.MembershipPartial],
+    users: [PubNubMembership.Partial],
     to spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 
+  /// Add a `PubNubMembership` relationship between a `PubNubUser` and one or more `PubNubSpace`
+  ///
+  /// - Parameters:
+  ///   - spaces: List of `PubNubSpace`that will be associated with the `PubNubUser`
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func addMemberships(
-    spaces: [PubNubMembership.MembershipPartial],
+    spaces: [PubNubMembership.Partial],
     to userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 
+  /// Updates a `PubNubMembership` relationship between a `PubNubSpace` and one or more `PubNubUser`
+  ///
+  /// - Parameters:
+  ///   - users: List of `PubNubUser`that will be associated with the `PubNubSpace`
+  ///   - spaceId: Unique identifier for the `PubNubSpace`
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func updateMemberships(
-    users: [PubNubMembership.MembershipPartial],
+    users: [PubNubMembership.Partial],
     on spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 
+  /// Updates a `PubNubMembership` relationship between a `PubNubUser` and one or more `PubNubSpace`
+  ///
+  /// - Parameters:
+  ///   - spaces: List of `PubNubSpace`that will be associated with the `PubNubUser`
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func updateMemberships(
-    spaces: [PubNubMembership.MembershipPartial],
+    spaces: [PubNubMembership.Partial],
     on userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 
+  /// Removes the `PubNubMembership` relationship between a `PubNubSpace` and one or more `PubNubUser`
+  ///
+  /// - Parameters:
+  ///   - userIds: List of `PubNubUser.id``String` values that will be separated from the `PubNubSpace`
+  ///   - userId: Unique identifier for the `PubNubSpace`
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func removeMemberships(
     userIds: [String],
     from spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 
+  /// Removes the `PubNubMembership` relationship between a `PubNubUser` and one or more `PubNubSpace`
+  ///
+  /// - Parameters:
+  ///   - spaceIds: List of `PubNubSpace.id``String` values that will be separated from the `PubNubUser`
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: Async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the request was successful
+  ///     - **Failure**: `Error` describing the failure
   func removeMemberships(
     spaceIds: [String],
     from userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 }
@@ -102,12 +192,16 @@ public protocol PubNubMembershipInterface {
 // MARK: - Request Objects
 
 public extension PubNub {
+  /// All available fileds that can be sorted on for a `PubNubMembership` using a `PubNubSpace`
   enum UserMembershipSort: Hashable {
+    /// Sort on the status property
     case status(ascending: Bool)
+    /// Sort on the last updated property
     case updated(ascending: Bool)
-
+    /// Sort on the `PubNubUser` properties
     case user(UserSort, ascending: Bool)
 
+    /// The finalized query parameter value for the sort field
     var routerParameter: String {
       switch self {
       case let .status(ascending: ascending):
@@ -120,12 +214,16 @@ public extension PubNub {
     }
   }
 
+  /// All available fileds that can be sorted on for a `PubNubMembership` using a `PubNubUser`
   enum SpaceMembershipSort: Hashable {
+    /// Sort on the status property
     case status(ascending: Bool)
+    /// Sort on the last updated property
     case updated(ascending: Bool)
-
+    /// Sort on the `PubNubSpace` properties
     case space(SpaceSort, ascending: Bool)
 
+    /// The finalized query parameter value for the sort field
     var routerParameter: String {
       switch self {
       case let .status(ascending: ascending):
@@ -145,14 +243,14 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   public func fetchMemberships(
     userId: String?,
     includeCustom: Bool = true,
-    includeTotalCount: Bool = false,
     includeSpaceFields: Bool = false,
     includeSpaceCustomFields: Bool = false,
+    includeTotalCount: Bool = false,
     filter: String? = nil,
     sort: [PubNub.SpaceMembershipSort] = [],
     limit: Int? = 100,
     page: PubNubHashedPage? = nil,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping ((Result<(memberships: [PubNubMembership], next: PubNubHashedPage?), Error>) -> Void)
   ) {
     let computedUserId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
@@ -195,14 +293,14 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   public func fetchMemberships(
     spaceId: String,
     includeCustom: Bool = true,
-    includeTotalCount: Bool = false,
     includeUserFields: Bool = false,
     includeUserCustomFields: Bool = false,
+    includeTotalCount: Bool = false,
     filter: String? = nil,
     sort: [PubNub.UserMembershipSort] = [],
     limit: Int? = 100,
     page: PubNubHashedPage? = nil,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping ((Result<(memberships: [PubNubMembership], next: PubNubHashedPage?), Error>) -> Void)
   ) {
     let router = ObjectsMembershipsRouter(
@@ -241,9 +339,9 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   }
 
   public func addMemberships(
-    users: [PubNubMembership.MembershipPartial],
+    users: [PubNubMembership.Partial],
     to spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(
@@ -275,9 +373,9 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   }
 
   public func addMemberships(
-    spaces: [PubNubMembership.MembershipPartial],
+    spaces: [PubNubMembership.Partial],
     to userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let computedUserId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
@@ -311,29 +409,29 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   }
 
   public func updateMemberships(
-    users: [PubNubMembership.MembershipPartial],
+    users: [PubNubMembership.Partial],
     on spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     addMemberships(
       users: users,
       to: spaceId,
-      custom: requestConfig,
+      requestConfig: requestConfig,
       completion: completion
     )
   }
 
   public func updateMemberships(
-    spaces: [PubNubMembership.MembershipPartial],
+    spaces: [PubNubMembership.Partial],
     on userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     addMemberships(
       spaces: spaces,
       to: userId,
-      custom: requestConfig,
+      requestConfig: requestConfig,
       completion: completion
     )
   }
@@ -341,7 +439,7 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   public func removeMemberships(
     userIds: [String],
     from spaceId: String,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(
@@ -375,7 +473,7 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
   public func removeMemberships(
     spaceIds: [String],
     from userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let computedUserId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
@@ -406,57 +504,6 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
       ) { result in
         completion?(result.map { _ in () })
       }
-  }
-}
-
-// MARK: - Models
-
-public struct PubNubMembership {
-  public typealias MembershipPartial = (id: String, status: String?, custom: FlatJSONCodable?)
-
-  /// The associated User Entity
-  public var user: PubNubUser
-  /// The associated Space Entity
-  public var space: PubNubSpace
-
-  /// The current state of the Membership
-  public var status: String?
-
-  /// All custom fields set on the Membership
-  public var custom: FlatJSONCodable?
-
-  /// The last updated timestamp for the Membership
-  public var updated: Date?
-  /// The caching identifier for the Membership
-  public var eTag: String?
-
-  public init(
-    user: PubNubUser,
-    space: PubNubSpace,
-    status: String? = nil,
-    custom: FlatJSONCodable? = nil,
-    updated: Date? = nil,
-    eTag: String? = nil
-  ) {
-    self.user = user
-    self.space = space
-    self.status = status
-    self.custom = custom
-    self.updated = updated
-    self.eTag = eTag
-  }
-}
-
-public extension PubNubMembershipMetadata {
-  func convert() -> PubNubMembership {
-    return PubNubMembership(
-      user: uuid?.convert() ?? PubNubUser(id: uuidMetadataId),
-      space: channel?.convert() ?? PubNubSpace(id: channelMetadataId),
-      status: status,
-      custom: FlatJSON(flatJSON: custom),
-      updated: updated,
-      eTag: eTag
-    )
   }
   // swiftlint:disable:next file_length
 }

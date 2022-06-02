@@ -27,16 +27,40 @@
 
 import Foundation
 
+/// Protocol interface to manage `PubNubUser` entities using closures
 public protocol PubNubUserInterface {
+  /// Unique identifier of this module
   static var moduleIdentifier: String { get }
 
+  /// Fetch a `PubNubUser` using its unique identifier
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubUser` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
   func fetchUser(
     userId: String?,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping (Result<PubNubUser, Error>) -> Void
   )
 
+  /// Fetch all `PubNubUser` that exist on a keyset
+  ///
+  /// - Parameters:
+  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
+  ///   - includeTotalCount: Should the next page include total amount of Users to fetch accessed via `next.totalCount`
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `Tuple` containing an `Array` of `PubNubUser`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
   func fetchUsers(
     includeCustom: Bool,
     includeTotalCount: Bool,
@@ -44,12 +68,28 @@ public protocol PubNubUserInterface {
     sort: [PubNub.UserSort],
     limit: Int?,
     page: PubNubHashedPage?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
   )
 
+  /// Create a new `PubNubUser`
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - name: The name of the User
+  ///   - type: The classification of User
+  ///   - status: The current state of the User
+  ///   - externalId: The external identifier for the User
+  ///   - profileUrl: The profile URL for the User
+  ///   - email: The email address of the User
+  ///   - custom: All custom properties set on the User
+  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubUser` that was created
+  ///     - **Failure**: An `Error` describing the failure
   func createUser(
-    userId: String,
+    userId: String?,
     name: String?,
     type: String?,
     status: String?,
@@ -58,11 +98,28 @@ public protocol PubNubUserInterface {
     email: String?,
     custom: FlatJSONCodable?,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
+
+  /// Updates an existing `PubNubUser`
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - name: The name of the User
+  ///   - type: The classification of User
+  ///   - status: The current state of the User
+  ///   - externalId: The external identifier for the User
+  ///   - profileUrl: The profile URL for the User
+  ///   - email: The email address of the User
+  ///   - custom: All custom properties set on the User
+  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubUser` containing the updated changes
+  ///     - **Failure**: An `Error` describing the failure
   func updateUser(
-    userId: String,
+    userId: String?,
     name: String?,
     type: String?,
     status: String?,
@@ -71,12 +128,21 @@ public protocol PubNubUserInterface {
     email: String?,
     custom: FlatJSONCodable?,
     includeCustom: Bool,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
+
+  /// Removes a previously created `PubNubUser` (if it existed)
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: Acknowledgement that the removal was successful
+  ///     - **Failure**: An `Error` describing the failure
   func removeUser(
     userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration,
+    requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
   )
 }
@@ -84,6 +150,7 @@ public protocol PubNubUserInterface {
 // MARK: - Request Objects
 
 public extension PubNub {
+  /// All available fileds that can be sorted on for a `PubNubUser`
   enum UserSort: Hashable {
     /// Sort on the unique identifier property
     case id(ascending: Bool)
@@ -96,6 +163,7 @@ public extension PubNub {
     /// Sort on the last updated property
     case updated(ascending: Bool)
 
+    /// The string representation of the field
     public var rawValue: String {
       switch self {
       case .id:
@@ -111,6 +179,7 @@ public extension PubNub {
       }
     }
 
+    /// Direction of the sort for the sort field
     public var ascending: Bool {
       switch self {
       case let .id(ascending):
@@ -126,6 +195,7 @@ public extension PubNub {
       }
     }
 
+    /// The finalized query parameter value for the sort field
     public var routerParameter: String {
       return "\(rawValue):\(ascending ? "" : "desc")"
     }
@@ -138,7 +208,7 @@ extension PubNubUserModule: PubNubUserInterface {
   public func fetchUser(
     userId: String?,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping (Result<PubNubUser, Error>) -> Void
   ) {
     let router = ObjectsUUIDRouter(
@@ -166,7 +236,7 @@ extension PubNubUserModule: PubNubUserInterface {
     sort: [PubNub.UserSort] = [],
     limit: Int? = 100,
     page: PubNubHashedPage? = nil,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
   ) {
     let router = ObjectsUUIDRouter(
@@ -196,7 +266,7 @@ extension PubNubUserModule: PubNubUserInterface {
   }
 
   public func createUser(
-    userId: String,
+    userId: String?,
     name: String? = nil,
     type: String? = nil,
     status: String? = nil,
@@ -205,13 +275,13 @@ extension PubNubUserModule: PubNubUserInterface {
     email: String? = nil,
     custom: FlatJSONCodable? = nil,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<PubNubUser, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
       .set(
         metadata: PubNubUUIDMetadataBase(
-          metadataId: userId,
+          metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
           name: name,
           type: type,
           status: status,
@@ -236,7 +306,7 @@ extension PubNubUserModule: PubNubUserInterface {
   }
 
   public func updateUser(
-    userId: String,
+    userId: String?,
     name: String? = nil,
     type: String? = nil,
     status: String? = nil,
@@ -245,11 +315,11 @@ extension PubNubUserModule: PubNubUserInterface {
     email: String? = nil,
     custom: FlatJSONCodable? = nil,
     includeCustom: Bool = true,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<PubNubUser, Error>) -> Void)?
   ) {
     createUser(
-      userId: userId,
+      userId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
       name: name,
       type: type,
       status: status,
@@ -258,14 +328,14 @@ extension PubNubUserModule: PubNubUserInterface {
       email: email,
       custom: custom,
       includeCustom: includeCustom,
-      custom: requestConfig,
+      requestConfig: requestConfig,
       completion: completion
     )
   }
 
   public func removeUser(
     userId: String?,
-    custom requestConfig: PubNub.RequestConfiguration = .init(),
+    requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
@@ -281,74 +351,5 @@ extension PubNubUserModule: PubNubUserInterface {
       ) { result in
         completion?(result.map { _ in () })
       }
-  }
-}
-
-// MARK: - Models
-
-// Defined in PubNub
-public struct PubNubUser {
-  /// The unique identifier of the User
-  public var id: String
-  /// The name of the User
-  public var name: String?
-  /// The classification of User
-  public var type: String?
-  /// The current state of the User
-  public var status: String?
-  /// The external identifier for the User
-  public var externalId: String?
-  /// The profile URL for the User
-  public var profileURL: URL?
-  /// The email address of the User
-  public var email: String?
-
-  /// All custom fields set on the User
-  public var custom: FlatJSONCodable?
-
-  /// The last updated timestamp for the User
-  public var updated: Date?
-  /// The caching identifier for the User
-  public var eTag: String?
-
-  public init(
-    id: String,
-    name: String? = nil,
-    type: String? = nil,
-    status: String? = nil,
-    externalId: String? = nil,
-    profileURL: URL? = nil,
-    email: String? = nil,
-    custom: FlatJSONCodable? = nil,
-    updated: Date? = nil,
-    eTag: String? = nil
-  ) {
-    self.id = id
-    self.name = name
-    self.type = type
-    self.status = status
-    self.externalId = externalId
-    self.profileURL = profileURL
-    self.email = email
-    self.custom = custom
-    self.updated = updated
-    self.eTag = eTag
-  }
-}
-
-public extension PubNubUUIDMetadata {
-  func convert() -> PubNubUser {
-    return PubNubUser(
-      id: metadataId,
-      name: name,
-      type: type,
-      status: status,
-      externalId: externalId,
-      profileURL: URL(string: profileURL ?? ""),
-      email: email,
-      custom: FlatJSON(flatJSON: custom),
-      updated: updated,
-      eTag: eTag
-    )
   }
 }

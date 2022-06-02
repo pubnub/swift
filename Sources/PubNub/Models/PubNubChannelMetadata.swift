@@ -117,6 +117,8 @@ public struct PubNubChannelMetadataBase: PubNubChannelMetadata, Hashable {
     self.init(
       metadataId: other.metadataId,
       name: other.name,
+      type: other.type,
+      status: other.status,
       channelDescription: other.channelDescription,
       custom: other.custom,
       updated: other.updated,

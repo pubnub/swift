@@ -125,7 +125,11 @@ struct PushRouter: HTTPRouter {
     let path: String
 
     guard let pushToken = endpoint.pushToken else {
-      return .failure(PubNubError(.missingRequiredParameter, router: self, additional: [validationErrorDetail!]))
+      var errorDetails = [String]()
+      if let validationDetail = validationErrorDetail {
+        errorDetails.append(validationDetail)
+      }
+      return .failure(PubNubError(.missingRequiredParameter, router: self, additional: errorDetails))
     }
 
     switch endpoint {

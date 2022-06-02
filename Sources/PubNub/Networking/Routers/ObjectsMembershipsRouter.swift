@@ -27,17 +27,17 @@
 
 import Foundation
 
-extension Collection where Element == ObjectsMembershipsRouter.MembershipInclude {
-  static func include(custom: Bool, space: Bool, spaceCustom: Bool) -> [ObjectsMembershipsRouter.MembershipInclude] {
-    var include = [ObjectsMembershipsRouter.MembershipInclude]()
+extension Collection where Element == ObjectsMembershipsRouter.Include {
+  static func include(custom: Bool, space: Bool, spaceCustom: Bool) -> [ObjectsMembershipsRouter.Include] {
+    var include = [ObjectsMembershipsRouter.Include]()
     if custom { include.append(.custom) }
     if space { include.append(.channel) }
     if spaceCustom { include.append(.channelCustom) }
     return include
   }
 
-  static func include(custom: Bool, user: Bool, userCustom: Bool) -> [ObjectsMembershipsRouter.MembershipInclude] {
-    var include = [ObjectsMembershipsRouter.MembershipInclude]()
+  static func include(custom: Bool, user: Bool, userCustom: Bool) -> [ObjectsMembershipsRouter.Include] {
+    var include = [ObjectsMembershipsRouter.Include]()
     if custom { include.append(.custom) }
     if user { include.append(.uuid) }
     if userCustom { include.append(.uuidCustom) }
@@ -48,22 +48,22 @@ extension Collection where Element == ObjectsMembershipsRouter.MembershipInclude
 struct ObjectsMembershipsRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case fetchMemberships(
-      uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      uuidMetadataId: String, customFields: [Include]?, totalCount: Bool,
       filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case fetchMembers(
-      channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      channelMetadataId: String, customFields: [Include]?, totalCount: Bool,
       filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case setMemberships(
-      uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      uuidMetadataId: String, customFields: [Include]?, totalCount: Bool,
       changes: SetMembershipRequestBody,
       filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
     case setMembers(
-      channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      channelMetadataId: String, customFields: [Include]?, totalCount: Bool,
       changes: SetMembersRequestBody,
       filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
@@ -82,12 +82,21 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  enum MembershipInclude: String, Codable {
+  enum Include: String, Codable {
     case custom
     case channel
     case channelCustom = "channel.custom"
     case uuid
     case uuidCustom = "uuid.custom"
+    case status
+
+    static func merge(_ other: [Include]?) -> [String] {
+      var includes = [Include.status]
+
+      includes.append(contentsOf: other ?? [])
+
+      return includes.map { $0.rawValue }
+    }
   }
 
   struct SetMembershipRequestBody: JSONCodable {
@@ -227,7 +236,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -236,7 +245,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)

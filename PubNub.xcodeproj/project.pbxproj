@@ -169,6 +169,11 @@
 		3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */; };
 		3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585A02323C63EE900FDA860 /* CBORSerialization.swift */; };
 		3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3585A02523C63F3900FDA860 /* DecodingError+PubNub.swift */; };
+		358B88C12849419000DB0F3D /* PubNubMembership.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B88C02849419000DB0F3D /* PubNubMembership.swift */; };
+		358B88C3284941CA00DB0F3D /* PubNubSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B88C2284941CA00DB0F3D /* PubNubSpace.swift */; };
+		358B88C62849421800DB0F3D /* PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B88C52849421800DB0F3D /* PubNubUser.swift */; };
+		358B88C8284942D900DB0F3D /* Patcher+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B88C7284942D900DB0F3D /* Patcher+PubNubUser.swift */; };
+		358B88CA284942F900DB0F3D /* Patcher+PubNubSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B88C9284942F900DB0F3D /* Patcher+PubNubSpace.swift */; };
 		358C641A2388BF76009CE354 /* PubNubFCMPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C64192388BF76009CE354 /* PubNubFCMPayload.swift */; };
 		358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C641B238C5232009CE354 /* FCMAndroidPayload.swift */; };
 		358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C641E238C5FCA009CE354 /* FCMWebpushPayload.swift */; };
@@ -551,6 +556,11 @@
 		3585033A22CD545400A11D9A /* URLRequest+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLRequest+PubNub.swift"; sourceTree = "<group>"; };
 		3585A02323C63EE900FDA860 /* CBORSerialization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CBORSerialization.swift; sourceTree = "<group>"; };
 		3585A02523C63F3900FDA860 /* DecodingError+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DecodingError+PubNub.swift"; sourceTree = "<group>"; };
+		358B88C02849419000DB0F3D /* PubNubMembership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembership.swift; sourceTree = "<group>"; };
+		358B88C2284941CA00DB0F3D /* PubNubSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpace.swift; sourceTree = "<group>"; };
+		358B88C52849421800DB0F3D /* PubNubUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUser.swift; sourceTree = "<group>"; };
+		358B88C7284942D900DB0F3D /* Patcher+PubNubUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Patcher+PubNubUser.swift"; sourceTree = "<group>"; };
+		358B88C9284942F900DB0F3D /* Patcher+PubNubSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Patcher+PubNubSpace.swift"; sourceTree = "<group>"; };
 		358C64192388BF76009CE354 /* PubNubFCMPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFCMPayload.swift; sourceTree = "<group>"; };
 		358C641B238C5232009CE354 /* FCMAndroidPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMAndroidPayload.swift; sourceTree = "<group>"; };
 		358C641E238C5FCA009CE354 /* FCMWebpushPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FCMWebpushPayload.swift; sourceTree = "<group>"; };
@@ -822,9 +832,9 @@
 		35243A9F2834250000765984 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				35243AA0283431DC00765984 /* User+PubNub.swift */,
-				354D537028403B560043D61F /* Space+PubNub.swift */,
-				354D537228403B600043D61F /* Membership+PubNub.swift */,
+				358B88BF2849417700DB0F3D /* Membership */,
+				358B88BE2849417100DB0F3D /* Space */,
+				358B88BD2849416700DB0F3D /* User */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1161,6 +1171,35 @@
 				35270C0223AC124800501388 /* CBORDecoder.swift */,
 			);
 			path = CBOR;
+			sourceTree = "<group>";
+		};
+		358B88BD2849416700DB0F3D /* User */ = {
+			isa = PBXGroup;
+			children = (
+				35243AA0283431DC00765984 /* User+PubNub.swift */,
+				358B88C52849421800DB0F3D /* PubNubUser.swift */,
+				358B88C7284942D900DB0F3D /* Patcher+PubNubUser.swift */,
+			);
+			path = User;
+			sourceTree = "<group>";
+		};
+		358B88BE2849417100DB0F3D /* Space */ = {
+			isa = PBXGroup;
+			children = (
+				354D537028403B560043D61F /* Space+PubNub.swift */,
+				358B88C2284941CA00DB0F3D /* PubNubSpace.swift */,
+				358B88C9284942F900DB0F3D /* Patcher+PubNubSpace.swift */,
+			);
+			path = Space;
+			sourceTree = "<group>";
+		};
+		358B88BF2849417700DB0F3D /* Membership */ = {
+			isa = PBXGroup;
+			children = (
+				354D537228403B600043D61F /* Membership+PubNub.swift */,
+				358B88C02849419000DB0F3D /* PubNubMembership.swift */,
+			);
+			path = Membership;
 			sourceTree = "<group>";
 		};
 		358C641D238C524C009CE354 /* PubNubFCMPayload */ = {
@@ -2112,6 +2151,7 @@
 				35AC162F2486C9A400A66030 /* PubNubMessageAction.swift in Sources */,
 				3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */,
 				35C6B6E622F51A060054F242 /* AnyJSONType.swift in Sources */,
+				358B88CA284942F900DB0F3D /* Patcher+PubNubSpace.swift in Sources */,
 				3585033422CD139400A11D9A /* String+PubNub.swift in Sources */,
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
 				35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */,
@@ -2133,10 +2173,12 @@
 				35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
 				358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */,
+				358B88C8284942D900DB0F3D /* Patcher+PubNubUser.swift in Sources */,
 				35FAC1E72357C2AE0096E418 /* PubNubError.swift in Sources */,
 				356D48B42360BD7000C65C40 /* SubscriptionStream.swift in Sources */,
 				35599799230C5878000BCFD1 /* LogWriter.swift in Sources */,
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
+				358B88C3284941CA00DB0F3D /* PubNubSpace.swift in Sources */,
 				357CA28E251D3D0C00BC40D3 /* HTTPFileTask.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* HTTPRouter.swift in Sources */,
 				35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */,
@@ -2153,6 +2195,7 @@
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
+				358B88C12849419000DB0F3D /* PubNubMembership.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
@@ -2205,6 +2248,7 @@
 				354D537328403B600043D61F /* Membership+PubNub.swift in Sources */,
 				35A66A9422F91B2A00AC67A9 /* SubscriptionSession+Presence.swift in Sources */,
 				350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */,
+				358B88C62849421800DB0F3D /* PubNubUser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,7 @@
 import Foundation
 
 public extension PubNubUser {
+  /// Object that can be used to apply an update to another User
   struct Patcher {
     /// The unique identifier of the object that was changed
     public let id: String
@@ -45,7 +46,6 @@ public extension PubNubUser {
     public let email: OptionalChange<String>
     /// All custom fields set on the User
     public let custom: OptionalChange<FlatJSONCodable>
-
     /// The timestamp of the change
     public let updated: Date
     /// The cache identifier of the change
@@ -75,6 +75,20 @@ public extension PubNubUser {
       self.custom = custom
     }
 
+    /// Apply the patch to a target User
+    ///
+    /// It's recommended to call ``shouldUpdate(userId:eTag:lastUpdated:)`` prior to using this method to ensure
+    /// that the Patcher is valid for a given target User.
+    /// - Parameters:
+    ///   - name: Closure that will be called if the ``PubNubUser/name`` property should be updated
+    ///   - type: Closure that will be called if the ``PubNubUser/type`` property should be updated
+    ///   - status: Closure that will be called if the ``PubNubUser/status`` property should be updated
+    ///   - externalId: Closure that will be called if the ``PubNubUser/externalId`` property should be updated
+    ///   - profileURL: Closure that will be called if the ``PubNubUser/profileURL`` property should be updated
+    ///   - email: Closure that will be called if the ``PubNubUser/email`` property should be updated
+    ///   - custom: Closure that will be called if the ``PubNubUser/custom`` property should be updated
+    ///   - updated: Closure that will be called if the ``PubNubUser/updated`` property should be updated
+    ///   - eTag: Closure that will be called if the ``PubNubUser/eTag`` property should be updated
     public func apply(
       name: ((String?) -> Void) = { _ in },
       type: ((String?) -> Void) = { _ in },
@@ -83,8 +97,8 @@ public extension PubNubUser {
       profileURL: ((URL?) -> Void) = { _ in },
       email: ((String?) -> Void) = { _ in },
       custom: ((FlatJSONCodable?) -> Void) = { _ in },
-      updated: ((Date) -> Void) = { _ in },
-      eTag: ((String) -> Void) = { _ in }
+      updated: ((Date) -> Void),
+      eTag: ((String) -> Void)
     ) {
       if self.name.hasChange {
         name(self.name.underlying)
@@ -111,39 +125,29 @@ public extension PubNubUser {
       eTag(self.eTag)
     }
 
-    public func shouldUpdate(id: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return self.id == id &&
+    /// Should this patch update the target object.
+    ///
+    /// - Parameters:
+    ///   - userId: The unique identifier of the target User
+    ///   - eTag: The caching value of the target User.  This is set by the PubNub server
+    ///   - lastUpdated: The updated `Date` for the target User.  This is set by the PubNub server.
+    ///  - Returns:Whether the target User should be patched
+    public func shouldUpdate(userId: String, eTag: String?, lastUpdated: Date?) -> Bool {
+      return self.id == userId &&
         self.eTag != eTag &&
         updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
-    }
-
-    public func applyTo(_ user: PubNubUser) -> PubNubUser {
-      guard shouldUpdate(id: user.id, eTag: user.eTag, lastUpdated: user.updated) else {
-        return user
-      }
-
-      // Create mutable copy
-      var patchedUser = user
-      // Update common fields
-      patchedUser.updated = updated
-      patchedUser.eTag = eTag
-
-      name.apply(&patchedUser.name)
-      type.apply(&patchedUser.type)
-      status.apply(&patchedUser.status)
-      externalId.apply(&patchedUser.externalId)
-      profileURL.apply(&patchedUser.profileURL)
-      email.apply(&patchedUser.email)
-      custom.apply(&patchedUser.custom)
-
-      return patchedUser
     }
   }
 }
 
 public extension PubNubUser {
+  /// Attempt to apply the updates from a ``Patcher`` to this `PubNubUser`
+  ///
+  /// This will also validate that the ``Patcher`` should be applied to this User
+  /// - Parameter patch: ``Patcher`` that will attempt to be applied
+  /// - returns: An updated `PubNubUser` with the patched values, or the same object if no patch was applied.
   func apply(_ patch: PubNubUser.Patcher) -> PubNubUser {
-    guard patch.shouldUpdate(id: id, eTag: eTag, lastUpdated: updated) else {
+    guard patch.shouldUpdate(userId: id, eTag: eTag, lastUpdated: updated) else {
       return self
     }
 
@@ -164,6 +168,8 @@ public extension PubNubUser {
     return mutableSelf
   }
 }
+
+// MARK: Codable
 
 extension PubNubUser.Patcher: Codable {
   public init(from decoder: Decoder) throws {

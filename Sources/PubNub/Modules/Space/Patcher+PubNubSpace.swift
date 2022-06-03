@@ -28,10 +28,10 @@
 import Foundation
 
 public extension PubNubSpace {
+  /// Object that can be used to apply an update to another Space
   struct Patcher {
     /// The unique identifier of the object that was changed
     public let id: String
-
     /// The name of the Space
     public let name: OptionalChange<String>
     /// The classification of Space
@@ -42,7 +42,6 @@ public extension PubNubSpace {
     public let spaceDescription: OptionalChange<String>
     /// All custom fields set on the User
     public let custom: OptionalChange<FlatJSONCodable>
-
     /// The timestamp of the change
     public let updated: Date
     /// The cache identifier of the change
@@ -67,41 +66,40 @@ public extension PubNubSpace {
       self.spaceDescription = spaceDescription
       self.custom = custom
     }
-
-    public func shouldUpdate(id: String, eTag: String?, lastUpdated: Date?) -> Bool {
+    
+    /// Should this patch update the target object.
+    ///
+    /// - Parameters:
+    ///   - spaceId: The unique identifier of the target Space
+    ///   - eTag: The caching value of the target Space.  This is set by the PubNub server
+    ///   - lastUpdated: The updated `Date` for the target Space.  This is set by the PubNub server.
+    ///  - Returns:Whether the target Space should be patched
+    public func shouldUpdate(spaceId: String, eTag: String?, lastUpdated: Date?) -> Bool {
       return self.id == id &&
         self.eTag != eTag &&
         updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
     }
 
-    public func applyTo(_ space: PubNubSpace) -> PubNubSpace {
-      guard shouldUpdate(id: space.id, eTag: space.eTag, lastUpdated: space.updated) else {
-        return space
-      }
-
-      // Create mutable copy
-      var patchedSpace = space
-      // Update common fields
-      patchedSpace.updated = updated
-      patchedSpace.eTag = eTag
-
-      name.apply(&patchedSpace.name)
-      type.apply(&patchedSpace.type)
-      status.apply(&patchedSpace.status)
-      spaceDescription.apply(&patchedSpace.spaceDescription)
-      custom.apply(&patchedSpace.custom)
-
-      return patchedSpace
-    }
-
+    /// Apply the patch to a target Space
+    ///
+    /// It's recommended to call ``shouldUpdate(spaceId:eTag:lastUpdated:)`` prior to using this method to ensure
+    /// that the Patcher is valid for a given target Space.
+    /// - Parameters:
+    ///   - name: Closure that will be called if the `space.name` should be updated
+    ///   - type: Closure that will be called if the `space.type` should be updated
+    ///   - status: Closure that will be called if the `space.status` should be updated
+    ///   - description: Closure that will be called if the `space.spaceDescription` should be updated
+    ///   - custom: Closure that will be called if the `space.custom` should be updated
+    ///   - updated: Closure that will be called if the `space.updated` should be updated
+    ///   - eTag: Closure that will be called if the `space.eTag` should be updated
     public func apply(
       name: ((String?) -> Void) = { _ in },
       type: ((String?) -> Void) = { _ in },
       status: ((String?) -> Void) = { _ in },
       description: ((String?) -> Void) = { _ in },
       custom: ((FlatJSONCodable?) -> Void) = { _ in },
-      updated: ((Date) -> Void) = { _ in },
-      eTag: ((String) -> Void) = { _ in }
+      updated: ((Date) -> Void),
+      eTag: ((String) -> Void)
     ) {
       if self.name.hasChange {
         name(self.name.underlying)
@@ -125,8 +123,13 @@ public extension PubNubSpace {
 }
 
 public extension PubNubSpace {
+  /// Attempt to apply the updates from a ``Patcher`` to this `PubNubSpace`
+  ///
+  /// This will also validate that the ``Patcher`` should be applied to this Space
+  /// - Parameter patch: ``Patcher`` that will attempt to be applied
+  /// - returns: An updated `PubNubSpace` with the patched values, or the same object if no patch was applied.
   func apply(_ patch: PubNubSpace.Patcher) -> PubNubSpace {
-    guard patch.shouldUpdate(id: id, eTag: eTag, lastUpdated: updated) else {
+    guard patch.shouldUpdate(spaceId: id, eTag: eTag, lastUpdated: updated) else {
       return self
     }
 
@@ -145,6 +148,8 @@ public extension PubNubSpace {
     return mutableSelf
   }
 }
+
+// MARK: Codable
 
 extension PubNubSpace.Patcher: Codable {
   public init(from decoder: Decoder) throws {

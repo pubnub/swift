@@ -32,19 +32,19 @@ public extension PubNubUser {
     /// The unique identifier of the object that was changed
     public let id: String
     /// The name of the User
-    public var name: OptionalChange<String>
+    public let name: OptionalChange<String>
     /// The classification of User
-    public var type: OptionalChange<String>
+    public let type: OptionalChange<String>
     /// The current state of the User
-    public var status: OptionalChange<String>
+    public let status: OptionalChange<String>
     /// The external identifier for the User
-    public var externalId: OptionalChange<String>
+    public let externalId: OptionalChange<String>
     /// The profile URL for the User
-    public var profileURL: OptionalChange<URL>
+    public let profileURL: OptionalChange<URL>
     /// The email address of the User
-    public var email: OptionalChange<String>
+    public let email: OptionalChange<String>
     /// All custom fields set on the User
-    public var custom: OptionalChange<FlatJSONCodable>
+    public let custom: OptionalChange<FlatJSONCodable>
 
     /// The timestamp of the change
     public let updated: Date
@@ -66,7 +66,6 @@ public extension PubNubUser {
       self.id = id
       self.updated = updated
       self.eTag = eTag
-
       self.name = name
       self.type = type
       self.status = status

@@ -27,11 +27,10 @@
 
 import Foundation
 
+import PubNub
+
 /// Protocol interface to manage `PubNubUser` entities using closures
 public protocol PubNubUserInterface {
-  /// Unique identifier of this module
-  static var moduleIdentifier: String { get }
-
   /// Fetch a `PubNubUser` using its unique identifier
   ///
   /// - Parameters:
@@ -47,7 +46,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping (Result<PubNubUser, Error>) -> Void
   )
-
+  
   /// Fetch all `PubNubUser` that exist on a keyset
   ///
   /// - Parameters:
@@ -71,7 +70,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
   )
-
+  
   /// Create a new `PubNubUser`
   ///
   /// - Parameters:
@@ -101,7 +100,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
-
+  
   /// Updates an existing `PubNubUser`
   ///
   /// - Parameters:
@@ -131,7 +130,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
-
+  
   /// Removes a previously created `PubNubUser` (if it existed)
   ///
   /// - Parameters:
@@ -162,7 +161,7 @@ public extension PubNub {
     case status(ascending: Bool)
     /// Sort on the last updated property
     case updated(ascending: Bool)
-
+    
     /// The string representation of the field
     public var rawValue: String {
       switch self {
@@ -178,7 +177,7 @@ public extension PubNub {
         return "updated"
       }
     }
-
+    
     /// Direction of the sort for the sort field
     public var ascending: Bool {
       switch self {
@@ -194,7 +193,7 @@ public extension PubNub {
         return ascending
       }
     }
-
+    
     /// The finalized query parameter value for the sort field
     public var routerParameter: String {
       return "\(rawValue):\(ascending ? "" : "desc")"
@@ -204,7 +203,7 @@ public extension PubNub {
 
 // MARK: - Module Impl.
 
-extension PubNubUserModule: PubNubUserInterface {
+extension PubNub: PubNubUserInterface {
   public func fetchUser(
     userId: String?,
     includeCustom: Bool = true,
@@ -218,7 +217,7 @@ extension PubNubUserModule: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-
+    
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
@@ -228,7 +227,7 @@ extension PubNubUserModule: PubNubUserInterface {
         completion($0.map { $0.payload.data.convert() })
       }
   }
-
+  
   public func fetchUsers(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -251,8 +250,8 @@ extension PubNubUserModule: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-
-    (requestConfig.customSession ?? pubnub?.networkSession)?
+    
+    (requestConfig.customSession ?? networkSession)?
       .route(
         router,
         responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
@@ -264,7 +263,7 @@ extension PubNubUserModule: PubNubUserInterface {
         ) })
       }
   }
-
+  
   public func createUser(
     userId: String?,
     name: String? = nil,
@@ -294,7 +293,7 @@ extension PubNubUserModule: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-
+    
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
@@ -304,7 +303,7 @@ extension PubNubUserModule: PubNubUserInterface {
         completion?(result.map { $0.payload.data.convert() })
       }
   }
-
+  
   public func updateUser(
     userId: String?,
     name: String? = nil,
@@ -332,7 +331,7 @@ extension PubNubUserModule: PubNubUserInterface {
       completion: completion
     )
   }
-
+  
   public func removeUser(
     userId: String?,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -342,7 +341,7 @@ extension PubNubUserModule: PubNubUserInterface {
       .remove(metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-
+    
     (requestConfig.customSession ?? networkSession)
       .route(
         router,

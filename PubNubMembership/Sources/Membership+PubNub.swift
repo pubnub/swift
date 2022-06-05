@@ -27,11 +27,12 @@
 
 import Foundation
 
+import PubNub
+import PubNubUser
+import PubNubSpace
+
 /// Protocol interface to manage `PubNubMembership` entities using closures
 public protocol PubNubMembershipInterface {
-  /// Unique identifier of this module
-  static var moduleIdentifier: String { get }
-
   /// Fetch all `PubNubMembership` linked to a specific `PubNubUser.id`
   ///
   /// - Parameters:
@@ -239,7 +240,7 @@ public extension PubNub {
 
 // MARK: - Module Impl.
 
-extension PubNubMembershipModule: PubNubMembershipInterface {
+extension PubNub: PubNubMembershipInterface {
   public func fetchMemberships(
     userId: String?,
     includeCustom: Bool = true,
@@ -281,8 +282,8 @@ extension PubNubMembershipModule: PubNubMembershipInterface {
       ) { result in
         completion(result.map { response in
           (
-            memberships: response.payload.data.compactMap {
-              PubNubMembershipMetadataBase(from: $0, other: computedUserId)?.convert()
+            memberships: response.payload.data.compactMap { something in
+              PubNubMembershipMetadataBase(from: something, other: computedUserId)?.convert()
             },
             next: try? PubNubHashedPageBase(from: response.payload)
           )

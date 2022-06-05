@@ -226,7 +226,7 @@ extension SubscribeRouterTests {
 
         objectExpect.fulfill()
       case let .userUpdated(patcher):
-        XCTAssertEqual(patcher.applyTo(baseVspUser), patchedUser)
+        XCTAssertEqual(baseVspUser.apply(patcher), patchedUser)
         vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -369,7 +369,7 @@ extension SubscribeRouterTests {
         objectExpect.fulfill()
       case let .spaceUpdated(patcher):
         print("Space Patcher \(patcher)")
-        XCTAssertEqual(patcher.applyTo(baseSpace), patchedSpace)
+        XCTAssertEqual(baseSpace.apply(patcher), patchedSpace)
         vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {

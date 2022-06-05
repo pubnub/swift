@@ -32,13 +32,7 @@ public class PubNub {
   /// Instance identifier
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
-  public private(set) var configuration: PubNubConfiguration {
-    didSet {
-      User.configuration = configuration
-      Space.configuration = configuration
-      Membership.configuration = configuration
-    }
-  }
+  public private(set) var configuration: PubNubConfiguration
 
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
@@ -129,67 +123,12 @@ public class PubNub {
         completion: completion
       )
   }
-
-  // Modules
-  public lazy var User = PubNubUserModule(
-    configuration: configuration, networkSession: networkSession
-  )
-
-  public lazy var Space = PubNubSpaceModule(
-    configuration: configuration, networkSession: networkSession
-  )
-
-  public lazy var Membership = PubNubMembershipModule(
-    configuration: configuration, networkSession: networkSession
-  )
 }
 
 // MARK: - Network
 
 public extension HTTPSession {
   static var pubnub = HTTPSession(configuration: .pubnub)
-}
-
-// MARK: - Modules
-
-public protocol PubNubModule {
-  var configuration: PubNubConfiguration { get }
-  var networkSession: SessionReplaceable { get }
-
-  var isConfigured: Bool { get set }
-
-  init(configuration: PubNubConfiguration, networkSession: SessionReplaceable)
-}
-
-public protocol PubNubModuleIdentifiable {
-  static var moduleIdentifier: String { get }
-}
-
-public class PubNubBaseModule: PubNubModule {
-  public fileprivate(set) var configuration: PubNubConfiguration
-  public var networkSession: SessionReplaceable
-
-  public weak var pubnub: PubNub?
-
-  public var isConfigured: Bool = false
-
-  public required init(configuration: PubNubConfiguration, networkSession: SessionReplaceable) {
-    self.configuration = configuration
-    self.networkSession = networkSession
-    isConfigured = true
-  }
-}
-
-public final class PubNubUserModule: PubNubBaseModule, PubNubModuleIdentifiable {
-  public static var moduleIdentifier: String = "com.pubnub.user"
-}
-
-public final class PubNubSpaceModule: PubNubBaseModule, PubNubModuleIdentifiable {
-  public static var moduleIdentifier: String = "com.pubnub.space"
-}
-
-public final class PubNubMembershipModule: PubNubBaseModule, PubNubModuleIdentifiable {
-  public static var moduleIdentifier: String = "com.pubnub.space"
 }
 
 // MARK: - Core
@@ -228,10 +167,10 @@ public extension FlatJSONCodable {
 }
 
 /// Internal object that allows conversion between Objectv2 [String: JSONScalar] and JSONCodable
-struct FlatJSON: FlatJSONCodable {
-  var json: [String: JSONCodableScalarType]
+public struct FlatJSON: FlatJSONCodable {
+  public var json: [String: JSONCodableScalarType]
 
-  init(flatJSON: [String: JSONCodableScalar]) {
+  public init(flatJSON: [String: JSONCodableScalar]) {
     json = flatJSON.mapValues { $0.scalarValue }
   }
 }
@@ -246,7 +185,7 @@ public enum OptionalChange<Wrapped> {
   case some(Wrapped)
 
   /// Whether this `OptionalChange` should mutate a target value
-  var hasChange: Bool {
+  public var hasChange: Bool {
     switch self {
     case .noChange:
       return false
@@ -258,7 +197,7 @@ public enum OptionalChange<Wrapped> {
   }
 
   /// The associated value of the enum, if one exists
-  var underlying: Wrapped? {
+  public var underlying: Wrapped? {
     switch self {
     case .noChange:
       return nil

@@ -141,7 +141,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     )
   }
 
-  init?(from partial: ObjectMetadataPartial, other identifier: String) {
+  public init?(from partial: ObjectMetadataPartial, other identifier: String) {
     if let uuid = partial.uuid {
       self.init(
         uuidMetadataId: uuid.metadataId,

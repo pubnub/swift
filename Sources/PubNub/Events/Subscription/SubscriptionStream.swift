@@ -256,7 +256,6 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
         self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
       case let .membershipMetadataRemoved(membership):
         self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
-
       case let .userUpdated(user):
         self?.didReceivePubNubUserChange?(.userUpdated(user))
       case let .userRemoved(user):

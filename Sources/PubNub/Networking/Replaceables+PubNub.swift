@@ -143,7 +143,7 @@ public protocol SessionReplaceable {
 }
 
 extension SessionReplaceable {
-  func route<Decoder>(
+  public func route<Decoder>(
     _ router: HTTPRouter,
     responseDecoder: Decoder,
     responseQueue: DispatchQueue = .main,

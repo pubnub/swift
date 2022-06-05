@@ -170,15 +170,15 @@ public struct PubNubHashedPageBase: PubNubHashedPage, Codable, Hashable {
 // MARK: Other Internal Extensions
 
 extension PubNubChannelsMetadataResponsePayload: PubNubHashedPage {
-  var start: String? {
+  public var start: String? {
     return next
   }
 
-  var end: String? {
+  public var end: String? {
     return prev
   }
 
-  init(from other: PubNubHashedPage) throws {
+  public init(from other: PubNubHashedPage) throws {
     self.init(
       status: 200, data: [],
       totalCount: other.totalCount, next: other.start, prev: other.end
@@ -187,15 +187,15 @@ extension PubNubChannelsMetadataResponsePayload: PubNubHashedPage {
 }
 
 extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
-  var start: String? {
+  public var start: String? {
     return next
   }
 
-  var end: String? {
+  public var end: String? {
     return prev
   }
 
-  init(from other: PubNubHashedPage) throws {
+  public init(from other: PubNubHashedPage) throws {
     self.init(
       status: 200, data: [],
       totalCount: other.totalCount, next: other.start, prev: other.end
@@ -204,15 +204,15 @@ extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
 }
 
 extension PubNubMembershipsResponsePayload: PubNubHashedPage {
-  var start: String? {
+  public var start: String? {
     return next
   }
 
-  var end: String? {
+  public var end: String? {
     return prev
   }
 
-  init(from other: PubNubHashedPage) throws {
+  public init(from other: PubNubHashedPage) throws {
     self.init(
       status: 200, data: [],
       totalCount: other.totalCount, next: other.start, prev: other.end

@@ -27,7 +27,7 @@
 
 import Foundation
 
-extension Collection where Element == ObjectsMembershipsRouter.Include {
+public extension Collection where Element == ObjectsMembershipsRouter.Include {
   static func include(custom: Bool, space: Bool, spaceCustom: Bool) -> [ObjectsMembershipsRouter.Include] {
     var include = [ObjectsMembershipsRouter.Include]()
     if custom { include.append(.custom) }
@@ -45,8 +45,8 @@ extension Collection where Element == ObjectsMembershipsRouter.Include {
   }
 }
 
-struct ObjectsMembershipsRouter: HTTPRouter {
-  enum Endpoint: CustomStringConvertible {
+public struct ObjectsMembershipsRouter: HTTPRouter {
+  public enum Endpoint: CustomStringConvertible {
     case fetchMemberships(
       uuidMetadataId: String, customFields: [Include]?, totalCount: Bool,
       filter: String?, sort: [String],
@@ -68,7 +68,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
 
-    var description: String {
+    public var description: String {
       switch self {
       case .fetchMemberships:
         return "Fetch the Membership Metadata for a UUID"
@@ -82,7 +82,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  enum Include: String, Codable {
+  public enum Include: String, Codable {
     case custom
     case channel
     case channelCustom = "channel.custom"
@@ -99,12 +99,20 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  struct SetMembershipRequestBody: JSONCodable {
+  public struct SetMembershipRequestBody: JSONCodable {
     let set: [MembershipChange]
     let delete: [MembershipChange]
+    
+    public init(
+      set: [MembershipChange],
+      delete: [MembershipChange]
+    ) {
+      self.set = set
+      self.delete = delete
+    }
   }
 
-  struct MembershipChange: JSONCodable {
+  public struct MembershipChange: JSONCodable {
     let metadataId: String
     let status: String?
     let custom: [String: JSONCodableScalar]?
@@ -121,13 +129,13 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
       self.status = status
       self.custom = custom
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
       status = try container.decodeIfPresent(String.self, forKey: .status)
@@ -136,7 +144,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
       try container.encodeIfPresent(status, forKey: .status)
@@ -146,17 +154,25 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  struct SetMembersRequestBody: JSONCodable {
+  public struct SetMembersRequestBody: JSONCodable {
     let set: [MemberChange]
     let delete: [MemberChange]
+    
+    public init(
+      set: [MemberChange],
+      delete: [MemberChange]
+    ) {
+      self.set = set
+      self.delete = delete
+    }
   }
 
-  struct MemberChange: JSONCodable {
+  public struct MemberChange: JSONCodable {
     let metadataId: String
     let status: String?
     let custom: [String: JSONCodableScalar]?
 
-    init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
       self.status = status
       self.custom = custom
@@ -174,7 +190,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
       status = try container.decodeIfPresent(String.self, forKey: .status)
@@ -183,7 +199,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
       try container.encodeIfPresent(status, forKey: .status)
@@ -194,24 +210,24 @@ struct ObjectsMembershipsRouter: HTTPRouter {
   }
 
   // Init
-  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  public init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
     self.endpoint = endpoint
     self.configuration = configuration
   }
 
   var endpoint: Endpoint
-  var configuration: RouterConfiguration
+  public var configuration: RouterConfiguration
 
   // Protocol Properties
-  var service: PubNubService {
+  public var service: PubNubService {
     return .objects
   }
 
-  var category: String {
+  public var category: String {
     return endpoint.description
   }
 
-  var path: Result<String, Error> {
+  public var path: Result<String, Error> {
     let path: String
 
     switch endpoint {
@@ -227,7 +243,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     return .success(path)
   }
 
-  var queryItems: Result<[URLQueryItem], Error> {
+  public var queryItems: Result<[URLQueryItem], Error> {
     var query = defaultQueryItems
 
     switch endpoint {
@@ -254,7 +270,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     return .success(query)
   }
 
-  var method: HTTPMethod {
+  public var method: HTTPMethod {
     switch endpoint {
     case .fetchMemberships, .fetchMembers:
       return .get
@@ -263,7 +279,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  var body: Result<Data?, Error> {
+  public var body: Result<Data?, Error> {
     switch endpoint {
     case let .setMemberships(_, _, _, changes, _, _, _, _, _):
       return changes.encodableJSONData.map { .some($0) }
@@ -274,12 +290,12 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  var pamVersion: PAMVersionRequirement {
+  public var pamVersion: PAMVersionRequirement {
     return .version3
   }
 
   // Validated
-  var validationErrorDetail: String? {
+  public var validationErrorDetail: String? {
     switch endpoint {
     case let .fetchMemberships(uuidMetadataId, _, _, _, _, _, _, _):
       return isInvalidForReason((uuidMetadataId.isEmpty, ErrorDescription.emptyUUIDMetadataId))
@@ -295,16 +311,17 @@ struct ObjectsMembershipsRouter: HTTPRouter {
 
 // MARK: - Response Decoder
 
-struct PubNubMembershipsResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubMembershipsResponsePayload
+public struct PubNubMembershipsResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubMembershipsResponsePayload
+  public init() {}
 }
 
-struct PubNubMembershipsResponsePayload: Codable {
+public struct PubNubMembershipsResponsePayload: Codable {
   let status: Int
-  let data: [ObjectMetadataPartial]
-  let totalCount: Int?
-  let next: String?
-  let prev: String?
+  public let data: [ObjectMetadataPartial]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
 
   init(
     status: Int,
@@ -328,7 +345,7 @@ struct PubNubMembershipsResponsePayload: Codable {
     case prev
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     status = try container.decode(Int.self, forKey: .status)
@@ -338,7 +355,7 @@ struct PubNubMembershipsResponsePayload: Codable {
     prev = try container.decodeIfPresent(String.self, forKey: .prev)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(data, forKey: .data)
@@ -349,7 +366,7 @@ struct PubNubMembershipsResponsePayload: Codable {
   }
 }
 
-struct ObjectMetadataPartial: Codable {
+public struct ObjectMetadataPartial: Codable {
   let channel: PartialMetadata<PubNubChannelMetadataBase>?
   let uuid: PartialMetadata<PubNubUUIDMetadataBase>?
   let status: String?
@@ -391,7 +408,7 @@ struct ObjectMetadataPartial: Codable {
     self.custom = custom
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     updated = try container.decode(Date.self, forKey: .updated)
@@ -411,7 +428,7 @@ struct ObjectMetadataPartial: Codable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)

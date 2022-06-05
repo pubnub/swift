@@ -27,11 +27,10 @@
 
 import Foundation
 
+import PubNub
+
 /// Protocol interface to manage `PubNubSpace` entities using closures
 public protocol PubNubSpaceInterface {
-  /// Unique identifier of this module
-  static var moduleIdentifier: String { get }
-
   /// Fetch a `PubNubSpace` using its unique identifier
   ///
   /// - Parameters:
@@ -196,7 +195,7 @@ public extension PubNub {
 
 // MARK: - Module Impl.
 
-extension PubNubSpaceModule: PubNubSpaceInterface {
+extension PubNub: PubNubSpaceInterface {
   public func fetchSpace(
     spaceId: String,
     includeCustom: Bool = true,

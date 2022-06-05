@@ -27,8 +27,8 @@
 
 import Foundation
 
-struct ObjectsUUIDRouter: HTTPRouter {
-  enum Endpoint: CustomStringConvertible {
+public struct ObjectsUUIDRouter: HTTPRouter {
+  public enum Endpoint: CustomStringConvertible {
     case all(
       customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
@@ -36,7 +36,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
     case set(metadata: PubNubUUIDMetadata, customFields: Bool)
     case remove(metadataId: String)
 
-    var description: String {
+    public var description: String {
       switch self {
       case .all:
         return "Get All Metadata by UUIDs"
@@ -85,24 +85,24 @@ struct ObjectsUUIDRouter: HTTPRouter {
   }
 
   // Init
-  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  public init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
     self.endpoint = endpoint
     self.configuration = configuration
   }
 
   var endpoint: Endpoint
-  var configuration: RouterConfiguration
+  public var configuration: RouterConfiguration
 
   // Protocol Properties
-  var service: PubNubService {
+  public var service: PubNubService {
     return .objects
   }
 
-  var category: String {
+  public var category: String {
     return endpoint.description
   }
 
-  var path: Result<String, Error> {
+  public var path: Result<String, Error> {
     let path: String
 
     switch endpoint {
@@ -118,7 +118,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
     return .success(path)
   }
 
-  var queryItems: Result<[URLQueryItem], Error> {
+  public var queryItems: Result<[URLQueryItem], Error> {
     var query = defaultQueryItems
 
     switch endpoint {
@@ -141,7 +141,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
     return .success(query)
   }
 
-  var method: HTTPMethod {
+  public var method: HTTPMethod {
     switch endpoint {
     case .all:
       return .get
@@ -154,7 +154,7 @@ struct ObjectsUUIDRouter: HTTPRouter {
     }
   }
 
-  var body: Result<Data?, Error> {
+  public var body: Result<Data?, Error> {
     switch endpoint {
     case let .set(user, _):
       return SetUUIDMetadataRequestBody(
@@ -166,12 +166,12 @@ struct ObjectsUUIDRouter: HTTPRouter {
     }
   }
 
-  var pamVersion: PAMVersionRequirement {
+  public var pamVersion: PAMVersionRequirement {
     return .version3
   }
 
   // Validated
-  var validationErrorDetail: String? {
+  public var validationErrorDetail: String? {
     switch endpoint {
     case .all:
       return nil
@@ -188,20 +188,30 @@ struct ObjectsUUIDRouter: HTTPRouter {
 
 // MARK: - Response Decoder
 
-struct PubNubUUIDsMetadataResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubUUIDsMetadataResponsePayload
+public struct PubNubUUIDsMetadataResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubUUIDsMetadataResponsePayload
+  public init() {}
 }
 
-struct PubNubUUIDMetadataResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubUUIDMetadataResponsePayload
+public struct PubNubUUIDMetadataResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubUUIDMetadataResponsePayload
+  public init() {}
 }
 
-struct PubNubUUIDsMetadataResponsePayload: Codable {
+public struct FetchUsersResponse<User: Codable>: Codable {
   let status: Int
-  let data: [PubNubUUIDMetadata]
-  let totalCount: Int?
-  let next: String?
-  let prev: String?
+  public let data: [User]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
+}
+
+public struct PubNubUUIDsMetadataResponsePayload: Codable {
+  let status: Int
+  public let data: [PubNubUUIDMetadata]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
 
   enum CodingKeys: String, CodingKey {
     case status
@@ -225,7 +235,7 @@ struct PubNubUUIDsMetadataResponsePayload: Codable {
     self.prev = prev
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     data = try container.decode([PubNubUUIDMetadataBase].self, forKey: .data)
@@ -235,7 +245,7 @@ struct PubNubUUIDsMetadataResponsePayload: Codable {
     prev = try container.decodeIfPresent(String.self, forKey: .prev)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(try data.map { try $0.transcode(into: PubNubUUIDMetadataBase.self) }, forKey: .data)
@@ -246,9 +256,9 @@ struct PubNubUUIDsMetadataResponsePayload: Codable {
   }
 }
 
-struct PubNubUUIDMetadataResponsePayload: Codable {
+public struct PubNubUUIDMetadataResponsePayload: Codable {
   let status: Int
-  let data: PubNubUUIDMetadata
+  public let data: PubNubUUIDMetadata
 
   enum CodingKeys: String, CodingKey {
     case status
@@ -260,14 +270,14 @@ struct PubNubUUIDMetadataResponsePayload: Codable {
     self.data = data
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     data = try container.decode(PubNubUUIDMetadataBase.self, forKey: .data)
     status = try container.decode(Int.self, forKey: .status)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(try data.transcode(into: PubNubUUIDMetadataBase.self), forKey: .data)

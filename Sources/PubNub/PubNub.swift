@@ -318,19 +318,24 @@ public extension PubNub {
   struct Page: PubNubHashedPage, Hashable {
     public var start: String?
     public var end: String?
-    public let totalCount: Int? = nil
+    public let totalCount: Int?
 
     /// Default init
     /// - Parameters:
     ///   - start: The value of the  start of a next page
     ///   - end: The value of the end of a slice of paged data
-    public init(start: String? = nil, end: String? = nil) {
+    public init(start: String? = nil, end: String? = nil, totalCount: Int? = nil) {
       self.start = start
       self.end = end
+      self.totalCount = totalCount
+    }
+
+    public init(next: String?, prev: String?, totalCount: Int?) {
+      self.init(start: next, end: prev, totalCount: totalCount)
     }
 
     public init(from other: PubNubHashedPage) throws {
-      self.init(start: other.start, end: other.end)
+      self.init(start: other.start, end: other.end, totalCount: other.totalCount)
     }
   }
 }

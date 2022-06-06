@@ -142,8 +142,8 @@ public protocol SessionReplaceable {
   func invalidateAndCancel()
 }
 
-extension SessionReplaceable {
-  public func route<Decoder>(
+public extension SessionReplaceable {
+  func route<Decoder>(
     _ router: HTTPRouter,
     responseDecoder: Decoder,
     responseQueue: DispatchQueue = .main,

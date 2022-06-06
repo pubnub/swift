@@ -27,7 +27,7 @@
 
 import Foundation
 
-/// An object capable of representing a User in PubNub
+/// A concrete representation of  a User entity in PubNub
 public struct PubNubUser {
   /// The unique identifier of the User
   public var id: String
@@ -43,10 +43,8 @@ public struct PubNubUser {
   public var profileURL: URL?
   /// The email address of the User
   public var email: String?
-
   /// All custom properties set on the User
   public var custom: FlatJSONCodable?
-
   /// The last updated timestamp for the User
   public var updated: Date?
   /// The caching identifier for the User

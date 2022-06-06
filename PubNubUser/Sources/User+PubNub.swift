@@ -46,7 +46,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping (Result<PubNubUser, Error>) -> Void
   )
-  
+
   /// Fetch all `PubNubUser` that exist on a keyset
   ///
   /// - Parameters:
@@ -70,7 +70,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
   )
-  
+
   /// Create a new `PubNubUser`
   ///
   /// - Parameters:
@@ -100,7 +100,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
-  
+
   /// Updates an existing `PubNubUser`
   ///
   /// - Parameters:
@@ -130,7 +130,7 @@ public protocol PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<PubNubUser, Error>) -> Void)?
   )
-  
+
   /// Removes a previously created `PubNubUser` (if it existed)
   ///
   /// - Parameters:
@@ -161,7 +161,7 @@ public extension PubNub {
     case status(ascending: Bool)
     /// Sort on the last updated property
     case updated(ascending: Bool)
-    
+
     /// The string representation of the field
     public var rawValue: String {
       switch self {
@@ -177,7 +177,7 @@ public extension PubNub {
         return "updated"
       }
     }
-    
+
     /// Direction of the sort for the sort field
     public var ascending: Bool {
       switch self {
@@ -193,7 +193,7 @@ public extension PubNub {
         return ascending
       }
     }
-    
+
     /// The finalized query parameter value for the sort field
     public var routerParameter: String {
       return "\(rawValue):\(ascending ? "" : "desc")"
@@ -217,17 +217,17 @@ extension PubNub: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) {
-        completion($0.map { $0.payload.data.convert() })
+        completion($0.map { $0.payload.data })
       }
   }
-  
+
   public func fetchUsers(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -250,20 +250,20 @@ extension PubNub: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)?
       .route(
         router,
-        responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
+        responseDecoder: FetchMultipleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion(result.map { (
-          users: $0.payload.data.map { $0.convert() },
-          next: try? PubNubHashedPageBase(from: $0.payload)
+          users: $0.payload.data,
+          next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
       }
   }
-  
+
   public func createUser(
     userId: String?,
     name: String? = nil,
@@ -293,17 +293,17 @@ extension PubNub: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
-        completion?(result.map { $0.payload.data.convert() })
+        completion?(result.map { $0.payload.data })
       }
   }
-  
+
   public func updateUser(
     userId: String?,
     name: String? = nil,
@@ -331,7 +331,7 @@ extension PubNub: PubNubUserInterface {
       completion: completion
     )
   }
-  
+
   public func removeUser(
     userId: String?,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -341,11 +341,11 @@ extension PubNub: PubNubUserInterface {
       .remove(metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: GenericServiceResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })

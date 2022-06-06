@@ -27,7 +27,7 @@
 
 import Foundation
 
-/// An object capable of representing a Space in PubNub
+/// A concrete representation of  a Space entity in PubNub
 public struct PubNubSpace {
   /// The unique identifier of the Space
   public var id: String

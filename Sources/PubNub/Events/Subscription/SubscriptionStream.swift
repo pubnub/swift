@@ -78,21 +78,27 @@ public enum SubscriptionEvent {
   /// A Membership object has been deleted
   case membershipMetadataRemoved(PubNubMembershipMetadata)
 
+  /// The changeset for the User entity that changed
   case userUpdated(PubNubUser.Patcher)
+  /// The User entity that was remvoed
   case userRemoved(PubNubUser)
-
+  /// The changeset for the Space entity that changed
   case spaceUpdated(PubNubSpace.Patcher)
+  /// The Space entity that was remvoed
   case spaceRemoved(PubNubSpace)
-
+  /// The Membership entity that was updated
   case membershipUpdated(PubNubMembership)
+  /// The Membership entity that was remvoed
   case membershipRemoved(PubNubMembership)
 
   /// A MessageAction was added to a published message
   case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
   case messageActionRemoved(PubNubMessageAction)
+
   /// A File was uploaded to storage
   case fileUploaded(PubNubFileEvent)
+
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -162,18 +168,26 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
     case removedMembership(PubNubMembershipMetadata)
   }
 
+  /// All the changes that can be received for User entities
   public enum PubNubUserChangeEvent {
+    /// The changeset for the User entity that changed
     case userUpdated(PubNubUser.Patcher)
+    /// The User entity that was remvoed
     case userRemoved(PubNubUser)
   }
 
   public enum PubNubSpaceChangeEvent {
+    /// The changeset for the Space entity that changed
     case spaceUpdated(PubNubSpace.Patcher)
+    /// The Space entity that was remvoed
     case spaceRemoved(PubNubSpace)
   }
 
+  /// All the changes that can be received for Membership entities
   public enum PubNubMembershipChangeEvent {
+    /// The Membership entity that was updated
     case membershipUpdated(PubNubMembership)
+    /// The Membership entity that was removed
     case membershipRemoved(PubNubMembership)
   }
 
@@ -184,28 +198,36 @@ public final class SubscriptionListener: SubscriptionStream, Hashable {
   ///
   /// This will also emit individual events to `didReceiveSubscription`
   public var didReceiveBatchSubscription: (([SubscriptionEvent]) -> Void)?
-
   /// Receiver for all subscription events
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
-  /// Receiver for message events
-  public var didReceiveMessage: ((PubNubMessage) -> Void)?
+
+  /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
+  public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
   /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   /// Receiver for presence events
   public var didReceivePresence: ((PubNubPresenceChange) -> Void)?
+  /// Receiver for message events
+  public var didReceiveMessage: ((PubNubMessage) -> Void)?
   /// Receiver for signal events
   public var didReceiveSignal: ((PubNubMessage) -> Void)?
-  /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
-  public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
+
   /// Receiver for Object Metadata Events
   public var didReceiveObjectMetadataEvent: ((ObjectMetadataChangeEvents) -> Void)?
+
   /// Receiver for message action events
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
+
   /// Receiver for File Upload events
   public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
 
+  /// Receiver for User Events
   public var didReceivePubNubUserChange: ((PubNubUserChangeEvent) -> Void)?
+
+  /// Receiver for Space Events
   public var didReceivePubNubSpaceChange: ((PubNubSpaceChangeEvent) -> Void)?
+
+  /// Receiver for Membership Events
   public var didReceivePubNubMembershipChange: ((PubNubMembershipChangeEvent) -> Void)?
 
   public func emitDidReceiveBatch(subscription batch: [SubscriptionEvent]) {

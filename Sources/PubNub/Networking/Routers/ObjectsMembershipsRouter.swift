@@ -102,7 +102,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
   public struct SetMembershipRequestBody: JSONCodable {
     let set: [MembershipChange]
     let delete: [MembershipChange]
-    
+
     public init(
       set: [MembershipChange],
       delete: [MembershipChange]
@@ -157,7 +157,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
   public struct SetMembersRequestBody: JSONCodable {
     let set: [MemberChange]
     let delete: [MemberChange]
-    
+
     public init(
       set: [MemberChange],
       delete: [MemberChange]

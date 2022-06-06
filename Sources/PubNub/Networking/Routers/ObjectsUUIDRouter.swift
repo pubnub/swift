@@ -188,99 +188,38 @@ public struct ObjectsUUIDRouter: HTTPRouter {
 
 // MARK: - Response Decoder
 
-public struct PubNubUUIDsMetadataResponseDecoder: ResponseDecoder {
-  public typealias Payload = PubNubUUIDsMetadataResponsePayload
+public typealias PubNubUUIDsMetadataResponseDecoder = FetchMultipleValueResponseDecoder<PubNubUUIDMetadataBase>
+
+public struct FetchMultipleValueResponseDecoder<Value: Codable>: ResponseDecoder {
+  public typealias Payload = FetchMultipleResponse<Value>
   public init() {}
 }
 
-public struct PubNubUUIDMetadataResponseDecoder: ResponseDecoder {
-  public typealias Payload = PubNubUUIDMetadataResponsePayload
+public typealias PubNubUUIDMetadataResponseDecoder = FetchSingleValueResponseDecoder<PubNubUUIDMetadataBase>
+
+public struct FetchSingleValueResponseDecoder<Value: Codable>: ResponseDecoder {
+  public typealias Payload = FetchSingleResponse<Value>
   public init() {}
 }
 
-public struct FetchUsersResponse<User: Codable>: Codable {
-  let status: Int
-  public let data: [User]
+public struct FetchStatusResponseDecoder: ResponseDecoder {
+  public typealias Payload = FetchStatusResponse
+  public init() {}
+}
+
+public struct FetchSingleResponse<Value: Codable>: Codable {
+  public let status: Int
+  public let data: Value
+}
+
+public struct FetchMultipleResponse<Value: Codable>: Codable {
+  public let status: Int
+  public let data: [Value]
   public let totalCount: Int?
   public let next: String?
   public let prev: String?
 }
 
-public struct PubNubUUIDsMetadataResponsePayload: Codable {
-  let status: Int
-  public let data: [PubNubUUIDMetadata]
-  public let totalCount: Int?
-  public let next: String?
-  public let prev: String?
-
-  enum CodingKeys: String, CodingKey {
-    case status
-    case data
-    case totalCount
-    case next
-    case prev
-  }
-
-  init(
-    status: Int,
-    data: [PubNubUUIDMetadataBase],
-    totalCount: Int?,
-    next: String?,
-    prev: String?
-  ) {
-    self.status = status
-    self.data = data
-    self.totalCount = totalCount
-    self.next = next
-    self.prev = prev
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    data = try container.decode([PubNubUUIDMetadataBase].self, forKey: .data)
-    status = try container.decode(Int.self, forKey: .status)
-    totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount)
-    next = try container.decodeIfPresent(String.self, forKey: .next)
-    prev = try container.decodeIfPresent(String.self, forKey: .prev)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    try container.encode(try data.map { try $0.transcode(into: PubNubUUIDMetadataBase.self) }, forKey: .data)
-    try container.encode(status, forKey: .status)
-    try container.encodeIfPresent(totalCount, forKey: .totalCount)
-    try container.encodeIfPresent(next, forKey: .next)
-    try container.encodeIfPresent(prev, forKey: .prev)
-  }
-}
-
-public struct PubNubUUIDMetadataResponsePayload: Codable {
-  let status: Int
-  public let data: PubNubUUIDMetadata
-
-  enum CodingKeys: String, CodingKey {
-    case status
-    case data
-  }
-
-  init(status: Int = 200, data: PubNubUUIDMetadataBase) {
-    self.status = status
-    self.data = data
-  }
-
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    data = try container.decode(PubNubUUIDMetadataBase.self, forKey: .data)
-    status = try container.decode(Int.self, forKey: .status)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    try container.encode(try data.transcode(into: PubNubUUIDMetadataBase.self), forKey: .data)
-    try container.encode(status, forKey: .status)
-  }
+public struct FetchStatusResponse: Codable {
+  public let status: Int
 }

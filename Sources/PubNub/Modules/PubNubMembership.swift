@@ -27,11 +27,8 @@
 
 import Foundation
 
-/// An object capable of representing a User in PubNub
+/// A concrete representation of  a Membership entity in PubNub
 public struct PubNubMembership {
-  /// One half of the Membership relationship
-  public typealias Partial = (id: String, status: String?, custom: FlatJSONCodable?)
-
   /// The associated User Entity
   public var user: PubNubUser
   /// The associated Space Entity
@@ -118,6 +115,91 @@ extension PubNubMembership: Codable {
     try container.encodeIfPresent(custom?.codableValue, forKey: .custom)
     try container.encodeIfPresent(updated, forKey: .updated)
     try container.encodeIfPresent(eTag, forKey: .eTag)
+  }
+}
+
+// MARK: Partial Links
+
+public extension PubNubMembership {
+  /// One half of the Membership relationship
+  typealias Partial = (id: String, status: String?, custom: FlatJSONCodable?)
+
+  struct PartialUser: Codable {
+    public let user: PubNubUser
+    public let status: String?
+    public let custom: FlatJSON?
+    public let updated: Date?
+    public let eTag: String?
+
+    public init(
+      user: PubNubUser,
+      status: String? = nil,
+      custom: FlatJSONCodable? = nil
+    ) {
+      self.user = user
+      self.status = status
+      self.custom = FlatJSON(flatJSON: custom?.flatJSON)
+      updated = nil
+      eTag = nil
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case user = "uuid"
+      case status
+      case custom
+      case updated
+      case eTag
+    }
+  }
+
+  struct PartialSpace: Codable {
+    public let space: PubNubSpace
+    public let status: String?
+    public let custom: FlatJSON?
+    public let updated: Date?
+    public let eTag: String?
+
+    public init(
+      space: PubNubSpace,
+      status: String? = nil,
+      custom: FlatJSONCodable? = nil
+    ) {
+      self.space = space
+      self.status = status
+      self.custom = FlatJSON(flatJSON: custom?.flatJSON)
+      updated = nil
+      eTag = nil
+    }
+
+    enum CodingKeys: String, CodingKey {
+      case space = "channel"
+      case status
+      case custom
+      case updated
+      case eTag
+    }
+  }
+
+  init(user: PubNubUser, space partial: PartialSpace) {
+    self.init(
+      user: user,
+      space: partial.space,
+      status: partial.status,
+      custom: partial.custom,
+      updated: partial.updated,
+      eTag: partial.eTag
+    )
+  }
+
+  init(space: PubNubSpace, user partial: PartialUser) {
+    self.init(
+      user: partial.user,
+      space: space,
+      status: partial.status,
+      custom: partial.custom,
+      updated: partial.updated,
+      eTag: partial.eTag
+    )
   }
 }
 

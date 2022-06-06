@@ -186,7 +186,7 @@ extension PubNubChannelsMetadataResponsePayload: PubNubHashedPage {
   }
 }
 
-extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
+extension PubNubMembershipsResponsePayload: PubNubHashedPage {
   public var start: String? {
     return next
   }
@@ -203,7 +203,7 @@ extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
   }
 }
 
-extension PubNubMembershipsResponsePayload: PubNubHashedPage {
+extension FetchMultipleResponse: PubNubHashedPage {
   public var start: String? {
     return next
   }

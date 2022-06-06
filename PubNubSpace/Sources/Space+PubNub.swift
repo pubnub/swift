@@ -210,10 +210,10 @@ extension PubNub: PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubChannelMetadataResponseDecoder(),
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
-        completion(result.map { $0.payload.data.convert() })
+        completion(result.map { $0.payload.data })
       }
   }
 
@@ -243,12 +243,12 @@ extension PubNub: PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubChannelsMetadataResponseDecoder(),
+        responseDecoder: FetchMultipleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion(result.map { (
-          spaces: $0.payload.data.map { $0.convert() },
-          next: try? PubNubHashedPageBase(from: $0.payload)
+          spaces: $0.payload.data,
+          next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
       }
   }
@@ -282,10 +282,10 @@ extension PubNub: PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubChannelMetadataResponseDecoder(),
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
-        completion?(result.map { $0.payload.data.convert() })
+        completion?(result.map { $0.payload.data })
       }
   }
 
@@ -326,7 +326,7 @@ extension PubNub: PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: GenericServiceResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })

@@ -28,8 +28,8 @@
 import Foundation
 
 import PubNub
-import PubNubUser
 import PubNubSpace
+import PubNubUser
 
 /// Protocol interface to manage `PubNubMembership` entities using closures
 public protocol PubNubMembershipInterface {
@@ -277,15 +277,19 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchMultipleValueResponseDecoder<PubNubMembership.PartialSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion(result.map { response in
           (
-            memberships: response.payload.data.compactMap { something in
-              PubNubMembershipMetadataBase(from: something, other: computedUserId)?.convert()
+            memberships: response.payload.data.compactMap {
+              PubNubMembership(user: .init(id: computedUserId), space: $0)
             },
-            next: try? PubNubHashedPageBase(from: response.payload)
+            next: Page(
+              next: response.payload.next,
+              prev: response.payload.prev,
+              totalCount: response.payload.totalCount
+            )
           )
         })
       }
@@ -325,15 +329,19 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchMultipleValueResponseDecoder<PubNubMembership.PartialUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion(result.map { response in
           (
             memberships: response.payload.data.compactMap {
-              PubNubMembershipMetadataBase(from: $0, other: spaceId)?.convert()
+              PubNubMembership(space: .init(id: spaceId), user: $0)
             },
-            next: try? PubNubHashedPageBase(from: response.payload)
+            next: Page(
+              next: response.payload.next,
+              prev: response.payload.prev,
+              totalCount: response.payload.totalCount
+            )
           )
         })
       }
@@ -366,7 +374,7 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })
@@ -402,7 +410,7 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })
@@ -464,7 +472,7 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })
@@ -500,7 +508,7 @@ extension PubNub: PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        responseDecoder: PubNubMembershipsResponseDecoder(),
+        responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
         completion?(result.map { _ in () })

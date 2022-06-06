@@ -50,7 +50,7 @@ public extension PubNubUser {
     public let updated: Date
     /// The cache identifier of the change
     public let eTag: String
-    
+
     public init(
       id: String,
       updated: Date,
@@ -74,7 +74,7 @@ public extension PubNubUser {
       self.email = email
       self.custom = custom
     }
-    
+
     /// Apply the patch to a target User
     ///
     /// It's recommended to call ``shouldUpdate(userId:eTag:lastUpdated:)`` prior to using this method to ensure
@@ -97,8 +97,8 @@ public extension PubNubUser {
       profileURL: ((URL?) -> Void) = { _ in },
       email: ((String?) -> Void) = { _ in },
       custom: ((FlatJSONCodable?) -> Void) = { _ in },
-      updated: ((Date) -> Void),
-      eTag: ((String) -> Void)
+      updated: (Date) -> Void,
+      eTag: (String) -> Void
     ) {
       if self.name.hasChange {
         name(self.name.underlying)
@@ -124,7 +124,7 @@ public extension PubNubUser {
       updated(self.updated)
       eTag(self.eTag)
     }
-    
+
     /// Should this patch update the target object.
     ///
     /// - Parameters:
@@ -133,9 +133,9 @@ public extension PubNubUser {
     ///   - lastUpdated: The updated `Date` for the target User.  This is set by the PubNub server.
     ///  - Returns:Whether the target User should be patched
     public func shouldUpdate(userId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return self.id == userId &&
-      self.eTag != eTag &&
-      updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
+      return id == userId &&
+        self.eTag != eTag &&
+        updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
     }
   }
 }
@@ -150,9 +150,9 @@ public extension PubNubUser {
     guard patch.shouldUpdate(userId: id, eTag: eTag, lastUpdated: updated) else {
       return self
     }
-    
+
     var mutableSelf = self
-    
+
     patch.apply(
       name: { mutableSelf.name = $0 },
       type: { mutableSelf.type = $0 },
@@ -164,7 +164,7 @@ public extension PubNubUser {
       updated: { mutableSelf.updated = $0 },
       eTag: { mutableSelf.eTag = $0 }
     )
-    
+
     return mutableSelf
   }
 }
@@ -177,32 +177,32 @@ extension PubNubUser.Patcher: Codable {
     id = try container.decode(String.self, forKey: .id)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
-    
+
     // Change Options
     if container.contains(.name) {
       name = try container.decode(OptionalChange<String>.self, forKey: .name)
     } else {
       name = .noChange
     }
-    
+
     if container.contains(.type) {
       type = try container.decode(OptionalChange<String>.self, forKey: .type)
     } else {
       type = .noChange
     }
-    
+
     if container.contains(.status) {
       status = try container.decode(OptionalChange<String>.self, forKey: .status)
     } else {
       status = .noChange
     }
-    
+
     if container.contains(.externalId) {
       externalId = try container.decode(OptionalChange<String>.self, forKey: .externalId)
     } else {
       externalId = .noChange
     }
-    
+
     if container.contains(.profileUrl) {
       if let url = try container.decodeIfPresent(String.self, forKey: .profileUrl),
          let profileURL = URL(string: url) {
@@ -213,13 +213,13 @@ extension PubNubUser.Patcher: Codable {
     } else {
       profileURL = .noChange
     }
-    
+
     if container.contains(.email) {
       email = try container.decode(OptionalChange<String>.self, forKey: .email)
     } else {
       email = .noChange
     }
-    
+
     if container.contains(.custom) {
       if let custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) {
         self.custom = .some(FlatJSON(flatJSON: custom))
@@ -230,20 +230,20 @@ extension PubNubUser.Patcher: Codable {
       custom = .noChange
     }
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: PubNubUser.CodingKeys.self)
     try container.encode(id, forKey: .id)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
-    
+
     try container.encode(name, forKey: .name)
     try container.encode(type, forKey: .type)
     try container.encode(status, forKey: .status)
-    
+
     try container.encode(externalId, forKey: .externalId)
     try container.encode(email, forKey: .email)
-    
+
     switch profileURL {
     case .noChange:
       // no-op
@@ -253,7 +253,7 @@ extension PubNubUser.Patcher: Codable {
     case let .some(value):
       try container.encode(value.absoluteString, forKey: .profileUrl)
     }
-    
+
     switch custom {
     case .noChange:
       // no-op

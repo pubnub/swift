@@ -66,7 +66,7 @@ public extension PubNubSpace {
       self.spaceDescription = spaceDescription
       self.custom = custom
     }
-    
+
     /// Should this patch update the target object.
     ///
     /// - Parameters:
@@ -75,7 +75,7 @@ public extension PubNubSpace {
     ///   - lastUpdated: The updated `Date` for the target Space.  This is set by the PubNub server.
     ///  - Returns:Whether the target Space should be patched
     public func shouldUpdate(spaceId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return self.id == id &&
+      return id == spaceId &&
         self.eTag != eTag &&
         updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
     }
@@ -98,8 +98,8 @@ public extension PubNubSpace {
       status: ((String?) -> Void) = { _ in },
       description: ((String?) -> Void) = { _ in },
       custom: ((FlatJSONCodable?) -> Void) = { _ in },
-      updated: ((Date) -> Void),
-      eTag: ((String) -> Void)
+      updated: (Date) -> Void,
+      eTag: (String) -> Void
     ) {
       if self.name.hasChange {
         name(self.name.underlying)

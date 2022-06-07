@@ -27,6 +27,10 @@
 
 import Foundation
 
+import PubNub
+import PubNubSpace
+import PubNubUser
+
 /// A concrete representation of  a Membership entity in PubNub
 public struct PubNubMembership {
   /// The associated User Entity

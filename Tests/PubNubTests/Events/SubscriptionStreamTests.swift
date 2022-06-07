@@ -29,26 +29,6 @@
 import XCTest
 
 class SubscriptionListenerTests: XCTestCase {
-  struct MockStatusStream: SubscriptionStream {
-    let uuid = UUID()
-
-    var statusEvent: ((SubscriptionListener.StatusEvent) -> Void)?
-
-    func emitDidReceive(status event: SubscriptionListener.StatusEvent) {
-      statusEvent?(event)
-    }
-  }
-
-  struct MockMessageStream: SubscriptionStream {
-    let uuid = UUID()
-
-    var PubNubMessage: ((PubNubMessage) -> Void)?
-
-    func emitDidReceive(message event: PubNubMessage) {
-      PubNubMessage?(event)
-    }
-  }
-
   let pubnubMessage = PubNubMessageBase(
     payload: "Message",
     actions: [],
@@ -73,8 +53,8 @@ class SubscriptionListenerTests: XCTestCase {
   // MARK: - Subscription Stream Defaults
 
   func testSessionStream_Default_Messages() {
-    var stream = MockStatusStream()
-    stream.statusEvent = { [weak self] event in
+    let stream = SubscriptionListener()
+    stream.didReceiveStatus = { [weak self] event in
       XCTAssertEqual(event, self?.statusEvent)
     }
 
@@ -84,8 +64,8 @@ class SubscriptionListenerTests: XCTestCase {
   }
 
   func testSessionStream_Default_StatusPresence() {
-    var stream = MockMessageStream()
-    stream.PubNubMessage = { [weak self] event in
+    let stream = SubscriptionListener()
+    stream.didReceiveMessage = { [weak self] event in
       XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
     }
 

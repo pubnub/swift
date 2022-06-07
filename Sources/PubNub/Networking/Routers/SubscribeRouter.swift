@@ -261,18 +261,18 @@ public struct SubscribeCursor: Codable, Hashable {
   }
 }
 
-struct SubscribeMessagePayload: Codable, Hashable {
-  let shard: String
-  let subscription: String?
-  let channel: String
-  var messageType: Action
-  var payload: AnyJSON
-  let flags: Int
-  let publisher: String?
-  let subscribeKey: String
-  let originTimetoken: SubscribeCursor?
-  let publishTimetoken: SubscribeCursor
-  let metadata: AnyJSON?
+public struct SubscribeMessagePayload: Codable, Hashable {
+  public let shard: String
+  public let subscription: String?
+  public let channel: String
+  public let messageType: Action
+  public var payload: AnyJSON
+  public let flags: Int
+  public let publisher: String?
+  public let subscribeKey: String
+  public let originTimetoken: SubscribeCursor?
+  public let publishTimetoken: SubscribeCursor
+  public let metadata: AnyJSON?
 
   enum CodingKeys: String, CodingKey {
     case shard = "a"
@@ -288,7 +288,7 @@ struct SubscribeMessagePayload: Codable, Hashable {
     case meta = "u"
   }
 
-  enum Action: Int, Codable {
+  public enum Action: Int, Codable {
     case message = 0
     case signal = 1
     case object = 2
@@ -342,7 +342,7 @@ struct SubscribeMessagePayload: Codable, Hashable {
     metadata = meta
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     shard = try container.decode(String.self, forKey: .shard)
@@ -374,7 +374,7 @@ struct SubscribeMessagePayload: Codable, Hashable {
     channel = fullChannel.trimmingPresenceChannelSuffix
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(shard, forKey: .shard)

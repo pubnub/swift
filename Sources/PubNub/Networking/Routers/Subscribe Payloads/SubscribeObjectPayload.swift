@@ -33,7 +33,6 @@ struct SubscribeObjectMetadataPayload {
   let event: Action
   let type: MetadataType
   let objectEvent: SubscriptionEvent
-  let vspEvent: SubscriptionEvent
 
   enum Action: String, Codable, Hashable {
     case set
@@ -51,15 +50,13 @@ struct SubscribeObjectMetadataPayload {
     version: String,
     event: Action,
     type: MetadataType,
-    objectEvent: SubscriptionEvent,
-    vspEvent: SubscriptionEvent
+    objectEvent: SubscriptionEvent
   ) {
     self.source = source
     self.version = version
     self.event = event
     self.type = type
     self.objectEvent = objectEvent
-    self.vspEvent = vspEvent
   }
 }
 
@@ -89,34 +86,24 @@ extension SubscribeObjectMetadataPayload: Codable {
       objectEvent = .uuidMetadataSet(
         try container.decode(PubNubUUIDMetadataChangeset.self, forKey: .subscribeEvent)
       )
-      vspEvent = .userUpdated(
-        try container.decode(PubNubUser.Patcher.self, forKey: .subscribeEvent)
-      )
     case (.uuid, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
       objectEvent = .uuidMetadataRemoved(metadataId: identifier)
-      vspEvent = .userRemoved(.init(id: identifier))
     case (.channel, .set):
       objectEvent = .channelMetadataSet(
         try container.decode(PubNubChannelMetadataChangeset.self, forKey: .subscribeEvent)
-      )
-      vspEvent = .spaceUpdated(
-        try container.decode(PubNubSpace.Patcher.self, forKey: .subscribeEvent)
       )
     case (.channel, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
       objectEvent = .channelMetadataRemoved(metadataId: identifier)
-      vspEvent = .spaceRemoved(.init(id: identifier))
     case (.membership, .set):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
       objectEvent = .membershipMetadataSet(membership)
-      vspEvent = .membershipUpdated(membership.convert())
     case (.membership, .delete):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
       objectEvent = .membershipMetadataRemoved(membership)
-      vspEvent = .membershipRemoved(membership.convert())
     }
   }
 

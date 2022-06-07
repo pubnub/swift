@@ -189,7 +189,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -207,9 +206,6 @@ extension SubscribeRouterTests {
       eTag: "UserUpdateEtag"
     )
 
-    let baseVspUser = baseUser.convert()
-    let patchedUser = patchedObjectUser.convert()
-
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
     let listener = SubscriptionListener()
@@ -225,9 +221,10 @@ extension SubscribeRouterTests {
         )
 
         objectExpect.fulfill()
-      case let .userUpdated(patcher):
-        XCTAssertEqual(baseVspUser.apply(patcher), patchedUser)
-        vspExpect.fulfill()
+      // TODO: MOVE THIS TO ANOTHER TEST
+//      case let .userUpdated(patcher):
+//        XCTAssertEqual(baseVspUser.apply(patcher), patchedUser)
+//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -266,7 +263,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -288,9 +284,10 @@ extension SubscribeRouterTests {
       case let .uuidMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestUserID")
         objectExpect.fulfill()
-      case let .userRemoved(user):
-        XCTAssertEqual(user, PubNubUser(id: "TestUserID"))
-        vspExpect.fulfill()
+      // TODO: MOVE THIS TO ANOTHER TEST
+//      case let .userRemoved(user):
+//        XCTAssertEqual(user, PubNubUser(id: "TestUserID"))
+//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -329,7 +326,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length
   func testSubscribe_ChannelMetadata_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -349,9 +345,6 @@ extension SubscribeRouterTests {
       eTag: "SpaceUpdateEtag"
     )
 
-    let baseSpace = baseChannel.convert()
-    let patchedSpace = patchedChannel.convert()
-
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
     let listener = SubscriptionListener()
@@ -367,10 +360,12 @@ extension SubscribeRouterTests {
           try? changeset.apply(to: baseChannel).transcode(), patchedChannel
         )
         objectExpect.fulfill()
-      case let .spaceUpdated(patcher):
-        print("Space Patcher \(patcher)")
-        XCTAssertEqual(baseSpace.apply(patcher), patchedSpace)
-        vspExpect.fulfill()
+        // TODO: MOVE THIS TO ANOTHER TEST
+
+//      case let .spaceUpdated(patcher):
+//        print("Space Patcher \(patcher)")
+//        XCTAssertEqual(baseSpace.apply(patcher), patchedSpace)
+//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         default:
@@ -405,7 +400,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_ChannelMetadata_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -427,9 +421,11 @@ extension SubscribeRouterTests {
       case let .channelMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestSpaceID")
         objectExpect.fulfill()
-      case let .spaceRemoved(space):
-        XCTAssertEqual(space, PubNubSpace(id: "TestSpaceID"))
-        vspExpect.fulfill()
+        // TODO: MOVE THIS TO ANOTHER TEST
+
+//      case let .spaceRemoved(space):
+//        XCTAssertEqual(space, PubNubSpace(id: "TestSpaceID"))
+//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -468,7 +464,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Set() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -497,9 +492,11 @@ extension SubscribeRouterTests {
       case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-      case let .membershipUpdated(membership):
-        XCTAssertEqual(membership, testMembership.convert())
-        vspExpect.fulfill()
+        // TODO: MOVE THIS TO ANOTHER TEST
+
+//      case let .membershipUpdated(membership):
+//        XCTAssertEqual(membership, testMembership.convert())
+//        vspExpect.fulfill()
 
       case let .subscriptionChanged(change):
         switch change {
@@ -539,7 +536,6 @@ extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Removed() {
     let objectExpect = XCTestExpectation(description: "Object Event")
-    let vspExpect = XCTestExpectation(description: "VSP Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
@@ -566,9 +562,11 @@ extension SubscribeRouterTests {
       case let .membershipMetadataRemoved(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-      case let .membershipRemoved(membership):
-        XCTAssertEqual(membership, testMembership.convert())
-        vspExpect.fulfill()
+        // TODO: MOVE THIS TO ANOTHER TEST
+
+//      case let .membershipRemoved(membership):
+//        XCTAssertEqual(membership, testMembership.convert())
+//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):

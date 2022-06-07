@@ -543,7 +543,7 @@ public extension PubNub {
 
   /// Add a listener to enable the receiving of subscription events
   /// - Parameter listener: The subscription listener to be added
-  func add(_ listener: SubscriptionListener) {
+  func add(_ listener: BaseSubscriptionListener) {
     subscription.add(listener)
   }
 

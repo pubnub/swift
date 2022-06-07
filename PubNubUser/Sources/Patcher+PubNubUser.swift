@@ -1,5 +1,5 @@
 //
-//  Patcher+PubNubSpace.swift
+//  Patcher+PubNubUser.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2022 PubNub Inc.
@@ -27,19 +27,25 @@
 
 import Foundation
 
-public extension PubNubSpace {
-  /// Object that can be used to apply an update to another Space
+import PubNub
+
+public extension PubNubUser {
+  /// Object that can be used to apply an update to another User
   struct Patcher {
     /// The unique identifier of the object that was changed
     public let id: String
-    /// The name of the Space
+    /// The name of the User
     public let name: OptionalChange<String>
-    /// The classification of Space
+    /// The classification of User
     public let type: OptionalChange<String>
-    /// The current state of the Space
+    /// The current state of the User
     public let status: OptionalChange<String>
-    /// Text describing the purpose of the Space
-    public let spaceDescription: OptionalChange<String>
+    /// The external identifier for the User
+    public let externalId: OptionalChange<String>
+    /// The profile URL for the User
+    public let profileURL: OptionalChange<URL>
+    /// The email address of the User
+    public let email: OptionalChange<String>
     /// All custom fields set on the User
     public let custom: OptionalChange<FlatJSONCodable>
     /// The timestamp of the change
@@ -54,7 +60,9 @@ public extension PubNubSpace {
       name: OptionalChange<String> = .noChange,
       type: OptionalChange<String> = .noChange,
       status: OptionalChange<String> = .noChange,
-      spaceDescription: OptionalChange<String> = .noChange,
+      externalId: OptionalChange<String> = .noChange,
+      profileURL: OptionalChange<URL> = .noChange,
+      email: OptionalChange<String> = .noChange,
       custom: OptionalChange<FlatJSONCodable> = .noChange
     ) {
       self.id = id
@@ -63,40 +71,33 @@ public extension PubNubSpace {
       self.name = name
       self.type = type
       self.status = status
-      self.spaceDescription = spaceDescription
+      self.externalId = externalId
+      self.profileURL = profileURL
+      self.email = email
       self.custom = custom
     }
 
-    /// Should this patch update the target object.
+    /// Apply the patch to a target User
     ///
+    /// It's recommended to call ``shouldUpdate(userId:eTag:lastUpdated:)`` prior to using this method to ensure
+    /// that the Patcher is valid for a given target User.
     /// - Parameters:
-    ///   - spaceId: The unique identifier of the target Space
-    ///   - eTag: The caching value of the target Space.  This is set by the PubNub server
-    ///   - lastUpdated: The updated `Date` for the target Space.  This is set by the PubNub server.
-    ///  - Returns:Whether the target Space should be patched
-    public func shouldUpdate(spaceId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return id == spaceId &&
-        self.eTag != eTag &&
-        updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
-    }
-
-    /// Apply the patch to a target Space
-    ///
-    /// It's recommended to call ``shouldUpdate(spaceId:eTag:lastUpdated:)`` prior to using this method to ensure
-    /// that the Patcher is valid for a given target Space.
-    /// - Parameters:
-    ///   - name: Closure that will be called if the `space.name` should be updated
-    ///   - type: Closure that will be called if the `space.type` should be updated
-    ///   - status: Closure that will be called if the `space.status` should be updated
-    ///   - description: Closure that will be called if the `space.spaceDescription` should be updated
-    ///   - custom: Closure that will be called if the `space.custom` should be updated
-    ///   - updated: Closure that will be called if the `space.updated` should be updated
-    ///   - eTag: Closure that will be called if the `space.eTag` should be updated
+    ///   - name: Closure that will be called if the ``PubNubUser/name`` property should be updated
+    ///   - type: Closure that will be called if the ``PubNubUser/type`` property should be updated
+    ///   - status: Closure that will be called if the ``PubNubUser/status`` property should be updated
+    ///   - externalId: Closure that will be called if the ``PubNubUser/externalId`` property should be updated
+    ///   - profileURL: Closure that will be called if the ``PubNubUser/profileURL`` property should be updated
+    ///   - email: Closure that will be called if the ``PubNubUser/email`` property should be updated
+    ///   - custom: Closure that will be called if the ``PubNubUser/custom`` property should be updated
+    ///   - updated: Closure that will be called if the ``PubNubUser/updated`` property should be updated
+    ///   - eTag: Closure that will be called if the ``PubNubUser/eTag`` property should be updated
     public func apply(
       name: ((String?) -> Void) = { _ in },
       type: ((String?) -> Void) = { _ in },
       status: ((String?) -> Void) = { _ in },
-      description: ((String?) -> Void) = { _ in },
+      externalId: ((String?) -> Void) = { _ in },
+      profileURL: ((URL?) -> Void) = { _ in },
+      email: ((String?) -> Void) = { _ in },
       custom: ((FlatJSONCodable?) -> Void) = { _ in },
       updated: (Date) -> Void,
       eTag: (String) -> Void
@@ -110,8 +111,14 @@ public extension PubNubSpace {
       if self.status.hasChange {
         status(self.status.underlying)
       }
-      if spaceDescription.hasChange {
-        description(spaceDescription.underlying)
+      if self.externalId.hasChange {
+        externalId(self.externalId.underlying)
+      }
+      if self.profileURL.hasChange {
+        profileURL(self.profileURL.underlying)
+      }
+      if self.email.hasChange {
+        email(self.email.underlying)
       }
       if self.custom.hasChange {
         custom(self.custom.underlying)
@@ -119,17 +126,30 @@ public extension PubNubSpace {
       updated(self.updated)
       eTag(self.eTag)
     }
+
+    /// Should this patch update the target object.
+    ///
+    /// - Parameters:
+    ///   - userId: The unique identifier of the target User
+    ///   - eTag: The caching value of the target User.  This is set by the PubNub server
+    ///   - lastUpdated: The updated `Date` for the target User.  This is set by the PubNub server.
+    ///  - Returns:Whether the target User should be patched
+    public func shouldUpdate(userId: String, eTag: String?, lastUpdated: Date?) -> Bool {
+      return id == userId &&
+        self.eTag != eTag &&
+        updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
+    }
   }
 }
 
-public extension PubNubSpace {
-  /// Attempt to apply the updates from a ``Patcher`` to this `PubNubSpace`
+public extension PubNubUser {
+  /// Attempt to apply the updates from a ``Patcher`` to this `PubNubUser`
   ///
-  /// This will also validate that the ``Patcher`` should be applied to this Space
+  /// This will also validate that the ``Patcher`` should be applied to this User
   /// - Parameter patch: ``Patcher`` that will attempt to be applied
-  /// - returns: An updated `PubNubSpace` with the patched values, or the same object if no patch was applied.
-  func apply(_ patch: PubNubSpace.Patcher) -> PubNubSpace {
-    guard patch.shouldUpdate(spaceId: id, eTag: eTag, lastUpdated: updated) else {
+  /// - returns: An updated `PubNubUser` with the patched values, or the same object if no patch was applied.
+  func apply(_ patch: PubNubUser.Patcher) -> PubNubUser {
+    guard patch.shouldUpdate(userId: id, eTag: eTag, lastUpdated: updated) else {
       return self
     }
 
@@ -139,7 +159,9 @@ public extension PubNubSpace {
       name: { mutableSelf.name = $0 },
       type: { mutableSelf.type = $0 },
       status: { mutableSelf.status = $0 },
-      description: { mutableSelf.spaceDescription = $0 },
+      externalId: { mutableSelf.externalId = $0 },
+      profileURL: { mutableSelf.profileURL = $0 },
+      email: { mutableSelf.email = $0 },
       custom: { mutableSelf.custom = $0 },
       updated: { mutableSelf.updated = $0 },
       eTag: { mutableSelf.eTag = $0 }
@@ -151,9 +173,9 @@ public extension PubNubSpace {
 
 // MARK: Codable
 
-extension PubNubSpace.Patcher: Codable {
+extension PubNubUser.Patcher: Codable {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: PubNubSpace.CodingKeys.self)
+    let container = try decoder.container(keyedBy: PubNubUser.CodingKeys.self)
     id = try container.decode(String.self, forKey: .id)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
@@ -177,10 +199,27 @@ extension PubNubSpace.Patcher: Codable {
       status = .noChange
     }
 
-    if container.contains(.spaceDescription) {
-      spaceDescription = try container.decode(OptionalChange<String>.self, forKey: .spaceDescription)
+    if container.contains(.externalId) {
+      externalId = try container.decode(OptionalChange<String>.self, forKey: .externalId)
     } else {
-      spaceDescription = .noChange
+      externalId = .noChange
+    }
+
+    if container.contains(.profileUrl) {
+      if let url = try container.decodeIfPresent(String.self, forKey: .profileUrl),
+         let profileURL = URL(string: url) {
+        self.profileURL = .some(profileURL)
+      } else {
+        profileURL = .none
+      }
+    } else {
+      profileURL = .noChange
+    }
+
+    if container.contains(.email) {
+      email = try container.decode(OptionalChange<String>.self, forKey: .email)
+    } else {
+      email = .noChange
     }
 
     if container.contains(.custom) {
@@ -195,7 +234,7 @@ extension PubNubSpace.Patcher: Codable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: PubNubSpace.CodingKeys.self)
+    var container = encoder.container(keyedBy: PubNubUser.CodingKeys.self)
     try container.encode(id, forKey: .id)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
@@ -203,7 +242,19 @@ extension PubNubSpace.Patcher: Codable {
     try container.encode(name, forKey: .name)
     try container.encode(type, forKey: .type)
     try container.encode(status, forKey: .status)
-    try container.encode(spaceDescription, forKey: .spaceDescription)
+
+    try container.encode(externalId, forKey: .externalId)
+    try container.encode(email, forKey: .email)
+
+    switch profileURL {
+    case .noChange:
+      // no-op
+      break
+    case .none:
+      try container.encodeNil(forKey: .profileUrl)
+    case let .some(value):
+      try container.encode(value.absoluteString, forKey: .profileUrl)
+    }
 
     switch custom {
     case .noChange:

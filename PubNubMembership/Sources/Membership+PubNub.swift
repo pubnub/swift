@@ -68,8 +68,8 @@ public protocol PubNubMembershipInterface {
   /// - Parameters:
   ///   - spaceId: Unique identifier for the `PubNubSpace`.
   ///   - includeCustom: Should the `PubNubMembership.custom` properties be included in the response
-  ///   - includeSpaceFields: Should the `PubNubUser` properties be included in the response
-  ///   - includeSpaceCustomFields: Should the `PubNubUser.custom` properties be included in the response
+  ///   - includeUserFields: Should the `PubNubUser` properties be included in the response
+  ///   - includeUserCustomFields: Should the `PubNubUser.custom` properties be included in the response
   ///   - includeTotalCount: Should the next page include total amount of Space to fetch accessed via `next.totalCount`
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects

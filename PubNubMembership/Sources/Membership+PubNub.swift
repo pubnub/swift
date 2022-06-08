@@ -103,7 +103,7 @@ public protocol PubNubMembershipInterface {
   ///     - **Success**: Acknowledgement that the request was successful
   ///     - **Failure**: `Error` describing the failure
   func addMemberships(
-    users: [PubNubMembership.Partial],
+    users: [PubNubMembership.PartialUser],
     to spaceId: String,
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
@@ -119,7 +119,7 @@ public protocol PubNubMembershipInterface {
   ///     - **Success**: Acknowledgement that the request was successful
   ///     - **Failure**: `Error` describing the failure
   func addMemberships(
-    spaces: [PubNubMembership.Partial],
+    spaces: [PubNubMembership.PartialSpace],
     to userId: String?,
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
@@ -135,7 +135,7 @@ public protocol PubNubMembershipInterface {
   ///     - **Success**: Acknowledgement that the request was successful
   ///     - **Failure**: `Error` describing the failure
   func updateMemberships(
-    users: [PubNubMembership.Partial],
+    users: [PubNubMembership.PartialUser],
     on spaceId: String,
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
@@ -151,7 +151,7 @@ public protocol PubNubMembershipInterface {
   ///     - **Success**: Acknowledgement that the request was successful
   ///     - **Failure**: `Error` describing the failure
   func updateMemberships(
-    spaces: [PubNubMembership.Partial],
+    spaces: [PubNubMembership.PartialSpace],
     on userId: String?,
     requestConfig: PubNub.RequestConfiguration,
     completion: ((Result<Void, Error>) -> Void)?
@@ -242,7 +242,7 @@ public extension PubNub {
 
 extension PubNub: PubNubMembershipInterface {
   public func fetchMemberships(
-    userId: String?,
+    userId: String? = nil,
     includeCustom: Bool = true,
     includeSpaceFields: Bool = false,
     includeSpaceCustomFields: Bool = false,
@@ -348,7 +348,7 @@ extension PubNub: PubNubMembershipInterface {
   }
 
   public func addMemberships(
-    users: [PubNubMembership.Partial],
+    users: [PubNubMembership.PartialUser],
     to spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -359,7 +359,7 @@ extension PubNub: PubNubMembershipInterface {
         customFields: nil,
         totalCount: false,
         changes: .init(
-          set: users.map { .init(metadataId: $0.id, status: $0.status, custom: $0.custom?.flatJSON) },
+          set: users.map { .init(metadataId: $0.user.id, status: $0.status, custom: $0.custom?.flatJSON) },
           delete: []
         ),
         filter: nil,
@@ -382,8 +382,8 @@ extension PubNub: PubNubMembershipInterface {
   }
 
   public func addMemberships(
-    spaces: [PubNubMembership.Partial],
-    to userId: String?,
+    spaces: [PubNubMembership.PartialSpace],
+    to userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
@@ -395,7 +395,7 @@ extension PubNub: PubNubMembershipInterface {
         customFields: nil,
         totalCount: false,
         changes: .init(
-          set: spaces.map { .init(metadataId: $0.id, status: $0.status, custom: $0.custom?.flatJSON) },
+          set: spaces.map { .init(metadataId: $0.space.id, status: $0.status, custom: $0.custom?.flatJSON) },
           delete: []
         ),
         filter: nil,
@@ -418,7 +418,7 @@ extension PubNub: PubNubMembershipInterface {
   }
 
   public func updateMemberships(
-    users: [PubNubMembership.Partial],
+    users: [PubNubMembership.PartialUser],
     on spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -432,8 +432,8 @@ extension PubNub: PubNubMembershipInterface {
   }
 
   public func updateMemberships(
-    spaces: [PubNubMembership.Partial],
-    on userId: String?,
+    spaces: [PubNubMembership.PartialSpace],
+    on userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
@@ -481,7 +481,7 @@ extension PubNub: PubNubMembershipInterface {
 
   public func removeMemberships(
     spaceIds: [String],
-    from userId: String?,
+    from userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {

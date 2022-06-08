@@ -31,22 +31,6 @@ import PubNub
 
 /// Protocol interface to manage `PubNubUser` entities using closures
 public protocol PubNubUserInterface {
-  /// Fetch a `PubNubUser` using its unique identifier
-  ///
-  /// - Parameters:
-  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
-  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
-  ///   - requestConfig: Custom configuration overrides for this request
-  ///   - completion: The async `Result` of the method call
-  ///     - **Success**: `PubNubUser` object belonging to the identifier
-  ///     - **Failure**: An `Error` describing the failure
-  func fetchUser(
-    userId: String?,
-    includeCustom: Bool,
-    requestConfig: PubNub.RequestConfiguration,
-    completion: @escaping (Result<PubNubUser, Error>) -> Void
-  )
-
   /// Fetch all `PubNubUser` that exist on a keyset
   ///
   /// - Parameters:
@@ -69,6 +53,22 @@ public protocol PubNubUserInterface {
     page: PubNubHashedPage?,
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
+  )
+
+  /// Fetch a `PubNubUser` using its unique identifier
+  ///
+  /// - Parameters:
+  ///   - userId: Unique identifier for the `PubNubUser`. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - includeCustom: Should the `PubNubUser.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubUser` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
+  func fetchUser(
+    userId: String?,
+    includeCustom: Bool,
+    requestConfig: PubNub.RequestConfiguration,
+    completion: @escaping (Result<PubNubUser, Error>) -> Void
   )
 
   /// Create a new `PubNubUser`
@@ -205,7 +205,7 @@ public extension PubNub {
 
 extension PubNub: PubNubUserInterface {
   public func fetchUser(
-    userId: String?,
+    userId: String? = nil,
     includeCustom: Bool = true,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping (Result<PubNubUser, Error>) -> Void
@@ -265,7 +265,7 @@ extension PubNub: PubNubUserInterface {
   }
 
   public func createUser(
-    userId: String?,
+    userId: String? = nil,
     name: String? = nil,
     type: String? = nil,
     status: String? = nil,
@@ -305,7 +305,7 @@ extension PubNub: PubNubUserInterface {
   }
 
   public func updateUser(
-    userId: String?,
+    userId: String? = nil,
     name: String? = nil,
     type: String? = nil,
     status: String? = nil,
@@ -333,7 +333,7 @@ extension PubNub: PubNubUserInterface {
   }
 
   public func removeUser(
-    userId: String?,
+    userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {

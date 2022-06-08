@@ -125,14 +125,18 @@ extension PubNubMembership: Codable {
 // MARK: Partial Links
 
 public extension PubNubMembership {
-  /// One half of the Membership relationship
-  typealias Partial = (id: String, status: String?, custom: FlatJSONCodable?)
-
+  
+  /// The User half of the User-Space Membership relationship
   struct PartialUser: Codable {
+    /// The associated User Entity
     public let user: PubNubUser
+    /// The current state of the Membership
     public let status: String?
+    /// All custom fields set on the Membership
     public let custom: FlatJSON?
+    /// The last updated timestamp for the Membership
     public let updated: Date?
+    /// The caching identifier for the Membership
     public let eTag: String?
 
     public init(
@@ -146,6 +150,18 @@ public extension PubNubMembership {
       updated = nil
       eTag = nil
     }
+    
+    public init(
+      userId: String,
+      status: String? = nil,
+      custom: FlatJSONCodable? = nil
+    ) {
+      self.init(
+        user: .init(id: userId),
+        status: status,
+        custom: custom
+      )
+    }
 
     enum CodingKeys: String, CodingKey {
       case user = "uuid"
@@ -156,11 +172,17 @@ public extension PubNubMembership {
     }
   }
 
+  /// The Space half of the User-Space Membership relationship
   struct PartialSpace: Codable {
+    /// The associated Space Entity
     public let space: PubNubSpace
+    /// The current state of the Membership
     public let status: String?
+    /// All custom fields set on the Membership
     public let custom: FlatJSON?
+    /// The last updated timestamp for the Membership
     public let updated: Date?
+    /// The caching identifier for the Membership
     public let eTag: String?
 
     public init(
@@ -173,6 +195,18 @@ public extension PubNubMembership {
       self.custom = FlatJSON(flatJSON: custom?.flatJSON)
       updated = nil
       eTag = nil
+    }
+    
+    public init(
+      spaceId: String,
+      status: String? = nil,
+      custom: FlatJSONCodable? = nil
+    ) {
+      self.init(
+        space: .init(id: spaceId),
+        status: status,
+        custom: custom
+      )
     }
 
     enum CodingKeys: String, CodingKey {

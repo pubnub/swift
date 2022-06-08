@@ -31,22 +31,6 @@ import PubNub
 
 /// Protocol interface to manage `PubNubSpace` entities using closures
 public protocol PubNubSpaceInterface {
-  /// Fetch a `PubNubSpace` using its unique identifier
-  ///
-  /// - Parameters:
-  ///   - spaceId: Unique identifier for the `PubNubSpace`.
-  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
-  ///   - requestConfig: Custom configuration overrides for this request
-  ///   - completion: The async `Result` of the method call
-  ///     - **Success**: `PubNubSpace` object belonging to the identifier
-  ///     - **Failure**: `Error` describing the failure
-  func fetchSpace(
-    spaceId: String,
-    includeCustom: Bool,
-    requestConfig: PubNub.RequestConfiguration,
-    completion: @escaping (Result<PubNubSpace, Error>) -> Void
-  )
-
   /// Fetch all `PubNubSpace` that exist on a keyset
   ///
   /// - Parameters:
@@ -69,6 +53,22 @@ public protocol PubNubSpaceInterface {
     page: PubNubHashedPage?,
     requestConfig: PubNub.RequestConfiguration,
     completion: @escaping ((Result<(spaces: [PubNubSpace], next: PubNubHashedPage?), Error>) -> Void)
+  )
+
+  /// Fetch a `PubNubSpace` using its unique identifier
+  ///
+  /// - Parameters:
+  ///   - spaceId: Unique identifier for the `PubNubSpace`.
+  ///   - includeCustom: Should the `PubNubSpace.custom` properties be included in the response
+  ///   - requestConfig: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: `PubNubSpace` object belonging to the identifier
+  ///     - **Failure**: `Error` describing the failure
+  func fetchSpace(
+    spaceId: String,
+    includeCustom: Bool,
+    requestConfig: PubNub.RequestConfiguration,
+    completion: @escaping (Result<PubNubSpace, Error>) -> Void
   )
 
   /// Create a new `PubNubSpace`
@@ -196,27 +196,6 @@ public extension PubNub {
 // MARK: - Module Impl.
 
 extension PubNub: PubNubSpaceInterface {
-  public func fetchSpace(
-    spaceId: String,
-    includeCustom: Bool = true,
-    requestConfig: PubNub.RequestConfiguration = .init(),
-    completion: @escaping (Result<PubNubSpace, Error>) -> Void
-  ) {
-    let router = ObjectsChannelRouter(
-      .fetch(metadataId: spaceId, customFields: includeCustom),
-      configuration: requestConfig.customConfiguration ?? configuration
-    )
-
-    (requestConfig.customSession ?? networkSession)
-      .route(
-        router,
-        responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
-        responseQueue: requestConfig.responseQueue
-      ) { result in
-        completion(result.map { $0.payload.data })
-      }
-  }
-
   public func fetchSpaces(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -250,6 +229,27 @@ extension PubNub: PubNubSpaceInterface {
           spaces: $0.payload.data,
           next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
+      }
+  }
+
+  public func fetchSpace(
+    spaceId: String,
+    includeCustom: Bool = true,
+    requestConfig: PubNub.RequestConfiguration = .init(),
+    completion: @escaping (Result<PubNubSpace, Error>) -> Void
+  ) {
+    let router = ObjectsChannelRouter(
+      .fetch(metadataId: spaceId, customFields: includeCustom),
+      configuration: requestConfig.customConfiguration ?? configuration
+    )
+    
+    (requestConfig.customSession ?? networkSession)
+      .route(
+        router,
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
+        responseQueue: requestConfig.responseQueue
+      ) { result in
+        completion(result.map { $0.payload.data })
       }
   }
 

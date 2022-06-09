@@ -125,7 +125,6 @@ extension PubNubMembership: Codable {
 // MARK: Partial Links
 
 public extension PubNubMembership {
-  
   /// The User half of the User-Space Membership relationship
   struct PartialUser: Codable {
     /// The associated User Entity
@@ -150,7 +149,7 @@ public extension PubNubMembership {
       updated = nil
       eTag = nil
     }
-    
+
     public init(
       userId: String,
       status: String? = nil,
@@ -196,7 +195,7 @@ public extension PubNubMembership {
       updated = nil
       eTag = nil
     }
-    
+
     public init(
       spaceId: String,
       status: String? = nil,

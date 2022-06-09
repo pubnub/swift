@@ -59,7 +59,7 @@ public struct PubNubConfiguration: Hashable {
     self.init(
       publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
       subscribeKey: subscribeKey,
-      uuid: uuid
+      userId: uuid
     )
   }
 
@@ -72,7 +72,7 @@ public struct PubNubConfiguration: Hashable {
   /// - Parameters:
   ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
   ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
-  ///   - uuid: The unique identifier to be used as a device identifier
+  ///   - userId: The unique identifier to be used as a device identifier
   ///   - cipherKey: If set, all communication will be encrypted with this key
   ///   - authKey: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - authToken: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
@@ -87,6 +87,57 @@ public struct PubNubConfiguration: Hashable {
   ///   - supressLeaveEvents: Whether to send out the leave requests
   ///   - requestMessageCountThreshold: The number of messages into the payload before emitting `RequestMessageCountExceeded`
   ///   - filterExpression: PSV2 feature to subscribe with a custom filter expression.
+  public init(
+    publishKey: String?,
+    subscribeKey: String,
+    userId: String,
+    cipherKey: Crypto? = nil,
+    authKey: String? = nil,
+    authToken: String? = nil,
+    useSecureConnections: Bool = true,
+    origin: String = "ps.pndsn.com",
+    useInstanceId: Bool = false,
+    useRequestId: Bool = false,
+    automaticRetry: AutomaticRetry? = nil,
+    urlSessionConfiguration: URLSessionConfiguration = .pubnub,
+    durationUntilTimeout: UInt = 300,
+    heartbeatInterval: UInt = 0,
+    supressLeaveEvents: Bool = false,
+    requestMessageCountThreshold: UInt = 100,
+    filterExpression: String? = nil
+  ) {
+    guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
+      preconditionFailure("UserId should not be empty.")
+    }
+
+    self.publishKey = publishKey
+    self.subscribeKey = subscribeKey
+    self.cipherKey = cipherKey
+    self.authKey = authKey
+    self.authToken = authToken
+    self.userId = userId
+    self.origin = origin
+    self.useInstanceId = useInstanceId
+    self.useRequestId = useRequestId
+    self.automaticRetry = automaticRetry
+    self.useSecureConnections = useSecureConnections
+    self.urlSessionConfiguration = urlSessionConfiguration
+    self.durationUntilTimeout = durationUntilTimeout
+    self.heartbeatInterval = heartbeatInterval
+    self.supressLeaveEvents = supressLeaveEvents
+    self.requestMessageCountThreshold = requestMessageCountThreshold
+    self.filterExpression = filterExpression
+  }
+
+  /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
+  ///
+  /// - Attention: It is recommended that you use this initializer only if you have a
+  /// custom way to pass your PubNub Publish and Subscribe keys without storing them
+  /// inside your source code/code repository.
+  ///
+  /// - Parameters:
+  ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
+  ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
   public init(
     publishKey: String?,
     subscribeKey: String,
@@ -107,26 +158,28 @@ public struct PubNubConfiguration: Hashable {
     filterExpression: String? = nil
   ) {
     guard uuid.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
-      preconditionFailure("UserId should not be empty.")
+      preconditionFailure("UUID should not be empty.")
     }
 
-    self.publishKey = publishKey
-    self.subscribeKey = subscribeKey
-    self.cipherKey = cipherKey
-    self.authKey = authKey
-    self.authToken = authToken
-    self.uuid = uuid
-    self.origin = origin
-    self.useInstanceId = useInstanceId
-    self.useRequestId = useRequestId
-    self.automaticRetry = automaticRetry
-    self.useSecureConnections = useSecureConnections
-    self.urlSessionConfiguration = urlSessionConfiguration
-    self.durationUntilTimeout = durationUntilTimeout
-    self.heartbeatInterval = heartbeatInterval
-    self.supressLeaveEvents = supressLeaveEvents
-    self.requestMessageCountThreshold = requestMessageCountThreshold
-    self.filterExpression = filterExpression
+    self.init(
+      publishKey: publishKey,
+      subscribeKey: subscribeKey,
+      userId: uuid,
+      cipherKey: cipherKey,
+      authKey: authKey,
+      authToken: authToken,
+      useSecureConnections: useSecureConnections,
+      origin: origin,
+      useInstanceId: useInstanceId,
+      useRequestId: useRequestId,
+      automaticRetry: automaticRetry,
+      urlSessionConfiguration: urlSessionConfiguration,
+      durationUntilTimeout: durationUntilTimeout,
+      heartbeatInterval: heartbeatInterval,
+      supressLeaveEvents: supressLeaveEvents,
+      requestMessageCountThreshold: requestMessageCountThreshold,
+      filterExpression: filterExpression
+    )
   }
 
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
@@ -140,7 +193,17 @@ public struct PubNubConfiguration: Hashable {
   /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   public var authToken: String?
   /// UUID to be used as a device identifier
-  public var uuid: String
+  public var uuid: String {
+    get {
+      userId
+    }
+    set {
+      userId = newValue
+    }
+  }
+
+  /// UserId to be used as a device identifier
+  public var userId: String
   /// If true, requests will be made over `https`, otherwise they will use 'http'
   ///
   /// You will still need to disable ATS for the system to allow insecure network traffic.

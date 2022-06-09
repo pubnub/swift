@@ -242,7 +242,7 @@ extension PubNub: PubNubSpaceInterface {
       .fetch(metadataId: spaceId, customFields: includeCustom),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)
       .route(
         router,

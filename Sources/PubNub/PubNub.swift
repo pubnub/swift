@@ -173,6 +173,10 @@ public struct FlatJSON: FlatJSONCodable, Hashable {
   public init(flatJSON: [String: JSONCodableScalar]) {
     json = flatJSON.mapValues { $0.scalarValue }
   }
+
+  public var flatJSON: [String: JSONCodableScalar] {
+    return json
+  }
   
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()

@@ -99,7 +99,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  public struct SetMembershipRequestBody: JSONCodable {
+  public struct SetMembershipRequestBody: JSONCodable, Equatable {
     let set: [MembershipChange]
     let delete: [MembershipChange]
 
@@ -112,7 +112,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  public struct MembershipChange: JSONCodable {
+  public struct MembershipChange: JSONCodable, Equatable {
     let metadataId: String
     let status: String?
     let custom: [String: JSONCodableScalar]?
@@ -152,9 +152,20 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     }
+
+    public static func == (
+      lhs: ObjectsMembershipsRouter.MembershipChange,
+      rhs: ObjectsMembershipsRouter.MembershipChange
+    ) -> Bool {
+      return lhs.metadataId == rhs.metadataId &&
+        lhs.status == rhs.status &&
+        lhs.custom?
+          .mapValues({ $0.codableValue }) == rhs.custom?
+            .mapValues({ $0.codableValue })
+    }
   }
 
-  public struct SetMembersRequestBody: JSONCodable {
+  public struct SetMembersRequestBody: JSONCodable, Equatable {
     let set: [MemberChange]
     let delete: [MemberChange]
 
@@ -167,7 +178,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  public struct MemberChange: JSONCodable {
+  public struct MemberChange: JSONCodable, Equatable {
     let metadataId: String
     let status: String?
     let custom: [String: JSONCodableScalar]?
@@ -207,6 +218,17 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     }
+
+    public static func == (
+      lhs: ObjectsMembershipsRouter.MemberChange,
+      rhs: ObjectsMembershipsRouter.MemberChange
+    ) -> Bool {
+      return lhs.metadataId == rhs.metadataId &&
+      lhs.status == rhs.status &&
+      lhs.custom?
+        .mapValues({ $0.codableValue }) == rhs.custom?
+        .mapValues({ $0.codableValue })
+    }
   }
 
   // Init
@@ -215,7 +237,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     self.configuration = configuration
   }
 
-  var endpoint: Endpoint
+  public var endpoint: Endpoint
   public var configuration: RouterConfiguration
 
   // Protocol Properties
@@ -305,6 +327,41 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       return isInvalidForReason((uuidMetadataId.isEmpty, ErrorDescription.emptyUUIDMetadataId))
     case let .setMembers(channelMetadatId, _, _, _, _, _, _, _, _):
       return isInvalidForReason((channelMetadatId.isEmpty, ErrorDescription.emptyChannelMetadataId))
+    }
+  }
+}
+
+extension ObjectsMembershipsRouter.Endpoint: Equatable {
+  public static func == (
+    lhs: ObjectsMembershipsRouter.Endpoint, rhs: ObjectsMembershipsRouter.Endpoint
+  ) -> Bool {
+    switch (lhs, rhs) {
+    case let (
+      .fetchMemberships(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8),
+      .fetchMemberships(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8
+    case let (
+      .fetchMembers(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8),
+      .fetchMembers(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8
+    case let (
+      .setMemberships(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8, lhs9),
+      .setMemberships(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8, rhs9)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8 && lhs9 == rhs9
+    case let (
+      .setMembers(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8, lhs9),
+      .setMembers(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8, rhs9)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8 && lhs9 == rhs9
+    default:
+      return false
     }
   }
 }

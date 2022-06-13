@@ -45,6 +45,20 @@ public struct PubNubEntityEvent: Codable {
   public let type: EntityType
   public let data: AnyJSON
 
+  public init(
+    source: String,
+    version: String,
+    action: Action,
+    type: EntityType,
+    data: AnyJSON
+  ) {
+    self.source = source
+    self.version = version
+    self.action = action
+    self.type = type
+    self.data = data
+  }
+
   enum CodingKeys: String, CodingKey {
     case source
     case version

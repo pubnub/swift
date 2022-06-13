@@ -188,7 +188,7 @@ public extension PubNub {
 
     /// The finalized query parameter value for the sort field
     public var routerParameter: String {
-      return "\(rawValue):\(ascending ? "" : "desc")"
+      return "\(rawValue)\(ascending ? "" : ":desc")"
     }
   }
 }

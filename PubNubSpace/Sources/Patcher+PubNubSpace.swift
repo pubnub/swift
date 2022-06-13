@@ -77,9 +77,14 @@ public extension PubNubSpace {
     ///   - lastUpdated: The updated `Date` for the target Space.  This is set by the PubNub server.
     ///  - Returns:Whether the target Space should be patched
     public func shouldUpdate(spaceId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return id == spaceId &&
-        self.eTag != eTag &&
-        updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
+      guard let lastUpdated = lastUpdated,
+            id == spaceId,
+            self.eTag != eTag,
+            updated.timeIntervalSince(lastUpdated) > 0 else {
+        return false
+      }
+      
+      return true
     }
 
     /// Apply the patch to a target Space
@@ -95,11 +100,11 @@ public extension PubNubSpace {
     ///   - updated: Closure that will be called if the `space.updated` should be updated
     ///   - eTag: Closure that will be called if the `space.eTag` should be updated
     public func apply(
-      name: ((String?) -> Void) = { _ in },
-      type: ((String?) -> Void) = { _ in },
-      status: ((String?) -> Void) = { _ in },
-      description: ((String?) -> Void) = { _ in },
-      custom: ((FlatJSONCodable?) -> Void) = { _ in },
+      name: ((String?) -> Void),
+      type: ((String?) -> Void),
+      status: ((String?) -> Void),
+      description: ((String?) -> Void),
+      custom: ((FlatJSONCodable?) -> Void),
       updated: (Date) -> Void,
       eTag: (String) -> Void
     ) {
@@ -151,6 +156,32 @@ public extension PubNubSpace {
   }
 }
 
+// MARK: Hashable
+
+extension PubNubSpace.Patcher: Hashable {
+  public static func == (lhs: PubNubSpace.Patcher, rhs: PubNubSpace.Patcher) -> Bool {
+    return lhs.id == rhs.id &&
+    lhs.name == rhs.name &&
+    lhs.type == rhs.type &&
+    lhs.status == rhs.status &&
+    lhs.spaceDescription == rhs.spaceDescription &&
+    lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
+    lhs.updated == rhs.updated &&
+    lhs.eTag == rhs.eTag
+  }
+  
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
+    hasher.combine(name)
+    hasher.combine(type)
+    hasher.combine(status)
+    hasher.combine(spaceDescription)
+    hasher.combine(custom.underlying?.codableValue)
+    hasher.combine(updated)
+    hasher.combine(eTag)
+  }
+}
+
 // MARK: Codable
 
 extension PubNubSpace.Patcher: Codable {
@@ -161,39 +192,16 @@ extension PubNubSpace.Patcher: Codable {
     eTag = try container.decode(String.self, forKey: .eTag)
 
     // Change Options
-    if container.contains(.name) {
-      name = try container.decode(OptionalChange<String>.self, forKey: .name)
-    } else {
-      name = .noChange
-    }
+    // Change Options
+    name = try container.decode(OptionalChange<String>.self, forKey: .name)
+    type = try container.decode(OptionalChange<String>.self, forKey: .type)
+    status = try container.decode(OptionalChange<String>.self, forKey: .status)
+    spaceDescription = try container
+      .decode(OptionalChange<String>.self, forKey: .spaceDescription)
 
-    if container.contains(.type) {
-      type = try container.decode(OptionalChange<String>.self, forKey: .type)
-    } else {
-      type = .noChange
-    }
-
-    if container.contains(.status) {
-      status = try container.decode(OptionalChange<String>.self, forKey: .status)
-    } else {
-      status = .noChange
-    }
-
-    if container.contains(.spaceDescription) {
-      spaceDescription = try container.decode(OptionalChange<String>.self, forKey: .spaceDescription)
-    } else {
-      spaceDescription = .noChange
-    }
-
-    if container.contains(.custom) {
-      if let custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) {
-        self.custom = .some(FlatJSON(flatJSON: custom))
-      } else {
-        custom = .none
-      }
-    } else {
-      custom = .noChange
-    }
+    custom = try container
+      .decode(OptionalChange<[String: JSONCodableScalarType]>.self, forKey: .custom)
+      .mapValue { FlatJSON(flatJSON: $0) }
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -207,14 +215,8 @@ extension PubNubSpace.Patcher: Codable {
     try container.encode(status, forKey: .status)
     try container.encode(spaceDescription, forKey: .spaceDescription)
 
-    switch custom {
-    case .noChange:
-      // no-op
-      break
-    case .none:
-      try container.encodeNil(forKey: .custom)
-    case let .some(value):
-      try container.encode(value.codableValue, forKey: .custom)
-    }
+    try container.encode(
+      custom.mapValue { $0.codableValue }, forKey: .custom
+    )
   }
 }

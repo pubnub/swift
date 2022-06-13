@@ -126,13 +126,13 @@ extension PubNubMembership: Codable {
 
 public extension PubNubMembership {
   /// The User half of the User-Space Membership relationship
-  struct PartialUser: Codable {
+  struct PartialUser {
     /// The associated User Entity
     public let user: PubNubUser
     /// The current state of the Membership
     public let status: String?
     /// All custom fields set on the Membership
-    public let custom: FlatJSON?
+    public let custom: FlatJSONCodable?
     /// The last updated timestamp for the Membership
     public let updated: Date?
     /// The caching identifier for the Membership
@@ -141,13 +141,15 @@ public extension PubNubMembership {
     public init(
       user: PubNubUser,
       status: String? = nil,
-      custom: FlatJSONCodable? = nil
+      custom: FlatJSONCodable? = nil,
+      updated: Date? = nil,
+      eTag: String? = nil
     ) {
       self.user = user
       self.status = status
-      self.custom = FlatJSON(flatJSON: custom?.flatJSON)
-      updated = nil
-      eTag = nil
+      self.custom = custom
+      self.updated = updated
+      self.eTag = eTag
     }
 
     public init(
@@ -172,13 +174,13 @@ public extension PubNubMembership {
   }
 
   /// The Space half of the User-Space Membership relationship
-  struct PartialSpace: Codable {
+  struct PartialSpace {
     /// The associated Space Entity
     public let space: PubNubSpace
     /// The current state of the Membership
     public let status: String?
     /// All custom fields set on the Membership
-    public let custom: FlatJSON?
+    public let custom: FlatJSONCodable?
     /// The last updated timestamp for the Membership
     public let updated: Date?
     /// The caching identifier for the Membership
@@ -187,13 +189,15 @@ public extension PubNubMembership {
     public init(
       space: PubNubSpace,
       status: String? = nil,
-      custom: FlatJSONCodable? = nil
+      custom: FlatJSONCodable? = nil,
+      updated: Date? = nil,
+      eTag: String? = nil
     ) {
       self.space = space
       self.status = status
-      self.custom = FlatJSON(flatJSON: custom?.flatJSON)
-      updated = nil
-      eTag = nil
+      self.custom = custom
+      self.updated = updated
+      self.eTag = eTag
     }
 
     public init(
@@ -237,6 +241,84 @@ public extension PubNubMembership {
       updated: partial.updated,
       eTag: partial.eTag
     )
+  }
+}
+
+extension PubNubMembership.PartialUser: Codable, Hashable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: PubNubMembership.PartialUser.CodingKeys.self)
+  
+    user = try container.decode(PubNubUser.self, forKey: .user)
+    status = try container.decodeIfPresent(String.self, forKey: .status)
+    updated = try container.decodeIfPresent(Date.self, forKey: .updated)
+    eTag = try container.decodeIfPresent(String.self, forKey: .eTag)
+    custom = try container.decodeIfPresent(FlatJSON.self, forKey: .custom)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: PubNubMembership.PartialUser.CodingKeys.self)
+    try container.encode(user, forKey: .user)
+    try container.encode(status, forKey: .status)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+    try container.encode(custom?.codableValue, forKey: .custom)
+  }
+
+  public static func == (
+    lhs: PubNubMembership.PartialUser, rhs: PubNubMembership.PartialUser
+  ) -> Bool {
+    return lhs.user == rhs.user &&
+      lhs.status == rhs.status &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.codableValue == rhs.custom?.codableValue
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(user)
+    hasher.combine(status)
+    hasher.combine(custom?.codableValue)
+    hasher.combine(updated)
+    hasher.combine(eTag)
+  }
+}
+
+extension PubNubMembership.PartialSpace: Codable, Hashable {
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: PubNubMembership.PartialSpace.CodingKeys.self)
+    
+    space = try container.decode(PubNubSpace.self, forKey: .space)
+    status = try container.decodeIfPresent(String.self, forKey: .status)
+    updated = try container.decodeIfPresent(Date.self, forKey: .updated)
+    eTag = try container.decodeIfPresent(String.self, forKey: .eTag)
+    custom = try container.decodeIfPresent(FlatJSON.self, forKey: .custom)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: PubNubMembership.PartialSpace.CodingKeys.self)
+    try container.encode(space, forKey: .space)
+    try container.encode(status, forKey: .status)
+    try container.encode(updated, forKey: .updated)
+    try container.encode(eTag, forKey: .eTag)
+    try container.encode(custom?.codableValue, forKey: .custom)
+  }
+  
+  public static func == (
+    lhs: PubNubMembership.PartialSpace, rhs: PubNubMembership.PartialSpace
+  ) -> Bool {
+    return lhs.space == rhs.space &&
+      lhs.status == rhs.status &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag &&
+      lhs.custom?.codableValue == rhs.custom?.codableValue
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(space)
+    hasher.combine(status)
+    hasher.combine(custom?.codableValue)
+    hasher.combine(updated)
+    hasher.combine(eTag)
   }
 }
 

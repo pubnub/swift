@@ -196,7 +196,7 @@ public extension PubNub {
 
     /// The finalized query parameter value for the sort field
     public var routerParameter: String {
-      return "\(rawValue):\(ascending ? "" : "desc")"
+      return "\(rawValue)\(ascending ? "" : ":desc")"
     }
   }
 }
@@ -204,30 +204,6 @@ public extension PubNub {
 // MARK: - Module Impl.
 
 extension PubNub: PubNubUserInterface {
-  public func fetchUser(
-    userId: String? = nil,
-    includeCustom: Bool = true,
-    requestConfig: PubNub.RequestConfiguration = .init(),
-    completion: @escaping (Result<PubNubUser, Error>) -> Void
-  ) {
-    let router = ObjectsUUIDRouter(
-      .fetch(
-        metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
-        customFields: includeCustom
-      ),
-      configuration: requestConfig.customConfiguration ?? configuration
-    )
-
-    (requestConfig.customSession ?? networkSession)
-      .route(
-        router,
-        responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
-        responseQueue: requestConfig.responseQueue
-      ) {
-        completion($0.map { $0.payload.data })
-      }
-  }
-
   public func fetchUsers(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -261,6 +237,30 @@ extension PubNub: PubNubUserInterface {
           users: $0.payload.data,
           next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
+      }
+  }
+
+  public func fetchUser(
+    userId: String? = nil,
+    includeCustom: Bool = true,
+    requestConfig: PubNub.RequestConfiguration = .init(),
+    completion: @escaping (Result<PubNubUser, Error>) -> Void
+  ) {
+    let router = ObjectsUUIDRouter(
+      .fetch(
+        metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
+        customFields: includeCustom
+      ),
+      configuration: requestConfig.customConfiguration ?? configuration
+    )
+    
+    (requestConfig.customSession ?? networkSession)
+      .route(
+        router,
+        responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
+        responseQueue: requestConfig.responseQueue
+      ) {
+        completion($0.map { $0.payload.data })
       }
   }
 

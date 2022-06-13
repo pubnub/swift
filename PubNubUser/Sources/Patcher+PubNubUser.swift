@@ -92,13 +92,13 @@ public extension PubNubUser {
     ///   - updated: Closure that will be called if the ``PubNubUser/updated`` property should be updated
     ///   - eTag: Closure that will be called if the ``PubNubUser/eTag`` property should be updated
     public func apply(
-      name: ((String?) -> Void) = { _ in },
-      type: ((String?) -> Void) = { _ in },
-      status: ((String?) -> Void) = { _ in },
-      externalId: ((String?) -> Void) = { _ in },
-      profileURL: ((URL?) -> Void) = { _ in },
-      email: ((String?) -> Void) = { _ in },
-      custom: ((FlatJSONCodable?) -> Void) = { _ in },
+      name: ((String?) -> Void),
+      type: ((String?) -> Void),
+      status: ((String?) -> Void),
+      externalId: ((String?) -> Void),
+      profileURL: ((URL?) -> Void),
+      email: ((String?) -> Void),
+      custom: ((FlatJSONCodable?) -> Void),
       updated: (Date) -> Void,
       eTag: (String) -> Void
     ) {
@@ -135,9 +135,14 @@ public extension PubNubUser {
     ///   - lastUpdated: The updated `Date` for the target User.  This is set by the PubNub server.
     ///  - Returns:Whether the target User should be patched
     public func shouldUpdate(userId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      return id == userId &&
-        self.eTag != eTag &&
-        updated.timeIntervalSince(lastUpdated ?? Date.distantPast) > 0
+      guard let lastUpdated = lastUpdated,
+            id == userId,
+            self.eTag != eTag,
+            updated.timeIntervalSince(lastUpdated) > 0 else {
+        return false
+      }
+      
+      return true
     }
   }
 }
@@ -171,6 +176,40 @@ public extension PubNubUser {
   }
 }
 
+// TODO: What here?
+public protocol PatchableUser {
+}
+
+// MARK: Hashable
+
+extension PubNubUser.Patcher: Hashable {
+  public static func == (lhs: PubNubUser.Patcher, rhs: PubNubUser.Patcher) -> Bool {
+    return lhs.id == rhs.id &&
+    lhs.name == rhs.name &&
+    lhs.type == rhs.type &&
+    lhs.status == rhs.status &&
+    lhs.externalId == rhs.externalId &&
+    lhs.profileURL == rhs.profileURL &&
+    lhs.email == rhs.email &&
+    lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
+    lhs.updated == rhs.updated &&
+    lhs.eTag == rhs.eTag
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
+    hasher.combine(name)
+    hasher.combine(type)
+    hasher.combine(status)
+    hasher.combine(externalId)
+    hasher.combine(profileURL)
+    hasher.combine(email)
+    hasher.combine(custom.underlying?.codableValue)
+    hasher.combine(updated)
+    hasher.combine(eTag)
+  }
+}
+
 // MARK: Codable
 
 extension PubNubUser.Patcher: Codable {
@@ -181,56 +220,30 @@ extension PubNubUser.Patcher: Codable {
     eTag = try container.decode(String.self, forKey: .eTag)
 
     // Change Options
-    if container.contains(.name) {
-      name = try container.decode(OptionalChange<String>.self, forKey: .name)
-    } else {
-      name = .noChange
-    }
-
-    if container.contains(.type) {
-      type = try container.decode(OptionalChange<String>.self, forKey: .type)
-    } else {
-      type = .noChange
-    }
-
-    if container.contains(.status) {
-      status = try container.decode(OptionalChange<String>.self, forKey: .status)
-    } else {
-      status = .noChange
-    }
-
-    if container.contains(.externalId) {
-      externalId = try container.decode(OptionalChange<String>.self, forKey: .externalId)
-    } else {
-      externalId = .noChange
-    }
-
-    if container.contains(.profileUrl) {
-      if let url = try container.decodeIfPresent(String.self, forKey: .profileUrl),
-         let profileURL = URL(string: url) {
-        self.profileURL = .some(profileURL)
-      } else {
-        profileURL = .none
+    name = try container.decode(OptionalChange<String>.self, forKey: .name)
+    type = try container.decode(OptionalChange<String>.self, forKey: .type)
+    status = try container.decode(OptionalChange<String>.self, forKey: .status)
+    externalId = try container.decode(OptionalChange<String>.self, forKey: .externalId)
+    email = try container.decode(OptionalChange<String>.self, forKey: .email)
+    
+    profileURL = try container
+      .decode(OptionalChange<String>.self, forKey: .profileUrl)
+      .mapValue {
+        guard let url = URL(string: $0) else {
+          throw DecodingError.valueNotFound(
+            URL.self,
+            DecodingError.Context(
+              codingPath: [PubNubUser.CodingKeys.profileUrl],
+              debugDescription: "String found at key `profileUrl` was not able to be decoded into a URL"
+            )
+          )
+        }
+        return url
       }
-    } else {
-      profileURL = .noChange
-    }
 
-    if container.contains(.email) {
-      email = try container.decode(OptionalChange<String>.self, forKey: .email)
-    } else {
-      email = .noChange
-    }
-
-    if container.contains(.custom) {
-      if let custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom) {
-        self.custom = .some(FlatJSON(flatJSON: custom))
-      } else {
-        custom = .none
-      }
-    } else {
-      custom = .noChange
-    }
+    custom = try container
+      .decode(OptionalChange<[String: JSONCodableScalarType]>.self, forKey: .custom)
+      .mapValue { FlatJSON(flatJSON: $0) }
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -242,28 +255,13 @@ extension PubNubUser.Patcher: Codable {
     try container.encode(name, forKey: .name)
     try container.encode(type, forKey: .type)
     try container.encode(status, forKey: .status)
-
     try container.encode(externalId, forKey: .externalId)
     try container.encode(email, forKey: .email)
-
-    switch profileURL {
-    case .noChange:
-      // no-op
-      break
-    case .none:
-      try container.encodeNil(forKey: .profileUrl)
-    case let .some(value):
-      try container.encode(value.absoluteString, forKey: .profileUrl)
-    }
-
-    switch custom {
-    case .noChange:
-      // no-op
-      break
-    case .none:
-      try container.encodeNil(forKey: .custom)
-    case let .some(value):
-      try container.encode(value.codableValue, forKey: .custom)
-    }
+    try container.encode(
+      profileURL.mapValue { $0.absoluteString }, forKey: .profileUrl
+    )
+    try container.encode(
+      custom.mapValue { $0.codableValue }, forKey: .custom
+    )
   }
 }

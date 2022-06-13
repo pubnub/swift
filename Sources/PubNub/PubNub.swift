@@ -167,11 +167,23 @@ public extension FlatJSONCodable {
 }
 
 /// Internal object that allows conversion between Objectv2 [String: JSONScalar] and JSONCodable
-public struct FlatJSON: FlatJSONCodable {
+public struct FlatJSON: FlatJSONCodable, Hashable {
   public var json: [String: JSONCodableScalarType]
 
   public init(flatJSON: [String: JSONCodableScalar]) {
     json = flatJSON.mapValues { $0.scalarValue }
+  }
+  
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.singleValueContainer()
+    
+    json = try container.decode([String: JSONCodableScalarType].self)
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    
+    try container.encode(json)
   }
 }
 
@@ -236,31 +248,64 @@ public enum OptionalChange<Wrapped> {
       value = newValue
     }
   }
-}
 
-extension OptionalChange: Codable where Wrapped: Codable {
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-
-    if container.decodeNil() {
-      self = .none
-    } else {
-      self = .some(try container.decode(Wrapped.self))
-    }
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
+  /// Returns a new `OptionalChange` containing the wrapped valued transformed by the given closure.
+  ///
+  /// If the `OptionalChange` was either `noChange` or `none` then the value returned will be a new OptionalChange matching the type of the given closure.
+  /// - Parameter transform: A closure that transforms a value.
+  /// - Returns: An `OptionalChange` containing the transformed value.
+  public func mapValue<T>(_ transform: (Wrapped) throws -> T) rethrows -> OptionalChange<T> {
     switch self {
-    case let .some(value):
-      try container.encode(value)
-    case .none:
-      try container.encodeNil()
     case .noChange:
-      break
+      return OptionalChange<T>.noChange
+    case .none:
+      return OptionalChange<T>.none
+    case let .some(wrapped):
+      return OptionalChange<T>.some(try transform(wrapped))
     }
   }
 }
+
+public extension KeyedEncodingContainer {
+  /// Encodes the wrapped value given `OptionalChange` for the given key.
+  ///  - Parameter value: The value to encode.
+  ///  - Parameter key: The key to associate the value with.
+  mutating func encode<T: Encodable>(_ value: OptionalChange<T>, forKey key: Key) throws {
+    switch value {
+    case .noChange:
+      // no-op
+      break
+    case .none:
+      try self.encodeNil(forKey: key)
+    case let .some(value):
+      try self.encode(value, forKey: key)
+    }
+  }
+}
+
+public extension KeyedDecodingContainer {
+  /// Decodes a wrapped value of the given `OptionalChange` for the given key.
+  /// - Parameter type:The type of value to decode.
+  /// - Parameter key: The key that the decoded value is associated with.
+  /// - Returns: An `OptionalChange` of the requested type, if present for the given key and convertible to the requested type.
+  func decode<T: Decodable>(
+    _ type: OptionalChange<T>.Type,
+    forKey key: KeyedDecodingContainer<K>.Key
+  ) throws -> OptionalChange<T> {
+    if contains(key) {
+      if let value = try decodeIfPresent(T.self, forKey: key) {
+        return .some(value)
+      } else {
+        return .none
+      }
+    } else {
+      return .noChange
+    }
+  }
+}
+
+extension OptionalChange: Equatable where Wrapped: Equatable {}
+extension OptionalChange: Hashable where Wrapped: Hashable {}
 
 // MARK: - Request Helpers
 

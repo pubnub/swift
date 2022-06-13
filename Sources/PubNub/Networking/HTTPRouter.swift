@@ -162,8 +162,6 @@ public enum PAMVersionRequirement {
 
 /// Collects together and assembles the separate pieces used to create an URLRequest
 public protocol HTTPRouter: URLRequestConvertible, Validated, CustomStringConvertible {
-//  /// The target of the `URLRequest`
-//  var endpoint: Endpoint { get }
   var service: PubNubService { get }
   var category: String { get }
   /// Configuration used during the URLRequest generation

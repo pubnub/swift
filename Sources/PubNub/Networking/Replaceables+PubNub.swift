@@ -140,6 +140,13 @@ public protocol SessionReplaceable {
   /// After invalidation, session objects cannot be reused.
   /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
+
+  func route<Decoder>(
+    _ router: HTTPRouter,
+    responseDecoder: Decoder,
+    responseQueue: DispatchQueue,
+    completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
+  ) where Decoder: ResponseDecoder
 }
 
 public extension SessionReplaceable {
@@ -156,6 +163,11 @@ public extension SessionReplaceable {
         decoder: responseDecoder,
         completion: completion
       )
+  }
+
+  func invalidateAndCancel() { /* no-op */ }
+  func usingDefault(requestOperator: RequestOperator?) -> Self {
+    return self
   }
 }
 
@@ -200,6 +212,34 @@ public protocol RequestReplaceable: AnyObject {
     decoder: D,
     completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   )
+}
+
+public extension RequestReplaceable {
+  func didCreate(_ urlRequest: URLRequest) { /* no-op */ }
+  func didFailToCreateURLRequest(with error: Error) { /* no-op */ }
+  func didCreate(_ task: URLSessionTask) { /* no-op */ }
+   
+  func didMutate(_ initialRequest: URLRequest, to mutatedRequest: URLRequest) { /* no-op */ }
+  func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) { /* no-op */ }
+  
+  func didReceive(data: Data) { /* no-op */ }
+  func didComplete(_ task: URLSessionTask) { /* no-op */ }
+  func didComplete(_ task: URLSessionTask, with error: Error) { /* no-op */ }
+  func prepareForRetry() { /* no-op */ }
+  
+  func cancel(_ error: Error) -> Self {
+    return self
+  }
+  func validate() -> Self {
+    return self
+  }
+  func response<D: ResponseDecoder>(
+    on: DispatchQueue,
+    decoder: D,
+    completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
+  ) {
+    /* no-op */
+  }
 }
 
 extension Request: RequestReplaceable {}

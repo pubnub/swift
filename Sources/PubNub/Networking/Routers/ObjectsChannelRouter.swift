@@ -79,7 +79,7 @@ public struct ObjectsChannelRouter: HTTPRouter {
     self.configuration = configuration
   }
 
-  var endpoint: Endpoint
+  public var endpoint: Endpoint
   public var configuration: RouterConfiguration
 
   // Protocol Properties
@@ -171,6 +171,31 @@ public struct ObjectsChannelRouter: HTTPRouter {
         (metadata.metadataId.isEmpty, ErrorDescription.invalidChannelMetadata))
     case let .remove(metadataId):
       return isInvalidForReason((metadataId.isEmpty, ErrorDescription.emptyChannelMetadataId))
+    }
+  }
+}
+
+extension ObjectsChannelRouter.Endpoint: Equatable {
+  public static func == (
+    lhs: ObjectsChannelRouter.Endpoint, rhs: ObjectsChannelRouter.Endpoint
+  ) -> Bool {
+    switch (lhs, rhs) {
+    case let (
+      .all(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7),
+      .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 &&
+      lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
+    case let (.fetch(lhs1, lhs2), .fetch(rhs1, rhs2)):
+      return lhs1 == rhs1 && lhs2 == rhs2
+    case let (.set(lhs1, lhs2), .set(rhs1, rhs2)):
+      let lhsUser = try? PubNubChannelMetadataBase(from: lhs1)
+      let rhsUser = try? PubNubChannelMetadataBase(from: rhs1)
+      return lhsUser == rhsUser && lhs2 == rhs2
+    case let (.remove(lhsParam), .remove(rhsParam)):
+      return lhsParam == rhsParam
+    default:
+      return false
     }
   }
 }

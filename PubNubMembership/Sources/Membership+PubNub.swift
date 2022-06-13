@@ -200,17 +200,17 @@ public extension PubNub {
     /// Sort on the last updated property
     case updated(ascending: Bool)
     /// Sort on the `PubNubUser` properties
-    case user(UserSort, ascending: Bool)
+    case user(UserSort)
 
     /// The finalized query parameter value for the sort field
     var routerParameter: String {
       switch self {
       case let .status(ascending: ascending):
-        return "status:\(ascending ? "" : "desc")"
+        return "status\(ascending ? "" : ":desc")"
       case let .updated(ascending: ascending):
-        return "updated:\(ascending ? "" : "desc")"
-      case let .user(nested, ascending):
-        return "uuid.\(nested.rawValue):\(ascending ? "" : "desc")"
+        return "updated\(ascending ? "" : ":desc")"
+      case let .user(nested):
+        return "uuid.\(nested.rawValue)\(nested.ascending ? "" : ":desc")"
       }
     }
   }
@@ -222,17 +222,17 @@ public extension PubNub {
     /// Sort on the last updated property
     case updated(ascending: Bool)
     /// Sort on the `PubNubSpace` properties
-    case space(SpaceSort, ascending: Bool)
+    case space(SpaceSort)
 
     /// The finalized query parameter value for the sort field
     var routerParameter: String {
       switch self {
       case let .status(ascending: ascending):
-        return "status:\(ascending ? "" : "desc")"
+        return "status\(ascending ? "" : ":desc")"
       case let .updated(ascending: ascending):
-        return "updated:\(ascending ? "" : "desc")"
-      case let .space(nested, ascending):
-        return "channel.\(nested.rawValue):\(ascending ? "" : "desc")"
+        return "updated\(ascending ? "" : ":desc")"
+      case let .space(nested):
+        return "channel.\(nested.rawValue)\(nested.ascending ? "" : ":desc")"
       }
     }
   }

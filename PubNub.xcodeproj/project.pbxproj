@@ -31,6 +31,15 @@
 		35012EBA285004E300CF7E0A /* PubNubMembershipEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */; };
 		35012EBC2850052500CF7E0A /* PubNubSpaceEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EBB2850052500CF7E0A /* PubNubSpaceEvent.swift */; };
 		35012EC528500BA800CF7E0A /* PubNubEntityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EC428500BA800CF7E0A /* PubNubEntityEvent.swift */; };
+		35012EC82852741900CF7E0A /* Test+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EC62852740700CF7E0A /* Test+PubNubUser.swift */; };
+		35012ECB2852AE8800CF7E0A /* Test+PubNubUserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EC92852AE6300CF7E0A /* Test+PubNubUserEvent.swift */; };
+		35012ECD2852B55A00CF7E0A /* Test+PubNubUserPatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ECC2852B55A00CF7E0A /* Test+PubNubUserPatcher.swift */; };
+		35012ED028554C7C00CF7E0A /* Test+PubNubUserInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ECE28554C2400CF7E0A /* Test+PubNubUserInterface.swift */; };
+		35012ED228564EDE00CF7E0A /* Test+PubNubSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED128564EDE00CF7E0A /* Test+PubNubSpace.swift */; };
+		35012ED928564FEB00CF7E0A /* Test+PubNubSpaceEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED328564FBF00CF7E0A /* Test+PubNubSpaceEvent.swift */; };
+		35012EDA28564FEE00CF7E0A /* Test+PubNubSpacePatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED528564FD400CF7E0A /* Test+PubNubSpacePatcher.swift */; };
+		35012EDB28564FF200CF7E0A /* Test+PubNubSpaceInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED728564FE400CF7E0A /* Test+PubNubSpaceInterface.swift */; };
+		35012EDD2856500900CF7E0A /* Test+PubNubMembership.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EDC2856500900CF7E0A /* Test+PubNubMembership.swift */; };
 		3505977D2349607C007DC06E /* subscription_membershipSet_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3505977A23495EFD007DC06E /* subscription_membershipSet_success.json */; };
 		3505978023496481007DC06E /* subscription_uuidSet_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3505977F23496481007DC06E /* subscription_uuidSet_success.json */; };
 		35059782234964A0007DC06E /* subscription_uuidRemove_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35059781234964A0007DC06E /* subscription_uuidRemove_success.json */; };
@@ -290,6 +299,11 @@
 		35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355BE9FC22C2917C000EC334 /* AnyJSON.swift */; };
 		35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */; };
 		35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */; };
+		35D973482856ADFE001A44DC /* Test+PubNubMembershipEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EDE2856501400CF7E0A /* Test+PubNubMembershipEvent.swift */; };
+		35D973492856AE05001A44DC /* Test+PubNubMembershipInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EE02856502100CF7E0A /* Test+PubNubMembershipInterface.swift */; };
+		35D9734C2856B148001A44DC /* MembershipTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D9734A2856B101001A44DC /* MembershipTestHelpers.swift */; };
+		35D9734F2856C5D6001A44DC /* SpaceTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D9734D2856C5BB001A44DC /* SpaceTestHelpers.swift */; };
+		35D973522856C5EF001A44DC /* UserTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D973502856C5E5001A44DC /* UserTestHelpers.swift */; };
 		35DA9AB1233447A000867989 /* objects_uuid_all_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35DA9AB02334479800867989 /* objects_uuid_all_success.json */; };
 		35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A59922F1217E00B12E5E /* ErrorDescription.swift */; };
 		35E71C3A249027120032A991 /* getState_single_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35E71C39249027120032A991 /* getState_single_success.json */; };
@@ -471,6 +485,17 @@
 		35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipEvent.swift; sourceTree = "<group>"; };
 		35012EBB2850052500CF7E0A /* PubNubSpaceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpaceEvent.swift; sourceTree = "<group>"; };
 		35012EC428500BA800CF7E0A /* PubNubEntityEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubEntityEvent.swift; sourceTree = "<group>"; };
+		35012EC62852740700CF7E0A /* Test+PubNubUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubUser.swift"; sourceTree = "<group>"; };
+		35012EC92852AE6300CF7E0A /* Test+PubNubUserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubUserEvent.swift"; sourceTree = "<group>"; };
+		35012ECC2852B55A00CF7E0A /* Test+PubNubUserPatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubUserPatcher.swift"; sourceTree = "<group>"; };
+		35012ECE28554C2400CF7E0A /* Test+PubNubUserInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubUserInterface.swift"; sourceTree = "<group>"; };
+		35012ED128564EDE00CF7E0A /* Test+PubNubSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubSpace.swift"; sourceTree = "<group>"; };
+		35012ED328564FBF00CF7E0A /* Test+PubNubSpaceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubSpaceEvent.swift"; sourceTree = "<group>"; };
+		35012ED528564FD400CF7E0A /* Test+PubNubSpacePatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubSpacePatcher.swift"; sourceTree = "<group>"; };
+		35012ED728564FE400CF7E0A /* Test+PubNubSpaceInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubSpaceInterface.swift"; sourceTree = "<group>"; };
+		35012EDC2856500900CF7E0A /* Test+PubNubMembership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubMembership.swift"; sourceTree = "<group>"; };
+		35012EDE2856501400CF7E0A /* Test+PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubMembershipEvent.swift"; sourceTree = "<group>"; };
+		35012EE02856502100CF7E0A /* Test+PubNubMembershipInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Test+PubNubMembershipInterface.swift"; sourceTree = "<group>"; };
 		3505977A23495EFD007DC06E /* subscription_membershipSet_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_membershipSet_success.json; sourceTree = "<group>"; };
 		3505977E2349617C007DC06E /* subscription_membershipRemove_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_membershipRemove_success.json; sourceTree = "<group>"; };
 		3505977F23496481007DC06E /* subscription_uuidSet_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_uuidSet_success.json; sourceTree = "<group>"; };
@@ -747,6 +772,9 @@
 		35D42CE8232C0FCA008EB0F6 /* Fastfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; name = Fastfile; path = fastlane/Fastfile; sourceTree = "<group>"; };
 		35D8D4C722EB7E1D001B07D9 /* AtomicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicTests.swift; sourceTree = "<group>"; };
 		35D8D4CC22EB90F1001B07D9 /* Int+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNub.swift"; sourceTree = "<group>"; };
+		35D9734A2856B101001A44DC /* MembershipTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipTestHelpers.swift; sourceTree = "<group>"; };
+		35D9734D2856C5BB001A44DC /* SpaceTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceTestHelpers.swift; sourceTree = "<group>"; };
+		35D973502856C5E5001A44DC /* UserTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTestHelpers.swift; sourceTree = "<group>"; };
 		35DA9AAA2331674000867989 /* .travis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		35DA9AAB2331674000867989 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		35DA9AAC2331674000867989 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
@@ -1293,6 +1321,11 @@
 		358B8918284D206B00DB0F3D /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				35D973502856C5E5001A44DC /* UserTestHelpers.swift */,
+				35012EC62852740700CF7E0A /* Test+PubNubUser.swift */,
+				35012EC92852AE6300CF7E0A /* Test+PubNubUserEvent.swift */,
+				35012ECC2852B55A00CF7E0A /* Test+PubNubUserPatcher.swift */,
+				35012ECE28554C2400CF7E0A /* Test+PubNubUserInterface.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1338,6 +1371,11 @@
 		358B8937284D20E200DB0F3D /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				35D9734D2856C5BB001A44DC /* SpaceTestHelpers.swift */,
+				35012ED128564EDE00CF7E0A /* Test+PubNubSpace.swift */,
+				35012ED328564FBF00CF7E0A /* Test+PubNubSpaceEvent.swift */,
+				35012ED528564FD400CF7E0A /* Test+PubNubSpacePatcher.swift */,
+				35012ED728564FE400CF7E0A /* Test+PubNubSpaceInterface.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1355,6 +1393,10 @@
 		358B8953284D211200DB0F3D /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				35D9734A2856B101001A44DC /* MembershipTestHelpers.swift */,
+				35012EDC2856500900CF7E0A /* Test+PubNubMembership.swift */,
+				35012EDE2856501400CF7E0A /* Test+PubNubMembershipEvent.swift */,
+				35012EE02856502100CF7E0A /* Test+PubNubMembershipInterface.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -2151,6 +2193,7 @@
 					};
 					358B8932284D20E200DB0F3D = {
 						CreatedOnToolsVersion = 13.4;
+						LastSwiftMigration = 1340;
 					};
 					358B8945284D211200DB0F3D = {
 						CreatedOnToolsVersion = 13.4;
@@ -2158,6 +2201,7 @@
 					};
 					358B894E284D211200DB0F3D = {
 						CreatedOnToolsVersion = 13.4;
+						LastSwiftMigration = 1340;
 					};
 					7941EE6B270E433F0054D9EF = {
 						LastSwiftMigration = 1300;
@@ -2487,6 +2531,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35012EC82852741900CF7E0A /* Test+PubNubUser.swift in Sources */,
+				35012ECB2852AE8800CF7E0A /* Test+PubNubUserEvent.swift in Sources */,
+				35D973522856C5EF001A44DC /* UserTestHelpers.swift in Sources */,
+				35012ECD2852B55A00CF7E0A /* Test+PubNubUserPatcher.swift in Sources */,
+				35012ED028554C7C00CF7E0A /* Test+PubNubUserInterface.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2505,6 +2554,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35D9734F2856C5D6001A44DC /* SpaceTestHelpers.swift in Sources */,
+				35012EDA28564FEE00CF7E0A /* Test+PubNubSpacePatcher.swift in Sources */,
+				35012ED228564EDE00CF7E0A /* Test+PubNubSpace.swift in Sources */,
+				35012EDB28564FF200CF7E0A /* Test+PubNubSpaceInterface.swift in Sources */,
+				35012ED928564FEB00CF7E0A /* Test+PubNubSpaceEvent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2522,6 +2576,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35D973492856AE05001A44DC /* Test+PubNubMembershipInterface.swift in Sources */,
+				35D9734C2856B148001A44DC /* MembershipTestHelpers.swift in Sources */,
+				35D973482856ADFE001A44DC /* Test+PubNubMembershipEvent.swift in Sources */,
+				35012EDD2856500900CF7E0A /* Test+PubNubMembership.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2864,7 +2922,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -2894,7 +2951,6 @@
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -2914,7 +2970,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -2940,7 +2995,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -2953,35 +3007,19 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUserTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -2991,31 +3029,19 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUserTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -3123,34 +3149,25 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpaceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -3161,29 +3178,23 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpaceTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3204,7 +3215,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -3235,7 +3245,6 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
@@ -3255,7 +3264,6 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
@@ -3281,7 +3289,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -3294,36 +3301,24 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembershipTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -3332,32 +3327,24 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembershipTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

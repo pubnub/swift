@@ -229,6 +229,7 @@ extension ObjectsUUIDRouterTests {
 
     let testObject = PubNubUUIDMetadataBase(
       metadataId: "TestUser", name: "Test User",
+      type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
@@ -375,7 +376,7 @@ extension ObjectsUUIDRouterTests {
     }
 
     let testObject = PubNubUUIDMetadataBase(
-      metadataId: "TestUser", name: "Test User",
+      metadataId: "TestUser", name: "Test User", type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )

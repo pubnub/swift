@@ -24,8 +24,9 @@
             "data": {
                 "eTag": "SpaceUpdateEtag",
                 "id": "TestSpaceID",
-                "type": null,
                 "name": "Test Name",
+                "type": "Test Type",
+                "status": "Test Status",
                 "updated": "2019-10-06T01:55:50.645685Z"
             }
         },

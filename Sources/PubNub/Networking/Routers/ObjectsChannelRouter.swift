@@ -53,6 +53,8 @@ public struct ObjectsChannelRouter: HTTPRouter {
   // Custom request body object for .set endpoint
   struct SetChannelMetadataRequestBody: JSONCodable {
     var name: String?
+    var type: String?
+    var status: String?
     var description: String?
     var custom: [String: JSONCodableScalarType]?
   }
@@ -147,7 +149,7 @@ public struct ObjectsChannelRouter: HTTPRouter {
     switch endpoint {
     case let .set(channel, _):
       return SetChannelMetadataRequestBody(
-        name: channel.name, description: channel.channelDescription,
+        name: channel.name, type: channel.type, status: channel.status, description: channel.channelDescription,
         custom: channel.custom?.mapValues { $0.scalarValue }
       ).jsonDataResult.map { .some($0) }
     default:

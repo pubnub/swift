@@ -228,7 +228,8 @@ extension ObjectsChannelRouterTests {
     }
 
     let testObject = PubNubChannelMetadataBase(
-      metadataId: "TestChannel", name: "Test Channel", channelDescription: "Test Description",
+      metadataId: "TestChannel", name: "Test Channel",
+      type: "Test Type", status: "Test Status", channelDescription: "Test Description",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
@@ -375,7 +376,8 @@ extension ObjectsChannelRouterTests {
     }
 
     let testObject = PubNubChannelMetadataBase(
-      metadataId: "TestChannel", name: "Test Channel", channelDescription: "Test Description",
+      metadataId: "TestChannel", name: "Test Channel",
+      type: "Test Type", status: "Test Status", channelDescription: "Test Description",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )

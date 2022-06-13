@@ -53,6 +53,8 @@ public struct ObjectsUUIDRouter: HTTPRouter {
   // Custom request body object for .set endpoint
   struct SetUUIDMetadataRequestBody: JSONCodable {
     var name: String?
+    var type: String?
+    var status: String?
     var externalId: String?
     var profileURL: String?
     var email: String?
@@ -61,6 +63,8 @@ public struct ObjectsUUIDRouter: HTTPRouter {
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case name
+      case type
+      case status
       case externalId
       case profileURL = "profileUrl"
       case email
@@ -158,7 +162,7 @@ public struct ObjectsUUIDRouter: HTTPRouter {
     switch endpoint {
     case let .set(user, _):
       return SetUUIDMetadataRequestBody(
-        name: user.name, externalId: user.externalId, profileURL: user.profileURL,
+        name: user.name, type: user.type, status: user.status, externalId: user.externalId, profileURL: user.profileURL,
         email: user.email, custom: user.custom?.mapValues { $0.scalarValue }
       ).jsonDataResult.map { .some($0) }
     default:

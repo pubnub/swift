@@ -10,6 +10,7 @@
             "updated": "2019-09-29T13:07:45.807503Z",
             "eTag": "UserETag"
           },
+          "status": "Test Status",
           "custom": null,
           "updated": "2019-10-02T18:07:52.858703Z",
           "eTag": "FirstETag"
@@ -21,6 +22,7 @@
           "custom": {
             "starred": true
           },
+          "status": "Test Status",
           "updated": "2019-09-29T19:46:28.84402Z",
           "eTag": "LastETag"
         }

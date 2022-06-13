@@ -201,7 +201,7 @@ extension SubscribeRouterTests {
     let baseUser = PubNubUUIDMetadataBase(metadataId: "TestUserID", name: "Not Real Name")
     let patchedObjectUser = PubNubUUIDMetadataBase(
       metadataId: "TestUserID",
-      name: "Test Name",
+      name: "Test Name", type: "Test Type", status: "Test Status",
       updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
       eTag: "UserUpdateEtag"
     )
@@ -221,10 +221,6 @@ extension SubscribeRouterTests {
         )
 
         objectExpect.fulfill()
-      // TODO: MOVE THIS TO ANOTHER TEST
-//      case let .userUpdated(patcher):
-//        XCTAssertEqual(baseVspUser.apply(patcher), patchedUser)
-//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -284,10 +280,6 @@ extension SubscribeRouterTests {
       case let .uuidMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestUserID")
         objectExpect.fulfill()
-      // TODO: MOVE THIS TO ANOTHER TEST
-//      case let .userRemoved(user):
-//        XCTAssertEqual(user, PubNubUser(id: "TestUserID"))
-//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -341,6 +333,7 @@ extension SubscribeRouterTests {
     let patchedChannel = PubNubChannelMetadataBase(
       metadataId: "TestSpaceID",
       name: "Test Name",
+      type: "Test Type", status: "Test Status",
       updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
       eTag: "SpaceUpdateEtag"
     )
@@ -360,12 +353,6 @@ extension SubscribeRouterTests {
           try? changeset.apply(to: baseChannel).transcode(), patchedChannel
         )
         objectExpect.fulfill()
-        // TODO: MOVE THIS TO ANOTHER TEST
-
-//      case let .spaceUpdated(patcher):
-//        print("Space Patcher \(patcher)")
-//        XCTAssertEqual(baseSpace.apply(patcher), patchedSpace)
-//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         default:
@@ -421,11 +408,6 @@ extension SubscribeRouterTests {
       case let .channelMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestSpaceID")
         objectExpect.fulfill()
-        // TODO: MOVE THIS TO ANOTHER TEST
-
-//      case let .spaceRemoved(space):
-//        XCTAssertEqual(space, PubNubSpace(id: "TestSpaceID"))
-//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -492,12 +474,6 @@ extension SubscribeRouterTests {
       case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-        // TODO: MOVE THIS TO ANOTHER TEST
-
-//      case let .membershipUpdated(membership):
-//        XCTAssertEqual(membership, testMembership.convert())
-//        vspExpect.fulfill()
-
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -562,11 +538,6 @@ extension SubscribeRouterTests {
       case let .membershipMetadataRemoved(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-        // TODO: MOVE THIS TO ANOTHER TEST
-
-//      case let .membershipRemoved(membership):
-//        XCTAssertEqual(membership, testMembership.convert())
-//        vspExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):

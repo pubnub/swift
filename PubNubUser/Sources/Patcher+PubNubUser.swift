@@ -176,10 +176,6 @@ public extension PubNubUser {
   }
 }
 
-// TODO: What here?
-public protocol PatchableUser {
-}
-
 // MARK: Hashable
 
 extension PubNubUser.Patcher: Hashable {

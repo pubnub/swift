@@ -5,6 +5,8 @@
     "data": {
       "id": "TestUser",
       "name": "Test User",
+      "type": "Test Type",
+      "status": "Test Status",
       "externalId": null,
       "profileUrl": null,
       "email": null,

@@ -24,6 +24,8 @@
             "data": {
                 "eTag": "UserUpdateEtag",
                 "id": "TestUserID",
+                "type": "Test Type",
+                "status": "Test Status",
                 "custom": null,
                 "name": "Test Name",
                 "updated": "2019-10-06T01:55:50.645685Z"

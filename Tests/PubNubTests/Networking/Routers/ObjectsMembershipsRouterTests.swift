@@ -297,11 +297,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
@@ -402,11 +404,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
@@ -447,11 +451,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"

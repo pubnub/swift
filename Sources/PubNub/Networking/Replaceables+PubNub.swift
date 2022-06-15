@@ -166,7 +166,7 @@ public extension SessionReplaceable {
   }
 
   func invalidateAndCancel() { /* no-op */ }
-  func usingDefault(requestOperator: RequestOperator?) -> Self {
+  func usingDefault(requestOperator _: RequestOperator?) -> Self {
     return self
   }
 }
@@ -215,28 +215,30 @@ public protocol RequestReplaceable: AnyObject {
 }
 
 public extension RequestReplaceable {
-  func didCreate(_ urlRequest: URLRequest) { /* no-op */ }
-  func didFailToCreateURLRequest(with error: Error) { /* no-op */ }
-  func didCreate(_ task: URLSessionTask) { /* no-op */ }
-   
-  func didMutate(_ initialRequest: URLRequest, to mutatedRequest: URLRequest) { /* no-op */ }
-  func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) { /* no-op */ }
-  
-  func didReceive(data: Data) { /* no-op */ }
-  func didComplete(_ task: URLSessionTask) { /* no-op */ }
-  func didComplete(_ task: URLSessionTask, with error: Error) { /* no-op */ }
+  func didCreate(_: URLRequest) { /* no-op */ }
+  func didFailToCreateURLRequest(with _: Error) { /* no-op */ }
+  func didCreate(_: URLSessionTask) { /* no-op */ }
+
+  func didMutate(_: URLRequest, to _: URLRequest) { /* no-op */ }
+  func didFailToMutate(_: URLRequest, with _: Error) { /* no-op */ }
+
+  func didReceive(data _: Data) { /* no-op */ }
+  func didComplete(_: URLSessionTask) { /* no-op */ }
+  func didComplete(_: URLSessionTask, with _: Error) { /* no-op */ }
   func prepareForRetry() { /* no-op */ }
-  
-  func cancel(_ error: Error) -> Self {
+
+  func cancel(_: Error) -> Self {
     return self
   }
+
   func validate() -> Self {
     return self
   }
+
   func response<D: ResponseDecoder>(
-    on: DispatchQueue,
-    decoder: D,
-    completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
+    on _: DispatchQueue,
+    decoder _: D,
+    completion _: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   ) {
     /* no-op */
   }

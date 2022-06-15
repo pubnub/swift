@@ -187,7 +187,7 @@ extension ObjectsChannelRouter.Endpoint: Equatable {
       .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)
     ):
       return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 &&
-      lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
+        lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
     case let (.fetch(lhs1, lhs2), .fetch(rhs1, rhs2)):
       return lhs1 == rhs1 && lhs2 == rhs2
     case let (.set(lhs1, lhs2), .set(rhs1, rhs2)):

@@ -27,6 +27,7 @@
 
 import Foundation
 
+// swiftlint:disable line_length
 struct ErrorDescription {
   static let stringEncodingFailure: String = "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
 
@@ -44,10 +45,7 @@ struct ErrorDescription {
 
   static let pushNotEnabled: String = "Use of the mobile push notifications API requires Push Notifications which is not enabled for this subscribe key"
 
-  static let messageDeletionNotEnabled: String = {
-    // swiftlint:disable:next line_length
-    "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
-  }()
+  static let messageDeletionNotEnabled: String = "Use of the history Delete API requires both Storage & Playback and Storage Delete enabled, one of which is not enabled for this subscribe key"
 
   static let messageHistoryNotEnabled: String = "Use of the history API requires the Storage & Playback which is not enabled for this subscribe key"
 

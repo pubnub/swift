@@ -177,16 +177,16 @@ public struct FlatJSON: FlatJSONCodable, Hashable {
   public var flatJSON: [String: JSONCodableScalar] {
     return json
   }
-  
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
-    
+
     json = try container.decode([String: JSONCodableScalarType].self)
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    
+
     try container.encode(json)
   }
 }
@@ -280,9 +280,9 @@ public extension KeyedEncodingContainer {
       // no-op
       break
     case .none:
-      try self.encodeNil(forKey: key)
+      try encodeNil(forKey: key)
     case let .some(value):
-      try self.encode(value, forKey: key)
+      try encode(value, forKey: key)
     }
   }
 }
@@ -293,7 +293,7 @@ public extension KeyedDecodingContainer {
   /// - Parameter key: The key that the decoded value is associated with.
   /// - Returns: An `OptionalChange` of the requested type, if present for the given key and convertible to the requested type.
   func decode<T: Decodable>(
-    _ type: OptionalChange<T>.Type,
+    _: OptionalChange<T>.Type,
     forKey key: KeyedDecodingContainer<K>.Key
   ) throws -> OptionalChange<T> {
     if contains(key) {

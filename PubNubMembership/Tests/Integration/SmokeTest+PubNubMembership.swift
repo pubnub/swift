@@ -26,14 +26,13 @@
 //
 
 import PubNub
-import PubNubUser
-import PubNubSpace
 import PubNubMembership
+import PubNubSpace
+import PubNubUser
 
 import XCTest
 
 class PubNubMembershipInterfaceITests: XCTestCase {
-  
   let testMembership = PubNubMembership(
     user: .init(id: "TestUserMembershipId"),
     space: .init(id: "TestSpaceMembershipId"),
@@ -48,33 +47,33 @@ class PubNubMembershipInterfaceITests: XCTestCase {
   )
   var createdMembership: PubNubMembership?
   var updatedMembership: PubNubMembership?
-  
+
   let config = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
     userId: "itest-swift-membershipId"
   )
-  
+
   func testMembership_Smoke() throws {
     let expectation = XCTestExpectation(description: "Smoke Test Membership APIs")
-    
+
     let createdEventExpectation = XCTestExpectation(description: "Created Event Listener")
     let updatedEventExpectation = XCTestExpectation(description: "Updated Event Listener")
     let removedEventExpectation = XCTestExpectation(description: "Removed Event Listener")
 
     let pubnub = PubNub(configuration: config)
-    
+
     pubnub.subscribe(to: [testMembership.space.id])
-    
+
     // Smoke Test Events
     let listener = eventListener_Memberships(
       createdEventExpectation,
       updatedEventExpectation,
       removedEventExpectation
     )
-    
+
     pubnub.add(listener)
-    
+
     // Validate Outputs
     pubnub.addMemberships(
       spaces: [testMembership.partialSpace],
@@ -85,13 +84,13 @@ class PubNubMembershipInterfaceITests: XCTestCase {
         case .success:
           self.fetchMemberships_Smoke(pubnub, expectation)
 
-        case .failure(let error):
+        case let .failure(error):
           XCTFail("Failed due to error \(error)")
           expectation.fulfill()
         }
       }
     }
-    
+
     wait(
       for: [
         createdEventExpectation,
@@ -102,14 +101,14 @@ class PubNubMembershipInterfaceITests: XCTestCase {
       timeout: 10.0
     )
   }
-  
+
   func eventListener_Memberships(
     _ createdEventExpectation: XCTestExpectation,
     _ updatedEventExpectation: XCTestExpectation,
     _ removedEventExpectation: XCTestExpectation
   ) -> PubNubMembershipListener {
     let listener = PubNubMembershipListener()
-    
+
     listener.didReceiveMembershipEvent = { [unowned self] event in
       switch event {
       case let .membershipUpdated(patcher):
@@ -136,10 +135,10 @@ class PubNubMembershipInterfaceITests: XCTestCase {
         removedEventExpectation.fulfill()
       }
     }
-    
+
     return listener
   }
-  
+
   func fetchMemberships_Smoke(
     _ pubnub: PubNub,
     _ expectation: XCTestExpectation
@@ -155,7 +154,7 @@ class PubNubMembershipInterfaceITests: XCTestCase {
 
         XCTAssertTrue(memberships.contains(addedMembership))
         XCTAssertNotNil(next)
-        
+
         updateMembership_Smoke(pubnub, expectation)
       case let .failure(error):
         XCTFail("Failed due to error \(error)")
@@ -163,7 +162,7 @@ class PubNubMembershipInterfaceITests: XCTestCase {
       }
     }
   }
-  
+
   func updateMembership_Smoke(
     _ pubnub: PubNub,
     _ expectation: XCTestExpectation
@@ -183,7 +182,7 @@ class PubNubMembershipInterfaceITests: XCTestCase {
       }
     }
   }
-  
+
   func removeMembership_Smoke(
     _ pubnub: PubNub,
     _ expectation: XCTestExpectation

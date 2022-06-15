@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubUser
 import PubNub
+@testable import PubNubUser
 
 import XCTest
 
 class PubNubUserInterfaceTests: XCTestCase {
-  
   let testUser = PubNubUser(
     id: "TestUserId",
     name: "TestName",
@@ -46,47 +45,47 @@ class PubNubUserInterfaceTests: XCTestCase {
   )
 
   var mockSession = MockSession()
-  
+
   lazy var pubnub = PubNub(
     configuration: .init(publishKey: "mock-pub", subscribeKey: "mock-sub", userId: "TestUserId"),
     session: mockSession
   )
 
   let singleValueJSON = """
-{
-"status": 200,
-"data": {
-    "id": "TestUserId",
-    "name": "TestName",
-    "type": "TestType",
-    "status": "TestStatus",
-    "externalId": "TestExternalID",
-    "profileUrl": "http://example.com",
-    "email": "TestEmail",
-    "custom": null,
-    "updated": "0001-01-01T00:00:00.000Z",
-    "eTag": "TestETag"
+  {
+  "status": 200,
+  "data": {
+      "id": "TestUserId",
+      "name": "TestName",
+      "type": "TestType",
+      "status": "TestStatus",
+      "externalId": "TestExternalID",
+      "profileUrl": "http://example.com",
+      "email": "TestEmail",
+      "custom": null,
+      "updated": "0001-01-01T00:00:00.000Z",
+      "eTag": "TestETag"
+    }
   }
-}
-"""
+  """
 
   let multiValueJSON = """
-{
-"status": 200,
-"data": [{
-    "id": "TestUserId",
-    "name": "TestName",
-    "type": "TestType",
-    "status": "TestStatus",
-    "externalId": "TestExternalID",
-    "profileUrl": "http://example.com",
-    "email": "TestEmail",
-    "custom": null,
-    "updated": "0001-01-01T00:00:00.000Z",
-    "eTag": "TestETag"
-  }]
-}
-"""
+  {
+  "status": 200,
+  "data": [{
+      "id": "TestUserId",
+      "name": "TestName",
+      "type": "TestType",
+      "status": "TestStatus",
+      "externalId": "TestExternalID",
+      "profileUrl": "http://example.com",
+      "email": "TestEmail",
+      "custom": null,
+      "updated": "0001-01-01T00:00:00.000Z",
+      "eTag": "TestETag"
+    }]
+  }
+  """
 
   func testUserSort_RawValue() {
     XCTAssertEqual(PubNub.UserSort.id(ascending: true).rawValue, "id")
@@ -118,7 +117,7 @@ class PubNubUserInterfaceTests: XCTestCase {
 
   func testUser_FetchUsers() {
     let expectation = XCTestExpectation(description: "Fetch Users API")
-    
+
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.all(
       customFields: true,
       totalCount: true,
@@ -128,69 +127,69 @@ class PubNubUserInterfaceTests: XCTestCase {
       start: nil,
       end: nil
     )
-    
+
     // Validate Inputs
     mockSession.validateRouter = { router in
       XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
     }
-    
+
     // Provide Output
     mockSession.provideResponse = { [unowned self] in
-      return .success(.init(
+      .success(.init(
         data: multiValueJSON.data(using: .utf8)
       ))
     }
-    
+
     // Validate Outputs
     pubnub.fetchUsers(sort: [.id(ascending: true)]) { [weak self] result in
       switch result {
-      case .success((let users, let next)):
+      case let .success((users, next)):
         XCTAssertEqual(users.first, self?.testUser)
         XCTAssertEqual(next as? PubNub.Page, PubNub.Page())
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error \(error)")
       }
       expectation.fulfill()
     }
-  
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testUser_FetchUser_ConfigUserId() {
     let expectation = XCTestExpectation(description: "Fetch User API")
-    
+
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.fetch(
       metadataId: pubnub.configuration.userId,
       customFields: true
     )
-    
+
     // Validate Inputs
     mockSession.validateRouter = { router in
       XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
     }
-    
+
     // Provide Output
     mockSession.provideResponse = { [unowned self] in
-      return .success(.init(data: singleValueJSON.data(using: .utf8)))
+      .success(.init(data: singleValueJSON.data(using: .utf8)))
     }
-    
+
     // Validate Outputs
     pubnub.fetchUser { [weak self] result in
       switch result {
-      case .success(let user):
+      case let .success(user):
         XCTAssertEqual(user, self?.testUser)
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error \(error)")
       }
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testUser_CreateUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
-    
+
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
       metadata: PubNubUUIDMetadataBase(
         metadataId: pubnub.configuration.userId,
@@ -206,20 +205,20 @@ class PubNubUserInterfaceTests: XCTestCase {
       ),
       customFields: true
     )
-    
+
     // Validate Inputs
     mockSession.validateRouter = { router in
       XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
     }
-    
+
     // Provide Output
     mockSession.provideResponse = { [unowned self] in
-      
-      return .success(.init(
+
+      .success(.init(
         data: singleValueJSON.data(using: .utf8)
       ))
     }
-    
+
     // Validate Outputs
     pubnub.createUser(
       name: testUser.name,
@@ -231,20 +230,20 @@ class PubNubUserInterfaceTests: XCTestCase {
       custom: testUser.custom
     ) { [weak self] result in
       switch result {
-      case .success(let user):
+      case let .success(user):
         XCTAssertEqual(user, self?.testUser)
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error \(error)")
       }
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testUser_UpdateUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
-    
+
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
       metadata: PubNubUUIDMetadataBase(
         metadataId: pubnub.configuration.userId,
@@ -260,20 +259,20 @@ class PubNubUserInterfaceTests: XCTestCase {
       ),
       customFields: true
     )
-    
+
     // Validate Inputs
     mockSession.validateRouter = { router in
       XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
     }
-    
+
     // Provide Output
     mockSession.provideResponse = { [unowned self] in
-      
-      return .success(.init(
+
+      .success(.init(
         data: singleValueJSON.data(using: .utf8)
       ))
     }
-    
+
     // Validate Outputs
     pubnub.updateUser(
       name: testUser.name,
@@ -285,46 +284,46 @@ class PubNubUserInterfaceTests: XCTestCase {
       custom: testUser.custom
     ) { [weak self] result in
       switch result {
-      case .success(let user):
+      case let .success(user):
         XCTAssertEqual(user, self?.testUser)
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error \(error)")
       }
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testUser_RemoveUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
-    
+
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.remove(
       metadataId: pubnub.configuration.uuid
     )
-    
+
     // Validate Inputs
     mockSession.validateRouter = { router in
       XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
     }
-    
+
     // Provide Output
     mockSession.provideResponse = { [unowned self] in
-      return .success(.init(
+      .success(.init(
         data: singleValueJSON.data(using: .utf8)
       ))
     }
-    
+
     // Validate Outputs
     pubnub.removeUser { result in
       switch result {
       case .success:
         expectation.fulfill()
-      case .failure(let error):
+      case let .failure(error):
         XCTFail("Failed due to error \(error)")
       }
     }
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 }

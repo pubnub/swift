@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubUser
 import PubNub
+@testable import PubNubUser
 
 import XCTest
 
 class PubNubUserPatcherTests: XCTestCase {
-
   var testUser = PubNubUser(
     id: "TestUserId",
     name: "OldName",
@@ -70,7 +69,7 @@ class PubNubUserPatcherTests: XCTestCase {
     updated: .distantFuture,
     eTag: "TestETag"
   )
-  
+
   func testPatcher_Init() {
     XCTAssertEqual(patcher.id, "TestUserId")
     XCTAssertEqual(patcher.updated, .distantFuture)
@@ -88,19 +87,19 @@ class PubNubUserPatcherTests: XCTestCase {
 
   func testPatcher_Codable_InvalidURLString() {
     let jsonString = """
-{
-  "id": "TestUserId",
-  "profileUrl": "",
-  "updated": "0001-01-01T00:00:00.000Z",
-  "eTag": "TestETag"
-}
-"""
+    {
+      "id": "TestUserId",
+      "profileUrl": "",
+      "updated": "0001-01-01T00:00:00.000Z",
+      "eTag": "TestETag"
+    }
+    """
 
     guard let data = jsonString.data(using: .utf8) else {
       XCTFail("Could not encode data")
       return
     }
-    
+
     XCTAssertThrowsError(
       try Constant.jsonDecoder.decode(PubNubUser.Patcher.self, from: data)
     )
@@ -119,11 +118,11 @@ class PubNubUserPatcherTests: XCTestCase {
       email: .noChange,
       custom: .noChange
     )
-    
+
     let data = try Constant.jsonEncoder.encode(nonePatcher)
     let userFromJSON = try Constant.jsonDecoder
       .decode(PubNubUser.Patcher.self, from: data)
-    
+
     XCTAssertEqual(nonePatcher, userFromJSON)
   }
 
@@ -140,12 +139,12 @@ class PubNubUserPatcherTests: XCTestCase {
       email: .none,
       custom: .none
     )
-    
+
     let data = try Constant.jsonEncoder.encode(nonePatcher)
-    
+
     let userFromJSON = try Constant.jsonDecoder
       .decode(PubNubUser.Patcher.self, from: data)
-    
+
     XCTAssertEqual(nonePatcher, userFromJSON)
   }
 
@@ -161,7 +160,7 @@ class PubNubUserPatcherTests: XCTestCase {
     hasher.combine(patcher.custom.underlying?.codableValue)
     hasher.combine(patcher.updated)
     hasher.combine(patcher.eTag)
-    
+
     XCTAssertEqual(patcher.hashValue, hasher.finalize())
   }
 
@@ -171,25 +170,25 @@ class PubNubUserPatcherTests: XCTestCase {
       eTag: UUID().uuidString,
       lastUpdated: .distantPast
     )
-    
+
     XCTAssertTrue(shouldUpdate)
   }
-  
+
   func testPatcher_ShouldUpdate_False_NilDate() {
     let shouldUpdate = patcher.shouldUpdate(
       userId: patcher.id,
       eTag: UUID().uuidString,
       lastUpdated: nil
     )
-    
+
     XCTAssertTrue(shouldUpdate)
   }
-  
+
   func testPatcher_Codable_AllSome() throws {
     let data = try Constant.jsonEncoder.encode(patcher)
     let userFromJSON = try? Constant.jsonDecoder
       .decode(PubNubUser.Patcher.self, from: data)
-    
+
     XCTAssertEqual(patcher, userFromJSON)
   }
 
@@ -205,7 +204,7 @@ class PubNubUserPatcherTests: XCTestCase {
       updated: { testUser.updated = $0 },
       eTag: { testUser.eTag = $0 }
     )
-    
+
     XCTAssertEqual(testUser, patchedUser)
   }
 
@@ -215,7 +214,7 @@ class PubNubUserPatcherTests: XCTestCase {
 
   func testPatcher_PubNubUser_applyNoUpdate() {
     let wrongUser = PubNubUser(id: "not-user")
-    
+
     XCTAssertNotEqual(wrongUser.id, patcher.id)
     XCTAssertEqual(wrongUser.apply(patcher), wrongUser)
   }

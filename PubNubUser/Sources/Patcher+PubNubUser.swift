@@ -92,13 +92,13 @@ public extension PubNubUser {
     ///   - updated: Closure that will be called if the ``PubNubUser/updated`` property should be updated
     ///   - eTag: Closure that will be called if the ``PubNubUser/eTag`` property should be updated
     public func apply(
-      name: ((String?) -> Void),
-      type: ((String?) -> Void),
-      status: ((String?) -> Void),
-      externalId: ((String?) -> Void),
-      profileURL: ((URL?) -> Void),
-      email: ((String?) -> Void),
-      custom: ((FlatJSONCodable?) -> Void),
+      name: (String?) -> Void,
+      type: (String?) -> Void,
+      status: (String?) -> Void,
+      externalId: (String?) -> Void,
+      profileURL: (URL?) -> Void,
+      email: (String?) -> Void,
+      custom: (FlatJSONCodable?) -> Void,
       updated: (Date) -> Void,
       eTag: (String) -> Void
     ) {
@@ -142,7 +142,7 @@ public extension PubNubUser {
             updated.timeIntervalSince(lastUpdated ?? .distantPast) > 0 else {
         return false
       }
-      
+
       return true
     }
   }
@@ -182,15 +182,15 @@ public extension PubNubUser {
 extension PubNubUser.Patcher: Hashable {
   public static func == (lhs: PubNubUser.Patcher, rhs: PubNubUser.Patcher) -> Bool {
     return lhs.id == rhs.id &&
-    lhs.name == rhs.name &&
-    lhs.type == rhs.type &&
-    lhs.status == rhs.status &&
-    lhs.externalId == rhs.externalId &&
-    lhs.profileURL == rhs.profileURL &&
-    lhs.email == rhs.email &&
-    lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
-    lhs.updated == rhs.updated &&
-    lhs.eTag == rhs.eTag
+      lhs.name == rhs.name &&
+      lhs.type == rhs.type &&
+      lhs.status == rhs.status &&
+      lhs.externalId == rhs.externalId &&
+      lhs.profileURL == rhs.profileURL &&
+      lhs.email == rhs.email &&
+      lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag
   }
 
   public func hash(into hasher: inout Hasher) {
@@ -222,7 +222,7 @@ extension PubNubUser.Patcher: Codable {
     status = try container.decode(OptionalChange<String>.self, forKey: .status)
     externalId = try container.decode(OptionalChange<String>.self, forKey: .externalId)
     email = try container.decode(OptionalChange<String>.self, forKey: .email)
-    
+
     profileURL = try container
       .decode(OptionalChange<String>.self, forKey: .profileUrl)
       .mapValue {

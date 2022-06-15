@@ -28,8 +28,8 @@
 import Foundation
 
 import PubNub
-import PubNubUser
 import PubNubSpace
+import PubNubUser
 
 public extension PubNubMembership {
   /// Object that can be used to apply an update to another Space
@@ -46,7 +46,7 @@ public extension PubNubMembership {
     public let updated: Date
     /// The cache identifier of the change
     public let eTag: String
-    
+
     public init(
       userId: String,
       spaceId: String,
@@ -62,7 +62,7 @@ public extension PubNubMembership {
       self.status = status
       self.custom = custom
     }
-    
+
     /// Should this patch update the target object.
     ///
     /// - Parameters:
@@ -80,10 +80,10 @@ public extension PubNubMembership {
             updated.timeIntervalSince(lastUpdated ?? .distantPast) > 0 else {
         return false
       }
-      
+
       return true
     }
-    
+
     /// Apply the patch to a target Space
     ///
     /// It's recommended to call ``shouldUpdate(spaceId:eTag:lastUpdated:)`` prior to using this method to ensure
@@ -94,8 +94,8 @@ public extension PubNubMembership {
     ///   - updated: Closure that will be called if the `membership.updated` should be updated
     ///   - eTag: Closure that will be called if the `membership.eTag` should be updated
     public func apply(
-      status: ((String?) -> Void),
-      custom: ((FlatJSONCodable?) -> Void),
+      status: (String?) -> Void,
+      custom: (FlatJSONCodable?) -> Void,
       updated: (Date) -> Void,
       eTag: (String) -> Void
     ) {
@@ -123,16 +123,16 @@ public extension PubNubMembership {
     ) else {
       return self
     }
-    
+
     var mutableSelf = self
-    
+
     patch.apply(
       status: { mutableSelf.status = $0 },
       custom: { mutableSelf.custom = $0 },
       updated: { mutableSelf.updated = $0 },
       eTag: { mutableSelf.eTag = $0 }
     )
-    
+
     return mutableSelf
   }
 }
@@ -142,13 +142,13 @@ public extension PubNubMembership {
 extension PubNubMembership.Patcher: Hashable {
   public static func == (lhs: PubNubMembership.Patcher, rhs: PubNubMembership.Patcher) -> Bool {
     return lhs.userId == rhs.userId &&
-    lhs.spaceId == rhs.spaceId &&
-    lhs.status == rhs.status &&
-    lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
-    lhs.updated == rhs.updated &&
-    lhs.eTag == rhs.eTag
+      lhs.spaceId == rhs.spaceId &&
+      lhs.status == rhs.status &&
+      lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(userId)
     hasher.combine(spaceId)
@@ -168,25 +168,24 @@ extension PubNubMembership.Patcher: Codable {
     spaceId = try container.decode(PubNubSpace.self, forKey: .space).id
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
-    
+
     // Change Options
     status = try container.decode(OptionalChange<String>.self, forKey: .status)
     custom = try container
       .decode(OptionalChange<[String: JSONCodableScalarType]>.self, forKey: .custom)
       .mapValue { FlatJSON(flatJSON: $0) }
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: PubNubMembership.CodingKeys.self)
     try container.encode(PubNubUser(id: userId), forKey: .user)
     try container.encode(PubNubSpace(id: spaceId), forKey: .space)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
-    
+
     try container.encode(status, forKey: .status)
     try container.encode(
       custom.mapValue { $0.codableValue }, forKey: .custom
     )
   }
 }
-

@@ -253,7 +253,7 @@ extension PubNub: PubNubUserInterface {
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     (requestConfig.customSession ?? networkSession)
       .route(
         router,

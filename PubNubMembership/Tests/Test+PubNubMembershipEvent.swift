@@ -25,15 +25,14 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubMembership
 import PubNub
-import PubNubUser
+@testable import PubNubMembership
 import PubNubSpace
+import PubNubUser
 
 import XCTest
 
 class PubNubMembershipEventTests: XCTestCase {
-
   let testMembership = PubNubMembership(
     user: PubNubUser(id: "TestUserId"),
     space: PubNubSpace(id: "TestSpaceId"),
@@ -42,9 +41,9 @@ class PubNubMembershipEventTests: XCTestCase {
     updated: Date.distantPast,
     eTag: "TestETag"
   )
-  
+
   var listener = PubNubMembershipListener()
-  
+
   func testMembershipListener_Emit_UpdateEvent() {
     let expectation = XCTestExpectation(description: "Membership Update Event")
     expectation.expectedFulfillmentCount = 2
@@ -57,7 +56,7 @@ class PubNubMembershipEventTests: XCTestCase {
       updated: Date.distantFuture,
       eTag: "UpdatedETag"
     )
-    
+
     let entityEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -80,7 +79,7 @@ class PubNubMembershipEventTests: XCTestCase {
       type: .membership,
       data: AnyJSON("")
     )
-    
+
     listener.didReceiveMembershipEvents = { [unowned self] events in
       for event in events {
         switch event {
@@ -92,7 +91,7 @@ class PubNubMembershipEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.didReceiveMembershipEvent = { [unowned self] event in
       switch event {
       case let .membershipUpdated(patcher):
@@ -102,16 +101,16 @@ class PubNubMembershipEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.emit(entity: [malformedEvent, entityEvent])
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
-  
+
   func testMembershipListener_Emit_RemoveEvent() {
     let expectation = XCTestExpectation(description: "Membership Update Event")
     expectation.expectedFulfillmentCount = 2
-    
+
     let entityEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -126,7 +125,7 @@ class PubNubMembershipEventTests: XCTestCase {
         "eTag": testMembership.eTag
       ]
     )
-    
+
     let malformedEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -134,7 +133,7 @@ class PubNubMembershipEventTests: XCTestCase {
       type: .membership,
       data: AnyJSON("")
     )
-    
+
     listener.didReceiveMembershipEvents = { [unowned self] events in
       for event in events {
         switch event {
@@ -146,7 +145,7 @@ class PubNubMembershipEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.didReceiveMembershipEvent = { [unowned self] event in
       switch event {
       case let .membershipRemoved(membership):
@@ -156,10 +155,9 @@ class PubNubMembershipEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.emit(entity: [malformedEvent, entityEvent])
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 }
-

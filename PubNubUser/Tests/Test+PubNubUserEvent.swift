@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubUser
 import PubNub
+@testable import PubNubUser
 
 import XCTest
 
 class PubNubUserEventTests: XCTestCase {
-
   let testUser = PubNubUser(
     id: "TestUserId",
     name: "TestName",
@@ -44,13 +43,13 @@ class PubNubUserEventTests: XCTestCase {
     updated: Date.distantPast,
     eTag: "TestETag"
   )
-  
+
   var listener = PubNubUserListener()
-  
+
   func testUserListener_Emit_UpdateEvent() {
     let expectation = XCTestExpectation(description: "User Update Event")
     expectation.expectedFulfillmentCount = 2
-    
+
     let patchedUser = PubNubUser(
       id: "TestUserId",
       name: "NewName",
@@ -63,7 +62,7 @@ class PubNubUserEventTests: XCTestCase {
       updated: Date.distantFuture,
       eTag: "NewETag"
     )
-    
+
     let entityEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -84,7 +83,7 @@ class PubNubUserEventTests: XCTestCase {
       type: .user,
       data: AnyJSON("")
     )
-    
+
     listener.didReceiveUserEvents = { [unowned self] events in
       for event in events {
         switch event {
@@ -108,14 +107,14 @@ class PubNubUserEventTests: XCTestCase {
     }
 
     listener.emit(entity: [malformedEvent, entityEvent])
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 
   func testUserListener_Emit_RemoveEvent() {
     let expectation = XCTestExpectation(description: "User Update Event")
     expectation.expectedFulfillmentCount = 2
-    
+
     let entityEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -125,7 +124,7 @@ class PubNubUserEventTests: XCTestCase {
         "id": testUser.id
       ]
     )
-    
+
     let malformedEvent = PubNubEntityEvent(
       source: "objects",
       version: "2.0",
@@ -133,7 +132,7 @@ class PubNubUserEventTests: XCTestCase {
       type: .user,
       data: AnyJSON("")
     )
-    
+
     listener.didReceiveUserEvents = { [unowned self] events in
       for event in events {
         switch event {
@@ -145,7 +144,7 @@ class PubNubUserEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.didReceiveUserEvent = { [unowned self] event in
       switch event {
       case let .userRemoved(user):
@@ -155,9 +154,9 @@ class PubNubUserEventTests: XCTestCase {
       }
       expectation.fulfill()
     }
-    
+
     listener.emit(entity: [malformedEvent, entityEvent])
-    
+
     wait(for: [expectation], timeout: 1.0)
   }
 }

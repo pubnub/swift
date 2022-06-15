@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubSpace
 import PubNub
+@testable import PubNubSpace
 
 import XCTest
 
 class PubNubSpaceInterfaceITests: XCTestCase {
-  
   let testSpace = PubNubSpace(
     id: "TestSpaceId",
     name: "TestName",
@@ -51,13 +50,13 @@ class PubNubSpaceInterfaceITests: XCTestCase {
   )
   var createdSpace: PubNubSpace?
   var updatedSpace: PubNubSpace?
-  
+
   let config = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
     userId: "itest-swift-spaceId"
   )
-  
+
   func testSpace_Smoke() throws {
     let expectation = XCTestExpectation(description: "Smoke Test Space APIs")
 
@@ -65,18 +64,18 @@ class PubNubSpaceInterfaceITests: XCTestCase {
     let updatedEventExpectation = XCTestExpectation(description: "Updated Event Listener")
     let removedEventExpectation = XCTestExpectation(description: "Removed Event Listener")
     let pubnub = PubNub(configuration: config)
-    
+
     pubnub.subscribe(to: [testSpace.id])
-    
+
     // Smoke Test Events
     let listener = eventListener_Spaces(
       createdEventExpectation,
       updatedEventExpectation,
       removedEventExpectation
     )
-    
+
     pubnub.add(listener)
-    
+
     // Validate Outputs
     pubnub.createSpace(
       spaceId: testSpace.id,
@@ -88,23 +87,23 @@ class PubNubSpaceInterfaceITests: XCTestCase {
     ) { [unowned self] result in
       do {
         switch result {
-        case .success(let space):
+        case let .success(space):
           // Sync Server Set Fields
           createdSpace = testSpace
           createdSpace?.updated = space.updated
           createdSpace?.eTag = space.eTag
-          
+
           XCTAssertEqual(space, createdSpace)
-          
+
           self.fetchSpaces_Smoke(pubnub, space, expectation)
-          
-        case .failure(let error):
+
+        case let .failure(error):
           XCTFail("Failed due to error \(error)")
           expectation.fulfill()
         }
       }
     }
-    
+
     wait(
       for: [
         createdEventExpectation,
@@ -138,7 +137,7 @@ class PubNubSpaceInterfaceITests: XCTestCase {
         removedEventExpectation.fulfill()
       }
     }
-    
+
     return listener
   }
 
@@ -152,7 +151,7 @@ class PubNubSpaceInterfaceITests: XCTestCase {
       case let .success((spaces, next)):
         XCTAssertTrue(spaces.contains(testSpace))
         XCTAssertNotNil(next)
-        
+
         updateSpace_Smoke(pubnub, expectation)
       case let .failure(error):
         XCTFail("Failed due to error \(error)")
@@ -179,9 +178,9 @@ class PubNubSpaceInterfaceITests: XCTestCase {
         updatedSpace = testUpdatedSpace
         updatedSpace?.updated = space.updated
         updatedSpace?.eTag = space.eTag
-        
+
         XCTAssertEqual(space, updatedSpace)
-        
+
         self.fetchSpace_Smoke(pubnub, space, expectation)
       case let .failure(error):
         XCTFail("Failed due to error \(error)")

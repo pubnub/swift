@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubUser
 import PubNub
+@testable import PubNubUser
 
 import XCTest
 
 class PubNubUserModelTests: XCTestCase {
-  
   let testUser = PubNubUser(
     id: "TestUserId",
     name: "TestName",
@@ -46,20 +45,20 @@ class PubNubUserModelTests: XCTestCase {
   )
 
   let userJSON = """
-{
-  "id": "TestUserId",
-  "name": "TestName",
-  "type": "TestType",
-  "status": "TestStatus",
-  "externalId": "TestExternalID",
-  "profileUrl": "http://example.com",
-  "email": "TestEmail",
-  "custom": {"value": "Tester"},
-  "updated": "0001-01-01T00:00:00.000Z",
-  "eTag": "TestETag"
-}
-"""
-  
+  {
+    "id": "TestUserId",
+    "name": "TestName",
+    "type": "TestType",
+    "status": "TestStatus",
+    "externalId": "TestExternalID",
+    "profileUrl": "http://example.com",
+    "email": "TestEmail",
+    "custom": {"value": "Tester"},
+    "updated": "0001-01-01T00:00:00.000Z",
+    "eTag": "TestETag"
+  }
+  """
+
   func testPubNubUser_Codable() throws {
     let data = try Constant.jsonEncoder.encode(testUser)
     let userFromJSON = try Constant.jsonDecoder.decode(PubNubUser.self, from: data)
@@ -72,7 +71,7 @@ class PubNubUserModelTests: XCTestCase {
       XCTFail("Could not encode data")
       return
     }
-    
+
     let userFromJSON = try Constant.jsonDecoder.decode(PubNubUser.self, from: data)
 
     XCTAssertEqual(testUser, userFromJSON)
@@ -91,7 +90,7 @@ class PubNubUserModelTests: XCTestCase {
       updated: Date.distantPast,
       eTag: "TestETag"
     )
-    
+
     XCTAssertEqual("TestUserId", testUser.id)
     XCTAssertEqual("TestName", testUser.name)
     XCTAssertEqual("TestType", testUser.type)
@@ -116,7 +115,7 @@ class PubNubUserModelTests: XCTestCase {
     hasher.combine(testUser.custom?.codableValue)
     hasher.combine(testUser.updated)
     hasher.combine(testUser.eTag)
-    
+
     XCTAssertEqual(testUser.hashValue, hasher.finalize())
   }
 
@@ -133,7 +132,7 @@ class PubNubUserModelTests: XCTestCase {
       updated: testUser.updated,
       eTag: testUser.eTag
     )
-    
+
     XCTAssertEqual(testUser, userMetadata.convert())
   }
 
@@ -150,10 +149,10 @@ class PubNubUserModelTests: XCTestCase {
       updated: testUser.updated,
       eTag: testUser.eTag
     )
-  
+
     var testUser = testUser
     testUser.profileURL = nil
-    
+
     XCTAssertEqual(testUser, userMetadata.convert())
   }
 
@@ -172,7 +171,7 @@ class PubNubUserModelTests: XCTestCase {
     )
     var testUser = testUser
     testUser.custom = nil
-    
+
     XCTAssertEqual(testUser, userMetadata.convert())
   }
 }

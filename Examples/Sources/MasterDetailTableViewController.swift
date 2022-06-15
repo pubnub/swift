@@ -372,9 +372,8 @@ class MasterDetailTableViewController: UITableViewController {
       for event in events {
         switch event {
         case let .membershipUpdated(patch):
-          print("Changes were made to (membership.user.id == \(patch.userId) AND membership.space.id == \(patch.spaceId))")
-          print("lasted updated at \(patch.updated).")
-          print("To apply the change, fetch a matching Space and call space.apply(patch)")
+          print("Membership updated between User.id \(patch.userId) and Space.id \(patch.spaceId)) at \(patch.updated)")
+          print("To apply the change, fetch a matching Membership and call membership.apply(patch)")
         case let .membershipRemoved(membership):
           print("A membership was removed between userId \(membership.user.id) and spaceId \(membership.space.id)")
         }

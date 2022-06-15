@@ -84,7 +84,7 @@ public extension PubNubSpace {
             updated.timeIntervalSince(lastUpdated ?? .distantPast) > 0 else {
         return false
       }
-      
+
       return true
     }
 
@@ -101,11 +101,11 @@ public extension PubNubSpace {
     ///   - updated: Closure that will be called if the `space.updated` should be updated
     ///   - eTag: Closure that will be called if the `space.eTag` should be updated
     public func apply(
-      name: ((String?) -> Void),
-      type: ((String?) -> Void),
-      status: ((String?) -> Void),
-      description: ((String?) -> Void),
-      custom: ((FlatJSONCodable?) -> Void),
+      name: (String?) -> Void,
+      type: (String?) -> Void,
+      status: (String?) -> Void,
+      description: (String?) -> Void,
+      custom: (FlatJSONCodable?) -> Void,
       updated: (Date) -> Void,
       eTag: (String) -> Void
     ) {
@@ -162,15 +162,15 @@ public extension PubNubSpace {
 extension PubNubSpace.Patcher: Hashable {
   public static func == (lhs: PubNubSpace.Patcher, rhs: PubNubSpace.Patcher) -> Bool {
     return lhs.id == rhs.id &&
-    lhs.name == rhs.name &&
-    lhs.type == rhs.type &&
-    lhs.status == rhs.status &&
-    lhs.spaceDescription == rhs.spaceDescription &&
-    lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
-    lhs.updated == rhs.updated &&
-    lhs.eTag == rhs.eTag
+      lhs.name == rhs.name &&
+      lhs.type == rhs.type &&
+      lhs.status == rhs.status &&
+      lhs.spaceDescription == rhs.spaceDescription &&
+      lhs.custom.underlying?.codableValue == rhs.custom.underlying?.codableValue &&
+      lhs.updated == rhs.updated &&
+      lhs.eTag == rhs.eTag
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(name)

@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubUser
 import PubNub
+@testable import PubNubUser
 
 import XCTest
 
 class PubNubUserInterfaceITests: XCTestCase {
-  
   let testUser = PubNubUser(
     id: "TestUserId",
     name: "TestName",
@@ -55,13 +54,13 @@ class PubNubUserInterfaceITests: XCTestCase {
   )
   var createdUser: PubNubUser?
   var updatedUser: PubNubUser?
-  
+
   let config = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
     userId: "itest-swift-userId"
   )
-  
+
   func testUser_Smoke() throws {
     let expectation = XCTestExpectation(description: "Smoke Test User APIs")
 
@@ -69,18 +68,18 @@ class PubNubUserInterfaceITests: XCTestCase {
     let updatedEventExpectation = XCTestExpectation(description: "Updated Event Listener")
     let removedEventExpectation = XCTestExpectation(description: "Removed Event Listener")
     let pubnub = PubNub(configuration: config)
-    
+
     pubnub.subscribe(to: [testUser.id])
-    
+
     // Smoke Test Events
     let listener = eventListener_Users(
       createdEventExpectation,
       updatedEventExpectation,
       removedEventExpectation
     )
-    
+
     pubnub.add(listener)
-    
+
     // Validate Outputs
     pubnub.createUser(
       userId: testUser.id,
@@ -94,23 +93,23 @@ class PubNubUserInterfaceITests: XCTestCase {
     ) { [unowned self] result in
       do {
         switch result {
-        case .success(let user):
+        case let .success(user):
           // Sync Server Set Fields
           createdUser = testUser
           createdUser?.updated = user.updated
           createdUser?.eTag = user.eTag
-          
+
           XCTAssertEqual(user, createdUser)
-          
+
           self.fetchUsers_Smoke(pubnub, user, expectation)
-          
-        case .failure(let error):
+
+        case let .failure(error):
           XCTFail("Failed due to error \(error)")
           expectation.fulfill()
         }
       }
     }
-    
+
     wait(
       for: [
         createdEventExpectation,
@@ -144,7 +143,7 @@ class PubNubUserInterfaceITests: XCTestCase {
         removedEventExpectation.fulfill()
       }
     }
-    
+
     return listener
   }
 
@@ -158,7 +157,7 @@ class PubNubUserInterfaceITests: XCTestCase {
       case let .success((users, next)):
         XCTAssertTrue(users.contains(testUser))
         XCTAssertNotNil(next)
-        
+
         updateUser_Smoke(pubnub, expectation)
       case let .failure(error):
         XCTFail("Failed due to error \(error)")
@@ -187,9 +186,9 @@ class PubNubUserInterfaceITests: XCTestCase {
         updatedUser = testUpdatedUser
         updatedUser?.updated = user.updated
         updatedUser?.eTag = user.eTag
-        
+
         XCTAssertEqual(user, updatedUser)
-        
+
         self.fetchUser_Smoke(pubnub, user, expectation)
       case let .failure(error):
         XCTFail("Failed due to error \(error)")

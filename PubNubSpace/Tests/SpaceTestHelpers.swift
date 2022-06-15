@@ -31,14 +31,14 @@ import PubNub
 
 struct SpaceCustom: FlatJSONCodable, Hashable {
   var value: String?
-  
+
   init(
     value: String?
   ) {
     self.value = value
   }
-  
-  init(flatJSON: [String : JSONCodableScalar]) {
+
+  init(flatJSON: [String: JSONCodableScalar]) {
     self.init(value: flatJSON["value"]?.stringOptional)
   }
 }
@@ -46,35 +46,35 @@ struct SpaceCustom: FlatJSONCodable, Hashable {
 // MARK: Mock Session
 
 class MockSession: SessionReplaceable {
-  func request(with router: HTTPRouter, requestOperator: RequestOperator?) -> RequestReplaceable {
+  func request(with router: HTTPRouter, requestOperator _: RequestOperator?) -> RequestReplaceable {
     return MockRequest(router: router)
   }
-  
-  var sessionID: UUID = UUID()
+
+  var sessionID: UUID = .init()
   var session: URLSessionReplaceable = URLSession.shared
   var sessionQueue: DispatchQueue = .main
-  var defaultRequestOperator: RequestOperator? = nil
-  var sessionStream: SessionStream? = nil
-  
+  var defaultRequestOperator: RequestOperator?
+  var sessionStream: SessionStream?
+
   init() {}
-  
+
   var validateRouter: ((HTTPRouter) -> Void)?
   var provideResponse: (() throws -> (Result<EndpointResponse<Data>, Error>))?
-  
+
   func route<Decoder>(
     _ router: HTTPRouter,
     responseDecoder: Decoder,
-    responseQueue: DispatchQueue = .main,
+    responseQueue _: DispatchQueue = .main,
     completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
     validateRouter?(router)
-    
+
     if let response = provideResponse {
       do {
         switch try response() {
-        case .success(let endpoint):
+        case let .success(endpoint):
           completion(responseDecoder.decode(response: endpoint))
-        case .failure(let error):
+        case let .failure(error):
           completion(.failure(error))
         }
       } catch {
@@ -85,8 +85,8 @@ class MockSession: SessionReplaceable {
 }
 
 class MockRequest: RequestReplaceable {
-  var sessionID: UUID = UUID()
-  var requestID: UUID = UUID()
+  var sessionID: UUID = .init()
+  var requestID: UUID = .init()
   var router: HTTPRouter
   var requestQueue: DispatchQueue = .main
   var requestOperator: RequestOperator?
@@ -94,7 +94,7 @@ class MockRequest: RequestReplaceable {
   var urlResponse: HTTPURLResponse?
   var retryCount: Int = 0
   var isCancelled: Bool = false
-  
+
   init(
     router: HTTPRouter
   ) {
@@ -116,9 +116,11 @@ class MockRouter: HTTPRouter {
 
 extension EndpointResponse where Value == Data {
   init(data: Data?) {
+    guard let url = URL(string: "example.com") else { return nil }
+
     self.init(
       router: MockRouter(),
-      request: .init(url: URL(string: "example.com")!),
+      request: .init(url: url),
       response: .init(),
       payload: data ?? Data()
     )

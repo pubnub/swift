@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubSpace
 import PubNub
+@testable import PubNubSpace
 
 import XCTest
 
 class PubNubSpaceModelTests: XCTestCase {
-
   let testSpace = PubNubSpace(
     id: "TestSpaceId",
     name: "TestName",
@@ -42,38 +41,38 @@ class PubNubSpaceModelTests: XCTestCase {
     updated: Date.distantPast,
     eTag: "TestETag"
   )
-  
+
   let spaceJSON = """
-{
-  "id": "TestSpaceId",
-  "name": "TestName",
-  "type": "TestType",
-  "status": "TestStatus",
-  "description": "TestDescription",
-  "custom": {"value": "Tester"},
-  "updated": "0001-01-01T00:00:00.000Z",
-  "eTag": "TestETag"
-}
-"""
-  
+  {
+    "id": "TestSpaceId",
+    "name": "TestName",
+    "type": "TestType",
+    "status": "TestStatus",
+    "description": "TestDescription",
+    "custom": {"value": "Tester"},
+    "updated": "0001-01-01T00:00:00.000Z",
+    "eTag": "TestETag"
+  }
+  """
+
   func testPubNubSpace_Codable() throws {
     let data = try Constant.jsonEncoder.encode(testSpace)
     let spaceFromJSON = try Constant.jsonDecoder.decode(PubNubSpace.self, from: data)
-    
+
     XCTAssertEqual(testSpace, spaceFromJSON)
   }
-  
+
   func testPubNubSpace_FromJSON() throws {
     guard let data = spaceJSON.data(using: .utf8) else {
       XCTFail("Could not encode data")
       return
     }
-    
+
     let spaceFromJSON = try Constant.jsonDecoder.decode(PubNubSpace.self, from: data)
-    
+
     XCTAssertEqual(testSpace, spaceFromJSON)
   }
-  
+
   func testPubNubSpace_Init() {
     let testSpace = PubNubSpace(
       id: "TestSpaceId",
@@ -85,7 +84,7 @@ class PubNubSpaceModelTests: XCTestCase {
       updated: Date.distantPast,
       eTag: "TestETag"
     )
-    
+
     XCTAssertEqual("TestSpaceId", testSpace.id)
     XCTAssertEqual("TestName", testSpace.name)
     XCTAssertEqual("TestType", testSpace.type)
@@ -95,7 +94,7 @@ class PubNubSpaceModelTests: XCTestCase {
     XCTAssertEqual(Date.distantPast, testSpace.updated)
     XCTAssertEqual("TestETag", testSpace.eTag)
   }
-  
+
   func testPubNubSpace_Hasher() {
     var hasher = Hasher()
     hasher.combine(testSpace.id)
@@ -106,10 +105,10 @@ class PubNubSpaceModelTests: XCTestCase {
     hasher.combine(testSpace.custom?.codableValue)
     hasher.combine(testSpace.updated)
     hasher.combine(testSpace.eTag)
-    
+
     XCTAssertEqual(testSpace.hashValue, hasher.finalize())
   }
-  
+
   func testPubNubSpace_Convert_UUIDMetadata() {
     let channelMetadata = PubNubChannelMetadataBase(
       metadataId: testSpace.id,
@@ -121,10 +120,10 @@ class PubNubSpaceModelTests: XCTestCase {
       updated: testSpace.updated,
       eTag: testSpace.eTag
     )
-    
+
     XCTAssertEqual(testSpace, channelMetadata.convert())
   }
-  
+
   func testPubNubSpace_Convert_UUIDMetadata_nilCustom() {
     let channelMetadata = PubNubChannelMetadataBase(
       metadataId: testSpace.id,
@@ -138,7 +137,7 @@ class PubNubSpaceModelTests: XCTestCase {
     )
     var testSpace = testSpace
     testSpace.custom = nil
-    
+
     XCTAssertEqual(testSpace, channelMetadata.convert())
   }
 }

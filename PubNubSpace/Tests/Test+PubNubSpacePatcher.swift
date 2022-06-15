@@ -25,13 +25,12 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubSpace
 import PubNub
+@testable import PubNubSpace
 
 import XCTest
 
 class PubNubSpacePatcherTests: XCTestCase {
-  
   var testSpace = PubNubSpace(
     id: "TestSpaceId",
     name: "OldName",
@@ -42,7 +41,7 @@ class PubNubSpacePatcherTests: XCTestCase {
     updated: .distantPast,
     eTag: "OldETag"
   )
-  
+
   var patcher = PubNubSpace.Patcher(
     id: "TestSpaceId",
     updated: .distantFuture,
@@ -53,7 +52,7 @@ class PubNubSpacePatcherTests: XCTestCase {
     spaceDescription: .some("TestDescription"),
     custom: .some(SpaceCustom(value: "Tester"))
   )
-  
+
   let patchedSpace = PubNubSpace(
     id: "TestSpaceId",
     name: "TestName",
@@ -64,7 +63,7 @@ class PubNubSpacePatcherTests: XCTestCase {
     updated: .distantFuture,
     eTag: "TestETag"
   )
-  
+
   func testPatcher_Init() {
     XCTAssertEqual(patcher.id, "TestSpaceId")
     XCTAssertEqual(patcher.updated, .distantFuture)
@@ -77,7 +76,7 @@ class PubNubSpacePatcherTests: XCTestCase {
       patcher.custom.underlying?.codableValue, SpaceCustom(value: "Tester").codableValue
     )
   }
-  
+
   func testPatcher_Codable_AllNoChange() throws {
     let nonePatcher = PubNubSpace.Patcher(
       id: "TestSpaceId",
@@ -89,14 +88,14 @@ class PubNubSpacePatcherTests: XCTestCase {
       spaceDescription: .noChange,
       custom: .noChange
     )
-    
+
     let data = try Constant.jsonEncoder.encode(nonePatcher)
     let spaceFromJSON = try Constant.jsonDecoder
       .decode(PubNubSpace.Patcher.self, from: data)
-    
+
     XCTAssertEqual(nonePatcher, spaceFromJSON)
   }
-  
+
   func testPatcher_Decode_AllNone() throws {
     let nonePatcher = PubNubSpace.Patcher(
       id: "TestSpaceId",
@@ -108,15 +107,15 @@ class PubNubSpacePatcherTests: XCTestCase {
       spaceDescription: .none,
       custom: .none
     )
-    
+
     let data = try Constant.jsonEncoder.encode(nonePatcher)
-    
+
     let spaceFromJSON = try Constant.jsonDecoder
       .decode(PubNubSpace.Patcher.self, from: data)
-    
+
     XCTAssertEqual(nonePatcher, spaceFromJSON)
   }
-  
+
   func testPatcher_Hasher() {
     var hasher = Hasher()
     hasher.combine(patcher.id)
@@ -127,38 +126,38 @@ class PubNubSpacePatcherTests: XCTestCase {
     hasher.combine(patcher.custom.underlying?.codableValue)
     hasher.combine(patcher.updated)
     hasher.combine(patcher.eTag)
-    
+
     XCTAssertEqual(patcher.hashValue, hasher.finalize())
   }
-  
+
   func testPatcher_ShouldUpdate_True() {
     let shouldUpdate = patcher.shouldUpdate(
       spaceId: patcher.id,
       eTag: UUID().uuidString,
       lastUpdated: .distantPast
     )
-    
+
     XCTAssertTrue(shouldUpdate)
   }
-  
+
   func testPatcher_ShouldUpdate_False_NilDate() {
     let shouldUpdate = patcher.shouldUpdate(
       spaceId: patcher.id,
       eTag: UUID().uuidString,
       lastUpdated: nil
     )
-    
+
     XCTAssertTrue(shouldUpdate)
   }
-  
+
   func testPatcher_Codable_AllSome() throws {
     let data = try Constant.jsonEncoder.encode(patcher)
     let spaceFromJSON = try? Constant.jsonDecoder
       .decode(PubNubSpace.Patcher.self, from: data)
-    
+
     XCTAssertEqual(patcher, spaceFromJSON)
   }
-  
+
   func testPatcher_apply_closure() {
     patcher.apply(
       name: { testSpace.name = $0 },
@@ -169,17 +168,17 @@ class PubNubSpacePatcherTests: XCTestCase {
       updated: { testSpace.updated = $0 },
       eTag: { testSpace.eTag = $0 }
     )
-    
+
     XCTAssertEqual(testSpace, patchedSpace)
   }
-  
+
   func testPatcher_PubNubSpace_apply() {
     XCTAssertEqual(testSpace.apply(patcher), patchedSpace)
   }
-  
+
   func testPatcher_PubNubSpace_applyNoUpdate() {
     let wrongSpace = PubNubSpace(id: "not-space")
-    
+
     XCTAssertNotEqual(wrongSpace.id, patcher.id)
     XCTAssertEqual(wrongSpace.apply(patcher), wrongSpace)
   }

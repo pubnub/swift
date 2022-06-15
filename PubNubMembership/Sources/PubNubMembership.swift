@@ -253,7 +253,7 @@ public extension PubNubMembership {
 extension PubNubMembership.PartialUser: Codable, Hashable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: PubNubMembership.CodingKeys.self)
-  
+
     user = try container.decode(PubNubUser.self, forKey: .user)
     status = try container.decodeIfPresent(String.self, forKey: .status)
     updated = try container.decodeIfPresent(Date.self, forKey: .updated)
@@ -292,7 +292,7 @@ extension PubNubMembership.PartialUser: Codable, Hashable {
 extension PubNubMembership.PartialSpace: Codable, Hashable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: PubNubMembership.CodingKeys.self)
-    
+
     space = try container.decode(PubNubSpace.self, forKey: .space)
     status = try container.decodeIfPresent(String.self, forKey: .status)
     updated = try container.decodeIfPresent(Date.self, forKey: .updated)
@@ -308,7 +308,7 @@ extension PubNubMembership.PartialSpace: Codable, Hashable {
     try container.encode(eTag, forKey: .eTag)
     try container.encode(custom?.codableValue, forKey: .custom)
   }
-  
+
   public static func == (
     lhs: PubNubMembership.PartialSpace, rhs: PubNubMembership.PartialSpace
   ) -> Bool {

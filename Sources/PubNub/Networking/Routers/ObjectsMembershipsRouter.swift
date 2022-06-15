@@ -160,8 +160,8 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       return lhs.metadataId == rhs.metadataId &&
         lhs.status == rhs.status &&
         lhs.custom?
-          .mapValues({ $0.codableValue }) == rhs.custom?
-            .mapValues({ $0.codableValue })
+        .mapValues { $0.codableValue } == rhs.custom?
+        .mapValues { $0.codableValue }
     }
   }
 
@@ -224,10 +224,10 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       rhs: ObjectsMembershipsRouter.MemberChange
     ) -> Bool {
       return lhs.metadataId == rhs.metadataId &&
-      lhs.status == rhs.status &&
-      lhs.custom?
-        .mapValues({ $0.codableValue }) == rhs.custom?
-        .mapValues({ $0.codableValue })
+        lhs.status == rhs.status &&
+        lhs.custom?
+        .mapValues { $0.codableValue } == rhs.custom?
+        .mapValues { $0.codableValue }
     }
   }
 

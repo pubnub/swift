@@ -32,7 +32,7 @@ class FlatJSONCodableTests: XCTestCase {
   struct Custom: FlatJSONCodable {
     var value: String?
 
-    init(flatJSON: [String : JSONCodableScalar]) {
+    init(flatJSON: [String: JSONCodableScalar]) {
       value = flatJSON["value"]?.stringOptional
     }
   }
@@ -48,7 +48,7 @@ class FlatJSONCodableTests: XCTestCase {
 
   func testFlatJSONCodable_init_optionalEmpty() {
     let custom = Custom(flatJSON: [:])
-    
+
     XCTAssertEqual(custom.codableValue, Custom(flatJSON: nil).codableValue)
   }
 
@@ -56,7 +56,7 @@ class FlatJSONCodableTests: XCTestCase {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
-    
+
     XCTAssertEqual(
       custom["value"]?.stringOptional,
       Custom(flatJSON: custom).flatJSON["value"]?.stringOptional
@@ -72,17 +72,17 @@ class FlatJSONTests: XCTestCase {
     let customDictionry = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
-    
+
     XCTAssertEqual(
       custom.codableValue, FlatJSON(flatJSON: customDictionry).codableValue
     )
   }
-  
+
   func testFlatJSON_flatJSON() {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
-    
+
     XCTAssertEqual(
       custom["value"]?.stringOptional,
       FlatJSON(flatJSON: custom).flatJSON["value"]?.stringOptional

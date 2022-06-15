@@ -182,7 +182,7 @@ class PubNubUserPatcherTests: XCTestCase {
       lastUpdated: nil
     )
     
-    XCTAssertFalse(shouldUpdate)
+    XCTAssertTrue(shouldUpdate)
   }
   
   func testPatcher_Codable_AllSome() throws {

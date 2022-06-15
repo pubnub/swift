@@ -1,5 +1,5 @@
 //
-//  Test+PubNubSpacePatcher.swift
+//  Test+PubNubMembershipPatcher.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2022 PubNub Inc.
@@ -25,105 +25,93 @@
 //  THE SOFTWARE.
 //
 
-@testable import PubNubSpace
+@testable import PubNubMembership
 import PubNub
+import PubNubUser
+import PubNubSpace
 
 import XCTest
 
-class PubNubSpacePatcherTests: XCTestCase {
+class PubNubMembershipPatcherTests: XCTestCase {
   
-  var testSpace = PubNubSpace(
-    id: "TestSpaceId",
-    name: "OldName",
-    type: "OldType",
+  var testMembership = PubNubMembership(
+    user: PubNubUser(id: "TestUserId"),
+    space: PubNubSpace(id: "TestSpaceId"),
     status: "OldStatus",
-    spaceDescription: "OldDescription",
-    custom: SpaceCustom(value: "OldValue"),
+    custom: MembershipCustom(value: "OldValue"),
     updated: .distantPast,
     eTag: "OldETag"
   )
   
-  var patcher = PubNubSpace.Patcher(
-    id: "TestSpaceId",
+  var patcher = PubNubMembership.Patcher(
+    userId: "TestUserId",
+    spaceId: "TestSpaceId",
     updated: .distantFuture,
     eTag: "TestETag",
-    name: .some("TestName"),
-    type: .some("TestType"),
     status: .some("TestStatus"),
-    spaceDescription: .some("TestDescription"),
-    custom: .some(SpaceCustom(value: "Tester"))
+    custom: .some(MembershipCustom(value: "NewValue"))
   )
   
-  let patchedSpace = PubNubSpace(
-    id: "TestSpaceId",
-    name: "TestName",
-    type: "TestType",
+  let patchedMembership = PubNubMembership(
+    user:  PubNubUser(id: "TestUserId"),
+    space: PubNubSpace(id: "TestSpaceId"),
     status: "TestStatus",
-    spaceDescription: "TestDescription",
-    custom: SpaceCustom(value: "Tester"),
+    custom: MembershipCustom(value: "NewValue"),
     updated: .distantFuture,
     eTag: "TestETag"
   )
   
   func testPatcher_Init() {
-    XCTAssertEqual(patcher.id, "TestSpaceId")
+    XCTAssertEqual(patcher.userId, "TestUserId")
+    XCTAssertEqual(patcher.spaceId, "TestSpaceId")
     XCTAssertEqual(patcher.updated, .distantFuture)
     XCTAssertEqual(patcher.eTag, "TestETag")
-    XCTAssertEqual(patcher.name, .some("TestName"))
-    XCTAssertEqual(patcher.type, .some("TestType"))
     XCTAssertEqual(patcher.status, .some("TestStatus"))
-    XCTAssertEqual(patcher.spaceDescription, .some("TestDescription"))
     XCTAssertEqual(
-      patcher.custom.underlying?.codableValue, SpaceCustom(value: "Tester").codableValue
+      patcher.custom.underlying?.codableValue, MembershipCustom(value: "NewValue").codableValue
     )
   }
   
   func testPatcher_Codable_AllNoChange() throws {
-    let nonePatcher = PubNubSpace.Patcher(
-      id: "TestSpaceId",
+    let nonePatcher = PubNubMembership.Patcher(
+      userId: "TestUserId",
+      spaceId: "TestSpaceId",
       updated: .distantFuture,
       eTag: "TestETag",
-      name: .noChange,
-      type: .noChange,
       status: .noChange,
-      spaceDescription: .noChange,
       custom: .noChange
     )
     
     let data = try Constant.jsonEncoder.encode(nonePatcher)
-    let spaceFromJSON = try Constant.jsonDecoder
-      .decode(PubNubSpace.Patcher.self, from: data)
+    let membershipFromJSON = try Constant.jsonDecoder
+      .decode(PubNubMembership.Patcher.self, from: data)
     
-    XCTAssertEqual(nonePatcher, spaceFromJSON)
+    XCTAssertEqual(nonePatcher, membershipFromJSON)
   }
   
   func testPatcher_Decode_AllNone() throws {
-    let nonePatcher = PubNubSpace.Patcher(
-      id: "TestSpaceId",
+    let nonePatcher = PubNubMembership.Patcher(
+      userId: "TestUserId",
+      spaceId: "TestSpaceId",
       updated: .distantFuture,
       eTag: "TestETag",
-      name: .none,
-      type: .none,
       status: .none,
-      spaceDescription: .none,
       custom: .none
     )
     
     let data = try Constant.jsonEncoder.encode(nonePatcher)
     
-    let spaceFromJSON = try Constant.jsonDecoder
-      .decode(PubNubSpace.Patcher.self, from: data)
+    let membershipFromJSON = try Constant.jsonDecoder
+      .decode(PubNubMembership.Patcher.self, from: data)
     
-    XCTAssertEqual(nonePatcher, spaceFromJSON)
+    XCTAssertEqual(nonePatcher, membershipFromJSON)
   }
   
   func testPatcher_Hasher() {
     var hasher = Hasher()
-    hasher.combine(patcher.id)
-    hasher.combine(patcher.name)
-    hasher.combine(patcher.type)
+    hasher.combine(patcher.userId)
+    hasher.combine(patcher.spaceId)
     hasher.combine(patcher.status)
-    hasher.combine(patcher.spaceDescription)
     hasher.combine(patcher.custom.underlying?.codableValue)
     hasher.combine(patcher.updated)
     hasher.combine(patcher.eTag)
@@ -133,7 +121,8 @@ class PubNubSpacePatcherTests: XCTestCase {
   
   func testPatcher_ShouldUpdate_True() {
     let shouldUpdate = patcher.shouldUpdate(
-      spaceId: patcher.id,
+      userId: patcher.userId,
+      spaceId: patcher.spaceId,
       eTag: UUID().uuidString,
       lastUpdated: .distantPast
     )
@@ -143,7 +132,8 @@ class PubNubSpacePatcherTests: XCTestCase {
   
   func testPatcher_ShouldUpdate_False_NilDate() {
     let shouldUpdate = patcher.shouldUpdate(
-      spaceId: patcher.id,
+      userId: patcher.userId,
+      spaceId: patcher.spaceId,
       eTag: UUID().uuidString,
       lastUpdated: nil
     )
@@ -153,34 +143,44 @@ class PubNubSpacePatcherTests: XCTestCase {
   
   func testPatcher_Codable_AllSome() throws {
     let data = try Constant.jsonEncoder.encode(patcher)
-    let spaceFromJSON = try? Constant.jsonDecoder
-      .decode(PubNubSpace.Patcher.self, from: data)
+    let membershipFromJSON = try? Constant.jsonDecoder
+      .decode(PubNubMembership.Patcher.self, from: data)
     
-    XCTAssertEqual(patcher, spaceFromJSON)
+    XCTAssertEqual(patcher, membershipFromJSON)
   }
   
   func testPatcher_apply_closure() {
     patcher.apply(
-      name: { testSpace.name = $0 },
-      type: { testSpace.type = $0 },
-      status: { testSpace.status = $0 },
-      description: { testSpace.spaceDescription = $0 },
-      custom: { testSpace.custom = SpaceCustom(flatJSON: $0?.flatJSON) },
-      updated: { testSpace.updated = $0 },
-      eTag: { testSpace.eTag = $0 }
+      status: { testMembership.status = $0 },
+      custom: { testMembership.custom = MembershipCustom(flatJSON: $0?.flatJSON) },
+      updated: { testMembership.updated = $0 },
+      eTag: { testMembership.eTag = $0 }
     )
     
-    XCTAssertEqual(testSpace, patchedSpace)
+    XCTAssertEqual(testMembership, patchedMembership)
   }
   
-  func testPatcher_PubNubSpace_apply() {
-    XCTAssertEqual(testSpace.apply(patcher), patchedSpace)
+  func testPatcher_PubNubMembership_apply() {
+    XCTAssertEqual(testMembership.apply(patcher), patchedMembership)
   }
   
-  func testPatcher_PubNubSpace_applyNoUpdate() {
-    let wrongSpace = PubNubSpace(id: "not-space")
+  func testPatcher_PubNubMembership_applyNoUpdate_wrongUser() {
+    let wrongMembership = PubNubMembership(
+      user: PubNubUser(id: "not-user-id"),
+      space: testMembership.space
+    )
     
-    XCTAssertNotEqual(wrongSpace.id, patcher.id)
-    XCTAssertEqual(wrongSpace.apply(patcher), wrongSpace)
+    XCTAssertNotEqual(wrongMembership.user.id, patcher.userId)
+    XCTAssertEqual(wrongMembership.apply(patcher), wrongMembership)
+  }
+
+  func testPatcher_PubNubMembership_applyNoUpdate_wrongSpace() {
+    let wrongMembership = PubNubMembership(
+      user: testMembership.user,
+      space: PubNubSpace(id: "not-space-id")
+    )
+    
+    XCTAssertNotEqual(wrongMembership.space.id, patcher.spaceId)
+    XCTAssertEqual(wrongMembership.apply(patcher), wrongMembership)
   }
 }

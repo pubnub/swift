@@ -36,13 +36,14 @@ public enum PubNubSpaceEvent {
   case spaceRemoved(PubNubSpace)
 }
 
+/// Listener capable of emitting batched and single PubNubSpaceEvent objects
 public final class PubNubSpaceListener: PubNubEntityListener {
-  /// Batched subscription event that possibly contains multiple User events
+  /// Batched subscription event that possibly contains multiple Space events
   ///
   /// This will also emit individual events to `didReceiveSpaceEvent`
   public var didReceiveSpaceEvents: (([PubNubSpaceEvent]) -> Void)?
 
-  /// Receiver for all User events
+  /// Receiver for all Space events
   public var didReceiveSpaceEvent: ((PubNubSpaceEvent) -> Void)?
 
   override public func emit(entity events: [PubNubEntityEvent]) {
@@ -55,8 +56,8 @@ public final class PubNubSpaceListener: PubNubEntityListener {
           spaceEvents.append(.spaceUpdated(patcher))
         }
       case .removed:
-        if let user = try? event.data.decode(PubNubSpace.self) {
-          spaceEvents.append(.spaceRemoved(user))
+        if let space = try? event.data.decode(PubNubSpace.self) {
+          spaceEvents.append(.spaceRemoved(space))
         }
       }
     }

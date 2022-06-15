@@ -245,10 +245,10 @@ class MasterDetailTableViewController: UITableViewController {
     spaceListener = spaceEvents
     membershipListener = membershipEvents
 
-    pubnub.subscription.add(listener)
-    pubnub.subscription.add(userEvents)
-    pubnub.subscription.add(spaceEvents)
-    pubnub.subscription.add(membershipEvents)
+    pubnub.add(listener)
+    pubnub.add(userEvents)
+    pubnub.add(spaceEvents)
+    pubnub.add(membershipEvents)
 
     self.listener?.didReceiveBatchSubscription = { events in
       for event in events {
@@ -371,8 +371,10 @@ class MasterDetailTableViewController: UITableViewController {
     membershipListener?.didReceiveMembershipEvents = { events in
       for event in events {
         switch event {
-        case let .membershipUpdated(membership):
-          print("A membership was updated between userId \(membership.user.id) and spaceId \(membership.space.id)")
+        case let .membershipUpdated(patch):
+          print("Changes were made to (membership.user.id == \(patch.userId) AND membership.space.id == \(patch.spaceId))")
+          print("lasted updated at \(patch.updated).")
+          print("To apply the change, fetch a matching Space and call space.apply(patch)")
         case let .membershipRemoved(membership):
           print("A membership was removed between userId \(membership.user.id) and spaceId \(membership.space.id)")
         }

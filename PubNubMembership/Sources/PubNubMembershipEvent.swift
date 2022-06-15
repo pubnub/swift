@@ -32,7 +32,7 @@ import PubNub
 /// All the changes that can be received for Membership entities
 public enum PubNubMembershipEvent {
   /// The Membership entity that was updated
-  case membershipUpdated(PubNubMembership)
+  case membershipUpdated(PubNubMembership.Patcher)
   /// The Membership entity that was removed
   case membershipRemoved(PubNubMembership)
 }
@@ -53,12 +53,12 @@ public final class PubNubMembershipListener: PubNubEntityListener {
     for event in events where event.type == .membership {
       switch event.action {
       case .updated:
-        if let patcher = try? event.data.decode(PubNubMembership.self) {
+        if let patcher = try? event.data.decode(PubNubMembership.Patcher.self) {
           membershipEvents.append(.membershipUpdated(patcher))
         }
       case .removed:
-        if let user = try? event.data.decode(PubNubMembership.self) {
-          membershipEvents.append(.membershipRemoved(user))
+        if let membership = try? event.data.decode(PubNubMembership.self) {
+          membershipEvents.append(.membershipRemoved(membership))
         }
       }
     }

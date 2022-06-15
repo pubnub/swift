@@ -209,6 +209,18 @@ class PubNubMembershipModelTests: XCTestCase {
     XCTAssertEqual(membership, testMembership)
   }
 
+  func testPubNubMembership_property_PartialUser() {
+    let partialUser = PubNubMembership.PartialUser(
+      user: testMembership.user,
+      status: testMembership.status,
+      custom: testMembership.custom,
+      updated: testMembership.updated,
+      eTag: testMembership.eTag
+    )
+    
+    XCTAssertEqual(partialUser, testMembership.partialUser)
+  }
+
   // MARK: Partial Space
 
   func testPubNubMembership_PartialSpace_InitSpace() {
@@ -286,5 +298,17 @@ class PubNubMembershipModelTests: XCTestCase {
     let membership = PubNubMembership(user: testMembership.user, space: partialSpace)
 
     XCTAssertEqual(membership, testMembership)
+  }
+
+  func testPubNubMembership_property_PartialSpace() {
+    let partialSpace = PubNubMembership.PartialSpace(
+      space: testMembership.space,
+      status: testMembership.status,
+      custom: testMembership.custom,
+      updated: testMembership.updated,
+      eTag: testMembership.eTag
+    )
+
+    XCTAssertEqual(partialSpace, testMembership.partialSpace)
   }
 }

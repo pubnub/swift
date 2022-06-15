@@ -135,10 +135,11 @@ public extension PubNubUser {
     ///   - lastUpdated: The updated `Date` for the target User.  This is set by the PubNub server.
     ///  - Returns:Whether the target User should be patched
     public func shouldUpdate(userId: String, eTag: String?, lastUpdated: Date?) -> Bool {
-      guard let lastUpdated = lastUpdated,
-            id == userId,
+      // eTag and lastUpdated are optionals to allow for patching to still occur on local
+      // objects that haven't been synced with the server
+      guard id == userId,
             self.eTag != eTag,
-            updated.timeIntervalSince(lastUpdated) > 0 else {
+            updated.timeIntervalSince(lastUpdated ?? .distantPast) > 0 else {
         return false
       }
       

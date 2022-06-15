@@ -39,7 +39,7 @@ class PubNubMembershipEventTests: XCTestCase {
     space: PubNubSpace(id: "TestSpaceId"),
     status: "TestStatus",
     custom: MembershipCustom(value: "Tester"),
-    updated: Date.distantFuture,
+    updated: Date.distantPast,
     eTag: "TestETag"
   )
   
@@ -48,6 +48,15 @@ class PubNubMembershipEventTests: XCTestCase {
   func testMembershipListener_Emit_UpdateEvent() {
     let expectation = XCTestExpectation(description: "Membership Update Event")
     expectation.expectedFulfillmentCount = 2
+
+    let patchedMembership = PubNubMembership(
+      user: testMembership.user,
+      space: testMembership.space,
+      status: "UpdatedStatus",
+      custom: MembershipCustom(value: "UpdatedValue"),
+      updated: Date.distantFuture,
+      eTag: "UpdatedETag"
+    )
     
     let entityEvent = PubNubEntityEvent(
       source: "objects",
@@ -55,12 +64,12 @@ class PubNubMembershipEventTests: XCTestCase {
       action: .updated,
       type: .membership,
       data: [
-        "uuid": ["id": testMembership.user.id],
-        "channel": ["id": testMembership.space.id],
-        "status": testMembership.status,
-        "custom": ["value": "Tester"],
+        "uuid": ["id": patchedMembership.user.id],
+        "channel": ["id": patchedMembership.space.id],
+        "status": patchedMembership.status,
+        "custom": ["value": "UpdatedValue"],
         "updated": "4001-01-01T00:00:00.000Z",
-        "eTag": testMembership.eTag
+        "eTag": patchedMembership.eTag
       ]
     )
 
@@ -75,8 +84,8 @@ class PubNubMembershipEventTests: XCTestCase {
     listener.didReceiveMembershipEvents = { [unowned self] events in
       for event in events {
         switch event {
-        case let .membershipUpdated(membership):
-          XCTAssertEqual(membership, testMembership)
+        case let .membershipUpdated(patcher):
+          XCTAssertEqual(patchedMembership, testMembership.apply(patcher))
         case .membershipRemoved:
           XCTFail("Membership Removed Event should not fire")
         }
@@ -86,8 +95,8 @@ class PubNubMembershipEventTests: XCTestCase {
     
     listener.didReceiveMembershipEvent = { [unowned self] event in
       switch event {
-      case let .membershipUpdated(membership):
-        XCTAssertEqual(membership, testMembership)
+      case let .membershipUpdated(patcher):
+        XCTAssertEqual(patchedMembership, testMembership.apply(patcher))
       case .membershipRemoved:
         XCTFail("Membership Removed Event should not fire")
       }
@@ -113,7 +122,7 @@ class PubNubMembershipEventTests: XCTestCase {
         "channel": ["id": testMembership.space.id],
         "status": testMembership.status,
         "custom": ["value": "Tester"],
-        "updated": "4001-01-01T00:00:00.000Z",
+        "updated": "0001-01-01T00:00:00.000Z",
         "eTag": testMembership.eTag
       ]
     )

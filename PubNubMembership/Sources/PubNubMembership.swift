@@ -163,14 +163,6 @@ public extension PubNubMembership {
         custom: custom
       )
     }
-
-    enum CodingKeys: String, CodingKey {
-      case user = "uuid"
-      case status
-      case custom
-      case updated
-      case eTag
-    }
   }
 
   /// The Space half of the User-Space Membership relationship
@@ -211,14 +203,6 @@ public extension PubNubMembership {
         custom: custom
       )
     }
-
-    enum CodingKeys: String, CodingKey {
-      case space = "channel"
-      case status
-      case custom
-      case updated
-      case eTag
-    }
   }
 
   init(user: PubNubUser, space partial: PartialSpace) {
@@ -232,6 +216,17 @@ public extension PubNubMembership {
     )
   }
 
+  /// The Space half of this User-Space Membership relationship
+  var partialSpace: PartialSpace {
+    return .init(
+      space: space,
+      status: status,
+      custom: custom,
+      updated: updated,
+      eTag: eTag
+    )
+  }
+
   init(space: PubNubSpace, user partial: PartialUser) {
     self.init(
       user: partial.user,
@@ -242,11 +237,22 @@ public extension PubNubMembership {
       eTag: partial.eTag
     )
   }
+
+  /// The User half of this User-Space Membership relationship
+  var partialUser: PartialUser {
+    return .init(
+      user: user,
+      status: status,
+      custom: custom,
+      updated: updated,
+      eTag: eTag
+    )
+  }
 }
 
 extension PubNubMembership.PartialUser: Codable, Hashable {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: PubNubMembership.PartialUser.CodingKeys.self)
+    let container = try decoder.container(keyedBy: PubNubMembership.CodingKeys.self)
   
     user = try container.decode(PubNubUser.self, forKey: .user)
     status = try container.decodeIfPresent(String.self, forKey: .status)
@@ -256,7 +262,7 @@ extension PubNubMembership.PartialUser: Codable, Hashable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: PubNubMembership.PartialUser.CodingKeys.self)
+    var container = encoder.container(keyedBy: PubNubMembership.CodingKeys.self)
     try container.encode(user, forKey: .user)
     try container.encode(status, forKey: .status)
     try container.encode(updated, forKey: .updated)
@@ -285,7 +291,7 @@ extension PubNubMembership.PartialUser: Codable, Hashable {
 
 extension PubNubMembership.PartialSpace: Codable, Hashable {
   public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: PubNubMembership.PartialSpace.CodingKeys.self)
+    let container = try decoder.container(keyedBy: PubNubMembership.CodingKeys.self)
     
     space = try container.decode(PubNubSpace.self, forKey: .space)
     status = try container.decodeIfPresent(String.self, forKey: .status)
@@ -295,7 +301,7 @@ extension PubNubMembership.PartialSpace: Codable, Hashable {
   }
 
   public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: PubNubMembership.PartialSpace.CodingKeys.self)
+    var container = encoder.container(keyedBy: PubNubMembership.CodingKeys.self)
     try container.encode(space, forKey: .space)
     try container.encode(status, forKey: .status)
     try container.encode(updated, forKey: .updated)

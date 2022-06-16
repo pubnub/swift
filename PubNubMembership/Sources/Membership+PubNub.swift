@@ -33,6 +33,12 @@ import PubNubUser
 
 /// Protocol interface to manage `PubNubMembership` entities using closures
 public protocol PubNubMembershipInterface {
+  /// A copy of the configuration object used for this session
+  var configuration: PubNubConfiguration { get }
+
+  /// Session used for performing request/response REST calls
+  var networkSession: SessionReplaceable { get }
+
   /// Fetch all `PubNubMembership` linked to a specific `PubNubUser.id`
   ///
   /// - Parameters:
@@ -240,7 +246,9 @@ public extension PubNub {
 
 // MARK: - Module Impl.
 
-extension PubNub: PubNubMembershipInterface {
+extension PubNub: PubNubMembershipInterface {}
+
+extension PubNubMembershipInterface {
   public func fetchMemberships(
     userId: String? = nil,
     includeCustom: Bool = true,
@@ -285,7 +293,7 @@ extension PubNub: PubNubMembershipInterface {
             memberships: response.payload.data.compactMap {
               PubNubMembership(user: .init(id: computedUserId), space: $0)
             },
-            next: Page(
+            next: PubNub.Page(
               next: response.payload.next,
               prev: response.payload.prev,
               totalCount: response.payload.totalCount
@@ -337,7 +345,7 @@ extension PubNub: PubNubMembershipInterface {
             memberships: response.payload.data.compactMap {
               PubNubMembership(space: .init(id: spaceId), user: $0)
             },
-            next: Page(
+            next: PubNub.Page(
               next: response.payload.next,
               prev: response.payload.prev,
               totalCount: response.payload.totalCount

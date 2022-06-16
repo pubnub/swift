@@ -31,6 +31,12 @@ import PubNub
 
 /// Protocol interface to manage `PubNubUser` entities using closures
 public protocol PubNubUserInterface {
+  /// A copy of the configuration object used for this session
+  var configuration: PubNubConfiguration { get }
+
+  /// Session used for performing request/response REST calls
+  var networkSession: SessionReplaceable { get }
+
   /// Fetch all `PubNubUser` that exist on a keyset
   ///
   /// - Parameters:
@@ -202,8 +208,9 @@ public extension PubNub {
 }
 
 // MARK: - Module Impl.
+extension PubNub: PubNubUserInterface {}
 
-extension PubNub: PubNubUserInterface {
+extension PubNubUserInterface {
   public func fetchUsers(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -235,7 +242,7 @@ extension PubNub: PubNubUserInterface {
       ) { result in
         completion(result.map { (
           users: $0.payload.data,
-          next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
+          next: PubNub.Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
       }
   }

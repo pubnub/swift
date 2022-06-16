@@ -31,6 +31,12 @@ import PubNub
 
 /// Protocol interface to manage `PubNubSpace` entities using closures
 public protocol PubNubSpaceInterface {
+  /// A copy of the configuration object used for this session
+  var configuration: PubNubConfiguration { get }
+
+  /// Session used for performing request/response REST calls
+  var networkSession: SessionReplaceable { get }
+
   /// Fetch all `PubNubSpace` that exist on a keyset
   ///
   /// - Parameters:
@@ -194,8 +200,9 @@ public extension PubNub {
 }
 
 // MARK: - Module Impl.
+extension PubNub: PubNubSpaceInterface {}
 
-extension PubNub: PubNubSpaceInterface {
+extension PubNubSpaceInterface {
   public func fetchSpaces(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
@@ -227,7 +234,7 @@ extension PubNub: PubNubSpaceInterface {
       ) { result in
         completion(result.map { (
           spaces: $0.payload.data,
-          next: Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
+          next: PubNub.Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
         ) })
       }
   }

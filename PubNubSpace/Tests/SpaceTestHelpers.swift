@@ -116,11 +116,9 @@ class MockRouter: HTTPRouter {
 
 extension EndpointResponse where Value == Data {
   init(data: Data?) {
-    guard let url = URL(string: "example.com") else { return nil }
-
     self.init(
       router: MockRouter(),
-      request: .init(url: url),
+      request: .init(url: URL(string: "example.com")!),
       response: .init(),
       payload: data ?? Data()
     )

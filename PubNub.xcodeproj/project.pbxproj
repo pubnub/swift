@@ -624,7 +624,7 @@
 		35580687230F4B75005CDD92 /* InstanceIdOperatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstanceIdOperatorTests.swift; sourceTree = "<group>"; };
 		355806992311F968005CDD92 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
 		3558069B231303D9005CDD92 /* AutomaticRetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticRetryTests.swift; sourceTree = "<group>"; };
-		3558073723145749005CDD92 /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3558073723145749005CDD92 /* PubNubIntTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubIntTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3559977A23073D53000BCFD1 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
 		3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_error_invalid_arguments.json; sourceTree = "<group>"; };
 		3559978023078F85000BCFD1 /* forbidden_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = forbidden_Message.json; sourceTree = "<group>"; };
@@ -1991,7 +1991,7 @@
 			children = (
 				"PubNub::PubNubTests::Product" /* PubNubTests.xctest */,
 				"PubNub::PubNub::Product" /* PubNub.framework */,
-				3558073723145749005CDD92 /* PubNubTests.xctest */,
+				3558073723145749005CDD92 /* PubNubIntTests.xctest */,
 				7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */,
 				79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */,
 				358B890B284D206B00DB0F3D /* PubNubUser.framework */,
@@ -2084,7 +2084,7 @@
 			);
 			name = PubNubIntegration;
 			productName = PubNubTests;
-			productReference = 3558073723145749005CDD92 /* PubNubTests.xctest */;
+			productReference = 3558073723145749005CDD92 /* PubNubIntTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		358B890A284D206B00DB0F3D /* PubNubUser */ = {
@@ -3100,7 +3100,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				TARGET_NAME = PubNubTests;
+				TARGET_NAME = PubNubIntTests;
 			};
 			name = Debug;
 		};
@@ -3127,7 +3127,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited)";
-				TARGET_NAME = PubNubTests;
+				TARGET_NAME = PubNubIntTests;
 			};
 			name = Release;
 		};

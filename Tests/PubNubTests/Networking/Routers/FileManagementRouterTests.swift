@@ -29,7 +29,7 @@
 import XCTest
 
 final class FileManagementRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", userId: UUID().uuidString)
 
   let testChannel = "TestChannel"
   let testFilename = "TestFile.txt"

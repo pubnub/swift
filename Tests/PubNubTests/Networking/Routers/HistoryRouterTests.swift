@@ -33,7 +33,7 @@ final class HistoryRouterTests: XCTestCase {
   var config = PubNubConfiguration(
     publishKey: "FakeTestString",
     subscribeKey: "FakeTestString",
-    uuid: UUID().uuidString,
+    userId: UUID().uuidString,
     authKey: "auth-key"
   )
 

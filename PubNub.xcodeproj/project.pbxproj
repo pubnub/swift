@@ -317,6 +317,8 @@
 		35D973522856C5EF001A44DC /* UserTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D973502856C5E5001A44DC /* UserTestHelpers.swift */; };
 		35D973542857BBFE001A44DC /* FlatJSONCodable+Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35D973532857BBFE001A44DC /* FlatJSONCodable+Test.swift */; };
 		35DA9AB1233447A000867989 /* objects_uuid_all_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35DA9AB02334479800867989 /* objects_uuid_all_success.json */; };
+		35DB0C4B2874768C001E1F76 /* FlatJSONCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */; };
+		35DB0C4D287476BF001E1F76 /* OptionalChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DB0C4C287476BF001E1F76 /* OptionalChange.swift */; };
 		35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3580A59922F1217E00B12E5E /* ErrorDescription.swift */; };
 		35E71C3A249027120032A991 /* getState_single_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35E71C39249027120032A991 /* getState_single_success.json */; };
 		35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35E71C3B2490678D0032A991 /* PubNubPresence.swift */; };
@@ -823,6 +825,8 @@
 		35DA9AB02334479800867989 /* objects_uuid_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = objects_uuid_all_success.json; path = Tests/PubNubTests/Mocking/Responses/Objects/objects_uuid_all_success.json; sourceTree = SOURCE_ROOT; };
 		35DA9AB2233447F200867989 /* objects_uuid_fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_uuid_fetch_success.json; sourceTree = "<group>"; };
 		35DA9AB42335491F00867989 /* ObjectsUUIDRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUUIDRouterTests.swift; sourceTree = "<group>"; };
+		35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatJSONCodable.swift; sourceTree = "<group>"; };
+		35DB0C4C287476BF001E1F76 /* OptionalChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalChange.swift; sourceTree = "<group>"; };
 		35E381F623149B9000A17549 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
 		35E381FC23149BA900A17549 /* AutomaticRetryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutomaticRetryTests.swift; sourceTree = "<group>"; };
 		35E46050234B8C44005D04AE /* PubNubError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubError.swift; sourceTree = "<group>"; };
@@ -1688,6 +1692,15 @@
 			path = Objects;
 			sourceTree = "<group>";
 		};
+		35DB0C49287475F9001E1F76 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */,
+				35DB0C4C287476BF001E1F76 /* OptionalChange.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
 		35EA73F622B1916800D97BF0 /* Deployment */ = {
 			isa = PBXGroup;
 			children = (
@@ -2028,6 +2041,7 @@
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
 				35B0ACE4252BE37C00537A18 /* APIs */,
+				35DB0C49287475F9001E1F76 /* Core */,
 				3580A59B22F128A300B12E5E /* Errors */,
 				35A66A8522F8DB2E00AC67A9 /* Subscription */,
 				35AC16312487177500A66030 /* Models */,
@@ -2894,6 +2908,7 @@
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
 				3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */,
 				3557CE0723886434004BBACC /* PubNubAPNSPayload.swift in Sources */,
+				35DB0C4D287476BF001E1F76 /* OptionalChange.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
 				7951954E26C955CE001E308C /* PAMToken.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
@@ -2916,6 +2931,7 @@
 				35A6C7B522FBDD9300E97CC5 /* Data+PubNub.swift in Sources */,
 				35A6C78F22FB4F0500E97CC5 /* ChannelGroupsRouter.swift in Sources */,
 				354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */,
+				35DB0C4B2874768C001E1F76 /* FlatJSONCodable.swift in Sources */,
 				35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */,
 				3556E370248023B2004FDC25 /* BoundedValue.swift in Sources */,
 				35270C0323AC124800501388 /* CBORDecoder.swift in Sources */,

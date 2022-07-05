@@ -248,8 +248,8 @@ public extension PubNub {
 
 extension PubNub: PubNubMembershipInterface {}
 
-extension PubNubMembershipInterface {
-  public func fetchMemberships(
+public extension PubNubMembershipInterface {
+  func fetchMemberships(
     userId: String? = nil,
     includeCustom: Bool = true,
     includeSpaceFields: Bool = false,
@@ -303,7 +303,7 @@ extension PubNubMembershipInterface {
       }
   }
 
-  public func fetchMemberships(
+  func fetchMemberships(
     spaceId: String,
     includeCustom: Bool = true,
     includeUserFields: Bool = false,
@@ -355,7 +355,7 @@ extension PubNubMembershipInterface {
       }
   }
 
-  public func addMemberships(
+  func addMemberships(
     users: [PubNubMembership.PartialUser],
     to spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -389,7 +389,7 @@ extension PubNubMembershipInterface {
       }
   }
 
-  public func addMemberships(
+  func addMemberships(
     spaces: [PubNubMembership.PartialSpace],
     to userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -425,7 +425,7 @@ extension PubNubMembershipInterface {
       }
   }
 
-  public func updateMemberships(
+  func updateMemberships(
     users: [PubNubMembership.PartialUser],
     on spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -439,7 +439,7 @@ extension PubNubMembershipInterface {
     )
   }
 
-  public func updateMemberships(
+  func updateMemberships(
     spaces: [PubNubMembership.PartialSpace],
     on userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -453,7 +453,7 @@ extension PubNubMembershipInterface {
     )
   }
 
-  public func removeMemberships(
+  func removeMemberships(
     userIds: [String],
     from spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -487,7 +487,7 @@ extension PubNubMembershipInterface {
       }
   }
 
-  public func removeMemberships(
+  func removeMemberships(
     spaceIds: [String],
     from userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),

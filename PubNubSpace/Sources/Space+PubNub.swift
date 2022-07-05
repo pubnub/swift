@@ -200,10 +200,11 @@ public extension PubNub {
 }
 
 // MARK: - Module Impl.
+
 extension PubNub: PubNubSpaceInterface {}
 
-extension PubNubSpaceInterface {
-  public func fetchSpaces(
+public extension PubNubSpaceInterface {
+  func fetchSpaces(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
     filter: String? = nil,
@@ -239,7 +240,7 @@ extension PubNubSpaceInterface {
       }
   }
 
-  public func fetchSpace(
+  func fetchSpace(
     spaceId: String,
     includeCustom: Bool = true,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -260,7 +261,7 @@ extension PubNubSpaceInterface {
       }
   }
 
-  public func createSpace(
+  func createSpace(
     spaceId: String,
     name: String? = nil,
     type: String? = nil,
@@ -296,7 +297,7 @@ extension PubNubSpaceInterface {
       }
   }
 
-  public func updateSpace(
+  func updateSpace(
     spaceId: String,
     name: String? = nil,
     type: String? = nil,
@@ -320,7 +321,7 @@ extension PubNubSpaceInterface {
     )
   }
 
-  public func removeSpace(
+  func removeSpace(
     spaceId: String,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?

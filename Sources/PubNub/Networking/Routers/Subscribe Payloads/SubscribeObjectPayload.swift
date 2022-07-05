@@ -32,7 +32,7 @@ struct SubscribeObjectMetadataPayload {
   let version: String
   let event: Action
   let type: MetadataType
-  let objectEvent: SubscriptionEvent
+  let subscribeEvent: SubscriptionEvent
 
   enum Action: String, Codable, Hashable {
     case set
@@ -50,13 +50,13 @@ struct SubscribeObjectMetadataPayload {
     version: String,
     event: Action,
     type: MetadataType,
-    objectEvent: SubscriptionEvent
+    subscribeEvent: SubscriptionEvent
   ) {
     self.source = source
     self.version = version
     self.event = event
     self.type = type
-    self.objectEvent = objectEvent
+    self.subscribeEvent = subscribeEvent
   }
 }
 
@@ -83,27 +83,27 @@ extension SubscribeObjectMetadataPayload: Codable {
 
     switch (type, event) {
     case (.uuid, .set):
-      objectEvent = .uuidMetadataSet(
+      subscribeEvent = .uuidMetadataSet(
         try container.decode(PubNubUUIDMetadataChangeset.self, forKey: .subscribeEvent)
       )
     case (.uuid, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
-      objectEvent = .uuidMetadataRemoved(metadataId: identifier)
+      subscribeEvent = .uuidMetadataRemoved(metadataId: identifier)
     case (.channel, .set):
-      objectEvent = .channelMetadataSet(
+      subscribeEvent = .channelMetadataSet(
         try container.decode(PubNubChannelMetadataChangeset.self, forKey: .subscribeEvent)
       )
     case (.channel, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
       let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
-      objectEvent = .channelMetadataRemoved(metadataId: identifier)
+      subscribeEvent = .channelMetadataRemoved(metadataId: identifier)
     case (.membership, .set):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
-      objectEvent = .membershipMetadataSet(membership)
+      subscribeEvent = .membershipMetadataSet(membership)
     case (.membership, .delete):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
-      objectEvent = .membershipMetadataRemoved(membership)
+      subscribeEvent = .membershipMetadataRemoved(membership)
     }
   }
 
@@ -115,7 +115,7 @@ extension SubscribeObjectMetadataPayload: Codable {
     try container.encode(event, forKey: .event)
     try container.encode(type, forKey: .type)
 
-    switch objectEvent {
+    switch subscribeEvent {
     case let .uuidMetadataSet(changeset):
       try container.encode(changeset, forKey: .subscribeEvent)
     case let .uuidMetadataRemoved(metadataId):

@@ -129,6 +129,8 @@ public struct PubNubConfiguration: Hashable {
     self.filterExpression = filterExpression
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, renamed: "init(publishKey:subscribeKey:userId:cipherKey:authKey:authToken:useSecureConnections:origin:useInstanceId:useRequestId:automaticRetry:urlSessionConfiguration:urlSessionConfiguration:durationUntilTimeout:heartbeatInterval:supressLeaveEvents:requestMessageCountThreshold:filterExpression:)")
   /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
   ///
   /// - Attention: It is recommended that you use this initializer only if you have a

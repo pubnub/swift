@@ -29,7 +29,7 @@
 import XCTest
 
 final class ObjectsChannelRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testChannel = PubNubChannelMetadataBase(name: "TestChannel")
   let invalidUser = PubNubChannelMetadataBase(name: "")
 }

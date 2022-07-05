@@ -50,6 +50,9 @@ public final class HTTPSession {
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
   var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
 
+  /// Default HTTPSession configuration for PubNub REST endpoints
+  static var pubnub = HTTPSession(configuration: .pubnub)
+
   init(
     session: URLSessionReplaceable,
     delegate: HTTPSessionDelegate,

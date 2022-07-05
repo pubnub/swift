@@ -208,10 +208,11 @@ public extension PubNub {
 }
 
 // MARK: - Module Impl.
+
 extension PubNub: PubNubUserInterface {}
 
-extension PubNubUserInterface {
-  public func fetchUsers(
+public extension PubNubUserInterface {
+  func fetchUsers(
     includeCustom: Bool = true,
     includeTotalCount: Bool = true,
     filter: String? = nil,
@@ -247,7 +248,7 @@ extension PubNubUserInterface {
       }
   }
 
-  public func fetchUser(
+  func fetchUser(
     userId: String? = nil,
     includeCustom: Bool = true,
     requestConfig: PubNub.RequestConfiguration = .init(),
@@ -271,7 +272,7 @@ extension PubNubUserInterface {
       }
   }
 
-  public func createUser(
+  func createUser(
     userId: String? = nil,
     name: String? = nil,
     type: String? = nil,
@@ -311,7 +312,7 @@ extension PubNubUserInterface {
       }
   }
 
-  public func updateUser(
+  func updateUser(
     userId: String? = nil,
     name: String? = nil,
     type: String? = nil,
@@ -339,7 +340,7 @@ extension PubNubUserInterface {
     )
   }
 
-  public func removeUser(
+  func removeUser(
     userId: String? = nil,
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?

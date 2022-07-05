@@ -233,7 +233,7 @@ public final class CoreListener: BaseSubscriptionListener {
         guard let objectAction = try? message.payload.decode(SubscribeObjectMetadataPayload.self) else {
           return .messageReceived(PubNubMessageBase(from: message))
         }
-        return objectAction.objectEvent
+        return objectAction.subscribeEvent
       case .messageAction:
         guard let messageAction = PubNubMessageActionBase(from: message),
               let actionEventString = message.payload[rawValue: "event"] as? String,

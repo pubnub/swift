@@ -30,7 +30,7 @@ import XCTest
 
 final class PushRouterTests: XCTestCase {
   var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
 
   let testChannels = ["TestChannel", "OtherChannel"]
 

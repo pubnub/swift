@@ -227,7 +227,7 @@ class MasterDetailTableViewController: UITableViewController {
     super.viewDidLoad()
 
     var config = PubNubConfiguration(
-      publishKey: "demo", subscribeKey: "demo", uuid: UUID().uuidString
+      publishKey: "demo", subscribeKey: "demo", userId: UUID().uuidString
     )
     // Uncomment the next line to encrypt messages/files
 //    config.cipherKey = Crypto(key: "MyCoolCipherKey")

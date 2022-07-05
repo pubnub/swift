@@ -1,7 +1,7 @@
 {
   ".pubnub.yml": [
     { "pattern": "^version: \"(.+)\"$", "cleared": true },
-    { "pattern": "\/refs\/tags\/((\\d+\\.?){2,}(-[a-zA-Z]+(.\\d+)?)?)\\.zip", "cleared": false }
+    { "pattern": "\/refs\/tags\/((\\d+\\.?){2,}(-[a-zA-Z]+(.\\d+)?)?)\\.zip", "cleared": true }
   ],
   "PubNubSwift.podspec": [
     { "pattern": "s.version.+'(.+)'", "cleared": true }
@@ -10,6 +10,6 @@
     { "pattern": "MARKETING_VERSION = ([0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?);", "cleared": true }
   ],
   "Sources/PubNub/Helpers/Constants.swift": [
-    { "pattern": "^\\s{2,}\"((\\d+\\.?){2,})\"$", "cleared": true }
+    { "pattern": "pubnubSwiftSDKVersion\\:.+\"((\\d+\\.?){2,})\"$", "cleared": true }
   ]
 }

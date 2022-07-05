@@ -29,7 +29,7 @@
 import XCTest
 
 class TimeRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
 
   func testTime_Endpoint() {
     let router = TimeRouter(.time, configuration: config)

@@ -140,6 +140,35 @@ public protocol SessionReplaceable {
   /// After invalidation, session objects cannot be reused.
   /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
+
+  func route<Decoder>(
+    _ router: HTTPRouter,
+    responseDecoder: Decoder,
+    responseQueue: DispatchQueue,
+    completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
+  ) where Decoder: ResponseDecoder
+}
+
+public extension SessionReplaceable {
+  func route<Decoder>(
+    _ router: HTTPRouter,
+    responseDecoder: Decoder,
+    responseQueue: DispatchQueue = .main,
+    completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
+  ) where Decoder: ResponseDecoder {
+    request(with: router, requestOperator: nil)
+      .validate()
+      .response(
+        on: responseQueue,
+        decoder: responseDecoder,
+        completion: completion
+      )
+  }
+
+  func invalidateAndCancel() { /* no-op */ }
+  func usingDefault(requestOperator _: RequestOperator?) -> Self {
+    return self
+  }
 }
 
 extension HTTPSession: SessionReplaceable {}
@@ -183,6 +212,36 @@ public protocol RequestReplaceable: AnyObject {
     decoder: D,
     completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   )
+}
+
+public extension RequestReplaceable {
+  func didCreate(_: URLRequest) { /* no-op */ }
+  func didFailToCreateURLRequest(with _: Error) { /* no-op */ }
+  func didCreate(_: URLSessionTask) { /* no-op */ }
+
+  func didMutate(_: URLRequest, to _: URLRequest) { /* no-op */ }
+  func didFailToMutate(_: URLRequest, with _: Error) { /* no-op */ }
+
+  func didReceive(data _: Data) { /* no-op */ }
+  func didComplete(_: URLSessionTask) { /* no-op */ }
+  func didComplete(_: URLSessionTask, with _: Error) { /* no-op */ }
+  func prepareForRetry() { /* no-op */ }
+
+  func cancel(_: Error) -> Self {
+    return self
+  }
+
+  func validate() -> Self {
+    return self
+  }
+
+  func response<D: ResponseDecoder>(
+    on _: DispatchQueue,
+    decoder _: D,
+    completion _: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
+  ) {
+    /* no-op */
+  }
 }
 
 extension Request: RequestReplaceable {}

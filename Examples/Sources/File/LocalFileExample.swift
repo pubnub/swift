@@ -64,7 +64,7 @@ struct LocalFileExample: PubNubLocalFile, Hashable {
     let filenameSplit = url.lastPathComponent.split(separator: ":")
 
     guard let fileIdSubstring = filenameSplit.first,
-      let filenameSubstring = filenameSplit.last else {
+          let filenameSubstring = filenameSplit.last else {
       throw FileError.fileNameError
     }
 

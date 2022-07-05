@@ -25,24 +25,23 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
 
-
 public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
-  public override func setup() {
-    self.startCucumberHookEventsListening()
-    
+  override public func setup() {
+    startCucumberHookEventsListening()
+
     When("^I fetch message history for (.*) channel(s)?$") { args, _ in
       guard let type = args?.first else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
       }
-      
+
       let historyExpect = self.expectation(description: "Fetch history Response")
       let channels = type == "multiple" ? ["test1", "test2"] : ["test"]
-        
+
       self.client.fetchMessageHistory(for: channels) { result in
         switch result {
         case let .success((messagesByChannel, next)):
@@ -52,10 +51,10 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
         }
         historyExpect.fulfill()
       }
-      
+
       self.wait(for: [historyExpect], timeout: 60.0)
     }
-    
+
     Then("the response contains pagination info") { _, _ in
       guard let lastResult = self.lastResult() else {
         XCTAssert(false, "Fetch history didn't returned response")
@@ -68,10 +67,10 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
 
       XCTAssertNotNil(result.next)
     }
-    
+
     When("I fetch message history with message actions") { _, _ in
       let historyExpect = self.expectation(description: "Fetch history with action Response")
-      
+
       self.client.fetchMessageHistory(for: ["test"], includeActions: true) { result in
         switch result {
         case let .success((messagesByChannel, next)):
@@ -81,7 +80,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
         }
         historyExpect.fulfill()
       }
-      
+
       self.wait(for: [historyExpect], timeout: 60.0)
     }
   }

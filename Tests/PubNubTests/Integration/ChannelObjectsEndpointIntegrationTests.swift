@@ -185,7 +185,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         client.manageMembers(
           channel: testChannel.metadataId,
           setting: [membership],
-          removing: [membership],
+          removing: [],
           include: .init(uuidFields: true, uuidCustomFields: true),
           sort: [.init(property: .object(.id)), .init(property: .updated)]
         ) { result in

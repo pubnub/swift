@@ -41,7 +41,7 @@ public struct EndpointResponse<Value> {
   public let payload: Value
 }
 
-extension EndpointResponse where Value == Data {
+public extension EndpointResponse where Value == Data {
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, payload: Data) {
     self.router = router
     self.request = request

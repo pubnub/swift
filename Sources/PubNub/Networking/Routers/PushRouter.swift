@@ -125,7 +125,11 @@ struct PushRouter: HTTPRouter {
     let path: String
 
     guard let pushToken = endpoint.pushToken else {
-      return .failure(PubNubError(.missingRequiredParameter, router: self, additional: [validationErrorDetail!]))
+      var errorDetails = [String]()
+      if let validationDetail = validationErrorDetail {
+        errorDetails.append(validationDetail)
+      }
+      return .failure(PubNubError(.missingRequiredParameter, router: self, additional: errorDetails))
     }
 
     switch endpoint {
@@ -248,7 +252,7 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
       guard let anyArray = anyJSONPayload.arrayOptional,
-        anyArray.first as? Int != nil, anyArray.last as? String != nil
+            anyArray.first as? Int != nil, anyArray.last as? String != nil
       else {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }

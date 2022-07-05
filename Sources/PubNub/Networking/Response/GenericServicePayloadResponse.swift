@@ -27,8 +27,9 @@
 
 import Foundation
 
-struct GenericServiceResponseDecoder: ResponseDecoder {
-  typealias Payload = GenericServicePayloadResponse
+public struct GenericServiceResponseDecoder: ResponseDecoder {
+  public typealias Payload = GenericServicePayloadResponse
+  public init() {}
 }
 
 struct AnyJSONResponseDecoder: ResponseDecoder {
@@ -218,7 +219,7 @@ enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleBy
   }
 }
 
-struct GenericServicePayloadResponse: Codable, Hashable {
+public struct GenericServicePayloadResponse: Codable, Hashable {
   let message: EndpointResponseMessage
   let details: [ErrorDetail]
   let service: String
@@ -263,7 +264,7 @@ struct GenericServicePayloadResponse: Codable, Hashable {
     case payload
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     // Different 'error message' response structures
@@ -310,7 +311,7 @@ struct GenericServicePayloadResponse: Codable, Hashable {
               affectedChannelGroups: affectedChannelGroups)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(message.rawValue, forKey: .message)
     try container.encode(service, forKey: .service)

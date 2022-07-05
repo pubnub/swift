@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		35012EBE285007B400CF7E0A /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EBD285007B400CF7E0A /* PubNubMembership */; };
+		35012EC0285007B400CF7E0A /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EBF285007B400CF7E0A /* PubNubSpace */; };
+		35012EC2285007B400CF7E0A /* PubNubUser in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EC1285007B400CF7E0A /* PubNubUser */; };
 		3503519C23EE2C6E006DFDC3 /* PubNub in Frameworks */ = {isa = PBXBuildFile; productRef = 3503519B23EE2C6E006DFDC3 /* PubNub */; };
 		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4EB252D067800099EB7 /* FileAPIViewController.swift */; };
@@ -44,7 +47,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3503519D23EE2C88006DFDC3 /* swift */ = {isa = PBXFileReference; lastKnownFileType = folder; name = swift; path = ..; sourceTree = "<group>"; };
+		35012EC3285009C400CF7E0A /* swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = swift; path = ..; sourceTree = "<group>"; };
 		35304F9022FF64D4006A02CA /* iOS Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS Example.entitlements"; sourceTree = SOURCE_ROOT; };
 		357AD4EB252D067800099EB7 /* FileAPIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAPIViewController.swift; sourceTree = "<group>"; };
 		357AD4ED252D087800099EB7 /* FileAPI.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = FileAPI.storyboard; sourceTree = "<group>"; };
@@ -66,6 +69,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35012EBE285007B400CF7E0A /* PubNubMembership in Frameworks */,
+				35012EC2285007B400CF7E0A /* PubNubUser in Frameworks */,
+				35012EC0285007B400CF7E0A /* PubNubSpace in Frameworks */,
 				3503519C23EE2C6E006DFDC3 /* PubNub in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -87,7 +93,7 @@
 		359F778B22B7FEF600B6B46F = {
 			isa = PBXGroup;
 			children = (
-				3503519D23EE2C88006DFDC3 /* swift */,
+				35012EC3285009C400CF7E0A /* swift */,
 				35F0258A22BAC173007BD7D3 /* Sources */,
 				359F779622B7FEF600B6B46F /* iOS Example */,
 				359F779522B7FEF600B6B46F /* Products */,
@@ -163,6 +169,9 @@
 			name = "iOS Example";
 			packageProductDependencies = (
 				3503519B23EE2C6E006DFDC3 /* PubNub */,
+				35012EBD285007B400CF7E0A /* PubNubMembership */,
+				35012EBF285007B400CF7E0A /* PubNubSpace */,
+				35012EC1285007B400CF7E0A /* PubNubUser */,
 			);
 			productName = swiftSdkiOS;
 			productReference = 359F779422B7FEF600B6B46F /* iOS Example.app */;
@@ -451,13 +460,28 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pubnub/swift.git";
 			requirement = {
-				branch = master;
+				branch = "features/CLEN-351_VSP-modules";
 				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		35012EBD285007B400CF7E0A /* PubNubMembership */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PubNubMembership;
+		};
+		35012EBF285007B400CF7E0A /* PubNubSpace */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PubNubSpace;
+		};
+		35012EC1285007B400CF7E0A /* PubNubUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PubNubUser;
+		};
 		3503519B23EE2C6E006DFDC3 /* PubNub */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;

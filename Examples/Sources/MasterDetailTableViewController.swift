@@ -30,12 +30,18 @@ import Foundation
 import UIKit
 
 import PubNub
+import PubNubMembership
+import PubNubSpace
+import PubNubUser
 
 // swiftlint:disable:next type_body_length
 class MasterDetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
   var listener: SubscriptionListener?
+  var userListener: PubNubUserListener?
+  var spaceListener: PubNubSpaceListener?
+  var membershipListener: PubNubMembershipListener?
 
   let masterDetailCellID = "MasterDetailCell"
 
@@ -220,7 +226,9 @@ class MasterDetailTableViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    var config = PubNubConfiguration()
+    var config = PubNubConfiguration(
+      publishKey: "demo", subscribeKey: "demo", userId: UUID().uuidString
+    )
     // Uncomment the next line to encrypt messages/files
 //    config.cipherKey = Crypto(key: "MyCoolCipherKey")
     config.automaticRetry = AutomaticRetry(retryLimit: 500, policy: .linear(delay: 0.25))
@@ -228,8 +236,19 @@ class MasterDetailTableViewController: UITableViewController {
     pubnub = PubNub(configuration: config)
 
     let listener = SubscriptionListener(queue: .main)
+    let userEvents = PubNubUserListener(queue: .main)
+    let spaceEvents = PubNubSpaceListener(queue: .main)
+    let membershipEvents = PubNubMembershipListener(queue: .main)
+
     self.listener = listener
-    pubnub.subscription.add(listener)
+    userListener = userEvents
+    spaceListener = spaceEvents
+    membershipListener = membershipEvents
+
+    pubnub.add(listener)
+    pubnub.add(userEvents)
+    pubnub.add(spaceEvents)
+    pubnub.add(membershipEvents)
 
     self.listener?.didReceiveBatchSubscription = { events in
       for event in events {
@@ -283,6 +302,7 @@ class MasterDetailTableViewController: UITableViewController {
               print("\(uuid) changed their presence state to \(state) at \(presenceChange.timetoken)")
             }
           }
+
         case let .uuidMetadataSet(uuidMetadataChange):
           print("Changes were made to \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated)")
           print("To apply the change, fetch a matching object and call uuidMetadataChange.apply(to: otherUUIDMetadata)")
@@ -297,6 +317,7 @@ class MasterDetailTableViewController: UITableViewController {
           print("A membership was set between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
         case let .membershipMetadataRemoved(membership):
           print("A membership was removed between \(membership.uuidMetadataId) and \(membership.channelMetadataId)")
+
         case let .messageActionAdded(messageAction):
           print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
           print("This action was created at \(messageAction.actionTimetoken)")
@@ -319,6 +340,42 @@ class MasterDetailTableViewController: UITableViewController {
             }
           }
           print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+        }
+      }
+    }
+
+    userListener?.didReceiveUserEvents = { events in
+      for event in events {
+        switch event {
+        case let .userUpdated(patch):
+          print("Changes were made to \(patch.id) at \(patch.updated)")
+          print("To apply the change, fetch a matching User and call user.apply(patch)")
+        case let .userRemoved(user):
+          print("The User for the userId \(user.id) has been removed")
+        }
+      }
+    }
+
+    spaceListener?.didReceiveSpaceEvents = { events in
+      for event in events {
+        switch event {
+        case let .spaceUpdated(patch):
+          print("Changes were made to \(patch.id) at \(patch.updated)")
+          print("To apply the change, fetch a matching Space and call space.apply(patch)")
+        case let .spaceRemoved(space):
+          print("The User for the spaceId \(space.id) has been removed")
+        }
+      }
+    }
+
+    membershipListener?.didReceiveMembershipEvents = { events in
+      for event in events {
+        switch event {
+        case let .membershipUpdated(patch):
+          print("Membership updated between User.id \(patch.userId) and Space.id \(patch.spaceId)) at \(patch.updated)")
+          print("To apply the change, fetch a matching Membership and call membership.apply(patch)")
+        case let .membershipRemoved(membership):
+          print("A membership was removed between userId \(membership.user.id) and spaceId \(membership.space.id)")
         }
       }
     }

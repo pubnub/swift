@@ -54,6 +54,16 @@
                referenceType = "1">
             </LocationScenarioReference>
          </TestableReference>
+         <TestableReference
+            skipped = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "3558069D23145749005CDD92"
+               BuildableName = "PubNubIntTests.xctest"
+               BlueprintName = "PubNubIntegration"
+               ReferencedContainer = "container:PubNub.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

@@ -39,8 +39,8 @@ extension CaseAccessible {
 
   func associatedValue<AssociatedValue>(matching casePath: (AssociatedValue) -> Self) -> AssociatedValue? {
     guard let decomposed: (casePath: String, value: AssociatedValue) = decompose(),
-      let mirrorCasePath = Mirror(reflecting: casePath(decomposed.value)).children.first?.label,
-      decomposed.casePath == mirrorCasePath
+          let mirrorCasePath = Mirror(reflecting: casePath(decomposed.value)).children.first?.label,
+          decomposed.casePath == mirrorCasePath
     else { return nil }
 
     return decomposed.1

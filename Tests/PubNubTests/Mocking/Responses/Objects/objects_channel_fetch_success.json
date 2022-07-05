@@ -5,6 +5,8 @@
     "data": {
       "id": "TestChannel",
       "name": "Test Channel",
+      "type": "Test Type",
+      "status": "Test Status",
       "description": "Test Description",
       "custom": {
         "string": "String",

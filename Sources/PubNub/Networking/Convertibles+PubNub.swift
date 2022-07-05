@@ -40,7 +40,7 @@ public enum URLConvertibleError: Error {
 
 extension URLComponents: URLConvertible {
   public var asURL: Result<URL, Error> {
-    guard let url = self.url else {
+    guard let url = url else {
       return .failure(URLConvertibleError.urlComponents)
     }
     return .success(url)

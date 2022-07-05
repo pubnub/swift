@@ -46,19 +46,19 @@ public protocol PubNubPresence {
   init(from other: PubNubPresence) throws
 }
 
-extension PubNubPresence {
+public extension PubNubPresence {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubPresence>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubPresence>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubPresence>() throws -> T {
+  func transcode<T: PubNubPresence>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -68,14 +68,14 @@ extension PubNubPresence {
   }
 }
 
-extension Dictionary where Key == String, Value == PubNubPresence {
+public extension Dictionary where Key == String, Value == PubNubPresence {
   /// The total channels (keys) that this object contains
-  public var totalChannels: Int {
+  var totalChannels: Int {
     return keys.count
   }
 
   /// The total occupancy of all the channels in this `Dictioanry`
-  public var totalOccupancy: Int {
+  var totalOccupancy: Int {
     return values.reduce(0) { $0 + $1.occupancy }
   }
 }
@@ -170,22 +170,22 @@ public enum PubNubPresenceChangeAction: CaseAccessible, Hashable {
   }
 }
 
-extension Array where Element == PubNubPresenceChangeAction {
+public extension Array where Element == PubNubPresenceChangeAction {
   /// Whether the array contains a `PubNubPresenceChangeAction.join` that contains the UUID
   /// - Parameter contains: The unique identifier to search for
-  public func join(contains uuid: String) -> Bool {
+  func join(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.join]?.contains(uuid) ?? false })
   }
 
   /// Whether the array contains a `PubNubPresenceChangeAction.leave` that contains the UUID
   /// - Parameter contains: The unique identifier to search for
-  public func leave(contains uuid: String) -> Bool {
+  func leave(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.leave]?.contains(uuid) ?? false })
   }
 
   /// Whether the array contains a `PubNubPresenceChangeAction.timeout` that contains the UUID
   /// - Parameter contains: The unique identifier to search for
-  public func timeout(contains uuid: String) -> Bool {
+  func timeout(contains uuid: String) -> Bool {
     return contains(where: { $0[case: PubNubPresenceChangeAction.timeout]?.contains(uuid) ?? false })
   }
 }
@@ -213,19 +213,19 @@ public protocol PubNubPresenceChange {
   init(from other: PubNubPresenceChange) throws
 }
 
-extension PubNubPresenceChange {
+public extension PubNubPresenceChange {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubPresenceChange>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubPresenceChange>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubPresenceChange>() throws -> T {
+  func transcode<T: PubNubPresenceChange>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom

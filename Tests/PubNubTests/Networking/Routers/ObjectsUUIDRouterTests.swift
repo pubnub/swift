@@ -29,7 +29,7 @@
 import XCTest
 
 final class ObjectsUUIDRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testUser = PubNubUUIDMetadataBase(name: "TestUser")
   let invalidUser = PubNubUUIDMetadataBase(name: "")
 }
@@ -64,8 +64,8 @@ extension ObjectsUUIDRouterTests {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_all_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -222,13 +222,14 @@ extension ObjectsUUIDRouterTests {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
 
     let testObject = PubNubUUIDMetadataBase(
       metadataId: "TestUser", name: "Test User",
+      type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
@@ -369,13 +370,13 @@ extension ObjectsUUIDRouterTests {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
 
     let testObject = PubNubUUIDMetadataBase(
-      metadataId: "TestUser", name: "Test User",
+      metadataId: "TestUser", name: "Test User", type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )

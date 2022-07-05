@@ -271,7 +271,7 @@ final class Request {
     // Process the Validators for any additional errors
     atomicValidators.lockedRead { $0.forEach { $0() } }
 
-    if let error = self.error {
+    if let error = error {
       sessionStream?.emitRequest(self, didComplete: task, with: error)
       retryOrFinish(with: error)
     } else {
@@ -313,8 +313,8 @@ final class Request {
     }
   }
 
-  func finish(error: Error? = nil) {
-    if let error = self.error, !error.isCancellationError {
+  func finish(error _: Error? = nil) {
+    if let error = error, !error.isCancellationError {
       let responseMessage: String
       if let response = urlResponse {
         responseMessage = "for response \(response.description)"
@@ -336,8 +336,8 @@ final class Request {
       }
 
       if let request = state.urlRequests.last,
-        let response = state.tasks.last?.httpResponse,
-        let data = state.responesData {
+         let response = state.tasks.last?.httpResponse,
+         let data = state.responesData {
         return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
       }
 
@@ -410,10 +410,10 @@ extension Request {
   func validate(_ closure: @escaping ValidationClosure) -> Self {
     let validator: () -> Void = { [weak self] in
       guard self?.error == nil,
-        let request = self?.urlRequest,
-        let response = self?.urlResponse,
-        let router = self?.router,
-        let data = self?.data
+            let request = self?.urlRequest,
+            let response = self?.urlResponse,
+            let router = self?.router,
+            let data = self?.data
       else {
         return
       }

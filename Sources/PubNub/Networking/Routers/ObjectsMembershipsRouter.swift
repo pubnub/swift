@@ -27,30 +27,48 @@
 
 import Foundation
 
-struct ObjectsMembershipsRouter: HTTPRouter {
-  enum Endpoint: CustomStringConvertible {
+public extension Collection where Element == ObjectsMembershipsRouter.Include {
+  static func include(custom: Bool, space: Bool, spaceCustom: Bool) -> [ObjectsMembershipsRouter.Include] {
+    var include = [ObjectsMembershipsRouter.Include]()
+    if custom { include.append(.custom) }
+    if space { include.append(.channel) }
+    if spaceCustom { include.append(.channelCustom) }
+    return include
+  }
+
+  static func include(custom: Bool, user: Bool, userCustom: Bool) -> [ObjectsMembershipsRouter.Include] {
+    var include = [ObjectsMembershipsRouter.Include]()
+    if custom { include.append(.custom) }
+    if user { include.append(.uuid) }
+    if userCustom { include.append(.uuidCustom) }
+    return include
+  }
+}
+
+public struct ObjectsMembershipsRouter: HTTPRouter {
+  public enum Endpoint: CustomStringConvertible {
     case fetchMemberships(
-      uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      uuidMetadataId: String, customFields: [Include]?, totalCount: Bool,
       filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case fetchMembers(
-      channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      channelMetadataId: String, customFields: [Include]?, totalCount: Bool,
       filter: String?, sort: [String],
       limit: Int?, start: String?, end: String?
     )
     case setMemberships(
-      uuidMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      uuidMetadataId: String, customFields: [Include]?, totalCount: Bool,
       changes: SetMembershipRequestBody,
       filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
     case setMembers(
-      channelMetadataId: String, customFields: [MembershipInclude]?, totalCount: Bool,
+      channelMetadataId: String, customFields: [Include]?, totalCount: Bool,
       changes: SetMembersRequestBody,
       filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
 
-    var description: String {
+    public var description: String {
       switch self {
       case .fetchMemberships:
         return "Fetch the Membership Metadata for a UUID"
@@ -64,26 +82,45 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  enum MembershipInclude: String, Codable {
+  public enum Include: String, Codable {
     case custom
     case channel
     case channelCustom = "channel.custom"
     case uuid
     case uuidCustom = "uuid.custom"
+    case status
+
+    static func merge(_ other: [Include]?) -> [String] {
+      var includes = [Include.status]
+
+      includes.append(contentsOf: other ?? [])
+
+      return includes.map { $0.rawValue }
+    }
   }
 
-  struct SetMembershipRequestBody: JSONCodable {
+  public struct SetMembershipRequestBody: JSONCodable, Equatable {
     let set: [MembershipChange]
     let delete: [MembershipChange]
+
+    public init(
+      set: [MembershipChange],
+      delete: [MembershipChange]
+    ) {
+      self.set = set
+      self.delete = delete
+    }
   }
 
-  struct MembershipChange: JSONCodable {
+  public struct MembershipChange: JSONCodable, Equatable {
     let metadataId: String
+    let status: String?
     let custom: [String: JSONCodableScalar]?
 
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case object = "channel"
+      case status
       case custom
     }
 
@@ -92,45 +129,70 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    init(metadataId: String, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
+      self.status = status
       self.custom = custom
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      status = try container.decodeIfPresent(String.self, forKey: .status)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
+      try container.encodeIfPresent(status, forKey: .status)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     }
+
+    public static func == (
+      lhs: ObjectsMembershipsRouter.MembershipChange,
+      rhs: ObjectsMembershipsRouter.MembershipChange
+    ) -> Bool {
+      return lhs.metadataId == rhs.metadataId &&
+        lhs.status == rhs.status &&
+        lhs.custom?
+        .mapValues { $0.codableValue } == rhs.custom?
+        .mapValues { $0.codableValue }
+    }
   }
 
-  struct SetMembersRequestBody: JSONCodable {
+  public struct SetMembersRequestBody: JSONCodable, Equatable {
     let set: [MemberChange]
     let delete: [MemberChange]
+
+    public init(
+      set: [MemberChange],
+      delete: [MemberChange]
+    ) {
+      self.set = set
+      self.delete = delete
+    }
   }
 
-  struct MemberChange: JSONCodable {
+  public struct MemberChange: JSONCodable, Equatable {
     let metadataId: String
+    let status: String?
     let custom: [String: JSONCodableScalar]?
 
-    init(metadataId: String, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
+      self.status = status
       self.custom = custom
     }
 
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case object = "uuid"
+      case status
       case custom
     }
 
@@ -139,42 +201,55 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      status = try container.decodeIfPresent(String.self, forKey: .status)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
+      try container.encodeIfPresent(status, forKey: .status)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
     }
+
+    public static func == (
+      lhs: ObjectsMembershipsRouter.MemberChange,
+      rhs: ObjectsMembershipsRouter.MemberChange
+    ) -> Bool {
+      return lhs.metadataId == rhs.metadataId &&
+        lhs.status == rhs.status &&
+        lhs.custom?
+        .mapValues { $0.codableValue } == rhs.custom?
+        .mapValues { $0.codableValue }
+    }
   }
 
   // Init
-  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  public init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
     self.endpoint = endpoint
     self.configuration = configuration
   }
 
-  var endpoint: Endpoint
-  var configuration: RouterConfiguration
+  public var endpoint: Endpoint
+  public var configuration: RouterConfiguration
 
   // Protocol Properties
-  var service: PubNubService {
+  public var service: PubNubService {
     return .objects
   }
 
-  var category: String {
+  public var category: String {
     return endpoint.description
   }
 
-  var path: Result<String, Error> {
+  public var path: Result<String, Error> {
     let path: String
 
     switch endpoint {
@@ -190,7 +265,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     return .success(path)
   }
 
-  var queryItems: Result<[URLQueryItem], Error> {
+  public var queryItems: Result<[URLQueryItem], Error> {
     var query = defaultQueryItems
 
     switch endpoint {
@@ -199,7 +274,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -208,7 +283,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields?.map { $0.rawValue }.csvString)
+      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -217,7 +292,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     return .success(query)
   }
 
-  var method: HTTPMethod {
+  public var method: HTTPMethod {
     switch endpoint {
     case .fetchMemberships, .fetchMembers:
       return .get
@@ -226,7 +301,7 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  var body: Result<Data?, Error> {
+  public var body: Result<Data?, Error> {
     switch endpoint {
     case let .setMemberships(_, _, _, changes, _, _, _, _, _):
       return changes.encodableJSONData.map { .some($0) }
@@ -237,12 +312,12 @@ struct ObjectsMembershipsRouter: HTTPRouter {
     }
   }
 
-  var pamVersion: PAMVersionRequirement {
+  public var pamVersion: PAMVersionRequirement {
     return .version3
   }
 
   // Validated
-  var validationErrorDetail: String? {
+  public var validationErrorDetail: String? {
     switch endpoint {
     case let .fetchMemberships(uuidMetadataId, _, _, _, _, _, _, _):
       return isInvalidForReason((uuidMetadataId.isEmpty, ErrorDescription.emptyUUIDMetadataId))
@@ -256,18 +331,54 @@ struct ObjectsMembershipsRouter: HTTPRouter {
   }
 }
 
-// MARK: - Response Decoder
-
-struct PubNubMembershipsResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubMembershipsResponsePayload
+extension ObjectsMembershipsRouter.Endpoint: Equatable {
+  public static func == (
+    lhs: ObjectsMembershipsRouter.Endpoint, rhs: ObjectsMembershipsRouter.Endpoint
+  ) -> Bool {
+    switch (lhs, rhs) {
+    case let (
+      .fetchMemberships(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8),
+      .fetchMemberships(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8
+    case let (
+      .fetchMembers(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8),
+      .fetchMembers(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8
+    case let (
+      .setMemberships(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8, lhs9),
+      .setMemberships(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8, rhs9)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8 && lhs9 == rhs9
+    case let (
+      .setMembers(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7, lhs8, lhs9),
+      .setMembers(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7, rhs8, rhs9)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 &&
+        lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7 && lhs8 == rhs8 && lhs9 == rhs9
+    default:
+      return false
+    }
+  }
 }
 
-struct PubNubMembershipsResponsePayload: Codable {
+// MARK: - Response Decoder
+
+public struct PubNubMembershipsResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubMembershipsResponsePayload
+  public init() {}
+}
+
+public struct PubNubMembershipsResponsePayload: Codable {
   let status: Int
-  let data: [ObjectMetadataPartial]
-  let totalCount: Int?
-  let next: String?
-  let prev: String?
+  public let data: [ObjectMetadataPartial]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
 
   init(
     status: Int,
@@ -291,7 +402,7 @@ struct PubNubMembershipsResponsePayload: Codable {
     case prev
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     status = try container.decode(Int.self, forKey: .status)
@@ -301,7 +412,7 @@ struct PubNubMembershipsResponsePayload: Codable {
     prev = try container.decodeIfPresent(String.self, forKey: .prev)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(data, forKey: .data)
@@ -312,9 +423,10 @@ struct PubNubMembershipsResponsePayload: Codable {
   }
 }
 
-struct ObjectMetadataPartial: Codable {
+public struct ObjectMetadataPartial: Codable {
   let channel: PartialMetadata<PubNubChannelMetadataBase>?
   let uuid: PartialMetadata<PubNubUUIDMetadataBase>?
+  let status: String?
   let custom: [String: JSONCodableScalarType]?
   let updated: Date
   let eTag: String
@@ -327,6 +439,7 @@ struct ObjectMetadataPartial: Codable {
   enum CodingKeys: String, CodingKey {
     case channel
     case uuid
+    case status
     case custom
     case updated
     case eTag
@@ -339,6 +452,7 @@ struct ObjectMetadataPartial: Codable {
   init(
     channel: PartialMetadata<PubNubChannelMetadataBase>?,
     uuid: PartialMetadata<PubNubUUIDMetadataBase>?,
+    status: String?,
     updated: Date,
     eTag: String,
     custom: [String: JSONCodableScalarType]?
@@ -346,15 +460,18 @@ struct ObjectMetadataPartial: Codable {
     self.channel = channel
     self.uuid = uuid
     self.updated = updated
+    self.status = status
     self.eTag = eTag
     self.custom = custom
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
+
+    status = try container.decodeIfPresent(String.self, forKey: .status)
 
     if let channel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.channel = .init(metadataId: channel.metadataId, metadataObject: channel)
@@ -368,10 +485,11 @@ struct ObjectMetadataPartial: Codable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
+    try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(custom, forKey: .custom)
 
     if uuid?.metadataObject != nil || channel?.metadataObject != nil {
@@ -384,4 +502,5 @@ struct ObjectMetadataPartial: Codable {
       try uuidContainer.encodeIfPresent(uuid?.metadataId, forKey: .id)
     }
   }
+  // swiftlint:disable:next file_length
 }

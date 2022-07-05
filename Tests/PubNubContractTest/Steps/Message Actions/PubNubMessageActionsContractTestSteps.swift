@@ -25,18 +25,17 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
 
-
 public class PubNubMessageActionsContractTestSteps: PubNubContractTestCase {
-  public override func setup() {
-    self.startCucumberHookEventsListening()
-    
+  override public func setup() {
+    startCucumberHookEventsListening()
+
     When("I add a message action") { _, _ in
       let addMessageActionExpect = self.expectation(description: "Add message action Response")
-      
+
       self.client.addMessageAction(channel: "test", type: "test", value: "contract", messageTimetoken: 1234) { result in
         switch result {
         case let .success(action):
@@ -46,13 +45,13 @@ public class PubNubMessageActionsContractTestSteps: PubNubContractTestCase {
         }
         addMessageActionExpect.fulfill()
       }
-      
+
       self.wait(for: [addMessageActionExpect], timeout: 60.0)
     }
-    
+
     When("I fetch message actions") { _, _ in
       let fetchActionsExpect = self.expectation(description: "Fetch message actions Response")
-    
+
       self.client.fetchMessageActions(channel: "test", page: PubNubBoundedPageBase(limit: 10)) { result in
         switch result {
         case let .success((actions, next)):
@@ -62,14 +61,14 @@ public class PubNubMessageActionsContractTestSteps: PubNubContractTestCase {
         }
         fetchActionsExpect.fulfill()
       }
-      
+
       self.wait(for: [fetchActionsExpect], timeout: 60.0)
     }
-    
+
     When("I delete a message action") { _, _ in
       let deleteActionExpect = self.expectation(description: "Delete message action Response")
-    
-      self.client.removeMessageActions(channel: "test", message: 123456789, action: 123456799) { result in
+
+      self.client.removeMessageActions(channel: "test", message: 123_456_789, action: 123_456_799) { result in
         switch result {
         case let .success((channel, message, action)):
           self.handleResult(result: (channel, message, action))
@@ -78,7 +77,7 @@ public class PubNubMessageActionsContractTestSteps: PubNubContractTestCase {
         }
         deleteActionExpect.fulfill()
       }
-      
+
       self.wait(for: [deleteActionExpect], timeout: 60.0)
     }
   }

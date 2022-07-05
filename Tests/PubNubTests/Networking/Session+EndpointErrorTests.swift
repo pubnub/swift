@@ -39,7 +39,7 @@ final class SessionEndpointErrorTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", uuid: UUID().uuidString)
+    let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", userId: UUID().uuidString)
     pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {
@@ -47,8 +47,8 @@ final class SessionEndpointErrorTests: XCTestCase {
         XCTFail("Publish request should fail")
       case let .failure(error):
         guard let task = sessions.mockSession.tasks.first,
-          let request = task.originalRequest,
-          let response = task.httpResponse
+              let request = task.originalRequest,
+              let response = task.httpResponse
         else {
           return XCTFail("Could not get task")
         }

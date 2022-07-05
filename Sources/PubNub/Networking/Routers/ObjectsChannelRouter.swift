@@ -27,8 +27,8 @@
 
 import Foundation
 
-struct ObjectsChannelRouter: HTTPRouter {
-  enum Endpoint: CustomStringConvertible {
+public struct ObjectsChannelRouter: HTTPRouter {
+  public enum Endpoint: CustomStringConvertible {
     case all(
       customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?
     )
@@ -36,7 +36,7 @@ struct ObjectsChannelRouter: HTTPRouter {
     case set(metadata: PubNubChannelMetadata, customFields: Bool)
     case remove(metadataId: String)
 
-    var description: String {
+    public var description: String {
       switch self {
       case .all:
         return "Get All Metadata for Channels"
@@ -53,33 +53,47 @@ struct ObjectsChannelRouter: HTTPRouter {
   // Custom request body object for .set endpoint
   struct SetChannelMetadataRequestBody: JSONCodable {
     var name: String?
+    var type: String?
+    var status: String?
     var description: String?
     var custom: [String: JSONCodableScalarType]?
   }
 
-  struct Include {
+  enum Include {
     static let custom = "custom"
+    static let status = "status"
+    static let type = "type"
+
+    static func includes(custom: Bool) -> [String] {
+      var includes = [Include.status, Include.type]
+
+      if custom {
+        includes.append(Include.custom)
+      }
+
+      return includes
+    }
   }
 
   // Init
-  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  public init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
     self.endpoint = endpoint
     self.configuration = configuration
   }
 
-  var endpoint: Endpoint
-  var configuration: RouterConfiguration
+  public var endpoint: Endpoint
+  public var configuration: RouterConfiguration
 
   // Protocol Properties
-  var service: PubNubService {
+  public var service: PubNubService {
     return .objects
   }
 
-  var category: String {
+  public var category: String {
     return endpoint.description
   }
 
-  var path: Result<String, Error> {
+  public var path: Result<String, Error> {
     let path: String
 
     switch endpoint {
@@ -95,7 +109,7 @@ struct ObjectsChannelRouter: HTTPRouter {
     return .success(path)
   }
 
-  var queryItems: Result<[URLQueryItem], Error> {
+  public var queryItems: Result<[URLQueryItem], Error> {
     var query = defaultQueryItems
 
     switch endpoint {
@@ -103,14 +117,14 @@ struct ObjectsChannelRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
     case let .fetch(_, customFields):
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
     case let .set(_, customFields):
-      query.appendIfPresent(key: .include, value: customFields ? Include.custom : nil)
+      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
     case .remove:
       break
     }
@@ -118,7 +132,7 @@ struct ObjectsChannelRouter: HTTPRouter {
     return .success(query)
   }
 
-  var method: HTTPMethod {
+  public var method: HTTPMethod {
     switch endpoint {
     case .all:
       return .get
@@ -131,11 +145,11 @@ struct ObjectsChannelRouter: HTTPRouter {
     }
   }
 
-  var body: Result<Data?, Error> {
+  public var body: Result<Data?, Error> {
     switch endpoint {
     case let .set(channel, _):
       return SetChannelMetadataRequestBody(
-        name: channel.name, description: channel.channelDescription,
+        name: channel.name, type: channel.type, status: channel.status, description: channel.channelDescription,
         custom: channel.custom?.mapValues { $0.scalarValue }
       ).jsonDataResult.map { .some($0) }
     default:
@@ -143,12 +157,12 @@ struct ObjectsChannelRouter: HTTPRouter {
     }
   }
 
-  var pamVersion: PAMVersionRequirement {
+  public var pamVersion: PAMVersionRequirement {
     return .version3
   }
 
   // Validated
-  var validationErrorDetail: String? {
+  public var validationErrorDetail: String? {
     switch endpoint {
     case .all:
       return nil
@@ -163,22 +177,49 @@ struct ObjectsChannelRouter: HTTPRouter {
   }
 }
 
+extension ObjectsChannelRouter.Endpoint: Equatable {
+  public static func == (
+    lhs: ObjectsChannelRouter.Endpoint, rhs: ObjectsChannelRouter.Endpoint
+  ) -> Bool {
+    switch (lhs, rhs) {
+    case let (
+      .all(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7),
+      .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)
+    ):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 &&
+        lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
+    case let (.fetch(lhs1, lhs2), .fetch(rhs1, rhs2)):
+      return lhs1 == rhs1 && lhs2 == rhs2
+    case let (.set(lhs1, lhs2), .set(rhs1, rhs2)):
+      let lhsUser = try? PubNubChannelMetadataBase(from: lhs1)
+      let rhsUser = try? PubNubChannelMetadataBase(from: rhs1)
+      return lhsUser == rhsUser && lhs2 == rhs2
+    case let (.remove(lhsParam), .remove(rhsParam)):
+      return lhsParam == rhsParam
+    default:
+      return false
+    }
+  }
+}
+
 // MARK: - Response Decoder
 
-struct PubNubChannelsMetadataResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubChannelsMetadataResponsePayload
+public struct PubNubChannelsMetadataResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubChannelsMetadataResponsePayload
+  public init() {}
 }
 
-struct PubNubChannelMetadataResponseDecoder: ResponseDecoder {
-  typealias Payload = PubNubChannelMetadataResponsePayload
+public struct PubNubChannelMetadataResponseDecoder: ResponseDecoder {
+  public typealias Payload = PubNubChannelMetadataResponsePayload
+  public init() {}
 }
 
-struct PubNubChannelsMetadataResponsePayload: Codable {
+public struct PubNubChannelsMetadataResponsePayload: Codable {
   let status: Int
-  let data: [PubNubChannelMetadata]
-  let totalCount: Int?
-  let next: String?
-  let prev: String?
+  public let data: [PubNubChannelMetadata]
+  public let totalCount: Int?
+  public let next: String?
+  public let prev: String?
 
   enum CodingKeys: String, CodingKey {
     case status
@@ -202,7 +243,7 @@ struct PubNubChannelsMetadataResponsePayload: Codable {
     self.prev = prev
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     data = try container.decode([PubNubChannelMetadataBase].self, forKey: .data)
@@ -212,7 +253,7 @@ struct PubNubChannelsMetadataResponsePayload: Codable {
     prev = try container.decodeIfPresent(String.self, forKey: .prev)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(try data.map { try $0.transcode(into: PubNubChannelMetadataBase.self) }, forKey: .data)
@@ -223,9 +264,9 @@ struct PubNubChannelsMetadataResponsePayload: Codable {
   }
 }
 
-struct PubNubChannelMetadataResponsePayload: Codable {
+public struct PubNubChannelMetadataResponsePayload: Codable {
   let status: Int
-  let data: PubNubChannelMetadata
+  public let data: PubNubChannelMetadata
 
   enum CodingKeys: String, CodingKey {
     case status
@@ -237,14 +278,14 @@ struct PubNubChannelMetadataResponsePayload: Codable {
     self.data = data
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     data = try container.decode(PubNubChannelMetadataBase.self, forKey: .data)
     status = try container.decode(Int.self, forKey: .status)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
 
     try container.encode(try data.transcode(into: PubNubChannelMetadataBase.self), forKey: .data)

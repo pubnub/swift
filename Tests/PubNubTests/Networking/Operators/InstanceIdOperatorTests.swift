@@ -30,7 +30,7 @@ import XCTest
 
 class InstanceIdOperatorTests: XCTestCase {
   var pubnub: PubNub!
-  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
 
   func testUseInstanceID_Success() {
     var expectations = [XCTestExpectation]()

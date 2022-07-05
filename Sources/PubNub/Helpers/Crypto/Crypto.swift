@@ -156,7 +156,7 @@ public struct Crypto: Hashable {
   }
 
   /// An implementation of the SHA-256 hash algorithm
-  public struct SHA256 {
+  public enum SHA256 {
     /// Perform a hash operation on provided `Data`
     public static func hash(data: Data) -> Data? {
       var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))

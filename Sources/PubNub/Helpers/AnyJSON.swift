@@ -52,7 +52,7 @@ public struct AnyJSON {
     } else if stringify == Constant.jsonNull {
       value = AnyJSONType(rawValue: NSNull())
     } else if let jsonStringData = rawString.data(using: .utf8),
-      let decodedAny = try? Constant.jsonDecoder.decode(AnyJSON.self, from: jsonStringData) {
+              let decodedAny = try? Constant.jsonDecoder.decode(AnyJSON.self, from: jsonStringData) {
       self = decodedAny
     } else {
       value = AnyJSONType(rawValue: rawString)
@@ -256,24 +256,24 @@ extension AnyJSON {
 
 // MARK: - Underlying Data Casting
 
-extension AnyJSON {
+public extension AnyJSON {
   /// The underlying `Any` stored inside the `AnyJSON`
-  public var underlyingValue: Any {
+  var underlyingValue: Any {
     return value.rawValue
   }
 
   /// True if the underlying value represents a `nil` value
-  public var isNil: Bool {
+  var isNil: Bool {
     return value == .null
   }
 
   /// The underlying value as a `String` or nil if the value was not a `String`
-  public var stringOptional: String? {
+  var stringOptional: String? {
     return underlyingValue as? String
   }
 
   /// The underlying value as a `Data` or nil if the value was not a `Data`
-  public var dataOptional: Data? {
+  var dataOptional: Data? {
     if let data = underlyingValue as? Data {
       return data
     }
@@ -284,37 +284,37 @@ extension AnyJSON {
   }
 
   /// The underlying value as a `Bool` or nil if the value was not a `Bool`
-  public var boolOptional: Bool? {
+  var boolOptional: Bool? {
     return underlyingValue as? Bool
   }
 
   /// The underlying value as a `Int` or nil if the value was not a `Int`
-  public var intOptional: Int? {
+  var intOptional: Int? {
     return underlyingValue as? Int
   }
 
   /// The underlying value as a `Double` or nil if the value was not a `Double`
-  public var doubleOptional: Double? {
+  var doubleOptional: Double? {
     return underlyingValue as? Double
   }
 
   /// The underlying value as a `[Any]` or nil if the value was not a `[Any]`
-  public var arrayOptional: [Any]? {
+  var arrayOptional: [Any]? {
     return underlyingValue as? [Any]
   }
 
   /// The underlying value as an `[AnyJSON]` or an empty list if the value was not an `Array`
-  public var wrappedUnderlyingArray: [AnyJSON] {
+  var wrappedUnderlyingArray: [AnyJSON] {
     return value.rawArray.map { AnyJSON($0) }
   }
 
   /// The underlying value as a `[String: Any]` or nil if the value was not a `Dictionary`
-  public var dictionaryOptional: [String: Any]? {
+  var dictionaryOptional: [String: Any]? {
     return underlyingValue as? [String: Any]
   }
 
   /// The underlying value as a `[String: AnyJSON]` or an empty dictionary if the value was not a `Dictionary`
-  public var wrappedUnderlyingDictionary: [String: AnyJSON] {
+  var wrappedUnderlyingDictionary: [String: AnyJSON] {
     return value.rawDictionary.mapValues { AnyJSON($0) }
   }
 }

@@ -42,19 +42,19 @@ public protocol PubNubBoundedPage {
   init(from other: PubNubBoundedPage) throws
 }
 
-extension PubNubBoundedPage {
+public extension PubNubBoundedPage {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubBoundedPage>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubBoundedPage>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubBoundedPage>() throws -> T {
+  func transcode<T: PubNubBoundedPage>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -104,19 +104,19 @@ public protocol PubNubHashedPage {
   init(from other: PubNubHashedPage) throws
 }
 
-extension PubNubHashedPage {
+public extension PubNubHashedPage {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubHashedPage>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubHashedPage>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubHashedPage>() throws -> T {
+  func transcode<T: PubNubHashedPage>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -128,14 +128,14 @@ extension PubNubHashedPage {
   /// Convenience to align with the `next` parameter of certain APIs
   ///
   /// This is the same as calling `start`
-  public var next: String? {
+  var next: String? {
     return start
   }
 
   /// Convenience to align with the `prev` parameter of certain APIs
   ///
   /// This is the same as calling `end`
-  public var prev: String? {
+  var prev: String? {
     return end
   }
 }
@@ -170,32 +170,15 @@ public struct PubNubHashedPageBase: PubNubHashedPage, Codable, Hashable {
 // MARK: Other Internal Extensions
 
 extension PubNubChannelsMetadataResponsePayload: PubNubHashedPage {
-  var start: String? {
+  public var start: String? {
     return next
   }
 
-  var end: String? {
+  public var end: String? {
     return prev
   }
 
-  init(from other: PubNubHashedPage) throws {
-    self.init(
-      status: 200, data: [],
-      totalCount: other.totalCount, next: other.start, prev: other.end
-    )
-  }
-}
-
-extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
-  var start: String? {
-    return next
-  }
-
-  var end: String? {
-    return prev
-  }
-
-  init(from other: PubNubHashedPage) throws {
+  public init(from other: PubNubHashedPage) throws {
     self.init(
       status: 200, data: [],
       totalCount: other.totalCount, next: other.start, prev: other.end
@@ -204,15 +187,32 @@ extension PubNubUUIDsMetadataResponsePayload: PubNubHashedPage {
 }
 
 extension PubNubMembershipsResponsePayload: PubNubHashedPage {
-  var start: String? {
+  public var start: String? {
     return next
   }
 
-  var end: String? {
+  public var end: String? {
     return prev
   }
 
-  init(from other: PubNubHashedPage) throws {
+  public init(from other: PubNubHashedPage) throws {
+    self.init(
+      status: 200, data: [],
+      totalCount: other.totalCount, next: other.start, prev: other.end
+    )
+  }
+}
+
+extension FetchMultipleResponse: PubNubHashedPage {
+  public var start: String? {
+    return next
+  }
+
+  public var end: String? {
+    return prev
+  }
+
+  public init(from other: PubNubHashedPage) throws {
     self.init(
       status: 200, data: [],
       totalCount: other.totalCount, next: other.start, prev: other.end

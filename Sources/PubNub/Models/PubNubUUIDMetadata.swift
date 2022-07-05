@@ -35,6 +35,10 @@ public protocol PubNubUUIDMetadata {
   var metadataId: String { get }
   /// The name of the UUID
   var name: String? { get set }
+  /// The classification of UUIDMetadata
+  var type: String? { get set }
+  /// The current state of the UUIDMetadata
+  var status: String? { get set }
   /// The external identifier for the object
   var externalId: String? { get set }
   /// The profile URL for the object
@@ -52,19 +56,19 @@ public protocol PubNubUUIDMetadata {
   init(from other: PubNubUUIDMetadata) throws
 }
 
-extension PubNubUUIDMetadata {
+public extension PubNubUUIDMetadata {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubUUIDMetadata>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubUUIDMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubUUIDMetadata>() throws -> T {
+  func transcode<T: PubNubUUIDMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -80,6 +84,8 @@ extension PubNubUUIDMetadata {
 public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   public let metadataId: String
   public var name: String?
+  public var type: String?
+  public var status: String?
   public var externalId: String?
   public var profileURL: String?
   public var email: String?
@@ -95,6 +101,8 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   public init(
     metadataId: String = UUID().uuidString,
     name: String? = nil,
+    type: String? = nil,
+    status: String? = nil,
     externalId: String? = nil,
     profileURL: String? = nil,
     email: String? = nil,
@@ -104,6 +112,8 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   ) {
     self.metadataId = metadataId
     self.name = name
+    self.type = type
+    self.status = status
     self.externalId = externalId
     self.profileURL = profileURL
     self.email = email
@@ -116,6 +126,8 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
     self.init(
       metadataId: other.metadataId,
       name: other.name,
+      type: other.type,
+      status: other.status,
       externalId: other.externalId,
       profileURL: other.profileURL,
       email: other.email,
@@ -130,6 +142,8 @@ extension PubNubUUIDMetadataBase: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name
+    case type
+    case status
     case externalId
     case profileURL = "profileUrl"
     case email

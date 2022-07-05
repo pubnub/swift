@@ -27,6 +27,7 @@
               },
               "channel": { "id": "TestSpaceID" },
               "uuid": { "id": "TestUserID" },
+              "status": "Test Status",
               "updated": "2019-10-05T23:35:38.457823306Z",
               "eTag": "TestETag"
             }

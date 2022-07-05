@@ -29,7 +29,7 @@
 import XCTest
 
 final class ObjectsMembershipsRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testChannel = PubNubChannelMetadataBase(name: "TestChannel")
   let testUser = PubNubUUIDMetadataBase(name: "TestUser")
 }
@@ -66,18 +66,18 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
-      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
-    
+
     let firstChannel = PubNubChannelMetadataBase(
       metadataId: "FirstChannel", name: "First Channel",
       channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
     )
-    
+
     let lastChannel = PubNubChannelMetadataBase(metadataId: "LastChannel")
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "TestUser", channelMetadataId: firstChannel.metadataId,
@@ -168,13 +168,13 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
-      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
-    
+
     let firstChannel = PubNubChannelMetadataBase(
       metadataId: "FirstChannel", name: "First Channel",
       channelDescription: "Channel Description", updated: channeDate, eTag: "ChanneleTag"
@@ -212,9 +212,9 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
-      let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -283,9 +283,9 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Fetch Members Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
-      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -297,11 +297,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
@@ -388,13 +390,13 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Set Members Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
-      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
-    
+
     let firstUUID = PubNubUUIDMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
@@ -402,11 +404,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
@@ -433,9 +437,9 @@ extension ObjectsMembershipsRouterTests {
     let expectation = self.expectation(description: "Remove Members Endpoint Expectation")
 
     guard let sessions = try? MockURLSession.mockSession(for: ["objects_members_success"]),
-      let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
+          let uuidDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
+          let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
+          let lastDate = DateFormatter.iso8601.date(from: "2019-09-29T19:46:28.84402Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -447,11 +451,13 @@ extension ObjectsMembershipsRouterTests {
 
     let firstMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: firstUUID,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       uuidMetadataId: "LastUser", channelMetadataId: "TestChannel",
+      status: "Test Status",
       uuid: lastUUID,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"

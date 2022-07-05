@@ -27,10 +27,10 @@
 
 import Foundation
 
-extension DispatchQueue {
+public extension DispatchQueue {
   /// The label of the current `DispatchQueue`
   /// or `"Unknown Queue"` if no label was set
-  public static var currentLabel: String {
+  static var currentLabel: String {
     return String(validatingUTF8: __dispatch_queue_get_label(nil)) ?? "Unknown Queue"
   }
 }

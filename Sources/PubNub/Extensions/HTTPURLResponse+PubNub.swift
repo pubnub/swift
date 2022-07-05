@@ -27,13 +27,13 @@
 
 import Foundation
 
-extension HTTPURLResponse {
+public extension HTTPURLResponse {
   /// If the `HTTPURLResponse` can be considered successful based on its status code
-  public var isSuccessful: Bool {
+  var isSuccessful: Bool {
     return HTTPURLResponse.successfulStatusCodes.contains(statusCode)
   }
 
-  var statusCodeReason: PubNubError.Reason? {
+  internal var statusCodeReason: PubNubError.Reason? {
     if !isSuccessful {
       let reason = PubNubError.Reason(
         rawValue: statusCode
@@ -46,7 +46,5 @@ extension HTTPURLResponse {
   }
 
   /// Range of successful status codes from 200 to 299
-  public static let successfulStatusCodes: Range<Int> = {
-    200 ..< 300
-  }()
+  static let successfulStatusCodes: Range<Int> = 200 ..< 300
 }

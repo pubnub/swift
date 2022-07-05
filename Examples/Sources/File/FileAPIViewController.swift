@@ -64,7 +64,7 @@ class FileAPIViewController: UIViewController {
     let listener = SubscriptionListener()
     listener.didReceiveFileUpload = { [weak self] event in
       if let localFile = try? LocalFileExample(from: event.file),
-        let message = try? event.additionalMessage?.decode(FilePublishMessage.self) {
+         let message = try? event.additionalMessage?.decode(FilePublishMessage.self) {
         switch message.operation {
         case .upload:
           self?.fileDataSource.append(localFile)

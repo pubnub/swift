@@ -79,14 +79,10 @@ extension Data {
   }
 
   /// A utf-8 lookup array of all valid Hex characters
-  static let utf8HexDigits: [String.UTF8View.Element] = {
-    Array("0123456789ABCDEF".utf8)
-  }()
+  static let utf8HexDigits: [String.UTF8View.Element] = Array("0123456789ABCDEF".utf8)
 
   /// A utf-16 lookup array of all valid Hex characters
-  static let utf16HexDigits: [UTF16.CodeUnit] = {
-    Array("0123456789ABCDEF".utf16)
-  }()
+  static let utf16HexDigits: [UTF16.CodeUnit] = Array("0123456789ABCDEF".utf16)
 
   static let byteMap: [UInt8] = {
     [

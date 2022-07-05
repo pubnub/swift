@@ -75,8 +75,8 @@ public protocol EventStreamEmitter: AnyObject where ListenerType: Cancellable {
   func notify(listeners closure: (ListenerType) -> Void)
 }
 
-extension EventStreamEmitter {
-  public func remove(_ listener: ListenerType) {
+public extension EventStreamEmitter {
+  func remove(_ listener: ListenerType) {
     listener.cancel()
   }
 }

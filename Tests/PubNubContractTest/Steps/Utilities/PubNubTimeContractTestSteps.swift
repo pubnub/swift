@@ -25,18 +25,17 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
 
-
 public class PubNubTimeContractTestSteps: PubNubContractTestCase {
-  public override func setup() {
-    self.startCucumberHookEventsListening()
-    
+  override public func setup() {
+    startCucumberHookEventsListening()
+
     When("I request current time") { _, _ in
       let timeExpect = self.expectation(description: "Time Response")
-      
+
       self.client.time { result in
         switch result {
         case let .success(timetoken):
@@ -46,7 +45,7 @@ public class PubNubTimeContractTestSteps: PubNubContractTestCase {
         }
         timeExpect.fulfill()
       }
-      
+
       self.wait(for: [timeExpect], timeout: 60.0)
     }
   }

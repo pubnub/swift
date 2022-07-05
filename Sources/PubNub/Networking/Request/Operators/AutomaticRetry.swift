@@ -43,14 +43,10 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   /// Provides the action taken when a retry is to be performed
   public enum ReconnectionPolicy: Hashable {
     /// Exponential backoff with base/scale factor of 2, and a 300s max delay
-    public static let defaultExponential: ReconnectionPolicy = {
-      .exponential(base: 2, scale: 2, maxDelay: 300)
-    }()
+    public static let defaultExponential: ReconnectionPolicy = .exponential(base: 2, scale: 2, maxDelay: 300)
 
     /// Linear reconnect every 3 seconds
-    public static let defaultLinear: ReconnectionPolicy = {
-      .linear(delay: 3)
-    }()
+    public static let defaultLinear: ReconnectionPolicy = .linear(delay: 3)
 
     /// Attempt to reconnect immediately
     case immediately
@@ -160,7 +156,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     } else if let errorCode = error.urlError?.code, retryableURLErrorCodes.contains(errorCode) {
       return true
     } else if let errorCode = error.pubNubError?.underlying?.urlError?.code,
-      retryableURLErrorCodes.contains(errorCode) {
+              retryableURLErrorCodes.contains(errorCode) {
       return true
     }
 

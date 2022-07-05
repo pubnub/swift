@@ -10,6 +10,7 @@ excluded:
   - bundle
   - .bundle
   - fastlane
+  - Tests
 opt_in_rules:
   - force_unwrapping
   - overridden_super_call

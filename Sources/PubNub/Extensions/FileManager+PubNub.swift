@@ -27,11 +27,11 @@
 
 import Foundation
 
-extension FileManager {
+public extension FileManager {
   /// Finds the URL for the newest file in a directory
   /// - Parameter directory: The URL of the directory to search in
   /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
-  public func newestFile(_ directory: URL) -> URL? {
+  func newestFile(_ directory: URL) -> URL? {
     let logFiles = files(in: directory)
 
     if logFiles.isEmpty {
@@ -55,7 +55,7 @@ extension FileManager {
   /// Finds the URL for the oldest file in a directory
   /// - Parameter directory: The URL of the directory to search in
   /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
-  public func oldestFile(_ directory: URL) -> URL? {
+  func oldestFile(_ directory: URL) -> URL? {
     let logFiles = files(in: directory)
 
     if logFiles.isEmpty {
@@ -79,7 +79,7 @@ extension FileManager {
   /// A list of file URLs contained inside a directory
   /// - Parameter directory: The URL of the directory to search in
   /// - Returns: The URL of the newest file, or `nil` if the directory was empty or not found
-  public func files(in directory: URL) -> [URL] {
+  func files(in directory: URL) -> [URL] {
     if let fileURLs = try? contentsOfDirectory(
       at: directory,
       includingPropertiesForKeys: [.isRegularFileKey, .creationDateKey],
@@ -90,7 +90,7 @@ extension FileManager {
     return []
   }
 
-  func makeUniqueFilename(_ url: URL) -> URL {
+  internal func makeUniqueFilename(_ url: URL) -> URL {
     let origPath = url.deletingLastPathComponent().path
     let origExtension = url.pathExtension
     let origFilename = url.filenameWithoutExtension()
@@ -125,7 +125,7 @@ extension FileManager {
   ///   - inputStream: The `InputStream` that will be written
   /// - Returns: The `URL` containing the contents of the `InputStream`
   /// - Throws: The error that occurred while writing to the File
-  public func temporaryFile(
+  func temporaryFile(
     using filename: String = UUID().uuidString, writing inputStream: InputStream?, purgeExisting: Bool = false
   ) throws -> URL {
     // Background File

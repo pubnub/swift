@@ -35,6 +35,8 @@ public protocol PubNubMembershipMetadata {
   var uuidMetadataId: String { get }
   /// The unique identifier of the associated Channel
   var channelMetadataId: String { get }
+  /// The current state of the MembershipMetadata
+  var status: String? { get set }
   /// The associated UUID metadata
   var uuid: PubNubUUIDMetadata? { get set }
   /// The associated Channel metadata
@@ -50,19 +52,19 @@ public protocol PubNubMembershipMetadata {
   init(from other: PubNubMembershipMetadata) throws
 }
 
-extension PubNubMembershipMetadata {
+public extension PubNubMembershipMetadata {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubMembershipMetadata>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubMembershipMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubMembershipMetadata>() throws -> T {
+  func transcode<T: PubNubMembershipMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -78,6 +80,8 @@ extension PubNubMembershipMetadata {
 public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public let uuidMetadataId: String
   public let channelMetadataId: String
+
+  public var status: String?
 
   var concreteUUID: PubNubUUIDMetadataBase?
   public var uuid: PubNubUUIDMetadata? {
@@ -107,6 +111,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public init(
     uuidMetadataId: String,
     channelMetadataId: String,
+    status: String? = nil,
     uuid: PubNubUUIDMetadataBase? = nil,
     channel: PubNubChannelMetadataBase? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
@@ -118,6 +123,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     self.uuid = uuid
     self.channel = channel
     self.concreteCustom = concreteCustom?.mapValues { $0.scalarValue }
+    self.status = status
     self.updated = updated
     self.eTag = eTag
   }
@@ -126,6 +132,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     self.init(
       uuidMetadataId: other.uuidMetadataId,
       channelMetadataId: other.channelMetadataId,
+      status: other.status,
       uuid: try other.uuid?.transcode(),
       channel: try other.channel?.transcode(),
       custom: other.custom,
@@ -134,11 +141,12 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     )
   }
 
-  init?(from partial: ObjectMetadataPartial, other identifier: String) {
+  public init?(from partial: ObjectMetadataPartial, other identifier: String) {
     if let uuid = partial.uuid {
       self.init(
         uuidMetadataId: uuid.metadataId,
         channelMetadataId: identifier,
+        status: partial.status,
         uuid: uuid.metadataObject,
         custom: partial.custom,
         updated: partial.updated,
@@ -148,6 +156,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
       self.init(
         uuidMetadataId: identifier,
         channelMetadataId: channel.metadataId,
+        status: partial.status,
         channel: channel.metadataObject,
         custom: partial.custom,
         updated: partial.updated,
@@ -163,6 +172,7 @@ extension PubNubMembershipMetadataBase: Codable {
   enum CodingKeys: String, CodingKey {
     case uuid
     case channel
+    case status
     case custom
     case updated
     case eTag

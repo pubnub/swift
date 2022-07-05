@@ -158,8 +158,8 @@ open class FileLogWriter: LogWriter {
     // and if the file + message size is less than maxFileSize
 
     if let file = currentFile,
-      FileManager.default.fileExists(atPath: file.path),
-      file.sizeOf + contents.utf8.count < maxFileSize {
+       FileManager.default.fileExists(atPath: file.path),
+       file.sizeOf + contents.utf8.count < maxFileSize {
       update(file, message: contents)
       return file
     }
@@ -183,8 +183,8 @@ open class FileLogWriter: LogWriter {
 
   public func update(_ file: URL, message: String) {
     if FileManager.default.fileExists(atPath: file.path),
-      let stream = OutputStream(toFileAtPath: file.path, append: true),
-      let messageData = message.data(using: .utf8) {
+       let stream = OutputStream(toFileAtPath: file.path, append: true),
+       let messageData = message.data(using: .utf8) {
       let dataArray = [UInt8](messageData)
       stream.open()
       defer { stream.close() }

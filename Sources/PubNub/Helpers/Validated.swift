@@ -37,25 +37,25 @@ public protocol Validated {
   var validationErrorDetail: String? { get }
 }
 
-extension Validated {
+public extension Validated {
   /// If this is a valid instance of the object
-  public var isValid: Bool {
+  var isValid: Bool {
     return validationError == nil
   }
 
   /// A `Result` that is either the concrete value or an `Error`
-  public var validResult: Result<Self, Error> {
+  var validResult: Result<Self, Error> {
     if let error = validationError {
       return .failure(error)
     }
     return .success(self)
   }
 
-  public var validationErrorDetail: String? {
+  var validationErrorDetail: String? {
     return nil
   }
 
-  func isInvalidForReason(_ values: (Bool, String)...) -> String? {
+  internal func isInvalidForReason(_ values: (Bool, String)...) -> String? {
     for (invalidValue, message) in values where invalidValue {
       return message
     }

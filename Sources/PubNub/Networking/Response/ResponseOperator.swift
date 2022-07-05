@@ -59,7 +59,7 @@ public protocol ResponseDecoder where Payload: Codable {
   func decrypt(response: EndpointResponse<Payload>) -> Result<EndpointResponse<Payload>, Error>
 }
 
-extension ResponseDecoder {
+public extension ResponseDecoder {
   func decodeError(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     return decodeDefaultError(router: router, request: request, response: response, for: data)
   }

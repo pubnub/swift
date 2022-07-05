@@ -81,7 +81,9 @@ public class SubscriptionSession {
 
       // Update any listeners if value changed
       if oldState != newValue, didTransition {
-        notify { $0.emitDidReceiveBatch(subscription: [.connectionStatusChanged(newValue)]) }
+        notify {
+          $0.emit(subscribe: .connectionChanged(newValue))
+        }
       }
     }
   }
@@ -162,7 +164,7 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
+      notify { $0.emit(subscribe: .subscriptionChanged(subscribeChange)) }
     }
 
     if subscribeChange.didChange || !connectionStatus.isActive {
@@ -265,20 +267,24 @@ public class SubscriptionSession {
               }
             }
 
-            listener.emitDidReceiveBatch(subscription: [.subscriptionChanged(
-              .responseHeader(channels: pubnubChannels.values.map { $0 }, groups: pubnubGroups.values.map { $0 },
-                              previous: cursor, next: response.payload.cursor)
-            )])
+            listener.emit(subscribe:
+              .responseReceived(SubscribeResponseHeader(
+                channels: pubnubChannels.values.map { $0 },
+                groups: pubnubGroups.values.map { $0 },
+                previous: cursor,
+                next: response.payload.cursor
+              ))
+            )
           }
 
           // Attempt to detect missed messages due to queue overflow
           if response.payload.messages.count >= 100 {
             self?.notify {
-              $0.emitDidReceiveBatch(subscription: [
-                .subscribeError(PubNubError(.messageCountExceededMaximum,
-                                            router: router,
-                                            affected: [.subscribe(response.payload.cursor)]))
-              ])
+              $0.emit(subscribe: .errorReceived(PubNubError(
+                .messageCountExceededMaximum,
+                router: router,
+                affected: [.subscribe(response.payload.cursor)]
+              )))
             }
           }
 
@@ -298,47 +304,8 @@ public class SubscriptionSession {
 
               return false
             }
-            .map { message -> SubscriptionEvent in // Decode and eventify
-              switch message.messageType {
-              case .message:
-                return .messageReceived(PubNubMessageBase(from: message))
-              case .signal:
-                return .signalReceived(PubNubMessageBase(from: message))
-              case .object:
-                guard let objectAction = try? message.payload.decode(SubscribeObjectMetadataPayload.self) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
-                }
-                return objectAction.subscribeEvent
-              case .messageAction:
-                guard let messageAction = PubNubMessageActionBase(from: message),
-                  let actionEventString = message.payload[rawValue: "event"] as? String,
-                  let actionEvent = SubscribeMessageActionPayload.Action(rawValue: actionEventString)
-                else {
-                  return .messageReceived(PubNubMessageBase(from: message))
-                }
 
-                switch actionEvent {
-                case .added:
-                  return .messageActionAdded(messageAction)
-                case .removed:
-                  return .messageActionRemoved(messageAction)
-                }
-              case .file:
-                // Attempt to decode as a File Message, then fallback to General if fails
-                guard let fileMessage = try? PubNubFileEventBase(from: message) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
-                }
-                return .fileUploaded(fileMessage)
-              case .presence:
-                guard let presence = PubNubPresenceChangeBase(from: message) else {
-                  return .messageReceived(PubNubMessageBase(from: message))
-                }
-
-                return .presenceChanged(presence)
-              }
-            }
-
-          self?.notify { $0.emitDidReceiveBatch(subscription: events) }
+          self?.notify { $0.emit(batch: events) }
 
           self?.previousTokenResponse = response.payload.cursor
 
@@ -346,8 +313,8 @@ public class SubscriptionSession {
           self?.performSubscribeLoop(at: response.payload.cursor)
         case let .failure(error):
           self?.notify { [unowned self] in
-            $0.emitDidReceiveBatch(
-              subscription: [.subscribeError(PubNubError.event(error, router: self?.request?.router))]
+            $0.emit(subscribe:
+              .errorReceived(PubNubError.event(error, router: self?.request?.router))
             )
           }
 
@@ -395,7 +362,9 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
+      notify {
+        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
+      }
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -416,7 +385,9 @@ public class SubscriptionSession {
     }
 
     if subscribeChange.didChange {
-      notify { $0.emitDidReceiveBatch(subscription: [.subscriptionChanged(subscribeChange)]) }
+      notify {
+        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
+      }
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -440,7 +411,7 @@ public class SubscriptionSession {
             }
           case let .failure(error):
             self?.notify {
-              $0.emitDidReceiveBatch(subscription: [.subscribeError(PubNubError.event(error, router: nil))])
+              $0.emit(subscribe: .errorReceived(PubNubError.event(error, router: nil)))
             }
           }
         }
@@ -460,7 +431,7 @@ public class SubscriptionSession {
 }
 
 extension SubscriptionSession: EventStreamEmitter {
-  public typealias ListenerType = SubscriptionListener
+  public typealias ListenerType = BaseSubscriptionListener
 
   public var listeners: [ListenerType] {
     return privateListeners.allObjects

@@ -33,7 +33,7 @@ final class ChannelGroupsRouterTests: XCTestCase {
 
   let subKey = "FakeSub"
   let pubKey = "FakePub"
-  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", userId: UUID().uuidString)
 
   let testChannels = ["TestChannel", "OtherChannel"]
   let testGroupName = "TestGroup"

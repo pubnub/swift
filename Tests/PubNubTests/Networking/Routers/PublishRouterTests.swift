@@ -32,7 +32,7 @@ final class PublishRouterTests: XCTestCase {
   var config = PubNubConfiguration(
     publishKey: "FakeTestString",
     subscribeKey: "FakeTestString",
-    uuid: UUID().uuidString,
+    userId: UUID().uuidString,
     authKey: "auth-key"
   )
 
@@ -51,11 +51,11 @@ extension PublishRouterTests {
       .publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
-    
+
     guard let queryItems = try? router.queryItems.get() else {
       return XCTAssert(false, "'queryItems' not set")
     }
-    
+
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "auth-key")))
     XCTAssertEqual(router.endpoint.description, "Publish")
     XCTAssertEqual(router.category, "Publish")
@@ -167,7 +167,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey", uuid: UUID().uuidString)
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey", userId: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
@@ -191,7 +191,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "", uuid: UUID().uuidString)
+    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "", userId: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in
@@ -215,7 +215,7 @@ extension PublishRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "", uuid: UUID().uuidString)
+    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "", userId: UUID().uuidString)
 
     PubNub(configuration: missingPublishConfig, session: sessions.session)
       .publish(channel: "Test", message: ["text": "Hello"]) { result in

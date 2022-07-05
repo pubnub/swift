@@ -28,7 +28,7 @@
 import Foundation
 
 /// A protocol defining a bridge to an implementation of `URLSessionDataDelegate` for receiving delegation events
-class HTTPSessionDelegate: NSObject {
+public class HTTPSessionDelegate: NSObject {
   weak var sessionBridge: SessionStateBridge?
 }
 
@@ -36,7 +36,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   // MARK: - URLSessionDelegate
 
   // Task was invalidated by the session directly
-  func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
+  public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
     PubNub.log.warn("Session Invalidated \(String(describing: sessionBridge?.sessionID))")
 
     // Set invalidated in case this happened unexpectedly
@@ -46,7 +46,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   }
 
   // Called when the request fails.
-  func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+  public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
       return
@@ -70,7 +70,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // MARK: - URLSessionDataDelegate
 
-  func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+  public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
     if let request = sessionBridge?.request(for: dataTask) {
       request.didReceive(data: data)
     }
@@ -78,7 +78,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 
-  func urlSession(
+  public func urlSession(
     _ session: URLSession,
     didReceive challenge: URLAuthenticationChallenge,
     completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void

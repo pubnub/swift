@@ -27,10 +27,8 @@
 
 import Foundation
 
-public struct Constant {
-  static let presenceChannelSuffix: String = {
-    "-pnpres"
-  }()
+public enum Constant {
+  static let presenceChannelSuffix: String = "-pnpres"
 
   static let operatingSystemName: String = {
     let osName: String = {
@@ -57,17 +55,13 @@ public struct Constant {
     return "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
   }()
 
-  static let pubnubSwiftSDKName: String = {
-    "PubNubSwift"
-  }()
+  static let pubnubSwiftSDKName: String = "PubNubSwift"
 
-  static let pubnubSwiftSDKVersion: String = {
-    "5.1.0"
-  }()
+  static let pubnubSwiftSDKVersion: String = "6.0.0"
 
   static let appBundleId: String = {
     if let info = Bundle.main.infoDictionary,
-      let bundleId = info[kCFBundleIdentifierKey as String] as? String {
+       let bundleId = info[kCFBundleIdentifierKey as String] as? String {
       return bundleId
     }
 
@@ -76,44 +70,28 @@ public struct Constant {
 
   static let appVersion: String = {
     if let info = Bundle.main.infoDictionary,
-      let bundleVersion = info["CFBundleShortVersionString"] as? String {
+       let bundleVersion = info["CFBundleShortVersionString"] as? String {
       return bundleVersion
     }
 
     return "?.?.?"
   }()
 
-  static let pnSDKQueryParameterValue: String = {
-    "\(pubnubSwiftSDKName)-\(operatingSystemName)/\(pubnubSwiftSDKVersion)"
-  }()
+  static let pnSDKQueryParameterValue: String = "\(pubnubSwiftSDKName)-\(operatingSystemName)/\(pubnubSwiftSDKVersion)"
 
-  static let pnSDKURLQueryItem: URLQueryItem = {
-    URLQueryItem(name: "pnsdk", value: pnSDKQueryParameterValue)
-  }()
+  static let pnSDKURLQueryItem: URLQueryItem = .init(name: "pnsdk", value: pnSDKQueryParameterValue)
 
-  static let minimumSubscribeRequestTimeout: TimeInterval = {
-    280
-  }()
+  static let minimumSubscribeRequestTimeout: TimeInterval = 280
 
-  static let positiveInfinty = {
-    "Infinity"
-  }()
+  static let positiveInfinty = "Infinity"
 
-  static let negativeInfinty = {
-    "-Infinity"
-  }()
+  static let negativeInfinty = "-Infinity"
 
-  static let notANumber = {
-    "NaN"
-  }()
+  static let notANumber = "NaN"
 
-  static let jsonNull = {
-    "\"null\""
-  }()
+  static let jsonNull = "\"null\""
 
-  static let jsonNullObject = {
-    NSNull()
-  }()
+  static let jsonNullObject = NSNull()
 
   public static let jsonDecoder: JSONDecoder = {
     let decoder = JSONDecoder()
@@ -157,15 +135,13 @@ public struct Constant {
 
 // MARK: - Header Key/Values
 
-extension Constant {
+public extension Constant {
   /// Produces a `Accept-Encoding` header according to
   /// [RFC7231 section 5.3.4](https://tools.ietf.org/html/rfc7231#section-5.3.4)
-  public static let acceptEncodingHeaderKey = {
-    "Accept-Encoding"
-  }()
+  static let acceptEncodingHeaderKey = "Accept-Encoding"
 
   /// The default `Accept-Encoding` used for PubNub requests
-  public static let defaultAcceptEncodingHeader: String = {
+  static let defaultAcceptEncodingHeader: String = {
     let encodings: [String]
     // Brotli (br) support added in iOS 11 https://9to5mac.com/2017/06/21/apple-ios-11-beta-2/
     if #available(iOS 11.0, macOS 10.13, tvOS 11.0, watchOS 4.0, *) {
@@ -178,34 +154,22 @@ extension Constant {
 
   /// Produces a `Content-Type` header according to
   /// [RFC7231 section 3.1.1.5](https://tools.ietf.org/html/rfc7231#section-3.1.1.5)
-  public static let contentTypeHeaderKey = {
-    "Content-Type"
-  }()
+  static let contentTypeHeaderKey = "Content-Type"
 
   /// The default `Content-Type` used for PubNub requests
-  public static let defaultContentTypeHeader = {
-    "application/json; charset=UTF-8"
-  }()
+  static let defaultContentTypeHeader = "application/json; charset=UTF-8"
 
   /// Produces a `User-Agent` header according to
   /// [RFC7231 section 5.5.3](https://tools.ietf.org/html/rfc7231#section-5.5.3)
-  public static let userAgentHeaderKey = {
-    "User-Agent"
-  }()
+  static let userAgentHeaderKey = "User-Agent"
 
-  static let defaultUserAgentHeader: String = {
+  internal static let defaultUserAgentHeader: String = {
     let userAgent: String = {
-      let appNameVersion: String = {
-        "\(Constant.appBundleId)/\(Constant.appVersion)"
-      }()
+      let appNameVersion = "\(Constant.appBundleId)/\(Constant.appVersion)"
 
-      let osNameVersion: String = {
-        "\(Constant.operatingSystemName) \(Constant.operatingSystemVersion)"
-      }()
+      let osNameVersion = "\(Constant.operatingSystemName) \(Constant.operatingSystemVersion)"
 
-      let pubnubVersion: String = {
-        "\(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
-      }()
+      let pubnubVersion = "\(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
 
       return "\(appNameVersion) (\(osNameVersion)) \(pubnubVersion)"
     }()

@@ -60,7 +60,7 @@ public extension URL {
   /// Will return a value of 0 if the file cannot be found
   var sizeOf: Int {
     if let fileResources = try? resourceValues(forKeys: [.fileSizeKey]),
-      let fileSize = fileResources.fileSize {
+       let fileSize = fileResources.fileSize {
       return fileSize
     }
     return 0
@@ -90,7 +90,7 @@ public extension URL {
     )
 
     if let fileExt = fileExtension?.takeRetainedValue(),
-      let mimeType = UTTypeCopyPreferredTagWithClass(fileExt, kUTTagClassMIMEType)?.takeRetainedValue() {
+       let mimeType = UTTypeCopyPreferredTagWithClass(fileExt, kUTTagClassMIMEType)?.takeRetainedValue() {
       return mimeType as String
     }
     return "application/octet-stream"

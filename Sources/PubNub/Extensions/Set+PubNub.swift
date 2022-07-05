@@ -27,11 +27,11 @@
 
 import Foundation
 
-extension Set {
+public extension Set {
   /// An array containing the set’s members, or an empty array if the set has no members.
   ///
   /// The order of the objects in the array is undefined.
-  public var allObjects: [Element] {
+  var allObjects: [Element] {
     return Array(self)
   }
 }

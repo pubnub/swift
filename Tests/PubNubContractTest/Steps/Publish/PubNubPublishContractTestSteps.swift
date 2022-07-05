@@ -25,18 +25,17 @@
 //  THE SOFTWARE.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 import PubNub
 
-
 public class PubNubPublishContractTestSteps: PubNubContractTestCase {
-  public override func setup() {
-    self.startCucumberHookEventsListening()
-    
+  override public func setup() {
+    startCucumberHookEventsListening()
+
     When("I publish a message") { _, _ in
       let publishMessageExpect = self.expectation(description: "Publish message Response")
-      
+
       self.client.publish(channel: "test", message: "hello") { result in
         switch result {
         case let .success(timetoken):
@@ -46,19 +45,19 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
         }
         publishMessageExpect.fulfill()
       }
-      
+
       self.wait(for: [publishMessageExpect], timeout: 60.0)
     }
-    
+
     When("^I publish a message with (.*) metadata$") { args, _ in
       guard let type = args?.first else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
       }
-      
+
       let publishMessageExpect = self.expectation(description: "Publish message with metadata Response")
       let meat: JSONCodable = type == "JSON" ? ["test-user": "bob"] : "test-user=bob"
-      
+
       self.client.publish(channel: "test", message: "hello", meta: meat) { result in
         switch result {
         case let .success(timetoken):
@@ -68,13 +67,13 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
         }
         publishMessageExpect.fulfill()
       }
-      
+
       self.wait(for: [publishMessageExpect], timeout: 60.0)
     }
-    
+
     When("I send a signal") { _, _ in
       let sendSignalExpect = self.expectation(description: "Send signal Response")
-      
+
       self.client.signal(channel: "test", message: "hello") { result in
         switch result {
         case let .success(timetoken):
@@ -84,7 +83,7 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
         }
         sendSignalExpect.fulfill()
       }
-      
+
       self.wait(for: [sendSignalExpect], timeout: 60.0)
     }
   }

@@ -51,19 +51,19 @@ public protocol RouterConfiguration {
   var consumerIdentifiers: [String: String] { get }
 }
 
-extension RouterConfiguration {
+public extension RouterConfiguration {
   /// The scheme used when creating the URL for the request
-  public var urlScheme: String {
+  var urlScheme: String {
     return useSecureConnections ? "https" : "http"
   }
 
   /// True if the subscribeKey exists and is not an empty `String`
-  public var subscribeKeyExists: Bool {
+  var subscribeKeyExists: Bool {
     return !subscribeKey.isEmpty
   }
 
   /// True if the publishKey exists and is not an empty `String`
-  public var publishKeyExists: Bool {
+  var publishKeyExists: Bool {
     guard let publishKey = publishKey, !publishKey.isEmpty else {
       return false
     }
@@ -162,8 +162,6 @@ public enum PAMVersionRequirement {
 
 /// Collects together and assembles the separate pieces used to create an URLRequest
 public protocol HTTPRouter: URLRequestConvertible, Validated, CustomStringConvertible {
-//  /// The target of the `URLRequest`
-//  var endpoint: Endpoint { get }
   var service: PubNubService { get }
   var category: String { get }
   /// Configuration used during the URLRequest generation
@@ -197,26 +195,26 @@ public protocol HTTPRouter: URLRequestConvertible, Validated, CustomStringConver
 }
 
 // Default Protocol Values
-extension HTTPRouter {
-  public var method: HTTPMethod { return .get }
-  public var additionalHeaders: [String: String] { return [:] }
-  public var body: Result<Data?, Error> { return .success(nil) }
-  public var keysRequired: PNKeyRequirement { return .subscribe }
-  public var pamVersion: PAMVersionRequirement { return .version2 }
+public extension HTTPRouter {
+  var method: HTTPMethod { return .get }
+  var additionalHeaders: [String: String] { return [:] }
+  var body: Result<Data?, Error> { return .success(nil) }
+  var keysRequired: PNKeyRequirement { return .subscribe }
+  var pamVersion: PAMVersionRequirement { return .version2 }
 
-  public func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
     return AnyJSONResponseDecoder().decodeError(router: self, request: request, response: response, for: data)
   }
 
-  var defaultQueryItems: [URLQueryItem] {
+  internal var defaultQueryItems: [URLQueryItem] {
     var pnSDKURLQueryItem = Constant.pnSDKURLQueryItem
-    
+
     if !configuration.consumerIdentifiers.isEmpty, let pnsdk = pnSDKURLQueryItem.value {
       var identifiers = Array(configuration.consumerIdentifiers.values)
       identifiers.insert(pnsdk, at: 0)
       pnSDKURLQueryItem = URLQueryItem(name: pnSDKURLQueryItem.name, value: identifiers.joined(separator: " "))
     }
-    
+
     var queryItems = [
       pnSDKURLQueryItem,
       URLQueryItem(name: "uuid", value: configuration.uuid)
@@ -229,7 +227,7 @@ extension HTTPRouter {
     return queryItems
   }
 
-  public var validationError: Error? {
+  var validationError: Error? {
     if let reason = keyValidationErrorReason {
       return PubNubError(reason, router: self)
     } else if let errorDetail = validationErrorDetail {
@@ -238,15 +236,15 @@ extension HTTPRouter {
     return nil
   }
 
-  var subscribeKey: String {
+  internal var subscribeKey: String {
     return configuration.subscribeKey.urlEncodeSlash
   }
 
-  var publishKey: String {
+  internal var publishKey: String {
     return configuration.publishKey?.urlEncodeSlash ?? ""
   }
 
-  public var keyValidationErrorReason: PubNubError.Reason? {
+  var keyValidationErrorReason: PubNubError.Reason? {
     switch keysRequired {
     case .none:
       return nil
@@ -279,8 +277,8 @@ extension HTTPRouter {
 
 // MARK: - URLRequestConvertible
 
-extension HTTPRouter {
-  public var asURL: Result<URL, Error> {
+public extension HTTPRouter {
+  var asURL: Result<URL, Error> {
     if let error = validationError {
       return .failure(error)
     }
@@ -290,7 +288,7 @@ extension HTTPRouter {
         var urlComponents = URLComponents()
         urlComponents.scheme = configuration.urlScheme
         urlComponents.host = configuration.origin
-        
+
         if configuration.origin.contains(":") {
           let originComponents = configuration.origin.components(separatedBy: ":")
           urlComponents.host = originComponents.first
@@ -313,7 +311,7 @@ extension HTTPRouter {
     }.flatMap { $0.asURL }
   }
 
-  public var asURLRequest: Result<URLRequest, Error> {
+  var asURLRequest: Result<URLRequest, Error> {
     return asURL.flatMap { url -> Result<URLRequest, Error> in
       body.flatMap { data in
         var request = URLRequest(url: url)
@@ -328,8 +326,8 @@ extension HTTPRouter {
 
 // MARK: - CustomStringConvertible
 
-extension HTTPRouter {
-  public var description: String {
+public extension HTTPRouter {
+  var description: String {
     return String(describing: Self.self)
   }
 }

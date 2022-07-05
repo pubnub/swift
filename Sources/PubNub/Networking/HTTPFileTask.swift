@@ -29,14 +29,14 @@ import Foundation
 
 // MARK: Protocol Extensions
 
-extension URLSessionTask {
-  public var httpResponse: HTTPURLResponse? {
+public extension URLSessionTask {
+  var httpResponse: HTTPURLResponse? {
     return response as? HTTPURLResponse
   }
 }
 
-extension URLSessionDownloadTask {
-  public var resumeData: Data? {
+public extension URLSessionDownloadTask {
+  var resumeData: Data? {
     return error?.resumeData
   }
 }
@@ -90,8 +90,7 @@ public class HTTPFileTask: Hashable {
 
   func updateProgress(bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
     // Progress is handled automatically on iOS 11+
-    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) {
-    } else {
+    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) { } else {
       progress.completedUnitCount = totalBytesWritten
     }
 
@@ -125,39 +124,39 @@ public class HTTPFileTask: Hashable {
 
 // MARK: Convenience access from URLSessionTask
 
-extension HTTPFileTask {
+public extension HTTPFileTask {
   /// An error object that indicates why the task failed.
   ///
   /// This value is nil if the task is still active or if the transfer completed successfully.
-  public var error: Error? {
+  var error: Error? {
     return urlSessionTask.error ?? responseError
   }
 
   /// An identifier uniquely identifying the task within a given session.
   ///
   /// This value is unique only within the context of a single session; tasks in other sessions may have the same taskIdentifier value.
-  public var taskIdentifier: Int {
+  var taskIdentifier: Int {
     return urlSessionTask.taskIdentifier
   }
 
   /// The server’s response to the currently active request.
   ///
   /// This object provides information about the request as provided by the server. This information always includes the original URL.
-  public var response: HTTPURLResponse? {
+  var response: HTTPURLResponse? {
     return urlSessionTask.httpResponse
   }
 
   /// Temporarily suspends a task.
   ///
   /// A task, while suspended, produces no network traffic and is not subject to timeouts. A download task can continue transferring data at a later time. All other tasks must start over when resumed.
-  public func suspend() {
+  func suspend() {
     urlSessionTask.suspend()
   }
 
   /// Resumes the task, if it is suspended.
   ///
   /// Newly-initialized tasks begin in a suspended state, so you need to call this method to start the task.
-  public func resume() {
+  func resume() {
     urlSessionTask.resume()
   }
 
@@ -168,7 +167,7 @@ extension HTTPFileTask {
   /// A task may, under some circumstances, send messages to its delegate before the cancelation is acknowledged.
   ///
   /// This method may be called on a task that is suspended.
-  public func cancel() {
+  func cancel() {
     urlSessionTask.cancel()
   }
 }

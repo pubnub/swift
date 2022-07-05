@@ -27,8 +27,8 @@
 
 import Foundation
 
-public extension URLQueryItem {
-  internal init(key: QueryKey, value: String?) {
+internal extension URLQueryItem {
+  init(key: QueryKey, value: String?) {
     self.init(name: key.rawValue, value: value)
   }
 }

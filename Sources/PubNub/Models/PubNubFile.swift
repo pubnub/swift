@@ -67,19 +67,19 @@ public extension PubNubLocalFile {
   }
 }
 
-extension PubNubLocalFile {
+public extension PubNubLocalFile {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubLocalFile>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubLocalFile>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubLocalFile>() throws -> T {
+  func transcode<T: PubNubLocalFile>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -204,19 +204,19 @@ public protocol PubNubFile: JSONCodable {
   init(from other: PubNubFile) throws
 }
 
-extension PubNubFile {
+public extension PubNubFile {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubFile>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubFile>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubFile>() throws -> T {
+  func transcode<T: PubNubFile>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -225,7 +225,7 @@ extension PubNubFile {
     return try T(from: self)
   }
 
-  public static func createBaseType(
+  static func createBaseType(
     channel: String,
     fileId: String,
     filename: String,
@@ -326,19 +326,19 @@ public protocol PubNubFileEvent {
   init(from other: PubNubFileEvent) throws
 }
 
-extension PubNubFileEvent {
+public extension PubNubFileEvent {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubFileEvent>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubFileEvent>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  public func transcode<T: PubNubFileEvent>() throws -> T {
+  func transcode<T: PubNubFileEvent>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom

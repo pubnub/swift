@@ -42,7 +42,7 @@ class PubNubConfigurationTests: XCTestCase {
   let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   func testDefault() {
-    let config = PubNubConfiguration(publishKey: nil, subscribeKey: plistSubscribeKeyValue, uuid: UUID().uuidString)
+    let config = PubNubConfiguration(publishKey: nil, subscribeKey: plistSubscribeKeyValue, userId: UUID().uuidString)
 
     XCTAssertNil(config.publishKey)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
@@ -58,7 +58,7 @@ class PubNubConfigurationTests: XCTestCase {
   }
 
   func testDurationUntilTimeout_Floor() {
-    var config = PubNubConfiguration(publishKey: nil, subscribeKey: "", uuid: UUID().uuidString)
+    var config = PubNubConfiguration(publishKey: nil, subscribeKey: "", userId: UUID().uuidString)
     config.durationUntilTimeout = 0
 
     XCTAssertEqual(config.durationUntilTimeout, 20)
@@ -74,7 +74,7 @@ class PubNubConfigurationTests: XCTestCase {
   func testInit_RawValues() {
     let config = PubNubConfiguration(publishKey: publishKeyValue,
                                      subscribeKey: subscribeKeyValue,
-                                     uuid: UUID().uuidString)
+                                     userId: UUID().uuidString)
 
     XCTAssertEqual(config.publishKey, publishKeyValue)
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)

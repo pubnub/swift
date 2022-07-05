@@ -46,6 +46,18 @@ let package = Package(
     .library(
       name: "PubNub",
       targets: ["PubNub"]
+    ),
+    .library(
+      name: "PubNubUser",
+      targets: ["PubNubUser"]
+    ),
+    .library(
+      name: "PubNubSpace",
+      targets: ["PubNubSpace"]
+    ),
+    .library(
+      name: "PubNubMembership",
+      targets: ["PubNubMembership"]
     )
   ],
   dependencies: [
@@ -56,7 +68,22 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "PubNub",
-      dependencies: []
+      path: "Sources/PubNub"
+    ),
+    .target(
+      name: "PubNubUser",
+      dependencies: ["PubNub"],
+      path: "PubNubUser/Sources"
+    ),
+    .target(
+      name: "PubNubSpace",
+      dependencies: ["PubNub"],
+      path: "PubNubSpace/Sources"
+    ),
+    .target(
+      name: "PubNubMembership",
+      dependencies: ["PubNub", "PubNubUser", "PubNubSpace"],
+      path: "PubNubMembership/Sources"
     ),
     .testTarget(
       name: "PubNubTests",

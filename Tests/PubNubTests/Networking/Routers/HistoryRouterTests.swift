@@ -33,7 +33,7 @@ final class HistoryRouterTests: XCTestCase {
   var config = PubNubConfiguration(
     publishKey: "FakeTestString",
     subscribeKey: "FakeTestString",
-    uuid: UUID().uuidString,
+    userId: UUID().uuidString,
     authKey: "auth-key"
   )
 
@@ -55,11 +55,11 @@ extension HistoryRouterTests {
       ),
       configuration: config
     )
-    
+
     guard let queryItems = try? router.queryItems.get() else {
       return XCTAssert(false, "'queryItems' not set")
     }
-    
+
     XCTAssertEqual(router.endpoint.description, "Fetch Message History")
     XCTAssertEqual(router.category, "Fetch Message History")
     XCTAssertEqual(router.service, .history)
@@ -99,7 +99,7 @@ extension HistoryRouterTests {
     guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success"]) else {
       return XCTFail("Could not create mock url session")
     }
-    
+
     PubNub(configuration: config, session: sessions.session)
       .fetchMessageHistory(for: testSingleChannel) { result in
         switch result {

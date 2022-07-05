@@ -1,9 +1,20 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "5.1.0"
+version: "6.0.0"
 schema: 1
 changelog:
+  - date: 2022-07-05
+    version: v6.0.0
+    changes:
+      - type: feature
+        text: "VSP methods and models have been exposed via modules on the PubNub instance."
+      - type: feature
+        text: "JSONCodableScalar]` inside the VSP models."
+      - type: improvement
+        text: "PubNub instances has been changed from a `struct` to a `class`."
+      - type: improvement
+        text: "`HTTPSession` has been made public for easier per-request overrides of the Network Session."
   - date: 2022-02-02
     version: 5.1.0
     changes:
@@ -443,7 +454,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/5.1.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/v6.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

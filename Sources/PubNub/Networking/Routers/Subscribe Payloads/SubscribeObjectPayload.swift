@@ -83,17 +83,21 @@ extension SubscribeObjectMetadataPayload: Codable {
 
     switch (type, event) {
     case (.uuid, .set):
-      let changeset = try container.decode(PubNubUUIDMetadataChangeset.self, forKey: .subscribeEvent)
-      subscribeEvent = .uuidMetadataSet(changeset)
+      subscribeEvent = .uuidMetadataSet(
+        try container.decode(PubNubUUIDMetadataChangeset.self, forKey: .subscribeEvent)
+      )
     case (.uuid, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
-      subscribeEvent = .uuidMetadataRemoved(metadataId: try nestedContainer.decode(String.self, forKey: .metadataId))
+      let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
+      subscribeEvent = .uuidMetadataRemoved(metadataId: identifier)
     case (.channel, .set):
-      let changeset = try container.decode(PubNubChannelMetadataChangeset.self, forKey: .subscribeEvent)
-      subscribeEvent = .channelMetadataSet(changeset)
+      subscribeEvent = .channelMetadataSet(
+        try container.decode(PubNubChannelMetadataChangeset.self, forKey: .subscribeEvent)
+      )
     case (.channel, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
-      subscribeEvent = .channelMetadataRemoved(metadataId: try nestedContainer.decode(String.self, forKey: .metadataId))
+      let identifier = try nestedContainer.decode(String.self, forKey: .metadataId)
+      subscribeEvent = .channelMetadataRemoved(metadataId: identifier)
     case (.membership, .set):
       let membership = try container.decode(PubNubMembershipMetadataBase.self, forKey: .subscribeEvent)
       subscribeEvent = .membershipMetadataSet(membership)
@@ -130,43 +134,14 @@ extension SubscribeObjectMetadataPayload: Codable {
   }
 }
 
-// MARK: - Helper
-
-enum ValueOptionJSON<ValueType: Codable>: CaseAccessible, Codable {
-  case value(ValueType)
-  case null
-
-  init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-
-    if container.decodeNil() {
-      self = .null
-    }
-
-    self = .value(try container.decode(ValueType.self))
-  }
-
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    switch self {
-    case let .value(value):
-      try container.encode(value)
-    case .null:
-      try container.encodeNil()
-    }
-  }
-
-  var value: ValueType? {
-    return self[case: ValueOptionJSON.value]
-  }
-}
-
 // MARK: - PubNubUUIDMetadataChangeset Coders
 
 extension PubNubUUIDMetadataChangeset: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name
+    case type
+    case status
     case externalId
     case profileUrl
     case email
@@ -182,22 +157,33 @@ extension PubNubUUIDMetadataChangeset: Codable {
     eTag = try container.decode(String.self, forKey: .eTag)
 
     var changes = [PubNubMetadataChange<PubNubUUIDMetadata>]()
-    if let name = try container.decodeIfPresent(String.self, forKey: .name) {
-      changes.append(.stringOptional(\.name, name))
+    if container.contains(.name) {
+      changes.append(.stringOptional(\.name, try container.decodeIfPresent(String.self, forKey: .name)))
     }
-    if let externalId = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .externalId) {
-      changes.append(.stringOptional(\.externalId, externalId.value))
+    if container.contains(.type) {
+      changes.append(.stringOptional(\.type, try container.decodeIfPresent(String.self, forKey: .type)))
     }
-    if let profileURL = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .profileUrl) {
-      changes.append(.stringOptional(\.profileURL, profileURL.value))
+    if container.contains(.status) {
+      changes.append(.stringOptional(\.status, try container.decodeIfPresent(String.self, forKey: .status)))
     }
-    if let email = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .email) {
-      changes.append(.stringOptional(\.email, email.value))
+    if container.contains(.externalId) {
+      changes.append(.stringOptional(
+        \.externalId, try container.decodeIfPresent(String.self, forKey: .externalId)
+      ))
     }
-    if let custom = try container.decodeIfPresent(
-      ValueOptionJSON<[String: JSONCodableScalarType]>.self, forKey: .custom
-    ) {
-      changes.append(.customOptional(\.custom, custom.value))
+    if container.contains(.profileUrl) {
+      changes.append(.stringOptional(
+        \.profileURL, try container.decodeIfPresent(String.self, forKey: .profileUrl)
+      ))
+    }
+    if container.contains(.email) {
+      changes.append(.stringOptional(\.email, try container.decodeIfPresent(String.self, forKey: .email)))
+    }
+    if container.contains(.custom) {
+      changes.append(.customOptional(
+        \.custom,
+        try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      ))
     }
     self.changes = changes
   }
@@ -211,10 +197,26 @@ extension PubNubUUIDMetadataChangeset: Codable {
 
     for change in changes {
       switch change {
-      case let .string(_, value):
-        try container.encode(value, forKey: .name)
       case let .stringOptional(path, value):
         switch path {
+        case \.name:
+          if let value = value {
+            try container.encode(value, forKey: .name)
+          } else {
+            try container.encodeNil(forKey: .name)
+          }
+        case \.type:
+          if let value = value {
+            try container.encode(value, forKey: .type)
+          } else {
+            try container.encodeNil(forKey: .type)
+          }
+        case \.status:
+          if let value = value {
+            try container.encode(value, forKey: .status)
+          } else {
+            try container.encodeNil(forKey: .status)
+          }
         case \.externalId:
           if let value = value {
             try container.encode(value, forKey: .externalId)
@@ -253,6 +255,8 @@ extension PubNubChannelMetadataChangeset: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name
+    case type
+    case status
     case channelDescription = "description"
     case custom
     case updated
@@ -266,16 +270,26 @@ extension PubNubChannelMetadataChangeset: Codable {
     eTag = try container.decode(String.self, forKey: .eTag)
 
     var changes = [PubNubMetadataChange<PubNubChannelMetadata>]()
-    if let name = try container.decodeIfPresent(String.self, forKey: .name) {
-      changes.append(.stringOptional(\.name, name))
+    if container.contains(.name) {
+      changes.append(.stringOptional(\.name, try container.decodeIfPresent(String.self, forKey: .name)))
     }
-    if let description = try container.decodeIfPresent(ValueOptionJSON<String>.self, forKey: .channelDescription) {
-      changes.append(.stringOptional(\.channelDescription, description.value))
+    if container.contains(.type) {
+      changes.append(.stringOptional(\.type, try container.decodeIfPresent(String.self, forKey: .type)))
     }
-    if let custom = try container.decodeIfPresent(
-      ValueOptionJSON<[String: JSONCodableScalarType]>.self, forKey: .custom
-    ) {
-      changes.append(.customOptional(\.custom, custom.value))
+    if container.contains(.status) {
+      changes.append(.stringOptional(\.status, try container.decodeIfPresent(String.self, forKey: .status)))
+    }
+    if container.contains(.channelDescription) {
+      changes.append(.stringOptional(
+        \.channelDescription,
+        try container.decodeIfPresent(String.self, forKey: .channelDescription)
+      ))
+    }
+    if container.contains(.custom) {
+      changes.append(.customOptional(
+        \.custom,
+        try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+      ))
     }
     self.changes = changes
   }
@@ -288,14 +302,36 @@ extension PubNubChannelMetadataChangeset: Codable {
 
     for change in changes {
       switch change {
-      case let .string(_, value):
-        try container.encode(value, forKey: .name)
-      case let .stringOptional(_, value):
-        if let value = value {
-          try container.encode(value, forKey: .channelDescription)
-        } else {
-          try container.encodeNil(forKey: .channelDescription)
+      case let .stringOptional(path, value):
+        switch path {
+        case \.name:
+          if let value = value {
+            try container.encode(value, forKey: .name)
+          } else {
+            try container.encodeNil(forKey: .name)
+          }
+        case \.type:
+          if let value = value {
+            try container.encode(value, forKey: .type)
+          } else {
+            try container.encodeNil(forKey: .type)
+          }
+        case \.status:
+          if let value = value {
+            try container.encode(value, forKey: .status)
+          } else {
+            try container.encodeNil(forKey: .status)
+          }
+        case \.channelDescription:
+          if let value = value {
+            try container.encode(value, forKey: .channelDescription)
+          } else {
+            try container.encodeNil(forKey: .channelDescription)
+          }
+        default:
+          break
         }
+
       case let .customOptional(_, value):
         if let value = value {
           try container.encode(value.mapValues { $0.scalarValue }, forKey: .custom)

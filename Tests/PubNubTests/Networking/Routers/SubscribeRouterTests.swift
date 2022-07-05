@@ -29,7 +29,7 @@
 import XCTest
 
 final class SubscribeRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", uuid: UUID().uuidString)
+  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testChannel = "TestChannel"
 
   let testAction = PubNubMessageActionBase(
@@ -192,13 +192,19 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidSet_success",
-                                                              "cancelled"]).session
-    else {
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_uuidSet_success", "cancelled"]
+    ).session else {
       return XCTFail("Could not create mock url session")
     }
 
     let baseUser = PubNubUUIDMetadataBase(metadataId: "TestUserID", name: "Not Real Name")
+    let patchedObjectUser = PubNubUUIDMetadataBase(
+      metadataId: "TestUserID",
+      name: "Test Name", type: "Test Type", status: "Test Status",
+      updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
+      eTag: "UserUpdateEtag"
+    )
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -210,13 +216,8 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .uuidMetadataSet(changeset):
-        let updated = changeset.apply(to: baseUser)
         XCTAssertEqual(
-          try? updated.transcode(),
-          PubNubUUIDMetadataBase(
-            metadataId: "TestUserID", name: "Test Name",
-            updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"), eTag: "UserUpdateEtag"
-          )
+          try? changeset.apply(to: baseUser).transcode(), patchedObjectUser
         )
 
         objectExpect.fulfill()
@@ -326,7 +327,16 @@ extension SubscribeRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let baseSpace = PubNubChannelMetadataBase(metadataId: "TestSpaceID", name: "Not Real Name")
+    let baseChannel = PubNubChannelMetadataBase(
+      metadataId: "TestSpaceID", name: "Not Real Name", type: "someType"
+    )
+    let patchedChannel = PubNubChannelMetadataBase(
+      metadataId: "TestSpaceID",
+      name: "Test Name",
+      type: "Test Type", status: "Test Status",
+      updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
+      eTag: "SpaceUpdateEtag"
+    )
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
 
@@ -338,15 +348,10 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         }
       case let .channelMetadataSet(changeset):
-        let updated = changeset.apply(to: baseSpace)
-
-        XCTAssertEqual(updated.metadataId, "TestSpaceID")
-        XCTAssertEqual(updated.name, "Test Name")
-        XCTAssertEqual(updated.channelDescription, nil)
-        XCTAssertNil(updated.custom)
-        XCTAssertEqual(updated.updated, DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"))
-        XCTAssertEqual(updated.eTag, "SpaceUpdateEtag")
-
+        print("Channel Changeset \(changeset)")
+        XCTAssertEqual(
+          try? changeset.apply(to: baseChannel).transcode(), patchedChannel
+        )
         objectExpect.fulfill()
       case let .subscriptionChanged(change):
         switch change {
@@ -451,7 +456,7 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    
+
     let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
     let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(
@@ -469,7 +474,6 @@ extension SubscribeRouterTests {
       case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-
       case let .subscriptionChanged(change):
         switch change {
         case let .subscribed(channels, _):
@@ -516,7 +520,7 @@ extension SubscribeRouterTests {
     }
 
     let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    
+
     let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
     let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
     let testMembership = PubNubMembershipMetadataBase(

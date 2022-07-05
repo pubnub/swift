@@ -156,11 +156,11 @@ public extension PubNub {
       ),
       responseDecoder: FileGenerateResponseDecoder(),
       custom: requestConfig
-    ) { result in
+    ) { [configuration] result in
       switch result {
       case let .success(response):
         do {
-          let autoCrypto = configuration.cipherKey ?? self.configuration.cipherKey
+          let autoCrypto = requestConfig.customConfiguration?.cipherKey ?? configuration.cipherKey
           completion?(.success((
             try URLRequest(from: response.payload, uploading: content, crypto: autoCrypto),
             response.payload.fileId,
@@ -353,14 +353,19 @@ public extension PubNub {
     // Generate a File Upload URL from PubNub
     generateFileUploadURLRequest(
       content, channel: channel, remoteFilename: remoteFilename, custom: requestConfig
-    ) { generateURLResult in
+    ) { [weak self] generateURLResult in
       switch generateURLResult {
       case let .success((request, fileId, filename)):
+        guard let strongSelf = self else {
+          completion?(.failure(PubNubError(.sessionDeinitialized)))
+          return
+        }
+
         let task: HTTPFileUploadTask
         do {
-          task = try createFileURLSessionUploadTask(
+          task = try strongSelf.createFileURLSessionUploadTask(
             request: request,
-            session: fileURLSession,
+            session: strongSelf.fileURLSession,
             backgroundFileCacheIdentifier: fileId
           )
         } catch {
@@ -370,7 +375,7 @@ public extension PubNub {
         }
 
         // Create a File Upload task
-        task.completionBlock = { uploadResult in
+        task.completionBlock = { [weak self] uploadResult in
           switch uploadResult {
           case .success:
             let localFile = PubNubFileBase.createBaseType(
@@ -382,7 +387,7 @@ public extension PubNub {
               fileURL: content.rawContent as? URL
             )
             // Publish the File was uploaded
-            publish(
+            self?.publish(
               file: localFile,
               request: publishRequest
             ) { publishResult in

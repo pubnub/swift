@@ -10,7 +10,7 @@ changelog:
       - type: feature
         text: "VSP methods and models have been exposed via modules on the PubNub instance."
       - type: feature
-        text: "JSONCodableScalar]` inside the VSP models."
+        text: "`FlatJSONCodable` replaces `[String: JSONCodableScalar]` inside the VSP models."
       - type: improvement
         text: "PubNub instances has been changed from a `struct` to a `class`."
       - type: improvement

@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		35012EBE285007B400CF7E0A /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EBD285007B400CF7E0A /* PubNubMembership */; };
-		35012EC0285007B400CF7E0A /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EBF285007B400CF7E0A /* PubNubSpace */; };
-		35012EC2285007B400CF7E0A /* PubNubUser in Frameworks */ = {isa = PBXBuildFile; productRef = 35012EC1285007B400CF7E0A /* PubNubUser */; };
-		3503519C23EE2C6E006DFDC3 /* PubNub in Frameworks */ = {isa = PBXBuildFile; productRef = 3503519B23EE2C6E006DFDC3 /* PubNub */; };
 		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4EB252D067800099EB7 /* FileAPIViewController.swift */; };
 		357AD4EE252D087800099EB7 /* FileAPI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 357AD4ED252D087800099EB7 /* FileAPI.storyboard */; };
@@ -21,6 +17,10 @@
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
+		792CF27228C4FBB300C83408 /* PubNub in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27128C4FBB300C83408 /* PubNub */; };
+		792CF27428C4FBB300C83408 /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27328C4FBB300C83408 /* PubNubMembership */; };
+		792CF27628C4FBB300C83408 /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27528C4FBB300C83408 /* PubNubSpace */; };
+		792CF27828C4FBB300C83408 /* PubNubUser in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27728C4FBB300C83408 /* PubNubUser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,7 +47,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		35012EC3285009C400CF7E0A /* swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = swift; path = ..; sourceTree = "<group>"; };
 		35304F9022FF64D4006A02CA /* iOS Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "iOS Example.entitlements"; sourceTree = SOURCE_ROOT; };
 		357AD4EB252D067800099EB7 /* FileAPIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileAPIViewController.swift; sourceTree = "<group>"; };
 		357AD4ED252D087800099EB7 /* FileAPI.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = FileAPI.storyboard; sourceTree = "<group>"; };
@@ -62,6 +61,7 @@
 		359F77A322B7FEF700B6B46F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		359F77AA22B7FF5700B6B46F /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigDetailTableViewController.swift; sourceTree = "<group>"; };
+		792CF27A28C4FCB800C83408 /* PubNub SDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "PubNub SDK"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,10 +69,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				35012EBE285007B400CF7E0A /* PubNubMembership in Frameworks */,
-				35012EC2285007B400CF7E0A /* PubNubUser in Frameworks */,
-				35012EC0285007B400CF7E0A /* PubNubSpace in Frameworks */,
-				3503519C23EE2C6E006DFDC3 /* PubNub in Frameworks */,
+				792CF27428C4FBB300C83408 /* PubNubMembership in Frameworks */,
+				792CF27828C4FBB300C83408 /* PubNubUser in Frameworks */,
+				792CF27628C4FBB300C83408 /* PubNubSpace in Frameworks */,
+				792CF27228C4FBB300C83408 /* PubNub in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,7 +93,7 @@
 		359F778B22B7FEF600B6B46F = {
 			isa = PBXGroup;
 			children = (
-				35012EC3285009C400CF7E0A /* swift */,
+				792CF27928C4FCB800C83408 /* Packages */,
 				35F0258A22BAC173007BD7D3 /* Sources */,
 				359F779622B7FEF600B6B46F /* iOS Example */,
 				359F779522B7FEF600B6B46F /* Products */,
@@ -149,6 +149,14 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
+		792CF27928C4FCB800C83408 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				792CF27A28C4FCB800C83408 /* PubNub SDK */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -168,10 +176,10 @@
 			);
 			name = "iOS Example";
 			packageProductDependencies = (
-				3503519B23EE2C6E006DFDC3 /* PubNub */,
-				35012EBD285007B400CF7E0A /* PubNubMembership */,
-				35012EBF285007B400CF7E0A /* PubNubSpace */,
-				35012EC1285007B400CF7E0A /* PubNubUser */,
+				792CF27128C4FBB300C83408 /* PubNub */,
+				792CF27328C4FBB300C83408 /* PubNubMembership */,
+				792CF27528C4FBB300C83408 /* PubNubSpace */,
+				792CF27728C4FBB300C83408 /* PubNubUser */,
 			);
 			productName = swiftSdkiOS;
 			productReference = 359F779422B7FEF600B6B46F /* iOS Example.app */;
@@ -207,7 +215,6 @@
 			);
 			mainGroup = 359F778B22B7FEF600B6B46F;
 			packageReferences = (
-				3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */,
 			);
 			productRefGroup = 359F779522B7FEF600B6B46F /* Products */;
 			projectDirPath = "";
@@ -455,37 +462,22 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/pubnub/swift.git";
-			requirement = {
-				branch = "features/CLEN-351_VSP-modules";
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		35012EBD285007B400CF7E0A /* PubNubMembership */ = {
+		792CF27128C4FBB300C83408 /* PubNub */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
+			productName = PubNub;
+		};
+		792CF27328C4FBB300C83408 /* PubNubMembership */ = {
+			isa = XCSwiftPackageProductDependency;
 			productName = PubNubMembership;
 		};
-		35012EBF285007B400CF7E0A /* PubNubSpace */ = {
+		792CF27528C4FBB300C83408 /* PubNubSpace */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
 			productName = PubNubSpace;
 		};
-		35012EC1285007B400CF7E0A /* PubNubUser */ = {
+		792CF27728C4FBB300C83408 /* PubNubUser */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
 			productName = PubNubUser;
-		};
-		3503519B23EE2C6E006DFDC3 /* PubNub */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 3503519A23EE2C6E006DFDC3 /* XCRemoteSwiftPackageReference "swift" */;
-			productName = PubNub;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

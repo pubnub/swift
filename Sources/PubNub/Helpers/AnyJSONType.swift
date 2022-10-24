@@ -352,8 +352,6 @@ extension AnyJSONType: RawRepresentable {
       self = .double(numberValue as NSNumber)
     case _ as NSNull:
       self = .null
-    case nil:
-      self = .null
     case let value as [Any]:
       self = .array(value.compactMap(AnyJSONType.init))
     case let value as [String: Any]:

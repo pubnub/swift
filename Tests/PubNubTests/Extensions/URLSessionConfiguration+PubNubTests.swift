@@ -34,7 +34,6 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
 
     let defaultHeaders = [
       Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
-      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
       Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
     ]
 
@@ -46,7 +45,6 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
 
     let defaultHeaders = [
       Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
-      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
       Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
     ]
 

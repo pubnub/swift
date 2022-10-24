@@ -219,11 +219,15 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
-      guard let encodedResult = try? Constant.jsonEncoder.encode(result as? PubNubUUIDMetadataBase) else { return }
-      guard let encodedEntity = try? Constant.jsonEncoder.encode(self.uuidMetadata as? PubNubUUIDMetadataBase) else { return }
-      XCTAssertNotNil(encodedResult)
-      XCTAssertNotNil(encodedEntity)
-      XCTAssertEqual(encodedResult, encodedEntity)
+      XCTAssertEqual(result.metadataId, self.uuidMetadata?.metadataId)
+      XCTAssertEqual(result.name, self.uuidMetadata?.name)
+      XCTAssertEqual(result.type, self.uuidMetadata?.type)
+      XCTAssertEqual(result.status, self.uuidMetadata?.status)
+      XCTAssertEqual(result.externalId, self.uuidMetadata?.externalId)
+      XCTAssertEqual(result.profileURL, self.uuidMetadata?.profileURL)
+      XCTAssertEqual(result.email, self.uuidMetadata?.email)
+      XCTAssertEqual(result.updated, self.uuidMetadata?.updated)
+      XCTAssertEqual(result.eTag, self.uuidMetadata?.eTag)
       
       if args?.count == 2, let flags = args?.last, flags.contains("contains updated") {
         XCTAssertNotNil(result.updated)

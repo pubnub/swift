@@ -10,23 +10,23 @@ jobs:
     runs-on: macos-12
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Cache installed Pods
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
               ${{ runner.os }}-pods-
       - name: Cache installed Gems
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gem-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
               ${{ runner.os }}-gem-
       - name: Checkout mock-server action
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
@@ -50,7 +50,7 @@ jobs:
           bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
           mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
       - name: Upload acceptance tests reports
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: acceptance-test-reports
           path: Results/*.json

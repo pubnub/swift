@@ -42,7 +42,7 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _apiCallResults: [Any] = []
   fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                              subscribeKey: defaultSubscribeKey,
-                                                             uuid: UUID().uuidString,
+                                                             userId: UUID().uuidString,
                                                              useSecureConnections: false,
                                                              origin: mockServerAddress,
                                                              supressLeaveEvents: true)
@@ -89,7 +89,7 @@ let defaultPublishKey = "demo-36"
   public func handleAfterHook() {
     currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                subscribeKey: defaultSubscribeKey,
-                                               uuid: UUID().uuidString,
+                                               userId: UUID().uuidString,
                                                useSecureConnections: false,
                                                origin: mockServerAddress,
                                                supressLeaveEvents: true)
@@ -126,8 +126,21 @@ let defaultPublishKey = "demo-36"
     Given("the invalid keyset") { _, _ in
       // Nothing to do. Demo keys set by default if not explicitly set.
     }
-
+          
     Then("I receive successful response") { _, _ in
+      let lastResult = self.lastResult()
+      XCTAssertNotNil(lastResult, "There is no API calls results.")
+
+      guard let result = lastResult else {
+        XCTAssert(false, "Object is not Result type value")
+        return
+      }
+
+      XCTAssertFalse(result is Error, "Last API call shouldn't fail.")
+    }
+    
+    /// Not unified properly in feature files, so need to add duplicate to previous `Then(...)`
+    Then("I receive a successful response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
 
@@ -159,6 +172,7 @@ let defaultPublishKey = "demo-36"
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
     PubNubTimeContractTestSteps().setup()
+    PubNubObjectsUUIDContractTestSteps().setup()
   }
 
   // MARK: - Subscription

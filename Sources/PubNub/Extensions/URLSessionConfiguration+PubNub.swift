@@ -36,7 +36,6 @@ public extension URLSessionConfiguration {
 
     configuration.headers = [
       Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader,
-      Constant.contentTypeHeaderKey: Constant.defaultContentTypeHeader,
       Constant.userAgentHeaderKey: Constant.defaultUserAgentHeader
     ]
 

@@ -56,7 +56,7 @@ extension PubNubContractTestCase {
     ///
     /// - Parameter name: Entity name which is the same as name of file in which it is stored.
     /// - Returns: Parsed `PubNubUUIDMetadata` object or `nil` in case of parse / load error.
-    func uuidMetadataWithName(_ name: String) -> PubNubUUIDMetadata? {
+    func uuidMetadata(with name: String) -> PubNubUUIDMetadata? {
         guard let uuidData = loadDataFile(entityDataPathByName(name)) else { return nil }
         guard let uuidMetadata = try? Constant.jsonDecoder.decode(PubNubUUIDMetadataBase.self, from: uuidData) else {
             XCTAssert(false, "Unable to load / parse data for '\(name)' persona.")
@@ -70,7 +70,7 @@ extension PubNubContractTestCase {
     ///
     /// - Parameter name: Entity name which is the same as name of file in which it is stored.
     /// - Returns: Parsed `PubNubChannelMetadata` object or `nil` in case of parse / load error.
-    func channelMetadataWithName(_ name: String) -> PubNubChannelMetadata? {
+    func channelMetadata(with name: String) -> PubNubChannelMetadata? {
         guard let channelData = loadDataFile(entityDataPathByName(name)) else { return nil }
         guard let channelMetadata = try? Constant.jsonDecoder.decode(PubNubChannelMetadataBase.self, from: channelData) else {
             XCTAssert(false, "Unable to load / parse data for '\(name)' channel.")

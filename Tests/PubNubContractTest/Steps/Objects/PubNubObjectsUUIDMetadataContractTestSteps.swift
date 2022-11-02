@@ -60,7 +60,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
         return
       }
       
-      guard let uuidMetadata = self.uuidMetadataWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
@@ -75,7 +75,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
         return
       }
       
-      guard let uuidMetadata = self.uuidMetadataWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
@@ -90,7 +90,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
         return
       }
       
-      guard let uuidMetadata = self.uuidMetadataWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
@@ -209,7 +209,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
       guard let uuidName = args?.first else { return }
-      guard let uuidMetadata = self.uuidMetadataWithName(uuidName.lowercased()) else { return }
+      guard let uuidMetadata = self.uuidMetadata(with: uuidName.lowercased()) else { return }
       
       XCTAssertEqual(result.metadataId, uuidMetadata.metadataId)
       XCTAssertEqual(result.name, uuidMetadata.name)
@@ -236,7 +236,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
       
       var uuids: [PubNubUUIDMetadata] = []
       for userName in args ?? [] {
-        guard let uuidMetadata = self.uuidMetadataWithName(userName.lowercased()) else {
+        guard let uuidMetadata = self.uuidMetadata(with: userName.lowercased()) else {
           XCTAssert(false, "Persona file not parsed.")
           return
         }

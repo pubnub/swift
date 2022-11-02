@@ -47,7 +47,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
         return
       }
       
-      guard let channelMetadata = self.channelMetadataWithName(channelName) else {
+      guard let channelMetadata = self.channelMetadata(with: channelName) else {
         XCTAssert(false, "Channel file not parsed.")
         return
       }
@@ -62,7 +62,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
         return
       }
       
-      guard let channelMetadata = self.channelMetadataWithName(channelName) else {
+      guard let channelMetadata = self.channelMetadata(with: channelName) else {
         XCTAssert(false, "Channel file not parsed.")
         return
       }
@@ -178,7 +178,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
     Match(["And"], "^the channel metadata for '(.*)' channel(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubChannelMetadata else { return }
       guard let channelName = args?.first else { return }
-      guard let channelMetadata = self.channelMetadataWithName(channelName.lowercased()) else { return }
+      guard let channelMetadata = self.channelMetadata(with: channelName.lowercased()) else { return }
       
       XCTAssertEqual(result.metadataId, channelMetadata.metadataId)
       XCTAssertEqual(result.name, channelMetadata.name)
@@ -203,7 +203,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
       
       var channels: [PubNubChannelMetadata] = []
       for channelName in args ?? [] {
-        guard let channelMetadata = self.channelMetadataWithName(channelName.lowercased()) else {
+        guard let channelMetadata = self.channelMetadata(with: channelName.lowercased()) else {
           XCTAssert(false, "Channel file not parsed.")
           return
         }

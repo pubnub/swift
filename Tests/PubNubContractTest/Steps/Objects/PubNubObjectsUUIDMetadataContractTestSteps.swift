@@ -55,11 +55,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^the id for '(.*)' persona$") { args, _ in
-      guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
-        return
-      }
-      
+      let personaName = XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -70,11 +66,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^current user is '(.*)' persona$") { args, _ in
-      guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
-        return
-      }
-      
+      let personaName = XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -85,11 +77,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^the data for '(.*)' persona$") { args, _ in
-      guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
-        return
-      }
-      
+      let personaName = XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -208,8 +196,8 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
-      guard let uuidName = args?.first else { return }
-      guard let uuidMetadata = self.uuidMetadata(with: uuidName.lowercased()) else { return }
+      let uuidName = XCTUnwrap(args?.first?.lowercased())
+      guard let uuidMetadata = self.uuidMetadata(with: uuidName) else { return }
       
       XCTAssertEqual(result.metadataId, uuidMetadata.metadataId)
       XCTAssertEqual(result.name, uuidMetadata.name)

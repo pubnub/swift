@@ -42,7 +42,11 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
     startCucumberHookEventsListening()
     
     Given("^the id for '(.*)' channel$") { args, _ in
-      let channelName = try XCTUnwrap(args?.first?.lowercased())
+      guard args?.count == 1, let channelName = args?.first?.lowercased() else {
+        XCTAssert(false, "Channel name not specified.")
+        return
+      }
+      
       guard let channelMetadata = self.channelMetadata(with: channelName) else {
         XCTAssert(false, "Channel file not parsed.")
         return
@@ -53,7 +57,11 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
     }
     
     Given("^the data for '(.*)' channel$") { args, _ in
-      let channelName = try XCTUnwrap(args?.first?.lowercased())
+      guard args?.count == 1, let channelName = args?.first?.lowercased() else {
+        XCTAssert(false, "Channel name not specified.")
+        return
+      }
+      
       guard let channelMetadata = self.channelMetadata(with: channelName) else {
         XCTAssert(false, "Channel file not parsed.")
         return
@@ -169,7 +177,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubContractTestCa
     
     Match(["And"], "^the channel metadata for '(.*)' channel(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubChannelMetadata else { return }
-      let channelName = try XCTUnwrap(args?.first?.lowercased())
+      guard let channelName = args?.first?.lowercased() else { return }
       guard let channelMetadata = self.channelMetadata(with: channelName) else { return }
       
       XCTAssertEqual(result.metadataId, channelMetadata.metadataId)

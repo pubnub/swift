@@ -172,7 +172,8 @@ let defaultPublishKey = "demo-36"
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
     PubNubTimeContractTestSteps().setup()
-    PubNubObjectsUUIDContractTestSteps().setup()
+    PubNubObjectsChannelMetadataContractTestSteps().setup()
+    PubNubObjectsUUIDMetadataContractTestSteps().setup()
   }
 
   // MARK: - Subscription

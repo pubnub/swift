@@ -5,6 +5,13 @@
 build/
 DerivedData/
 
+## IDE
+.idea/
+
+## Tests
+Tests/PubNubContractTest/Features/
+Results/
+
 ## Config files containing secret keys
 *.debug.xcconfig
 *.release.xcconfig

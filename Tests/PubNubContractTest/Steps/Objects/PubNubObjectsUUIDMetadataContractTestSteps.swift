@@ -55,7 +55,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^the id for '(.*)' persona$") { args, _ in
-      let personaName = XCTUnwrap(args?.first?.lowercased())
+      let personaName = try XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -66,7 +66,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^current user is '(.*)' persona$") { args, _ in
-      let personaName = XCTUnwrap(args?.first?.lowercased())
+      let personaName = try XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -77,7 +77,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     }
     
     Given("^the data for '(.*)' persona$") { args, _ in
-      let personaName = XCTUnwrap(args?.first?.lowercased())
+      let personaName = try XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
@@ -196,7 +196,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase 
     
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
-      let uuidName = XCTUnwrap(args?.first?.lowercased())
+      let uuidName = try XCTUnwrap(args?.first?.lowercased())
       guard let uuidMetadata = self.uuidMetadata(with: uuidName) else { return }
       
       XCTAssertEqual(result.metadataId, uuidMetadata.metadataId)

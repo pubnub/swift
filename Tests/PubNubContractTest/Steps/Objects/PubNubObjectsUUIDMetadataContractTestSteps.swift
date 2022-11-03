@@ -30,23 +30,19 @@ import Foundation
 import PubNub
 import XCTest
 
-import Foundation
-
-public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
-  var channelMetadata: PubNubChannelMetadata?
-  var setUUIDAsCurrentUser: Bool = false
+public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubContractTestCase {
+  var setUserIdAsCurrentUser: Bool = false
   var uuidMetadata: PubNubUUIDMetadata?
   
   public override func handleAfterHook() {
-    channelMetadata = nil
     uuidMetadata = nil
     super.handleAfterHook()
   }
   
   override public var configuration: PubNubConfiguration {
     var config = super.configuration
-    if setUUIDAsCurrentUser, let userId = uuidMetadata?.metadataId {
-      config.userId = userId
+    if setUserIdAsCurrentUser, let metadataId = uuidMetadata?.metadataId {
+      config.userId = metadataId
     }
     return config
   }
@@ -60,53 +56,51 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     
     Given("^the id for '(.*)' persona$") { args, _ in
       guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
+        XCTAssert(false, "UUID not specified.")
         return
       }
       
-      guard let uuid = self.uuidWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
       
-      XCTAssertNotNil(uuid.metadataId)
-      self.uuidMetadata = uuid
+      XCTAssertNotNil(uuidMetadata.metadataId)
+      self.uuidMetadata = PubNubUUIDMetadataBase(metadataId: uuidMetadata.metadataId)
     }
     
     Given("^current user is '(.*)' persona$") { args, _ in
       guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
+        XCTAssert(false, "UUID not specified.")
         return
       }
       
-      guard let uuid = self.uuidWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
       
-      XCTAssertNotNil(uuid.metadataId)
-      self.setUUIDAsCurrentUser = true
-      self.uuidMetadata = uuid
+      self.setUserIdAsCurrentUser = true
+      self.uuidMetadata = uuidMetadata
     }
     
     Given("^the data for '(.*)' persona$") { args, _ in
       guard args?.count == 1, let personaName = args?.first?.lowercased() else {
-        XCTAssert(false, "Persona name has been expected.")
+        XCTAssert(false, "UUID not specified.")
         return
       }
       
-      guard let uuid = self.uuidWithName(personaName) else {
+      guard let uuidMetadata = self.uuidMetadata(with: personaName) else {
         XCTAssert(false, "Persona file not parsed.")
         return
       }
       
-      XCTAssertNotNil(uuid.metadataId)
-      self.uuidMetadata = uuid
+      self.uuidMetadata = uuidMetadata
     }
     
     When("^I get the UUID metadata(.*)$") { args, _ in
-      let fetchUUIDExpect = self.expectation(description: "Fetch UUID metadata Response")
-      let uuid = self.setUUIDAsCurrentUser ? nil : self.uuidMetadata?.metadataId
+      let fetchUUIDMetadataExpect = self.expectation(description: "Fetch UUID metadata response")
+      let uuid = self.setUserIdAsCurrentUser ? nil : self.uuidMetadata?.metadataId
       var includeCustom = false
       
       if args?.count == 1, let flags = args?.first {
@@ -124,10 +118,10 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
           self.handleResult(result: error)
         }
         
-        fetchUUIDExpect.fulfill()
+        fetchUUIDMetadataExpect.fulfill()
       }
       
-      self.wait(for: [fetchUUIDExpect], timeout: 60.0)
+      self.wait(for: [fetchUUIDMetadataExpect], timeout: 60.0)
       
       let result = self.lastResult() as? PubNubUUIDMetadata
       XCTAssertNotNil(result, "Fetch UUID metadata didn't returned any response or it had unexpected format")
@@ -138,14 +132,9 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     }
     
     When("I set the UUID metadata") { _, _ in
-      guard let uuid = try? PubNubUUIDMetadataBase(from: self.uuidMetadata!) else {
-        XCTAssert(false, "Unable prepare UUID metadata model.")
-        return
-      }
+      let setUUIDExpect = self.expectation(description: "Set UUID metadata response")
       
-      let setUUIDExpect = self.expectation(description: "Set UUID metadata Response")
-      
-      self.client.set(uuid: uuid) { result in
+      self.client.set(uuid: self.uuidMetadata!) { result in
         switch result {
         case let .success(metadata):
           self.handleResult(result: metadata)
@@ -162,26 +151,26 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     }
     
     When("^I remove the UUID metadata(.*)$") { args, _ in
-      var uuid = self.uuidMetadata?.metadataId
+      var metadataId = self.uuidMetadata?.metadataId
       
       if args?.count == 1, let flags = args?.first, flags.contains("current user") {
-        uuid = nil
+        metadataId = nil
       }
       
-      let removeUUIDExpect = self.expectation(description: "Remove UUID metadata Response")
+      let removeUUIDMetadataExpect = self.expectation(description: "Remove UUID metadata response")
       
-      self.client.remove(uuid: uuid) { result in
+      self.client.remove(uuid: metadataId) { result in
         switch result {
-        case let .success(userId):
-          self.handleResult(result: userId)
+        case let .success(removedUUID):
+          self.handleResult(result: removedUUID)
         case let .failure(error):
           self.handleResult(result: error)
         }
         
-        removeUUIDExpect.fulfill()
+        removeUUIDMetadataExpect.fulfill()
       }
       
-      self.wait(for: [removeUUIDExpect], timeout: 60.0)
+      self.wait(for: [removeUUIDMetadataExpect], timeout: 60.0)
       
       let result = self.lastResult() as? String
       XCTAssertNotNil(result, "Remove UUID metadata didn't returned any response or it had unexpected format")
@@ -189,7 +178,7 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     }
     
     When("^I get all UUID metadata(.*)$") { args, _ in
-      let fetchAllUUIDExpect = self.expectation(description: "Fetch all UUID metadata Response")
+      let fetchAllUUIDMetadataExpect = self.expectation(description: "Fetch all UUID metadata response")
       var includeCustom = PubNub.IncludeFields(custom: false, totalCount: false)
       
       if args?.count == 1, let flags = args?.first {
@@ -211,23 +200,26 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
           self.handleResult(result: error)
         }
         
-        fetchAllUUIDExpect.fulfill()
+        fetchAllUUIDMetadataExpect.fulfill()
       }
       
-      self.wait(for: [fetchAllUUIDExpect], timeout: 60.0)
+      self.wait(for: [fetchAllUUIDMetadataExpect], timeout: 60.0)
     }
     
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
-      XCTAssertEqual(result.metadataId, self.uuidMetadata?.metadataId)
-      XCTAssertEqual(result.name, self.uuidMetadata?.name)
-      XCTAssertEqual(result.type, self.uuidMetadata?.type)
-      XCTAssertEqual(result.status, self.uuidMetadata?.status)
-      XCTAssertEqual(result.externalId, self.uuidMetadata?.externalId)
-      XCTAssertEqual(result.profileURL, self.uuidMetadata?.profileURL)
-      XCTAssertEqual(result.email, self.uuidMetadata?.email)
-      XCTAssertEqual(result.updated, self.uuidMetadata?.updated)
-      XCTAssertEqual(result.eTag, self.uuidMetadata?.eTag)
+      guard let uuidName = args?.first?.lowercased() else { return }
+      guard let uuidMetadata = self.uuidMetadata(with: uuidName) else { return }
+      
+      XCTAssertEqual(result.metadataId, uuidMetadata.metadataId)
+      XCTAssertEqual(result.name, uuidMetadata.name)
+      XCTAssertEqual(result.type, uuidMetadata.type)
+      XCTAssertEqual(result.status, uuidMetadata.status)
+      XCTAssertEqual(result.externalId, uuidMetadata.externalId)
+      XCTAssertEqual(result.profileURL, uuidMetadata.profileURL)
+      XCTAssertEqual(result.email, uuidMetadata.email)
+      XCTAssertEqual(result.updated, uuidMetadata.updated)
+      XCTAssertEqual(result.eTag, uuidMetadata.eTag)
       
       if args?.count == 2, let flags = args?.last, flags.contains("contains updated") {
         XCTAssertNotNil(result.updated)
@@ -237,13 +229,24 @@ public class PubNubObjectsUUIDContractTestSteps: PubNubContractTestCase {
     Match(["And"], "^the response contains list with '(.*)' and '(.*)' UUID metadata$") { args, _ in
       let result = self.lastResult() as? ((uuids:[PubNubUUIDMetadata], next: PubNubHashedPage))
       XCTAssertNotNil(result, "Fetch all UUID metadata didn't returned any response or it had unexpected format")
-      guard let uuids = result?.uuids else { return }
+      guard let receivedUUIDs = result?.uuids else { return }
       
       XCTAssertEqual(args?.count, 2, "Not all UUID names specified")
-      XCTAssertEqual(uuids.count, 2)
+      XCTAssertEqual(receivedUUIDs.count, 2)
       
+      var uuids: [PubNubUUIDMetadata] = []
       for userName in args ?? [] {
-        XCTAssert(uuids.map { $0.name }.contains(userName), "\(userName) is missing from received UUIDs list.")
+        guard let uuidMetadata = self.uuidMetadata(with: userName.lowercased()) else {
+          XCTAssert(false, "Persona file not parsed.")
+          return
+        }
+        
+        uuids.append(uuidMetadata)
+      }
+      
+      for uuidMetadata in uuids {
+        XCTAssert(receivedUUIDs.map { $0.metadataId }.contains(uuidMetadata.metadataId),
+                  "\(uuidMetadata.metadataId) is missing from received UUIDs list.")
       }
     }
   }

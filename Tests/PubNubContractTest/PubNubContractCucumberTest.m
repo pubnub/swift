@@ -64,12 +64,12 @@ void CucumberishInit(void) {
   
   // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
   NSArray *includedTags = @[
-    @"contract=getUUIDMetadataOfAlice",
-    @"contract=getUUIDMetadataOfBobWithCustom",
-    @"contract=setUUIDMetadataForAlice",
-    @"contract=removeUUIDMetadataOfAlice",
-    @"contract=getAllUUIDMetadata",
-    @"contract=getAllUUIDMetadataWithCustom"
+    @"contract=getChannelMetadataOfChat",
+    @"contract=getChannelMetadataOfDMWithCustom",
+    @"contract=setChannelMetadataForChat",
+    @"contract=removeChannelMetadataOfChat",
+    @"contract=getAllChannelMetadata",
+    @"contract=getAllChannelMetadataWithCustom"
   ];
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];

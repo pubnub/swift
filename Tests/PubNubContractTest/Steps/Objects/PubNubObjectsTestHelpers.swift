@@ -52,31 +52,31 @@ extension PubNubContractTestCase {
         return loadedData
     }
     
-    /// Retrieve `UUID` object information using owner name.
+    /// Retrieve `UUID metadata` object information using owner name.
     ///
     /// - Parameter name: Entity name which is the same as name of file in which it is stored.
     /// - Returns: Parsed `PubNubUUIDMetadata` object or `nil` in case of parse / load error.
-    func uuidWithName(_ name: String) -> PubNubUUIDMetadata? {
+    func uuidMetadata(with name: String) -> PubNubUUIDMetadata? {
         guard let uuidData = loadDataFile(entityDataPathByName(name)) else { return nil }
-        guard let uuid = try? Constant.jsonDecoder.decode(PubNubUUIDMetadataBase.self, from: uuidData) else {
+        guard let uuidMetadata = try? Constant.jsonDecoder.decode(PubNubUUIDMetadataBase.self, from: uuidData) else {
             XCTAssert(false, "Unable to load / parse data for '\(name)' persona.")
             return nil
         }
         
-        return uuid
+        return uuidMetadata
     }
     
-    /// Retrieve `channel` object information using owner name.
+    /// Retrieve `channel metadata` object information using owner name.
     ///
     /// - Parameter name: Entity name which is the same as name of file in which it is stored.
     /// - Returns: Parsed `PubNubChannelMetadata` object or `nil` in case of parse / load error.
-    func channelWithName(_ name: String) -> PubNubChannelMetadata? {
+    func channelMetadata(with name: String) -> PubNubChannelMetadata? {
         guard let channelData = loadDataFile(entityDataPathByName(name)) else { return nil }
-        guard let channel = try? Constant.jsonDecoder.decode(PubNubChannelMetadataBase.self, from: channelData) else {
+        guard let channelMetadata = try? Constant.jsonDecoder.decode(PubNubChannelMetadataBase.self, from: channelData) else {
             XCTAssert(false, "Unable to load / parse data for '\(name)' channel.")
             return nil
         }
         
-        return channel
+        return channelMetadata
     }
 }

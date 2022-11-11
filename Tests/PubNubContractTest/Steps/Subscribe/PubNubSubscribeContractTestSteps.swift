@@ -35,6 +35,19 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
   override public var configuration: PubNubConfiguration {
     var config = super.configuration
     config.cipherKey = cipherKey
+    
+    if let scenario = self.currentScenario, scenario.name.contains("auto-retry") {
+      config.automaticRetry = AutomaticRetry(retryLimit: 10, policy: .linear(delay: 0.1))
+    }
+    
+    if hasStep(with: "Given auth key") {
+      config.authKey = "auth"
+    }
+    
+    if hasStep(with: "Given token") {
+      config.authToken = "token"
+    }
+    
     return config
   }
 
@@ -42,10 +55,14 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
     cipherKey = nil
     super.handleBeforeHook()
   }
+  
+  public override var expectSubscribeFailure: Bool {
+    return self.hasStep(with: "I receive access denied status")
+  }
 
   override public func setup() {
     startCucumberHookEventsListening()
-
+    
     Given("the crypto keyset") { _, _ in
       self.cipherKey = Crypto(key: "enigma")
     }
@@ -64,13 +81,13 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
       let messages = self.waitForMessages(self.client, count: 1)
       XCTAssertNotNil(messages)
 
-      if self.checkTestingFeature(feature: "Message encryption", userInfo: userInfo!) {
+      if self.checkTestingFeature(feature: "MessageEncryption", userInfo: userInfo!) {
         if let message = messages?.last {
           XCTAssertEqual(message.payload.rawValue as! String, "hello world")
         } else {
           XCTAssert(false, "Expected at least on message")
         }
-      } else if self.checkTestingFeature(feature: "Subscribe Loop", userInfo: userInfo!) {
+      } else if self.checkTestingFeature(feature: "SubscribeLoop", userInfo: userInfo!) {
         // Give some time to rotate received timetokens.
         self.waitFor(delay: 0.25)
       }
@@ -88,6 +105,16 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
       }
 
       self.waitFor(delay: 0.25)
+    }
+    
+    Match(["*"], "I don't auto-retry subscribe") { _, _ in
+      guard self.receivedErrorStatuses.last != nil else {
+        XCTAssert(false, "Last status should be error.")
+        return
+      }
+      
+      /// Give some more time for SDK to check that it won't retry after 0.1 seconds.
+      self.waitFor(delay: 0.3)
     }
   }
 }

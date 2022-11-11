@@ -401,6 +401,12 @@
 		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
+		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
+		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
+		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
+		A5115F29291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
+		A5115F2B291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */; };
+		A5115F2C291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */; };
 		A56445EF2906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */; };
 		A56445F02906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */; };
 		A56445F22907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
@@ -908,6 +914,9 @@
 		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
+		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
+		A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
 		A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsTestHelpers.swift; sourceTree = "<group>"; };
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUUIDMetadataContractTestSteps.swift; sourceTree = "<group>"; };
@@ -1985,6 +1994,9 @@
 			children = (
 				A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */,
 				A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */,
+				A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */,
+				A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */,
+				A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */,
 				A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */,
 			);
 			path = Objects;
@@ -2831,8 +2843,11 @@
 				79407BDC271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift in Sources */,
 				79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */,
 				79407BDE271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
+				A5115F2B291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE4271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
 				79407BD8271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
+				A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
+				A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDA271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445EF2906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
 				79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */,
@@ -2851,8 +2866,11 @@
 				79407BDD271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift in Sources */,
 				79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */,
 				79407BDF271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
+				A5115F2C291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE5271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
 				79407BD9271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
+				A5115F29291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
+				A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDB271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445F02906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
 				79407BD5271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */,

@@ -66,6 +66,25 @@ extension PubNubContractTestCase {
         return uuidMetadata
     }
     
+    /// Retrieve `membership metadata` object information using owner name.
+    ///
+    /// - Parameter name: Entity name which is the same as name of file in which it is stored.
+    /// - Parameter entity: Identifier of entity for which membership is retrieved.
+    /// - Returns: Parsed `ObjectMetadataPartial` object or `nil` in case of parse / load error.
+  func membership(with name: String, for entity: String) -> PubNubMembershipMetadata? {
+      guard let membershipData = loadDataFile(entityDataPathByName(name)) else { return nil }
+      guard let partialMembershipMetadata = try? Constant.jsonDecoder.decode(ObjectMetadataPartial.self, from: membershipData) else {
+          XCTAssert(false, "Unable to load / parse data for '\(name)' partial membership.")
+          return nil
+      }
+      guard let membershipMetadata = PubNubMembershipMetadataBase(from: partialMembershipMetadata, other: entity) else {
+          XCTAssert(false, "Unable create membership metadata for '\(name)' membership.")
+          return nil
+      }
+      
+      return membershipMetadata
+    }
+    
     /// Retrieve `channel metadata` object information using owner name.
     ///
     /// - Parameter name: Entity name which is the same as name of file in which it is stored.

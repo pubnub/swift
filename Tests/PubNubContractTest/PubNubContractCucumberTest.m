@@ -31,9 +31,11 @@
 
 __attribute__((constructor))
 void CucumberishInit(void) {
-  [[Cucumberish instance] setPrettyNamesAllowed:YES];
-  [[PubNubContractTestCase new] setup];
+  [Cucumberish instance].prettyFeatureNamesAllowed = NO;
   [Cucumberish instance].fixMissingLastScenario = NO;
+  [Cucumberish instance].prettyNamesAllowed = YES;
+  [Cucumberish instance].featureNamesPrefix = @"";
+  [[PubNubContractTestCase new] setup];
     
   NSMutableArray *excludeTags = [@[
     @"contract=authSuccess",
@@ -69,8 +71,31 @@ void CucumberishInit(void) {
     @"contract=setChannelMetadataForChat",
     @"contract=removeChannelMetadataOfChat",
     @"contract=getAllChannelMetadata",
-    @"contract=getAllChannelMetadataWithCustom"
+    @"contract=getAllChannelMetadataWithCustom",
+
+    @"contract=getUUIDMetadataOfAlice",
+    @"contract=getUUIDMetadataOfBobWithCustom",
+    @"contract=setUUIDMetadataForAlice",
+    @"contract=removeUUIDMetadataOfAlice",
+    @"contract=getAllUUIDMetadata",
+    @"contract=getAllUUIDMetadataWithCustom",
+    
+    @"contract=getMembersOfChatChannel",
+    @"contract=getMembersOfVipChatChannelWithCustomAndUuidWithCustom",
+    @"contract=setMembersForChatChannel",
+    @"contract=setMembersForChatChannelWithCustomAndUuidWithCustom",
+    @"contract=removeMembersForChatChannel",
+    @"contract=manageMembersForChatChannel",
+
+    @"contract=getAliceMemberships",
+    @"contract=getAliceMemberships",
+    @"contract=getBobMembershipWithCustomAndChannelCustom",
+    @"contract=setAliceMembership",
+    @"contract=removeAliceMembership",
+    @"contract=manageAliceMemberships"
   ];
+
+  
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"

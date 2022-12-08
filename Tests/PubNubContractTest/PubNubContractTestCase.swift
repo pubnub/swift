@@ -51,22 +51,22 @@ let defaultPublishKey = "demo-36"
   fileprivate static var currentClient: PubNub?
 
   public var configuration: PubNubConfiguration { currentConfiguration }
-  
+
   public var expectSubscribeFailure: Bool { false }
-  
+
   public var expectSubscribeRetry: Bool { false }
-  
+
   public var currentScenario: CCIScenarioDefinition? { PubNubContractTestCase._currentScenario }
-  
+
   public var scenarioSteps: [CCIStep]? { PubNubContractTestCase._currentScenario?.steps }
-  
+
   public var currentStep: CCIStep { CCIStepsManager.instance().currentStep }
-  
+
   public var receivedErrorStatuses: [SubscriptionListener.StatusEvent] {
     get { PubNubContractTestCase._receivedErrorStatuses }
     set { PubNubContractTestCase._receivedErrorStatuses = newValue }
   }
-  
+
   public var receivedStatuses: [SubscriptionListener.StatusEvent] {
     get { PubNubContractTestCase._receivedStatuses }
     set { PubNubContractTestCase._receivedStatuses = newValue }
@@ -145,7 +145,7 @@ let defaultPublishKey = "demo-36"
     Given("auth key") { _, _ in /* Nothing to do here. Auth key will should be added by test case. */ }
     Given("token") { _, _ in /* Nothing to do here. Auth token will should be added by test case. */ }
     Given("secret key") { _, _ in /* Nothing to do here. Swift SDK doesn't have ability to use 'secret key'. */ }
-    
+
     Then("I receive successful response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
@@ -157,7 +157,7 @@ let defaultPublishKey = "demo-36"
 
       XCTAssertFalse(result is Error, "Last API call shouldn't fail.")
     }
-    
+
     /// Not unified properly in feature files, so need to add duplicate to previous `Then(...)`
     Then("I receive a successful response") { _, _ in
       let lastResult = self.lastResult()
@@ -182,35 +182,35 @@ let defaultPublishKey = "demo-36"
 
       XCTAssertTrue(result is Error, "Last API call should report error")
     }
-    
+
     Then("I receive access denied status") { _, _ in
       let lastResult = self.receivedErrorStatuses.last
       XCTAssertNotNil(lastResult, "There is subscribe statuses.")
-      
+
       guard let result = lastResult else {
         XCTAssert(false, "Object is not status type value")
         return
       }
-      
+
       switch result {
-      case .success(_):
+      case .success:
         XCTAssert(false, "Expected access denied status")
       case let .failure(error):
         XCTAssertTrue(error.reason == .forbidden)
       }
     }
-    
+
     Match(["*"], "I receive access denied status") { _, _ in
       let lastResult = self.receivedErrorStatuses.last
       XCTAssertNotNil(lastResult, "There is subscribe statuses.")
-      
+
       guard let result = lastResult else {
         XCTAssert(false, "Object is not status type value")
         return
       }
-      
+
       switch result {
-      case .success(_):
+      case .success:
         XCTAssert(false, "Expected access denied status")
       case let .failure(error):
         XCTAssertTrue(error.reason == .forbidden)
@@ -225,7 +225,7 @@ let defaultPublishKey = "demo-36"
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
     PubNubTimeContractTestSteps().setup()
-    
+
     /// Objects acceptance testins.
     PubNubObjectsContractTests().setup()
     PubNubObjectsChannelMetadataContractTestSteps().setup()
@@ -262,7 +262,7 @@ let defaultPublishKey = "demo-36"
         }
       case let .failure(error):
         var statusCode = 200
-        
+
         error.affected.forEach {
           switch $0 {
           case let .response(response):
@@ -271,16 +271,16 @@ let defaultPublishKey = "demo-36"
             break
           }
         }
-        
+
         if strongSelf.receivedErrorStatuses.count > 0 && !strongSelf.expectSubscribeRetry {
           XCTAssert(false, "Unexpected subscribe retry")
         }
-        
+
         strongSelf.receivedErrorStatuses.append(result)
-        
+
         /// Mock server special case handling.
         let shouldIgnoreMockServerTeardown = strongSelf.isLastStep() && statusCode == 500
-        
+
         if strongSelf.expectSubscribeFailure || shouldIgnoreMockServerTeardown {
           subscribeStatusExpect.fulfill()
         } else {
@@ -393,25 +393,25 @@ let defaultPublishKey = "demo-36"
 
     return contract
   }
-  
+
   public func isNextStep(with name: String) -> Bool {
-    guard let steps = self.scenarioSteps else { return false }
-    guard let currentStepIdx = steps.firstIndex(of: self.currentStep), currentStepIdx + 1 < steps.count else { return false }
+    guard let steps = scenarioSteps else { return false }
+    guard let currentStepIdx = steps.firstIndex(of: currentStep), currentStepIdx + 1 < steps.count else { return false }
     let nextStep = steps[currentStepIdx + 1]
-    
+
     return nextStep.fullName() == name || nextStep.text == name
   }
-  
+
   public func hasStep(with name: String) -> Bool {
-    guard let steps = self.scenarioSteps else { return false }
-    
+    guard let steps = scenarioSteps else { return false }
+
     return steps.map { $0.text }.contains(name) || steps.map { $0.fullName() }.contains(name)
   }
-  
+
   fileprivate func isLastStep() -> Bool {
     let currentStep = CCIStepsManager.instance().currentStep
     let lastStep = PubNubContractTestCase._currentScenario?.steps.last
-    
+
     return currentStep?.fullName() == lastStep?.fullName()
   }
 
@@ -426,12 +426,10 @@ let defaultPublishKey = "demo-36"
   }
 }
 
-
 extension Notification.Name {
   static let cucumberBeforeHook = Notification.Name("cucumberBeforeHook")
   static let cucumberAfterHook = Notification.Name("cucumberAfterHook")
 }
-
 
 /// Membership helper for membership management steps.
 public enum PubNubTestMembershipForAction {

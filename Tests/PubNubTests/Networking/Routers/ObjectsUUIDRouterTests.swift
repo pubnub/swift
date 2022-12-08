@@ -81,7 +81,8 @@ extension ObjectsUUIDRouterTests {
     )
     let page = PubNubHashedPageBase(start: "NextPage", end: "PrevPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
         XCTAssertEqual(metadataObjects.compactMap { try? $0.transcode() }, [firstTest, lastTest])
@@ -104,7 +105,8 @@ extension ObjectsUUIDRouterTests {
 
     let testPage = PubNubHashedPageBase(start: "NextPage")
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
         XCTAssertTrue(metadataObjects.isEmpty)
@@ -125,7 +127,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -145,7 +148,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -165,7 +169,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -185,7 +190,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).allUUIDMetadata { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.allUUIDMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -234,7 +240,8 @@ extension ObjectsUUIDRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -254,7 +261,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -274,7 +282,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -294,7 +303,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -314,7 +324,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -334,7 +345,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetch(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -381,7 +393,8 @@ extension ObjectsUUIDRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -401,7 +414,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -421,7 +435,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -441,7 +456,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -461,7 +477,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -481,7 +498,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -501,7 +519,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -521,7 +540,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).set(uuid: testUser) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.set(uuid: testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -560,7 +580,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case let .success(metadataId):
         XCTAssertEqual(metadataId, "TestUser")
@@ -580,7 +601,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: nil) { [weak self] result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: nil) { [weak self] result in
       switch result {
       case let .success(metadataId):
         XCTAssertEqual(metadataId, self?.config.uuid)
@@ -600,7 +622,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -620,7 +643,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -640,7 +664,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -660,7 +685,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -680,7 +706,8 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(uuid: "TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")

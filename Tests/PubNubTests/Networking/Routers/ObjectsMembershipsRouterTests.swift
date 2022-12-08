@@ -92,10 +92,8 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(
-      configuration: config, session: sessions.session
-    ).fetchMemberships(uuid: "TestUser"
-    ) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMemberships(uuid: "TestUser") { result in
       switch result {
       case let .success((memberships, nextPage)):
         XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
@@ -118,19 +116,18 @@ extension ObjectsMembershipsRouterTests {
 
     let testPage = PubNubHashedPageBase(start: "NextPage")
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMemberships(uuid: "TestUser"
-      ) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertTrue(memberships.isEmpty)
-          XCTAssertEqual(try? nextPage?.transcode(), testPage)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMemberships(uuid: "TestUser") { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertTrue(memberships.isEmpty)
+        XCTAssertEqual(try? nextPage?.transcode(), testPage)
 
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -193,17 +190,17 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session)
-      .setMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
-          XCTAssertEqual(try? nextPage?.transcode(), page)
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.setMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -237,17 +234,17 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
-          XCTAssertEqual(try? nextPage?.transcode(), page)
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMemberships(uuid: "TestUser", channels: [firstMembership]) { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -311,22 +308,21 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMembers(channel: "TestChannel"
-      ) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          let membs1: [PubNubMembershipMetadataBase] = memberships.compactMap { try? $0.transcode() }
-          let membs2 = [firstMembership, lastMembership]
-          print("MEMBS 1: \(membs1)")
-          print("MEMBS 2: \(membs2)")
-          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
-          XCTAssertEqual(try? nextPage?.transcode(), page)
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMembers(channel: "TestChannel") { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        let membs1: [PubNubMembershipMetadataBase] = memberships.compactMap { try? $0.transcode() }
+        let membs2 = [firstMembership, lastMembership]
+        print("MEMBS 1: \(membs1)")
+        print("MEMBS 2: \(membs2)")
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -340,19 +336,18 @@ extension ObjectsMembershipsRouterTests {
 
     let testPage = PubNubHashedPageBase(start: "NextPage")
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMembers(channel: "TestChannel"
-      ) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertTrue(memberships.isEmpty)
-          XCTAssertEqual(try? nextPage?.transcode(), testPage)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMembers(channel: "TestChannel") { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertTrue(memberships.isEmpty)
+        XCTAssertEqual(try? nextPage?.transcode(), testPage)
 
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -418,17 +413,17 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session)
-      .setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
-          XCTAssertEqual(try? nextPage?.transcode(), page)
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -465,17 +460,17 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
 
-    PubNub(configuration: config, session: sessions.session)
-      .setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
-        switch result {
-        case let .success((memberships, nextPage)):
-          XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
-          XCTAssertEqual(try? nextPage?.transcode(), page)
-        case let .failure(error):
-          XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
+      switch result {
+      case let .success((memberships, nextPage)):
+        XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])
+        XCTAssertEqual(try? nextPage?.transcode(), page)
+      case let .failure(error):
+        XCTFail("Fetch Memberships request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

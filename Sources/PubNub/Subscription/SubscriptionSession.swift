@@ -109,15 +109,15 @@ public class SubscriptionSession {
     mutableSession.sessionStream = sessionStream
     longPollingSession = mutableSession
 
-    sessionStream.didRetryRequest = { _ in
-      self.connectionStatus = .reconnecting
+    sessionStream.didRetryRequest = { [weak self] _ in
+      self?.connectionStatus = .reconnecting
     }
 
-    sessionStream.sessionDidReceiveChallenge = { _, _ in
-      if self.connectionStatus == .reconnecting {
+    sessionStream.sessionDidReceiveChallenge = { [weak self] _, _ in
+      if self?.connectionStatus == .reconnecting {
         // Delay time for server to process connection after TLS handshake
         DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.05) {
-          self.connectionStatus = .connected
+          self?.connectionStatus = .connected
         }
       }
     }

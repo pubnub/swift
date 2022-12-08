@@ -84,7 +84,8 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: config, session: sessions.session).time { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.time { result in
       switch result {
       case let .success(timetoken):
         XCTAssertEqual(timetoken, 15_643_405_135_132_358)
@@ -142,7 +143,8 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: config, session: sessions.session).time { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.time { result in
       switch result {
       case .success:
         XCTFail("Time request should fail")
@@ -210,7 +212,8 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    PubNub(configuration: config, session: sessions.session).time { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.time { result in
       switch result {
       case let .success(timetoken):
         XCTAssertEqual(timetoken, 15_643_405_135_132_358)

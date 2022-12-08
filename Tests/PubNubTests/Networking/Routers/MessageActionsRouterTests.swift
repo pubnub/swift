@@ -65,20 +65,20 @@ extension MessageActionsRouterTests {
       publisher: "testUser", channel: "TestChannel"
     )
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageActions(channel: "TestChannel") { result in
-        switch result {
-        case let .success((actions, next)):
-          XCTAssertEqual(try? actions.first?.transcode(), testAction)
-          XCTAssertEqual(next?.start, 15_610_547_826_970_050)
-          XCTAssertEqual(next?.end, 15_645_905_639_093_361)
-          XCTAssertEqual(next?.limit, 2)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+      switch result {
+      case let .success((actions, next)):
+        XCTAssertEqual(try? actions.first?.transcode(), testAction)
+        XCTAssertEqual(next?.start, 15_610_547_826_970_050)
+        XCTAssertEqual(next?.end, 15_645_905_639_093_361)
+        XCTAssertEqual(next?.limit, 2)
 
-        case let .failure(error):
-          XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -90,18 +90,18 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageActions(channel: "TestChannel") { result in
-        switch result {
-        case let .success((actions, next)):
-          XCTAssertTrue(actions.isEmpty)
-          XCTAssertNil(next)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+      switch result {
+      case let .success((actions, next)):
+        XCTAssertTrue(actions.isEmpty)
+        XCTAssertNil(next)
 
-        case let .failure(error):
-          XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -113,16 +113,16 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageActions(channel: "TestChannel") { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .invalidSubscribeKey)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .invalidSubscribeKey)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -134,16 +134,16 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageActions(channel: "TestChannel") { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .forbidden)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .forbidden)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -184,21 +184,21 @@ extension MessageActionsRouterTests {
       publisher: "testUser", channel: "TestChannel"
     )
 
-    PubNub(configuration: config, session: sessions.session)
-      .addMessageAction(
-        channel: "TestChannel",
-        type: "reaction", value: "smiley_face",
-        messageTimetoken: 15_610_547_826_969_050
-      ) { result in
-        switch result {
-        case let .success(action):
-          XCTAssertEqual(try? action.transcode(), testAction)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.addMessageAction(
+      channel: "TestChannel",
+      type: "reaction", value: "smiley_face",
+      messageTimetoken: 15_610_547_826_969_050
+    ) { result in
+      switch result {
+      case let .success(action):
+        XCTAssertEqual(try? action.transcode(), testAction)
 
-        case let .failure(error):
-          XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -217,20 +217,20 @@ extension MessageActionsRouterTests {
       publisher: "testUser", channel: "TestChannel"
     )
 
-    PubNub(configuration: config, session: sessions.session)
-      .addMessageAction(
-        channel: "TestChannel",
-        type: "reaction", value: "smiley_face",
-        messageTimetoken: 15_610_547_826_969_050
-      ) { result in
-        switch result {
-        case let .success(action):
-          XCTAssertEqual(try? action.transcode(), testAction)
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.addMessageAction(
+      channel: "TestChannel",
+      type: "reaction", value: "smiley_face",
+      messageTimetoken: 15_610_547_826_969_050
+    ) { result in
+      switch result {
+      case let .success(action):
+        XCTAssertEqual(try? action.transcode(), testAction)
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -242,21 +242,21 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .addMessageAction(
-        channel: "TestChannel",
-        type: "reaction", value: "smiley_face",
-        messageTimetoken: 15_610_547_826_969_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .badRequest)
-          XCTAssertEqual(error.pubNubError?.details, ["Missing field"])
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.addMessageAction(
+      channel: "TestChannel",
+      type: "reaction", value: "smiley_face",
+      messageTimetoken: 15_610_547_826_969_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+        XCTAssertEqual(error.pubNubError?.details, ["Missing field"])
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -268,20 +268,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .addMessageAction(
-        channel: "TestChannel",
-        type: "reaction", value: "smiley_face",
-        messageTimetoken: 15_610_547_826_969_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .forbidden)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.addMessageAction(
+      channel: "TestChannel",
+      type: "reaction", value: "smiley_face",
+      messageTimetoken: 15_610_547_826_969_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .forbidden)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -293,20 +293,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .addMessageAction(
-        channel: "TestChannel",
-        type: "reaction", value: "smiley_face",
-        messageTimetoken: 15_610_547_826_969_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .conflict)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.addMessageAction(
+      channel: "TestChannel",
+      type: "reaction", value: "smiley_face",
+      messageTimetoken: 15_610_547_826_969_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .conflict)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -336,19 +336,19 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMessageActions(
-        channel: "TestChannel",
-        message: 15_610_547_826_969_050,
-        action: 15_610_547_826_970_050
-      ) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMessageActions(
+      channel: "TestChannel",
+      message: 15_610_547_826_969_050,
+      action: 15_610_547_826_970_050
+    ) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -361,20 +361,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMessageActions(
-        channel: "TestChannel",
-        message: 15_610_547_826_969_050,
-        action: 15_610_547_826_970_050
-      ) { result in
-        switch result {
-        case .success:
-          break
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMessageActions(
+      channel: "TestChannel",
+      message: 15_610_547_826_969_050,
+      action: 15_610_547_826_970_050
+    ) { result in
+      switch result {
+      case .success:
+        break
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -386,20 +386,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMessageActions(
-        channel: "TestChannel",
-        message: 15_610_547_826_969_050,
-        action: 15_610_547_826_970_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .nothingToDelete)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMessageActions(
+      channel: "TestChannel",
+      message: 15_610_547_826_969_050,
+      action: 15_610_547_826_970_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .nothingToDelete)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -411,20 +411,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMessageActions(
-        channel: "TestChannel",
-        message: 15_610_547_826_969_050,
-        action: 15_610_547_826_970_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .invalidUUID)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMessageActions(
+      channel: "TestChannel",
+      message: 15_610_547_826_969_050,
+      action: 15_610_547_826_970_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .invalidUUID)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -436,20 +436,20 @@ extension MessageActionsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeMessageActions(
-        channel: "TestChannel",
-        message: 15_610_547_826_969_050,
-        action: 15_610_547_826_970_050
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should fail.")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError?.reason, .forbidden)
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeMessageActions(
+      channel: "TestChannel",
+      message: 15_610_547_826_969_050,
+      action: 15_610_547_826_970_050
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should fail.")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError?.reason, .forbidden)
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

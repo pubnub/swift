@@ -100,20 +100,20 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testSingleChannel) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertEqual(messagesByChannel.keys.count, 1)
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNil(channelMessages?.first?.metadata)
-          XCTAssertEqual(next?.start, 15_653_750_239_963_666)
-        case let .failure(error):
-          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testSingleChannel) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertEqual(messagesByChannel.keys.count, 1)
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        XCTAssertNil(channelMessages?.first?.metadata)
+        XCTAssertEqual(next?.start, 15_653_750_239_963_666)
+      case let .failure(error):
+        XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -125,20 +125,20 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertEqual(messagesByChannel.keys.count, 1)
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotNil(channelMessages?.first?.metadata)
-          XCTAssertEqual(next?.start, 15_654_070_724_737_575)
-        case let .failure(error):
-          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertEqual(messagesByChannel.keys.count, 1)
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        XCTAssertNotNil(channelMessages?.first?.metadata)
+        XCTAssertEqual(next?.start, 15_654_070_724_737_575)
+      case let .failure(error):
+        XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -150,20 +150,20 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertEqual(messagesByChannel.keys.count, 2)
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertNotNil(channelMessages?.first?.metadata)
-          XCTAssertEqual(next?.start, 15_654_070_724_737_575)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertEqual(messagesByChannel.keys.count, 2)
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        XCTAssertNotNil(channelMessages?.first?.metadata)
+        XCTAssertEqual(next?.start, 15_654_070_724_737_575)
+      case let .failure(error):
+        XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -178,19 +178,19 @@ extension HistoryRouterTests {
     var configWithCipher = config
     configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
 
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertEqual(channelMessages?.first?.payload.boolOptional, true)
-          XCTAssertEqual(next?.start, 15_657_268_328_421_957)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        XCTAssertEqual(channelMessages?.first?.payload.boolOptional, true)
+        XCTAssertEqual(next?.start, 15_657_268_328_421_957)
+      case let .failure(error):
+        XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -205,21 +205,21 @@ extension HistoryRouterTests {
     var configWithCipher = config
     configWithCipher.cipherKey = Crypto(key: "NotTheRightKey", withRandomIV: false)
 
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          XCTAssertEqual(
-            channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ=="
-          )
-          XCTAssertEqual(next?.start, 15_657_268_328_421_957)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        XCTAssertEqual(
+          channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ=="
+        )
+        XCTAssertEqual(next?.start, 15_657_268_328_421_957)
+      case let .failure(error):
+        XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
     wait(for: [expectation], timeout: 1.0)
   }
 
@@ -233,22 +233,22 @@ extension HistoryRouterTests {
     var configWithCipher = config
     configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
 
-    PubNub(configuration: configWithCipher, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          let channelMessages = messagesByChannel[self.testChannel]
-          XCTAssertNotNil(channelMessages)
-          // Unencrypted Value
-          XCTAssertEqual(channelMessages?.first?.payload.stringOptional, "Hello")
-          // Encrypted Value
-          XCTAssertEqual(channelMessages?.last?.payload.boolOptional, true)
-          XCTAssertEqual(next?.start, 15_653_750_239_963_666)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        let channelMessages = messagesByChannel[self.testChannel]
+        XCTAssertNotNil(channelMessages)
+        // Unencrypted Value
+        XCTAssertEqual(channelMessages?.first?.payload.stringOptional, "Hello")
+        // Encrypted Value
+        XCTAssertEqual(channelMessages?.last?.payload.boolOptional, true)
+        XCTAssertEqual(next?.start, 15_653_750_239_963_666)
+      case let .failure(error):
+        XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -260,17 +260,17 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: testMultiChannels) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertTrue(messagesByChannel.isEmpty)
-          XCTAssertNil(next)
-        case let .failure(error):
-          XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: testMultiChannels) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertTrue(messagesByChannel.isEmpty)
+        XCTAssertNil(next)
+      case let .failure(error):
+        XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -325,19 +325,19 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertEqual(messagesByChannel[self.testChannel]?.count, 2)
-          XCTAssertEqual(messagesByChannel[self.testChannel]?.first?.actions.count, 3)
-          XCTAssertEqual(messagesByChannel[self.testChannel]?.last?.actions.count, 0)
-          XCTAssertEqual(next?.start, 15_724_676_552_283_948)
-        case let .failure(error):
-          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: [testChannel], includeActions: true) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertEqual(messagesByChannel[self.testChannel]?.count, 2)
+        XCTAssertEqual(messagesByChannel[self.testChannel]?.first?.actions.count, 3)
+        XCTAssertEqual(messagesByChannel[self.testChannel]?.last?.actions.count, 0)
+        XCTAssertEqual(next?.start, 15_724_676_552_283_948)
+      case let .failure(error):
+        XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -349,17 +349,17 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .fetchMessageHistory(for: [testChannel], includeActions: true) { result in
-        switch result {
-        case let .success((messagesByChannel, next)):
-          XCTAssertTrue(messagesByChannel.isEmpty)
-          XCTAssertNil(next)
-        case let .failure(error):
-          XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.fetchMessageHistory(for: [testChannel], includeActions: true) { result in
+      switch result {
+      case let .success((messagesByChannel, next)):
+        XCTAssertTrue(messagesByChannel.isEmpty)
+        XCTAssertNil(next)
+      case let .failure(error):
+        XCTFail("Fetch History  request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -402,7 +402,8 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).deleteMessageHistory(from: testChannel) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.deleteMessageHistory(from: testChannel) { result in
       switch result {
       case .success:
         expectation.fulfill()
@@ -421,7 +422,8 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).deleteMessageHistory(from: testChannel) { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.deleteMessageHistory(from: testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")
@@ -477,19 +479,19 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .messageCounts(channels: testSingleChannel, timetoken: 0) { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertFalse(channels.isEmpty)
-          let channelCounts = channels[self.testChannel]
-          XCTAssertNotNil(channelCounts)
-          XCTAssertEqual(channelCounts, 2)
-        case let .failure(error):
-          XCTFail("Message Counts request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertFalse(channels.isEmpty)
+        let channelCounts = channels[self.testChannel]
+        XCTAssertNotNil(channelCounts)
+        XCTAssertEqual(channelCounts, 2)
+      case let .failure(error):
+        XCTFail("Message Counts request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -501,19 +503,19 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .messageCounts(channels: Dictionary(zip(testSingleChannel, [0])) { _, last in last }) { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertFalse(channels.isEmpty)
-          let channelCounts = channels[self.testChannel]
-          XCTAssertNotNil(channelCounts)
-          XCTAssertEqual(channelCounts, 2)
-        case let .failure(error):
-          XCTFail("Message Counts request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.messageCounts(channels: Dictionary(zip(testSingleChannel, [0])) { _, last in last }) { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertFalse(channels.isEmpty)
+        let channelCounts = channels[self.testChannel]
+        XCTAssertNotNil(channelCounts)
+        XCTAssertEqual(channelCounts, 2)
+      case let .failure(error):
+        XCTFail("Message Counts request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -525,16 +527,16 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .messageCounts(channels: testSingleChannel, timetoken: 0) { result in
-        switch result {
-        case .success:
-          XCTFail("This should fail")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.invalidArguments))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
+      switch result {
+      case .success:
+        XCTFail("This should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.invalidArguments))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -546,16 +548,16 @@ extension HistoryRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .messageCounts(channels: testSingleChannel, timetoken: 0) { result in
-        switch result {
-        case .success:
-          XCTFail("This should fail")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.messageHistoryNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
+      switch result {
+      case .success:
+        XCTFail("This should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.messageHistoryNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

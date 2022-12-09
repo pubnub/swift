@@ -33,11 +33,11 @@ import XCTest
 public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTests {
   override public func setup() {
     startCucumberHookEventsListening()
-    
+
     When("^I get the UUID metadata(.*)$") { args, _ in
       let fetchUUIDMetadataExpect = self.expectation(description: "Fetch UUID metadata response")
       var includeCustom = false
-      
+
       let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.first
       guard let uuidMetadataId = uuidMetadata?.metadataId else {
         XCTAssert(false, "UUID metadata ID unknown.")
@@ -67,11 +67,11 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
       let result = self.lastResult() as? PubNubUUIDMetadata
       XCTAssertNotNil(result, "Fetch UUID metadata didn't returned any response or it had unexpected format")
 
-      if (includeCustom) {
+      if includeCustom {
         XCTAssertNotNil(result?.custom)
       }
     }
-    
+
     When("I set the UUID metadata") { _, _ in
       let setUUIDExpect = self.expectation(description: "Set UUID metadata response")
       let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.first
@@ -91,7 +91,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
       let result = self.lastResult() as? PubNubUUIDMetadata
       XCTAssertNotNil(result, "Set UUID metadata didn't returned any response or it had unexpected format")
     }
-    
+
     When("^I remove the UUID metadata(.*)$") { args, _ in
       let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.first
       var metadataId = uuidMetadata?.metadataId
@@ -119,7 +119,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
       XCTAssertNotNil(result, "Remove UUID metadata didn't returned any response or it had unexpected format")
       XCTAssertEqual(result, uuidMetadata?.metadataId)
     }
-    
+
     When("^I get all UUID metadata(.*)$") { args, _ in
       let fetchAllUUIDMetadataExpect = self.expectation(description: "Fetch all UUID metadata response")
       var includeCustom = PubNub.IncludeFields(custom: false, totalCount: false)
@@ -134,8 +134,9 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
           for uuidMetadata in metadata.uuids {
             XCTAssert(
               includeCustom.customFields && uuidMetadata.custom != nil
-              || !includeCustom.customFields && uuidMetadata.custom == nil,
-              "\(uuidMetadata.custom != nil ? "Missing" : "Unexpected") custom data for \(uuidMetadata.metadataId) persona.")
+                || !includeCustom.customFields && uuidMetadata.custom == nil,
+              "\(uuidMetadata.custom != nil ? "Missing" : "Unexpected") custom data for \(uuidMetadata.metadataId) persona."
+            )
           }
 
           self.handleResult(result: metadata)
@@ -148,7 +149,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
 
       self.wait(for: [fetchAllUUIDMetadataExpect], timeout: 60.0)
     }
-    
+
     Match(["And"], "^the UUID metadata for '(.*)' persona(.*)$") { args, _ in
       guard let result = self.lastResult() as? PubNubUUIDMetadata else { return }
       guard let uuidName = args?.first?.lowercased() else { return }
@@ -168,25 +169,25 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
         XCTAssertNotNil(result.updated)
       }
     }
-    
-    Match(["And"], "^the response contains list with '(.*)' and '(.*)' UUID metadata$") { args, _ in
+
+    Match(["And"], "^the response contains list with '(.*)' and '(.*)' UUID metadata$") { _, _ in
 //      let result = self.lastResult() as? ((uuids:[PubNubUUIDMetadata], next: PubNubHashedPage))
 //      XCTAssertNotNil(result, "Fetch all UUID metadata didn't returned any response or it had unexpected format")
 //      guard let receivedUUIDs = result?.uuids else { return }
-//      
+//
 //      XCTAssertEqual(args?.count, 2, "Not all UUID names specified")
 //      XCTAssertEqual(receivedUUIDs.count, 2)
-//      
+//
 //      var uuids: [PubNubUUIDMetadata] = []
 //      for userName in args ?? [] {
 //        guard let uuidMetadata = self.uuidMetadata(with: userName.lowercased()) else {
 //          XCTAssert(false, "Persona file not parsed.")
 //          return
 //        }
-//        
+//
 //        uuids.append(uuidMetadata)
 //      }
-//      
+//
 //      for uuidMetadata in uuids {
 //        XCTAssert(receivedUUIDs.map { $0.metadataId }.contains(uuidMetadata.metadataId),
 //                  "\(uuidMetadata.metadataId) is missing from received UUIDs list.")

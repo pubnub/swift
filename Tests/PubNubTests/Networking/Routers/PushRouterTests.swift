@@ -90,16 +90,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listPushChannelRegistrations(for: hexData) { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertFalse(channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Push List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listPushChannelRegistrations(for: hexData) { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertFalse(channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Push List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -115,16 +115,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listPushChannelRegistrations(for: hexData) { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertTrue(channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Push List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listPushChannelRegistrations(for: hexData) { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertTrue(channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Push List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -140,16 +140,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listPushChannelRegistrations(for: hexData) { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listPushChannelRegistrations(for: hexData) { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -193,16 +193,16 @@ extension PushRouterTests {
 
     let testRemoved = testChannels
 
-    PubNub(configuration: config, session: sessions.session)
-      .managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.removed, testRemoved)
-        case let .failure(error):
-          XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
+      switch result {
+      case let .success(response):
+        XCTAssertEqual(response.removed, testRemoved)
+      case let .failure(error):
+        XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -218,16 +218,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -243,16 +243,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.invalidDevicePushToken))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.invalidDevicePushToken))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -290,15 +290,15 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeAllPushChannelRegistrations(for: hexData) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Group List request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeAllPushChannelRegistrations(for: hexData) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Group List request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -349,16 +349,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertFalse(channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Push List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertFalse(channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Push List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -374,16 +374,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -399,16 +399,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
-        switch result {
-        case let .success(channels):
-          XCTAssertTrue(channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Push List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
+      switch result {
+      case let .success(channels):
+        XCTAssertTrue(channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Push List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -426,17 +426,17 @@ extension PushRouterTests {
 
     let testRemoved = testChannels
 
-    PubNub(configuration: config, session: sessions.session)
-      .manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
-                                   device: hexData, on: "TestTopic") { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.removed, testRemoved)
-        case let .failure(error):
-          XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                       device: hexData, on: "TestTopic") { result in
+      switch result {
+      case let .success(response):
+        XCTAssertEqual(response.removed, testRemoved)
+      case let .failure(error):
+        XCTFail("Modify Push request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -452,16 +452,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .manageAPNSDevicesOnChannels(byRemoving: [], thenAdding: [], device: hexData, on: "TestTopic") { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.missingRequiredParameter))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.manageAPNSDevicesOnChannels(byRemoving: [], thenAdding: [], device: hexData, on: "TestTopic") { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.missingRequiredParameter))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -477,17 +477,17 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
-                                   device: hexData, on: "TestTopic") { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
+                                       device: hexData, on: "TestTopic") { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -533,15 +533,15 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Group List request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Group List request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -557,16 +557,16 @@ extension PushRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
-        switch result {
-        case .success:
-          XCTFail("This should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
+      switch result {
+      case .success:
+        XCTFail("This should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.pushNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

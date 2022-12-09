@@ -318,11 +318,11 @@ public extension HTTPRouter {
         request.allHTTPHeaderFields = additionalHeaders
         request.httpMethod = method.rawValue
         request.httpBody = data
-        
-        if data != nil && [.post, .patch, .put, .delete, .options].contains(method) {
+
+        if data != nil, [.post, .patch, .put, .delete, .options].contains(method) {
           request.setValue(Constant.defaultContentTypeHeader, forHTTPHeaderField: Constant.contentTypeHeaderKey)
         }
-        
+
         return .success(request)
       }
     }

@@ -31,13 +31,12 @@ import PubNub
 import XCTest
 
 public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTests {
-  public override func setup() {
+  override public func setup() {
     startCucumberHookEventsListening()
-    
+
     When("^I get the memberships(.*)$") { args, _ in
       let fetchUUIDMembershipsExpect = self.expectation(description: "Fetch UUID memberships response")
       var include: PubNub.MembershipInclude = .init()
-      
 
       if args?.count == 1, let flags = args?.first {
         include = .init(
@@ -45,7 +44,7 @@ public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTes
           channelCustomFields: flags.contains("channel custom information")
         )
       }
-      
+
       let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.first
       guard let uuidMetadataId = uuidMetadata?.metadataId else {
         XCTAssert(false, "UUID metadata ID unknown.")
@@ -69,34 +68,34 @@ public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTes
       XCTAssertNotNil(result.memberships, "Membership information is missing")
       XCTAssertGreaterThan(result.memberships.count, 0)
 
-      if (include.customFields) {
+      if include.customFields {
         XCTAssertTrue(
           result.memberships.contains(where: { $0.custom != nil }),
           "At least one membership should has custom information."
         )
       }
-      
-      if (include.channelCustomFields) {
+
+      if include.channelCustomFields {
         XCTAssertTrue(
           result.memberships.contains(where: { $0.channel?.custom != nil }),
           "At least one membership should contain channel custom information."
         )
       }
     }
-    
+
     When("^I set the membership(.*)$") { args, _ in
       let setUUIDMembershipExpect = self.expectation(description: "Set UUID membership response")
       var useCurrentUser = false
-      
+
       if args?.count == 1, let flags = args?.first {
         useCurrentUser = flags.contains("current user")
       }
-      
+
       let addedChannelMemberships = self.membershipsMetadata.compactMap {
-        if case .add(let channel) = $1 { return channel } else { return nil }
+        if case let .add(channel) = $1 { return channel } else { return nil }
       }
-      
-      let uuidMetadata = self.uuidsMetadata.compactMap({ $1 }).last
+
+      let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.last
       guard let uuidMetadataId = uuidMetadata?.metadataId else { return }
       guard let channelMembership = addedChannelMemberships.last else {
         XCTAssert(false, "There is no new members for addition specified.")
@@ -120,22 +119,22 @@ public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTes
       XCTAssertNotNil(result.memberships, "Membership information is missing")
       XCTAssertGreaterThan(result.memberships.count, 0)
     }
-    
+
     When("^I remove the membership(.*)$") { args, _ in
       let removeUUIDMembershipsExpect = self.expectation(description: "Remove UUID memberships response")
       var useCurrentUser = false
-      
+
       if args?.count == 1, let flags = args?.first {
         useCurrentUser = flags.contains("current user")
       }
 
       let removedChannelMemberships = self.membershipsMetadata.compactMap {
-        if case .remove(let channel) = $1 { return channel } else { return nil }
+        if case let .remove(channel) = $1 { return channel } else { return nil }
       }
-      
-      let uuidMetadata = self.uuidsMetadata.compactMap({ $1 }).last
+
+      let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.last
       guard let uuidMetadataId = uuidMetadata?.metadataId else { return }
-      
+
       self.client.removeMemberships(
         uuid: useCurrentUser ? nil : uuidMetadataId,
         channels: removedChannelMemberships
@@ -156,21 +155,21 @@ public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTes
       XCTAssertNotNil(result.memberships, "Membership information is missing")
       XCTAssertEqual(result.memberships.count, 0)
     }
-    
+
     When("I manage memberships") { _, _ in
       let manageUUIDMembershipsExpect = self.expectation(description: "Manage UUID memberships response")
-      
+
       let addedChannelMemberships = self.membershipsMetadata.compactMap {
-        if case .add(let membership) = $1 { return membership } else { return nil }
+        if case let .add(membership) = $1 { return membership } else { return nil }
       }
-      
+
       let removedChannelMemberships = self.membershipsMetadata.compactMap {
-        if case .remove(let membership) = $1 { return membership } else { return nil }
+        if case let .remove(membership) = $1 { return membership } else { return nil }
       }
-      
-      let uuidMetadata = self.uuidsMetadata.compactMap({ $1 }).last
+
+      let uuidMetadata = self.uuidsMetadata.compactMap { $1 }.last
       guard let uuidMetadataId = uuidMetadata?.metadataId else { return }
-      
+
       self.client.manageMemberships(
         uuid: uuidMetadataId,
         setting: addedChannelMemberships,
@@ -182,12 +181,12 @@ public class PubNubObjectsMembershipsContractTestSteps: PubNubObjectsContractTes
         case let .failure(error):
           self.handleResult(result: error)
         }
-        
+
         manageUUIDMembershipsExpect.fulfill()
       }
-      
+
       self.wait(for: [manageUUIDMembershipsExpect], timeout: 60.0)
-      
+
       guard let result = self.lastResult() as? (memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?) else { return }
       XCTAssertNotNil(result.memberships, "Membership information is missing")
       XCTAssertEqual(result.memberships.count, 1)

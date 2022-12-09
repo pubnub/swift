@@ -80,7 +80,8 @@ extension FileManagementRouterTests {
       createdDate: testDate
     )
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .listFiles(channel: testChannel) { result in
         switch result {
         case let .success((files, next)):
@@ -102,7 +103,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .listFiles(channel: testChannel) { result in
         switch result {
         case let .success((files, next)):
@@ -124,7 +126,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .listFiles(channel: testChannel) { result in
         switch result {
         case .success:
@@ -145,7 +148,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .listFiles(channel: testChannel) { result in
         switch result {
         case .success:
@@ -166,7 +170,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .listFiles(channel: testChannel) { result in
         switch result {
         case .success:
@@ -543,7 +548,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .send(
         .data(Data(), contentType: "text/plain"), channel: testChannel, remoteFilename: testFilename
       ) { result in
@@ -612,7 +618,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
         switch result {
         case .success:
@@ -632,7 +639,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
         switch result {
         case .success:
@@ -653,7 +661,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
         switch result {
         case .success:
@@ -674,7 +683,8 @@ extension FileManagementRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
       .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
         switch result {
         case .success:

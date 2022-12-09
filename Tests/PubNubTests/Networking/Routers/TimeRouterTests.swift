@@ -56,7 +56,8 @@ class TimeRouterTests: XCTestCase {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).time { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.time { result in
       switch result {
       case let .success(timetoken):
         XCTAssertEqual(timetoken, 15_643_405_135_132_358)

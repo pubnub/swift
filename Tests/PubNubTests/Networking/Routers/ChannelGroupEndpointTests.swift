@@ -64,7 +64,8 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).listChannelGroups { result in
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listChannelGroups { result in
       switch result {
       case let .success(groups):
         XCTAssertFalse(groups.isEmpty)
@@ -84,15 +85,17 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session).listChannelGroups { result in
-      switch result {
-      case let .success(groups):
-        XCTAssertTrue(groups.isEmpty)
-      case let .failure(error):
-        XCTFail("Group List request failed with error: \(error.localizedDescription)")
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub
+      .listChannelGroups { result in
+        switch result {
+        case let .success(groups):
+          XCTAssertTrue(groups.isEmpty)
+        case let .failure(error):
+          XCTFail("Group List request failed with error: \(error.localizedDescription)")
+        }
+        expectation.fulfill()
       }
-      expectation.fulfill()
-    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -123,15 +126,15 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .remove(channelGroup: testGroupName) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Group Delete request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(channelGroup: testGroupName) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Group Delete request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -163,17 +166,17 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listChannels(for: testGroupName) { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.group, self.testGroupName)
-          XCTAssertFalse(response.channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listChannels(for: testGroupName) { result in
+      switch result {
+      case let .success(response):
+        XCTAssertEqual(response.group, self.testGroupName)
+        XCTAssertFalse(response.channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -185,17 +188,17 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .listChannels(for: testGroupName) { result in
-        switch result {
-        case let .success(response):
-          XCTAssertEqual(response.group, self.testGroupName)
-          XCTAssertTrue(response.channels.isEmpty)
-        case let .failure(error):
-          XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.listChannels(for: testGroupName) { result in
+      switch result {
+      case let .success(response):
+        XCTAssertEqual(response.group, self.testGroupName)
+        XCTAssertTrue(response.channels.isEmpty)
+      case let .failure(error):
+        XCTFail("Group Channels List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -233,15 +236,15 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .add(channels: testChannels, to: testGroupName) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.add(channels: testChannels, to: testGroupName) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -254,7 +257,6 @@ extension ChannelGroupsRouterTests {
     }
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-
     pubnub.add(channels: testChannels, to: testGroupName) { result in
       switch result {
       case .success:
@@ -275,16 +277,16 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .add(channels: testChannels, to: testGroupName) { result in
-        switch result {
-        case .success:
-          XCTFail("Add Channel request should fail")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
-        }
-        expectation.fulfill()
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.add(channels: testChannels, to: testGroupName) { result in
+      switch result {
+      case .success:
+        XCTFail("Add Channel request should fail")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -322,15 +324,15 @@ extension ChannelGroupsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    PubNub(configuration: config, session: sessions.session)
-      .remove(channels: testChannels, from: testGroupName) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case let .failure(error):
-          XCTFail("Group Channels Remove request failed with error: \(error.localizedDescription)")
-        }
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+    pubnub.remove(channels: testChannels, from: testGroupName) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case let .failure(error):
+        XCTFail("Group Channels Remove request failed with error: \(error.localizedDescription)")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

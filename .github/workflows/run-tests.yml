@@ -4,7 +4,7 @@ on:
   push:
   workflow_dispatch:
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 defaults:
   run:
@@ -48,7 +48,7 @@ jobs:
         run: bundle exec fastlane test --env tvos
       - name: Run macOS unit tests
         run: bundle exec fastlane test --env macos
-  tests:
+  validation:
     name: Package Managers validation
     runs-on: macos-12
     steps:

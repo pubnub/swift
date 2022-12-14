@@ -47,7 +47,7 @@ jobs:
         if: ${{ matrix.environment != 'macOS' }}
         run: xcrun simctl list -j
       - name: Run ${{ matrix.environment }} unit tests
-        run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]'))
+        run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')
   acceptance-tests:
     name: Acceptance tests
     runs-on: macos-12

@@ -54,7 +54,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
       - name: ${{ matrix.managers }} validation
-        run: bundle exec fastlane lint_${$(echo ${{ matrix.managers }} | tr '[:upper:]' '[:lower:]')// /_}
+        run: bundle exec fastlane lint_$(echo ${{ matrix.managers }} | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
   demo-app-validation:
     name: Validate demo application
     runs-on: macos-12

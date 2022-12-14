@@ -1,9 +1,17 @@
 name: Validations
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  validators:
+  repository-validators:
     name: "Validate .pubnub.yml"
     runs-on: ubuntu-latest
     steps:
@@ -20,3 +28,54 @@ jobs:
         uses: ./.github/.release/actions/actions/validators/pubnub-yml
         with:
           token: ${{ secrets.GH_TOKEN }}
+  package-managers-validation:
+    name: Validate package managers
+    runs-on: macos-12
+    strategy:
+      matrix:
+        managers: [CocoaPods, Swift Package Manager]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+      - name: ${{ matrix.environment }} validation
+        run: bundle exec fastlane lint_${$(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')// /_}
+  demo-app-validation:
+    name: Validate demo application
+    runs-on: macos-12
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+      - name: Demo application build validation
+        run: bundle exec fastlane build_example --env ios

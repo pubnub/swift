@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "cocoapods"
+gem "cocoapods", :github => "cocoapods/cocoapods", :branch => "master"
 
 gem "fastlane"
 gem "slather"

@@ -1,0 +1,107 @@
+name: Tests
+
+on:
+  push:
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tests:
+    name: Integration and Unit tests
+    runs-on: macos-12
+    strategy:
+      matrix:
+        environment: [iOS, tvOS, macOS]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
+      - name: Cache installed Pods
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+              ${{ runner.os }}-pods-
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+              ${{ runner.os }}-spm-
+      - name: Pre-load simulators list
+        if: ${{ matrix.environment != 'macOS' }}
+        run: xcrun simctl list -j
+      - name: Run ${{ matrix.environment }} unit tests
+        run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')
+  acceptance-tests:
+    name: Acceptance tests
+    runs-on: macos-12
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
+      - name: Cache installed Pods
+        uses: actions/cache@v3
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+              ${{ runner.os }}-pods-
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v3
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+              ${{ runner.os }}-spm-
+      - name: Checkout mock-server action
+        uses: actions/checkout@v3
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - name: Run mock server action
+        uses: ./.github/.release/actions/actions/mock-server
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          features-path: Tests/PubNubContractTest/Features/
+      - name: Preapre Xcode environment
+        run: |
+          bundle install --jobs=3 --retry=3
+          bundle exec pod install
+      - name: Run stable acceptance tests
+        run: |
+          bundle exec fastlane contract_test --env contract
+          mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
+      - name: Run beta acceptance tests
+        run: |
+          bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
+          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+      - name: Upload acceptance tests reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: acceptance-test-reports
+          path: Results/*.json
+          retention-days: 7

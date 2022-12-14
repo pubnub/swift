@@ -20,8 +20,8 @@ before_all do |lane, opts|
   Encoding.default_external = Encoding::UTF_8
   Encoding.default_internal = Encoding::UTF_8
 
-  setup_travis if ENV["TRAVIS_CI"]
-  
+  setup_ci if ENV["CI"]
+
   ENV["FASTLANE_XCODE_LIST_TIMEOUT"] = "120"
   ENV["FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT"] = "120"
   ENV["FASTLANE_XCODEBUILD_SETTINGS_RETRIES"] = "10"
@@ -67,7 +67,7 @@ lane :code_coverage do
 
   # Generate code coverage files
   slather(
-    travis: ENV["TRAVIS_CI"],
+    github: ENV["CI"],
     workspace: ENV['WORKSPACE'],
     proj: ENV['PROJECT_SDK'],
     scheme: ENV['SCHEME_SDK'],
@@ -84,8 +84,7 @@ desc "Lints a release using Cocoapods"
 lane :lint_cocoapods do
   pod_lib_lint(
     podspec: 'PubNubSwift.podspec',
-    use_bundle_exec: true,
-    verbose: true,
+    verbose: false,
     allow_warnings: true
   )
 end
@@ -93,7 +92,7 @@ end
 desc "Lints a release using Swift Package Manager"
 lane :lint_swift_package_manager do
   Dir.chdir("..") do
-    Action.sh('swift build -c release --verbose')
+    Action.sh('swift build -c release -j 2')
   end
 end
 
@@ -101,7 +100,7 @@ desc "Generates Code Coverage Files"
 lane :code_coverage_local do
   # Generate code coverage files
   slather(
-    travis: ENV["TRAVIS_CI"],
+    github: ENV["CI"],
     workspace: ENV['WORKSPACE'],
     proj: ENV['PROJECT_SDK'],
     scheme: ENV['SCHEME_SDK'],

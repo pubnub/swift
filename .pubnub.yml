@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.0.1"
+version: "6.0.2"
 schema: 1
 changelog:
+  - date: 2022-12-12
+    version: 6.0.2
+    changes:
+      - type: bug
+        text: "Fix memory leak within Subscription Session."
+      - type: improvement
+        text: "Use specific GitHub action for `.pubnub.yml` validation."
   - date: 2022-09-05
     version: 6.0.1
     changes:
@@ -461,7 +468,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

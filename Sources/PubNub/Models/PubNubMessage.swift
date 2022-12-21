@@ -27,14 +27,46 @@
 
 import Foundation
 
-public enum PubNubMessageType: Int, Codable, Hashable {
-  case message = 0
-  case signal = 1
-  case object = 2
-  case messageAction = 3
-  case file = 4
+public enum PubNubMessageType: Codable, Hashable {
+  case message, signal, object, messageAction, file, user(type: String), unknown
+}
 
-  case unknown = 999
+extension PubNubMessageType: RawRepresentable {
+  public var rawValue: String {
+    switch self {
+    case let .user(type):
+      return type
+    default:
+      return String(describing: self)
+    }
+  }
+  
+  public init?(rawValue: String) {
+    switch rawValue {
+    case "message":
+      self = .message
+    case "signal":
+      self = .signal
+    case "object":
+      self = .object
+    case "messageAction":
+      self = .messageAction
+    case "file":
+      self = .file
+    default:
+      self = .user(type: rawValue)
+    }
+  }
+}
+
+extension PubNubMessageType: ExpressibleByStringLiteral {
+  init(_ type: String) {
+    self.init(rawValue: type)!
+  }
+  
+  public init(stringLiteral value: StringLiteralType) {
+    self.init(value)
+  }
 }
 
 /// An event representing a message

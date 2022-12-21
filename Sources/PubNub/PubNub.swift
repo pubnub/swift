@@ -236,8 +236,9 @@ public extension PubNub {
   /// 4. If `storeTTL` is not specified, then expiration of the message defaults back to the expiry value for the key.
   ///
   /// - Parameters:
-  ///   - channel: The destination of the message
-  ///   - message: The message to publish
+  ///   - channel: The destination of the message.
+  ///   - message: The message to publish.
+  ///   - messageType: Custom message type.
   ///   - shouldStore: If true the published message is stored in history.
   ///   - storeTTL: Set a per message time to live in storage.
   ///   - meta: Publish extra metadata with the request.
@@ -249,6 +250,7 @@ public extension PubNub {
   func publish(
     channel: String,
     message: JSONCodable,
+    messageType: PubNubMessageType? = nil,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
     meta: JSONCodable? = nil,

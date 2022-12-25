@@ -36,10 +36,12 @@ let defaultPublishKey = "demo-36"
 
 @objc public class PubNubContractTestCase: XCTestCase {
   public var messageReceivedHandler: ((PubNubMessage, [PubNubMessage]) -> Void)?
+  public var fileReceivedHandler: ((PubNubFileEvent, [PubNubFileEvent]) -> Void)?
   public var statusReceivedHandler: ((SubscriptionListener.StatusEvent, [SubscriptionListener.StatusEvent]) -> Void)?
   fileprivate static var _receivedErrorStatuses: [SubscriptionListener.StatusEvent] = []
   fileprivate static var _receivedStatuses: [SubscriptionListener.StatusEvent] = []
-  fileprivate static var _receivedMessages: [PubNubMessage] = []
+  fileprivate static var _receivedMessages: [PubNubMessageBase] = []
+  fileprivate static var _receivedFiles: [PubNubFileEvent] = []
   fileprivate static var _currentScenario: CCIScenarioDefinition?
   fileprivate static var _apiCallResults: [Any] = []
   fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
@@ -71,10 +73,15 @@ let defaultPublishKey = "demo-36"
     get { PubNubContractTestCase._receivedStatuses }
     set { PubNubContractTestCase._receivedStatuses = newValue }
   }
-
-  public var receivedMessages: [PubNubMessage] {
+  
+  public var receivedMessages: [PubNubMessageBase] {
     get { PubNubContractTestCase._receivedMessages }
     set { PubNubContractTestCase._receivedMessages = newValue }
+  }
+  
+  public var receivedFiles: [PubNubFileEvent] {
+    get { PubNubContractTestCase._receivedFiles }
+    set { PubNubContractTestCase._receivedFiles = newValue }
   }
 
   public var apiCallResults: [Any] {
@@ -288,13 +295,31 @@ let defaultPublishKey = "demo-36"
         }
       }
     }
-
+    
     listener.didReceiveMessage = { [weak self] message in
       guard let strongSelf = self else { return }
-      strongSelf.receivedMessages.append(message)
+      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
 
       if let handler = strongSelf.messageReceivedHandler {
         handler(message, strongSelf.receivedMessages)
+      }
+    }
+    
+    listener.didReceiveSignal = { [weak self] message in
+      guard let strongSelf = self else { return }
+      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
+
+      if let handler = strongSelf.messageReceivedHandler {
+        handler(message, strongSelf.receivedMessages)
+      }
+    }
+    
+    listener.didReceiveFileUpload = { [weak self] file in
+      guard let strongSelf = self else { return }
+      strongSelf.receivedFiles.append(file)
+      
+      if let handler = strongSelf.fileReceivedHandler {
+        handler(file, strongSelf.receivedFiles)
       }
     }
 
@@ -304,7 +329,7 @@ let defaultPublishKey = "demo-36"
     wait(for: [subscribeStatusExpect], timeout: 10.0)
   }
 
-  public func waitForMessages(_: PubNub, count: Int) -> [PubNubMessage]? {
+  public func waitForMessages(_: PubNub, count: Int) -> [PubNubMessageBase]? {
     if receivedMessages.count < count {
       let subscribeMessageExpect = expectation(description: "Subscribe messages")
       subscribeMessageExpect.assertForOverFulfill = false
@@ -321,6 +346,26 @@ let defaultPublishKey = "demo-36"
       return Array(receivedMessages[..<count])
     } else {
       return receivedMessages.count > 0 ? receivedMessages : nil
+    }
+  }
+  
+  public func waitForFiles(_: PubNub, count: Int) -> [PubNubFileEvent]? {
+    if receivedFiles.count < count {
+      let subscribeFileExpect = expectation(description: "Subscribe files")
+      subscribeFileExpect.assertForOverFulfill = false
+      fileReceivedHandler = { _, files in
+        if files.count >= count {
+          subscribeFileExpect.fulfill()
+        }
+      }
+
+      wait(for: [subscribeFileExpect], timeout: 30.0)
+    }
+
+    if receivedFiles.count > count {
+      return Array(receivedFiles[..<count])
+    } else {
+      return receivedFiles.count > 0 ? receivedFiles : nil
     }
   }
 

@@ -169,7 +169,7 @@ struct SubscribeDecoder: ResponseDecoder {
 
     var messages = response.payload.messages
     for (index, message) in messages.enumerated() {
-      switch message.messageType {
+      switch message.pubNubMessageType {
       case .message:
         messages[index] = decrypt(crypto, message: message)
       case .signal:
@@ -265,7 +265,9 @@ public struct SubscribeMessagePayload: Codable, Hashable {
   public let shard: String
   public let subscription: String?
   public let channel: String
-  public let messageType: Action
+  public let spaceId: PubNubSpaceId?
+  public let pubNubMessageType: Action
+  public var userMessageType: String?
   public var payload: AnyJSON
   public let flags: Int
   public let publisher: String?
@@ -278,8 +280,10 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     case shard = "a"
     case subscription = "b"
     case channel = "c"
+    case spaceId = "si"
     case payload = "d"
-    case messageType = "e"
+    case pubNubMessageType = "e"
+    case userMessageType = "mt"
     case flags = "f"
     case publisher = "i"
     case subscribeKey = "k"
@@ -297,30 +301,15 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
-
-    var asPubNubMessageType: PubNubMessageType {
-      switch self {
-      case .message:
-        return .message
-      case .signal:
-        return .signal
-      case .object:
-        return .object
-      case .messageAction:
-        return .messageAction
-      case .file:
-        return .file
-      case .presence:
-        return .unknown
-      }
-    }
   }
 
   init(
     shard: String,
     subscription: String?,
     channel: String,
-    messageType: Action,
+    spaceId: PubNubSpaceId?,
+    pubNubMessageType: Action,
+    userMessageType: String?,
     payload: AnyJSON,
     flags: Int,
     publisher: String?,
@@ -332,7 +321,9 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     self.shard = shard
     self.subscription = subscription
     self.channel = channel
-    self.messageType = messageType
+    self.spaceId = spaceId
+    self.pubNubMessageType = pubNubMessageType
+    self.userMessageType = userMessageType
     self.payload = payload
     self.flags = flags
     self.publisher = publisher
@@ -356,22 +347,24 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     originTimetoken = try container.decodeIfPresent(SubscribeCursor.self, forKey: .originTimetoken)
     publishTimetoken = try container.decode(SubscribeCursor.self, forKey: .publishTimetoken)
     metadata = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
+    userMessageType = try container.decodeIfPresent(String.self, forKey: .userMessageType)
 
-    let messageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
+    let pubNubMessageType = try container.decodeIfPresent(Int.self, forKey: .pubNubMessageType)
     let fullChannel = try container.decode(String.self, forKey: .channel)
 
-    if let messageType = messageType, let action = Action(rawValue: messageType) {
-      self.messageType = action
+    if let pubNubMessageType = pubNubMessageType, let action = Action(rawValue: pubNubMessageType) {
+      self.pubNubMessageType = action
     } else {
       // If channel endswith -pnpres we assume it's a presence event
       if fullChannel.isPresenceChannelName {
-        self.messageType = .presence
+        self.pubNubMessageType = .presence
       } else {
-        self.messageType = .message
+        self.pubNubMessageType = .message
       }
     }
 
     channel = fullChannel.trimmingPresenceChannelSuffix
+    spaceId = try container.decodeIfPresent(PubNubSpaceId.self, forKey: .spaceId)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -389,8 +382,11 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     try container.encode(metadata, forKey: .meta)
 
     // Presence isn't a server owned MessageType, so we don't encode it
-    if messageType != .presence {
-      try container.encode(messageType, forKey: .messageType)
+    if pubNubMessageType != .presence {
+      try container.encode(pubNubMessageType, forKey: .pubNubMessageType)
     }
+    
+    try container.encode(userMessageType, forKey: .userMessageType)
+    try container.encode(spaceId, forKey: .spaceId)
   }
 }

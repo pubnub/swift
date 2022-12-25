@@ -61,41 +61,18 @@ void CucumberishInit(void) {
   if ([xcTestBundlePath rangeOfString:@"PubNubContractTestsBeta"].location != NSNotFound) {
     [excludeTags removeObject:@"beta"];
   }
-  // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
+  // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
   excludeTags = nil;
   
-  // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
-  NSArray *includedTags = @[
-    @"contract=getChannelMetadataOfChat",
-    @"contract=getChannelMetadataOfDMWithCustom",
-    @"contract=setChannelMetadataForChat",
-    @"contract=removeChannelMetadataOfChat",
-    @"contract=getAllChannelMetadata",
-    @"contract=getAllChannelMetadataWithCustom",
-
-    @"contract=getUUIDMetadataOfAlice",
-    @"contract=getUUIDMetadataOfBobWithCustom",
-    @"contract=setUUIDMetadataForAlice",
-    @"contract=removeUUIDMetadataOfAlice",
-    @"contract=getAllUUIDMetadata",
-    @"contract=getAllUUIDMetadataWithCustom",
-    
-    @"contract=getMembersOfChatChannel",
-    @"contract=getMembersOfVipChatChannelWithCustomAndUuidWithCustom",
-    @"contract=setMembersForChatChannel",
-    @"contract=setMembersForChatChannelWithCustomAndUuidWithCustom",
-    @"contract=removeMembersForChatChannel",
-    @"contract=manageMembersForChatChannel",
-
-    @"contract=getAliceMemberships",
-    @"contract=getAliceMemberships",
-    @"contract=getBobMembershipWithCustomAndChannelCustom",
-    @"contract=setAliceMembership",
-    @"contract=removeAliceMembership",
-    @"contract=manageAliceMemberships"
+  // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
+  includedTags = @[
+    @"contract=fetchHistoryWithLegacyMessageTypes",
+    @"contract=fetchHistoryWithUserAndLegacyMessageTypes",
+    @"contract=fetchHistoryWithOutMessageTypes",
+    @"contract=fetchHistoryWithSpaceIdAndMessageType",
+    @"contract=subscribeReceiveMessagesWithLegacyMessageTypes",
+    @"contract=subscribeReceiveMessagesWithUserAndLegacyMessageTypes"
   ];
-
-  
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"

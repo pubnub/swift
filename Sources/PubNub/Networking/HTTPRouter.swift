@@ -120,10 +120,13 @@ enum QueryKey: String {
   case start
   case end
   case channel
+  case spaceId = "space-id"
   case count
   case max
   case includeMeta = "include_meta"
-  case includeMessageType = "include_message_type"
+  case includePubNubMessageType = "include_message_type"
+  case includeUserMessageType = "include_type"
+  case includeSpaceId = "include_space_id"
   case includeUUID = "include_uuid"
   case timetoken
   case channelsTimetoken

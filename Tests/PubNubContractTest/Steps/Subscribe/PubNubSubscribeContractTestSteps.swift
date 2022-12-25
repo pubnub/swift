@@ -70,9 +70,20 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
     Given("the invalid-crypto keyset") { _, _ in
       self.cipherKey = Crypto(key: "secret")
     }
-
+    
     When("I subscribe") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
+      // Give some time to rotate received timetokens.
+      self.waitFor(delay: 0.25)
+    }
+    
+    When("I subscribe to '(.*)' channel") { args, _ in
+      guard let matches = args, let channel = matches.first else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      self.subscribeSynchronously(self.client, to: [channel])
       // Give some time to rotate received timetokens.
       self.waitFor(delay: 0.25)
     }
@@ -115,6 +126,34 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
 
       /// Give some more time for SDK to check that it won't retry after 0.1 seconds.
       self.waitFor(delay: 0.3)
+    }
+    
+    Match(["And"], "subscribe response contains messages with '(.*)' and '(.*)' message types") { args, _ in
+      guard let matches = args else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      let messages = self.waitForMessages(self.client, count: 2)!
+      XCTAssertNotNil(messages)
+      
+      let messagesWithTypes = messages.map { $0.messageType ?? .unknown }.filter { $0 != .unknown }
+      XCTAssertTrue(messagesWithTypes.map { $0.description }.allSatisfy { matches.contains($0) })
+    }
+    
+    Match(["And"], "^subscribe response contains messages (with|without) space ids$") { args, _ in
+      guard let matches = args, let inclusionFlag = matches.first else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      let messages = self.waitForMessages(self.client, count: 2)!
+      XCTAssertNotNil(messages)
+      
+      let messagesWithSpaceId = messages.map { $0.spaceId }.filter { $0 != nil }
+      XCTAssertFalse(inclusionFlag == "with" && messagesWithSpaceId.count == 0)
+      XCTAssertFalse(inclusionFlag == "without" && messagesWithSpaceId.count > 0)
+      XCTAssertEqual(inclusionFlag == "with" ? messages.count : 0, messagesWithSpaceId.count)
     }
   }
 }

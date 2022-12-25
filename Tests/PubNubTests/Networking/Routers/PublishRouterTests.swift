@@ -48,7 +48,7 @@ final class PublishRouterTests: XCTestCase {
 extension PublishRouterTests {
   func testPublish_Router() {
     let router = PublishRouter(
-      .publish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
+      .publish(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -64,7 +64,7 @@ extension PublishRouterTests {
 
   func testPublish_Router_ValidationError() {
     let router = PublishRouter(
-      .publish(message: [], channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
+      .publish(message: [], channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -238,7 +238,7 @@ extension PublishRouterTests {
 extension PublishRouterTests {
   func testCompressedPublish_Router() {
     let router = PublishRouter(
-      .compressedPublish(message: testMessage, channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -249,7 +249,7 @@ extension PublishRouterTests {
 
   func testCompressedPublish_Router_ValidationError() {
     let router = PublishRouter(
-      .compressedPublish(message: [], channel: testChannel, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(message: [], channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -437,7 +437,7 @@ extension PublishRouterTests {
 
 extension PublishRouterTests {
   func testSignal_Router() {
-    let router = PublishRouter(.signal(message: testMessage, channel: testChannel), configuration: config)
+    let router = PublishRouter(.signal(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Signal")
     XCTAssertEqual(router.category, "Signal")
@@ -445,7 +445,7 @@ extension PublishRouterTests {
   }
 
   func testSignal_Router_ValidationError() {
-    let router = PublishRouter(.signal(message: "", channel: testChannel), configuration: config)
+    let router = PublishRouter(.signal(message: "", channel: testChannel, messageType: nil, spaceId: nil), configuration: config)
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }

@@ -224,7 +224,7 @@ public final class CoreListener: BaseSubscriptionListener {
 
   override public func emit(batch: [SubscribeMessagePayload]) {
     emitDidReceive(subscription: batch.map { message in
-      switch message.messageType {
+      switch message.pubNubMessageType {
       case .message:
         return .messageReceived(PubNubMessageBase(from: message))
       case .signal:
@@ -367,7 +367,7 @@ open class PubNubEntityListener: BaseSubscriptionListener {
   override public final func emit(batch: [SubscribeMessagePayload]) {
     queue.async { [weak self] in
       self?.emit(entity: batch.compactMap { event in
-        if event.messageType == .object {
+        if event.pubNubMessageType == .object {
           return try? event.payload.decode(PubNubEntityEvent.self)
         } else {
           return nil

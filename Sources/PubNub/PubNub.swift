@@ -239,6 +239,7 @@ public extension PubNub {
   ///   - channel: The destination of the message.
   ///   - message: The message to publish.
   ///   - messageType: Custom message type.
+  ///   - spaceId: The destination space identifier for message.
   ///   - shouldStore: If true the published message is stored in history.
   ///   - storeTTL: Set a per message time to live in storage.
   ///   - meta: Publish extra metadata with the request.
@@ -251,6 +252,7 @@ public extension PubNub {
     channel: String,
     message: JSONCodable,
     messageType: PubNubMessageType? = nil,
+    spaceId: PubNubSpaceId? = nil,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
     meta: JSONCodable? = nil,
@@ -263,6 +265,8 @@ public extension PubNub {
       router = PublishRouter(
         .compressedPublish(message: message.codableValue,
                            channel: channel,
+                           messageType: messageType,
+                           spaceId: spaceId,
                            shouldStore: shouldStore,
                            ttl: storeTTL,
                            meta: meta?.codableValue),
@@ -272,6 +276,8 @@ public extension PubNub {
       router = PublishRouter(
         .publish(message: message.codableValue,
                  channel: channel,
+                 messageType: messageType,
+                 spaceId: spaceId,
                  shouldStore: shouldStore,
                  ttl: storeTTL,
                  meta: meta?.codableValue),
@@ -326,7 +332,8 @@ public extension PubNub {
   /// - Parameters:
   ///   - channel: The destination of the message
   ///   - message: The message to publish
-  ///   - shouldCompress: Whether the message needs to be compressed before transmission
+  ///   - messageType: Custom signal type.
+  ///   - spaceId: The destination space identifier for message.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `Timetoken` of the published Message
@@ -334,11 +341,17 @@ public extension PubNub {
   func signal(
     channel: String,
     message: JSONCodable,
+    messageType: PubNubMessageType? = nil,
+    spaceId: PubNubSpaceId? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
-    route(PublishRouter(.signal(message: message.codableValue, channel: channel),
-                        configuration: requestConfig.customConfiguration ?? configuration),
+    route(PublishRouter(
+      .signal(message: message.codableValue,
+              channel: channel,
+              messageType: messageType,
+              spaceId: spaceId),
+      configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: PublishResponseDecoder(),
           custom: requestConfig) { result in
       completion?(result.map { $0.payload.timetoken })
@@ -978,6 +991,7 @@ public extension PubNub {
   ///   - includeMeta: If `true` the meta properties of messages will be included in the response
   ///   - includeUUID: If `true` the UUID of the message publisher will be included with each message in the response
   ///   - includeMessageType: If `true` the message type will be included with each message
+  ///   - includeSpaceId: If `true` message's space id will be included.
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -987,7 +1001,7 @@ public extension PubNub {
     for channels: [String],
     includeActions: Bool = false, includeMeta: Bool = false,
     includeUUID: Bool = true, includeMessageType: Bool = true,
-    page: PubNubBoundedPage? = PubNubBoundedPageBase(),
+    includeSpaceId: Bool = false, page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
@@ -1000,7 +1014,7 @@ public extension PubNub {
           channel: channels.first ?? "",
           max: page?.limit ?? 25, start: page?.start, end: page?.end,
           includeMeta: includeMeta, includeMessageType: includeMessageType,
-          includeUUID: includeUUID
+          includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration
       )
@@ -1010,7 +1024,7 @@ public extension PubNub {
           channels: channels, max: page?.limit ?? 100,
           start: page?.start, end: page?.end,
           includeMeta: includeMeta, includeMessageType: includeMessageType,
-          includeUUID: includeUUID
+          includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration
       )
@@ -1020,7 +1034,7 @@ public extension PubNub {
           channels: channels, max: page?.limit ?? 25,
           start: page?.start, end: page?.end,
           includeMeta: includeMeta, includeMessageType: includeMessageType,
-          includeUUID: includeUUID
+          includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration
       )

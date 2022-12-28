@@ -52,7 +52,8 @@ lane :contract_test do
   scan(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_SDK'],
-    device: ENV["DEVICE"]
+    device: ENV["DEVICE"],
+    code_coverage: false
   )
 end
 

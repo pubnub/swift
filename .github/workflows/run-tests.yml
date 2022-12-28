@@ -111,11 +111,13 @@ jobs:
       - name: Run stable acceptance tests
         run: |
           bundle exec fastlane contract_test --env contract
-          mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
+          [[ -r Results/CucumberishTestResults-PubNubContractTests.json ]] &&
+            mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
           bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
-          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+          [[ -r Results/CucumberishTestResults-PubNubContractTestsBeta.json ]] &&
+            mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
       - name: Upload acceptance tests reports
         uses: actions/upload-artifact@v3
         with:

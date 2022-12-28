@@ -62,10 +62,10 @@ void CucumberishInit(void) {
     [excludeTags removeObject:@"beta"];
   }
   // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
-  excludeTags = nil;
+   excludeTags = nil;
   
   // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
-  includedTags = @[
+  NSArray *includedTags = @[
     @"contract=fetchHistoryWithLegacyMessageTypes",
     @"contract=fetchHistoryWithUserAndLegacyMessageTypes",
     @"contract=fetchHistoryWithOutMessageTypes",

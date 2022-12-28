@@ -53,8 +53,7 @@ lane :contract_test do
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_SDK'],
     device: ENV["DEVICE"],
-    code_coverage: false,
-    output_style: 'raw'
+    code_coverage: false
   )
 end
 

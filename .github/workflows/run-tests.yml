@@ -34,13 +34,6 @@ jobs:
         with:
           ruby-version: 2.6.6
           bundler-cache: true
-      - name: Cache installed Pods
-        uses: actions/cache@v3
-        with:
-          path: Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
-          restore-keys: |
-              ${{ runner.os }}-pods-
       - name: Cache Swift Package Manager
         uses: actions/cache@v3
         with:
@@ -80,9 +73,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Pods
-          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-pod-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
-              ${{ runner.os }}-pods-
+              ${{ runner.os }}-pod-
       - name: Cache Swift Package Manager
         uses: actions/cache@v3
         with:
@@ -110,12 +103,12 @@ jobs:
           bundle exec pod install
       - name: Run stable acceptance tests
         run: |
-          bundle exec fastlane contract_test --env contract
+          bundle exec fastlane contract_test --env contract --verbose
           [[ -r Results/CucumberishTestResults-PubNubContractTests.json ]] &&
             mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
-          bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
+          bundle exec fastlane contract_test --env contract-beta --verbose && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
           [[ -r Results/CucumberishTestResults-PubNubContractTestsBeta.json ]] &&
             mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
       - name: Upload acceptance tests reports

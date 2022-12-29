@@ -48,6 +48,9 @@ jobs:
         run: xcrun simctl list -j
       - name: Run ${{ matrix.environment }} unit tests
         run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   acceptance-tests:
     name: Acceptance tests
     runs-on: macos-12
@@ -105,3 +108,10 @@ jobs:
           name: acceptance-test-reports
           path: Results/*.json
           retention-days: 7
+  all-tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    needs: [tests, acceptance-tests]
+    steps:
+      - name: Tests summary
+        run: echo -e "\033[38;2;95;215;0m\033[1mAll tests successfully passed"

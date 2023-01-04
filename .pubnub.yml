@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.0.2"
+version: "6.0.3"
 schema: 1
 changelog:
+  - date: 2023-01-04
+    version: 6.0.3
+    changes:
+      - type: bug
+        text: "Fix issue because of which listener wasn't `deinit` even when reference on it has been nullified."
   - date: 2022-12-12
     version: 6.0.2
     changes:
@@ -468,7 +473,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.3.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

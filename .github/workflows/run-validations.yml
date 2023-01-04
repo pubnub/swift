@@ -11,7 +11,7 @@ defaults:
     shell: bash
 
 jobs:
-  repository-validators:
+  pubnub-yml:
     name: "Validate .pubnub.yml"
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +28,9 @@ jobs:
         uses: ./.github/.release/actions/actions/validators/pubnub-yml
         with:
           token: ${{ secrets.GH_TOKEN }}
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   package-managers-validation:
     name: Validate package managers
     runs-on: macos-12
@@ -39,6 +42,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout actions
+        uses: actions/checkout@v3
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
       - name: Setup Ruby 2.6.6
         uses: ruby/setup-ruby@v1
         with:
@@ -55,6 +65,9 @@ jobs:
             ${{ runner.os }}-spm-
       - name: ${{ matrix.managers }} validation
         run: bundle exec fastlane lint_$(echo ${{ matrix.managers }} | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   demo-app-validation:
     name: Validate demo application
     runs-on: macos-12
@@ -63,6 +76,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout actions
+        uses: actions/checkout@v3
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
       - name: Setup Ruby 2.6.6
         uses: ruby/setup-ruby@v1
         with:
@@ -79,3 +99,13 @@ jobs:
             ${{ runner.os }}-spm-
       - name: Demo application build validation
         run: bundle exec fastlane build_example --env ios
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
+  all-validations:
+    name: Validations
+    runs-on: ubuntu-latest
+    needs: [pubnub-yml, package-managers-validation, demo-app-validation]
+    steps:
+      - name: Validations summary
+        run: echo -e "\033[38;2;95;215;0m\033[1mAll validations passed"

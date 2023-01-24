@@ -178,7 +178,7 @@ let defaultPublishKey = "demo-36"
       XCTAssertFalse(result is Error, "Last API call shouldn't fail.")
     }
 
-    Then("I receive error response") { _, _ in
+    Then("I receive (an )?error response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
 

@@ -52,6 +52,9 @@ extension PubNubSpaceId: Codable, Hashable {
 }
 
 extension PubNubSpaceId: ExpressibleByStringLiteral, CustomStringConvertible {
+  public init(_ value: String) {
+    self.init(stringLiteral: value)
+  }
   public init(stringLiteral value: StringLiteralType) {
     id = value
   }

@@ -90,7 +90,7 @@ extension PubNubMessageType: RawRepresentable, CustomStringConvertible {
 extension PubNubMessageType: ExpressibleByStringLiteral {
   fileprivate typealias LegacyPubNubMessageTypes = SubscribeMessagePayload.Action
   
-  init(_ type: String) {
+  public init(_ type: String) {
     self.init(rawValue: type)
   }
   

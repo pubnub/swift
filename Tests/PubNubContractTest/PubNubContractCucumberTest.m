@@ -66,12 +66,10 @@ void CucumberishInit(void) {
   
   // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
   NSArray *includedTags = @[
-    @"contract=fetchHistoryWithLegacyMessageTypes",
-    @"contract=fetchHistoryWithUserAndLegacyMessageTypes",
-    @"contract=fetchHistoryWithOutMessageTypes",
-    @"contract=fetchHistoryWithSpaceIdAndMessageType",
-    @"contract=subscribeReceiveMessagesWithLegacyMessageTypes",
-    @"contract=subscribeReceiveMessagesWithUserAndLegacyMessageTypes"
+      @"featureSet=historyVSP",
+      @"featureSet=publishToSpace",
+      @"featureSet=signalToSpace",
+      @"featureSet=subscribeVSP"
   ];
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];

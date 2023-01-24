@@ -160,7 +160,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
       self.wait(for: [historyExpect], timeout: 60.0)
     }
     
-    When("^I fetch message history with '(.*)` set to '(.*)' for '(.*)' channel$") { args, _ in
+    When("^I fetch message history with '(.*)' set to '(.*)' for '(.*)' channel$") { args, _ in
       guard args?.count == 3, let channel = args?[2] else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return

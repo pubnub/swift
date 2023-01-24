@@ -442,8 +442,10 @@ extension SubscriptionSession: EventStreamEmitter {
     listener.token?.cancel()
 
     // Add new token to the listener
-    listener.token = ListenerToken { [weak self] in
-      self?.privateListeners.remove(listener)
+    listener.token = ListenerToken { [weak self, weak listener] in
+      if let listener = listener {
+        self?.privateListeners.remove(listener)
+      }
     }
     privateListeners.update(listener)
   }

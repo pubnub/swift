@@ -61,16 +61,6 @@ void CucumberishInit(void) {
   if ([xcTestBundlePath rangeOfString:@"PubNubContractTestsBeta"].location != NSNotFound) {
     [excludeTags removeObject:@"beta"];
   }
-  // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
-   excludeTags = nil;
-  
-  // TODO: REMOVE AFTER ALL TESTS FOR MESSAGE TYPE WILL BE MERGED.
-  NSArray *includedTags = @[
-      @"featureSet=historyVSP",
-      @"featureSet=publishToSpace",
-      @"featureSet=signalToSpace",
-      @"featureSet=subscribeVSP"
-  ];
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"

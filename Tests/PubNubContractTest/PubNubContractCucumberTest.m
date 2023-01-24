@@ -65,6 +65,6 @@ void CucumberishInit(void) {
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"
                                fromBundle:bundle
-                              includeTags:includedTags
+                              includeTags:nil
                               excludeTags:excludeTags];
 }

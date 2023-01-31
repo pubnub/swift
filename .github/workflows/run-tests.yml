@@ -109,8 +109,16 @@ jobs:
           mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
+          REPORT_FILENAME="Results/CucumberishTestResults-PubNubContractTestsBeta.json"
           bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
-          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+          if [[ -r "$REPORT_FILENAME" ]]; then
+            mv "$REPORT_FILENAME" Results/beta.json
+          else
+            echo -e "\033[1;31mReport file not created: $REPORT_FILENAME"
+          fi
+          if [[ $FASTLANE_EXITCODE -gt 0 && $2 != contract-beta ]]; then
+            echo -e "\033[96mcontract-beta is allowed to fail.\033[0m"
+          fi
       - name: Upload acceptance tests reports
         uses: actions/upload-artifact@v3
         with:

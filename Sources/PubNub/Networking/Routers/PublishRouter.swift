@@ -36,7 +36,7 @@ struct PublishRouter: HTTPRouter {
     case compressedPublish(message: AnyJSON, channel: String, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
     case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
     case signal(message: AnyJSON, channel: String, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?)
-    case file(message: FilePublishPayload, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case file(message: FilePublishPayload, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
 
     var description: String {
       switch self {
@@ -85,7 +85,7 @@ struct PublishRouter: HTTPRouter {
     case let .signal(message, channel, _, _):
       return append(message: message,
                     to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
-    case let .file(message, _, _, _):
+    case let .file(message, _, _, _, _, _):
       return append(message: message,
                     to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/")
     }
@@ -113,8 +113,8 @@ struct PublishRouter: HTTPRouter {
       return parsePublish(query: &query, messageType: nil, spaceId: nil, store: false, ttl: 0, meta: meta)
     case let .signal(_, _, messageType, spaceId):
       return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: nil, ttl: nil, meta: nil)
-    case let .file(_, shouldStore, ttl, meta):
-      return parsePublish(query: &query, messageType: nil, spaceId: nil, store: shouldStore, ttl: ttl, meta: meta)
+    case let .file(_, messageType, spaceId, shouldStore, ttl, meta):
+      return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
     }
   }
 
@@ -187,7 +187,7 @@ struct PublishRouter: HTTPRouter {
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
-    case let .file(message, _, _, _):
+    case let .file(message, _, _, _, _, _):
       return message.validationErrorDetail
     }
   }

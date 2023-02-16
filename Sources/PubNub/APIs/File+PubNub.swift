@@ -95,6 +95,10 @@ public extension PubNub {
   struct PublishFileRequest {
     /// The optional message that will be include alongside the File information
     public var additionalMessage: JSONCodable?
+    /// Custom message type
+    public var messageType: PubNubMessageType? = nil
+    /// The destination space identifier for message
+    public var spaceId: PubNubSpaceId? = nil
     /// If true the published message is stored in history.
     public var store: Bool?
     /// Set a per message time to live in storage.
@@ -113,6 +117,8 @@ public extension PubNub {
     ///   - customRequestConfig: Custom configuration overrides for this request
     public init(
       additionalMessage: JSONCodable? = nil,
+      messageType: PubNubMessageType? = nil,
+      spaceId: PubNubSpaceId? = nil,
       store: Bool? = nil,
       ttl: Int? = nil,
       meta: JSONCodable? = nil,
@@ -236,7 +242,7 @@ public extension PubNub {
 
     let router = PublishRouter(
       .file(
-        message: fileMessage,
+        message: fileMessage, messageType: request.messageType, spaceId: request.spaceId,
         shouldStore: request.store, ttl: request.ttl, meta: request.meta?.codableValue
       ),
       configuration: configuration

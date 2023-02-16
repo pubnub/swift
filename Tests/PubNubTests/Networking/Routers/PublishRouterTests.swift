@@ -285,6 +285,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
+        messageType: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -293,6 +294,42 @@ extension PublishRouterTests {
     XCTAssertEqual(router.endpoint.description, "Publish a File Message")
     XCTAssertEqual(router.category, "Publish a File Message")
     XCTAssertEqual(router.service, .publish)
+  }
+  
+  func testFile_Router_nilMessageTypeAndSpaceId() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
+        messageType: nil, spaceId: nil,
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+    
+    guard let queryItems = try? router.queryItems.get() else {
+      return XCTAssert(false, "'queryItems' not set")
+    }
+    
+    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.type.rawValue }))
+    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.spaceId.rawValue }))
+  }
+  
+  func testFile_Router_notNilMessageTypeAndSpaceId() {
+    let router = PublishRouter(
+      .file(
+        message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
+        messageType: "type", spaceId: "spaceId",
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
+      configuration: config
+    )
+    
+    guard let queryItems = try? router.queryItems.get() else {
+      return XCTAssert(false, "'queryItems' not set")
+    }
+    
+    XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.type.rawValue, value: "type")))
+    XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.spaceId.rawValue, value: "spaceId")))
   }
 
   func testFile_Router_Validate_Message() {
@@ -316,6 +353,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: "", fileId: testFileId, filename: testFilename),
+        messageType: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -327,6 +365,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: "", filename: testFilename),
+        messageType: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -338,6 +377,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: ""),
+        messageType: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config

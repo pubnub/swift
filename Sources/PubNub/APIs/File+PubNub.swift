@@ -125,6 +125,8 @@ public extension PubNub {
       customRequestConfig: RequestConfiguration = RequestConfiguration()
     ) {
       self.additionalMessage = additionalMessage
+      self.messageType = messageType
+      self.spaceId = spaceId
       self.store = store
       self.ttl = ttl
       self.meta = meta

@@ -121,5 +121,40 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
 
       self.wait(for: [sendFileExpect], timeout: 60.0)
     }
+        
+    When("^I send a file with '(.+)' space id and '(.+)' message type$") { args, _ in
+      let spaceId = args?.first ?? String()
+      let messageType = args?.last ?? String()
+      
+      let sendFileExpect = self.expectation(description: "Send file Response")
+
+      guard let data = "test file data".data(using: .utf8) else {
+        XCTAssert(false, "Unable prepare file data")
+        return
+      }
+      
+      self.client.fileURLSession = URLSession(
+        configuration: .default,
+        delegate: self.client.fileSessionManager,
+        delegateQueue: .main
+      )
+
+      let publishFileRequest = PubNub.PublishFileRequest(
+        messageType: .user(type: messageType),
+        spaceId: PubNubSpaceId(spaceId)
+      )
+      
+      self.client.send(.data(data, contentType: nil), channel: "test", remoteFilename: "name.txt", publishRequest: publishFileRequest) { result in
+        switch result {
+        case let .success(sendResults):
+          self.handleResult(result: sendResults)
+        case let .failure(error):
+          self.handleResult(result: error)
+        }
+        sendFileExpect.fulfill()
+      }
+
+      self.wait(for: [sendFileExpect], timeout: 60.0)
+    }
   }
 }

@@ -49,15 +49,15 @@ extension PubNubMessageType: RawRepresentable, CustomStringConvertible {
   public var rawValue: String {
     switch self {
     case .message:
-      return "message"
+      return "pn_message"
     case .signal:
-      return "signal"
+      return "pn_signal"
     case .object:
-      return "object"
+      return "pn_object"
     case .messageAction:
-      return "messageAction"
+      return "pn_messageAction"
     case .file:
-      return "file"
+      return "pn_file"
     case let .user(type):
       return type
     default:
@@ -67,15 +67,15 @@ extension PubNubMessageType: RawRepresentable, CustomStringConvertible {
   
   public init(rawValue: String) {
     switch rawValue {
-    case "message":
+    case "pn_message":
       self = .message
-    case "signal":
+    case "pn_signal":
       self = .signal
-    case "object":
+    case "pn_object":
       self = .object
-    case "messageAction":
+    case "pn_messageAction":
       self = .messageAction
-    case "file":
+    case "pn_file":
       self = .file
     default:
       self = .user(type: rawValue)

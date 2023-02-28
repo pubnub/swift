@@ -91,7 +91,9 @@ let defaultPublishKey = "demo-36"
 
   public var client: PubNub {
     if PubNubContractTestCase.currentClient == nil {
-      PubNubContractTestCase.currentClient = PubNub(configuration: configuration)
+      let client = PubNub(configuration: configuration)
+      client.fileURLSession = URLSession(configuration: .default, delegate: client.fileSessionManager, delegateQueue: .main)
+      PubNubContractTestCase.currentClient = client
     }
 
     return PubNubContractTestCase.currentClient!

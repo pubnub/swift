@@ -92,7 +92,14 @@ let defaultPublishKey = "demo-36"
   public var client: PubNub {
     if PubNubContractTestCase.currentClient == nil {
       let client = PubNub(configuration: configuration)
-      client.fileURLSession = URLSession(configuration: .default, delegate: client.fileSessionManager, delegateQueue: .main)
+      // URLSession with background configuration fails to create URLSessionUploadTask in the unit tests target only.
+      // That's why it gets replaced with the standard configuration:
+      // https://developer.apple.com/forums/thread/725625
+      client.fileURLSession = URLSession(
+        configuration: .default,
+        delegate: client.fileSessionManager,
+        delegateQueue: .main
+      )
       PubNubContractTestCase.currentClient = client
     }
 

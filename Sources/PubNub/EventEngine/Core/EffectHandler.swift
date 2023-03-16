@@ -27,27 +27,39 @@
 import Foundation
 
 ///
-/// Protocol for any type that's responsible to return a concrete Effect according to provided `EffectInvocation`
+/// Protocol for any type that's responsible for returning a concrete Effect according to provided `EffectInvocation`
 /// This should be the only one allowed way to create a new Effect.
 ///
-protocol EffectHandlerFactory<Kind, Action> {
-  associatedtype Kind
+protocol EffectHandlerFactory<EffectKind, Action> {
+  associatedtype EffectKind
   associatedtype Action
   
-  func effect(for invocation: EffectInvocation<Kind, Action>) -> any EffectHandler<Kind, Action>
+  func effect(for invocation: EffectInvocation<EffectKind, Action>) -> any EffectHandler
 }
 
 ///
-/// Protocol for any type that can perform an Effect. Effect can be returned from the factory mentioned above.
+/// Protocol for any type that can perform an Effect. An effect can be returned from the factory mentioned above.
 /// Concrete types are responsible to implement both `start()` and `cancel()` methods.
 /// It's also required to call either `onCompletion:` or `onCancel:` on the underlying `invocation` object in order to notify that the Effect's job has been finished.
 ///
-protocol EffectHandler<Kind, Action> {
-  associatedtype Kind
+protocol EffectHandler {
+  associatedtype EffectKind
   associatedtype Action
   
-  var invocation: EffectInvocation<Kind, Action> { get }
+  var invocation: EffectInvocation<EffectKind, Action> { get }
   
   func start()
   func cancel()
+}
+
+///
+/// Base effect handler class you can inherit from.
+/// You don't have to specify the `invocation` field due to conformance for `EffectHandler`,  inherit from this class.
+///
+class BaseEffectHandler<EffectKind, Action> {
+  var invocation: EffectInvocation<EffectKind, Action>
+  
+  init(invocation: EffectInvocation<EffectKind, Action>) {
+    self.invocation = invocation
+  }
 }

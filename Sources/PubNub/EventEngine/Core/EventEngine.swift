@@ -29,24 +29,24 @@ import Foundation
 
 ///
 /// The class that represents the Event Engine.
-/// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to receive or Effects kind that this engine produces.
+/// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to take, or Effects kind that this Engine produces.
 /// See the `Showcase.swift` file in order to see the example usage.
 ///
-class EventEngine<State, Action, Kind> {
-  var transition: any TransitionProtocol<State, Action, Kind>
-  var dispatcher: any Dispatcher<Kind, Action>
+class EventEngine<State: AnyState, Action, EffectKind> {
+  var transition: any TransitionProtocol<State, Action, EffectKind>
+  var dispatcher: any Dispatcher<EffectKind, Action>
   var currentState: State
   
   init(
-    transition: some TransitionProtocol<State, Action, Kind>,
-    dispatcher: some Dispatcher<Kind, Action>
+    transition: some TransitionProtocol<State, Action, EffectKind>,
+    dispatcher: some Dispatcher<EffectKind, Action>
   ) {
     self.transition = transition
     self.currentState = transition.defaultState()
     self.dispatcher = dispatcher
   }
   
-  func dispatch(action: Action) {
+  func send(action: Action) {
     let result = transition.transition(
       from: currentState,
       action: action
@@ -59,7 +59,7 @@ class EventEngine<State, Action, Kind> {
         switch result {
         case .success(let action):
           if let action = action {
-            self?.dispatch(action: action)
+            self?.send(action: action)
           }
         case .failure(let error):
           debugPrint("Error: \(error)")

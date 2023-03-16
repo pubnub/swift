@@ -27,26 +27,41 @@
 
 import Foundation
 
-typealias TransitionResult<S,A,K> = (state: S, invocations: [EffectInvocation<K,A>])
+///
+/// Protocol for any type that can describe the Event Engine's state.
+///
+protocol AnyState {
+  func didEnter()
+  func didLeave()
+}
+
+extension AnyState {
+  func didEnter() {}
+  func didLeave() {}
+}
+
+/// Typealias for transition result.
+/// It assumes that transition result returns a new State and Effect invocations that describes system's intent to perform some operations
+typealias TransitionResult<State: AnyState, Action, EffectKind> = (state: State, invocations: [EffectInvocation<EffectKind, Action>])
 
 ///
 /// Protocol for any type that can perform the transition between states given the action.
 /// Concrete types are responsible to implement `transition(from state: State, action: Action)` and return a list of `EffectInvocation` that needs to be executed.
 ///
-protocol TransitionProtocol<State,Action,Kind> {
-  associatedtype State
+protocol TransitionProtocol<State, Action, EffectKind> {
+  associatedtype State: AnyState
   associatedtype Action
-  associatedtype Kind
+  associatedtype EffectKind
   
   func defaultState() -> State
-  func transition(from state: State, action: Action) -> TransitionResult<State,Action,Kind>
+  func transition(from state: State, action: Action) -> TransitionResult<State, Action, EffectKind>
 }
 
 ///
 /// The goal of this type is to specify the system's intent to perform an Effect without having to specify its concrete implementation.
 ///
-struct EffectInvocation<Kind, Action> {
-  var kind: Kind
+struct EffectInvocation<EffectKind, Action> {
+  var kind: EffectKind
   var identifier: String
   var onCompletion: ((Result<Action?, Error>) -> Void)?
   var onCancel: (() -> Void)?

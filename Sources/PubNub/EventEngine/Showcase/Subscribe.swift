@@ -26,45 +26,42 @@
 //
 import Foundation
 
-/// This enum acts like a namespace in order to keep State, Actions and EffectInvocations for Subscribe in one place
+/// This acts like a namespace in order to keep State, Actions and Effect invocations for Subscribe in a one place:
 enum Subscribe {
   
-  struct State {
-    var x: Int
-    var y: Int
-    var z: Int
-  }
+  // TODO: Provide real states
+  class State: AnyState {}
+  class Connected: State {}
+  class Disconnected: State {}
+  class Reconnecting: State {}
   
+  // TODO: Provide real actions
   enum Actions {
-    case a1
-    case a2
-    case a3
-    case a4
-    case a5
+    case connect
+    case disconnect
+    case reconnect
   }
   
+  // TODO: Provide real invocations to describe Effects
   enum EffectInvocation {
-    case e1
-    case e2
-    case e3
+    case effectInv1
+    case effectInv2
+    case effectInv3
   }
 }
 
 class SubscribeTransition: TransitionProtocol {
   typealias State = Subscribe.State
   typealias Action = Subscribe.Actions
-  typealias Kind = Subscribe.EffectInvocation
+  typealias EffectKind = Subscribe.EffectInvocation
   
   func defaultState() -> Subscribe.State {
-    Subscribe.State(x: 0, y: 0, z: 0)
+    Subscribe.Disconnected()
   }
   
-  func transition(
-    from state: State,
-    action: Action
-  ) -> TransitionResult<State,Action,Kind> {
+  func transition(from state: State, action: Action) -> TransitionResult<State, Action, EffectKind> {
     switch action {
-    case .a1, .a2, .a3, .a4, .a5:
+    case .connect, .disconnect, .reconnect:
       fatalError("Not implemented yet")
     }
   }
@@ -72,35 +69,13 @@ class SubscribeTransition: TransitionProtocol {
 
 class SubscribeEffectFactory: EffectHandlerFactory {
   typealias Action = Subscribe.Actions
-  typealias Kind = Subscribe.EffectInvocation
+  typealias EffectKind = Subscribe.EffectInvocation
   
-  func effect(
-    for invocation: EffectInvocation<Subscribe.EffectInvocation, Subscribe.Actions>
-  ) -> any EffectHandler<Kind,Action> {
+  func effect(for invocation: EffectInvocation<EffectKind, Action>) -> any EffectHandler {
     switch invocation.kind {
-    case .e1, .e2, .e3:
-      return CustomEH(invocation: invocation)
+    case .effectInv1, .effectInv2, .effectInv3:
       fatalError("Not implemented yet")
     }
-  }
-}
-
-class CustomEH: EffectHandler {
-  var invocation: EffectInvocation<Subscribe.EffectInvocation, Subscribe.Actions>
-  
-  typealias Action = Subscribe.Actions
-  typealias Kind = Subscribe.EffectInvocation
-    
-  init(invocation: EffectInvocation<Subscribe.EffectInvocation, Subscribe.Actions>) {
-    self.invocation = invocation
-  }
-  
-  func start() {
-    invocation.onCompletion?(.success(.a4))
-  }
-  
-  func cancel() {
-    
   }
 }
 

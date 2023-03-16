@@ -31,31 +31,31 @@ import Foundation
 /// Protocol for any type that can dispatch, track and schedule Effects.
 /// Concrete implementations are responsible to schedule effects, tracking pending operations, and canceling them on behalf caller's request.
 ///
-protocol Dispatcher<Kind, Action> {
-  associatedtype Kind
+protocol Dispatcher<EffectKind, Action> {
+  associatedtype EffectKind
   associatedtype Action
     
-  var factory: any EffectHandlerFactory<Kind, Action> { get }
+  var factory: any EffectHandlerFactory<EffectKind, Action> { get }
   
-  func dispatch(invocations: [EffectInvocation<Kind, Action>])
+  func dispatch(invocations: [EffectInvocation<EffectKind, Action>])
 }
 
 ///
 /// Default implementation for Dispatcher.
 ///
-class EffectDispatcher<Kind, Action>: Dispatcher {
-  private(set) var factory: any EffectHandlerFactory<Kind, Action>
-  // private(set) var pendingEffects: [String: any EffectHandler<Kind, Action>] = [:]
+class EffectDispatcher<EffectKind, Action>: Dispatcher {
+  private(set) var factory: any EffectHandlerFactory<EffectKind, Action>
+  private(set) var pendingEffects: [String: any EffectHandler] = [:]
   
-  init(factory: some EffectHandlerFactory<Kind, Action>) {
+  init(factory: some EffectHandlerFactory<EffectKind, Action>) {
     self.factory = factory
   }
   
-  func dispatch(invocations: [EffectInvocation<Kind, Action>]) {
+  func dispatch(invocations: [EffectInvocation<EffectKind, Action>]) {
     for invocation in invocations {
       let effect = factory.effect(for: invocation)
-//      pendingEffects[invocation.identifier]?.cancel()
-//      pendingEffects[invocation.identifier] = effect
+      pendingEffects[invocation.identifier]?.cancel()
+      pendingEffects[invocation.identifier] = effect
       effect.start()
     }
   }

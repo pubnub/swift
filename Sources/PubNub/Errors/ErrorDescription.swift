@@ -179,6 +179,8 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "The request was cancelled by the system/user without error"
     case .longPollingRestart:
       return "The long polling request needed to be cancelled to restart with new data"
+    case .longPollingReset:
+      return "The long polling request needed to be cancelled because the client unsubscribed from all channels and groups."
     case .timedOut:
       return "An asynchronous operation timed out"
     case .nameResolutionFailure:

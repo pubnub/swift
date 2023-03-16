@@ -98,7 +98,7 @@ extension SubscriptionSession {
   ) {
     let router = PresenceRouter(.leave(channels: channels, groups: groups), configuration: configuration)
 
-    nonSubscribeSession
+    longPollingSession
       .request(with: router, requestOperator: configuration.automaticRetry)
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { result in

@@ -130,6 +130,7 @@ public struct PubNubError: Error {
     case sessionInvalidated
     case clientCancelled
     case longPollingRestart
+    case longPollingReset
 
     // Response Received
     case badServerResponse
@@ -210,7 +211,7 @@ public struct PubNubError: Error {
            .secureConnectionFailure, .certificateTrustFailure, .backgroundUpdatesDisabled,
            .backgroundInsufficientResources, .backgroundUserForceQuitApplication:
         return .requestTransmission
-      case .clientCancelled, .sessionDeinitialized, .sessionInvalidated, .longPollingRestart:
+      case .clientCancelled, .sessionDeinitialized, .sessionInvalidated, .longPollingRestart, .longPollingReset:
         return .cancellation
       case .badServerResponse, .responseDecodingFailure, .dataLengthExceedsMaximum:
         return .responseReceiving

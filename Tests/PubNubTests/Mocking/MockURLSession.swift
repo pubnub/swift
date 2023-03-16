@@ -399,7 +399,6 @@ extension MockURLSession {
     let urlSession = MockURLSession(configuration: .ephemeral, delegate: HTTPSessionDelegate(), delegateQueue: .main)
 
     urlSession.responseForDataTask = { mockTask, index in
-      print("~~~~~~> \(jsonResources.count) | \(dataResource.count) | \(index)")
       guard jsonResources.count + dataResource.count > index else {
         fatalError("Index out of range for next task")
       }

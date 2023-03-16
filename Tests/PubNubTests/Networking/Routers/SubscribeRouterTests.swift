@@ -514,8 +514,7 @@ extension SubscribeRouterTests {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipRemove_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipRemove_success", "leave_success"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -583,7 +582,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_addMessageAction_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_addMessageAction_success", "leave_success"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -641,7 +640,7 @@ extension SubscribeRouterTests {
     let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
     guard let session = try? MockURLSession
-      .mockSession(for: ["subscription_removeMessageAction_success"])
+      .mockSession(for: ["subscription_removeMessageAction_success", "leave_success"])
       .session
     else {
       return XCTFail("Could not create mock url session")
@@ -704,7 +703,7 @@ extension SubscribeRouterTests {
     let signalExpect = XCTestExpectation(description: "Signal Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_mixed_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_mixed_success", "leave_success"]).session else {
       return XCTFail("Could not create mock url session")
     }
 

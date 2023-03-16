@@ -318,7 +318,8 @@ public class SubscriptionSession {
             )
           }
 
-          if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart {
+          if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart ||
+            error.pubNubError?.reason == .longPollingReset {
             if self?.subscriptionCount == 0 {
               self?.connectionStatus = .disconnected
             } else if self?.request?.requestID == currentSubscribeID {
@@ -388,6 +389,9 @@ public class SubscriptionSession {
       notify {
         $0.emit(subscribe: .subscriptionChanged(subscribeChange))
       }
+      // Cancel previous subscribe request.
+      stopSubscribeLoop(.longPollingReset)
+      
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }

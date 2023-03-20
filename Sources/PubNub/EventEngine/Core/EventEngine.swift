@@ -28,11 +28,20 @@
 import Foundation
 
 ///
+/// Protocol for any type that can take and dispatch an `Event`
+///
+protocol EventDispatcher<Event> {
+  associatedtype Event
+  
+  func send(event: Event)
+}
+
+///
 /// The class that represents the Event Engine.
 /// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to take, or Effects kind that this Engine produces.
 /// See the `Showcase.swift` file in order to see the example usage.
 ///
-class EventEngine<State: AnyState, Event, EffectKind> {
+class EventEngine<State: AnyState, Event, EffectKind>: EventDispatcher {
   var transition: any TransitionProtocol<State, Event, EffectKind>
   var dispatcher: any Dispatcher<EffectKind, Event>
   var currentState: State
@@ -55,22 +64,9 @@ class EventEngine<State: AnyState, Event, EffectKind> {
     
     currentState = result.state
     
-    for var invocation in result.invocations {
-      invocation.onCompletion = { [weak self] result in
-        switch result {
-        case .success(let actions):
-          actions.forEach() {
-            self?.send(event: $0)
-          }
-        case .failure(let error):
-          debugPrint("Error: \(error)")
-        }
-      }
-      invocation.onCancel = {
-        debugPrint("On cancel")
-      }
-    }
-    
-    dispatcher.dispatch(invocations: result.invocations)
+    dispatcher.dispatch(
+      invocations: result.invocations,
+      eventDispatcher: self
+    )
   }
 }

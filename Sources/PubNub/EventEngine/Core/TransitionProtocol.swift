@@ -62,6 +62,10 @@ protocol TransitionProtocol<State, Event, EffectKind> {
 struct EffectInvocation<EffectKind, Event> {
   var kind: EffectKind
   var identifier: String
-  var onCompletion: ((Result<[Event], Error>) -> Void)?
-  var onCancel: (() -> Void)?
+}
+
+extension EffectInvocation where EffectKind: RawRepresentable<String> {
+  static func withEffectKind(_ kind: EffectKind) -> EffectInvocation<EffectKind, Event> {
+    EffectInvocation(kind: kind, identifier: kind.rawValue)
+  }
 }

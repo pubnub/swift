@@ -34,7 +34,10 @@ protocol EffectHandlerFactory<EffectKind, Event> {
   associatedtype EffectKind
   associatedtype Event
   
-  func effect(for invocation: EffectInvocation<EffectKind, Event>) -> any EffectHandler<EffectKind, Event>
+  func effect(
+    for invocation: EffectInvocation<EffectKind, Event>,
+    with eventDispatcher: some EventDispatcher<Event>
+  ) -> any EffectHandler<EffectKind, Event>
 }
 
 ///
@@ -47,6 +50,7 @@ protocol EffectHandler<EffectKind, Event> {
   associatedtype Event
   
   var invocation: EffectInvocation<EffectKind, Event> { get }
+  var eventDispatcher: any EventDispatcher<Event> { get }
   
   func start()
   func cancel()
@@ -58,9 +62,14 @@ protocol EffectHandler<EffectKind, Event> {
 ///
 class BaseEffectHandler<EffectKind, Event>: EffectHandler {
   var invocation: EffectInvocation<EffectKind, Event>
+  var eventDispatcher: any EventDispatcher<Event>
   
-  init(invocation: EffectInvocation<EffectKind, Event>) {
+  init(
+    invocation: EffectInvocation<EffectKind, Event>,
+    eventDispatcher: some EventDispatcher<Event>
+  ) {
     self.invocation = invocation
+    self.eventDispatcher = eventDispatcher
   }
   
   func start() {}

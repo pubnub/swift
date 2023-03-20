@@ -29,12 +29,18 @@ import Foundation
 /// This acts like a namespace in order to keep State, Actions and Effect invocations for Subscribe in a one place:
 enum Subscribe {
   
-  // TODO: Provide real states
   class State: AnyState {}
-  class Connected: State {}
-  class Disconnected: State {}
+  class Unsubscribed: State {}
+  class Preparing: State {}
+  class Handshaking: State {}
+  class HandshakingFailed: State {}
+  class Receiving: State {}
+  class Delivering: State {}
   class Reconnecting: State {}
-  
+  class ReconnectingFailed: State {}
+  class Stopped: State {}
+  class CancelPendingRequest: State {}
+
   // TODO: Provide real actions
   enum Events {
     case connect
@@ -43,7 +49,7 @@ enum Subscribe {
   }
   
   // TODO: Provide real invocations to describe Effects
-  enum EffectInvocation {
+  enum EffectInvocation: String {
     case effectInv1
     case effectInv2
     case effectInv3
@@ -54,11 +60,7 @@ class SubscribeTransition: TransitionProtocol {
   typealias State = Subscribe.State
   typealias Event = Subscribe.Events
   typealias EffectKind = Subscribe.EffectInvocation
-  
-  func defaultState() -> Subscribe.State {
-    Subscribe.Disconnected()
-  }
-  
+    
   func transition(from state: State, event: Event) -> TransitionResult<State, Event, EffectKind> {
     switch event {
     case .connect, .disconnect, .reconnect:
@@ -71,7 +73,10 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   typealias Event = Subscribe.Events
   typealias EffectKind = Subscribe.EffectInvocation
   
-  func effect(for invocation: EffectInvocation<EffectKind, Event>) -> any EffectHandler<EffectKind, Event> {
+  func effect(
+    for invocation: EffectInvocation<EffectKind, Event>,
+    with eventDispatcher: some EventDispatcher<Event>
+  ) -> any EffectHandler<EffectKind, Event> {
     switch invocation.kind {
     case .effectInv1, .effectInv2, .effectInv3:
       fatalError("Not implemented yet")

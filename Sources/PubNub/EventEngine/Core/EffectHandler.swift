@@ -36,7 +36,7 @@ protocol EffectHandlerFactory<EffectKind, Event> {
   
   func effect(
     for invocation: EffectInvocation<EffectKind, Event>,
-    with eventDispatcher: some EventDispatcher<Event>
+    with receiver: some EventReceiver<Event>
   ) -> any EffectHandler<EffectKind, Event>
 }
 
@@ -50,28 +50,55 @@ protocol EffectHandler<EffectKind, Event> {
   associatedtype Event
   
   var invocation: EffectInvocation<EffectKind, Event> { get }
-  var eventDispatcher: any EventDispatcher<Event> { get }
+  var receiver: any EventReceiver<Event> { get }
+  var dependency: (any EffectHandler)? { get }
   
-  func start()
+  func start(onCompletion: () -> Void)
   func cancel()
 }
 
 ///
 /// Base effect handler class you can inherit from.
-/// You don't have to specify the `invocation` field due to conformance for `EffectHandler`,  inherit from this class.
+///
+/// The goal of this class is to reduce the effort in order to implement the `EffectHandler` protocol. This is done by introducing the `Template method` design pattern.
+/// Subclasses are responsible to implement `performEffectTask()` and `cancelEffectTask()` methods.
 ///
 class BaseEffectHandler<EffectKind, Event>: EffectHandler {
-  var invocation: EffectInvocation<EffectKind, Event>
-  var eventDispatcher: any EventDispatcher<Event>
+  let invocation: EffectInvocation<EffectKind, Event>
+  let receiver: any EventReceiver<Event>
+  
+  // The effect handler on which the receiver depends.
+  // The receiver isn't considered ready to execute until its dependent handler have finished executing.
+  let dependency: (any EffectHandler)?
   
   init(
     invocation: EffectInvocation<EffectKind, Event>,
-    eventDispatcher: some EventDispatcher<Event>
+    receiver: some EventReceiver<Event>,
+    dependency: (any EffectHandler)? = nil
   ) {
     self.invocation = invocation
-    self.eventDispatcher = eventDispatcher
+    self.receiver = receiver
+    self.dependency = dependency
   }
   
-  func start() {}
-  func cancel() {}
+  func start(onCompletion: () -> Void) {
+    if let dependency = dependency {
+      dependency.start { [weak self] in
+        self?.performEffectTask()
+      }
+    }
+  }
+  
+  func performEffectTask() {
+    debugPrint("Implement in subclasses")
+  }
+  
+  func cancelEffectTask() {
+    debugPrint("Implement in subclasses")
+  }
+  
+  func cancel() {
+    dependency?.cancel()
+    cancelEffectTask()
+  }
 }

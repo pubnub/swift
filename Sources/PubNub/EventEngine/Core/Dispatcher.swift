@@ -39,7 +39,7 @@ protocol Dispatcher<EffectKind, Event> {
   
   func dispatch(
     invocations: [EffectInvocation<EffectKind, Event>],
-    eventDispatcher: some EventDispatcher<Event>
+    receiver: some EventReceiver<Event>
   )
 }
 
@@ -64,13 +64,13 @@ class EffectDispatcher<EffectKind, Event>: Dispatcher {
   
   func dispatch(
     invocations: [EffectInvocation<EffectKind, Event>],
-    eventDispatcher: some EventDispatcher<Event>
+    receiver: some EventReceiver<Event>
   ) {
     for invocation in invocations {
       let effect = factory.effect(for: invocation, with: eventDispatcher)
       pendingEffects[invocation.identifier]?.effect.cancel()
       pendingEffects[invocation.identifier] = Box<EffectKind, Event>(effect: effect)
-      effect.start()
+      effect.start(onCompletion: {})
     }
   }
 }

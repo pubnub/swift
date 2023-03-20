@@ -1,5 +1,5 @@
 //
-//  EventEngine.swift
+//  SubscribeEffectFactory.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,46 +27,29 @@
 
 import Foundation
 
-///
-/// Protocol for any type that can receive and process an `Event`
-///
-protocol EventReceiver<Event> {
-  associatedtype Event
+class SubscribeEffectFactory: EffectHandlerFactory {
+  typealias Event = Subscribe.Events
+  typealias EffectKind = Subscribe.EffectInvocation
   
-  func send(event: Event)
-}
-
-///
-/// The class that represents the Event Engine.
-/// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to take, or Effects kind that this Engine produces.
-/// See the `Showcase.swift` file in order to see the example usage.
-///
-class EventEngine<State: AnyState, Event, EffectKind>: EventReceiver {
-  private let transition: any TransitionProtocol<State, Event, EffectKind>
-  private let dispatcher: any Dispatcher<EffectKind, Event>
-  private var currentState: State
+  // TODO: This value should be injected through DI
+  private var session: SessionReplaceable!
   
-  init(
-    state: State,
-    transition: some TransitionProtocol<State, Event, EffectKind>,
-    dispatcher: some Dispatcher<EffectKind, Event>
-  ) {
-    self.transition = transition
-    self.currentState = state
-    self.dispatcher = dispatcher
-  }
-  
-  func send(event: Event) {
-    let result = transition.transition(
-      from: currentState,
-      event: event
-    )
-    
-    currentState = result.state
-    
-    dispatcher.dispatch(
-      invocations: result.invocations,
-      receiver: self
-    )
+  func effect(
+    for invocation: EffectInvocation<EffectKind, Event>,
+    with receiver: some EventReceiver<Event>
+  ) -> any EffectHandler<EffectKind, Event> {
+    switch invocation.kind {
+    case .handshakeRequest(let channels, let groups, let configuration):
+      return HandshakeRequest(
+        invocation: invocation,
+        receiver: receiver,
+        session: session,
+        configuration: configuration,
+        channels: channels,
+        groups: groups
+      )
+    default:
+      fatalError("TODO")
+    }
   }
 }

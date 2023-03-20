@@ -1,5 +1,5 @@
 //
-//  EventEngine.swift
+//  SubscribeTransition.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,46 +27,33 @@
 
 import Foundation
 
-///
-/// Protocol for any type that can receive and process an `Event`
-///
-protocol EventReceiver<Event> {
-  associatedtype Event
+class SubscribeTransition: TransitionProtocol {
+  typealias State = Subscribe.State
+  typealias Event = Subscribe.Events
+  typealias EffectKind = Subscribe.EffectInvocation
   
-  func send(event: Event)
-}
-
-///
-/// The class that represents the Event Engine.
-/// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to take, or Effects kind that this Engine produces.
-/// See the `Showcase.swift` file in order to see the example usage.
-///
-class EventEngine<State: AnyState, Event, EffectKind>: EventReceiver {
-  private let transition: any TransitionProtocol<State, Event, EffectKind>
-  private let dispatcher: any Dispatcher<EffectKind, Event>
-  private var currentState: State
-  
-  init(
-    state: State,
-    transition: some TransitionProtocol<State, Event, EffectKind>,
-    dispatcher: some Dispatcher<EffectKind, Event>
-  ) {
-    self.transition = transition
-    self.currentState = state
-    self.dispatcher = dispatcher
+  func transition(from state: State, event: Event) -> TransitionResult<State, Event, EffectKind> {
+    switch event {
+    case .subscribe(let channels, let groups, let configuration):
+      return handshakingState(from: channels, groups: groups, with: configuration)
+    default:
+      fatalError("TODO")
+    }
   }
   
-  func send(event: Event) {
-    let result = transition.transition(
-      from: currentState,
-      event: event
-    )
-    
-    currentState = result.state
-    
-    dispatcher.dispatch(
-      invocations: result.invocations,
-      receiver: self
+  private func handshakingState(
+    from channels: [String],
+    groups: [String],
+    with configuration: SubscriptionConfiguration
+  ) -> TransitionResult<State, Event, EffectKind> {
+    return TransitionResult<State, Event, EffectKind>(
+      state: Subscribe.Handshaking(),
+      invocations: [
+        EffectInvocation(
+          kind: .handshakeRequest(channels: [], groups: [], configuration: configuration),
+          identifier: "SOME_ID_TODO"
+        )
+      ]
     )
   }
 }

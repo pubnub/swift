@@ -26,7 +26,9 @@
 //
 import Foundation
 
-/// This acts like a namespace in order to keep State, Actions and Effect invocations for Subscribe in a one place:
+///
+/// This acts like a namespace in order to keep State, Actions and Effect invocations for Subscribe in one place:
+///
 enum Subscribe {
   
   class State: AnyState {}
@@ -40,55 +42,40 @@ enum Subscribe {
   class ReconnectingFailed: State {}
   class Stopped: State {}
   class CancelPendingRequest: State {}
-
-  // TODO: Provide real actions
+  
   enum Events {
-    case connect
-    case disconnect
+    case restore
+    case giveUp
     case reconnect
+    case subscribe(channels: [String], groups: [String], configuration: SubscriptionConfiguration)
+    case success
+    case subscriptionChanged
+    case authorizationChanged
+    case fail
+    case allChannelsUnsubscribed
+    case disconnect
+    case handshakeFailed
+    case handshakeSucceeded
+    case reconnectionDelayExpired
+    case deliveryDone
+    case reconnectionLimitExceeded
   }
   
-  // TODO: Provide real invocations to describe Effects
-  enum EffectInvocation: String {
-    case effectInv1
-    case effectInv2
-    case effectInv3
-  }
-}
-
-class SubscribeTransition: TransitionProtocol {
-  typealias State = Subscribe.State
-  typealias Event = Subscribe.Events
-  typealias EffectKind = Subscribe.EffectInvocation
-    
-  func transition(from state: State, event: Event) -> TransitionResult<State, Event, EffectKind> {
-    switch event {
-    case .connect, .disconnect, .reconnect:
-      fatalError("Not implemented yet")
-    }
-  }
-}
-
-class SubscribeEffectFactory: EffectHandlerFactory {
-  typealias Event = Subscribe.Events
-  typealias EffectKind = Subscribe.EffectInvocation
-  
-  func effect(
-    for invocation: EffectInvocation<EffectKind, Event>,
-    with eventDispatcher: some EventDispatcher<Event>
-  ) -> any EffectHandler<EffectKind, Event> {
-    switch invocation.kind {
-    case .effectInv1, .effectInv2, .effectInv3:
-      fatalError("Not implemented yet")
-    }
+  enum EffectInvocation {
+    case receiveMessageRequest
+    case cancelPendingReceviceMessageRequest
+    case handshakeRequest(channels: [String], groups: [String], configuration: SubscriptionConfiguration)
+    case cancelPendingHandshakeRequest
+    case startReconnectionDelayTimer
+    case cancelReconnectionDelayTimer
   }
 }
 
 ///
-/// This is how you can use an EventEngine instance that's configured to handle a Subscribe loop:
+/// This is how you can use an EventEngine instance that's configured to handle the Subscribe loop:
 ///
 let subscribeEventEngine = EventEngine(
-  state: Subscribe.State(),
+  state: Subscribe.Stopped(),
   transition: SubscribeTransition(),
   dispatcher: EffectDispatcher(factory: SubscribeEffectFactory())
 )

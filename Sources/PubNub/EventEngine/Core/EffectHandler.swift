@@ -2,7 +2,7 @@
 //  Dispatcher.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -30,11 +30,11 @@ import Foundation
 /// Protocol for any type that's responsible for returning a concrete Effect according to provided `EffectInvocation`
 /// This should be the only one allowed way to create a new Effect.
 ///
-protocol EffectHandlerFactory<EffectKind, Action> {
+protocol EffectHandlerFactory<EffectKind, Event> {
   associatedtype EffectKind
-  associatedtype Action
+  associatedtype Event
   
-  func effect(for invocation: EffectInvocation<EffectKind, Action>) -> any EffectHandler
+  func effect(for invocation: EffectInvocation<EffectKind, Event>) -> any EffectHandler<EffectKind, Event>
 }
 
 ///
@@ -42,11 +42,11 @@ protocol EffectHandlerFactory<EffectKind, Action> {
 /// Concrete types are responsible to implement both `start()` and `cancel()` methods.
 /// It's also required to call either `onCompletion:` or `onCancel:` on the underlying `invocation` object in order to notify that the Effect's job has been finished.
 ///
-protocol EffectHandler {
+protocol EffectHandler<EffectKind, Event> {
   associatedtype EffectKind
-  associatedtype Action
+  associatedtype Event
   
-  var invocation: EffectInvocation<EffectKind, Action> { get }
+  var invocation: EffectInvocation<EffectKind, Event> { get }
   
   func start()
   func cancel()
@@ -56,10 +56,13 @@ protocol EffectHandler {
 /// Base effect handler class you can inherit from.
 /// You don't have to specify the `invocation` field due to conformance for `EffectHandler`,  inherit from this class.
 ///
-class BaseEffectHandler<EffectKind, Action> {
-  var invocation: EffectInvocation<EffectKind, Action>
+class BaseEffectHandler<EffectKind, Event>: EffectHandler {
+  var invocation: EffectInvocation<EffectKind, Event>
   
-  init(invocation: EffectInvocation<EffectKind, Action>) {
+  init(invocation: EffectInvocation<EffectKind, Event>) {
     self.invocation = invocation
   }
+  
+  func start() {}
+  func cancel() {}
 }

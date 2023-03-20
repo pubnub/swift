@@ -2,7 +2,7 @@
 //  Transition.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -42,27 +42,26 @@ extension AnyState {
 
 /// Typealias for transition result.
 /// It assumes that transition result returns a new State and Effect invocations that describes system's intent to perform some operations
-typealias TransitionResult<State: AnyState, Action, EffectKind> = (state: State, invocations: [EffectInvocation<EffectKind, Action>])
+typealias TransitionResult<State: AnyState, Event, EffectKind> = (state: State, invocations: [EffectInvocation<EffectKind, Event>])
 
 ///
 /// Protocol for any type that can perform the transition between states given the action.
 /// Concrete types are responsible to implement `transition(from state: State, action: Action)` and return a list of `EffectInvocation` that needs to be executed.
 ///
-protocol TransitionProtocol<State, Action, EffectKind> {
+protocol TransitionProtocol<State, Event, EffectKind> {
   associatedtype State: AnyState
-  associatedtype Action
+  associatedtype Event
   associatedtype EffectKind
   
-  func defaultState() -> State
-  func transition(from state: State, action: Action) -> TransitionResult<State, Action, EffectKind>
+  func transition(from state: State, event: Event) -> TransitionResult<State, Event, EffectKind>
 }
 
 ///
 /// The goal of this type is to specify the system's intent to perform an Effect without having to specify its concrete implementation.
 ///
-struct EffectInvocation<EffectKind, Action> {
+struct EffectInvocation<EffectKind, Event> {
   var kind: EffectKind
   var identifier: String
-  var onCompletion: ((Result<Action?, Error>) -> Void)?
+  var onCompletion: ((Result<[Event], Error>) -> Void)?
   var onCancel: (() -> Void)?
 }

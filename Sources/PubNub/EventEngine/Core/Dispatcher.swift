@@ -2,7 +2,7 @@
 //  Dispatcher.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -31,31 +31,39 @@ import Foundation
 /// Protocol for any type that can dispatch, track and schedule Effects.
 /// Concrete implementations are responsible to schedule effects, tracking pending operations, and canceling them on behalf caller's request.
 ///
-protocol Dispatcher<EffectKind, Action> {
+protocol Dispatcher<EffectKind, Event> {
   associatedtype EffectKind
-  associatedtype Action
+  associatedtype Event
     
-  var factory: any EffectHandlerFactory<EffectKind, Action> { get }
+  var factory: any EffectHandlerFactory<EffectKind, Event> { get }
   
-  func dispatch(invocations: [EffectInvocation<EffectKind, Action>])
+  func dispatch(invocations: [EffectInvocation<EffectKind, Event>])
 }
 
 ///
 /// Default implementation for Dispatcher.
 ///
-class EffectDispatcher<EffectKind, Action>: Dispatcher {
-  private(set) var factory: any EffectHandlerFactory<EffectKind, Action>
-  private(set) var pendingEffects: [String: any EffectHandler] = [:]
+class EffectDispatcher<EffectKind, Event>: Dispatcher {
+  private(set) var factory: any EffectHandlerFactory<EffectKind, Event>
+  private(set) var pendingEffects: [String: Box<EffectKind, Event>] = [:]
   
-  init(factory: some EffectHandlerFactory<EffectKind, Action>) {
+  class Box<EffectKind, Action> {
+    let effect: any EffectHandler<EffectKind, Action>
+    
+    init(effect: any EffectHandler<EffectKind, Action>) {
+      self.effect = effect
+    }
+  }
+  
+  init(factory: some EffectHandlerFactory<EffectKind, Event>) {
     self.factory = factory
   }
   
-  func dispatch(invocations: [EffectInvocation<EffectKind, Action>]) {
+  func dispatch(invocations: [EffectInvocation<EffectKind, Event>]) {
     for invocation in invocations {
       let effect = factory.effect(for: invocation)
-      pendingEffects[invocation.identifier]?.cancel()
-      pendingEffects[invocation.identifier] = effect
+      pendingEffects[invocation.identifier]?.effect.cancel()
+      pendingEffects[invocation.identifier] = Box<EffectKind, Event>(effect: effect)
       effect.start()
     }
   }

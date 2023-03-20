@@ -2,7 +2,7 @@
 //  EventEngine.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -32,24 +32,25 @@ import Foundation
 /// This class provides a template that allows a caller to specify the concrete types for Event Engine like its State, possible Actions to take, or Effects kind that this Engine produces.
 /// See the `Showcase.swift` file in order to see the example usage.
 ///
-class EventEngine<State: AnyState, Action, EffectKind> {
-  var transition: any TransitionProtocol<State, Action, EffectKind>
-  var dispatcher: any Dispatcher<EffectKind, Action>
+class EventEngine<State: AnyState, Event, EffectKind> {
+  var transition: any TransitionProtocol<State, Event, EffectKind>
+  var dispatcher: any Dispatcher<EffectKind, Event>
   var currentState: State
   
   init(
-    transition: some TransitionProtocol<State, Action, EffectKind>,
-    dispatcher: some Dispatcher<EffectKind, Action>
+    state: State,
+    transition: some TransitionProtocol<State, Event, EffectKind>,
+    dispatcher: some Dispatcher<EffectKind, Event>
   ) {
     self.transition = transition
-    self.currentState = transition.defaultState()
+    self.currentState = state
     self.dispatcher = dispatcher
   }
   
-  func send(action: Action) {
+  func send(event: Event) {
     let result = transition.transition(
       from: currentState,
-      action: action
+      event: event
     )
     
     currentState = result.state
@@ -57,9 +58,9 @@ class EventEngine<State: AnyState, Action, EffectKind> {
     for var invocation in result.invocations {
       invocation.onCompletion = { [weak self] result in
         switch result {
-        case .success(let action):
-          if let action = action {
-            self?.send(action: action)
+        case .success(let actions):
+          actions.forEach() {
+            self?.send(event: $0)
           }
         case .failure(let error):
           debugPrint("Error: \(error)")

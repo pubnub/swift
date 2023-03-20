@@ -2,7 +2,7 @@
 //  Subscribe.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -36,7 +36,7 @@ enum Subscribe {
   class Reconnecting: State {}
   
   // TODO: Provide real actions
-  enum Actions {
+  enum Events {
     case connect
     case disconnect
     case reconnect
@@ -52,15 +52,15 @@ enum Subscribe {
 
 class SubscribeTransition: TransitionProtocol {
   typealias State = Subscribe.State
-  typealias Action = Subscribe.Actions
+  typealias Event = Subscribe.Events
   typealias EffectKind = Subscribe.EffectInvocation
   
   func defaultState() -> Subscribe.State {
     Subscribe.Disconnected()
   }
   
-  func transition(from state: State, action: Action) -> TransitionResult<State, Action, EffectKind> {
-    switch action {
+  func transition(from state: State, event: Event) -> TransitionResult<State, Event, EffectKind> {
+    switch event {
     case .connect, .disconnect, .reconnect:
       fatalError("Not implemented yet")
     }
@@ -68,10 +68,10 @@ class SubscribeTransition: TransitionProtocol {
 }
 
 class SubscribeEffectFactory: EffectHandlerFactory {
-  typealias Action = Subscribe.Actions
+  typealias Event = Subscribe.Events
   typealias EffectKind = Subscribe.EffectInvocation
   
-  func effect(for invocation: EffectInvocation<EffectKind, Action>) -> any EffectHandler {
+  func effect(for invocation: EffectInvocation<EffectKind, Event>) -> any EffectHandler<EffectKind, Event> {
     switch invocation.kind {
     case .effectInv1, .effectInv2, .effectInv3:
       fatalError("Not implemented yet")
@@ -83,6 +83,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
 /// This is how you can use an EventEngine instance that's configured to handle a Subscribe loop:
 ///
 let subscribeEventEngine = EventEngine(
+  state: Subscribe.State(),
   transition: SubscribeTransition(),
   dispatcher: EffectDispatcher(factory: SubscribeEffectFactory())
 )

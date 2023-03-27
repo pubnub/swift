@@ -32,11 +32,11 @@ import Foundation
 struct PublishRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case publish(message: AnyJSON, channel: String, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
-    case compressedPublish(message: AnyJSON, channel: String, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case publish(message: AnyJSON, channel: String, type: String?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case compressedPublish(message: AnyJSON, channel: String, type: String?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
     case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
-    case signal(message: AnyJSON, channel: String, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?)
-    case file(message: FilePublishPayload, messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case signal(message: AnyJSON, channel: String, type: String?, spaceId: PubNubSpaceId?)
+    case file(message: FilePublishPayload, type: String?, spaceId: PubNubSpaceId?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
 
     var description: String {
       switch self {
@@ -105,23 +105,23 @@ struct PublishRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .publish(_, _, messageType, spaceId, shouldStore, ttl, meta):
-      return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
-    case let .compressedPublish(_, _, messageType, spaceId, shouldStore, ttl, meta):
-      return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
+    case let .publish(_, _, type, spaceId, shouldStore, ttl, meta):
+      return parsePublish(query: &query, type: type, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
+    case let .compressedPublish(_, _, type, spaceId, shouldStore, ttl, meta):
+      return parsePublish(query: &query, type: type, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
     case let .fire(_, _, meta):
-      return parsePublish(query: &query, messageType: nil, spaceId: nil, store: false, ttl: 0, meta: meta)
-    case let .signal(_, _, messageType, spaceId):
-      return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: nil, ttl: nil, meta: nil)
-    case let .file(_, messageType, spaceId, shouldStore, ttl, meta):
-      return parsePublish(query: &query, messageType: messageType, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
+      return parsePublish(query: &query, type: nil, spaceId: nil, store: false, ttl: 0, meta: meta)
+    case let .signal(_, _, type, spaceId):
+      return parsePublish(query: &query, type: type, spaceId: spaceId, store: nil, ttl: nil, meta: nil)
+    case let .file(_, type, spaceId, shouldStore, ttl, meta):
+      return parsePublish(query: &query, type: type, spaceId: spaceId, store: shouldStore, ttl: ttl, meta: meta)
     }
   }
 
-  func parsePublish(query: inout [URLQueryItem], messageType: PubNubMessageType?, spaceId: PubNubSpaceId?, store: Bool?, ttl: Int?, meta: AnyJSON?) -> QueryResult {
+  func parsePublish(query: inout [URLQueryItem], type: String?, spaceId: PubNubSpaceId?, store: Bool?, ttl: Int?, meta: AnyJSON?) -> QueryResult {
     query.appendIfPresent(key: .store, value: store?.stringNumber)
     query.appendIfPresent(key: .ttl, value: ttl?.description)
-    query.appendIfPresent(key: .type, value: messageType?.rawValue)
+    query.appendIfPresent(key: .type, value: type)
     query.appendIfPresent(key: .spaceId, value: spaceId?.description)
 
     if let meta = meta, !meta.isEmpty {

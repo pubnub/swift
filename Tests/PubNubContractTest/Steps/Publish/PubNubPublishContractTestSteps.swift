@@ -72,19 +72,19 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
     }
 
     When("^I publish message with '(.*)' space id and '(.*)' message type$") { args, _ in
-      guard let spaceId = args?.first, let messageType = args?.last else {
+      guard let spaceId = args?.first, let type = args?.last as? String? else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
       }
 
-      XCTAssertNotEqual(spaceId, messageType, "Not all parameters matched.")
+      XCTAssertNotEqual(spaceId, type, "Not all parameters matched.")
 
       let publishMessageExpect = self.expectation(description: "Publish message with space and type Response")
 
       self.client.publish(
         channel: "test",
         message: "hello",
-        messageType: PubNubMessageType(messageType),
+        type: type,
         spaceId: PubNubSpaceId(spaceId)
       ) { result in
         switch result {
@@ -117,19 +117,19 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
 
 
     When("^I send a signal with '(.*)' space id and '(.*)' message type$") { args, _ in
-      guard let spaceId = args?.first, let messageType = args?.last else {
+      guard let spaceId = args?.first, let type = args?.last else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
       }
 
-      XCTAssertNotEqual(spaceId, messageType, "Not all parameters matched.")
+      XCTAssertNotEqual(spaceId, type, "Not all parameters matched.")
 
       let publishMessageExpect = self.expectation(description: "Publish message with space and type Response")
 
       self.client.signal(
         channel: "test",
         message: "hello",
-        messageType: PubNubMessageType(messageType),
+        type: type,
         spaceId: PubNubSpaceId(spaceId)
       ) { result in
         switch result {

@@ -73,7 +73,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
       
       XCTAssertGreaterThan(messages.count, 0)
       
-      let messagesWithTypes = messages.map { $0.messageType ?? .unknown }.filter { $0 != .unknown }
+      let messagesWithTypes = messages.compactMap { $0.type }
       XCTAssertFalse(inclusionFlag == "with" && messagesWithTypes.count == 0)
       XCTAssertFalse(inclusionFlag == "without" && messagesWithTypes.count > 0)
       

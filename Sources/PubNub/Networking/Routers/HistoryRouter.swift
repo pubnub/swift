@@ -357,12 +357,7 @@ struct MessageHistoryMessagePayload: Codable {
     uuid = try container.decodeIfPresent(String.self, forKey: .uuid)
     timetoken = Timetoken(try container.decode(String.self, forKey: .timetoken)) ?? 0
     actions = try container.decodeIfPresent(RawMessageAction.self, forKey: .actions) ?? [:]
-    
-    if container.contains(.messageType) {
-      messageType = try container.decodeIfPresent(LegacyPubNubMessageType.self, forKey: .messageType) ?? .message
-    } else {
-      messageType = nil
-    }
+    messageType = try container.decodeIfPresent(LegacyPubNubMessageType.self, forKey: .messageType) ?? .message
     type = try container.decodeIfPresent(String.self, forKey: .type)
     spaceId = try container.decodeIfPresent(PubNubSpaceId.self, forKey: .spaceId)
   }

@@ -238,7 +238,7 @@ public extension PubNub {
   /// - Parameters:
   ///   - channel: The destination of the message.
   ///   - message: The message to publish.
-  ///   - messageType: Custom message type.
+  ///   - type: Custom message type.
   ///   - spaceId: The destination space identifier for message.
   ///   - shouldStore: If true the published message is stored in history.
   ///   - storeTTL: Set a per message time to live in storage.
@@ -251,7 +251,7 @@ public extension PubNub {
   func publish(
     channel: String,
     message: JSONCodable,
-    messageType: PubNubMessageType? = nil,
+    type: String? = nil,
     spaceId: PubNubSpaceId? = nil,
     shouldStore: Bool? = nil,
     storeTTL: Int? = nil,
@@ -265,7 +265,7 @@ public extension PubNub {
       router = PublishRouter(
         .compressedPublish(message: message.codableValue,
                            channel: channel,
-                           messageType: messageType,
+                           type: type,
                            spaceId: spaceId,
                            shouldStore: shouldStore,
                            ttl: storeTTL,
@@ -276,7 +276,7 @@ public extension PubNub {
       router = PublishRouter(
         .publish(message: message.codableValue,
                  channel: channel,
-                 messageType: messageType,
+                 type: type,
                  spaceId: spaceId,
                  shouldStore: shouldStore,
                  ttl: storeTTL,
@@ -332,7 +332,7 @@ public extension PubNub {
   /// - Parameters:
   ///   - channel: The destination of the message
   ///   - message: The message to publish
-  ///   - messageType: Custom signal type.
+  ///   - type: Custom signal type.
   ///   - spaceId: The destination space identifier for message.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -341,7 +341,7 @@ public extension PubNub {
   func signal(
     channel: String,
     message: JSONCodable,
-    messageType: PubNubMessageType? = nil,
+    type: String? = nil,
     spaceId: PubNubSpaceId? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
@@ -349,7 +349,7 @@ public extension PubNub {
     route(PublishRouter(
       .signal(message: message.codableValue,
               channel: channel,
-              messageType: messageType,
+              type: type,
               spaceId: spaceId),
       configuration: requestConfig.customConfiguration ?? configuration),
           responseDecoder: PublishResponseDecoder(),
@@ -991,6 +991,7 @@ public extension PubNub {
   ///   - includeMeta: If `true` the meta properties of messages will be included in the response
   ///   - includeUUID: If `true` the UUID of the message publisher will be included with each message in the response
   ///   - includeMessageType: If `true` the message type will be included with each message
+  ///   - includeType: If `true` the custom message type will be included with each message
   ///   - includeSpaceId: If `true` message's space id will be included.
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request

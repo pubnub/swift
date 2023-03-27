@@ -124,7 +124,7 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
         
     When("^I send a file with '(.+)' space id and '(.+)' message type$") { args, _ in
       let spaceId = args?.first ?? String()
-      let messageType = args?.last ?? String()
+      let type = args?.last ?? String()
       
       let sendFileExpect = self.expectation(description: "Send file Response")
 
@@ -134,7 +134,7 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
       }
 
       let publishFileRequest = PubNub.PublishFileRequest(
-        messageType: .user(type: messageType),
+        type: type,
         spaceId: PubNubSpaceId(spaceId)
       )
       

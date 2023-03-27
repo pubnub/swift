@@ -48,7 +48,7 @@ final class PublishRouterTests: XCTestCase {
 extension PublishRouterTests {
   func testPublish_Router() {
     let router = PublishRouter(
-      .publish(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .publish(message: testMessage, channel: testChannel, type: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -64,7 +64,7 @@ extension PublishRouterTests {
 
   func testPublish_Router_ValidationError() {
     let router = PublishRouter(
-      .publish(message: [], channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .publish(message: [], channel: testChannel, type: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -238,7 +238,7 @@ extension PublishRouterTests {
 extension PublishRouterTests {
   func testCompressedPublish_Router() {
     let router = PublishRouter(
-      .compressedPublish(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(message: testMessage, channel: testChannel, type: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -249,7 +249,7 @@ extension PublishRouterTests {
 
   func testCompressedPublish_Router_ValidationError() {
     let router = PublishRouter(
-      .compressedPublish(message: [], channel: testChannel, messageType: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(message: [], channel: testChannel, type: nil, spaceId: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
@@ -285,7 +285,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
-        messageType: nil, spaceId: nil,
+        type: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -300,7 +300,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
-        messageType: nil, spaceId: nil,
+        type: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -318,7 +318,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
-        messageType: "type", spaceId: "spaceId",
+        type: "type", spaceId: "spaceId",
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -353,7 +353,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: "", fileId: testFileId, filename: testFilename),
-        messageType: nil, spaceId: nil,
+        type: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -365,7 +365,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: "", filename: testFilename),
-        messageType: nil, spaceId: nil,
+        type: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -377,7 +377,7 @@ extension PublishRouterTests {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: ""),
-        messageType: nil, spaceId: nil,
+        type: nil, spaceId: nil,
         shouldStore: nil, ttl: nil, meta: nil
       ),
       configuration: config
@@ -477,7 +477,7 @@ extension PublishRouterTests {
 
 extension PublishRouterTests {
   func testSignal_Router() {
-    let router = PublishRouter(.signal(message: testMessage, channel: testChannel, messageType: nil, spaceId: nil), configuration: config)
+    let router = PublishRouter(.signal(message: testMessage, channel: testChannel, type: nil, spaceId: nil), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Signal")
     XCTAssertEqual(router.category, "Signal")
@@ -485,7 +485,7 @@ extension PublishRouterTests {
   }
 
   func testSignal_Router_ValidationError() {
-    let router = PublishRouter(.signal(message: "", channel: testChannel, messageType: nil, spaceId: nil), configuration: config)
+    let router = PublishRouter(.signal(message: "", channel: testChannel, type: nil, spaceId: nil), configuration: config)
 
     XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
   }

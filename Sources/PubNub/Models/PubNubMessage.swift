@@ -27,99 +27,6 @@
 
 import Foundation
 
-public enum PubNubMessageType: Codable, Hashable {
-  case message, signal, object, messageAction, file, user(type: String), unknown
-  
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.singleValueContainer()
-    self = .init(rawValue: try container.decode(String.self))
-  }
-  
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.singleValueContainer()
-    try container.encode(self.rawValue)
-  }
-  
-  public static func == (lhs: PubNubMessageType, rhs: PubNubMessageType) -> Bool {
-    return lhs.rawValue == rhs.rawValue
-  }
-}
-
-extension PubNubMessageType: RawRepresentable, CustomStringConvertible {
-  public var rawValue: String {
-    switch self {
-    case .message:
-      return "pn_message"
-    case .signal:
-      return "pn_signal"
-    case .object:
-      return "pn_object"
-    case .messageAction:
-      return "pn_messageAction"
-    case .file:
-      return "pn_file"
-    case let .user(type):
-      return type
-    default:
-      return "unknown"
-    }
-  }
-  
-  public init(rawValue: String) {
-    switch rawValue {
-    case "pn_message":
-      self = .message
-    case "pn_signal":
-      self = .signal
-    case "pn_object":
-      self = .object
-    case "pn_messageAction":
-      self = .messageAction
-    case "pn_file":
-      self = .file
-    default:
-      self = .user(type: rawValue)
-    }
-  }
-  
-  public var description: String {
-    return self.rawValue
-  }
-}
-
-extension PubNubMessageType: ExpressibleByStringLiteral {
-  fileprivate typealias LegacyPubNubMessageTypes = SubscribeMessagePayload.Action
-  
-  public init(_ type: String) {
-    self.init(rawValue: type)
-  }
-  
-  fileprivate init(from pubNubType: LegacyPubNubMessageTypes?, userType: String?) {
-    if let userType = userType {
-      self.init(userType)
-    } else {
-      switch pubNubType {
-      case .message:
-        self = .message
-      case .signal:
-        self = .signal
-      case .object:
-        self = .object
-      case .messageAction:
-        self = .messageAction
-      case .file:
-        self = .file
-      case .presence, .none:
-        self = .unknown
-      }
-    }
-  }
-  
-  public init(stringLiteral value: StringLiteralType) {
-    self.init(value)
-  }
-}
-
 /// An event representing a message
 public protocol PubNubMessage {
   /// The message sent on the channel
@@ -139,7 +46,7 @@ public protocol PubNubMessage {
   /// Meta information for the message
   var metadata: JSONCodable? { get set }
   /// The type of message that was received
-  var messageType: PubNubMessageType? { get set }
+  var type: String? { get set }
 
   /// Allows for transcoding between different MessageEvent types
   init(from other: PubNubMessage) throws
@@ -179,7 +86,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var published: Timetoken
   var concreteMetadata: AnyJSON?
 
-  public var messageType: PubNubMessageType?
+  public var type: String?
   public var spaceId: PubNubSpaceId?
 
   public var payload: JSONCodable {
@@ -213,7 +120,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
-      messageType: other.messageType
+      type: other.type
     )
   }
 
@@ -227,7 +134,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
-      messageType: PubNubMessageType(from: subscribe.pubNubMessageType, userType: subscribe.userMessageType)
+      type: subscribe.type
     )
   }
 
@@ -247,7 +154,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      messageType: PubNubMessageType(from: history.messageType, userType: history.type)
+      type: history.type
     )
   }
 
@@ -260,7 +167,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
-    messageType: PubNubMessageType? = nil
+    type: String? = nil
   ) {
     concretePayload = payload
     concreteMessageActions = actions
@@ -269,8 +176,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.spaceId = spaceId
     self.subscription = subscription
     self.published = published
-    concreteMetadata = metadata
-    self.messageType = messageType
+    self.concreteMetadata = metadata
+    self.type = type
   }
 }
 

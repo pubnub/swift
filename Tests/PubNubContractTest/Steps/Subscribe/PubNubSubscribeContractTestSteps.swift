@@ -142,7 +142,7 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
       let messages = self.waitForMessages(self.client, count: 2)!
       XCTAssertNotNil(messages)
       
-      let messagesWithTypes = messages.map { $0.messageType ?? .unknown }.filter { $0 != .unknown }
+      let messagesWithTypes = messages.compactMap { $0.type }
       XCTAssertTrue(messagesWithTypes.map { $0.description }.allSatisfy { matches.contains($0) })
     }
     

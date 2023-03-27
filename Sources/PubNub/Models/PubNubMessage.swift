@@ -247,7 +247,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      messageType: PubNubMessageType(from: history.pubNubMessageType, userType: history.userMessageType)
+      messageType: PubNubMessageType(from: history.messageType, userType: history.type)
     )
   }
 

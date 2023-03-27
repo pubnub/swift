@@ -1000,7 +1000,7 @@ public extension PubNub {
   func fetchMessageHistory(
     for channels: [String],
     includeActions: Bool = false, includeMeta: Bool = false,
-    includeUUID: Bool = true, includeMessageType: Bool = true,
+    includeUUID: Bool = true, includeMessageType: Bool = true, includeType: Bool = true,
     includeSpaceId: Bool = false, page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
@@ -1013,7 +1013,7 @@ public extension PubNub {
         .fetchWithActions(
           channel: channels.first ?? "",
           max: page?.limit ?? 25, start: page?.start, end: page?.end,
-          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeMeta: includeMeta, includeMessageType: includeMessageType, includeType: includeType,
           includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration
@@ -1023,7 +1023,7 @@ public extension PubNub {
         .fetch(
           channels: channels, max: page?.limit ?? 100,
           start: page?.start, end: page?.end,
-          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeMeta: includeMeta, includeMessageType: includeMessageType, includeType: includeType,
           includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration
@@ -1033,7 +1033,7 @@ public extension PubNub {
         .fetch(
           channels: channels, max: page?.limit ?? 25,
           start: page?.start, end: page?.end,
-          includeMeta: includeMeta, includeMessageType: includeMessageType,
+          includeMeta: includeMeta, includeMessageType: includeMessageType, includeType: includeType,
           includeSpaceId: includeSpaceId, includeUUID: includeUUID
         ),
         configuration: requestConfig.customConfiguration ?? configuration

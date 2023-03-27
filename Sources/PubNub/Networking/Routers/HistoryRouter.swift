@@ -34,12 +34,12 @@ struct HistoryRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case fetch(
       channels: [String], max: Int?, start: Timetoken?, end: Timetoken?,
-      includeMeta: Bool, includeMessageType: Bool, includeSpaceId: Bool?,
+      includeMeta: Bool, includeMessageType: Bool, includeType: Bool, includeSpaceId: Bool?,
       includeUUID: Bool
     )
     case fetchWithActions(
       channel: String, max: Int?, start: Timetoken?, end: Timetoken?,
-      includeMeta: Bool, includeMessageType: Bool, includeSpaceId: Bool?,
+      includeMeta: Bool, includeMessageType: Bool, includeType: Bool, includeSpaceId: Bool?,
       includeUUID: Bool
     )
     case delete(channel: String, start: Timetoken?, end: Timetoken?)
@@ -60,9 +60,9 @@ struct HistoryRouter: HTTPRouter {
 
     var firstChannel: String? {
       switch self {
-      case let .fetchWithActions(channel, _, _, _, _, _, _, _):
+      case let .fetchWithActions(channel, _, _, _, _, _, _, _, _):
         return channel
-      case let .fetch(channels, _, _, _, _, _, _, _):
+      case let .fetch(channels, _, _, _, _, _, _, _, _):
         return channels.first
       case let .delete(channel, _, _):
         return channel
@@ -94,9 +94,9 @@ struct HistoryRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case let .fetchWithActions(channel, _, _, _, _, _, _, _):
+    case let .fetchWithActions(channel, _, _, _, _, _, _, _, _):
       path = "/v3/history-with-actions/sub-key/\(subscribeKey)/channel/\(channel)"
-    case let .fetch(channels, _, _, _, _, _, _, _):
+    case let .fetch(channels, _, _, _, _, _, _, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channels.csvString.urlEncodeSlash)"
     case let .delete(channel, _, _):
       path = "/v3/history/sub-key/\(subscribeKey)/channel/\(channel.urlEncodeSlash)"
@@ -110,22 +110,22 @@ struct HistoryRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .fetchWithActions(_, max, start, end, includeMeta, includeMessageType, includeSpaceId, includeUUID):
+    case let .fetchWithActions(_, max, start, end, includeMeta, includeMessageType, includeType, includeSpaceId, includeUUID):
       query.appendIfPresent(key: .max, value: max?.description)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
       query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
-      query.appendIfPresent(key: .includePubNubMessageType, value: includeMessageType.description)
-      query.appendIfPresent(key: .includeUserMessageType, value: includeMessageType.description)
+      query.appendIfPresent(key: .includeMessageType, value: includeMessageType.description)
+      query.appendIfPresent(key: .includeType, value: includeType.description)
       query.appendIfPresent(key: .includeSpaceId, value: includeSpaceId?.description)
       query.appendIfPresent(key: .includeUUID, value: includeUUID.description)
-    case let .fetch(_, max, start, end, includeMeta, includeMessageType, includeSpaceId, includeUUID):
+    case let .fetch(_, max, start, end, includeMeta, includeMessageType, includeType, includeSpaceId, includeUUID):
       query.appendIfPresent(key: .max, value: max?.description)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
       query.appendIfPresent(key: .includeMeta, value: includeMeta.description)
-      query.appendIfPresent(key: .includePubNubMessageType, value: includeMessageType.description)
-      query.appendIfPresent(key: .includeUserMessageType, value: includeMessageType.description)
+      query.appendIfPresent(key: .includeMessageType, value: includeMessageType.description)
+      query.appendIfPresent(key: .includeType, value: includeType.description)
       query.appendIfPresent(key: .includeSpaceId, value: includeSpaceId?.description)
       query.appendIfPresent(key: .includeUUID, value: includeUUID.description)
     case let .delete(_, startTimetoken, endTimetoken):
@@ -152,9 +152,9 @@ struct HistoryRouter: HTTPRouter {
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case let .fetchWithActions(channel, _, _, _, _, _, _, _):
+    case let .fetchWithActions(channel, _, _, _, _, _, _, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
-    case let .fetch(channels, _, _, _, _, _, _, _):
+    case let .fetch(channels, _, _, _, _, _, _, _, _):
       return isInvalidForReason((channels.isEmpty, ErrorDescription.emptyChannelArray))
     case let .delete(channel, _, _):
       return isInvalidForReason((channel.isEmpty, ErrorDescription.emptyChannelString))
@@ -214,8 +214,8 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
                 timetoken: message.timetoken,
                 meta: message.meta,
                 uuid: message.uuid,
-                pubNubMessageType: message.pubNubMessageType,
-                userMessageType: message.userMessageType,
+                messageType: message.messageType,
+                type: message.type,
                 spaceId: message.spaceId
               )
             } else {
@@ -313,8 +313,8 @@ struct MessageHistoryMessagePayload: Codable {
   let timetoken: Timetoken
   let meta: AnyJSON?
   let uuid: String?
-  let pubNubMessageType: LegacyPubNubMessageType?
-  let userMessageType: String?
+  let messageType: LegacyPubNubMessageType?
+  let type: String?
   let spaceId: PubNubSpaceId?
   let actions: RawMessageAction
 
@@ -323,16 +323,16 @@ struct MessageHistoryMessagePayload: Codable {
     timetoken: Timetoken = 0,
     meta: JSONCodable? = nil,
     uuid: String?,
-    pubNubMessageType: LegacyPubNubMessageType?,
-    userMessageType: String? = nil,
+    messageType: LegacyPubNubMessageType?,
+    type: String? = nil,
     spaceId: PubNubSpaceId? = nil,
     actions: RawMessageAction = [:]
   ) {
     self.message = message.codableValue
     self.timetoken = timetoken
     self.uuid = uuid
-    self.pubNubMessageType = pubNubMessageType
-    self.userMessageType = userMessageType
+    self.messageType = messageType
+    self.type = type
     self.spaceId = spaceId
     self.meta = meta?.codableValue
     self.actions = actions
@@ -343,8 +343,8 @@ struct MessageHistoryMessagePayload: Codable {
     case timetoken
     case meta
     case uuid
-    case pubNubMessageType = "message_type"
-    case userMessageType = "type"
+    case messageType = "message_type"
+    case type = "type"
     case spaceId = "space_id"
     case actions
   }
@@ -358,12 +358,12 @@ struct MessageHistoryMessagePayload: Codable {
     timetoken = Timetoken(try container.decode(String.self, forKey: .timetoken)) ?? 0
     actions = try container.decodeIfPresent(RawMessageAction.self, forKey: .actions) ?? [:]
     
-    if container.contains(.pubNubMessageType) {
-      pubNubMessageType = try container.decodeIfPresent(LegacyPubNubMessageType.self, forKey: .pubNubMessageType) ?? .message
+    if container.contains(.messageType) {
+      messageType = try container.decodeIfPresent(LegacyPubNubMessageType.self, forKey: .messageType) ?? .message
     } else {
-      pubNubMessageType = nil
+      messageType = nil
     }
-    userMessageType = try container.decodeIfPresent(String.self, forKey: .userMessageType)
+    type = try container.decodeIfPresent(String.self, forKey: .type)
     spaceId = try container.decodeIfPresent(PubNubSpaceId.self, forKey: .spaceId)
   }
 
@@ -376,8 +376,8 @@ struct MessageHistoryMessagePayload: Codable {
     try container.encodeIfPresent(uuid, forKey: .uuid)
     try container.encode(actions, forKey: .actions)
     
-    try container.encodeIfPresent(pubNubMessageType, forKey: .pubNubMessageType)
-    try container.encodeIfPresent(userMessageType, forKey: .userMessageType)
+    try container.encodeIfPresent(messageType, forKey: .messageType)
+    try container.encodeIfPresent(type, forKey: .type)
     try container.encodeIfPresent(spaceId, forKey: .spaceId)
   }
 }

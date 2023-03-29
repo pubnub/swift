@@ -27,6 +27,15 @@
 
 import Foundation
 
+public enum PubNubMessageType: Int, Codable, Hashable {
+  case message = 0
+  case signal = 1
+  case object = 2
+  case messageAction = 3
+  case file = 4
+  case unknown = 999
+}
+
 /// An event representing a message
 public protocol PubNubMessage {
   /// The message sent on the channel
@@ -46,6 +55,8 @@ public protocol PubNubMessage {
   /// Meta information for the message
   var metadata: JSONCodable? { get set }
   /// The type of message that was received
+  var messageType: PubNubMessageType { get set }
+  /// A user-provided custom message type
   var type: String? { get set }
 
   /// Allows for transcoding between different MessageEvent types
@@ -86,6 +97,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var published: Timetoken
   var concreteMetadata: AnyJSON?
 
+  public var messageType: PubNubMessageType
   public var type: String?
   public var spaceId: PubNubSpaceId?
 
@@ -120,6 +132,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
+      messageType: other.messageType,
       type: other.type
     )
   }
@@ -134,6 +147,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
+      messageType: subscribe.messageType.asPubNubMessageType,
       type: subscribe.type
     )
   }
@@ -154,6 +168,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
+      messageType: history.messageType?.asPubNubMessageType ?? .unknown,
       type: history.type
     )
   }
@@ -167,6 +182,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
+    messageType: PubNubMessageType,
     type: String? = nil
   ) {
     concretePayload = payload
@@ -177,6 +193,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.subscription = subscription
     self.published = published
     self.concreteMetadata = metadata
+    self.messageType = messageType
     self.type = type
   }
 }

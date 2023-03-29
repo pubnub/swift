@@ -991,7 +991,7 @@ public extension PubNub {
   ///   - includeMeta: If `true` the meta properties of messages will be included in the response
   ///   - includeUUID: If `true` the UUID of the message publisher will be included with each message in the response
   ///   - includeMessageType: If `true` the message type will be included with each message
-  ///   - includeType: If `true` the custom message type will be included with each message
+  ///   - includeType: If `true` the user-provided custom message type will be included with each message
   ///   - includeSpaceId: If `true` message's space id will be included.
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request

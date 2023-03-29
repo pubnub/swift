@@ -122,7 +122,7 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
       self.wait(for: [sendFileExpect], timeout: 60.0)
     }
         
-    When("^I send a file with '(.+)' space id and '(.+)' message type$") { args, _ in
+    When("^I send a file with '(.+)' space id and '(.+)' type$") { args, _ in
       let spaceId = args?.first ?? String()
       let type = args?.last ?? String()
       

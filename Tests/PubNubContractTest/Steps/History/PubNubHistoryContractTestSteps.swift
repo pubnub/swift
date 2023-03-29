@@ -54,7 +54,37 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
       self.wait(for: [historyExpect], timeout: 60.0)
     }
 
-    Match(["And"], "^history response contains messages (with|without) ('(.*)' and '(.*)' )?message types$") { args, _ in
+    Match(["And"], "^history response contains messages (with|without) ('(.*)' and '(.*)') message types$") { args, _ in
+      guard let matches = args, let inclusionFlag = matches.first else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      guard let lastResult = self.lastResult() else {
+        XCTAssert(false, "Fetch history didn't returned response")
+        return
+      }
+      
+      guard let result = lastResult as? (messagesByChannel: [String: [PubNubMessageBase]], next: PubNubBoundedPage?),
+        let channel = result.messagesByChannel.first?.key, let messages = result.messagesByChannel[channel] else {
+        XCTAssert(false, "Fetch history returned unexpected response")
+        return
+      }
+      
+      XCTAssertGreaterThan(messages.count, 0)
+      
+      let messagesWithTypes = messages.compactMap { $0.messageType }
+      XCTAssertFalse(inclusionFlag == "with" && messagesWithTypes.count == 0)
+      XCTAssertFalse(inclusionFlag == "without" && messagesWithTypes.count > 0)
+      
+      if matches.count > 1 {
+        XCTAssertTrue(messagesWithTypes.map { String(describing: $0.rawValue) }.allSatisfy { Array(matches[1...]).contains($0) })
+      } else {
+        XCTAssertEqual(inclusionFlag == "with" ? messages.count : 0, messagesWithTypes.count)
+      }
+    }
+    
+    Match(["And"], "^history response contains messages (with|without) ('(.*)' and '(.*)' )?types$") { args, _ in
       guard let matches = args, let inclusionFlag = matches.first else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
@@ -78,7 +108,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
       XCTAssertFalse(inclusionFlag == "without" && messagesWithTypes.count > 0)
       
       if matches.count > 1 {
-        XCTAssertTrue(messagesWithTypes.map { $0.description }.allSatisfy { Array(matches[1...]).contains($0) })
+        XCTAssertTrue(messagesWithTypes.map { $0 }.allSatisfy { Array(matches[1...]).contains($0) })
       } else {
         XCTAssertEqual(inclusionFlag == "with" ? messages.count : 0, messagesWithTypes.count)
       }
@@ -167,11 +197,11 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
       }
       
       /// Message types enabled by default and user can only opt-out them.
-      var includeMessageType = true
+      var includeType = true
       var includeSpaceId = false
       
-      if args?.first == "includeMessageType" {
-        includeMessageType = args?[1] == "true"
+      if args?.first == "includeType" {
+        includeType = args?[1] == "true"
       } else if args?.first == "includeSpaceId" {
         includeSpaceId = args?[1] == "true"
       }
@@ -180,7 +210,7 @@ public class PubNubHistoryContractTestSteps: PubNubContractTestCase {
 
       self.client.fetchMessageHistory(
         for: [channel],
-        includeMessageType: includeMessageType,
+        includeType: includeType,
         includeSpaceId: includeSpaceId
       ) { result in
         switch result {

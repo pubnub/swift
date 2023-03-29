@@ -133,7 +133,7 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
       self.waitFor(delay: 0.3)
     }
     
-    Match(["And"], "^response contains messages with '(.*)' and '(.*)' message types$") { args, _ in
+    Match(["And"], "^response contains messages with '(.*)' and '(.*)' types$") { args, _ in
       guard let matches = args else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return

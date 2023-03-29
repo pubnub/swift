@@ -66,5 +66,6 @@ void CucumberishInit(void) {
   [Cucumberish executeFeaturesInDirectory:@"Features"
                                fromBundle:bundle
                               includeTags:nil
-                              excludeTags:excludeTags];
+                              excludeTags:excludeTags
+  ];
 }

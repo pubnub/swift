@@ -44,6 +44,7 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _receivedFiles: [PubNubFileEvent] = []
   fileprivate static var _currentScenario: CCIScenarioDefinition?
   fileprivate static var _apiCallResults: [Any] = []
+  fileprivate var currentListener: BaseSubscriptionListener?
   fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
                                                              subscribeKey: defaultSubscribeKey,
                                                              userId: UUID().uuidString,
@@ -137,6 +138,7 @@ let defaultPublishKey = "demo-36"
     receivedStatuses.removeAll()
     receivedMessages.removeAll()
     apiCallResults.removeAll()
+    currentListener = nil
   }
 
   @objc public func setup() {
@@ -337,6 +339,8 @@ let defaultPublishKey = "demo-36"
 
     client.add(listener)
     client.subscribe(to: channels, and: groups, at: timetoken, withPresence: presence)
+    
+    currentListener = listener
 
     wait(for: [subscribeStatusExpect], timeout: 10.0)
   }

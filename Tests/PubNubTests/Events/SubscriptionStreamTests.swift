@@ -36,7 +36,8 @@ class SubscriptionListenerTests: XCTestCase {
     channel: "Channel",
     subscription: "Channel",
     published: 0,
-    metadata: "Message"
+    metadata: "Message",
+    messageType: .message
   )
   let connectionEvent: ConnectionStatus = .connected
   let statusEvent: SubscriptionListener.StatusEvent = .success(.connected)

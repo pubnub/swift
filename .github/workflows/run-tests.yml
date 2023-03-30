@@ -57,6 +57,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout actions
+        uses: actions/checkout@v3
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
       - name: Setup Ruby 2.6.6
         uses: ruby/setup-ruby@v1
         with:
@@ -100,14 +109,25 @@ jobs:
           mv Results/CucumberishTestResults-PubNubContractTests.json Results/main.json
       - name: Run beta acceptance tests
         run: |
+          REPORT_FILENAME="Results/CucumberishTestResults-PubNubContractTestsBeta.json"
           bundle exec fastlane contract_test --env contract-beta && FASTLANE_EXITCODE="${PIPESTATUS[0]}"
-          mv Results/CucumberishTestResults-PubNubContractTestsBeta.json Results/beta.json
+          if [[ -r "$REPORT_FILENAME" ]]; then
+            mv "$REPORT_FILENAME" Results/beta.json
+          else
+            echo -e "\033[1;31mReport file not created: $REPORT_FILENAME"
+          fi
+          if [[ $FASTLANE_EXITCODE -gt 0 && $2 != contract-beta ]]; then
+            echo -e "\033[96mcontract-beta is allowed to fail.\033[0m"
+          fi
       - name: Upload acceptance tests reports
         uses: actions/upload-artifact@v3
         with:
           name: acceptance-test-reports
           path: Results/*.json
           retention-days: 7
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   all-tests:
     name: Tests
     runs-on: ubuntu-latest

@@ -265,7 +265,9 @@ public struct SubscribeMessagePayload: Codable, Hashable {
   public let shard: String
   public let subscription: String?
   public let channel: String
+  public let spaceId: PubNubSpaceId?
   public let messageType: Action
+  public var type: String?
   public var payload: AnyJSON
   public let flags: Int
   public let publisher: String?
@@ -278,8 +280,10 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     case shard = "a"
     case subscription = "b"
     case channel = "c"
+    case spaceId = "si"
     case payload = "d"
     case messageType = "e"
+    case type = "mt"
     case flags = "f"
     case publisher = "i"
     case subscribeKey = "k"
@@ -297,7 +301,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
-
+    
     var asPubNubMessageType: PubNubMessageType {
       switch self {
       case .message:
@@ -316,39 +320,11 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     }
   }
 
-  init(
-    shard: String,
-    subscription: String?,
-    channel: String,
-    messageType: Action,
-    payload: AnyJSON,
-    flags: Int,
-    publisher: String?,
-    subscribeKey: String,
-    originTimetoken: SubscribeCursor?,
-    publishTimetoken: SubscribeCursor,
-    meta: AnyJSON?
-  ) {
-    self.shard = shard
-    self.subscription = subscription
-    self.channel = channel
-    self.messageType = messageType
-    self.payload = payload
-    self.flags = flags
-    self.publisher = publisher
-    self.subscribeKey = subscribeKey
-    self.originTimetoken = originTimetoken
-    self.publishTimetoken = publishTimetoken
-    metadata = meta
-  }
-
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     shard = try container.decode(String.self, forKey: .shard)
-    subscription = try container
-      .decodeIfPresent(String.self, forKey: .subscription)?
-      .trimmingPresenceChannelSuffix
+    subscription = try container.decodeIfPresent(String.self, forKey: .subscription)?.trimmingPresenceChannelSuffix
     payload = try container.decode(AnyJSON.self, forKey: .payload)
     flags = try container.decode(Int.self, forKey: .flags)
     publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
@@ -356,11 +332,12 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     originTimetoken = try container.decodeIfPresent(SubscribeCursor.self, forKey: .originTimetoken)
     publishTimetoken = try container.decode(SubscribeCursor.self, forKey: .publishTimetoken)
     metadata = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
+    type = try container.decodeIfPresent(String.self, forKey: .type)
 
-    let messageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
+    let pubNubMessageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
     let fullChannel = try container.decode(String.self, forKey: .channel)
 
-    if let messageType = messageType, let action = Action(rawValue: messageType) {
+    if let pubNubMessageType = pubNubMessageType, let action = Action(rawValue: pubNubMessageType) {
       self.messageType = action
     } else {
       // If channel endswith -pnpres we assume it's a presence event
@@ -372,6 +349,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     }
 
     channel = fullChannel.trimmingPresenceChannelSuffix
+    spaceId = try container.decodeIfPresent(PubNubSpaceId.self, forKey: .spaceId)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -392,5 +370,8 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     if messageType != .presence {
       try container.encode(messageType, forKey: .messageType)
     }
+    
+    try container.encode(type, forKey: .type)
+    try container.encode(spaceId, forKey: .spaceId)
   }
 }

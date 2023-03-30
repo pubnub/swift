@@ -33,7 +33,6 @@ public enum PubNubMessageType: Int, Codable, Hashable {
   case object = 2
   case messageAction = 3
   case file = 4
-
   case unknown = 999
 }
 
@@ -47,6 +46,8 @@ public protocol PubNubMessage {
   var publisher: String? { get set }
   /// The channel for which the message belongs
   var channel: String { get }
+  /// Id of space into which message has been published.
+  var spaceId: PubNubSpaceId? { get }
   /// The channel group or wildcard subscription match (if exists)
   var subscription: String? { get }
   /// Timetoken for the message
@@ -55,6 +56,8 @@ public protocol PubNubMessage {
   var metadata: JSONCodable? { get set }
   /// The type of message that was received
   var messageType: PubNubMessageType { get set }
+  /// A user-provided custom message type
+  var type: String? { get set }
 
   /// Allows for transcoding between different MessageEvent types
   init(from other: PubNubMessage) throws
@@ -95,6 +98,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   var concreteMetadata: AnyJSON?
 
   public var messageType: PubNubMessageType
+  public var type: String?
+  public var spaceId: PubNubSpaceId?
 
   public var payload: JSONCodable {
     get { return concretePayload }
@@ -123,10 +128,12 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       actions: other.actions.compactMap { try? $0.transcode() },
       publisher: other.publisher,
       channel: other.channel,
+      spaceId: other.spaceId,
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
-      messageType: other.messageType
+      messageType: other.messageType,
+      type: other.type
     )
   }
 
@@ -136,10 +143,12 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       actions: [],
       publisher: subscribe.publisher,
       channel: subscribe.channel,
+      spaceId: subscribe.spaceId,
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
-      messageType: subscribe.messageType.asPubNubMessageType
+      messageType: subscribe.messageType.asPubNubMessageType,
+      type: subscribe.type
     )
   }
 
@@ -155,10 +164,12 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       actions: actions,
       publisher: history.uuid,
       channel: channel,
+      spaceId: history.spaceId,
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      messageType: history.messageType ?? .unknown
+      messageType: history.messageType?.asPubNubMessageType ?? .unknown,
+      type: history.type
     )
   }
 
@@ -167,19 +178,23 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     actions: [PubNubMessageActionBase],
     publisher: String?,
     channel: String,
+    spaceId: PubNubSpaceId? = nil,
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
-    messageType: PubNubMessageType = .unknown
+    messageType: PubNubMessageType,
+    type: String? = nil
   ) {
     concretePayload = payload
     concreteMessageActions = actions
     self.publisher = publisher
     self.channel = channel
+    self.spaceId = spaceId
     self.subscription = subscription
     self.published = published
-    concreteMetadata = metadata
+    self.concreteMetadata = metadata
     self.messageType = messageType
+    self.type = type
   }
 }
 

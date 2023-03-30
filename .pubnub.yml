@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.0.3"
+version: "6.0.4"
 schema: 1
 changelog:
+  - date: 2023-03-16
+    version: 6.0.4
+    changes:
+      - type: improvement
+        text: "Change the settings for subscribe `URLSession` and limit the number of concurrent connections per host."
+      - type: improvement
+        text: "Call presence leave using subscribe `URLSession` to avoid potential presence race of condition."
   - date: 2023-01-04
     version: 6.0.3
     changes:
@@ -473,7 +480,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.4.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

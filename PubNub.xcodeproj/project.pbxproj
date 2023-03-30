@@ -136,7 +136,7 @@
 		3558068A230F4C99005CDD92 /* InstanceIdOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35580687230F4B75005CDD92 /* InstanceIdOperatorTests.swift */; };
 		3558069A2311F968005CDD92 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355806992311F968005CDD92 /* SubscriptionStreamTests.swift */; };
 		3558069C231303D9005CDD92 /* AutomaticRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558069B231303D9005CDD92 /* AutomaticRetryTests.swift */; };
-		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
+		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
 		3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559977A23073D53000BCFD1 /* WeakBoxTests.swift */; };
 		3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */; };
 		3559978223079070000BCFD1 /* forbidden_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978023078F85000BCFD1 /* forbidden_Message.json */; };
@@ -400,9 +400,9 @@
 		79407BE5271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BD1271D4CFA0032076C /* PubNubFilesContractTestSteps.swift */; };
 		79407C00271D519F0032076C /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79407BFF271D519F0032076C /* Features */; };
 		79407C01271D519F0032076C /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79407BFF271D519F0032076C /* Features */; };
-		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
+		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
-		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
+		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -414,12 +414,13 @@
 		A56445F22907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
 		A56445F32907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
 		A5CE355E2954CAA90038FD6F /* PubNubSpaceId.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CE355D2954CAA90038FD6F /* PubNubSpaceId.swift */; };
+		A5A574D429C309750065D333 /* leave_success.json in Resources */ = {isa = PBXBuildFile; fileRef = A5A574D329C309750065D333 /* leave_success.json */; };
 		A5F19EE329126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */; };
 		A5F19EE429126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */; };
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
-		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
+		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -927,6 +928,7 @@
 		A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsTestHelpers.swift; sourceTree = "<group>"; };
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5CE355D2954CAA90038FD6F /* PubNubSpaceId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpaceId.swift; sourceTree = "<group>"; };
+		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUUIDMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		DE83CA6F967D099E2948DEBF /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -938,8 +940,8 @@
 		OBJ_24 /* PubNubSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = PubNubSwift.podspec; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* PubNub.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PubNub.h; sourceTree = "<group>"; };
-		PubNub::PubNub::Product /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		PubNub::PubNubTests::Product /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		"PubNub::PubNub::Product" /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		"PubNub::PubNubTests::Product" /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1578,6 +1580,7 @@
 			children = (
 				35A66A8B22F9080A00AC67A9 /* getState_success.json */,
 				35E71C39249027120032A991 /* getState_single_success.json */,
+				A5A574D329C309750065D333 /* leave_success.json */,
 				35A66A8C22F9084000AC67A9 /* setState_success.json */,
 				35A66A9522F9B71200AC67A9 /* setState_missing_state.json */,
 				35A6C78022FB2E4C00E97CC5 /* herenow_success.json */,
@@ -2060,8 +2063,8 @@
 		OBJ_17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				PubNub::PubNubTests::Product /* PubNubTests.xctest */,
-				PubNub::PubNub::Product /* PubNub.framework */,
+				"PubNub::PubNubTests::Product" /* PubNubTests.xctest */,
+				"PubNub::PubNub::Product" /* PubNub.framework */,
 				3558073723145749005CDD92 /* PubNubIntTests.xctest */,
 				7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */,
 				79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */,
@@ -2367,7 +2370,7 @@
 			productReference = 79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		PubNub::PubNub /* PubNub */ = {
+		"PubNub::PubNub" /* PubNub */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
@@ -2380,10 +2383,10 @@
 			);
 			name = PubNub;
 			productName = PubNub;
-			productReference = PubNub::PubNub::Product /* PubNub.framework */;
+			productReference = "PubNub::PubNub::Product" /* PubNub.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		PubNub::PubNubTests /* PubNubTests */ = {
+		"PubNub::PubNubTests" /* PubNubTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_45 /* Build configuration list for PBXNativeTarget "PubNubTests" */;
 			buildPhases = (
@@ -2398,7 +2401,7 @@
 			);
 			name = PubNubTests;
 			productName = PubNubTests;
-			productReference = PubNub::PubNubTests::Product /* PubNubTests.xctest */;
+			productReference = "PubNub::PubNubTests::Product" /* PubNubTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -2451,8 +2454,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				PubNub::PubNub /* PubNub */,
-				PubNub::PubNubTests /* PubNubTests */,
+				"PubNub::PubNub" /* PubNub */,
+				"PubNub::PubNubTests" /* PubNubTests */,
 				7941EE6B270E433F0054D9EF /* PubNubContractTests */,
 				79657A93271A13F700BACEC5 /* PubNubContractTestsBeta */,
 				3558069D23145749005CDD92 /* PubNubIntegration */,
@@ -2608,6 +2611,7 @@
 				35FE93EA22EF93A90051C455 /* cannotConnectToHost.json in Resources */,
 				35FE93E622EF93A90051C455 /* secureConnectionFailed.json in Resources */,
 				35A6C7B322FBD9D200E97CC5 /* push_remove_all_success.json in Resources */,
+				A5A574D429C309750065D333 /* leave_success.json in Resources */,
 				350BC40F233952F400011262 /* objects_uuid_all_success_empty.json in Resources */,
 				35293AA8236B6C5D0049A71F /* removeMessageAction_error_400_noMessage.json in Resources */,
 				35FE93EE22EF93A90051C455 /* unsupportedURL.json in Resources */,
@@ -3171,7 +3175,7 @@
 /* Begin PBXTargetDependency section */
 		3558069E23145749005CDD92 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 3558069F23145749005CDD92 /* PBXContainerItemProxy */;
 		};
 		358B8917284D206B00DB0F3D /* PBXTargetDependency */ = {
@@ -3191,17 +3195,17 @@
 		};
 		358B8962284D22B100DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 358B8961284D22B100DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B8966284D22D800DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 358B8965284D22D800DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B8968284D22E200DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 358B8967284D22E200DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B896A284D22E200DB0F3D /* PBXTargetDependency */ = {
@@ -3232,18 +3236,18 @@
 		7941EE6C270E433F0054D9EF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 7941EE6D270E433F0054D9EF /* PBXContainerItemProxy */;
 		};
 		79657A94271A13F700BACEC5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 79657A95271A13F700BACEC5 /* PBXContainerItemProxy */;
 		};
 		OBJ_52 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = PubNub::PubNub /* PubNub */;
+			target = "PubNub::PubNub" /* PubNub */;
 			targetProxy = 35EA73F422B1916100D97BF0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -3350,7 +3354,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUser;
@@ -3397,7 +3401,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUser;
@@ -3497,7 +3501,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpace;
@@ -3546,7 +3550,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpace;
@@ -3659,7 +3663,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembership;
@@ -3707,7 +3711,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembership;
@@ -4167,7 +4171,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -4206,7 +4210,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 6.0.3;
+				MARKETING_VERSION = 6.0.4;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";

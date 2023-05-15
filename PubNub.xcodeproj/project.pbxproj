@@ -376,6 +376,7 @@
 		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79407BC0271D4CFA0032076C /* PubNubContractCucumberTest.m */; };
@@ -896,6 +897,7 @@
 		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
@@ -1874,6 +1876,14 @@
 			path = EndpointError;
 			sourceTree = "<group>";
 		};
+		3D9134952A12161A000A5124 /* Push */ = {
+			isa = PBXGroup;
+			children = (
+				3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */,
+			);
+			path = Push;
+			sourceTree = "<group>";
+		};
 		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2026,6 +2036,7 @@
 				35458BA1230CB32F0085B502 /* Subscription */,
 				3580A5A422F14D6000B12E5E /* Networking */,
 				3580A5A622F14DB700B12E5E /* Events */,
+				3D9134952A12161A000A5124 /* Push */,
 				357AEB7F22E6940000C18250 /* Extensions */,
 				357AEB8022E6940800C18250 /* Helpers */,
 				35EA73F822B199FF00D97BF0 /* Supporting Files */,
@@ -3038,6 +3049,7 @@
 				3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */,
 				35CDFEB622E76DC200F3B9F2 /* URLQueryItem+PubNubTests.swift in Sources */,
 				3557CDF9237F4ABB004BBACC /* PresenceRouterTests.swift in Sources */,
+				3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */,
 				35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 				3558068A230F4C99005CDD92 /* InstanceIdOperatorTests.swift in Sources */,

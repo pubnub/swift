@@ -212,7 +212,9 @@ fileprivate extension SubscribeTransition {
       state: Subscribe.HandshakeFailedState(
         input: state.input,
         error: error
-      )
+      ), invocations: [
+        .managed(invocation: .emitStatus(status: .disconnected))
+      ]
     )
   }
 }
@@ -292,7 +294,9 @@ fileprivate extension SubscribeTransition {
         input: state.input,
         cursor: state.cursor,
         error: error
-      )
+      ), invocations: [
+        .managed(invocation: .emitStatus(status: .disconnected))
+      ]
     )
   }
 }
@@ -303,7 +307,8 @@ fileprivate extension SubscribeTransition {
       .cancel(id: Invocation.ID.HandshakeRequest),
       .cancel(id: Invocation.ID.HandshakeReconnect),
       .cancel(id: Invocation.ID.ReceiveMessages),
-      .cancel(id: Invocation.ID.ReceiveReconnect)
+      .cancel(id: Invocation.ID.ReceiveReconnect),
+      .managed(invocation: .emitStatus(status: .disconnected))
     ]
     if let state = state as? (any CursorState) {
       return TransitionResult(

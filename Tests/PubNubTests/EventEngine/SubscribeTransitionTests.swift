@@ -469,14 +469,18 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 3),
       event: .handshakeReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
+    let expEmitStatusInvocation = Subscribe.Invocation.emitStatus(
+      status: .disconnected
+    )
     let expState = Subscribe.HandshakeFailedState(
       input: input,
       error: SubscribeError(underlying: PubNubError(.unknown))
     )
     
     XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeFailedState) == expState)
-    XCTAssertTrue(results.invocations.count == 1)
+    XCTAssertTrue(results.invocations.count == 2)
     XCTAssertTrue(results.invocations.contains(.cancel(id: Subscribe.Invocation.ID.HandshakeReconnect)))
+    XCTAssertTrue(results.invocations.contains(.managed(invocation: expEmitStatusInvocation)))
   }
   
   // MARK: - Receive Give Up
@@ -489,6 +493,9 @@ class SubscribeTransitionTests: XCTestCase {
       ),
       event: .receiveReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
+    let expEmitStatusInvocation = Subscribe.Invocation.emitStatus(
+      status: .disconnected
+    )
     let expState = Subscribe.ReceiveFailedState(
       input: input,
       cursor: SubscribeCursor(timetoken: 18001000, region: 123),
@@ -496,8 +503,9 @@ class SubscribeTransitionTests: XCTestCase {
     )
     
     XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveFailedState) == expState)
-    XCTAssertTrue(results.invocations.count == 1)
+    XCTAssertTrue(results.invocations.count == 2)
     XCTAssertTrue(results.invocations.contains(.cancel(id: Subscribe.Invocation.ID.ReceiveReconnect)))
+    XCTAssertTrue(results.invocations.contains(.managed(invocation: expEmitStatusInvocation)))
   }
   
   // MARK: - Receiving With Messages

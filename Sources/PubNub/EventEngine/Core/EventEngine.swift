@@ -52,23 +52,22 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation> {
     self.dispatcher = dispatcher
   }
   
-  func send(event: Event, completionBlock: (() -> Void)? = nil) {
+  func send(event: Event) {
     queue.async { [weak self] in
-      self?.process(event: event, completionBlock: completionBlock)
+      self?.process(event: event)
     }
   }
   
-  private func process(event: Event, completionBlock: (() -> Void)?) {
+  private func process(event: Event) {
     let transitionResult = transition.transition(from: currentState, event: event)
     let invocations = transitionResult.invocations
     
     currentState = transitionResult.state
     
     let listener = DispatcherListener<Event>(
-      onAllInvocationsCompleted: completionBlock ?? {},
-      onAnyInvocationCompleted: { [weak self] _, results in
+      onAnyInvocationCompleted: { [weak self] results in
         results.forEach {
-          self?.send(event: $0, completionBlock: completionBlock)
+          self?.send(event: $0)
         }
       }
     )

@@ -31,34 +31,14 @@ import XCTest
 @testable import PubNub
 
 class DispatcherTests: XCTestCase {
-  func testDispatcher_FinishingAllInvocationsNotifiesListener() {
-    let onCompleteExpectation = XCTestExpectation(description: "onCompletion")
-    onCompleteExpectation.assertForOverFulfill = true
-    onCompleteExpectation.expectedFulfillmentCount = 1
-            
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAllInvocationsCompleted: {
-      onCompleteExpectation.fulfill()
-    })
-    
-    dispatcher.dispatch(
-      invocations: [
-        .managed(invocation: .first),
-        .managed(invocation: .second),
-        .managed(invocation: .third),
-        .managed(invocation: .fourth)
-    ], notify: listener)
-    
-    wait(for: [onCompleteExpectation], timeout: 3.0)
-  }
-  
-  func testDispatcher_FinishingAnyInvocationNotifiesListenerWithResult() {
+  func testDispatcher_FinishingAnyInvocationNotifiesListener() {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 4
     onResultReceivedExpectation.assertForOverFulfill = true
         
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { id, events in
+    let queue = DispatchQueue.global(qos: .default)
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(queue: queue))
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
     
@@ -70,43 +50,17 @@ class DispatcherTests: XCTestCase {
         .managed(invocation: .fourth)
     ], notify: listener)
     
-    wait(for: [onResultReceivedExpectation], timeout: 3.0)
-  }
-  
-  func testDispatcher_CancelInvocationsNotifiesListener() {
-    let onCompleteExpectation = XCTestExpectation(description: "onCompletion")
-    onCompleteExpectation.assertForOverFulfill = true
-    onCompleteExpectation.expectedFulfillmentCount = 1
-    
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAllInvocationsCompleted: {
-      onCompleteExpectation.fulfill()
-    })
-    
-    dispatcher.dispatch(
-      invocations: [
-        .cancel(invocation: .firstCancellable),
-        .cancel(invocation: .secondCancellable),
-        .cancel(invocation: .thirdCancellable),
-        .cancel(invocation: .fourthCancellable)
-    ], notify: listener)
-    
-    wait(for: [onCompleteExpectation], timeout: 3.0)
+    wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
   
   func testDispatcher_CancelInvocationsWithManagedInvocationsNotifiesListener() {
-    let onCompleteExpectation = XCTestExpectation(description: "onCompletion")
-    onCompleteExpectation.assertForOverFulfill = true
-    onCompleteExpectation.expectedFulfillmentCount = 1
-    
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 2
     onResultReceivedExpectation.assertForOverFulfill = true
     
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAllInvocationsCompleted: {
-      onCompleteExpectation.fulfill()
-    }, onAnyInvocationCompleted: { id, events in
+    let queue = DispatchQueue.global(qos: .default)
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(queue: queue))
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
     
@@ -118,12 +72,12 @@ class DispatcherTests: XCTestCase {
         .managed(invocation: .fourth)
     ], notify: listener)
     
-    wait(for: [onCompleteExpectation, onResultReceivedExpectation], timeout: 3.0)
+    wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
   
   func testDispatcher_NotifiesListenerWithExpectedEvents() {
     let dispatcher = EffectDispatcher(factory: StubEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { id, events in
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { events in
       XCTAssertEqual(events, [.event1, .event3])
     })
     
@@ -134,19 +88,18 @@ class DispatcherTests: XCTestCase {
   }
   
   func testDispatcher_RemovesPendingEffectsOnFinish() {
-    let onCompleteExpectation = XCTestExpectation(description: "onCompletion")
-    onCompleteExpectation.assertForOverFulfill = true
-    onCompleteExpectation.expectedFulfillmentCount = 1
-        
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
-    let listener = DispatcherListener<TestEvent>(onAllInvocationsCompleted: {
-      XCTAssertFalse(dispatcher.hasPendingEffect(with: TestInvocation.first.rawValue))
-      XCTAssertFalse(dispatcher.hasPendingEffect(with: TestInvocation.second.rawValue))
-      XCTAssertFalse(dispatcher.hasPendingEffect(with: TestInvocation.third.rawValue))
-      XCTAssertFalse(dispatcher.hasPendingEffect(with: TestInvocation.fourth.rawValue))
-      onCompleteExpectation.fulfill()
+    let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
+    onResultReceivedExpectation.expectedFulfillmentCount = 3
+    onResultReceivedExpectation.assertForOverFulfill = true
+
+    let queue = DispatchQueue.global(qos: .default)
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(queue: queue))
+    let semaphore = DispatchSemaphore(value: 2)
+
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { results in
+      semaphore.signal()
     })
-    
+        
     dispatcher.dispatch(
       invocations: [
         .managed(invocation: .first),
@@ -155,7 +108,14 @@ class DispatcherTests: XCTestCase {
         .managed(invocation: .fourth)
     ], notify: listener)
     
-    wait(for: [onCompleteExpectation], timeout: 3.0)
+    _ = semaphore.wait(timeout: .now() + 1)
+    _ = semaphore.wait(timeout: .now() + 1)
+    _ = semaphore.wait(timeout: .now() + 1)
+
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.second))
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.third))
+    XCTAssertFalse(dispatcher.hasPendingInvocation(.fourth))
   }
 }
 
@@ -183,16 +143,20 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
   }
 }
 
-fileprivate class MockEffectHandlerFactory: EffectHandlerFactory {
+fileprivate struct MockEffectHandlerFactory: EffectHandlerFactory {
+  let queue: DispatchQueue
+  
   func effect(for invocation: TestInvocation) -> any EffectHandler<TestEvent> {
-    return MockEffectHandler()
+    return MockEffectHandler(queue: queue)
   }
 }
 
-fileprivate class MockEffectHandler: EffectHandler {  
+fileprivate struct MockEffectHandler: EffectHandler {
+  let queue: DispatchQueue
+  
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
     // Added an artificial delay to simulate network latency or other asynchronous computations
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+    queue.asyncAfter(deadline: .now() + 0.35) {
       completionBlock([])
     }
   }

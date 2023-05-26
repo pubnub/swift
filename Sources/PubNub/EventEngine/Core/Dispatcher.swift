@@ -30,16 +30,7 @@ import Foundation
 // MARK: - DispatcherListener
 
 struct DispatcherListener<Event> {
-  let onAllInvocationsCompleted: (() -> Void)
-  let onAnyInvocationCompleted: ((String, [Event]) -> Void)
-  
-  init(
-    onAllInvocationsCompleted: @escaping (() -> Void) = {},
-    onAnyInvocationCompleted: @escaping ((String, [Event]) -> Void) = { _, _ in }
-  ) {
-    self.onAllInvocationsCompleted = onAllInvocationsCompleted
-    self.onAnyInvocationCompleted = onAnyInvocationCompleted
-  }
+  let onAnyInvocationCompleted: (([Event]) -> Void)
 }
 
 // MARK: - Dispatcher
@@ -56,14 +47,13 @@ protocol Dispatcher<Invocation, Event> {
 class EffectDispatcher<Invocation: AnyEffectInvocation, Event>: Dispatcher {
   private let factory: any EffectHandlerFactory<Invocation, Event>
   private let effectsCache = EffectsCache<Event>()
-  private let effectsRunner = EffectsRunner<Event>()
     
   init(factory: some EffectHandlerFactory<Invocation, Event>) {
     self.factory = factory
   }
   
-  func hasPendingEffect(with id: String) -> Bool {
-    effectsCache.hasPendingEffect(with: id)
+  func hasPendingInvocation(_ invocation: Invocation) -> Bool {
+    effectsCache.hasPendingEffect(with: invocation.id)
   }
     
   func dispatch(invocations: [EffectInvocation<Invocation>], notify listener: DispatcherListener<Event>) {
@@ -78,12 +68,11 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event>: Dispatcher {
     
     effectsToRun.forEach {
       effectsCache.put(effect: $0.effect, with: $0.id)
+      $0.effect.performTask { [weak effectsCache, effectId = $0.id] results in
+        listener.onAnyInvocationCompleted(results)
+        effectsCache?.removeEffect(id: effectId)
+      }
     }
-    let cacheListener = DispatcherListener<Event>(onAnyInvocationCompleted: { [weak self] id, _ in
-      self?.effectsCache.removeEffect(id: id)
-    })
-    
-    effectsRunner.run(effects: effectsToRun, notify: [cacheListener, listener])
   }
 }
 
@@ -108,26 +97,6 @@ fileprivate class EffectsCache<Event> {
   
   func removeEffect(id: String) {
     managedEffects.lockedWrite { $0[id] = nil }
-  }
-}
-
-// MARK: - EffectsRunner
-
-fileprivate class EffectsRunner<Event> {
-  func run(effects: [EffectWrapper<Event>], notify listeners: [DispatcherListener<Event>]) {
-    let group = DispatchGroup()
-    
-    effects.forEach { wrapper in
-      group.enter()
-      wrapper.effect.performTask(completionBlock: { (results) in
-        listeners.forEach { $0.onAnyInvocationCompleted(wrapper.id, results) }
-        group.leave()
-      })
-    }
-    group.notify(
-      queue: DispatchQueue.global(qos: .default),
-      execute: { listeners.forEach { $0.onAllInvocationsCompleted() } }
-    )
   }
 }
 

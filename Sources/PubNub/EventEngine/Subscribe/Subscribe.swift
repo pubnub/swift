@@ -45,7 +45,7 @@ enum Subscribe {
     case reconnect
   }
   
-  enum Invocation: AnyEffectInvocation, Equatable {
+  enum Invocation: AnyEffectInvocation {
     case handshakeRequest(channels: [String], groups: [String])
     case handshakeReconnect(channels: [String], groups: [String], currentAttempt: Int, reason: SubscribeError?)
     case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
@@ -53,48 +53,25 @@ enum Subscribe {
     case emitStatus(status: ConnectionStatus)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
     
-    static func == (lhs: Subscribe.Invocation, rhs: Subscribe.Invocation) -> Bool {
-      switch (lhs, rhs) {
-      case (let .handshakeRequest(lhsChannels, lhsGroups), let .handshakeRequest(rhsChannels, rhsGroups)):
-        return lhsChannels == rhsChannels && lhsGroups == rhsGroups
-      case (let .handshakeReconnect(lhsC, lhsG, lhsAtt, lhsErr), let .handshakeReconnect(rhsC, rhsG, rhsAtt, rhsErr)):
-        return lhsC == rhsC && lhsG == rhsG && lhsAtt == rhsAtt && lhsErr == rhsErr
-      case (let .receiveMessages(lhsC, lhsG, lhsCursor), let .receiveMessages(rhsC, rhsG, rhsCursor)):
-        return lhsC == rhsC && lhsG == rhsG && lhsCursor == rhsCursor
-      case (let .receiveReconnect(lhsC, lhsG, lhsCursor, lhsAtt, lhsErr), let .receiveReconnect(rhsC, rhsG, rhsCursor, rhsAtt, rhsErr)):
-        return lhsC == rhsC && lhsG == rhsG && lhsCursor == rhsCursor && lhsAtt == rhsAtt && lhsErr == rhsErr
-      case (let .emitStatus(lhsStatus), let .emitStatus(rhsStatus)):
-        return lhsStatus == rhsStatus
-      case (let .emitMessages(lhsMessages, lhsCursor), let .emitMessages(rhsMessages, rhsCursor)):
-        return lhsMessages == rhsMessages && lhsCursor == rhsCursor
-      default:
-        return false
-      }
-    }
-    
-    struct ID {
-      static let HandshakeRequest = "Subscribe.HandshakeRequest"
-      static let HandshakeReconnect = "Subscribe.HandshakeReconnect"
-      static let ReceiveMessages = "Subscribe.ReceiveMessages"
-      static let ReceiveReconnect = "Subsribe.ReceiveReconnect"
-      static let EmitStatus = "Subscribe.EmitStatus"
-      static let EmitMessages = "Subscribe.EmitMessages"
+    enum Cancellable: String {
+      case handshakeRequest = "Subscribe.HandshakeRequest"
+      case handshakeReconnect = "Subscribe.HandshakeReconnect"
+      case receiveMessages = "Subscribe.ReceiveMessages"
+      case receiveReconnect = "Subscribe.ReceiveReconnect"
     }
     
     var id: String {
       switch self {
       case .handshakeRequest(_, _):
-        return ID.HandshakeRequest
+        return Cancellable.handshakeRequest.rawValue
       case .handshakeReconnect(_, _, _, _):
-        return ID.HandshakeReconnect
+        return Cancellable.handshakeReconnect.rawValue
       case .receiveMessages(_, _, _):
-        return ID.ReceiveMessages
+        return Cancellable.receiveMessages.rawValue
       case .receiveReconnect(_, _, _, _, _):
-        return ID.ReceiveReconnect
-      case .emitStatus(_):
-        return ID.EmitStatus
-      case .emitMessages(_, _):
-        return ID.EmitMessages
+        return Cancellable.receiveReconnect.rawValue
+      default:
+        return String()
       }
     }
   }

@@ -71,8 +71,8 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event>: Dispatcher {
       switch $0 {
       case .managed(let invocation):
         return EffectWrapper(id: invocation.id, effect: factory.effect(for: invocation))
-      case .cancel(let id):
-        effectsCache.getEffect(with: id)?.cancelTask(); return nil
+      case .cancel(let cancelInvocation):
+        effectsCache.getEffect(with: cancelInvocation.rawValue)?.cancelTask(); return nil
       }
     }
     

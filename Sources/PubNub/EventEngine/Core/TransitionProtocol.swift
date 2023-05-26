@@ -39,14 +39,14 @@ struct TransitionResult<State, Invocation: AnyEffectInvocation> {
 
 enum EffectInvocation<Invocation: AnyEffectInvocation>: Equatable {
   case managed(invocation: Invocation)
-  case cancel(id: String)
+  case cancel(invocation: Invocation.Cancellable)
   
   static func == (lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
     switch (lhs, rhs) {
     case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
       return lhsInvocation == rhsInvocation
     case (let .cancel(lhsId), let .cancel(rhsId)):
-      return lhsId == rhsId
+      return lhsId.rawValue == rhsId.rawValue
     default:
       return false
     }

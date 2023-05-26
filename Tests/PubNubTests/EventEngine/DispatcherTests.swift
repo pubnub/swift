@@ -85,10 +85,10 @@ class DispatcherTests: XCTestCase {
     
     dispatcher.dispatch(
       invocations: [
-        .cancel(id: TestInvocation.first.rawValue),
-        .cancel(id: TestInvocation.second.rawValue),
-        .cancel(id: TestInvocation.third.rawValue),
-        .cancel(id: TestInvocation.fourth.rawValue)
+        .cancel(invocation: .firstCancellable),
+        .cancel(invocation: .secondCancellable),
+        .cancel(invocation: .thirdCancellable),
+        .cancel(invocation: .fourthCancellable)
     ], notify: listener)
     
     wait(for: [onCompleteExpectation], timeout: 3.0)
@@ -112,10 +112,10 @@ class DispatcherTests: XCTestCase {
     
     dispatcher.dispatch(
       invocations: [
-        .cancel(id: TestInvocation.first.rawValue),
-        .managed(invocation: TestInvocation.second),
-        .cancel(id: TestInvocation.third.rawValue),
-        .managed(invocation: TestInvocation.fourth)
+        .cancel(invocation: .firstCancellable),
+        .managed(invocation: .second),
+        .cancel(invocation: .thirdCancellable),
+        .managed(invocation: .fourth)
     ], notify: listener)
     
     wait(for: [onCompleteExpectation, onResultReceivedExpectation], timeout: 3.0)
@@ -151,7 +151,7 @@ class DispatcherTests: XCTestCase {
       invocations: [
         .managed(invocation: .first),
         .managed(invocation: .second),
-        .cancel(id: TestInvocation.third.rawValue),
+        .cancel(invocation: .thirdCancellable),
         .managed(invocation: .fourth)
     ], notify: listener)
     
@@ -174,6 +174,13 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
   var id: String {
     rawValue
   }
+  
+  enum Cancellable: String {
+    case firstCancellable = "first"
+    case secondCancellable = "second"
+    case thirdCancellable = "third"
+    case fourthCancellable = "fourth"
+  }
 }
 
 fileprivate class MockEffectHandlerFactory: EffectHandlerFactory {
@@ -184,6 +191,7 @@ fileprivate class MockEffectHandlerFactory: EffectHandlerFactory {
 
 fileprivate class MockEffectHandler: EffectHandler {  
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
+    // Added an artificial delay to simulate network latency or other asynchronous computations
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
       completionBlock([])
     }

@@ -28,6 +28,8 @@
 import Foundation
 
 protocol AnyEffectInvocation: Equatable {
+  associatedtype Cancellable: RawRepresentable<String>
+  
   var id: String { get }
 }
 

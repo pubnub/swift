@@ -35,13 +35,13 @@ class SubscribeTransition: TransitionProtocol {
   private func willExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Subscribe.HandshakingState:
-      return [.cancel(id: Invocation.ID.HandshakeRequest)]
+      return [.cancel(invocation: .handshakeRequest)]
     case is Subscribe.HandshakeReconnectingState:
-      return [.cancel(id: Invocation.ID.HandshakeReconnect)]
+      return [.cancel(invocation: .handshakeReconnect)]
     case is Subscribe.ReceivingState:
-      return [.cancel(id: Invocation.ID.ReceiveMessages)]
+      return [.cancel(invocation: .receiveMessages)]
     case is Subscribe.ReceiveReconnectingState:
-      return [.cancel(id: Invocation.ID.ReceiveReconnect)]
+      return [.cancel(invocation: .receiveReconnect)]
     default:
       return []
     }
@@ -304,10 +304,10 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setStoppedState(from state: State) -> TransitionResult<State, Invocation> {
     let invocations: [EffectInvocation<Invocation>] = [
-      .cancel(id: Invocation.ID.HandshakeRequest),
-      .cancel(id: Invocation.ID.HandshakeReconnect),
-      .cancel(id: Invocation.ID.ReceiveMessages),
-      .cancel(id: Invocation.ID.ReceiveReconnect),
+      .cancel(invocation: .handshakeRequest),
+      .cancel(invocation: .handshakeReconnect),
+      .cancel(invocation: .receiveMessages),
+      .cancel(invocation: .receiveReconnect),
       .managed(invocation: .emitStatus(status: .disconnected))
     ]
     if let state = state as? (any CursorState) {

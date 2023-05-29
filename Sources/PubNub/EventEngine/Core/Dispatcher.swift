@@ -86,8 +86,6 @@ fileprivate class EffectsCache<Event> {
   }
   
   func put(effect: some EffectHandler<Event>, with id: String) {
-    let existingWrapper = managedEffects.lockedRead { $0[id] }
-    existingWrapper?.effect.cancelTask()
     managedEffects.lockedWrite { $0[id] = EffectWrapper<Event>(id: id, effect: effect) }
   }
     

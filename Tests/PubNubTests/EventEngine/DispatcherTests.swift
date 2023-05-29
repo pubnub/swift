@@ -44,10 +44,10 @@ class DispatcherTests: XCTestCase {
     
     dispatcher.dispatch(
       invocations: [
-        .managed(invocation: .first),
-        .managed(invocation: .second),
-        .managed(invocation: .third),
-        .managed(invocation: .fourth)
+        .managed(.first),
+        .managed(.second),
+        .managed(.third),
+        .managed(.fourth)
     ], notify: listener)
     
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
@@ -66,10 +66,10 @@ class DispatcherTests: XCTestCase {
     
     dispatcher.dispatch(
       invocations: [
-        .cancel(invocation: .firstCancellable),
-        .managed(invocation: .second),
-        .cancel(invocation: .thirdCancellable),
-        .managed(invocation: .fourth)
+        .cancel(.firstCancellable),
+        .managed(.second),
+        .cancel(.thirdCancellable),
+        .managed(.fourth)
     ], notify: listener)
     
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
@@ -82,7 +82,7 @@ class DispatcherTests: XCTestCase {
     })
     
     dispatcher.dispatch(
-      invocations: [.managed(invocation: TestInvocation.first)],
+      invocations: [.managed(.first)],
       notify: listener
     )
   }
@@ -102,10 +102,10 @@ class DispatcherTests: XCTestCase {
         
     dispatcher.dispatch(
       invocations: [
-        .managed(invocation: .first),
-        .managed(invocation: .second),
-        .cancel(invocation: .thirdCancellable),
-        .managed(invocation: .fourth)
+        .managed(.first),
+        .managed(.second),
+        .cancel(.thirdCancellable),
+        .managed(.fourth)
     ], notify: listener)
     
     _ = semaphore.wait(timeout: .now() + 1)

@@ -38,8 +38,8 @@ struct TransitionResult<State, Invocation: AnyEffectInvocation> {
 }
 
 enum EffectInvocation<Invocation: AnyEffectInvocation>: Equatable {
-  case managed(invocation: Invocation)
-  case cancel(invocation: Invocation.Cancellable)
+  case managed(_ invocation: Invocation)
+  case cancel(_ invocation: Invocation.Cancellable)
   
   static func == (lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
     switch (lhs, rhs) {

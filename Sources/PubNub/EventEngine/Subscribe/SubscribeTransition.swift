@@ -220,14 +220,6 @@ fileprivate extension SubscribeTransition {
     from state: State,
     error: SubscribeError?
   ) -> TransitionResult<State, Invocation> {
-    guard
-      state is Subscribe.HandshakingState ||
-      state is Subscribe.HandshakeReconnectingState ||
-      state is Subscribe.HandshakeStoppedState
-    else {
-      return TransitionResult(state: state)
-    }
-    
     let nextAttempt: Int = {
       if let state = state as? Subscribe.HandshakeReconnectingState {
         return state.currentAttempt + 1
@@ -235,7 +227,7 @@ fileprivate extension SubscribeTransition {
         return 0
       }
     }()
-        
+    
     return TransitionResult<State, Invocation>(
       state: Subscribe.HandshakeReconnectingState(
         input: state.input,
@@ -258,9 +250,6 @@ fileprivate extension SubscribeTransition {
     from state: State,
     error: SubscribeError
   ) -> TransitionResult<State, Invocation> {
-    guard let state = state as? Subscribe.HandshakeReconnectingState else {
-      return TransitionResult(state: state)
-    }
     return TransitionResult(
       state: Subscribe.HandshakeFailedState(
         input: state.input,

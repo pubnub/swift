@@ -56,7 +56,7 @@ class SubscribeTransition: TransitionProtocol {
     case .handshakeReconnectSuccess(_):
       return state is Subscribe.HandshakeReconnectingState
     case .handshakeReconnectFailure(_):
-      return state is Subscribe.HandshakingState || state is Subscribe.HandshakeReconnectingState
+      return state is Subscribe.HandshakeReconnectingState
     case .handshakeReconnectGiveUp(_):
       return state is Subscribe.HandshakeReconnectingState
     case .receiveSuccess(_,_):
@@ -66,7 +66,7 @@ class SubscribeTransition: TransitionProtocol {
     case .receiveReconnectSuccess(_,_):
       return state is Subscribe.ReceiveReconnectingState
     case .receiveReconnectFailure(_):
-      return state is Subscribe.ReceivingState || state is Subscribe.ReceiveReconnectingState
+      return state is Subscribe.ReceiveReconnectingState
     case .receiveReconnectGiveUp(_):
       return state is Subscribe.ReceiveReconnectingState
     case .subscriptionChanged(_,_):
@@ -74,12 +74,15 @@ class SubscribeTransition: TransitionProtocol {
     case .subscriptionRestored(_, _, _):
       return true
     case .disconnect:
-      return true
+      return !(
+        state is Subscribe.HandshakeStoppedState || state is Subscribe.ReceiveStoppedState ||
+        state is Subscribe.HandshakeFailedState || state is Subscribe.ReceiveFailedState
+      )
     case .reconnect:
-      return state is Subscribe.HandshakeStoppedState ||
-        state is Subscribe.HandshakeFailedState ||
-        state is Subscribe.ReceiveFailedState ||
-        state is Subscribe.ReceiveStoppedState
+      return (
+        state is Subscribe.HandshakeStoppedState || state is Subscribe.HandshakeFailedState ||
+        state is Subscribe.ReceiveFailedState || state is Subscribe.ReceiveStoppedState
+      )
     }
   }
   
@@ -90,7 +93,6 @@ class SubscribeTransition: TransitionProtocol {
     guard canTransition(from: state, dueTo: event) else {
       return TransitionResult(state: state)
     }
-    
     var results: TransitionResult<State, Invocation>
     
     switch event {

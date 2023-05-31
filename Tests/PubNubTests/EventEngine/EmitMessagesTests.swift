@@ -237,7 +237,7 @@ fileprivate extension EmitMessagesTests {
             "actionTimetoken": "16844114409339370",
             "value": "read"
           ]
-        ]
+        ] as [String: Any]
       )
     )
   }

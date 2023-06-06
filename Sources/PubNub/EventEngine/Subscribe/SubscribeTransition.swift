@@ -143,35 +143,25 @@ fileprivate extension SubscribeTransition {
     channels: [String],
     groups: [String]
   ) -> TransitionResult<State, Invocation> {
-    if let state = state as? any CursorState {
-      return TransitionResult(
-        state: Subscribe.ReceivingState(
-          input: SubscribeInput(channels: channels, groups: groups),
-          cursor: state.cursor
-        ), invocations: [
-          .managed(
-            .receiveMessages(
-              channels: channels,
-              groups: groups,
-              cursor: state.cursor
-            )
-          )
-        ]
-      )
-    } else {
-      return TransitionResult(
-        state: Subscribe.HandshakingState(
-          input: SubscribeInput(channels: channels, groups: groups)
-        ),
-        invocations: [
-          .managed(
-            .handshakeRequest(
-              channels: channels,
-              groups: groups
-            )
-          )
-        ]
-      )
+    let newInput = SubscribeInput(channels: channels, groups: groups)
+    
+    switch state {
+    case is Subscribe.HandshakeStoppedState:
+      return TransitionResult(state: Subscribe.HandshakeStoppedState(input: newInput))
+    case let state as Subscribe.ReceiveStoppedState:
+      return TransitionResult(state: Subscribe.ReceiveStoppedState(input: newInput, cursor: state.cursor))
+    default:
+      if let state = state as? any CursorState {
+        return TransitionResult(
+          state: Subscribe.ReceivingState(input: newInput, cursor: state.cursor),
+          invocations: [.managed(.receiveMessages(channels: channels, groups: groups, cursor: state.cursor))]
+        )
+      } else {
+        return TransitionResult(
+          state: Subscribe.HandshakingState(input: newInput),
+          invocations: [.managed(.handshakeRequest(channels: channels, groups: groups))]
+        )
+      }
     }
   }
 }
@@ -183,21 +173,19 @@ fileprivate extension SubscribeTransition {
     groups: [String],
     cursor: SubscribeCursor
   ) -> TransitionResult<State, Invocation> {
-    return TransitionResult(
-      state: Subscribe.ReceivingState(
-        input: SubscribeInput(channels: channels, groups: groups),
-        cursor: cursor
-      ),
-      invocations: [
-        .managed(
-          .receiveMessages(
-            channels: channels,
-            groups: groups,
-            cursor: cursor
-          )
-        )
-      ]
-    )
+    let newInput = SubscribeInput(channels: channels, groups: groups)
+    
+    switch state {
+    case is Subscribe.HandshakeStoppedState:
+      return TransitionResult(state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor))
+    case is Subscribe.ReceiveStoppedState:
+      return TransitionResult(state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor))
+    default:
+      return TransitionResult(
+        state: Subscribe.ReceivingState(input: newInput, cursor: cursor),
+        invocations: [.managed(.receiveMessages(channels: channels, groups: groups, cursor: cursor))]
+      )
+    }
   }
 }
 

@@ -81,19 +81,13 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeStoppedState(input: input),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.handshakeRequest(
-        channels: ["new-channel"],
-        groups: ["new-group1", "new-group2"]
-      ))
-    ]
-    let expectedState = Subscribe.HandshakingState(input: SubscribeInput(
+    let expectedState = Subscribe.HandshakeStoppedState(input: SubscribeInput(
       channels: ["new-channel"],
       groups: ["new-group1", "new-group2"]
     ))
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakingState) == expectedState)
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeStoppedState) == expectedState)
+    XCTAssertTrue(results.invocations.isEmpty)
   }
   
   func test_SubscriptionChangedForHandshakeReconnectingState() throws {
@@ -178,13 +172,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveStoppedState(input: input, cursor: SubscribeCursor(timetoken: 500100900, region: 11)),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.receiveMessages(
-        channels: ["new-channel"], groups: ["new-group1", "new-group2"],
-        cursor: SubscribeCursor(timetoken: 500100900, region: 11)
-      ))
-    ]
-    let expectedState = Subscribe.ReceivingState(
+    let expectedState = Subscribe.ReceiveStoppedState(
       input: SubscribeInput(
         channels: ["new-channel"],
         groups: ["new-group1", "new-group2"]
@@ -194,8 +182,8 @@ class SubscribeTransitionTests: XCTestCase {
       )
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
+    XCTAssertTrue(results.invocations.isEmpty)
   }
 
   func test_SubscriptionChangedForReceiveReconnectingState() throws {
@@ -389,6 +377,45 @@ class SubscribeTransitionTests: XCTestCase {
 
     XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+  }
+  
+  func test_SubscriptionRestoredForHandshakeStoppedState() {
+    let results = transition.transition(
+      from: Subscribe.HandshakeStoppedState(input: input),
+      event: .subscriptionRestored(
+        channels: ["new-channel"],
+        gropus: ["new-group1", "new-group2"],
+        cursor: SubscribeCursor(timetoken: 100, region: 55)
+      )
+    )
+    let expectedState = Subscribe.ReceiveStoppedState(
+      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      cursor: SubscribeCursor(timetoken: 100, region: 55)
+    )
+
+    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
+    XCTAssertTrue(results.invocations.isEmpty)
+  }
+  
+  func test_SubscriptionRestoredForReceiveStoppedState() {
+    let results = transition.transition(
+      from: Subscribe.ReceiveStoppedState(
+        input: input,
+        cursor: SubscribeCursor(timetoken: 99, region: 9)
+      ),
+      event: .subscriptionRestored(
+        channels: ["new-channel"],
+        gropus: ["new-group1", "new-group2"],
+        cursor: SubscribeCursor(timetoken: 100, region: 55)
+      )
+    )
+    let expectedState = Subscribe.ReceiveStoppedState(
+      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      cursor: SubscribeCursor(timetoken: 100, region: 55)
+    )
+
+    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
+    XCTAssertTrue(results.invocations.isEmpty)
   }
 
   // MARK: - Handshake Success

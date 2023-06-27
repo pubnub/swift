@@ -32,13 +32,13 @@ import XCTest
 
 class SubscribeTransitionTests: XCTestCase {
   private let transition = SubscribeTransition()
-  private let input = SubscribeInput(channels: ["test-channel"])
+  private let input = SubscribeInput(channels: [PubNubChannel(channel: "test-channel")])
     
   // MARK: - Subscription Changed
   
   func test_SubscriptionChangedForUnsubscribedState() throws {
     let results = transition.transition(
-      from: Subscribe.UnsubscribedState(input: input),
+      from: Subscribe.UnsubscribedState(),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
@@ -48,11 +48,11 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(input: SubscribeInput(
-      channels: ["new-channel"],
-      groups: ["new-group1", "new-group2"]
+      channels: [PubNubChannel(id: "new-channel")],
+      groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
     ))
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
@@ -68,11 +68,11 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(input: SubscribeInput(
-      channels: ["new-channel"],
-      groups: ["new-group1", "new-group2"]
+      channels: [PubNubChannel(id: "new-channel")],
+      groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
     ))
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
@@ -81,18 +81,27 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeStoppedState(input: input),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
-    let expectedState = Subscribe.HandshakeStoppedState(input: SubscribeInput(
-      channels: ["new-channel"],
-      groups: ["new-group1", "new-group2"]
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .managed(.handshakeRequest(
+        channels: ["new-channel"],
+        groups: ["new-group1", "new-group2"]
+      ))
+    ]
+    let expectedState = Subscribe.HandshakingState(input: SubscribeInput(
+      channels: [PubNubChannel(id: "new-channel")],
+      groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
     ))
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeStoppedState) == expectedState)
-    XCTAssertTrue(results.invocations.isEmpty)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
   func test_SubscriptionChangedForHandshakeReconnectingState() throws {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
-      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1),
+      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1, reason: reason),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
@@ -103,11 +112,11 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(input: SubscribeInput(
-      channels: ["new-channel"],
-      groups: ["new-group1", "new-group2"]
+      channels: [PubNubChannel(id: "new-channel")],
+      groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
     ))
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
@@ -125,15 +134,15 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     let expectedState = Subscribe.ReceivingState(
       input: SubscribeInput(
-        channels: ["new-channel"],
-        groups: ["new-group1", "new-group2"]
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
       ), cursor: SubscribeCursor(
         timetoken: 5001000,
         region: 22
       )
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
@@ -155,15 +164,15 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     let expectedState = Subscribe.ReceivingState(
       input: SubscribeInput(
-        channels: ["new-channel"],
-        groups: ["new-group1", "new-group2"]
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
       ), cursor: SubscribeCursor(
         timetoken: 500100900,
         region: 11
       )
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -172,18 +181,25 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveStoppedState(input: input, cursor: SubscribeCursor(timetoken: 500100900, region: 11)),
       event: .subscriptionChanged(channels: ["new-channel"], groups: ["new-group1", "new-group2"])
     )
-    let expectedState = Subscribe.ReceiveStoppedState(
-      input: SubscribeInput(
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .managed(.receiveMessages(
         channels: ["new-channel"],
-        groups: ["new-group1", "new-group2"]
+        groups: ["new-group1", "new-group2"],
+        cursor: SubscribeCursor(timetoken: 500100900, region: 11)
+      ))
+    ]
+    let expectedState = Subscribe.ReceivingState(
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
       ), cursor: SubscribeCursor(
         timetoken: 500100900,
         region: 11
       )
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
-    XCTAssertTrue(results.invocations.isEmpty)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   func test_SubscriptionChangedForReceiveReconnectingState() throws {
@@ -191,7 +207,8 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 500100900, region: 11),
-        currentAttempt: 1
+        currentAttempt: 1,
+        reason: SubscribeError(underlying: PubNubError(.unknown))
       ),
       event: .subscriptionChanged(
         channels: ["new-channel"],
@@ -207,15 +224,15 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     let expectedState = Subscribe.ReceivingState(
       input: SubscribeInput(
-        channels: ["new-channel"],
-        groups: ["new-group1", "new-group2"]
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
       ), cursor: SubscribeCursor(
         timetoken: 500100900,
         region: 11
       )
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -226,7 +243,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceivingState(input: input, cursor: SubscribeCursor(timetoken: 1500100900, region: 41)),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -238,11 +255,14 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -251,11 +271,12 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 1500100900, region: 41),
-        currentAttempt: 1
+        currentAttempt: 1,
+        reason: SubscribeError(underlying: PubNubError(.unknown))
       ),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -267,11 +288,14 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -283,7 +307,7 @@ class SubscribeTransitionTests: XCTestCase {
         error: SubscribeError(underlying: PubNubError(.unknown))
       ),
       event: .subscriptionRestored(
-        channels: ["new-channel"], gropus: ["new-group1", "new-group2"],
+        channels: ["new-channel"], groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -294,11 +318,14 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -307,7 +334,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakingState(input: input),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -319,20 +346,26 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   func test_SubscriptionRestoredForHandshakeReconnectingState() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
-      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1),
+      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1, reason: reason),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -344,11 +377,14 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -360,7 +396,7 @@ class SubscribeTransitionTests: XCTestCase {
       ),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
@@ -371,11 +407,14 @@ class SubscribeTransitionTests: XCTestCase {
       )),
     ]
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
@@ -384,17 +423,27 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeStoppedState(input: input),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expectedState = Subscribe.ReceiveStoppedState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .managed(.receiveMessages(
+        channels: ["new-channel"],
+        groups: ["new-group1", "new-group2"],
+        cursor: SubscribeCursor(timetoken: 100, region: 55)
+      ))
+    ]
+    let expectedState = Subscribe.ReceivingState(
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
-    XCTAssertTrue(results.invocations.isEmpty)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
   func test_SubscriptionRestoredForReceiveStoppedState() {
@@ -405,17 +454,27 @@ class SubscribeTransitionTests: XCTestCase {
       ),
       event: .subscriptionRestored(
         channels: ["new-channel"],
-        gropus: ["new-group1", "new-group2"],
+        groups: ["new-group1", "new-group2"],
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expectedState = Subscribe.ReceiveStoppedState(
-      input: SubscribeInput(channels: ["new-channel"], groups: ["new-group1", "new-group2"]),
+    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
+      .managed(.receiveMessages(
+        channels: ["new-channel"],
+        groups: ["new-group1", "new-group2"],
+        cursor: SubscribeCursor(timetoken: 100, region: 55)
+      ))
+    ]
+    let expectedState = Subscribe.ReceivingState(
+      input: SubscribeInput(
+        channels: [PubNubChannel(id: "new-channel")],
+        groups: [PubNubChannel(id: "new-group1"), PubNubChannel(id: "new-group2")]
+      ),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveStoppedState) == expectedState)
-    XCTAssertTrue(results.invocations.isEmpty)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Handshake Success
@@ -431,20 +490,23 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .managed(.emitStatus(status: .connected)),
-      .managed(.emitMessages(events: [], forCursor: cursor)),
-      .managed(.receiveMessages(
-        channels: input.channels,
-        groups: input.groups,
+      .managed(.receiveMessages(channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
         cursor: cursor
-      ))
-    ]    
+      )),
+      .managed(.emitMessages(events: [], forCursor: cursor)),
+      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .connected,
+        error: nil
+      )))
+    ]
     let expectedState = Subscribe.ReceivingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 1500100900, region: 41)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -458,107 +520,133 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .managed(.handshakeReconnect(
-        channels: input.channels,
-        groups: input.groups,
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
         currentAttempt: 0,
         reason: SubscribeError(underlying: PubNubError(.unknown))
       ))
     ]
     let expectedState = Subscribe.HandshakeReconnectingState(
       input: input,
-      currentAttempt: 0
+      currentAttempt: 0,
+      reason: SubscribeError(underlying: PubNubError(.unknown))
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeReconnectingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Handshake Reconnect Success
 
   func test_HandshakeReconnectSuccessForReconnectingState() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let cursor = SubscribeCursor(
       timetoken: 200400600,
       region: 45
     )
     let results = transition.transition(
-      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1),
+      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 1, reason: reason),
       event: .handshakeReconnectSuccess(cursor: cursor)
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(status: .connected)),
-      .managed(.emitMessages(events: [], forCursor: cursor)),
       .managed(.receiveMessages(
-        channels: input.channels,
-        groups: input.groups,
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
         cursor: SubscribeCursor(timetoken: 200400600, region: 45)
-      ))
+      )),
+      .managed(.emitMessages(events: [], forCursor: cursor)),
+      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .connected,
+        error: nil
+      )))
     ]
     let expectedState = Subscribe.ReceivingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 200400600, region: 45)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Handshake Reconnect Failure
 
   func test_HandshakeReconnectFailed() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
-      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 0),
+      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 0, reason: reason),
       event: .handshakeReconnectFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
       .managed(.handshakeReconnect(
-        channels: input.channels, groups: input.groups,
+        channels: input.allSubscribedChannels, groups: input.allSubscribedGroups,
         currentAttempt: 1, reason: SubscribeError(underlying: PubNubError(.unknown))
       ))
     ]
     let expectedState = Subscribe.HandshakeReconnectingState(
       input: input,
-      currentAttempt: 1
+      currentAttempt: 1,
+      reason: reason
     )
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeReconnectingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Handshake Give Up
 
   func test_HandshakeGiveUpForReconnectingState() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
-      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 3),
+      from: Subscribe.HandshakeReconnectingState(input: input, currentAttempt: 3, reason: reason),
       event: .handshakeReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(status: .disconnected))
+      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .disconnected,
+        error: nil
+      )))
     ]
     let expectedState = Subscribe.HandshakeFailedState(
       input: input,
       error: SubscribeError(underlying: PubNubError(.unknown))
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.HandshakeFailedState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Receive Give Up
 
   func test_ReceiveGiveUpForReconnectingState() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
-        input: input,
-        cursor: SubscribeCursor(timetoken: 18001000, region: 123), currentAttempt: 3
+        input: input, cursor: SubscribeCursor(timetoken: 18001000, region: 123),
+        currentAttempt: 3, reason: reason
       ),
       event: .receiveReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
-      .managed(.emitStatus(status: .disconnected))
+      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .disconnected,
+        error: nil
+      )))
     ]
     let expectedState = Subscribe.ReceiveFailedState(
       input: input,
@@ -566,7 +654,7 @@ class SubscribeTransitionTests: XCTestCase {
       error: SubscribeError(underlying: PubNubError(.unknown))
     )
     
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveFailedState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
@@ -585,29 +673,36 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
-      .managed(.emitStatus(status: .connected)),
+      .managed(.receiveMessages(
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
+        cursor: SubscribeCursor(timetoken: 18002000, region: 123)
+      )),
       .managed(.emitMessages(
         events: [firstMessage, secondMessage],
         forCursor: SubscribeCursor(timetoken: 18002000, region: 123)
       )),
-      .managed(.receiveMessages(
-        channels: input.channels,
-        groups: input.groups,
-        cursor: SubscribeCursor(timetoken: 18002000, region: 123)
-      ))
+      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connected,
+        newStatus: .connected,
+        error: nil
+      )))
     ]
     let expectedState = Subscribe.ReceivingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 18002000, region: 123)
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceivingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   // MARK: - Receive Failed
 
   func test_ReceiveFailedFromReceivingState() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -618,8 +713,8 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
       .managed(.receiveReconnect(
-        channels: input.channels,
-        group: input.groups,
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
         currentAttempt: 0,
         reason: SubscribeError(underlying: PubNubError(.unknown))
@@ -628,27 +723,32 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedState = Subscribe.ReceiveReconnectingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 100500900, region: 11),
-      currentAttempt: 0
+      currentAttempt: 0,
+      reason: reason
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveReconnectingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 
   func test_ReceiveReconnectFailed() {
+    let reason = SubscribeError(
+      underlying: PubNubError(.unknown)
+    )
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
-        currentAttempt: 1
+        currentAttempt: 1,
+        reason: reason
       ),
       event: .receiveReconnectFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
       .managed(.receiveReconnect(
-        channels: input.channels,
-        group: input.groups,
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
         currentAttempt: 2,
         reason: SubscribeError(underlying: PubNubError(.unknown))
@@ -657,10 +757,11 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedState = Subscribe.ReceiveReconnectingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 100500900, region: 11),
-      currentAttempt: 2
+      currentAttempt: 2,
+      reason: reason
     )
 
-    XCTAssertTrue(try XCTUnwrap(results.state as? Subscribe.ReceiveReconnectingState) == expectedState)
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
 }

@@ -1,5 +1,5 @@
 //
-//  SubscribeState.swift
+//  SubscribeError.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,28 +27,6 @@
 
 import Foundation
 
-protocol SubscribeState: Equatable {
-  var input: SubscribeInput { get }
-}
-
-protocol CursorState: SubscribeState {
-  var cursor: SubscribeCursor { get }
-}
-
-struct SubscribeInput: Equatable {
-  let channels: [String]
-  let groups: [String]
-  
-  init(channels: [String] = [], groups: [String] = []) {
-    self.channels = channels
-    self.groups = groups
-  }
-  
-  static func == (lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
-    return lhs.channels == rhs.channels && lhs.groups == rhs.groups
-  }
-}
-
 struct SubscribeError: Error, Equatable {
   let underlying: PubNubError
   let urlResponse: HTTPURLResponse?
@@ -60,51 +38,5 @@ struct SubscribeError: Error, Equatable {
   
   static func == (lhs: SubscribeError, rhs: SubscribeError) -> Bool {
     lhs.underlying == rhs.underlying
-  }
-}
-
-extension Subscribe {
-  struct HandshakingState: SubscribeState {
-    let input: SubscribeInput
-  }
-  
-  struct HandshakeStoppedState: SubscribeState {
-    let input: SubscribeInput
-  }
-  
-  struct HandshakeReconnectingState: SubscribeState {
-    let input: SubscribeInput
-    let currentAttempt: Int
-  }
-  
-  struct HandshakeFailedState: SubscribeState {
-    let input: SubscribeInput
-    let error: SubscribeError
-  }
-  
-  struct ReceivingState: SubscribeState, CursorState {
-    let input: SubscribeInput
-    let cursor: SubscribeCursor
-  }
-  
-  struct ReceiveReconnectingState: SubscribeState, CursorState {
-    let input: SubscribeInput
-    let cursor: SubscribeCursor
-    let currentAttempt: Int
-  }
-  
-  struct ReceiveStoppedState: SubscribeState, CursorState {
-    let input: SubscribeInput
-    let cursor: SubscribeCursor
-  }
-  
-  struct ReceiveFailedState: SubscribeState, CursorState {
-    let input: SubscribeInput
-    let cursor: SubscribeCursor
-    let error: SubscribeError
-  }
-  
-  struct UnsubscribedState: SubscribeState {
-    let input: SubscribeInput
   }
 }

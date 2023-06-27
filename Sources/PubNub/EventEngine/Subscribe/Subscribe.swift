@@ -27,10 +27,98 @@
 
 import Foundation
 
-enum Subscribe {
+// MARK: - SubscribeState
+
+protocol SubscribeState: Equatable {
+  var input: SubscribeInput { get }
+  var cursor: SubscribeCursor { get }
+  var connectionStatus: ConnectionStatus { get }
+}
+
+extension SubscribeState {
+  var hasTimetoken: Bool {
+    return cursor.timetoken != 0
+  }
+  func isEqual(to otherState: some SubscribeState) -> Bool {
+    (otherState as? Self) == self
+  }
+}
+
+//
+// A namespace for Events, concrete State types and Invocations used in Subscribe EE
+//
+enum Subscribe {}
+
+// MARK: - Subscribe States
+
+extension Subscribe {
+  struct HandshakingState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct HandshakeStoppedState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct HandshakeReconnectingState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let currentAttempt: Int
+    let reason: SubscribeError
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct HandshakeFailedState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let error: SubscribeError
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct ReceivingState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor
+    let connectionStatus = ConnectionStatus.connected
+  }
+  
+  struct ReceiveReconnectingState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor
+    let currentAttempt: Int
+    let reason: SubscribeError
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct ReceiveStoppedState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct ReceiveFailedState: SubscribeState {
+    let input: SubscribeInput
+    let cursor: SubscribeCursor
+    let error: SubscribeError
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+  
+  struct UnsubscribedState: SubscribeState {
+    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let input: SubscribeInput = SubscribeInput()
+    let connectionStatus = ConnectionStatus.disconnected
+  }
+}
+
+// MARK: - Subscribe Events
+
+extension Subscribe {
   enum Event {
     case subscriptionChanged(channels: [String], groups: [String])
-    case subscriptionRestored(channels: [String], gropus: [String], cursor: SubscribeCursor)
+    case subscriptionRestored(channels: [String], groups: [String], cursor: SubscribeCursor)
     case handshakeSucceess(cursor: SubscribeCursor)
     case handshakeFailure(error: SubscribeError)
     case handshakeReconnectSuccess(cursor: SubscribeCursor)
@@ -43,24 +131,23 @@ enum Subscribe {
     case receiveReconnectGiveUp(error: SubscribeError)
     case disconnect
     case reconnect
+    case unsubscribeAll
   }
-  
+}
+
+extension Subscribe {
+  struct ConnectionStatusChange {
+    let oldStatus: ConnectionStatus
+    let newStatus: ConnectionStatus
+    let error: SubscribeError?
+  }
+}
+
+// MARK: - Subscribe Effect Invocations
+
+extension Subscribe {
   enum Invocation: AnyEffectInvocation {
-    case handshakeRequest(channels: [String], groups: [String])
-    case handshakeReconnect(channels: [String], groups: [String], currentAttempt: Int, reason: SubscribeError?)
-    case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
-    case receiveReconnect(channels: [String], group: [String], cursor: SubscribeCursor, currentAttempt: Int, reason: SubscribeError?)
-    case emitStatus(status: ConnectionStatus)
-    case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
-    
-    enum Cancellable: String {
-      case handshakeRequest = "Subscribe.HandshakeRequest"
-      case handshakeReconnect = "Subscribe.HandshakeReconnect"
-      case receiveMessages = "Subscribe.ReceiveMessages"
-      case receiveReconnect = "Subscribe.ReceiveReconnect"
-    }
-    
-    var id: String {
+    var rawValue: String {
       switch self {
       case .handshakeRequest(_, _):
         return Cancellable.handshakeRequest.rawValue
@@ -70,9 +157,29 @@ enum Subscribe {
         return Cancellable.receiveMessages.rawValue
       case .receiveReconnect(_, _, _, _, _):
         return Cancellable.receiveReconnect.rawValue
-      default:
-        return String()
+      case .emitMessages(_,_):
+        return "Subscribe.EmitMessages"
+      case .emitStatus(_):
+        return "Subscribe.EmitStatus"
       }
+    }
+    
+    init?(rawValue: String) {
+      return nil
+    }
+    
+    case handshakeRequest(channels: [String], groups: [String])
+    case handshakeReconnect(channels: [String], groups: [String], currentAttempt: Int, reason: SubscribeError)
+    case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
+    case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, currentAttempt: Int, reason: SubscribeError)
+    case emitStatus(change: Subscribe.ConnectionStatusChange)
+    case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
+    
+    enum Cancellable: String {
+      case handshakeRequest = "Subscribe.HandshakeRequest"
+      case handshakeReconnect = "Subscribe.HandshakeReconnect"
+      case receiveMessages = "Subscribe.ReceiveMessages"
+      case receiveReconnect = "Subscribe.ReceiveReconnect"
     }
   }
 }

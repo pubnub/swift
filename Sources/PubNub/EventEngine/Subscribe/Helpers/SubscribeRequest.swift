@@ -38,9 +38,8 @@ class SubscribeRequest {
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
   
-  var isCancelled: Bool {
-    request?.isCancelled ?? false
-  }
+  private(set) var isCancelled: Bool = false
+  
   var retryLimit: UInt {
     configuration.automaticRetry?.retryLimit ?? 0
   }
@@ -64,12 +63,9 @@ class SubscribeRequest {
   }
   
   func computeReconnectionDelay(
-    dueTo error: SubscribeError?,
+    dueTo error: SubscribeError,
     with currentAttempt: Int
   ) -> TimeInterval? {
-    guard let error = error else {
-      return 0
-    }
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
@@ -119,6 +115,7 @@ class SubscribeRequest {
   
   func cancel() {
     request?.cancel(PubNubError(.clientCancelled, router: nil))
+    isCancelled = true
   }
   
   deinit {

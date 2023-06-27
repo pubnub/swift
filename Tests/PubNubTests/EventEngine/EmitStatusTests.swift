@@ -50,80 +50,24 @@ class EmitStatusTests: XCTestCase {
     listeners = []
     super.tearDown()
   }
-    
-  func testEmitStatus_FromDisconnectedToConnecting() {
-    testEffect(from: .disconnected, to: .connecting) { result in
-      XCTAssertTrue(result == .connecting)
-    }
-  }
   
-  func testEmitStatus_FromConnectingToConnected() {
-    testEffect(from: .connecting, to: .connected) { result in
-      XCTAssertTrue(result == .connected)
-    }
-  }
-  
-  func testEmitStatus_FromConnectingToDisconnected() {
-    testEffect(from: .connecting, to: .disconnected) { result in
-      XCTAssertTrue(result == .disconnected)
-    }
-  }
-  
-  func testEmitStatus_FromConnectedToReconnecting() {
-    testEffect(from: .connected, to: .reconnecting) { result in
-      XCTAssertTrue(result == .reconnecting)
-    }
-  }
-  
-  func testEmitStatus_FromConnectedToDisconnected() {
-    testEffect(from: .connected, to: .disconnected) { result in
-      XCTAssertTrue(result == .disconnected)
-    }
-  }
-  
-  func testEmitStatus_FromReconnectingToDisconnected() {
-    testEffect(from: .reconnecting, to: .disconnected) { result in
-      XCTAssertTrue(result == .disconnected)
-    }
-  }
-  
-  func testEmitStatus_FromConnectingToDisconnectedUnexpectedly() {
-    testEffect(from: .connecting, to: .disconnectedUnexpectedly) { result in
-      XCTAssertTrue(result == .disconnectedUnexpectedly)
-    }
-  }
-  
-  func testEmitStatus_FromConnectedToDisconnectedUnexpectedly() {
-    testEffect(from: .connected, to: .disconnectedUnexpectedly) { result in
-      XCTAssertTrue(result == .disconnectedUnexpectedly)
-    }
-  }
-  
-  func testEmitStatus_FromReconnectingToDisconnectedUnexpectedly() {
-    testEffect(from: .reconnecting, to: .disconnectedUnexpectedly) { result in
-      XCTAssertTrue(result == .disconnectedUnexpectedly)
-    }
-  }
-  
-  private func testEffect(
-    from currentStatus: ConnectionStatus,
-    to newStatus: ConnectionStatus,
-    verifyResult: @escaping (ConnectionStatus) -> Void
-  ) {
+  func testEmitStatus_FromDisconnectedToConnected() {
     let expectation = XCTestExpectation(description: "Emit Status Effect")
     expectation.expectedFulfillmentCount = listeners.count
     expectation.assertForOverFulfill = true
     
     let effect = EmitStatusEffect(
-      currentStatus: currentStatus,
-      newStatus: newStatus,
+      statusChange: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .connected,
+        error: nil
+      ),
       listeners: listeners
     )
-    
     listeners.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
-          verifyResult(status)
+          XCTAssertEqual(status, .connected)
           expectation.fulfill()
         } else {
           XCTFail("Unexpected event")
@@ -136,5 +80,42 @@ class EmitStatusTests: XCTestCase {
     })
     
     wait(for: [expectation], timeout: 0.1)
+  }
+  
+  func testEmitStatus_WithError() {
+    let expectation = XCTestExpectation(description: "Emit Status Effect")
+    expectation.expectedFulfillmentCount = listeners.count
+    expectation.assertForOverFulfill = true
+    
+    let errorExpectation = XCTestExpectation(description: "Emit Status Effect - Error Listener")
+    errorExpectation.expectedFulfillmentCount = listeners.count
+    errorExpectation.assertForOverFulfill = true
+    
+    let effect = EmitStatusEffect(
+      statusChange: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnected,
+        newStatus: .connected,
+        error: SubscribeError(underlying: PubNubError(.unknown))
+      ),
+      listeners: listeners
+    )
+    listeners.forEach {
+      $0.onEmitSubscribeEventCalled = { event in
+        if case let .connectionChanged(status) = event {
+          XCTAssertEqual(status, .connected)
+          expectation.fulfill()
+        }
+        if case let .errorReceived(error) = event {
+          XCTAssertEqual(error, PubNubError(.unknown))
+          errorExpectation.fulfill()
+        }
+      }
+    }
+    
+    effect.performTask(completionBlock: { _ in
+      PubNub.log.debug("Did finish performing EmitStatus effect")
+    })
+    
+    wait(for: [expectation, errorExpectation], timeout: 0.1)    
   }
 }

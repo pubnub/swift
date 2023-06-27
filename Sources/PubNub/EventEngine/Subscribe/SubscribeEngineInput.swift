@@ -1,8 +1,8 @@
 //
-//  ConnectionStatus.swift
+//  SubscribeEventEngineInput.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -27,25 +27,12 @@
 
 import Foundation
 
-/// Status of a connection to a remote system
-public enum ConnectionStatus {
-  /// Successfully connected to a remote system
-  case connected
-  /// Explicit disconnect from a remote system
-  case disconnected
-
-  /// If the connection is connected or attempting to connect
-  public var isActive: Bool {
-    switch self {
-    case .connected:
-      return true
-    case .disconnected:
-      return false
-    }
-  }
-
-  /// If the connection is connected
-  public var isConnected: Bool {
-    return self == .connected
+struct SubscribeEngineInput {
+  let configuration: SubscriptionConfiguration
+  let listeners: [BaseSubscriptionListener]
+  
+  init(configuration: SubscriptionConfiguration, listeners: [BaseSubscriptionListener] = []) {
+    self.configuration = configuration
+    self.listeners = listeners
   }
 }

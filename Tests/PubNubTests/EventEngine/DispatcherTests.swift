@@ -48,7 +48,10 @@ class DispatcherTests: XCTestCase {
         .managed(.second),
         .managed(.third),
         .managed(.fourth)
-    ], notify: listener)
+      ],
+      with: EventEngineCustomInput(value: Void()),
+      notify: listener
+    )
     
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
@@ -70,7 +73,10 @@ class DispatcherTests: XCTestCase {
         .managed(.second),
         .cancel(.thirdCancellable),
         .managed(.fourth)
-    ], notify: listener)
+      ],
+      with: EventEngineCustomInput(value: Void()),
+      notify: listener
+    )
     
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
@@ -83,21 +89,20 @@ class DispatcherTests: XCTestCase {
     
     dispatcher.dispatch(
       invocations: [.managed(.first)],
+      with: EventEngineCustomInput(value: Void()),
       notify: listener
     )
   }
   
-  func testDispatcher_RemovesPendingEffectsOnFinish() {
+  func testDispatcher_RemovesEffectsOnFinish() {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 3
     onResultReceivedExpectation.assertForOverFulfill = true
 
-    let queue = DispatchQueue.global(qos: .default)
+    let queue = DispatchQueue(label: "test.queue")
     let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(queue: queue))
-    let semaphore = DispatchSemaphore(value: 2)
-
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { results in
-      semaphore.signal()
+      onResultReceivedExpectation.fulfill()
     })
         
     dispatcher.dispatch(
@@ -106,12 +111,13 @@ class DispatcherTests: XCTestCase {
         .managed(.second),
         .cancel(.thirdCancellable),
         .managed(.fourth)
-    ], notify: listener)
+      ],
+      with: EventEngineCustomInput(value: Void()),
+      notify: listener
+    )
     
-    _ = semaphore.wait(timeout: .now() + 1)
-    _ = semaphore.wait(timeout: .now() + 1)
-    _ = semaphore.wait(timeout: .now() + 1)
-
+    wait(for: [onResultReceivedExpectation], timeout: 2.0)
+    
     XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
     XCTAssertFalse(dispatcher.hasPendingInvocation(.second))
     XCTAssertFalse(dispatcher.hasPendingInvocation(.third))
@@ -131,10 +137,6 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
   case third = "third"
   case fourth = "fourth"
   
-  var id: String {
-    rawValue
-  }
-  
   enum Cancellable: String {
     case firstCancellable = "first"
     case secondCancellable = "second"
@@ -146,7 +148,10 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
 fileprivate struct MockEffectHandlerFactory: EffectHandlerFactory {
   let queue: DispatchQueue
   
-  func effect(for invocation: TestInvocation) -> any EffectHandler<TestEvent> {
+  func effect(
+    for invocation: TestInvocation,
+    with customInput: EventEngineCustomInput<Void>
+  ) -> any EffectHandler<TestEvent> {
     return MockEffectHandler(queue: queue)
   }
 }
@@ -163,8 +168,11 @@ fileprivate struct MockEffectHandler: EffectHandler {
 }
 
 fileprivate class StubEffectHandlerFactory: EffectHandlerFactory {
-  func effect(for invocation: TestInvocation) -> any EffectHandler<TestEvent> {
-    return StubEffectHandler()
+  func effect(
+    for invocation: TestInvocation,
+    with customInput: EventEngineCustomInput<Void>
+  ) -> any EffectHandler<TestEvent> {
+    StubEffectHandler()
   }
 }
 

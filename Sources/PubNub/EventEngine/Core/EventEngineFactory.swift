@@ -1,8 +1,8 @@
 //
-//  ConnectionStatus.swift
+//  EventEngineFactory.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -27,25 +27,38 @@
 
 import Foundation
 
-/// Status of a connection to a remote system
-public enum ConnectionStatus {
-  /// Successfully connected to a remote system
-  case connected
-  /// Explicit disconnect from a remote system
-  case disconnected
+typealias AnySubscribeState = (any SubscribeState)
+typealias SubscribeEngine = EventEngine<AnySubscribeState, Subscribe.Event, Subscribe.Invocation, SubscribeEngineInput>
 
-  /// If the connection is connected or attempting to connect
-  public var isActive: Bool {
-    switch self {
-    case .connected:
-      return true
-    case .disconnected:
-      return false
-    }
+class EventEngineFactory {
+  static func subscribe(
+    with configuration: SubscriptionConfiguration,
+    session: SessionReplaceable? = nil,
+    sessionQueue: DispatchQueue? = nil
+  ) -> SubscribeEngine {
+    return EventEngine(
+      queue: DispatchQueue(label: "com.pubnub.ee"),
+      state: Subscribe.UnsubscribedState(),
+      transition: SubscribeTransition(),
+      dispatcher: EffectDispatcher(
+        factory: SubscribeEffectFactory(
+          session: session ?? HTTPSession(
+            configuration: URLSessionConfiguration.subscription,
+            sessionQueue: sessionQueue ?? defaultSessionQueue,
+            sessionStream: SessionListener()
+          )
+        )
+      ),
+      customInput: EventEngineCustomInput(
+        value: SubscribeEngineInput(
+          configuration: configuration,
+          listeners: []
+        )
+      )
+    )
   }
-
-  /// If the connection is connected
-  public var isConnected: Bool {
-    return self == .connected
+  
+  private static var defaultSessionQueue: DispatchQueue {
+    DispatchQueue(label: "Subscribe Response Queue")
   }
 }

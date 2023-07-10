@@ -28,37 +28,19 @@
 import Foundation
 
 typealias AnySubscribeState = (any SubscribeState)
-typealias SubscribeEngine = EventEngine<AnySubscribeState, Subscribe.Event, Subscribe.Invocation, SubscribeEngineInput>
+typealias SubscribeEngine = EventEngine<AnySubscribeState, Subscribe.Event, Subscribe.Invocation, Subscribe.EngineInput>
 
 class EventEngineFactory {
-  static func subscribe(
+  func subscribeEngine(
     with configuration: SubscriptionConfiguration,
-    session: SessionReplaceable? = nil,
-    sessionQueue: DispatchQueue? = nil
+    dispatcher: some Dispatcher<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>,
+    transition: some TransitionProtocol<AnySubscribeState, Subscribe.Event, Subscribe.Invocation>
   ) -> SubscribeEngine {
-    return EventEngine(
-      queue: DispatchQueue(label: "com.pubnub.ee"),
+    EventEngine(
       state: Subscribe.UnsubscribedState(),
-      transition: SubscribeTransition(),
-      dispatcher: EffectDispatcher(
-        factory: SubscribeEffectFactory(
-          session: session ?? HTTPSession(
-            configuration: URLSessionConfiguration.subscription,
-            sessionQueue: sessionQueue ?? defaultSessionQueue,
-            sessionStream: SessionListener()
-          )
-        )
-      ),
-      customInput: EventEngineCustomInput(
-        value: SubscribeEngineInput(
-          configuration: configuration,
-          listeners: []
-        )
-      )
+      transition: transition,
+      dispatcher: dispatcher,
+      customInput: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configuration))
     )
-  }
-  
-  private static var defaultSessionQueue: DispatchQueue {
-    DispatchQueue(label: "Subscribe Response Queue")
   }
 }

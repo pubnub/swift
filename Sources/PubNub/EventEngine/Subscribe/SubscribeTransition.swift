@@ -32,6 +32,47 @@ class SubscribeTransition: TransitionProtocol {
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
   
+  private func canTransition(from state: State, dueTo event: Event) -> Bool {
+    switch event {
+    case .handshakeSucceess(_):
+      return state is Subscribe.HandshakingState
+    case .handshakeFailure(_):
+      return state is Subscribe.HandshakingState
+    case .handshakeReconnectSuccess(_):
+      return state is Subscribe.HandshakeReconnectingState
+    case .handshakeReconnectFailure(_):
+      return state is Subscribe.HandshakeReconnectingState
+    case .handshakeReconnectGiveUp(_):
+      return state is Subscribe.HandshakeReconnectingState
+    case .receiveSuccess(_,_):
+      return state is Subscribe.ReceivingState
+    case .receiveFailure(_):
+      return state is Subscribe.ReceivingState
+    case .receiveReconnectSuccess(_,_):
+      return state is Subscribe.ReceiveReconnectingState
+    case .receiveReconnectFailure(_):
+      return state is Subscribe.ReceiveReconnectingState
+    case .receiveReconnectGiveUp(_):
+      return state is Subscribe.ReceiveReconnectingState
+    case .subscriptionChanged(_, _):
+      return true
+    case .subscriptionRestored(_, _, _):
+      return true
+    case .unsubscribeAll:
+      return true
+    case .disconnect:
+      return !(
+        state is Subscribe.HandshakeStoppedState || state is Subscribe.ReceiveStoppedState ||
+        state is Subscribe.HandshakeFailedState || state is Subscribe.ReceiveFailedState
+      )
+    case .reconnect:
+      return (
+        state is Subscribe.HandshakeStoppedState || state is Subscribe.HandshakeFailedState ||
+        state is Subscribe.ReceiveFailedState || state is Subscribe.ReceiveStoppedState
+      )
+    }
+  }
+  
   private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Subscribe.HandshakingState:
@@ -96,47 +137,6 @@ class SubscribeTransition: TransitionProtocol {
     }
   }
   
-  private func canTransition(from state: State, dueTo event: Event) -> Bool {
-    switch event {
-    case .handshakeSucceess(_):
-      return state is Subscribe.HandshakingState
-    case .handshakeFailure(_):
-      return state is Subscribe.HandshakingState
-    case .handshakeReconnectSuccess(_):
-      return state is Subscribe.HandshakeReconnectingState
-    case .handshakeReconnectFailure(_):
-      return state is Subscribe.HandshakeReconnectingState
-    case .handshakeReconnectGiveUp(_):
-      return state is Subscribe.HandshakeReconnectingState
-    case .receiveSuccess(_,_):
-      return state is Subscribe.ReceivingState
-    case .receiveFailure(_):
-      return state is Subscribe.ReceivingState
-    case .receiveReconnectSuccess(_,_):
-      return state is Subscribe.ReceiveReconnectingState
-    case .receiveReconnectFailure(_):
-      return state is Subscribe.ReceiveReconnectingState
-    case .receiveReconnectGiveUp(_):
-      return state is Subscribe.ReceiveReconnectingState
-    case .subscriptionChanged(_, _):
-      return true
-    case .subscriptionRestored(_, _, _):
-      return true
-    case .unsubscribeAll:
-      return true
-    case .disconnect:
-      return !(
-        state is Subscribe.HandshakeStoppedState || state is Subscribe.ReceiveStoppedState ||
-        state is Subscribe.HandshakeFailedState || state is Subscribe.ReceiveFailedState
-      )
-    case .reconnect:
-      return (
-        state is Subscribe.HandshakeStoppedState || state is Subscribe.HandshakeFailedState ||
-        state is Subscribe.ReceiveFailedState || state is Subscribe.ReceiveStoppedState
-      )
-    }
-  }
-  
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     guard canTransition(from: state, dueTo: event) else {
       return TransitionResult(state: state)
@@ -178,7 +178,7 @@ class SubscribeTransition: TransitionProtocol {
     
     return TransitionResult(
       state: results.state,
-      invocations: onExit(from: state) + onEntry(to: results.state) + results.invocations
+      invocations: onExit(from: state) + results.invocations + onEntry(to: results.state)
     )
   }
 }
@@ -278,19 +278,22 @@ fileprivate extension SubscribeTransition {
     cursor: SubscribeCursor,
     messages: [SubscribeMessagePayload] = []
   ) -> TransitionResult<State, Invocation> {
+    let emitMessagesInvocation = EffectInvocation.managed(
+      Subscribe.Invocation.emitMessages(events: messages, forCursor: cursor)
+    )
+    let emitStatusInvocation = EffectInvocation.managed(
+      Subscribe.Invocation.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: state.connectionStatus,
+        newStatus: .connected,
+        error: nil
+      ))
+    )
     return TransitionResult(
       state: Subscribe.ReceivingState(
         input: state.input,
         cursor: cursor
       ),
-      invocations: [
-        .managed(.emitMessages(events: messages, forCursor: cursor)),
-        .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-          oldStatus: state.connectionStatus,
-          newStatus: .connected,
-          error: nil
-        )))
-      ]
+      invocations: messages.isEmpty ? [emitStatusInvocation] : [emitMessagesInvocation, emitStatusInvocation]
     )
   }
 }
@@ -328,7 +331,7 @@ fileprivate extension SubscribeTransition {
         .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
           newStatus: .disconnected,
-          error: nil
+          error: error
         )))
       ]
     )
@@ -338,10 +341,6 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setStoppedState(from state: State) -> TransitionResult<State, Invocation> {
     let invocations: [EffectInvocation<Invocation>] = [
-      .cancel(.handshakeRequest),
-      .cancel(.handshakeReconnect),
-      .cancel(.receiveMessages),
-      .cancel(.receiveReconnect),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: state.connectionStatus,
         newStatus: .disconnected, error: nil
@@ -366,10 +365,6 @@ fileprivate extension SubscribeTransition {
     return TransitionResult(
       state: Subscribe.UnsubscribedState(),
       invocations: [
-        .cancel(.handshakeRequest),
-        .cancel(.handshakeReconnect),
-        .cancel(.receiveMessages),
-        .cancel(.receiveReconnect),
         .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
           newStatus: .disconnected,

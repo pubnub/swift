@@ -42,12 +42,7 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _receivedMessages: [PubNubMessage] = []
   fileprivate static var _currentScenario: CCIScenarioDefinition?
   fileprivate static var _apiCallResults: [Any] = []
-  fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
-                                                             subscribeKey: defaultSubscribeKey,
-                                                             userId: UUID().uuidString,
-                                                             useSecureConnections: false,
-                                                             origin: mockServerAddress,
-                                                             supressLeaveEvents: true)
+  fileprivate lazy var currentConfiguration: PubNubConfiguration = { createConfiguration() }()
   fileprivate static var currentClient: PubNub?
 
   public var configuration: PubNubConfiguration { currentConfiguration }
@@ -84,10 +79,29 @@ let defaultPublishKey = "demo-36"
 
   public var client: PubNub {
     if PubNubContractTestCase.currentClient == nil {
-      PubNubContractTestCase.currentClient = PubNub(configuration: configuration)
+      PubNubContractTestCase.currentClient = createPubNubClient()
     }
 
     return PubNubContractTestCase.currentClient!
+  }
+  
+  func replacePubNubConfiguration(with configuration: PubNubConfiguration) {
+    currentConfiguration = configuration
+  }
+  
+  func createConfiguration() -> PubNubConfiguration {
+    PubNubConfiguration(
+      publishKey: defaultPublishKey,
+      subscribeKey: defaultSubscribeKey,
+      userId: UUID().uuidString,
+      useSecureConnections: false,
+      origin: mockServerAddress,
+      supressLeaveEvents: true
+    )
+  }
+  
+  func createPubNubClient() -> PubNub {
+    PubNub(configuration: configuration)
   }
 
   public func startCucumberHookEventsListening() {
@@ -224,6 +238,7 @@ let defaultPublishKey = "demo-36"
     PubNubPushContractTestSteps().setup()
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
+    PubNubSubscribeEngineContractTestsSteps().setup()
     PubNubTimeContractTestSteps().setup()
 
     /// Objects acceptance testins.

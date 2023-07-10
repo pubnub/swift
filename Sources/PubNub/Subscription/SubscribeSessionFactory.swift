@@ -69,16 +69,25 @@ public class SubscribeSessionFactory {
     }
 
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
+    
     return sessions.lockedWrite { dictionary in
-      let subscribeEngine = EventEngineFactory.subscribe(
+      let defaultDispatcher = EffectDispatcher(
+        factory: SubscribeEffectFactory(session: subscribeSession ?? HTTPSession(
+          configuration: URLSessionConfiguration.subscription,
+          sessionQueue: subscribeQueue,
+          sessionStream: SessionListener()
+        ))
+      )
+      let subscribeEngine = EventEngineFactory().subscribeEngine(
         with: config,
-        session: subscribeSession,
-        sessionQueue: self.subscribeQueue
+        dispatcher: defaultDispatcher,
+        transition: SubscribeTransition()
       )
       let subscriptionSession = SubscriptionSession(
         configuration: config,
         subscribeEngine: subscribeEngine
       )
+      
       subscribeEngine.delegate = subscriptionSession
       
       dictionary.updateValue(

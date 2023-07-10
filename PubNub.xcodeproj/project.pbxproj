@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		28A4F3937A919C6040595B11 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0596563CD2E3EAC5984D7C14 /* Pods_PubNubContractTests.framework */; };
 		35012EB22850039D00CF7E0A /* PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8975284D323300DB0F3D /* PubNubUser.swift */; };
 		35012EB3285003A100CF7E0A /* Patcher+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8974284D323300DB0F3D /* Patcher+PubNubUser.swift */; };
 		35012EB5285003EC00CF7E0A /* PubNubUserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */; };
@@ -376,13 +377,14 @@
 		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		3D371DE62A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
+		3D371DE72A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
 		3D68EA5A2A4ADA86005156B1 /* SubscribeRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68EA592A4ADA86005156B1 /* SubscribeRequestTests.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
 		3D93EC312A41A8890056C26D /* SubscribeInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC302A41A8890056C26D /* SubscribeInput.swift */; };
 		3D93EC342A41A92D0056C26D /* SubscribeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC332A41A92D0056C26D /* SubscribeRequest.swift */; };
 		3D93EC382A41AB900056C26D /* SubscribeEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC372A41AB900056C26D /* SubscribeEffectFactory.swift */; };
 		3D93EC3A2A41B7850056C26D /* SubscribeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC392A41B7850056C26D /* SubscribeError.swift */; };
-		3D93EC3C2A41B88E0056C26D /* SubscribeEngineInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC3B2A41B88E0056C26D /* SubscribeEngineInput.swift */; };
 		3DB559F02A2D2E7B006959ED /* SubscribeInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB559EF2A2D2E7B006959ED /* SubscribeInputTests.swift */; };
 		3DCC4DE02A42E93200F4A67A /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */; };
 		3DE7487C2A1FA426009B0809 /* TransitionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */; };
@@ -400,6 +402,8 @@
 		3DE748912A1FA449009B0809 /* SubscribeEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488C2A1FA449009B0809 /* SubscribeEffectsTests.swift */; };
 		3DE748922A1FA449009B0809 /* SubscribeTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488D2A1FA449009B0809 /* SubscribeTransitionTests.swift */; };
 		3DF393A42A2F48BC00C62970 /* EventEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */; };
+		3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
+		3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79407BC0271D4CFA0032076C /* PubNubContractCucumberTest.m */; };
@@ -438,6 +442,7 @@
 		A5A574D429C309750065D333 /* leave_success.json in Resources */ = {isa = PBXBuildFile; fileRef = A5A574D329C309750065D333 /* leave_success.json */; };
 		A5F19EE329126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */; };
 		A5F19EE429126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */; };
+		C810227A95F4377EF8F3ACBC /* Pods_PubNubContractTestsBeta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69961B8ABB992B4D2997F819 /* Pods_PubNubContractTestsBeta.framework */; };
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
@@ -553,6 +558,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0596563CD2E3EAC5984D7C14 /* Pods_PubNubContractTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserEvent.swift; sourceTree = "<group>"; };
 		35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipEvent.swift; sourceTree = "<group>"; };
 		35012EBB2850052500CF7E0A /* PubNubSpaceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpaceEvent.swift; sourceTree = "<group>"; };
@@ -920,13 +926,13 @@
 		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineTestsHelpers.swift; sourceTree = "<group>"; };
 		3D68EA592A4ADA86005156B1 /* SubscribeRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeRequestTests.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
 		3D93EC302A41A8890056C26D /* SubscribeInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeInput.swift; sourceTree = "<group>"; };
 		3D93EC332A41A92D0056C26D /* SubscribeRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequest.swift; sourceTree = "<group>"; };
 		3D93EC372A41AB900056C26D /* SubscribeEffectFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectFactory.swift; sourceTree = "<group>"; };
 		3D93EC392A41B7850056C26D /* SubscribeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeError.swift; sourceTree = "<group>"; };
-		3D93EC3B2A41B88E0056C26D /* SubscribeEngineInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeEngineInput.swift; sourceTree = "<group>"; };
 		3DB559EF2A2D2E7B006959ED /* SubscribeInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeInputTests.swift; sourceTree = "<group>"; };
 		3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
 		3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
@@ -944,6 +950,8 @@
 		3DE7488C2A1FA449009B0809 /* SubscribeEffectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectsTests.swift; sourceTree = "<group>"; };
 		3DE7488D2A1FA449009B0809 /* SubscribeTransitionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTransitionTests.swift; sourceTree = "<group>"; };
 		3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineFactory.swift; sourceTree = "<group>"; };
+		3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
+		69961B8ABB992B4D2997F819 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
@@ -963,6 +971,7 @@
 		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		937443EBEE11D5EEB2A956EC /* Pods-PubNubContractTestsBeta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.debug.xcconfig"; sourceTree = "<group>"; };
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
@@ -970,7 +979,10 @@
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUUIDMetadataContractTestSteps.swift; sourceTree = "<group>"; };
+		A6D151BF7FAD5EA3B8CB87D6 /* Pods-PubNubContractTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.debug.xcconfig"; sourceTree = "<group>"; };
+		B9DED49B4626E1D70AB5758D /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
+		E9992D84CE7033F9FFA1680D /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
 		OBJ_21 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -1065,6 +1077,7 @@
 			buildActionMask = 0;
 			files = (
 				7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */,
+				28A4F3937A919C6040595B11 /* Pods_PubNubContractTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1073,6 +1086,7 @@
 			buildActionMask = 0;
 			files = (
 				79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */,
+				C810227A95F4377EF8F3ACBC /* Pods_PubNubContractTestsBeta.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1944,6 +1958,10 @@
 		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+				A6D151BF7FAD5EA3B8CB87D6 /* Pods-PubNubContractTests.debug.xcconfig */,
+				B9DED49B4626E1D70AB5758D /* Pods-PubNubContractTests.release.xcconfig */,
+				937443EBEE11D5EEB2A956EC /* Pods-PubNubContractTestsBeta.debug.xcconfig */,
+				E9992D84CE7033F9FFA1680D /* Pods-PubNubContractTestsBeta.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -1973,7 +1991,6 @@
 			isa = PBXGroup;
 			children = (
 				3DE7487A2A1FA426009B0809 /* Subscribe.swift */,
-				3D93EC3B2A41B88E0056C26D /* SubscribeEngineInput.swift */,
 				3DE7487B2A1FA426009B0809 /* SubscribeTransition.swift */,
 				3DE748742A1FA426009B0809 /* Effects */,
 				3D93EC2F2A41A8300056C26D /* Helpers */,
@@ -2039,6 +2056,7 @@
 		79407BC1271D4CFA0032076C /* Steps */ = {
 			isa = PBXGroup;
 			children = (
+				3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */,
 				A5F88ECF2906A9DE00F49D5C /* Objects */,
 				79407BC2271D4CFA0032076C /* Access */,
 				79407BC4271D4CFA0032076C /* Message Actions */,
@@ -2081,6 +2099,7 @@
 			isa = PBXGroup;
 			children = (
 				79407BC9271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift */,
+				3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */,
 			);
 			path = Subscribe;
 			sourceTree = "<group>";
@@ -2115,6 +2134,15 @@
 				79407BD1271D4CFA0032076C /* PubNubFilesContractTestSteps.swift */,
 			);
 			path = Files;
+			sourceTree = "<group>";
+		};
+		8E2A07DBA1FB82B41D6FB46B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0596563CD2E3EAC5984D7C14 /* Pods_PubNubContractTests.framework */,
+				69961B8ABB992B4D2997F819 /* Pods_PubNubContractTestsBeta.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		A5F88ECF2906A9DE00F49D5C /* Objects */ = {
@@ -2194,6 +2222,7 @@
 				OBJ_12 /* Tests */,
 				OBJ_17 /* Products */,
 				3DBD7CDD58292DFFDF108B95 /* Pods */,
+				8E2A07DBA1FB82B41D6FB46B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2435,9 +2464,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7941EF3D270E433F0054D9EF /* Build configuration list for PBXNativeTarget "PubNubContractTests" */;
 			buildPhases = (
+				CC767D8D23AE8B6293A2AD88 /* [CP] Check Pods Manifest.lock */,
 				7941EE6E270E433F0054D9EF /* Sources */,
 				7941EEA8270E433F0054D9EF /* Frameworks */,
 				7941EEAA270E433F0054D9EF /* Resources */,
+				C0D7D355AB3B9C6627DB8635 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2453,9 +2484,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 79657AA8271A13F700BACEC5 /* Build configuration list for PBXNativeTarget "PubNubContractTestsBeta" */;
 			buildPhases = (
+				6EFC87D7BC2D2C9E6D644D12 /* [CP] Check Pods Manifest.lock */,
 				79657A97271A13F700BACEC5 /* Sources */,
 				79657AA2271A13F700BACEC5 /* Frameworks */,
 				79657AA5271A13F700BACEC5 /* Resources */,
+				44507016CA721A89E21C3E54 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2851,6 +2884,84 @@
 			shellPath = /bin/sh;
 			shellScript = "swiftlint\n";
 		};
+		44507016CA721A89E21C3E54 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6EFC87D7BC2D2C9E6D644D12 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PubNubContractTestsBeta-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		C0D7D355AB3B9C6627DB8635 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		CC767D8D23AE8B6293A2AD88 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PubNubContractTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -2974,12 +3085,14 @@
 			files = (
 				A5F19EE329126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */,
 				79407BDC271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift in Sources */,
+				3D371DE62A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */,
 				79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */,
 				79407BDE271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
 				A5115F2B291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE4271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
 				79407BD8271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
 				A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
+				3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
 				A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDA271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445EF2906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
@@ -2997,12 +3110,14 @@
 			files = (
 				A5F19EE429126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift in Sources */,
 				79407BDD271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift in Sources */,
+				3D371DE72A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */,
 				79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */,
 				79407BDF271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
 				A5115F2C291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE5271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
 				79407BD9271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
 				A5115F29291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
+				3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
 				A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDB271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445F02906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
@@ -3085,7 +3200,6 @@
 				3D93EC382A41AB900056C26D /* SubscribeEffectFactory.swift in Sources */,
 				352224EE253397AA00A5B330 /* CryptoInputStream.swift in Sources */,
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
-				3D93EC3C2A41B88E0056C26D /* SubscribeEngineInput.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
 				35293A7A2368F9680049A71F /* MessageActionsRouter.swift in Sources */,
@@ -4027,6 +4141,7 @@
 		};
 		7941EF3E270E433F0054D9EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A6D151BF7FAD5EA3B8CB87D6 /* Pods-PubNubContractTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -4068,6 +4183,7 @@
 		};
 		7941EF3F270E433F0054D9EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B9DED49B4626E1D70AB5758D /* Pods-PubNubContractTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -4108,6 +4224,7 @@
 		};
 		79657AA9271A13F700BACEC5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 937443EBEE11D5EEB2A956EC /* Pods-PubNubContractTestsBeta.debug.xcconfig */;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -4150,6 +4267,7 @@
 		};
 		79657AAA271A13F700BACEC5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = E9992D84CE7033F9FFA1680D /* Pods-PubNubContractTestsBeta.release.xcconfig */;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;

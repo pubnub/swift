@@ -72,7 +72,7 @@ extension SubscribeReconnectEffect {
             case .success(let response):
               completionBlock([onCompletion(with: response)])
             case .failure(let e):
-              if currentAttempt + 1 >= request.retryLimit {
+              if currentAttempt + 1 > request.retryLimit {
                 completionBlock([onGivingUp(dueTo: e)])
               } else {
                 completionBlock([onFailure(dueTo: e)])

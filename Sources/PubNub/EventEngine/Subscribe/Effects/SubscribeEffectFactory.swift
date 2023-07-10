@@ -44,7 +44,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   
   func effect(
     for invocation: Subscribe.Invocation,
-    with customInput: EventEngineCustomInput<SubscribeEngineInput>
+    with customInput: EventEngineCustomInput<Subscribe.EngineInput>
   ) -> any EffectHandler<Subscribe.Event> {
     switch invocation {
     case .handshakeRequest(let channels, let groups):
@@ -53,6 +53,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
+          timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
         )
@@ -63,6 +64,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
+          timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
         ),

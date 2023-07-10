@@ -83,7 +83,7 @@ class SubscribeEffectsTests: XCTestCase {
     
     let effect = factory.effect(
       for: .handshakeRequest(channels: ["test-channel"], groups: []),
-      with: EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+      with: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
       if case let .handshakeSucceess(cursor) = returnedEvents[0] {
@@ -110,7 +110,7 @@ class SubscribeEffectsTests: XCTestCase {
     let effect = factory.effect(
       for: .handshakeRequest(channels: ["test-channel"], groups: []),
       with: EventEngineCustomInput(
-        value: SubscribeEngineInput(configuration: config)
+        value: Subscribe.EngineInput(configuration: config)
       )
     )
     effect.performTask { returnedEvents in
@@ -141,7 +141,7 @@ class SubscribeEffectsTests: XCTestCase {
         groups: [],
         cursor: SubscribeCursor(timetoken: 111, region: 1)
       ), with: EventEngineCustomInput(
-        value: SubscribeEngineInput(configuration: config)
+        value: Subscribe.EngineInput(configuration: config)
       )
     )
     effect.performTask { returnedEvents in
@@ -173,7 +173,7 @@ class SubscribeEffectsTests: XCTestCase {
         groups: [],
         cursor: SubscribeCursor(timetoken: 111, region: 1)
       ), with: EventEngineCustomInput(
-        value: SubscribeEngineInput(configuration: config)
+        value: Subscribe.EngineInput(configuration: config)
       )
     )
     effect.performTask { returnedEvents in
@@ -206,7 +206,7 @@ class SubscribeEffectsTests: XCTestCase {
         groups: [],
         currentAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
-      ), with: EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+      ), with: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
       if case let .handshakeReconnectSuccess(cursor) = returnedEvents[0] {
@@ -225,7 +225,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
     
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
 
     mockResponse(
@@ -257,7 +257,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(
@@ -269,14 +269,14 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 2,
+        currentAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
       if case let .handshakeReconnectGiveUp(error) = returnedEvents[0] {
         XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
+        XCTAssertTrue(error.underlying == PubNubError(.badServerResponse, underlying: URLError(.cannotFindHost)))
         expectation.fulfill()
       } else {
         XCTFail("Unexpected condition")
@@ -290,7 +290,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: configWithLinearPolicy(1.0)))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -319,7 +319,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
 
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -354,7 +354,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(
@@ -388,7 +388,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: config))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(
@@ -401,14 +401,14 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 2,
+        currentAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
       if case let .receiveReconnectGiveUp(error) = returnedEvents[0] {
         XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
+        XCTAssertTrue(error.underlying == PubNubError(.badServerResponse, underlying: URLError(.cannotFindHost)))
         expectation.fulfill()
       } else {
         XCTFail("Unexpected condition")
@@ -422,7 +422,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: configWithLinearPolicy()))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy()))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -452,7 +452,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: configWithLinearPolicy(1.0)))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -482,7 +482,7 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: SubscribeEngineInput(configuration: configWithLinearPolicy(1.0)))
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
     mockResponse(subscribeResponse: SubscribeResponse(

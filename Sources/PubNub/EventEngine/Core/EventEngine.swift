@@ -27,13 +27,16 @@
 
 import Foundation
 
+protocol AnyCancellableInvocation: RawRepresentable<String>, Equatable {
+  
+}
+
 protocol AnyEffectInvocation: Equatable, RawRepresentable<String> {
-  associatedtype Cancellable: RawRepresentable<String>
+  associatedtype Cancellable: AnyCancellableInvocation
 }
 
 protocol EventEngineDelegate<State>: AnyObject {
   associatedtype State
-  
   func onStateUpdated(state: State)
 }
 
@@ -44,43 +47,36 @@ struct EventEngineCustomInput<Value> {
 class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
   private let dispatcher: any Dispatcher<Invocation, Event, Input>
-  private let queue: DispatchQueue
-  private let currentState: Atomic<State>
+  private var currentState: State
   
   var customInput: EventEngineCustomInput<Input>
   // A delegate that's notified when the State object is replaced
   weak var delegate: (any EventEngineDelegate)?
   
   init(
-    queue: DispatchQueue,
     state: State,
     transition: some TransitionProtocol<State, Event, Invocation>,
     dispatcher: some Dispatcher<Invocation, Event, Input>,
     customInput: EventEngineCustomInput<Input>
   ) {
-    self.queue = queue
-    self.currentState = Atomic(state)
+    self.currentState = state
     self.transition = transition
     self.dispatcher = dispatcher
     self.customInput = customInput
   }
   
   var state: State {
-    currentState.lockedRead { $0 }
+    currentState
   }
   
   func send(event: Event) {
-    defer { objc_sync_exit(self) }
     objc_sync_enter(self)
-    process(event: event)
-  }
-  
-  private func process(event: Event) {
-    let state = currentState.lockedRead { $0 }
-    let transitionResult = transition.transition(from: state, event: event)
+    defer { objc_sync_exit(self) }
+    
+    let transitionResult = transition.transition(from: currentState, event: event)
     let invocations = transitionResult.invocations
     
-    currentState.lockedWrite { $0 = transitionResult.state }
+    currentState = transitionResult.state
     
     let listener = DispatcherListener<Event>(
       onAnyInvocationCompleted: { [weak self] results in
@@ -89,7 +85,6 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
         }
       }
     )
-    
     dispatcher.dispatch(
       invocations: invocations,
       with: customInput,

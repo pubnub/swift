@@ -76,7 +76,7 @@ public class SubscriptionSession {
   
   private func updateEventEngineCustomInput() {
     subscribeEngine.customInput = EventEngineCustomInput(
-      value: SubscribeEngineInput(
+      value: Subscribe.EngineInput(
         configuration: configuration,
         listeners: privateListeners.allObjects
       )

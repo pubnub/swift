@@ -69,17 +69,18 @@ class SubscribeRequest {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard let underlyingError = error.underlying.underlying else {
+    guard automaticRetry.retryLimit > currentAttempt else {
       return nil
     }
     
-    let shouldRetry = automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError)
-    let hasEnoughAttempts = automaticRetry.retryLimit > currentAttempt
-    
-    if (shouldRetry && hasEnoughAttempts) {
-      return automaticRetry.policy.delay(for: currentAttempt)
+    if let underlyingError = error.underlying.underlying {
+      if automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError) {
+        return automaticRetry.policy.delay(for: currentAttempt)
+      } else {
+        return nil
+      }
     } else {
-      return nil
+      return automaticRetry.policy.delay(for: currentAttempt)
     }
   }
         

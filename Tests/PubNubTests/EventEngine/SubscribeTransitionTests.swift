@@ -490,16 +490,15 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .managed(.receiveMessages(channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
-        cursor: cursor
-      )),
-      .managed(.emitMessages(events: [], forCursor: cursor)),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .connected,
         error: nil
-      )))
+      ))),
+      .managed(.receiveMessages(channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
+        cursor: cursor
+      ))
     ]
     let expectedState = Subscribe.ReceivingState(
       input: input,
@@ -552,17 +551,16 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.receiveMessages(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
-        cursor: SubscribeCursor(timetoken: 200400600, region: 45)
-      )),
-      .managed(.emitMessages(events: [], forCursor: cursor)),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .connected,
         error: nil
-      )))
+      ))),
+      .managed(.receiveMessages(
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
+        cursor: SubscribeCursor(timetoken: 200400600, region: 45)
+      ))
     ]
     let expectedState = Subscribe.ReceivingState(
       input: input,
@@ -615,7 +613,7 @@ class SubscribeTransitionTests: XCTestCase {
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .disconnected,
-        error: nil
+        error: SubscribeError(underlying: PubNubError(.unknown))
       )))
     ]
     let expectedState = Subscribe.HandshakeFailedState(
@@ -645,7 +643,7 @@ class SubscribeTransitionTests: XCTestCase {
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .disconnected,
-        error: nil
+        error: SubscribeError(underlying: PubNubError(.unknown))
       )))
     ]
     let expectedState = Subscribe.ReceiveFailedState(
@@ -673,11 +671,6 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
-      .managed(.receiveMessages(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
-        cursor: SubscribeCursor(timetoken: 18002000, region: 123)
-      )),
       .managed(.emitMessages(
         events: [firstMessage, secondMessage],
         forCursor: SubscribeCursor(timetoken: 18002000, region: 123)
@@ -686,7 +679,12 @@ class SubscribeTransitionTests: XCTestCase {
         oldStatus: .connected,
         newStatus: .connected,
         error: nil
-      )))
+      ))),
+      .managed(.receiveMessages(
+        channels: input.allSubscribedChannels,
+        groups: input.allSubscribedGroups,
+        cursor: SubscribeCursor(timetoken: 18002000, region: 123)
+      ))
     ]
     let expectedState = Subscribe.ReceivingState(
       input: input,

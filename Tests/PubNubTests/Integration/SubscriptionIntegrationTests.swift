@@ -104,8 +104,6 @@ class SubscriptionIntegrationTests: XCTestCase {
             pubnub.subscribe(to: [self.testChannel])
           }
           disconnectedExpect.fulfill()
-        default:
-          break
         }
       case let .subscribeError(error):
         XCTFail("An error was returned: \(error)")

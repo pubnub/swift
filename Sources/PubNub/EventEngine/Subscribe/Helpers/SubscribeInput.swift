@@ -53,6 +53,10 @@ struct SubscribeInput: Equatable {
     self.filterExpression = filterExpression
   }
   
+  var isEmpty: Bool {
+    channels.isEmpty && groups.isEmpty
+  }
+  
   var subscribedChannels: [String] {
     channels.map { $0.key }.sorted(by: <)
   }

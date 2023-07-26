@@ -1,5 +1,5 @@
 //
-//  TransitionProtocol.swift
+//  PresenceRequest.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,36 +27,41 @@
 
 import Foundation
 
-struct TransitionResult<State, Invocation: AnyEffectInvocation> {
-  let state: State
-  let invocations: [EffectInvocation<Invocation>]
+class HeartbeatRequest {
+  let channels: [String]
+  let groups: [String]
+  let configuration: PubNubConfiguration
   
-  init(state: State, invocations: [EffectInvocation<Invocation>] = []) {
-    self.state = state
-    self.invocations = invocations
+  private let session: SessionReplaceable
+  private let sessionResponseQueue: DispatchQueue
+  private var request: RequestReplaceable?
+  
+  init(
+    channels: [String],
+    groups: [String],
+    configuration: PubNubConfiguration,
+    session: SessionReplaceable,
+    sessionResponseQueue: DispatchQueue
+  ) {
+    self.channels = channels
+    self.groups = groups
+    self.configuration = configuration
+    self.session = session
+    self.sessionResponseQueue = sessionResponseQueue
   }
-}
-
-enum EffectInvocation<Invocation: AnyEffectInvocation>: Equatable {
-  case managed(_ invocation: Invocation)
-  case cancel(_ invocation: Invocation.Cancellable)
   
-  static func == (lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
-    switch (lhs, rhs) {
-    case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
-      return lhsInvocation == rhsInvocation
-    case (let .cancel(lhsId), let .cancel(rhsId)):
-      return lhsId.id == rhsId.id
-    default:
-      return false
+  func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
+    request = session.request(with: PresenceRouter(
+      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.heartbeatInterval),
+      configuration: configuration), requestOperator: nil
+    )
+    request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
+      switch result {
+      case .success(_):
+        completionBlock(.success(()))
+      case .failure(let error):
+        completionBlock(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))
+      }
     }
   }
-}
-
-protocol TransitionProtocol<State, Event, Invocation> {
-  associatedtype State
-  associatedtype Event
-  associatedtype Invocation: AnyEffectInvocation
-  
-  func transition(from state: State, event: Event) -> TransitionResult<State, Invocation>
 }

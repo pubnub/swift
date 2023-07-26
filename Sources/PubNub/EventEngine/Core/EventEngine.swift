@@ -27,11 +27,15 @@
 
 import Foundation
 
-protocol AnyCancellableInvocation: RawRepresentable<String>, Equatable {
+protocol AnyIdentifiableInvocation {
+  var id: String { get }
+}
+
+protocol AnyCancellableInvocation: AnyIdentifiableInvocation, Equatable {
   
 }
 
-protocol AnyEffectInvocation: Equatable, RawRepresentable<String> {
+protocol AnyEffectInvocation: AnyIdentifiableInvocation, Equatable {
   associatedtype Cancellable: AnyCancellableInvocation
 }
 
@@ -47,7 +51,7 @@ struct EventEngineCustomInput<Value> {
 class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
   private let dispatcher: any Dispatcher<Invocation, Event, Input>
-  private var currentState: State
+  private(set) var state: State
   
   var customInput: EventEngineCustomInput<Input>
   // A delegate that's notified when the State object is replaced
@@ -59,24 +63,20 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     dispatcher: some Dispatcher<Invocation, Event, Input>,
     customInput: EventEngineCustomInput<Input>
   ) {
-    self.currentState = state
+    self.state = state
     self.transition = transition
     self.dispatcher = dispatcher
     self.customInput = customInput
-  }
-  
-  var state: State {
-    currentState
   }
   
   func send(event: Event) {
     objc_sync_enter(self)
     defer { objc_sync_exit(self) }
     
-    let transitionResult = transition.transition(from: currentState, event: event)
+    let transitionResult = transition.transition(from: state, event: event)
     let invocations = transitionResult.invocations
     
-    currentState = transitionResult.state
+    state = transitionResult.state
     
     let listener = DispatcherListener<Event>(
       onAnyInvocationCompleted: { [weak self] results in

@@ -28,7 +28,7 @@
 import Foundation
 
 class SubscribeTransition: TransitionProtocol {
-  typealias State = (any SubscribeState)
+  typealias State = (AnySubscribeState)
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
   
@@ -189,18 +189,15 @@ fileprivate extension SubscribeTransition {
     channels: [String],
     groups: [String]
   ) -> TransitionResult<State, Invocation> {
-    guard !channels.isEmpty || !groups.isEmpty else {
-      return setUnsubscribedState(from: state)
-    }
     let newInput = SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
       groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
       filterExpression: state.input.filterExpression
     )
-    if state.hasTimetoken {
-      return TransitionResult(state: Subscribe.ReceivingState(
-        input: newInput, cursor: state.cursor
-      ))
+    if newInput.isEmpty {
+      return setUnsubscribedState(from: state)
+    } else if state.hasTimetoken {
+      return TransitionResult(state: Subscribe.ReceivingState(input: newInput, cursor: state.cursor))
     } else {
       return TransitionResult(state: Subscribe.HandshakingState(input: newInput))
     }
@@ -214,20 +211,16 @@ fileprivate extension SubscribeTransition {
     groups: [String],
     cursor: SubscribeCursor
   ) -> TransitionResult<State, Invocation> {
-    guard !channels.isEmpty || !groups.isEmpty else {
-      return setUnsubscribedState(from: state)
-    }
     let newInput = SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
       groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
       filterExpression: state.input.filterExpression
     )
-    return TransitionResult(
-      state: Subscribe.ReceivingState(
-        input: newInput,
-        cursor: cursor
-      )
-    )
+    if newInput.isEmpty {
+      return setUnsubscribedState(from: state)
+    } else {
+      return TransitionResult(state: Subscribe.ReceivingState(input: newInput, cursor: cursor))
+    }
   }
 }
 
@@ -289,10 +282,7 @@ fileprivate extension SubscribeTransition {
       ))
     )
     return TransitionResult(
-      state: Subscribe.ReceivingState(
-        input: state.input,
-        cursor: cursor
-      ),
+      state: Subscribe.ReceivingState(input: state.input, cursor: cursor),
       invocations: messages.isEmpty ? [emitStatusInvocation] : [emitMessagesInvocation, emitStatusInvocation]
     )
   }

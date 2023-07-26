@@ -1,5 +1,5 @@
 //
-//  TransitionProtocol.swift
+//  HeartbeatEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,36 +27,17 @@
 
 import Foundation
 
-struct TransitionResult<State, Invocation: AnyEffectInvocation> {
-  let state: State
-  let invocations: [EffectInvocation<Invocation>]
-  
-  init(state: State, invocations: [EffectInvocation<Invocation>] = []) {
-    self.state = state
-    self.invocations = invocations
-  }
-}
+struct HeartbeatEffect: EffectHandler {
+  let request: HeartbeatRequest
 
-enum EffectInvocation<Invocation: AnyEffectInvocation>: Equatable {
-  case managed(_ invocation: Invocation)
-  case cancel(_ invocation: Invocation.Cancellable)
-  
-  static func == (lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
-    switch (lhs, rhs) {
-    case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
-      return lhsInvocation == rhsInvocation
-    case (let .cancel(lhsId), let .cancel(rhsId)):
-      return lhsId.id == rhsId.id
-    default:
-      return false
+  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
+    request.execute() { result in
+      switch result {
+      case .success(_):
+        completionBlock([.heartbeatSuccess])
+      case .failure(let error):
+        completionBlock([.heartbeatFailed(error: error)])
+      }
     }
   }
-}
-
-protocol TransitionProtocol<State, Event, Invocation> {
-  associatedtype State
-  associatedtype Event
-  associatedtype Invocation: AnyEffectInvocation
-  
-  func transition(from state: State, event: Event) -> TransitionResult<State, Invocation>
 }

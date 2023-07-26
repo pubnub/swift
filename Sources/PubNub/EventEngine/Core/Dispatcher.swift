@@ -58,7 +58,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
   }
   
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
-    effectsCache.hasPendingEffect(with: invocation.rawValue)
+    effectsCache.hasPendingEffect(with: invocation.id)
   }
     
   func dispatch(
@@ -69,9 +69,9 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
       let effectsToRun = invocations.compactMap {
       switch $0 {
       case .managed(let invocation):
-        return EffectWrapper(id: invocation.rawValue, effect: factory.effect(for: invocation, with: customInput))
+        return EffectWrapper(id: invocation.id, effect: factory.effect(for: invocation, with: customInput))
       case .cancel(let cancelInvocation):
-        effectsCache.getEffect(with: cancelInvocation.rawValue)?.cancelTask(); return nil
+        effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask(); return nil
       }
     }
     

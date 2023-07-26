@@ -377,15 +377,27 @@
 		35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */; };
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		3D2BE7392A6E9D2D00514C8F /* HeartbeatEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */; };
+		3D2BE73B2A6EBBA800514C8F /* HeartbeatRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */; };
 		3D371DE62A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
 		3D371DE72A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
-		3D68EA5A2A4ADA86005156B1 /* SubscribeRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D68EA592A4ADA86005156B1 /* SubscribeRequestTests.swift */; };
+		3D8773662A6130EC004A2953 /* Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8773652A6130EC004A2953 /* Presence.swift */; };
+		3D8773682A613A58004A2953 /* PresenceTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8773672A613A58004A2953 /* PresenceTransition.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
 		3D93EC312A41A8890056C26D /* SubscribeInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC302A41A8890056C26D /* SubscribeInput.swift */; };
 		3D93EC342A41A92D0056C26D /* SubscribeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC332A41A92D0056C26D /* SubscribeRequest.swift */; };
 		3D93EC382A41AB900056C26D /* SubscribeEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC372A41AB900056C26D /* SubscribeEffectFactory.swift */; };
 		3D93EC3A2A41B7850056C26D /* SubscribeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D93EC392A41B7850056C26D /* SubscribeError.swift */; };
-		3DB559F02A2D2E7B006959ED /* SubscribeInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB559EF2A2D2E7B006959ED /* SubscribeInputTests.swift */; };
+		3D9B29ED2A6550A900C988C9 /* PresenceInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29EC2A6550A900C988C9 /* PresenceInput.swift */; };
+		3D9B29F62A65609000C988C9 /* EmitStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F02A65609000C988C9 /* EmitStatusTests.swift */; };
+		3D9B29F72A65609000C988C9 /* SubscribeEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F12A65609000C988C9 /* SubscribeEffectsTests.swift */; };
+		3D9B29F82A65609000C988C9 /* SubscribeInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F22A65609000C988C9 /* SubscribeInputTests.swift */; };
+		3D9B29F92A65609000C988C9 /* SubscribeTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F32A65609000C988C9 /* SubscribeTransitionTests.swift */; };
+		3D9B29FA2A65609000C988C9 /* EmitMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */; };
+		3D9B29FB2A65609000C988C9 /* SubscribeRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */; };
+		3D9B29FD2A6560FB00C988C9 /* PresenceTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */; };
+		3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */; };
+		3DB56B652A715F7E00FC35A0 /* HeartbeatEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */; };
 		3DCC4DE02A42E93200F4A67A /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */; };
 		3DE7487C2A1FA426009B0809 /* TransitionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */; };
 		3DE7487D2A1FA426009B0809 /* Dispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486E2A1FA426009B0809 /* Dispatcher.swift */; };
@@ -397,10 +409,6 @@
 		3DE748862A1FA426009B0809 /* Subscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7487A2A1FA426009B0809 /* Subscribe.swift */; };
 		3DE748872A1FA426009B0809 /* SubscribeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7487B2A1FA426009B0809 /* SubscribeTransition.swift */; };
 		3DE7488E2A1FA449009B0809 /* DispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE748892A1FA449009B0809 /* DispatcherTests.swift */; };
-		3DE7488F2A1FA449009B0809 /* EmitMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488A2A1FA449009B0809 /* EmitMessagesTests.swift */; };
-		3DE748902A1FA449009B0809 /* EmitStatusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488B2A1FA449009B0809 /* EmitStatusTests.swift */; };
-		3DE748912A1FA449009B0809 /* SubscribeEffectsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488C2A1FA449009B0809 /* SubscribeEffectsTests.swift */; };
-		3DE748922A1FA449009B0809 /* SubscribeTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7488D2A1FA449009B0809 /* SubscribeTransitionTests.swift */; };
 		3DF393A42A2F48BC00C62970 /* EventEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */; };
 		3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
 		3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
@@ -926,14 +934,26 @@
 		35FE941722EFCB7F0051C455 /* SessionStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffect.swift; sourceTree = "<group>"; };
+		3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatRequest.swift; sourceTree = "<group>"; };
 		3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineTestsHelpers.swift; sourceTree = "<group>"; };
-		3D68EA592A4ADA86005156B1 /* SubscribeRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeRequestTests.swift; sourceTree = "<group>"; };
+		3D8773652A6130EC004A2953 /* Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presence.swift; sourceTree = "<group>"; };
+		3D8773672A613A58004A2953 /* PresenceTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceTransition.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
 		3D93EC302A41A8890056C26D /* SubscribeInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeInput.swift; sourceTree = "<group>"; };
 		3D93EC332A41A92D0056C26D /* SubscribeRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequest.swift; sourceTree = "<group>"; };
 		3D93EC372A41AB900056C26D /* SubscribeEffectFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectFactory.swift; sourceTree = "<group>"; };
 		3D93EC392A41B7850056C26D /* SubscribeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeError.swift; sourceTree = "<group>"; };
-		3DB559EF2A2D2E7B006959ED /* SubscribeInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeInputTests.swift; sourceTree = "<group>"; };
+		3D9B29EC2A6550A900C988C9 /* PresenceInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceInput.swift; sourceTree = "<group>"; };
+		3D9B29F02A65609000C988C9 /* EmitStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitStatusTests.swift; sourceTree = "<group>"; };
+		3D9B29F12A65609000C988C9 /* SubscribeEffectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectsTests.swift; sourceTree = "<group>"; };
+		3D9B29F22A65609000C988C9 /* SubscribeInputTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeInputTests.swift; sourceTree = "<group>"; };
+		3D9B29F32A65609000C988C9 /* SubscribeTransitionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTransitionTests.swift; sourceTree = "<group>"; };
+		3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitMessagesTests.swift; sourceTree = "<group>"; };
+		3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequestTests.swift; sourceTree = "<group>"; };
+		3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceTransitionTests.swift; sourceTree = "<group>"; };
+		3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEffectFactory.swift; sourceTree = "<group>"; };
+		3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffectTests.swift; sourceTree = "<group>"; };
 		3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
 		3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
 		3DE7486E2A1FA426009B0809 /* Dispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatcher.swift; sourceTree = "<group>"; };
@@ -945,10 +965,6 @@
 		3DE7487A2A1FA426009B0809 /* Subscribe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribe.swift; sourceTree = "<group>"; };
 		3DE7487B2A1FA426009B0809 /* SubscribeTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTransition.swift; sourceTree = "<group>"; };
 		3DE748892A1FA449009B0809 /* DispatcherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatcherTests.swift; sourceTree = "<group>"; };
-		3DE7488A2A1FA449009B0809 /* EmitMessagesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitMessagesTests.swift; sourceTree = "<group>"; };
-		3DE7488B2A1FA449009B0809 /* EmitStatusTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitStatusTests.swift; sourceTree = "<group>"; };
-		3DE7488C2A1FA449009B0809 /* SubscribeEffectsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectsTests.swift; sourceTree = "<group>"; };
-		3DE7488D2A1FA449009B0809 /* SubscribeTransitionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTransitionTests.swift; sourceTree = "<group>"; };
 		3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineFactory.swift; sourceTree = "<group>"; };
 		3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
 		69961B8ABB992B4D2997F819 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1937,6 +1953,26 @@
 			path = EndpointError;
 			sourceTree = "<group>";
 		};
+		3D2BE7372A6E997900514C8F /* Effects */ = {
+			isa = PBXGroup;
+			children = (
+				3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */,
+				3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */,
+			);
+			path = Effects;
+			sourceTree = "<group>";
+		};
+		3D8773642A6130DC004A2953 /* Presence */ = {
+			isa = PBXGroup;
+			children = (
+				3D8773652A6130EC004A2953 /* Presence.swift */,
+				3D8773672A613A58004A2953 /* PresenceTransition.swift */,
+				3D2BE7372A6E997900514C8F /* Effects */,
+				3D9B29EB2A654DF900C988C9 /* Helpers */,
+			);
+			path = Presence;
+			sourceTree = "<group>";
+		};
 		3D9134952A12161A000A5124 /* Push */ = {
 			isa = PBXGroup;
 			children = (
@@ -1955,6 +1991,37 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
+		3D9B29EB2A654DF900C988C9 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */,
+				3D9B29EC2A6550A900C988C9 /* PresenceInput.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		3D9B29EE2A65605900C988C9 /* Presence */ = {
+			isa = PBXGroup;
+			children = (
+				3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */,
+				3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */,
+			);
+			path = Presence;
+			sourceTree = "<group>";
+		};
+		3D9B29EF2A65605900C988C9 /* Subscribe */ = {
+			isa = PBXGroup;
+			children = (
+				3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */,
+				3D9B29F02A65609000C988C9 /* EmitStatusTests.swift */,
+				3D9B29F12A65609000C988C9 /* SubscribeEffectsTests.swift */,
+				3D9B29F22A65609000C988C9 /* SubscribeInputTests.swift */,
+				3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */,
+				3D9B29F32A65609000C988C9 /* SubscribeTransitionTests.swift */,
+			);
+			path = Subscribe;
+			sourceTree = "<group>";
+		};
 		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -1971,6 +2038,7 @@
 			children = (
 				3DE7486C2A1FA426009B0809 /* Core */,
 				3DE748712A1FA426009B0809 /* Subscribe */,
+				3D8773642A6130DC004A2953 /* Presence */,
 			);
 			path = EventEngine;
 			sourceTree = "<group>";
@@ -2013,12 +2081,8 @@
 			isa = PBXGroup;
 			children = (
 				3DE748892A1FA449009B0809 /* DispatcherTests.swift */,
-				3DE7488A2A1FA449009B0809 /* EmitMessagesTests.swift */,
-				3DE7488B2A1FA449009B0809 /* EmitStatusTests.swift */,
-				3DE7488C2A1FA449009B0809 /* SubscribeEffectsTests.swift */,
-				3DE7488D2A1FA449009B0809 /* SubscribeTransitionTests.swift */,
-				3DB559EF2A2D2E7B006959ED /* SubscribeInputTests.swift */,
-				3D68EA592A4ADA86005156B1 /* SubscribeRequestTests.swift */,
+				3D9B29EE2A65605900C988C9 /* Presence */,
+				3D9B29EF2A65605900C988C9 /* Subscribe */,
 			);
 			path = EventEngine;
 			sourceTree = "<group>";
@@ -3148,6 +3212,7 @@
 				3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */,
 				35C6B6E622F51A060054F242 /* AnyJSONType.swift in Sources */,
 				3585033422CD139400A11D9A /* String+PubNub.swift in Sources */,
+				3D2BE7392A6E9D2D00514C8F /* HeartbeatEffect.swift in Sources */,
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
 				35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */,
 				3DE7487F2A1FA426009B0809 /* EventEngine.swift in Sources */,
@@ -3165,6 +3230,7 @@
 				35580682230F3A34005CDD92 /* RequestIdOperator.swift in Sources */,
 				35A66A8322F861BA00AC67A9 /* PubNubMessage.swift in Sources */,
 				35A66A8022F861BA00AC67A9 /* AutomaticRetry.swift in Sources */,
+				3D2BE73B2A6EBBA800514C8F /* HeartbeatRequest.swift in Sources */,
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
 				35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
@@ -3192,6 +3258,7 @@
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
+				3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
 				3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */,
@@ -3202,6 +3269,7 @@
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
+				3D8773662A6130EC004A2953 /* Presence.swift in Sources */,
 				35293A7A2368F9680049A71F /* MessageActionsRouter.swift in Sources */,
 				35AC162B2485B1DA00A66030 /* SubscribeMessageActionPayload.swift in Sources */,
 				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,
@@ -3212,6 +3280,7 @@
 				35DB0C4D287476BF001E1F76 /* OptionalChange.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
 				7951954E26C955CE001E308C /* PAMToken.swift in Sources */,
+				3D9B29ED2A6550A900C988C9 /* PresenceInput.swift in Sources */,
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
 				353F78C42527934500FFB72C /* InputStream+PubNub.swift in Sources */,
 				353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */,
@@ -3239,6 +3308,7 @@
 				3556E370248023B2004FDC25 /* BoundedValue.swift in Sources */,
 				35270C0323AC124800501388 /* CBORDecoder.swift in Sources */,
 				3DE748872A1FA426009B0809 /* SubscribeTransition.swift in Sources */,
+				3D8773682A613A58004A2953 /* PresenceTransition.swift in Sources */,
 				3559978C230A02B7000BCFD1 /* PubNubLogger.swift in Sources */,
 				35AE6A3224FD6CEE00BBFA37 /* FileManagementRouter.swift in Sources */,
 				3D93EC342A41A92D0056C26D /* SubscribeRequest.swift in Sources */,
@@ -3261,25 +3331,29 @@
 				3558069C231303D9005CDD92 /* AutomaticRetryTests.swift in Sources */,
 				35D973542857BBFE001A44DC /* FlatJSONCodable+Test.swift in Sources */,
 				35FE93B922EE44F70051C455 /* MockURLSession.swift in Sources */,
+				3D9B29FD2A6560FB00C988C9 /* PresenceTransitionTests.swift in Sources */,
+				3D9B29F82A65609000C988C9 /* SubscribeInputTests.swift in Sources */,
 				3557CDFB237F566E004BBACC /* PushRouterTests.swift in Sources */,
 				35CDFEAB22E762E100F3B9F2 /* String+PubNubTests.swift in Sources */,
 				35CDFEA922E75DA800F3B9F2 /* Set+PubNubTests.swift in Sources */,
+				3D9B29F72A65609000C988C9 /* SubscribeEffectsTests.swift in Sources */,
 				359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */,
 				35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */,
 				35FE93C322EF57FA0051C455 /* Session+URLErrorTests.swift in Sources */,
 				35FE940122EF983A0051C455 /* Session+EndpointErrorTests.swift in Sources */,
+				3D9B29FA2A65609000C988C9 /* EmitMessagesTests.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				35D0615223035E4300FDB2F9 /* CryptoTests.swift in Sources */,
 				35CF54A3248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift in Sources */,
 				357AEB8822E69B0800C18250 /* DispatchQueue+PubNub.swift in Sources */,
+				3D9B29F62A65609000C988C9 /* EmitStatusTests.swift in Sources */,
 				355BE9FF22C2B74A000EC334 /* AnyJSONTests.swift in Sources */,
 				35D0615A2303A61500FDB2F9 /* ValidatedTests.swift in Sources */,
 				35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */,
 				35CF54A0248D96320099FE81 /* SubscribeRouterTests.swift in Sources */,
 				35CF54A1248DA6430099FE81 /* ObjectsChannelRouterTests.swift in Sources */,
+				3DB56B652A715F7E00FC35A0 /* HeartbeatEffectTests.swift in Sources */,
 				359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */,
-				3DE7488F2A1FA449009B0809 /* EmitMessagesTests.swift in Sources */,
-				3DE748902A1FA449009B0809 /* EmitStatusTests.swift in Sources */,
 				35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */,
 				35403F8A253617A8004B978E /* XMLCodingTests.swift in Sources */,
 				3557CDF8237F4611004BBACC /* MessageActionsRouterTests.swift in Sources */,
@@ -3290,16 +3364,16 @@
 				35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */,
 				357AEB8A22E6A02F00C18250 /* Error+PubNubTests.swift in Sources */,
 				35C8FDC625000BC80069E89E /* FileManagementRouterTests.swift in Sources */,
+				3D9B29FB2A65609000C988C9 /* SubscribeRequestTests.swift in Sources */,
 				35A6C7BA22FC5BFB00E97CC5 /* Data+PubNubTests.swift in Sources */,
 				35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */,
-				3D68EA5A2A4ADA86005156B1 /* SubscribeRequestTests.swift in Sources */,
 				3557CDFC237F59F6004BBACC /* PublishRouterTests.swift in Sources */,
 				3557CE00237F6380004BBACC /* TimeRouterTests.swift in Sources */,
 				3557CDF7237F1E17004BBACC /* HistoryRouterTests.swift in Sources */,
 				3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */,
 				35CDFEB622E76DC200F3B9F2 /* URLQueryItem+PubNubTests.swift in Sources */,
+				3D9B29F92A65609000C988C9 /* SubscribeTransitionTests.swift in Sources */,
 				3557CDF9237F4ABB004BBACC /* PresenceRouterTests.swift in Sources */,
-				3DE748922A1FA449009B0809 /* SubscribeTransitionTests.swift in Sources */,
 				3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */,
 				35D8D4CB22EB84B4001B07D9 /* AtomicTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
@@ -3316,11 +3390,9 @@
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
-				3DB559F02A2D2E7B006959ED /* SubscribeInputTests.swift in Sources */,
 				3DE7488E2A1FA449009B0809 /* DispatcherTests.swift in Sources */,
 				35721576252FA675005A0144 /* XMLEncoder.swift in Sources */,
 				3557CDF6237F189E004BBACC /* ChannelGroupEndpointTests.swift in Sources */,
-				3DE748912A1FA449009B0809 /* SubscribeEffectsTests.swift in Sources */,
 				35FE941822EFCB7F0051C455 /* SessionStreamTests.swift in Sources */,
 				35CDFEB822E7776400F3B9F2 /* URLRequest+PubNubTests.swift in Sources */,
 			);

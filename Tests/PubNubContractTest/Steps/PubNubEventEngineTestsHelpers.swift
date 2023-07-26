@@ -46,7 +46,7 @@ extension EffectInvocation: ContractTestIdentifiable {
 
 class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispatcher {
   private let wrappedInstance: any Dispatcher<Invocation, Event, Input>
-  var recordedInvocations: [EffectInvocation<Invocation>]
+  private(set) var recordedInvocations: [EffectInvocation<Invocation>]
 
   init(wrappedInstance: some Dispatcher<Invocation, Event, Input>) {
     self.wrappedInstance = wrappedInstance
@@ -65,7 +65,7 @@ class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispat
 
 class TransitionDecorator<State, Event, Invocation: AnyEffectInvocation>: TransitionProtocol {
   private let wrappedInstance: any TransitionProtocol<State, Event, Invocation>
-  var recordedEvents: [Event]
+  private(set) var recordedEvents: [Event]
    
   init(wrappedInstance: some TransitionProtocol<State, Event, Invocation>) {
     self.wrappedInstance = wrappedInstance

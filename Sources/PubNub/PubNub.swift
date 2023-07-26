@@ -61,7 +61,8 @@ public class PubNub {
     configuration: PubNubConfiguration,
     session: SessionReplaceable? = nil,
     subscribeSession: SessionReplaceable? = nil,
-    fileSession: URLSessionReplaceable? = nil
+    fileSession: URLSessionReplaceable? = nil,
+    subscriptionSession: SubscriptionSession? = nil
   ) {
     instanceID = UUID()
     self.configuration = configuration
@@ -92,7 +93,7 @@ public class PubNub {
     self.networkSession = networkSession
 
     // Set initial session also based on configuration
-    subscription = SubscribeSessionFactory.shared.getSession(
+    subscription = subscriptionSession ?? SubscribeSessionFactory.shared.getSession(
       from: configuration,
       with: subscribeSession,
       presenceSession: session

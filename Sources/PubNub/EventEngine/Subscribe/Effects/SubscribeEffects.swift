@@ -57,7 +57,7 @@ extension SubscribeEffect {
 
 protocol SubscribeReconnectEffect: SubscribeEffect {
   var currentAttempt: Int { get }
-  var error: SubscribeError? { get }
+  var error: SubscribeError { get }
   
   func onGivingUp(dueTo error: SubscribeError) -> Subscribe.Event
 }
@@ -72,17 +72,19 @@ extension SubscribeReconnectEffect {
             case .success(let response):
               completionBlock([onCompletion(with: response)])
             case .failure(let e):
-              if currentAttempt + 1 >= request.retryLimit {
+              if currentAttempt + 1 > request.retryLimit {
                 completionBlock([onGivingUp(dueTo: e)])
               } else {
                 completionBlock([onFailure(dueTo: e)])
               }
             }
           })
+        } else {
+          completionBlock([])
         }
       }
     } else {
-      completionBlock([onGivingUp(dueTo: error!)])
+      completionBlock([onGivingUp(dueTo: error)])
     }
   }
 }
@@ -119,7 +121,7 @@ struct ReceivingEffect: SubscribeEffect {
 
 struct HandshakeReconnectEffect: SubscribeReconnectEffect {
   let request: SubscribeRequest
-  let error: SubscribeError?
+  let error: SubscribeError
   let currentAttempt: Int
   
   func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {
@@ -139,7 +141,7 @@ struct HandshakeReconnectEffect: SubscribeReconnectEffect {
 
 struct ReceiveReconnectEffect: SubscribeReconnectEffect {
   let request: SubscribeRequest
-  let error: SubscribeError?
+  let error: SubscribeError
   let currentAttempt: Int
   
   func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {

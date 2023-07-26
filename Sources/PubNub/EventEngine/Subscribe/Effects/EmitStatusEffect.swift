@@ -28,18 +28,18 @@
 import Foundation
 
 struct EmitStatusEffect: EffectHandler {
-  let currentStatus: ConnectionStatus
-  let newStatus: ConnectionStatus
+  let statusChange: Subscribe.ConnectionStatusChange
   let listeners: [BaseSubscriptionListener]
   
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    if currentStatus != newStatus, currentStatus.canTransition(to: newStatus) {
+    if let error = statusChange.error {
       listeners.forEach {
-        $0.emit(subscribe: .connectionChanged(newStatus))
+        $0.emit(subscribe: .errorReceived(error.underlying))
       }
-      completionBlock([])
-    } else {
-      completionBlock([])
     }
+    listeners.forEach {
+      $0.emit(subscribe: .connectionChanged(statusChange.newStatus))
+    }
+    completionBlock([])
   }
 }

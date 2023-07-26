@@ -27,38 +27,52 @@
 
 import Foundation
 
-protocol AnyEffectInvocation: Equatable {
-  associatedtype Cancellable: RawRepresentable<String>
+protocol AnyCancellableInvocation: RawRepresentable<String>, Equatable {
   
-  var id: String { get }
 }
 
-class EventEngine<State, Event, Invocation: AnyEffectInvocation> {
+protocol AnyEffectInvocation: Equatable, RawRepresentable<String> {
+  associatedtype Cancellable: AnyCancellableInvocation
+}
+
+protocol EventEngineDelegate<State>: AnyObject {
+  associatedtype State
+  func onStateUpdated(state: State)
+}
+
+struct EventEngineCustomInput<Value> {
+  let value: Value
+}
+
+class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
-  private let dispatcher: any Dispatcher<Invocation, Event>
-  private let queue: DispatchQueue
+  private let dispatcher: any Dispatcher<Invocation, Event, Input>
+  private var currentState: State
   
-  private(set) var currentState: State
+  var customInput: EventEngineCustomInput<Input>
+  // A delegate that's notified when the State object is replaced
+  weak var delegate: (any EventEngineDelegate)?
   
   init(
-    queue: DispatchQueue,
     state: State,
     transition: some TransitionProtocol<State, Event, Invocation>,
-    dispatcher: some Dispatcher<Invocation, Event>
+    dispatcher: some Dispatcher<Invocation, Event, Input>,
+    customInput: EventEngineCustomInput<Input>
   ) {
-    self.queue = queue
     self.currentState = state
     self.transition = transition
     self.dispatcher = dispatcher
+    self.customInput = customInput
+  }
+  
+  var state: State {
+    currentState
   }
   
   func send(event: Event) {
-    queue.async { [weak self] in
-      self?.process(event: event)
-    }
-  }
-  
-  private func process(event: Event) {
+    objc_sync_enter(self)
+    defer { objc_sync_exit(self) }
+    
     let transitionResult = transition.transition(from: currentState, event: event)
     let invocations = transitionResult.invocations
     
@@ -71,9 +85,9 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation> {
         }
       }
     )
-    
     dispatcher.dispatch(
       invocations: invocations,
+      with: customInput,
       notify: listener
     )
   }

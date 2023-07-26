@@ -35,32 +35,41 @@ struct DispatcherListener<Event> {
 
 // MARK: - Dispatcher
 
-protocol Dispatcher<Invocation, Event> {
+protocol Dispatcher<Invocation, Event, Input> {
   associatedtype Invocation: AnyEffectInvocation
   associatedtype Event
+  associatedtype Input
       
-  func dispatch(invocations: [EffectInvocation<Invocation>], notify listener: DispatcherListener<Event>)
+  func dispatch(
+    invocations: [EffectInvocation<Invocation>],
+    with customInput: EventEngineCustomInput<Input>,
+    notify listener: DispatcherListener<Event>
+  )
 }
 
 // MARK: - EffectDispatcher
 
-class EffectDispatcher<Invocation: AnyEffectInvocation, Event>: Dispatcher {
-  private let factory: any EffectHandlerFactory<Invocation, Event>
+class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatcher {
+  private let factory: any EffectHandlerFactory<Invocation, Event, Input>
   private let effectsCache = EffectsCache<Event>()
     
-  init(factory: some EffectHandlerFactory<Invocation, Event>) {
+  init(factory: some EffectHandlerFactory<Invocation, Event, Input>) {
     self.factory = factory
   }
   
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
-    effectsCache.hasPendingEffect(with: invocation.id)
+    effectsCache.hasPendingEffect(with: invocation.rawValue)
   }
     
-  func dispatch(invocations: [EffectInvocation<Invocation>], notify listener: DispatcherListener<Event>) {
-    let effectsToRun = invocations.compactMap {
+  func dispatch(
+    invocations: [EffectInvocation<Invocation>],
+    with customInput: EventEngineCustomInput<Input>,
+    notify listener: DispatcherListener<Event>
+  ) {
+      let effectsToRun = invocations.compactMap {
       switch $0 {
       case .managed(let invocation):
-        return EffectWrapper(id: invocation.id, effect: factory.effect(for: invocation))
+        return EffectWrapper(id: invocation.rawValue, effect: factory.effect(for: invocation, with: customInput))
       case .cancel(let cancelInvocation):
         effectsCache.getEffect(with: cancelInvocation.rawValue)?.cancelTask(); return nil
       }

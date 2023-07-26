@@ -27,11 +27,15 @@
 
 import Foundation
 
-protocol EffectHandlerFactory<EffectInvocation, Event> {
+protocol EffectHandlerFactory<EffectInvocation, Event, Input> {
   associatedtype EffectInvocation
   associatedtype Event
+  associatedtype Input
   
-  func effect(for invocation: EffectInvocation) -> any EffectHandler<Event>
+  func effect(
+    for invocation: EffectInvocation,
+    with customInput: EventEngineCustomInput<Input>
+  ) -> any EffectHandler<Event>
 }
 
 protocol EffectHandler<Event> {

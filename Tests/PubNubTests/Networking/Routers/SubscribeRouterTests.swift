@@ -67,7 +67,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
 
     guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_message_success", "cancelled"]
+      for: ["subscription_handshake_success", "subscription_message_success", "cancelled"]
     ).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -106,7 +106,7 @@ extension SubscribeRouterTests {
     let presenceExpect = XCTestExpectation(description: "Presence Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_presence_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_presence_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -149,7 +149,7 @@ extension SubscribeRouterTests {
     let signalExpect = XCTestExpectation(description: "Signal Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_signal_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_signal_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -193,7 +193,7 @@ extension SubscribeRouterTests {
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
     guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_uuidSet_success", "cancelled"]
+      for: ["subscription_handshake_success", "subscription_uuidSet_success", "cancelled"]
     ).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -221,15 +221,6 @@ extension SubscribeRouterTests {
         )
 
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received \(event)")
       }
@@ -262,7 +253,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_uuidRemove_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_uuidRemove_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -280,15 +271,6 @@ extension SubscribeRouterTests {
       case let .uuidMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestUserID")
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received")
       }
@@ -321,7 +303,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_channelSet_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_channelSet_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -353,11 +335,6 @@ extension SubscribeRouterTests {
           try? changeset.apply(to: baseChannel).transcode(), patchedChannel
         )
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        default:
-          break
-        }
       default:
         XCTFail("Incorrect Event Received")
       }
@@ -390,7 +367,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_channelRemove_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_channelRemove_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -408,15 +385,6 @@ extension SubscribeRouterTests {
       case let .channelMetadataRemoved(metadataId):
         XCTAssertEqual(metadataId, "TestSpaceID")
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received")
       }
@@ -449,7 +417,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipSet_success",
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_membershipSet_success",
                                                               "cancelled"]).session
     else {
       return XCTFail("Could not create mock url session")
@@ -465,7 +433,7 @@ extension SubscribeRouterTests {
     )
 
     let listener = SubscriptionListener()
-    listener.didReceiveSubscription = { [unowned self] event in
+    listener.didReceiveSubscription = { event in
       switch event {
       case let .connectionStatusChanged(status):
         if status == .disconnected {
@@ -474,15 +442,6 @@ extension SubscribeRouterTests {
       case let .membershipMetadataSet(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received \(event)")
       }
@@ -514,7 +473,7 @@ extension SubscribeRouterTests {
     let objectExpect = XCTestExpectation(description: "Object Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
     let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_membershipRemove_success", "leave_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_membershipRemove_success", "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -528,7 +487,7 @@ extension SubscribeRouterTests {
     )
 
     let listener = SubscriptionListener()
-    listener.didReceiveSubscription = { [weak self] event in
+    listener.didReceiveSubscription = { event in
       switch event {
       case let .connectionStatusChanged(status):
         if status == .disconnected {
@@ -537,15 +496,6 @@ extension SubscribeRouterTests {
       case let .membershipMetadataRemoved(membership):
         XCTAssertEqual(try? membership.transcode(), testMembership)
         objectExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received \(event)")
       }
@@ -582,7 +532,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_addMessageAction_success", "leave_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_addMessageAction_success", "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -598,15 +548,6 @@ extension SubscribeRouterTests {
       case let .messageActionAdded(action):
         XCTAssertEqual(try? action.transcode(), self?.testAction)
         actionExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received \(event)")
       }
@@ -640,7 +581,7 @@ extension SubscribeRouterTests {
     let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
     guard let session = try? MockURLSession
-      .mockSession(for: ["subscription_removeMessageAction_success", "leave_success"])
+      .mockSession(for: ["subscription_handshake_success", "subscription_removeMessageAction_success", "cancelled"])
       .session
     else {
       return XCTFail("Could not create mock url session")
@@ -658,15 +599,6 @@ extension SubscribeRouterTests {
       case let .messageActionRemoved(action):
         XCTAssertEqual(try? action.transcode(), self?.testAction)
         actionExpect.fulfill()
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self?.testChannel)
-        }
       default:
         XCTFail("Incorrect Event Received")
       }
@@ -703,7 +635,7 @@ extension SubscribeRouterTests {
     let signalExpect = XCTestExpectation(description: "Signal Event")
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_mixed_success", "leave_success"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -774,8 +706,6 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceiveSubscription = { event in
       switch event {
-      case .subscriptionChanged:
-        break
       case let .connectionStatusChanged(connection):
         if connection == .disconnected {
           statusExpect.fulfill()
@@ -808,7 +738,7 @@ extension SubscribeRouterTests {
     let statusExpect = XCTestExpectation(description: "Status Event")
     statusExpect.expectedFulfillmentCount = 2
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_mixed_success", "cancelled"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -817,15 +747,6 @@ extension SubscribeRouterTests {
     let listener = SubscriptionListener()
     listener.didReceiveSubscription = { [unowned self] event in
       switch event {
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertEqual(channels.first?.id, self.testChannel)
-        }
       case let .connectionStatusChanged(status):
         switch status {
         case .connected:
@@ -835,8 +756,6 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         case .disconnected:
           statusExpect.fulfill()
-        default:
-          break
         }
       default:
         break
@@ -854,7 +773,7 @@ extension SubscribeRouterTests {
   func testUnsubscribeAll() {
     let statusExpect = XCTestExpectation(description: "Status Event")
 
-    guard let session = try? MockURLSession.mockSession(for: ["subscription_mixed_success", "cancelled"]).session else {
+    guard let session = try? MockURLSession.mockSession(for: ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]).session else {
       return XCTFail("Could not create mock url session")
     }
 
@@ -863,19 +782,8 @@ extension SubscribeRouterTests {
     let otherChannel = "OtherChannel"
 
     let listener = SubscriptionListener()
-    listener.didReceiveSubscription = { [weak self] event in
+    listener.didReceiveSubscription = { event in
       switch event {
-      case let .subscriptionChanged(change):
-        switch change {
-        case let .subscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == self?.testChannel }))
-          XCTAssertTrue(channels.contains(where: { $0.id == otherChannel }))
-        case .responseHeader:
-          break
-        case let .unsubscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == self?.testChannel }))
-          XCTAssertTrue(channels.contains(where: { $0.id == otherChannel }))
-        }
       case let .connectionStatusChanged(status):
         switch status {
         case .connected:
@@ -885,8 +793,6 @@ extension SubscribeRouterTests {
           statusExpect.fulfill()
         case .disconnected:
           statusExpect.fulfill()
-        default:
-          break
         }
       default:
         break

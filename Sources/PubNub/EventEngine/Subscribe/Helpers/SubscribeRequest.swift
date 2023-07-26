@@ -38,9 +38,8 @@ class SubscribeRequest {
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
   
-  var isCancelled: Bool {
-    request?.isCancelled ?? false
-  }
+  private(set) var isCancelled: Bool = false
+  
   var retryLimit: UInt {
     configuration.automaticRetry?.retryLimit ?? 0
   }
@@ -64,26 +63,24 @@ class SubscribeRequest {
   }
   
   func computeReconnectionDelay(
-    dueTo error: SubscribeError?,
+    dueTo error: SubscribeError,
     with currentAttempt: Int
   ) -> TimeInterval? {
-    guard let error = error else {
-      return 0
-    }
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard let underlyingError = error.underlying.underlying else {
+    guard automaticRetry.retryLimit > currentAttempt else {
       return nil
     }
     
-    let shouldRetry = automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError)
-    let hasEnoughAttempts = automaticRetry.retryLimit > currentAttempt
-    
-    if (shouldRetry && hasEnoughAttempts) {
-      return automaticRetry.policy.delay(for: currentAttempt)
+    if let underlyingError = error.underlying.underlying {
+      if automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError) {
+        return automaticRetry.policy.delay(for: currentAttempt)
+      } else {
+        return nil
+      }
     } else {
-      return nil
+      return automaticRetry.policy.delay(for: currentAttempt)
     }
   }
         
@@ -119,6 +116,7 @@ class SubscribeRequest {
   
   func cancel() {
     request?.cancel(PubNubError(.clientCancelled, router: nil))
+    isCancelled = true
   }
   
   deinit {

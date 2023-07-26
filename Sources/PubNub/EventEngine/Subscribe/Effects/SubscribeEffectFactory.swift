@@ -31,31 +31,29 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let messageCache: MessageCache
-  
-  var configuration: SubscriptionConfiguration
-  var listeners: [BaseSubscriptionListener] = []
-  var connectionStatus: ConnectionStatus = .disconnected
-    
+      
   init(
-    configuration: SubscriptionConfiguration,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .global(qos: .default),
     messageCache: MessageCache = MessageCache()
   ) {
-    self.configuration = configuration
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
     self.messageCache = messageCache
   }
   
-  func effect(for invocation: Subscribe.Invocation) -> any EffectHandler<Subscribe.Event> {
+  func effect(
+    for invocation: Subscribe.Invocation,
+    with customInput: EventEngineCustomInput<Subscribe.EngineInput>
+  ) -> any EffectHandler<Subscribe.Event> {
     switch invocation {
     case .handshakeRequest(let channels, let groups):
       return HandshakingEffect(
         request: SubscribeRequest(
-          configuration: configuration,
+          configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
+          timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
         )
@@ -63,9 +61,10 @@ class SubscribeEffectFactory: EffectHandlerFactory {
     case .handshakeReconnect(let channels, let groups, let currentAttempt, let reason):
       return HandshakeReconnectEffect(
         request: SubscribeRequest(
-          configuration: configuration,
+          configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
+          timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
         ),
@@ -75,7 +74,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
     case .receiveMessages(let channels, let groups, let cursor):
       return ReceivingEffect(
         request: SubscribeRequest(
-          configuration: configuration,
+          configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
           timetoken: cursor.timetoken,
@@ -87,7 +86,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
     case .receiveReconnect(let channels, let groups, let cursor, let currentAttempt, let reason):
       return ReceiveReconnectEffect(
         request: SubscribeRequest(
-          configuration: configuration,
+          configuration: customInput.value.configuration,
           channels: channels,
           groups: groups,
           timetoken: cursor.timetoken,
@@ -102,15 +101,18 @@ class SubscribeEffectFactory: EffectHandlerFactory {
       return EmitMessagesEffect(
         messages: messages,
         cursor: cursor,
-        listeners: listeners,
+        listeners: customInput.value.listeners,
         messageCache: messageCache
       )
-    case .emitStatus(let status):
+    case .emitStatus(let statusChange):
       return EmitStatusEffect(
-        currentStatus: connectionStatus,
-        newStatus: status,
-        listeners: listeners
+        statusChange: statusChange,
+        listeners: customInput.value.listeners
       )
     }
+  }
+  
+  deinit {
+    session.invalidateAndCancel()
   }
 }

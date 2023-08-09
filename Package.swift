@@ -69,32 +69,32 @@ let package = Package(
     .target(
       name: "PubNub",
       path: "Sources/PubNub",
-      cSettings: [
-        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
       ]
     ),
     .target(
       name: "PubNubUser",
       dependencies: ["PubNub"],
       path: "PubNubUser/Sources",
-      cSettings: [
-        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
       ]
     ),
     .target(
       name: "PubNubSpace",
       dependencies: ["PubNub"],
       path: "PubNubSpace/Sources",
-      cSettings: [
-        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
       ]
     ),
     .target(
       name: "PubNubMembership",
       dependencies: ["PubNub", "PubNubUser", "PubNubSpace"],
       path: "PubNubMembership/Sources",
-      cSettings: [
-        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
       ]
     ),
     .testTarget(

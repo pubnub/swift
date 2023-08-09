@@ -396,6 +396,7 @@
 		3D9B29FA2A65609000C988C9 /* EmitMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */; };
 		3D9B29FB2A65609000C988C9 /* SubscribeRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */; };
 		3D9B29FD2A6560FB00C988C9 /* PresenceTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */; };
+		3DB0E9102A83E0110065B4FD /* EffectInvocation+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0E90F2A83E0110065B4FD /* EffectInvocation+Equatable.swift */; };
 		3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */; };
 		3DB56B652A715F7E00FC35A0 /* HeartbeatEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */; };
 		3DCC4DE02A42E93200F4A67A /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */; };
@@ -952,6 +953,7 @@
 		3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitMessagesTests.swift; sourceTree = "<group>"; };
 		3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequestTests.swift; sourceTree = "<group>"; };
 		3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceTransitionTests.swift; sourceTree = "<group>"; };
+		3DB0E90F2A83E0110065B4FD /* EffectInvocation+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EffectInvocation+Equatable.swift"; sourceTree = "<group>"; };
 		3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEffectFactory.swift; sourceTree = "<group>"; };
 		3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffectTests.swift; sourceTree = "<group>"; };
 		3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
@@ -2022,6 +2024,14 @@
 			path = Subscribe;
 			sourceTree = "<group>";
 		};
+		3DB0E90E2A83E0010065B4FD /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3DB0E90F2A83E0110065B4FD /* EffectInvocation+Equatable.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -2083,6 +2093,7 @@
 				3DE748892A1FA449009B0809 /* DispatcherTests.swift */,
 				3D9B29EE2A65605900C988C9 /* Presence */,
 				3D9B29EF2A65605900C988C9 /* Subscribe */,
+				3DB0E90E2A83E0010065B4FD /* Helpers */,
 			);
 			path = EventEngine;
 			sourceTree = "<group>";
@@ -3330,6 +3341,7 @@
 			files = (
 				3558069C231303D9005CDD92 /* AutomaticRetryTests.swift in Sources */,
 				35D973542857BBFE001A44DC /* FlatJSONCodable+Test.swift in Sources */,
+				3DB0E9102A83E0110065B4FD /* EffectInvocation+Equatable.swift in Sources */,
 				35FE93B922EE44F70051C455 /* MockURLSession.swift in Sources */,
 				3D9B29FD2A6560FB00C988C9 /* PresenceTransitionTests.swift in Sources */,
 				3D9B29F82A65609000C988C9 /* SubscribeInputTests.swift in Sources */,

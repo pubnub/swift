@@ -32,11 +32,11 @@ struct PresenceInput: Equatable {
   fileprivate let groupsSet: Set<String>
   
   var channels: [String] {
-    channelsSet.allObjects.sorted(by: <)
+    channelsSet.map { $0 }
   }
   
   var groups: [String] {
-    groupsSet.allObjects.sorted(by: <)
+    groupsSet.map { $0 }
   }
   
   var isEmpty: Bool {
@@ -54,26 +54,23 @@ struct PresenceInput: Equatable {
   }
   
   static func +(lhs: PresenceInput, rhs: PresenceInput) -> PresenceInput {
-    var uniqueChannels = lhs.channelsSet
-    var uniqueGroups = lhs.groupsSet
-    
-    rhs.channelsSet.forEach { uniqueChannels.insert($0) }
-    rhs.groupsSet.forEach { uniqueGroups.insert($0) }
-    
-    return PresenceInput(channels: uniqueChannels, groups: uniqueGroups)
+    PresenceInput(
+      channels: lhs.channelsSet.union(rhs.channelsSet),
+      groups: lhs.groupsSet.union(rhs.groupsSet)
+    )
   }
   
   static func -(lhs: PresenceInput, rhs: PresenceInput) -> PresenceInput {
-    var uniqueChannels = lhs.channelsSet
-    var uniqueGroups = lhs.groupsSet
-    
-    rhs.channelsSet.forEach { uniqueChannels.remove($0) }
-    rhs.groupsSet.forEach { uniqueGroups.remove($0) }
-    
-    return PresenceInput(channels: uniqueChannels, groups: uniqueGroups)
+    PresenceInput(
+      channels: lhs.channelsSet.subtracting(rhs.channelsSet),
+      groups: lhs.groupsSet.subtracting(rhs.groupsSet)
+    )
   }
   
   static func ==(lhs: PresenceInput, rhs: PresenceInput) -> Bool {
-    lhs.channels == rhs.channels && lhs.groups == rhs.groups
+    let equalChannels = lhs.channels.sorted(by: <) == rhs.channels.sorted(by: <)
+    let equalGroups = lhs.groups.sorted(by: <) == rhs.groups.sorted(by: <)
+    
+    return equalChannels && equalGroups
   }
 }

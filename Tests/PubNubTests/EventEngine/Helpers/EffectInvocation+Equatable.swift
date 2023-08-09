@@ -1,5 +1,5 @@
 //
-//  TransitionProtocol.swift
+//  EffectInvocation+Equatable.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,39 +27,19 @@
 
 import Foundation
 
-protocol AnyIdentifiableInvocation {
-  var id: String { get }
-}
+@testable import PubNub
 
-protocol AnyCancellableInvocation: AnyIdentifiableInvocation {
-  
-}
-
-protocol AnyEffectInvocation: AnyIdentifiableInvocation {
-  associatedtype Cancellable: AnyCancellableInvocation
-}
-
-struct TransitionResult<State, Invocation: AnyEffectInvocation> {
-  let state: State
-  let invocations: [EffectInvocation<Invocation>]
-  
-  init(state: State, invocations: [EffectInvocation<Invocation>] = []) {
-    self.state = state
-    self.invocations = invocations
+extension EffectInvocation: Equatable where Invocation: Equatable {
+  public static func ==(lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
+    switch (lhs, rhs) {
+    case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
+      return lhsInvocation == rhsInvocation
+    case (let .regular(lhsInvocation), let .regular(rhsInvocation)):
+      return lhsInvocation == rhsInvocation
+    case (let .cancel(lhsId), let .cancel(rhsId)):
+      return lhsId.id == rhsId.id
+    default:
+      return false
+    }
   }
-}
-
-enum EffectInvocation<Invocation: AnyEffectInvocation> {
-  case managed(_ invocation: Invocation)
-  case regular(_ invocation: Invocation)
-  case cancel(_ invocation: Invocation.Cancellable)
-}
-
-protocol TransitionProtocol<State, Event, Invocation> {
-  associatedtype State
-  associatedtype Event
-  associatedtype Invocation: AnyEffectInvocation
-  
-  func canTransition(from state: State, dueTo event: Event) -> Bool
-  func transition(from state: State, event: Event) -> TransitionResult<State, Invocation>
 }

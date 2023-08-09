@@ -39,9 +39,6 @@ extension SubscribeState {
   var hasTimetoken: Bool {
     return cursor.timetoken != 0
   }
-  func isEqual(to otherState: some SubscribeState) -> Bool {
-    (otherState as? Self) == self
-  }
 }
 
 //
@@ -183,25 +180,6 @@ extension Subscribe {
         case .receiveReconnect:
           return "Subscribe.ReceiveReconnect"
         }
-      }
-    }
-    
-    public static func ==(lhs: Subscribe.Invocation, rhs: Subscribe.Invocation) -> Bool {
-      switch (lhs, rhs) {
-      case let (.handshakeRequest(lC, lG), .handshakeRequest(rC, rG)):
-        return lC == rC && lG == rG
-      case let (.handshakeReconnect(lC, lG, lAtt, lErr),.handshakeReconnect(rC, rG, rAtt, rErr)):
-        return lC == rC && lG == rG && lAtt == rAtt && lErr == rErr
-      case let (.receiveMessages(lC, lG, lCrsr),.receiveMessages(rC, rG, rCrsr)):
-        return lC == rC && lG == rG && lCrsr == rCrsr
-      case let (.receiveReconnect(lC, lG, lCrsr, lAtt, lErr), .receiveReconnect(rC, rG, rCrsr, rAtt, rErr)):
-        return lC == rC && lG == rG && lCrsr == rCrsr && lAtt == rAtt && lErr == rErr
-      case let (.emitStatus(lhsChange), .emitStatus(rhsChange)):
-        return lhsChange == rhsChange
-      case let (.emitMessages(lhsMssgs, lhsCrsr), .emitMessages(rhsMssgs, rhsCrsr)):
-        return lhsMssgs == rhsMssgs && lhsCrsr == rhsCrsr
-      default:
-        return false
       }
     }
 

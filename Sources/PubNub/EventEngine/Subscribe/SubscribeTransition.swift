@@ -32,7 +32,7 @@ class SubscribeTransition: TransitionProtocol {
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
   
-  private func canTransition(from state: State, dueTo event: Event) -> Bool {
+  func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
     case .handshakeSucceess(_):
       return state is Subscribe.HandshakingState

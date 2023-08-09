@@ -30,6 +30,29 @@ import XCTest
 
 @testable import PubNub
 
+extension Presence.Invocation: Equatable {
+  public static func ==(lhs: Presence.Invocation, rhs: Presence.Invocation) -> Bool {
+    switch (lhs, rhs) {
+    case let (.heartbeat(lC, lG), .heartbeat(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.leave(lC, lG), .leave(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.delayedHeartbeat(lC, lG, lAtt, lErr),.delayedHeartbeat(rC, rG, rAtt, rErr)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lAtt == rAtt && lErr == rErr
+    case let (.wait(lC, lG), .wait(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    default:
+      return false
+    }
+  }
+}
+
+extension PresenceState {
+  func isEqual(to otherState: some PresenceState) -> Bool {
+    (otherState as? Self) == self
+  }
+}
+
 class PresenceTransitionTests: XCTestCase {
   private let transition = PresenceTransition()
   
@@ -45,7 +68,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .joined(channels: ["c3"], groups: ["g3"])
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.heartbeat(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"]))
+      .regular(.heartbeat(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"]))
     ]
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
@@ -83,7 +106,7 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.delayedHeartbeat),
-      .managed(.heartbeat(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"]))
+      .regular(.heartbeat(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"]))
     ]
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
@@ -105,8 +128,8 @@ class PresenceTransitionTests: XCTestCase {
       event: .left(channels: ["c3"], groups: ["g3"])
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.leave(channels: ["c3"], groups: ["g3"])),
-      .managed(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c3"], groups: ["g3"])),
+      .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
@@ -144,8 +167,8 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.delayedHeartbeat),
-      .managed(.leave(channels: ["c3"], groups: ["g3"])),
-      .managed(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c3"], groups: ["g3"])),
+      .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
@@ -166,7 +189,7 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.scheduleNextHeartbeat),
-      .managed(.leave(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])),
+      .regular(.leave(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])),
     ]
     let expectedState = Presence.HeartbeatInactive()
     
@@ -186,7 +209,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .leftAll
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatInactive()
     
@@ -206,7 +229,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .reconnect
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(input: input)
     
@@ -224,7 +247,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .reconnect
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(input: input)
     
@@ -244,7 +267,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .disconnect
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatStopped(input: input)
     
@@ -263,7 +286,7 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.scheduleNextHeartbeat),
-      .managed(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatStopped(input: input)
     
@@ -282,7 +305,7 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.delayedHeartbeat),
-      .managed(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatStopped(input: input)
     
@@ -302,7 +325,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .heartbeatSuccess
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.scheduleNextHeartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .managed(.wait(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatCooldown(input: input)
     

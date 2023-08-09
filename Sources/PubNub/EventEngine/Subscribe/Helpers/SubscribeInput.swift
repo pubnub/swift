@@ -58,11 +58,11 @@ struct SubscribeInput: Equatable {
   }
   
   var subscribedChannels: [String] {
-    channels.map { $0.key }.sorted(by: <)
+    channels.map { $0.key }
   }
   
   var subscribedGroups: [String] {
-    groups.map { $0.key }.sorted(by: <)
+    groups.map { $0.key }
   }
   
   var allSubscribedChannels: [String] {
@@ -71,7 +71,7 @@ struct SubscribeInput: Equatable {
       if entry.value.isPresenceSubscribed {
         result.append(entry.value.presenceId)
       }
-    }.sorted(by: <)
+    }
   }
   
   var allSubscribedGroups: [String] {
@@ -80,7 +80,7 @@ struct SubscribeInput: Equatable {
       if entry.value.isPresenceSubscribed {
         result.append(entry.value.presenceId)
       }
-    }.sorted(by: <)
+    }
   }
   
   var totalSubscribedCount: Int {
@@ -126,6 +126,13 @@ struct SubscribeInput: Equatable {
       filterExpression: self.filterExpression
     )
   }
+  
+  static func ==(lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
+    let equalChannels = lhs.allSubscribedChannels.sorted(by: <) == rhs.allSubscribedChannels.sorted(by: <)
+    let equalGroups = lhs.allSubscribedGroups.sorted(by: <) == rhs.allSubscribedGroups.sorted(by: <)
+    
+    return equalChannels && equalGroups
+  }
 }
 
 extension Dictionary where Key == String, Value == PubNubChannel {
@@ -140,7 +147,7 @@ extension Dictionary where Key == String, Value == PubNubChannel {
 
   // Updates current Dictionary with the new channel value unsubscribed from Presence.
   // Returns the updated value if the corresponding entry matching the passed `id:` was found, otherwise `nil`
-  mutating func unsubscribePresence(_ id: String) -> Value? {
+  @discardableResult mutating func unsubscribePresence(_ id: String) -> Value? {
     if let match = self[id], match.isPresenceSubscribed {
       let updatedChannel = PubNubChannel(id: match.id, withPresence: false)
       self[match.id] = updatedChannel

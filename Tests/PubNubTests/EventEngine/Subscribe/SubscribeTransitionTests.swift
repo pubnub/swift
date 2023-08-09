@@ -30,6 +30,33 @@ import XCTest
 
 @testable import PubNub
 
+extension SubscribeState {
+  func isEqual(to otherState: some SubscribeState) -> Bool {
+    (otherState as? Self) == self
+  }
+}
+
+extension Subscribe.Invocation : Equatable {
+  public static func ==(lhs: Subscribe.Invocation, rhs: Subscribe.Invocation) -> Bool {
+    switch (lhs, rhs) {
+    case let (.handshakeRequest(lC, lG), .handshakeRequest(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.handshakeReconnect(lC, lG, lAtt, lErr),.handshakeReconnect(rC, rG, rAtt, rErr)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lAtt == rAtt && lErr == rErr
+    case let (.receiveMessages(lC, lG, lCrsr),.receiveMessages(rC, rG, rCrsr)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lCrsr == rCrsr
+    case let (.receiveReconnect(lC, lG, lCrsr, lAtt, lErr), .receiveReconnect(rC, rG, rCrsr, rAtt, rErr)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lCrsr == rCrsr && lAtt == rAtt && lErr == rErr
+    case let (.emitStatus(lhsChange), .emitStatus(rhsChange)):
+      return lhsChange == rhsChange
+    case let (.emitMessages(lhsMssgs, lhsCrsr), .emitMessages(rhsMssgs, rhsCrsr)):
+      return lhsMssgs == rhsMssgs && lhsCrsr == rhsCrsr
+    default:
+      return false
+    }
+  }
+}
+
 class SubscribeTransitionTests: XCTestCase {
   private let transition = SubscribeTransition()
   private let input = SubscribeInput(channels: [PubNubChannel(channel: "test-channel")])

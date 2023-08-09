@@ -33,13 +33,15 @@ protocol ContractTestIdentifiable {
   var contractTestIdentifier: String { get }
 }
 
-extension EffectInvocation: ContractTestIdentifiable {
+extension EffectInvocation: ContractTestIdentifiable where Invocation: ContractTestIdentifiable, Invocation.Cancellable: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
     case .managed(let invocation):
-      return (invocation as? ContractTestIdentifiable)?.contractTestIdentifier ?? ""
+      return invocation.contractTestIdentifier
     case .cancel(let cancellable):
-      return (cancellable as? ContractTestIdentifiable)?.contractTestIdentifier ?? ""
+      return cancellable.contractTestIdentifier
+    case .regular(let invocation):
+      return invocation.contractTestIdentifier
     }
   }
 }

@@ -40,10 +40,6 @@ extension PresenceState {
   var groups: [String] {
     input.groups
   }
-  
-  func isEqual(to otherState: some PresenceState) -> Bool {
-    (otherState as? Self) == self
-  }
 }
 
 //
@@ -111,23 +107,8 @@ extension Presence {
     case heartbeat(channels: [String], groups: [String])
     case leave(channels: [String], groups: [String])
     case delayedHeartbeat(channels: [String], groups: [String], currentAttempt: Int, error: PubNubError)
-    case scheduleNextHeartbeat(channels: [String], groups: [String])
-    
-    public static func ==(lhs: Presence.Invocation, rhs: Presence.Invocation) -> Bool {
-      switch (lhs, rhs) {
-      case let (.heartbeat(lC, lG), .heartbeat(rC, rG)):
-        return lC == rC && lG == rG
-      case let (.leave(lC, lG), .leave(rC, rG)):
-        return lC == rC && lG == rG
-      case let (.delayedHeartbeat(lC, lG, lAtt, lErr),.delayedHeartbeat(rC, rG, rAtt, rErr)):
-        return lC == rC && lG == rG && lAtt == rAtt && lErr == rErr
-      case let (.scheduleNextHeartbeat(lC, lG), .scheduleNextHeartbeat(rC, rG)):
-        return lC == rC && lG == rG
-      default:
-        return false
-      }
-    }
-    
+    case wait(channels: [String], groups: [String])
+        
     enum Cancellable: AnyCancellableInvocation {
       case scheduleNextHeartbeat
       case delayedHeartbeat
@@ -146,7 +127,7 @@ extension Presence {
       switch self {
       case .heartbeat(_,_):
         return "Presence.Heartbeat"
-      case .scheduleNextHeartbeat:
+      case .wait(_,_):
         return Cancellable.scheduleNextHeartbeat.id
       case .delayedHeartbeat:
         return Cancellable.delayedHeartbeat.id

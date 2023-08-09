@@ -32,12 +32,12 @@ class PresenceTransition: TransitionProtocol {
   typealias Event = Presence.Event
   typealias Invocation = Presence.Invocation
   
-  private func canTransition(from state: State, dueTo event: Event) -> Bool {
+  func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
     case .joined(_,_):
       return true
     case .left(_,_):
-      return true
+      return !(state is Presence.HeartbeatInactive)
     case .heartbeatSuccess:
       return state is Presence.Heartbeating
     case .heartbeatFailed(_):
@@ -47,7 +47,7 @@ class PresenceTransition: TransitionProtocol {
     case .timesUp:
       return state is Presence.HeartbeatCooldown
     case .leftAll:
-      return true
+      return !(state is Presence.HeartbeatInactive)
     case .disconnect:
       return true
     case .reconnect:
@@ -55,12 +55,12 @@ class PresenceTransition: TransitionProtocol {
     }
   }
   
-  func onEntry(to state: State) -> [EffectInvocation<Invocation>] {
+  private func onEntry(to state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.Heartbeating:
-      return [.managed(.heartbeat(channels: state.channels, groups: state.input.groups))]
+      return [.regular(.heartbeat(channels: state.channels, groups: state.input.groups))]
     case is Presence.HeartbeatCooldown:
-      return [.managed(.scheduleNextHeartbeat(channels: state.channels, groups: state.groups))]
+      return [.managed(.wait(channels: state.channels, groups: state.groups))]
     case let state as Presence.HeartbeatReconnecting:
       return [.managed(.delayedHeartbeat(channels: state.channels, groups: state.groups, currentAttempt: state.currentAttempt, error: state.error))]
     default:
@@ -68,7 +68,7 @@ class PresenceTransition: TransitionProtocol {
     }
   }
   
-  func onExit(from state: State) -> [EffectInvocation<Invocation>] {
+  private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.HeartbeatCooldown:
       return [.cancel(.scheduleNextHeartbeat)]
@@ -149,12 +149,12 @@ fileprivate extension PresenceTransition {
     } else if newInput.isEmpty {
       return TransitionResult(
         state: Presence.HeartbeatInactive(),
-        invocations: [.managed(.leave(channels: channels, groups: groups))]
+        invocations: [.regular(.leave(channels: channels, groups: groups))]
       )
     } else {
       return TransitionResult(
         state: Presence.Heartbeating(input: newInput),
-        invocations: [.managed(.leave(channels: channels, groups: groups))]
+        invocations: [.regular(.leave(channels: channels, groups: groups))]
       )
     }
   }
@@ -205,7 +205,7 @@ fileprivate extension PresenceTransition {
   func heartbeatStoppedTransition(from state: State) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Presence.HeartbeatStopped(input: state.input),
-      invocations: [.managed(.leave(channels: state.input.channels, groups: state.input.groups))]
+      invocations: [.regular(.leave(channels: state.input.channels, groups: state.input.groups))]
     )
   }
 }
@@ -214,7 +214,7 @@ fileprivate extension PresenceTransition {
   func heartbeatInactiveTransition(from state: State) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Presence.HeartbeatInactive(),
-      invocations: [.managed(.leave(channels: state.input.channels, groups: state.input.groups))]
+      invocations: [.regular(.leave(channels: state.input.channels, groups: state.input.groups))]
     )
   }
 }

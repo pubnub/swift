@@ -66,21 +66,35 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
     with customInput: EventEngineCustomInput<Input>,
     notify listener: DispatcherListener<Event>
   ) {
-      let effectsToRun = invocations.compactMap {
+    invocations.forEach {
       switch $0 {
       case .managed(let invocation):
-        return EffectWrapper(id: invocation.id, effect: factory.effect(for: invocation, with: customInput))
+        executeEffect(
+          effect: factory.effect(for: invocation, with: customInput),
+          storageId: invocation.id,
+          notify: listener
+        )
+      case .regular(let invocation):
+        executeEffect(
+          effect: factory.effect(for: invocation, with: customInput),
+          storageId: UUID().uuidString,
+          notify: listener
+        )
       case .cancel(let cancelInvocation):
-        effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask(); return nil
+        effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask()
       }
     }
-    
-    effectsToRun.forEach {
-      effectsCache.put(effect: $0.effect, with: $0.id)
-      $0.effect.performTask { [weak effectsCache, effectId = $0.id] results in
-        listener.onAnyInvocationCompleted(results)
-        effectsCache?.removeEffect(id: effectId)
-      }
+  }
+  
+  private func executeEffect(
+    effect: some EffectHandler<Event>,
+    storageId id: String,
+    notify listener: DispatcherListener<Event>
+  ) {
+    effectsCache.put(effect: effect, with: id)
+    effect.performTask { [weak effectsCache] results in
+      listener.onAnyInvocationCompleted(results)
+      effectsCache?.removeEffect(id: id)
     }
   }
 }

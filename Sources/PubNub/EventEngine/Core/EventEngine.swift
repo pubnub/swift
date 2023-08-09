@@ -27,18 +27,6 @@
 
 import Foundation
 
-protocol AnyIdentifiableInvocation {
-  var id: String { get }
-}
-
-protocol AnyCancellableInvocation: AnyIdentifiableInvocation, Equatable {
-  
-}
-
-protocol AnyEffectInvocation: AnyIdentifiableInvocation, Equatable {
-  associatedtype Cancellable: AnyCancellableInvocation
-}
-
 protocol EventEngineDelegate<State>: AnyObject {
   associatedtype State
   func onStateUpdated(state: State)
@@ -71,7 +59,16 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   
   func send(event: Event) {
     objc_sync_enter(self)
-    defer { objc_sync_exit(self) }
+    
+    defer {
+      objc_sync_exit(self)
+    }
+    guard transition.canTransition(
+      from: state,
+      dueTo: event
+    ) else {
+      return
+    }
     
     let transitionResult = transition.transition(from: state, event: event)
     let invocations = transitionResult.invocations

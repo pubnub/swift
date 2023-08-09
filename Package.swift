@@ -68,22 +68,34 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "PubNub",
-      path: "Sources/PubNub"
+      path: "Sources/PubNub",
+      cSettings: [
+        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      ]
     ),
     .target(
       name: "PubNubUser",
       dependencies: ["PubNub"],
-      path: "PubNubUser/Sources"
+      path: "PubNubUser/Sources",
+      cSettings: [
+        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      ]
     ),
     .target(
       name: "PubNubSpace",
       dependencies: ["PubNub"],
-      path: "PubNubSpace/Sources"
+      path: "PubNubSpace/Sources",
+      cSettings: [
+        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      ]
     ),
     .target(
       name: "PubNubMembership",
       dependencies: ["PubNub", "PubNubUser", "PubNubSpace"],
-      path: "PubNubMembership/Sources"
+      path: "PubNubMembership/Sources",
+      cSettings: [
+        .define("BUILD_LIBRARY_FOR_DISTRIBUTION", to: "YES")
+      ]
     ),
     .testTarget(
       name: "PubNubTests",

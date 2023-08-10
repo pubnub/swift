@@ -40,8 +40,8 @@ class SubscribeInputTests: XCTestCase {
     let expectedAllSubscribedChannels = ["first-channel", "second-channel"]
     let expectedSubscribedChannels = ["first-channel", "second-channel"]
 
-    XCTAssertTrue(input.subscribedChannels.elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(input.allSubscribedChannels.elementsEqual(expectedAllSubscribedChannels))
+    XCTAssertTrue(input.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
+    XCTAssertTrue(input.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
     XCTAssertTrue(input.subscribedGroups.isEmpty)
     XCTAssertTrue(input.allSubscribedGroups.isEmpty)
   }

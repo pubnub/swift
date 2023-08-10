@@ -74,6 +74,10 @@ class TransitionDecorator<State, Event, Invocation: AnyEffectInvocation>: Transi
     self.recordedEvents = []
   }
   
+  func canTransition(from state: State, dueTo event: Event) -> Bool {
+    wrappedInstance.canTransition(from: state, dueTo: event)
+  }
+  
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     recordedEvents.append(event)
     return wrappedInstance.transition(from: state, event: event)

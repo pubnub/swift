@@ -138,9 +138,6 @@ class SubscribeTransition: TransitionProtocol {
   }
   
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
-    guard canTransition(from: state, dueTo: event) else {
-      return TransitionResult(state: state)
-    }
     var results: TransitionResult<State, Invocation>
     
     switch event {

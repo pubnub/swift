@@ -39,8 +39,35 @@ extension Presence.Invocation: Equatable {
       return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
     case let (.delayedHeartbeat(lC, lG, lAtt, lErr),.delayedHeartbeat(rC, rG, rAtt, rErr)):
       return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lAtt == rAtt && lErr == rErr
-    case let (.wait(lC, lG), .wait(rC, rG)):
+    case (.wait, .wait):
+      return true
+    default:
+      return false
+    }
+  }
+}
+
+extension Presence.Event: Equatable {
+  public static func == (lhs: Presence.Event, rhs: Presence.Event) -> Bool {
+    switch (lhs, rhs) {
+    case let (.joined(lC, lG), .joined(rC, rG)):
       return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.left(lC, lG), .left(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.heartbeatFailed(lError), .heartbeatFailed(rError)):
+      return lError == rError
+    case let (.heartbeatGiveUp(lError), .heartbeatGiveUp(rError)):
+      return lError == rError
+    case (.leftAll, .leftAll):
+      return true
+    case (.reconnect, .reconnect):
+      return true
+    case (.disconnect, .disconnect):
+      return true
+    case (.timesUp, .timesUp):
+      return true
+    case (.heartbeatSuccess, .heartbeatSuccess):
+      return true
     default:
       return false
     }
@@ -325,7 +352,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .heartbeatSuccess
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .managed(.wait(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+      .managed(.wait)
     ]
     let expectedState = Presence.HeartbeatCooldown(input: input)
     

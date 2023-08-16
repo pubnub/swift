@@ -27,11 +27,6 @@
 
 import Foundation
 
-protocol EventEngineDelegate<State>: AnyObject {
-  associatedtype State
-  func onStateUpdated(state: State)
-}
-
 struct EventEngineCustomInput<Value> {
   let value: Value
 }
@@ -42,16 +37,17 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private(set) var state: State
   
   var customInput: EventEngineCustomInput<Input>
-  // A delegate that's notified when the State object is replaced
-  weak var delegate: (any EventEngineDelegate)?
-  
+  var onStateUpdated: ((State) -> Void)?
+    
   init(
     state: State,
     transition: some TransitionProtocol<State, Event, Invocation>,
+    onStateUpdated: ((State) -> Void)? = nil,
     dispatcher: some Dispatcher<Invocation, Event, Input>,
     customInput: EventEngineCustomInput<Input>
   ) {
     self.state = state
+    self.onStateUpdated = onStateUpdated
     self.transition = transition
     self.dispatcher = dispatcher
     self.customInput = customInput
@@ -74,6 +70,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     let invocations = transitionResult.invocations
     
     state = transitionResult.state
+    onStateUpdated?(state)
     
     let listener = DispatcherListener<Event>(
       onAnyInvocationCompleted: { [weak self] results in

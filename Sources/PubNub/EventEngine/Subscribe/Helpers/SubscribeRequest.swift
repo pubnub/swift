@@ -37,9 +37,7 @@ class SubscribeRequest {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
-  
-  private(set) var isCancelled: Bool = false
-  
+    
   var retryLimit: UInt {
     configuration.automaticRetry?.retryLimit ?? 0
   }
@@ -115,8 +113,7 @@ class SubscribeRequest {
   }
   
   func cancel() {
-    request?.cancel(PubNubError(.clientCancelled, router: nil))
-    isCancelled = true
+    request?.cancel(PubNubError(.clientCancelled))
   }
   
   deinit {

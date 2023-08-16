@@ -60,7 +60,7 @@ class PresenceTransition: TransitionProtocol {
     case is Presence.Heartbeating:
       return [.regular(.heartbeat(channels: state.channels, groups: state.input.groups))]
     case is Presence.HeartbeatCooldown:
-      return [.managed(.wait(channels: state.channels, groups: state.groups))]
+      return [.managed(.wait)]
     case let state as Presence.HeartbeatReconnecting:
       return [.managed(.delayedHeartbeat(channels: state.channels, groups: state.groups, currentAttempt: state.currentAttempt, error: state.error))]
     default:

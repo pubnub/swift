@@ -1,5 +1,5 @@
 //
-//  PresenceRequest.swift
+//  HeartbeatRequest.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,7 +27,7 @@
 
 import Foundation
 
-class HeartbeatRequest {
+class PresenceHeartbeatRequest {
   let channels: [String]
   let groups: [String]
   let configuration: PubNubConfiguration
@@ -52,7 +52,7 @@ class HeartbeatRequest {
   
   func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
     request = session.request(with: PresenceRouter(
-      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.heartbeatInterval),
+      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.durationUntilTimeout),
       configuration: configuration), requestOperator: nil
     )
     request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
@@ -63,5 +63,9 @@ class HeartbeatRequest {
         completionBlock(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))
       }
     }
+  }
+  
+  func cancel() {
+    request?.cancel(PubNubError(.clientCancelled))
   }
 }

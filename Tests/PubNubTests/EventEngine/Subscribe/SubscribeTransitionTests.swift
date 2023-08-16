@@ -57,6 +57,45 @@ extension Subscribe.Invocation : Equatable {
   }
 }
 
+extension Subscribe.Event: Equatable {  
+  public static func == (lhs: Subscribe.Event, rhs: Subscribe.Event) -> Bool {
+    switch (lhs, rhs) {
+    case let (.subscriptionChanged(lC, lG), .subscriptionChanged(rC, rG)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
+    case let (.subscriptionRestored(lC, lG, lCursor), .subscriptionRestored(rC, rG, rCursor)):
+      return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <) && lCursor == rCursor
+    case let (.handshakeSucceess(lCursor), .handshakeSucceess(rCursor)):
+      return lCursor == rCursor
+    case let (.handshakeReconnectSuccess(lCursor), .handshakeReconnectSuccess(rCursor)):
+      return lCursor == rCursor
+    case let (.handshakeFailure(lError), .handshakeFailure(rError)):
+      return lError == rError
+    case let (.handshakeReconnectFailure(lError), .handshakeReconnectFailure(rError)):
+      return lError == rError
+    case let (.handshakeReconnectGiveUp(lError), .handshakeReconnectGiveUp(rError)):
+      return lError == rError
+    case let (.receiveSuccess(lCursor, lMssgs), .receiveSuccess(rCursor, rMssgs)):
+      return lCursor == rCursor && lMssgs == rMssgs
+    case let (.receiveFailure(lError), .receiveFailure(rError)):
+      return lError == rError
+    case let (.receiveReconnectSuccess(lCursor, lMssgs), .receiveReconnectSuccess(rCursor, rMssgs)):
+      return lCursor == rCursor && lMssgs == rMssgs
+    case let (.receiveReconnectFailure(lError), .receiveReconnectFailure(rError)):
+      return lError == rError
+    case let (.receiveReconnectGiveUp(lError), .receiveReconnectGiveUp(rError)):
+      return lError == rError
+    case (.disconnect, .disconnect):
+      return true
+    case (.reconnect, .reconnect):
+      return true
+    case (.unsubscribeAll, .unsubscribeAll):
+      return true
+    default:
+      return false
+    }
+  }
+}
+
 class SubscribeTransitionTests: XCTestCase {
   private let transition = SubscribeTransition()
   private let input = SubscribeInput(channels: [PubNubChannel(channel: "test-channel")])

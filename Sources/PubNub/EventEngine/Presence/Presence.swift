@@ -107,7 +107,7 @@ extension Presence {
     case heartbeat(channels: [String], groups: [String])
     case leave(channels: [String], groups: [String])
     case delayedHeartbeat(channels: [String], groups: [String], currentAttempt: Int, error: PubNubError)
-    case wait(channels: [String], groups: [String])
+    case wait
         
     enum Cancellable: AnyCancellableInvocation {
       case scheduleNextHeartbeat
@@ -127,7 +127,7 @@ extension Presence {
       switch self {
       case .heartbeat(_,_):
         return "Presence.Heartbeat"
-      case .wait(_,_):
+      case .wait:
         return Cancellable.scheduleNextHeartbeat.id
       case .delayedHeartbeat:
         return Cancellable.delayedHeartbeat.id

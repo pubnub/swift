@@ -378,7 +378,9 @@
 		35FE941B22EFE5400051C455 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941A22EFE5400051C455 /* EventStreamTests.swift */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
 		3D2BE7392A6E9D2D00514C8F /* HeartbeatEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */; };
-		3D2BE73B2A6EBBA800514C8F /* HeartbeatRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */; };
+		3D2D571F2A8A195700BEA8CB /* DelayedHeartbeatEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D571E2A8A195700BEA8CB /* DelayedHeartbeatEffect.swift */; };
+		3D2D57232A8A1AF100BEA8CB /* PresenceLeaveRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D57222A8A1AF100BEA8CB /* PresenceLeaveRequest.swift */; };
+		3D2D57252A8A1EEC00BEA8CB /* WaitEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2D57242A8A1EEC00BEA8CB /* WaitEffect.swift */; };
 		3D371DE62A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
 		3D371DE72A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */; };
 		3D8773662A6130EC004A2953 /* Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8773652A6130EC004A2953 /* Presence.swift */; };
@@ -400,6 +402,7 @@
 		3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */; };
 		3DB56B652A715F7E00FC35A0 /* HeartbeatEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */; };
 		3DCC4DE02A42E93200F4A67A /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */; };
+		3DD048812A8CDC4F00CE0408 /* WaitEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD048802A8CDC4F00CE0408 /* WaitEffectTests.swift */; };
 		3DE7487C2A1FA426009B0809 /* TransitionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */; };
 		3DE7487D2A1FA426009B0809 /* Dispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486E2A1FA426009B0809 /* Dispatcher.swift */; };
 		3DE7487E2A1FA426009B0809 /* EffectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7486F2A1FA426009B0809 /* EffectHandler.swift */; };
@@ -413,6 +416,10 @@
 		3DF393A42A2F48BC00C62970 /* EventEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */; };
 		3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
 		3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
+		3DFA338E2A8CDFD4003B595F /* LeaveEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA338D2A8CDFD4003B595F /* LeaveEffectTests.swift */; };
+		3DFA33902A8CED14003B595F /* LeaveEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA338F2A8CED14003B595F /* LeaveEffect.swift */; };
+		3DFA33922A8CED6B003B595F /* PresenceHeartbeatRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA33912A8CED6B003B595F /* PresenceHeartbeatRequest.swift */; };
+		3DFA33952A8CEFD7003B595F /* DelayedHeartbeatEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA33932A8CEFBC003B595F /* DelayedHeartbeatEffectTests.swift */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79407BC0271D4CFA0032076C /* PubNubContractCucumberTest.m */; };
@@ -936,7 +943,9 @@
 		35FE941A22EFE5400051C455 /* EventStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
 		3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffect.swift; sourceTree = "<group>"; };
-		3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatRequest.swift; sourceTree = "<group>"; };
+		3D2D571E2A8A195700BEA8CB /* DelayedHeartbeatEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DelayedHeartbeatEffect.swift; sourceTree = "<group>"; };
+		3D2D57222A8A1AF100BEA8CB /* PresenceLeaveRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceLeaveRequest.swift; sourceTree = "<group>"; };
+		3D2D57242A8A1EEC00BEA8CB /* WaitEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitEffect.swift; sourceTree = "<group>"; };
 		3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineTestsHelpers.swift; sourceTree = "<group>"; };
 		3D8773652A6130EC004A2953 /* Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Presence.swift; sourceTree = "<group>"; };
 		3D8773672A613A58004A2953 /* PresenceTransition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceTransition.swift; sourceTree = "<group>"; };
@@ -957,6 +966,7 @@
 		3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEffectFactory.swift; sourceTree = "<group>"; };
 		3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffectTests.swift; sourceTree = "<group>"; };
 		3DCC4DDF2A42E93200F4A67A /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
+		3DD048802A8CDC4F00CE0408 /* WaitEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitEffectTests.swift; sourceTree = "<group>"; };
 		3DE7486D2A1FA426009B0809 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
 		3DE7486E2A1FA426009B0809 /* Dispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatcher.swift; sourceTree = "<group>"; };
 		3DE7486F2A1FA426009B0809 /* EffectHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EffectHandler.swift; sourceTree = "<group>"; };
@@ -969,6 +979,10 @@
 		3DE748892A1FA449009B0809 /* DispatcherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatcherTests.swift; sourceTree = "<group>"; };
 		3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineFactory.swift; sourceTree = "<group>"; };
 		3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
+		3DFA338D2A8CDFD4003B595F /* LeaveEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveEffectTests.swift; sourceTree = "<group>"; };
+		3DFA338F2A8CED14003B595F /* LeaveEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaveEffect.swift; sourceTree = "<group>"; };
+		3DFA33912A8CED6B003B595F /* PresenceHeartbeatRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresenceHeartbeatRequest.swift; sourceTree = "<group>"; };
+		3DFA33932A8CEFBC003B595F /* DelayedHeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelayedHeartbeatEffectTests.swift; sourceTree = "<group>"; };
 		69961B8ABB992B4D2997F819 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
@@ -1959,6 +1973,9 @@
 			isa = PBXGroup;
 			children = (
 				3D2BE7382A6E9D2D00514C8F /* HeartbeatEffect.swift */,
+				3D2D571E2A8A195700BEA8CB /* DelayedHeartbeatEffect.swift */,
+				3DFA338F2A8CED14003B595F /* LeaveEffect.swift */,
+				3D2D57242A8A1EEC00BEA8CB /* WaitEffect.swift */,
 				3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */,
 			);
 			path = Effects;
@@ -1987,8 +2004,8 @@
 			isa = PBXGroup;
 			children = (
 				3D93EC332A41A92D0056C26D /* SubscribeRequest.swift */,
-				3D93EC302A41A8890056C26D /* SubscribeInput.swift */,
 				3D93EC392A41B7850056C26D /* SubscribeError.swift */,
+				3D93EC302A41A8890056C26D /* SubscribeInput.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1996,8 +2013,9 @@
 		3D9B29EB2A654DF900C988C9 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				3D2BE73A2A6EBBA800514C8F /* HeartbeatRequest.swift */,
 				3D9B29EC2A6550A900C988C9 /* PresenceInput.swift */,
+				3DFA33912A8CED6B003B595F /* PresenceHeartbeatRequest.swift */,
+				3D2D57222A8A1AF100BEA8CB /* PresenceLeaveRequest.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -2007,6 +2025,9 @@
 			children = (
 				3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */,
 				3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */,
+				3DD048802A8CDC4F00CE0408 /* WaitEffectTests.swift */,
+				3DFA338D2A8CDFD4003B595F /* LeaveEffectTests.swift */,
+				3DFA33932A8CEFBC003B595F /* DelayedHeartbeatEffectTests.swift */,
 			);
 			path = Presence;
 			sourceTree = "<group>";
@@ -3225,6 +3246,7 @@
 				3585033422CD139400A11D9A /* String+PubNub.swift in Sources */,
 				3D2BE7392A6E9D2D00514C8F /* HeartbeatEffect.swift in Sources */,
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
+				3D2D57252A8A1EEC00BEA8CB /* WaitEffect.swift in Sources */,
 				35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */,
 				3DE7487F2A1FA426009B0809 /* EventEngine.swift in Sources */,
 				35277A7022D6B3F90083B9B6 /* URL+PubNub.swift in Sources */,
@@ -3241,12 +3263,12 @@
 				35580682230F3A34005CDD92 /* RequestIdOperator.swift in Sources */,
 				35A66A8322F861BA00AC67A9 /* PubNubMessage.swift in Sources */,
 				35A66A8022F861BA00AC67A9 /* AutomaticRetry.swift in Sources */,
-				3D2BE73B2A6EBBA800514C8F /* HeartbeatRequest.swift in Sources */,
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
 				35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
 				358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */,
 				35FAC1E72357C2AE0096E418 /* PubNubError.swift in Sources */,
+				3DFA33922A8CED6B003B595F /* PresenceHeartbeatRequest.swift in Sources */,
 				356D48B42360BD7000C65C40 /* SubscriptionStream.swift in Sources */,
 				35599799230C5878000BCFD1 /* LogWriter.swift in Sources */,
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
@@ -3264,11 +3286,13 @@
 				3D93EC3A2A41B7850056C26D /* SubscribeError.swift in Sources */,
 				35133196253115C500242CC2 /* CryptoStream.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
+				3D2D57232A8A1AF100BEA8CB /* PresenceLeaveRequest.swift in Sources */,
 				35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */,
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
+				3DFA33902A8CED14003B595F /* LeaveEffect.swift in Sources */,
 				3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
@@ -3324,6 +3348,7 @@
 				35AE6A3224FD6CEE00BBFA37 /* FileManagementRouter.swift in Sources */,
 				3D93EC342A41A92D0056C26D /* SubscribeRequest.swift in Sources */,
 				35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */,
+				3D2D571F2A8A195700BEA8CB /* DelayedHeartbeatEffect.swift in Sources */,
 				358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
 				3DF393A42A2F48BC00C62970 /* EventEngineFactory.swift in Sources */,
@@ -3373,13 +3398,16 @@
 				35CDFEBA22E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift in Sources */,
 				35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */,
 				35580686230F47EA005CDD92 /* RequestIdOperatorTests.swift in Sources */,
+				3DFA33952A8CEFD7003B595F /* DelayedHeartbeatEffectTests.swift in Sources */,
 				35CDFEA722E75BE800F3B9F2 /* OperationQueue+PubNubTests.swift in Sources */,
 				357AEB8A22E6A02F00C18250 /* Error+PubNubTests.swift in Sources */,
 				35C8FDC625000BC80069E89E /* FileManagementRouterTests.swift in Sources */,
+				3DD048812A8CDC4F00CE0408 /* WaitEffectTests.swift in Sources */,
 				3D9B29FB2A65609000C988C9 /* SubscribeRequestTests.swift in Sources */,
 				35A6C7BA22FC5BFB00E97CC5 /* Data+PubNubTests.swift in Sources */,
 				35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */,
 				3557CDFC237F59F6004BBACC /* PublishRouterTests.swift in Sources */,
+				3DFA338E2A8CDFD4003B595F /* LeaveEffectTests.swift in Sources */,
 				3557CE00237F6380004BBACC /* TimeRouterTests.swift in Sources */,
 				3557CDF7237F1E17004BBACC /* HistoryRouterTests.swift in Sources */,
 				3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */,

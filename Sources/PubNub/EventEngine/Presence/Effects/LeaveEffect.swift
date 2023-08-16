@@ -1,5 +1,5 @@
 //
-//  HeartbeatEffect.swift
+//  LeaveHeartbeatEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,20 +27,20 @@
 
 import Foundation
 
-class HeartbeatEffect: EffectHandler {
-  private let request: PresenceHeartbeatRequest
+class LeaveEffect: EffectHandler {
+  private let request: PresenceLeaveRequest
   
-  init(request: PresenceHeartbeatRequest) {
+  init(request: PresenceLeaveRequest) {
     self.request = request
   }
-  
+    
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
     request.execute() { result in
       switch result {
       case .success(_):
-        completionBlock([.heartbeatSuccess])
-      case .failure(let error):
-        completionBlock([.heartbeatFailed(error: error)])
+        completionBlock([])
+      case .failure(_):
+        completionBlock([])
       }
     }
   }

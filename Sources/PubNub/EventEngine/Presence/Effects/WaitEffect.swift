@@ -1,5 +1,5 @@
 //
-//  HeartbeatEffect.swift
+//  WaitEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,25 +27,32 @@
 
 import Foundation
 
-class HeartbeatEffect: EffectHandler {
-  private let request: PresenceHeartbeatRequest
-  
-  init(request: PresenceHeartbeatRequest) {
-    self.request = request
+class WaitEffect: EffectHandler {
+  private let configuration: PubNubConfiguration
+  private var workItem: DispatchWorkItem?
+  private var completionBlock: (([Presence.Event]) -> Void)?
+
+  init(configuration: PubNubConfiguration) {
+    self.configuration = configuration
   }
   
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    request.execute() { result in
-      switch result {
-      case .success(_):
-        completionBlock([.heartbeatSuccess])
-      case .failure(let error):
-        completionBlock([.heartbeatFailed(error: error)])
-      }
+    let workItem = DispatchWorkItem() {
+      completionBlock([.timesUp])
     }
+    
+    self.workItem = workItem
+    self.completionBlock = completionBlock
+    
+    DispatchQueue.global(qos: .default).asyncAfter(
+      deadline: .now() + Double(configuration.heartbeatInterval),
+      execute: workItem
+    )
   }
   
-  deinit {
-    request.cancel()
+  func cancelTask() {
+    workItem?.cancel()
+    completionBlock?([])
+    completionBlock = nil
   }
 }

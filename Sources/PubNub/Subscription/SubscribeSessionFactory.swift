@@ -87,9 +87,6 @@ public class SubscribeSessionFactory {
         configuration: config,
         subscribeEngine: subscribeEngine
       )
-      
-      subscribeEngine.delegate = subscriptionSession
-      
       dictionary.updateValue(
         WeakBox(subscriptionSession),
         forKey: configHash

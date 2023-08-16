@@ -95,10 +95,10 @@ class SubscribeInputTests: XCTestCase {
         PubNubChannel(id: "g2")
       ]
     )
-    let result = input1.newInputByAdding(channels: [
+    let result = input1 + SubscribeInput(channels: [
       PubNubChannel(id: "c1"),
       PubNubChannel(id: "c3", withPresence: true)
-    ], and: [
+    ], groups: [
       PubNubChannel(id: "g1"),
       PubNubChannel(id: "g3")
     ])
@@ -128,7 +128,7 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     
-    let result = input1.newInputByRemoving(channels: ["c1", "c3"], and: ["g1", "g3"])
+    let result = input1 - (channels: ["c1", "c3"], groups: ["g1", "g3"])
     let expectedAllSubscribedChannels = ["c2", "c2-pnpres"]
     let expectedSubscribedChannels = ["c2"]
     let expectedAllSubscribedGroups = ["g2"]
@@ -154,10 +154,9 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     
-    let result = input1.newInputByRemoving(
-      channels: ["c1", "c2", "c3"],
-      and: ["g1", "g3"],
-      presenceOnly: true
+    let result = input1 - (
+      channels: ["c1".presenceChannelName, "c2".presenceChannelName, "c3".presenceChannelName],
+      groups: ["g1".presenceChannelName, "g3".presenceChannelName]
     )
     
     let expectedAllSubscribedChannels = ["c1", "c2", "c3"]

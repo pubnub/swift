@@ -1,5 +1,5 @@
 //
-//  HeartbeatEffect.swift
+//  PresenceLeaveRequest.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,25 +27,45 @@
 
 import Foundation
 
-class HeartbeatEffect: EffectHandler {
-  private let request: PresenceHeartbeatRequest
+class PresenceLeaveRequest {
+  let channels: [String]
+  let groups: [String]
   
-  init(request: PresenceHeartbeatRequest) {
-    self.request = request
+  private let configuration: PubNubConfiguration
+  private let session: SessionReplaceable
+  private let sessionResponseQueue: DispatchQueue
+  private var request: RequestReplaceable?
+  
+  init(
+    channels: [String],
+    groups: [String],
+    configuration: PubNubConfiguration,
+    session: SessionReplaceable,
+    sessionResponseQueue: DispatchQueue
+  ) {
+    self.channels = channels
+    self.groups = groups
+    self.configuration = configuration
+    self.session = session
+    self.sessionResponseQueue = sessionResponseQueue
   }
   
-  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    request.execute() { result in
+  func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
+    request = session.request(with: PresenceRouter(
+      .leave(channels: channels, groups: groups),
+      configuration: configuration), requestOperator: nil
+    )
+    request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
       switch result {
       case .success(_):
-        completionBlock([.heartbeatSuccess])
+        completionBlock(.success(()))
       case .failure(let error):
-        completionBlock([.heartbeatFailed(error: error)])
+        completionBlock(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))
       }
     }
   }
   
-  deinit {
-    request.cancel()
+  func cancel() {
+    request?.cancel(PubNubError(.clientCancelled))
   }
 }

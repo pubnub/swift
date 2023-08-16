@@ -29,9 +29,8 @@ import Foundation
 
 struct SubscribeInput: Equatable {
   let filterExpression: String?
-  
-  private let channels: [String: PubNubChannel]
-  private let groups: [String: PubNubChannel]
+  let channels: [String: PubNubChannel]
+  let groups: [String: PubNubChannel]
   
   init(
     channels: [PubNubChannel] = [],
@@ -87,43 +86,42 @@ struct SubscribeInput: Equatable {
     channels.count + groups.count
   }
   
-  func newInputByAdding(
-    channels: [PubNubChannel],
-    and groups: [PubNubChannel]
-  ) -> SubscribeInput {
-    var currentChannels = self.channels
-    var currentGroups = self.groups
+  static func +(lhs: SubscribeInput, rhs: SubscribeInput) -> SubscribeInput {
+    var currentChannels = lhs.channels
+    var currentGroups = rhs.groups
     
-    channels.forEach { _ = currentChannels.insert($0) }
-    groups.forEach { _ = currentGroups.insert($0) }
+    rhs.channels.values.forEach { _ = currentChannels.insert($0) }
+    lhs.groups.values.forEach { _ = currentGroups.insert($0) }
     
     return SubscribeInput(
       channels: currentChannels,
       groups: currentGroups,
-      filterExpression: self.filterExpression
+      filterExpression: lhs.filterExpression
     )
   }
   
-  func newInputByRemoving(
-    channels: [String],
-    and groups: [String],
-    presenceOnly: Bool = false
-  ) -> SubscribeInput {
-    var currentChannels = self.channels
-    var currentGroups = self.groups
+  static func -(lhs: SubscribeInput, rhs: (channels: [String], groups: [String])) -> SubscribeInput {
+    var currentChannels = lhs.channels
+    var currentGroups = lhs.groups
     
-    if presenceOnly {
-      channels.forEach { _ = currentChannels.unsubscribePresence($0) }
-      groups.forEach { _ = currentGroups.unsubscribePresence($0) }
-    } else {
-      channels.forEach { currentChannels.removeValue(forKey: $0) }
-      groups.forEach { currentGroups.removeValue(forKey: $0) }
+    rhs.channels.forEach {
+      if $0.isPresenceChannelName {
+        currentChannels.unsubscribePresence($0.trimmingPresenceChannelSuffix)
+      } else {
+        currentChannels.removeValue(forKey: $0)
+      }
     }
-    
+    rhs.groups.forEach {
+      if $0.isPresenceChannelName {
+        currentGroups.unsubscribePresence($0.trimmingPresenceChannelSuffix)
+      } else {
+        currentGroups.removeValue(forKey: $0)
+      }
+    }
     return SubscribeInput(
       channels: currentChannels,
       groups: currentGroups,
-      filterExpression: self.filterExpression
+      filterExpression: lhs.filterExpression
     )
   }
   

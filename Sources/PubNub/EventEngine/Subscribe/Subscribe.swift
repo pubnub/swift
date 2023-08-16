@@ -37,7 +37,7 @@ protocol SubscribeState: Equatable {
 
 extension SubscribeState {
   var hasTimetoken: Bool {
-    return cursor.timetoken != 0
+    cursor.timetoken != 0
   }
 }
 

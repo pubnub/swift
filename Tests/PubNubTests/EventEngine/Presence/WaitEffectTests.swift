@@ -1,5 +1,5 @@
 //
-//  HeartbeatEffectTests.swift
+//  WaitEffectTests.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -30,18 +30,12 @@ import XCTest
 
 @testable import PubNub
 
-class HeartbeatEffectTests: XCTestCase {
+class WaitEffectTests: XCTestCase {
   private var mockUrlSession: MockURLSession!
   private var httpSession: HTTPSession!
   private var delegate: HTTPSessionDelegate!
   private var factory: PresenceEffectFactory!
-  
-  private let config = PubNubConfiguration(
-    publishKey: "pubKey",
-    subscribeKey: "subKey",
-    userId: "userId"
-  )
-    
+      
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
@@ -58,50 +52,54 @@ class HeartbeatEffectTests: XCTestCase {
     super.tearDown()
   }
   
-  func test_HeartbeatingEffectWithSuccessResponse() {
+  func test_WaitEffect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-    
-    mockResponse(GenericServicePayloadResponse(status: 200))
-        
+  
+    let heartbeatInterval = 2
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      heartbeatInterval: UInt(heartbeatInterval)
+    )
+            
     let effect = factory.effect(
-      for: .heartbeat(channels: ["channel-1", "channel-2"], groups: ["group-1", "group-2"]),
+      for: .wait,
       with: EventEngineCustomInput(value: Presence.EngineInput(configuration: config))
     )
+    let startDate = Date()
+
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.elementsEqual([.heartbeatSuccess]))
+      XCTAssertTrue(returnedEvents.elementsEqual([.timesUp]))
+      XCTAssertTrue(Int(Date().timeIntervalSince(startDate)) == heartbeatInterval)
       expectation.fulfill()
     }
-    wait(for: [expectation], timeout: 0.5)
+    wait(for: [expectation], timeout: 2.5)
   }
   
-  func test_HeartbeatingEffectWithFailedResponse() {
+  func test_WaitEffectCancellation() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-    
-    mockResponse(GenericServicePayloadResponse(status: 500))
-        
+  
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      heartbeatInterval: UInt(2)
+    )            
     let effect = factory.effect(
-      for: .heartbeat(channels: ["channel-1", "channel-2"], groups: ["group-1", "group-2"]),
+      for: .wait,
       with: EventEngineCustomInput(value: Presence.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.elementsEqual([.heartbeatFailed(error: PubNubError(.internalServiceError))]))
+      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
+    effect.cancelTask()
+    
     wait(for: [expectation], timeout: 0.5)
-  }
-}
-
-fileprivate extension HeartbeatEffectTests {
-  func mockResponse(_ response: GenericServicePayloadResponse) {
-    mockUrlSession.responseForDataTask = { task, id in
-      task.mockError = nil
-      task.mockData = try? Constant.jsonEncoder.encode(response)
-      task.mockResponse = HTTPURLResponse(statusCode: response.status)
-      return task
-    }
   }
 }

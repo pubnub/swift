@@ -44,6 +44,11 @@ public class SubscriptionSession {
   ) {
     self.subscribeEngine = subscribeEngine
     self.configuration = configuration
+    self.subscribeEngine.onStateUpdated = { [weak self] state in
+      if state.hasTimetoken {
+        self?.previousTokenResponse = state.cursor
+      }
+    }
   }
 
   /// Names of all subscribed channels
@@ -104,9 +109,9 @@ public class SubscriptionSession {
     at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false
   ) {
-    let newInput = subscribeEngine.state.input.newInputByAdding(
+    let newInput = subscribeEngine.state.input + SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: withPresence) },
-      and: groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
+      groups: groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
     )
     if let cursor = cursor, cursor.timetoken != 0 {
       send(event: .subscriptionRestored(
@@ -151,11 +156,10 @@ public class SubscriptionSession {
   ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   public func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
     // Update Channel List
-    let newInput = subscribeEngine.state.input.newInputByRemoving(
-      channels: channels,
-      and: groups,
-      presenceOnly: presenceOnly
-    )
+    let channelsToUnsubscribe = channels.map { presenceOnly ? $0.presenceChannelName : $0 }
+    let groupsToUnsubscribe = groups.map { presenceOnly ? $0.presenceChannelName : $0 }
+    let newInput = subscribeEngine.state.input - (channels: channelsToUnsubscribe, groups: groupsToUnsubscribe)
+    
     send(event: .subscriptionChanged(
       channels: newInput.allSubscribedChannels,
       groups: newInput.allSubscribedGroups
@@ -165,14 +169,6 @@ public class SubscriptionSession {
   /// Unsubscribe from all channels and channel groups
   public func unsubscribeAll() {
     send(event: .unsubscribeAll)
-  }
-}
-
-extension SubscriptionSession: EventEngineDelegate {
-  func onStateUpdated(state: AnySubscribeState) {
-    if state.hasTimetoken {
-      previousTokenResponse = state.cursor
-    }
   }
 }
 

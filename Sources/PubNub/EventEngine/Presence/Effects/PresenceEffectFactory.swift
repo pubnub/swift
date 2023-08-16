@@ -43,7 +43,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
     switch invocation {
     case .heartbeat(let channels, let groups):
       return HeartbeatEffect(
-        request: HeartbeatRequest(
+        request: PresenceHeartbeatRequest(
           channels: channels,
           groups: groups,
           configuration: customInput.value.configuration,
@@ -51,8 +51,33 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    default:
-      fatalError("TBD")
+    case .wait:
+      return WaitEffect(
+        configuration: customInput.value.configuration
+      )
+    case .delayedHeartbeat(let channels, let groups, let currentAttempt, let reason):
+      return DelayedHeartbeatEffect(
+        request: PresenceHeartbeatRequest(
+          channels: channels,
+          groups: groups,
+          configuration: customInput.value.configuration,
+          session: session,
+          sessionResponseQueue: sessionResponseQueue
+        ),
+        currentAttempt: currentAttempt,
+        reason: reason,
+        configuration: customInput.value.configuration
+      )
+    case .leave(let channels, let groups):
+      return LeaveEffect(
+        request: PresenceLeaveRequest(
+          channels: channels,
+          groups: groups,
+          configuration: customInput.value.configuration,
+          session: session,
+          sessionResponseQueue: sessionResponseQueue
+        )
+      )
     }
   }
 }

@@ -93,8 +93,8 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
   ) {
     effectsCache.put(effect: effect, with: id)
     effect.performTask { [weak effectsCache] results in
-      listener.onAnyInvocationCompleted(results)
       effectsCache?.removeEffect(id: id)
+      listener.onAnyInvocationCompleted(results)
     }
   }
 }

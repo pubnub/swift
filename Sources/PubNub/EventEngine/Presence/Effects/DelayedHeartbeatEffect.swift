@@ -29,7 +29,7 @@ import Foundation
 
 class DelayedHeartbeatEffect: EffectHandler {
   private let request: PresenceHeartbeatRequest
-  private let configuration: PubNubConfiguration
+  private let configuration: SubscriptionConfiguration
   private let currentAttempt: Int
   private let reason: PubNubError
   
@@ -40,7 +40,7 @@ class DelayedHeartbeatEffect: EffectHandler {
     request: PresenceHeartbeatRequest,
     currentAttempt: Int,
     reason: PubNubError,
-    configuration: PubNubConfiguration
+    configuration: SubscriptionConfiguration
   ) {
     self.request = request
     self.currentAttempt = currentAttempt

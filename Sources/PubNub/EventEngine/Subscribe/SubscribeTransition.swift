@@ -28,7 +28,7 @@
 import Foundation
 
 class SubscribeTransition: TransitionProtocol {
-  typealias State = (AnySubscribeState)
+  typealias State = (any SubscribeState)
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
   

@@ -96,7 +96,7 @@ extension Presence {
 
 extension Presence {
   struct EngineInput {
-    let configuration: PubNubConfiguration
+    let configuration: SubscriptionConfiguration
   }
 }
 

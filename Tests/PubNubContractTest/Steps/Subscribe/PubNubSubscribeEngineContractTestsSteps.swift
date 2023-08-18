@@ -107,14 +107,17 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
   // A decorator that records Invocations and forwards all calls to the original instance
   private var dispatcher: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>!
   // A decorator that records Events and forwards all calls to the original instance
-  private var transition: TransitionDecorator<AnySubscribeState, Subscribe.Event, Subscribe.Invocation>!
+  private var transition: TransitionDecorator<any SubscribeState, Subscribe.Event, Subscribe.Invocation>!
   // SubscribeEngine with observed Dispatcher and Transition
   private var subscribeEngine: SubscribeEngine!
+  // PresenceEngine
+  private var presenceEngine: PresenceEngine!
   
   override func handleAfterHook() {
     dispatcher = nil
     transition = nil
     subscribeEngine = nil
+    presenceEngine = nil
     subscriptionSession = nil
     super.handleAfterHook()
   }
@@ -161,7 +164,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
       )
       self.subscriptionSession = SubscriptionSession(
         configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine
+        subscribeEngine: self.subscribeEngine,
+        presenceEngine: self.presenceEngine
       )
     }
     Given("the demo keyset with event engine enabled") { _, _ in
@@ -172,7 +176,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
       )
       self.subscriptionSession = SubscriptionSession(
         configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine
+        subscribeEngine: self.subscribeEngine,
+        presenceEngine: self.presenceEngine
       )
     }
     When("I subscribe") { _, _ in

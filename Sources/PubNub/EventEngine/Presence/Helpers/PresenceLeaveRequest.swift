@@ -31,7 +31,7 @@ class PresenceLeaveRequest {
   let channels: [String]
   let groups: [String]
   
-  private let configuration: PubNubConfiguration
+  private let configuration: SubscriptionConfiguration
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
@@ -39,7 +39,7 @@ class PresenceLeaveRequest {
   init(
     channels: [String],
     groups: [String],
-    configuration: PubNubConfiguration,
+    configuration: SubscriptionConfiguration,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
   ) {

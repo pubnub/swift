@@ -27,20 +27,32 @@
 
 import Foundation
 
-typealias AnySubscribeState = (any SubscribeState)
-typealias SubscribeEngine = EventEngine<AnySubscribeState, Subscribe.Event, Subscribe.Invocation, Subscribe.EngineInput>
+typealias SubscribeEngine = EventEngine<(any SubscribeState), Subscribe.Event, Subscribe.Invocation, Subscribe.EngineInput>
+typealias PresenceEngine = EventEngine<(any PresenceState), Presence.Event, Presence.Invocation, Presence.EngineInput>
 
 class EventEngineFactory {
   func subscribeEngine(
     with configuration: SubscriptionConfiguration,
     dispatcher: some Dispatcher<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>,
-    transition: some TransitionProtocol<AnySubscribeState, Subscribe.Event, Subscribe.Invocation>
+    transition: some TransitionProtocol<any SubscribeState, Subscribe.Event, Subscribe.Invocation>
   ) -> SubscribeEngine {
     EventEngine(
       state: Subscribe.UnsubscribedState(),
       transition: transition,
       dispatcher: dispatcher,
       customInput: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configuration))
+    )
+  }
+  func presenceEngine(
+    with configuration: SubscriptionConfiguration,
+    dispatcher: some Dispatcher<Presence.Invocation, Presence.Event, Presence.EngineInput>,
+    transition: some TransitionProtocol<any PresenceState, Presence.Event, Presence.Invocation>
+  ) -> PresenceEngine {
+    EventEngine(
+      state: Presence.HeartbeatInactive(),
+      transition: transition,
+      dispatcher: dispatcher,
+      customInput: EventEngineCustomInput(value: Presence.EngineInput(configuration: configuration))
     )
   }
 }

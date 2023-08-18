@@ -28,11 +28,11 @@
 import Foundation
 
 class WaitEffect: EffectHandler {
-  private let configuration: PubNubConfiguration
+  private let configuration: SubscriptionConfiguration
   private var workItem: DispatchWorkItem?
   private var completionBlock: (([Presence.Event]) -> Void)?
 
-  init(configuration: PubNubConfiguration) {
+  init(configuration: SubscriptionConfiguration) {
     self.configuration = configuration
   }
   

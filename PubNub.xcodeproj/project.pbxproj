@@ -218,7 +218,6 @@
 		35A66A8322F861BA00AC67A9 /* PubNubMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A66A7C22F861BA00AC67A9 /* PubNubMessage.swift */; };
 		35A66A8E22F911DB00AC67A9 /* SubscribeSessionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A66A8D22F911DB00AC67A9 /* SubscribeSessionFactory.swift */; };
 		35A66A9022F913B200AC67A9 /* ConnectionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A66A8F22F913B200AC67A9 /* ConnectionStatus.swift */; };
-		35A66A9422F91B2A00AC67A9 /* SubscriptionSession+Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A66A9322F91B2A00AC67A9 /* SubscriptionSession+Presence.swift */; };
 		35A66A9622F9B71200AC67A9 /* setState_missing_state.json in Resources */ = {isa = PBXBuildFile; fileRef = 35A66A9522F9B71200AC67A9 /* setState_missing_state.json */; };
 		35A66A9722F9B72200AC67A9 /* setState_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35A66A8C22F9084000AC67A9 /* setState_success.json */; };
 		35A66A9822F9B72500AC67A9 /* getState_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35A66A8B22F9080A00AC67A9 /* getState_success.json */; };
@@ -787,7 +786,6 @@
 		35A66A8C22F9084000AC67A9 /* setState_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = setState_success.json; sourceTree = "<group>"; };
 		35A66A8D22F911DB00AC67A9 /* SubscribeSessionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeSessionFactory.swift; sourceTree = "<group>"; };
 		35A66A8F22F913B200AC67A9 /* ConnectionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionStatus.swift; sourceTree = "<group>"; };
-		35A66A9322F91B2A00AC67A9 /* SubscriptionSession+Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscriptionSession+Presence.swift"; sourceTree = "<group>"; };
 		35A66A9522F9B71200AC67A9 /* setState_missing_state.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = setState_missing_state.json; sourceTree = "<group>"; };
 		35A6C77C22FB159F00E97CC5 /* PresenceRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceRouter.swift; sourceTree = "<group>"; };
 		35A6C78022FB2E4C00E97CC5 /* herenow_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = herenow_success.json; sourceTree = "<group>"; };
@@ -1651,7 +1649,6 @@
 			children = (
 				35A66A8D22F911DB00AC67A9 /* SubscribeSessionFactory.swift */,
 				35A66A7422F861BA00AC67A9 /* SubscriptionSession.swift */,
-				35A66A9322F91B2A00AC67A9 /* SubscriptionSession+Presence.swift */,
 				35C829DB23147AC000F59D3C /* SubscriptionState.swift */,
 				35A66A8F22F913B200AC67A9 /* ConnectionStatus.swift */,
 			);
@@ -3355,7 +3352,6 @@
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,
 				35EE358C22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift in Sources */,
-				35A66A9422F91B2A00AC67A9 /* SubscriptionSession+Presence.swift in Sources */,
 				350EFBE022C9573F00FA33AA /* NSLocking+PubNub.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

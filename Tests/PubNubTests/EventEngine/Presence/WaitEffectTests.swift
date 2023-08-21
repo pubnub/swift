@@ -83,7 +83,8 @@ class WaitEffectTests: XCTestCase {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-  
+    expectation.isInverted = true
+    
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -95,10 +96,32 @@ class WaitEffectTests: XCTestCase {
       with: EventEngineCustomInput(value: Presence.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
     effect.cancelTask()
+    
+    wait(for: [expectation], timeout: 0.5)
+  }
+  
+  func test_WaitEffectFinishesImmediatelyWithEmptyHeartbeatInterval() {
+    let expectation = XCTestExpectation()
+    expectation.expectationDescription = "Effect Completion Expectation"
+    expectation.assertForOverFulfill = true
+    
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      heartbeatInterval: UInt(0)
+    )
+    let effect = factory.effect(
+      for: .wait,
+      with: EventEngineCustomInput(value: Presence.EngineInput(configuration: config))
+    )
+    effect.performTask { returnedEvents in
+      XCTAssertTrue(returnedEvents.isEmpty)
+      expectation.fulfill()
+    }
     
     wait(for: [expectation], timeout: 0.5)
   }

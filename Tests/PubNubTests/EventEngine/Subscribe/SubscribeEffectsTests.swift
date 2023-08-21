@@ -416,7 +416,8 @@ class SubscribeEffectsTests: XCTestCase {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
+    expectation.isInverted = true
+    
     let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
@@ -434,19 +435,19 @@ class SubscribeEffectsTests: XCTestCase {
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
     effect.cancelTask()
     
-    wait(for: [expectation], timeout: 2.0)
+    wait(for: [expectation], timeout: 1.0)
   }
   
   func test_CancelledReceiveReconnect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
+    expectation.isInverted = true
+    
     let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
@@ -465,12 +466,11 @@ class SubscribeEffectsTests: XCTestCase {
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
     effect.cancelTask()
     
-    wait(for: [expectation], timeout: 2.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 }
 

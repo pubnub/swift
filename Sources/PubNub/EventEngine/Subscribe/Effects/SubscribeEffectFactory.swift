@@ -48,7 +48,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   ) -> any EffectHandler<Subscribe.Event> {
     switch invocation {
     case .handshakeRequest(let channels, let groups):
-      return HandshakingEffect(
+      return HandshakeEffect(
         request: SubscribeRequest(
           configuration: customInput.value.configuration,
           channels: channels,

@@ -60,26 +60,21 @@ class SubscribeRequest {
     self.sessionResponseQueue = sessionResponseQueue
   }
   
-  func computeReconnectionDelay(
-    dueTo error: SubscribeError,
-    with currentAttempt: Int
-  ) -> TimeInterval? {
+  func reconnectionDelay(dueTo error: SubscribeError, with currentAttempt: Int) -> TimeInterval? {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
     guard automaticRetry.retryLimit > currentAttempt else {
       return nil
     }
-    
-    if let underlyingError = error.underlying.underlying {
-      if automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError) {
-        return automaticRetry.policy.delay(for: currentAttempt)
-      } else {
-        return nil
-      }
-    } else {
+    guard let underlyingError = error.underlying.underlying else {
       return automaticRetry.policy.delay(for: currentAttempt)
     }
+    let shouldRetry = automaticRetry.shouldRetry(
+      response: error.urlResponse,
+      error: underlyingError
+    )
+    return shouldRetry ? automaticRetry.policy.delay(for: currentAttempt) : nil
   }
         
   func execute(onCompletion: @escaping (Result<SubscribeResponse, SubscribeError>) -> Void) {

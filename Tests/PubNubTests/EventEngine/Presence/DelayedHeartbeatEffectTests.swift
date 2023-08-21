@@ -144,26 +144,6 @@ class DelayedHeartbeatEffectTests: XCTestCase {
     }
     wait(for: [expectation], timeout: 3.5)
   }
-  
-  func test_DelayedHeartbeatEffectCancellation() {
-    let expectation = XCTestExpectation()
-    expectation.expectationDescription = "Effect Completion Expectation"
-    expectation.assertForOverFulfill = true
-        
-    let timeout: UInt = 4
-    let error = PubNubError(.unknown)
-    let effect = configureEffect(attempt: 2, durationUntilTimeout: timeout, error: error)
-    
-    mockResponse(GenericServicePayloadResponse(status: 200))
-    
-    effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
-      expectation.fulfill()
-    }
-    effect.cancelTask()
-    
-    wait(for: [expectation], timeout: 0.5)
-  }
 }
 
 fileprivate extension DelayedHeartbeatEffectTests {

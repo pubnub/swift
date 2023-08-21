@@ -86,8 +86,8 @@ public class SubscriptionSession {
       if state is Subscribe.ReceivingState {
         self?.sendPresenceEvent(event: .joined(
           channels: state.input.subscribedChannels,
-          groups: state.input.subscribedGroups)
-        )
+          groups: state.input.subscribedGroups
+        ))
       }
     }
   }

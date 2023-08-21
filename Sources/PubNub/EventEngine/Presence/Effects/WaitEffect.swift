@@ -27,32 +27,29 @@
 
 import Foundation
 
-class WaitEffect: EffectHandler {
+class WaitEffect: DelayedEffectHandler {
+  typealias Event = Presence.Event
+  
   private let configuration: SubscriptionConfiguration
-  private var workItem: DispatchWorkItem?
-  private var completionBlock: (([Presence.Event]) -> Void)?
-
+  var workItem: DispatchWorkItem?
+  
   init(configuration: SubscriptionConfiguration) {
     self.configuration = configuration
   }
+
+  func delayInterval() -> TimeInterval? {
+    configuration.heartbeatInterval > 0 ? TimeInterval(configuration.heartbeatInterval) : nil
+  }
   
-  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    let workItem = DispatchWorkItem() {
-      completionBlock([.timesUp])
-    }
-    
-    self.workItem = workItem
-    self.completionBlock = completionBlock
-    
-    DispatchQueue.global(qos: .default).asyncAfter(
-      deadline: .now() + Double(configuration.heartbeatInterval),
-      execute: workItem
-    )
+  func onEarlyExit(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    completionBlock([])
+  }
+  
+  func onDelayExpired(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    completionBlock([.timesUp])
   }
   
   func cancelTask() {
     workItem?.cancel()
-    completionBlock?([])
-    completionBlock = nil
   }
 }

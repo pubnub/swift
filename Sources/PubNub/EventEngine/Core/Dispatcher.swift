@@ -82,6 +82,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
         )
       case .cancel(let cancelInvocation):
         effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask()
+        effectsCache.removeEffect(id: cancelInvocation.id)
       }
     }
   }

@@ -27,14 +27,15 @@
 
 import Foundation
 
-class DelayedHeartbeatEffect: EffectHandler {
+class DelayedHeartbeatEffect: DelayedEffectHandler {
+  typealias Event = Presence.Event
+  
   private let request: PresenceHeartbeatRequest
   private let configuration: SubscriptionConfiguration
   private let currentAttempt: Int
   private let reason: PubNubError
   
-  private var workItem: DispatchWorkItem?
-  private var completionBlock: (([Presence.Event]) -> Void)?
+  var workItem: DispatchWorkItem?
   
   init(
     request: PresenceHeartbeatRequest,
@@ -48,49 +49,40 @@ class DelayedHeartbeatEffect: EffectHandler {
     self.configuration = configuration
   }
   
-  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    if currentAttempt <= 2 {
-      let workItem = DispatchWorkItem() { [weak self] in
-        self?.request.execute() { result in
-          switch result {
-          case .success(_):
-            completionBlock([.heartbeatSuccess])
-          case .failure(let error):
-            completionBlock([.heartbeatFailed(error: error)])
-          }
-        }
+  func delayInterval() -> TimeInterval? {
+    switch currentAttempt {
+    case 0:
+      return 0
+    case 1:
+      return 0.5 * Double(configuration.durationUntilTimeout)
+    case 2:
+      return Double(configuration.durationUntilTimeout) - 1.0
+    default:
+      return nil
+    }
+  }
+  
+  func onEarlyExit(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    completionBlock([.heartbeatGiveUp(error: reason)])
+  }
+  
+  func onDelayExpired(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    request.execute() { result in
+      switch result {
+      case .success(_):
+        completionBlock([.heartbeatSuccess])
+      case .failure(let error):
+        completionBlock([.heartbeatFailed(error: error)])
       }
-      self.workItem = workItem
-      self.completionBlock = completionBlock
-
-      DispatchQueue.global(qos: .default).asyncAfter(
-        deadline: .now() + computeDelay(),
-        execute: workItem
-      )
-    } else {
-      completionBlock([.heartbeatGiveUp(error: reason)])
     }
   }
   
   func cancelTask() {
     workItem?.cancel()
-    completionBlock?([])
-    completionBlock = nil
+    request.cancel()
   }
   
   deinit {
     cancelTask()
-  }
-}
-
-fileprivate extension DelayedHeartbeatEffect {
-  func computeDelay() -> TimeInterval {
-    if currentAttempt == 0 {
-      return 0
-    } else if currentAttempt == 1 {
-      return 0.5 * Double(configuration.durationUntilTimeout)
-    } else {
-      return Double(configuration.durationUntilTimeout) - 1.0
-    }
   }
 }

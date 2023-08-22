@@ -754,7 +754,11 @@ extension SubscribeRouterTests {
           XCTAssertEqual(subscription.subscribedChannels, [])
 
           statusExpect.fulfill()
+        case .connectionError(_):
+          statusExpect.fulfill()
         case .disconnected:
+          statusExpect.fulfill()
+        case .disconnectedUnexpectedly(_):
           statusExpect.fulfill()
         }
       default:
@@ -791,7 +795,11 @@ extension SubscribeRouterTests {
           XCTAssertEqual(subscription.subscribedChannels, [])
 
           statusExpect.fulfill()
+        case .connectionError(_):
+          statusExpect.fulfill()
         case .disconnected:
+          statusExpect.fulfill()
+        case .disconnectedUnexpectedly(_):
           statusExpect.fulfill()
         }
       default:

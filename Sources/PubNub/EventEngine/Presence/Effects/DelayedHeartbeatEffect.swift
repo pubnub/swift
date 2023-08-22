@@ -32,25 +32,25 @@ class DelayedHeartbeatEffect: DelayedEffectHandler {
   
   private let request: PresenceHeartbeatRequest
   private let configuration: SubscriptionConfiguration
-  private let currentAttempt: Int
+  private let retryAttempt: Int
   private let reason: PubNubError
   
   var workItem: DispatchWorkItem?
   
   init(
     request: PresenceHeartbeatRequest,
-    currentAttempt: Int,
+    retryAttempt: Int,
     reason: PubNubError,
     configuration: SubscriptionConfiguration
   ) {
     self.request = request
-    self.currentAttempt = currentAttempt
+    self.retryAttempt = retryAttempt
     self.reason = reason
     self.configuration = configuration
   }
   
   func delayInterval() -> TimeInterval? {
-    switch currentAttempt {
+    switch retryAttempt {
     case 0:
       return 0
     case 1:

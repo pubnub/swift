@@ -83,12 +83,6 @@ public class SubscriptionSession {
       if state.hasTimetoken {
         self?.previousTokenResponse = state.cursor
       }
-      if state is Subscribe.ReceivingState {
-        self?.sendPresenceEvent(event: .joined(
-          channels: state.input.subscribedChannels,
-          groups: state.input.subscribedGroups
-        ))
-      }
     }
   }
   
@@ -151,6 +145,10 @@ public class SubscriptionSession {
         groups: newInput.allSubscribedGroups
       ))
     }
+    sendPresenceEvent(event: .joined(
+      channels: newInput.presenceSubscribedChannels,
+      groups: newInput.presenceSubscribedGroups
+    ))
   }
 
   /// Reconnect a disconnected subscription stream

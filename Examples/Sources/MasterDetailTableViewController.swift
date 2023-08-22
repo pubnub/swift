@@ -269,8 +269,12 @@ class MasterDetailTableViewController: UITableViewController {
           switch connectionChange {
           case .connected:
             print("Status connected!")
+          case .connectionError(let error):
+            print("Error while attempting to initialize connection: \(error)")
           case .disconnected:
             print("Status disconnected")
+          case .disconnectedUnexpectedly(let error):
+            print("Disconnected unexpectedly: \(error)")
           }
         case let .presenceChanged(presenceChange):
           print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")

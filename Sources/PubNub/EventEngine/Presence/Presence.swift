@@ -60,7 +60,7 @@ extension Presence {
 
   struct HeartbeatReconnecting: PresenceState {
     let input: PresenceInput
-    let currentAttempt: Int
+    let retryAttempt: Int
     let error: PubNubError
   }
   
@@ -106,7 +106,7 @@ extension Presence {
   enum Invocation: AnyEffectInvocation {
     case heartbeat(channels: [String], groups: [String])
     case leave(channels: [String], groups: [String])
-    case delayedHeartbeat(channels: [String], groups: [String], currentAttempt: Int, error: PubNubError)
+    case delayedHeartbeat(channels: [String], groups: [String], retryAttempt: Int, error: PubNubError)
     case wait
         
     enum Cancellable: AnyCancellableInvocation {

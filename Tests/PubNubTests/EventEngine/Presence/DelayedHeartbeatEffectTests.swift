@@ -160,7 +160,7 @@ fileprivate extension DelayedHeartbeatEffectTests {
     factory.effect(
       for: .delayedHeartbeat(
         channels: ["channel-1", "channel-2"], groups: ["group-1", "group-2"],
-        currentAttempt: attempt, error: PubNubError(.unknown)
+        retryAttempt: attempt, error: PubNubError(.unknown)
       ),
       with: EventEngineCustomInput(value: Presence.EngineInput(
         configuration: PubNubConfiguration(

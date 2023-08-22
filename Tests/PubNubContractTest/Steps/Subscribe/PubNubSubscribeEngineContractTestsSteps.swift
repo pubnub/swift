@@ -67,7 +67,7 @@ extension Subscribe.Invocation.Cancellable: ContractTestIdentifiable {
 extension Subscribe.Event: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .handshakeSucceess(_):
+    case .handshakeSuccess(_):
       return "HANDSHAKE_SUCCESS"
     case .handshakeFailure(_):
       return "HANDSHAKE_FAILURE"
@@ -137,7 +137,12 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
   }
 
   override var expectSubscribeFailure: Bool {
-    hasStep(with: "I receive an error in my subscribe response")
+    [
+      "Successfully restore subscribe with failures",
+      "Complete handshake failure",
+      "Handshake failure recovery",
+      "Receiving failure recovery"
+    ].contains(currentScenario?.name ?? "")
   }
   
   override func createPubNubClient() -> PubNub {
@@ -182,6 +187,9 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
     }
     When("I subscribe") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
+    }
+    When("I subscribe with timetoken 42") { _, _ in
+      self.subscribeSynchronously(self.client, to: ["test"], timetoken: 42)
     }
     Then("I receive an error in my subscribe response") { _, _ in
       XCTAssertNotNil(self.receivedErrorStatuses.first)

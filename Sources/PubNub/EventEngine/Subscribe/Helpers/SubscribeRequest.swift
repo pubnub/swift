@@ -32,6 +32,7 @@ class SubscribeRequest {
   let groups: [String]
   let timetoken: Timetoken?
   let region: Int?
+  let filterExpression: String?
   
   private let configuration: SubscriptionConfiguration
   private let session: SessionReplaceable
@@ -48,6 +49,7 @@ class SubscribeRequest {
     groups: [String],
     timetoken: Timetoken? = nil,
     region: Int? = nil,
+    filterExpression: String? = nil,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
   ) {
@@ -56,25 +58,26 @@ class SubscribeRequest {
     self.groups = groups
     self.timetoken = timetoken
     self.region = region
+    self.filterExpression = filterExpression
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
   }
   
-  func reconnectionDelay(dueTo error: SubscribeError, with currentAttempt: Int) -> TimeInterval? {
+  func reconnectionDelay(dueTo error: SubscribeError, with retryAttempt: Int) -> TimeInterval? {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard automaticRetry.retryLimit > currentAttempt else {
+    guard automaticRetry.retryLimit > retryAttempt else {
       return nil
     }
     guard let underlyingError = error.underlying.underlying else {
-      return automaticRetry.policy.delay(for: currentAttempt)
+      return automaticRetry.policy.delay(for: retryAttempt)
     }
     let shouldRetry = automaticRetry.shouldRetry(
       response: error.urlResponse,
       error: underlyingError
     )
-    return shouldRetry ? automaticRetry.policy.delay(for: currentAttempt) : nil
+    return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
   }
         
   func execute(onCompletion: @escaping (Result<SubscribeResponse, SubscribeError>) -> Void) {
@@ -86,7 +89,7 @@ class SubscribeRequest {
           timetoken: timetoken,
           region: region?.description ?? nil,
           heartbeat: configuration.durationUntilTimeout,
-          filter: configuration.filterExpression
+          filter: filterExpression ?? configuration.filterExpression
         ), configuration: configuration
       ), requestOperator: nil
     )

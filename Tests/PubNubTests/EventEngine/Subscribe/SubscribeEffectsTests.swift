@@ -87,7 +87,7 @@ class SubscribeEffectsTests: XCTestCase {
     )
     effect.performTask { returnedEvents in
       let expectedCursor = SubscribeCursor(timetoken: 12345, region: 1)
-      let expectedEvent = Subscribe.Event.handshakeSucceess(cursor: expectedCursor)
+      let expectedEvent = Subscribe.Event.handshakeSuccess(cursor: expectedCursor)
       XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
       expectation.fulfill()
     }
@@ -191,7 +191,7 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     )
@@ -220,7 +220,7 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -245,7 +245,7 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 3,
+        retryAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -277,7 +277,7 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -306,7 +306,7 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -337,7 +337,7 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -368,7 +368,7 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 3,
+        retryAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -401,7 +401,7 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -430,7 +430,7 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
@@ -461,7 +461,7 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )

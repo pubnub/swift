@@ -51,7 +51,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case .delayedHeartbeat(let channels, let groups, let currentAttempt, let reason):
+    case .delayedHeartbeat(let channels, let groups, let retryAttempt, let reason):
       return DelayedHeartbeatEffect(
         request: PresenceHeartbeatRequest(
           channels: channels,
@@ -60,7 +60,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
           session: session,
           sessionResponseQueue: sessionResponseQueue
         ),
-        currentAttempt: currentAttempt,
+        retryAttempt: retryAttempt,
         reason: reason,
         configuration: customInput.value.configuration
       )

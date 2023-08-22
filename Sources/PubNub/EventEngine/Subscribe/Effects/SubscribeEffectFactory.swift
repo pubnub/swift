@@ -58,7 +58,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case .handshakeReconnect(let channels, let groups, let currentAttempt, let reason):
+    case .handshakeReconnect(let channels, let groups, let retryAttempt, let reason):
       return HandshakeReconnectEffect(
         request: SubscribeRequest(
           configuration: customInput.value.configuration,
@@ -69,7 +69,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ),
         error: reason,
-        currentAttempt: currentAttempt
+        retryAttempt: retryAttempt
       )
     case .receiveMessages(let channels, let groups, let cursor):
       return ReceivingEffect(
@@ -83,7 +83,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case .receiveReconnect(let channels, let groups, let cursor, let currentAttempt, let reason):
+    case .receiveReconnect(let channels, let groups, let cursor, let retryAttempt, let reason):
       return ReceiveReconnectEffect(
         request: SubscribeRequest(
           configuration: customInput.value.configuration,
@@ -95,7 +95,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ),
         error: reason,
-        currentAttempt: currentAttempt
+        retryAttempt: retryAttempt
       )
     case .emitMessages(let messages, let cursor):
       return EmitMessagesEffect(

@@ -82,6 +82,26 @@ struct SubscribeInput: Equatable {
     }
   }
   
+  var presenceSubscribedChannels: [String] {
+    channels.compactMap {
+      if $0.value.isPresenceSubscribed {
+        return $0.value.id
+      } else {
+        return nil
+      }
+    }
+  }
+  
+  var presenceSubscribedGroups: [String] {
+    groups.compactMap {
+      if $0.value.isPresenceSubscribed {
+        return $0.value.id
+      } else {
+        return nil
+      }
+    }
+  }
+  
   var totalSubscribedCount: Int {
     channels.count + groups.count
   }
@@ -96,7 +116,7 @@ struct SubscribeInput: Equatable {
     return SubscribeInput(
       channels: currentChannels,
       groups: currentGroups,
-      filterExpression: lhs.filterExpression
+      filterExpression: rhs.filterExpression
     )
   }
   

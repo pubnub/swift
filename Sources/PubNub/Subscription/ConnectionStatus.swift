@@ -28,11 +28,15 @@
 import Foundation
 
 /// Status of a connection to a remote system
-public enum ConnectionStatus {
+public enum ConnectionStatus: Equatable {
   /// Successfully connected to a remote system
   case connected
   /// Explicit disconnect from a remote system
   case disconnected
+  /// Unexpected disconnect from a remote system
+  case disconnectedUnexpectedly(PubNubError)
+  /// Unable to establish initial connection
+  case connectionError(PubNubError)
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
@@ -41,11 +45,19 @@ public enum ConnectionStatus {
       return true
     case .disconnected:
       return false
+    case .connectionError(_):
+      return false
+    case .disconnectedUnexpectedly(_):
+      return false
     }
   }
 
   /// If the connection is connected
   public var isConnected: Bool {
-    return self == .connected
+    if case .connected = self {
+      return true
+    } else {
+      return false
+    }
   }
 }

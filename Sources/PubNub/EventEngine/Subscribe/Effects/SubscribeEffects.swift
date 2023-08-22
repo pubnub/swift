@@ -41,7 +41,7 @@ class HandshakeEffect: EffectHandler {
       guard let _ = self else { return }
       switch $0 {
       case .success(let response):
-        completionBlock([.handshakeSucceess(cursor: response.cursor)])
+        completionBlock([.handshakeSuccess(cursor: response.cursor)])
       case .failure(let error):
         completionBlock([.handshakeFailure(error: error)])
       }
@@ -93,18 +93,18 @@ class HandshakeReconnectEffect: DelayedEffectHandler {
   typealias Event = Subscribe.Event
   
   let request: SubscribeRequest
-  let currentAttempt: Int
+  let retryAttempt: Int
   let error: SubscribeError
   var workItem: DispatchWorkItem?
   
-  init(request: SubscribeRequest, error: SubscribeError, currentAttempt: Int) {
+  init(request: SubscribeRequest, error: SubscribeError, retryAttempt: Int) {
     self.request = request
     self.error = error
-    self.currentAttempt = currentAttempt
+    self.retryAttempt = retryAttempt
   }
   
   func delayInterval() -> TimeInterval? {
-    request.reconnectionDelay(dueTo: error, with: currentAttempt)
+    request.reconnectionDelay(dueTo: error, with: retryAttempt)
   }
   
   func onEarlyExit(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {
@@ -139,18 +139,18 @@ class ReceiveReconnectEffect: DelayedEffectHandler {
   typealias Event = Subscribe.Event
   
   let request: SubscribeRequest
-  let currentAttempt: Int
+  let retryAttempt: Int
   let error: SubscribeError
   var workItem: DispatchWorkItem?
   
-  init(request: SubscribeRequest, error: SubscribeError, currentAttempt: Int) {
+  init(request: SubscribeRequest, error: SubscribeError, retryAttempt: Int) {
     self.request = request
     self.error = error
-    self.currentAttempt = currentAttempt
+    self.retryAttempt = retryAttempt
   }
   
   func delayInterval() -> TimeInterval? {
-    request.reconnectionDelay(dueTo: error, with: currentAttempt)
+    request.reconnectionDelay(dueTo: error, with: retryAttempt)
   }
   
   func onEarlyExit(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {

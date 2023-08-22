@@ -51,27 +51,27 @@ enum Subscribe {}
 extension Subscribe {
   struct HandshakingState: SubscribeState {
     let input: SubscribeInput
-    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
   
   struct HandshakeStoppedState: SubscribeState {
     let input: SubscribeInput
-    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
   
   struct HandshakeReconnectingState: SubscribeState {
     let input: SubscribeInput
-    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
-    let currentAttempt: Int
+    let cursor: SubscribeCursor
+    let retryAttempt: Int
     let reason: SubscribeError
     let connectionStatus = ConnectionStatus.disconnected
   }
   
   struct HandshakeFailedState: SubscribeState {
     let input: SubscribeInput
-    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
+    let cursor: SubscribeCursor
     let error: SubscribeError
     let connectionStatus = ConnectionStatus.disconnected
   }
@@ -85,9 +85,9 @@ extension Subscribe {
   struct ReceiveReconnectingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let currentAttempt: Int
+    let retryAttempt: Int
     let reason: SubscribeError
-    let connectionStatus = ConnectionStatus.disconnected
+    let connectionStatus = ConnectionStatus.connected
   }
   
   struct ReceiveStoppedState: SubscribeState {
@@ -116,7 +116,7 @@ extension Subscribe {
   enum Event {
     case subscriptionChanged(channels: [String], groups: [String])
     case subscriptionRestored(channels: [String], groups: [String], cursor: SubscribeCursor)
-    case handshakeSucceess(cursor: SubscribeCursor)
+    case handshakeSuccess(cursor: SubscribeCursor)
     case handshakeFailure(error: SubscribeError)
     case handshakeReconnectSuccess(cursor: SubscribeCursor)
     case handshakeReconnectFailure(error: SubscribeError)
@@ -157,9 +157,9 @@ extension Subscribe {
 extension Subscribe {
   enum Invocation: AnyEffectInvocation {
     case handshakeRequest(channels: [String], groups: [String])
-    case handshakeReconnect(channels: [String], groups: [String], currentAttempt: Int, reason: SubscribeError)
+    case handshakeReconnect(channels: [String], groups: [String], retryAttempt: Int, reason: SubscribeError)
     case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
-    case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, currentAttempt: Int, reason: SubscribeError)
+    case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, retryAttempt: Int, reason: SubscribeError)
     case emitStatus(change: Subscribe.ConnectionStatusChange)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
     

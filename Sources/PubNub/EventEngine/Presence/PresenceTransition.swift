@@ -62,7 +62,7 @@ class PresenceTransition: TransitionProtocol {
     case is Presence.HeartbeatCooldown:
       return [.managed(.wait)]
     case let state as Presence.HeartbeatReconnecting:
-      return [.managed(.delayedHeartbeat(channels: state.channels, groups: state.groups, currentAttempt: state.currentAttempt, error: state.error))]
+      return [.managed(.delayedHeartbeat(channels: state.channels, groups: state.groups, retryAttempt: state.retryAttempt, error: state.error))]
     default:
       return []
     }
@@ -171,7 +171,7 @@ fileprivate extension PresenceTransition {
     return TransitionResult(
       state: Presence.HeartbeatReconnecting(
         input: state.input,
-        currentAttempt: ((state as? Presence.HeartbeatReconnecting)?.currentAttempt ?? -1) + 1,
+        retryAttempt: ((state as? Presence.HeartbeatReconnecting)?.retryAttempt ?? -1) + 1,
         error: error
       )
     )

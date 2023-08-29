@@ -25,4 +25,11 @@ The PubNub Real-Time Network. Build real-time apps quickly and scale them global
 
   s.module_name = 'PubNub'
   s.source_files = 'Sources/**/*.swift'
+
+  if defined?($PubNubAsStaticFramework)
+    Pod::UI.puts "#{s.name}: Using overridden static_framework value of '#{$PubNubAsStaticFramework}'"
+    s.static_framework = $PubNubAsStaticFramework
+  else
+    s.static_framework = false
+  end
 end

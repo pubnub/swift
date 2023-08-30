@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.0.5"
+version: "6.1.0"
 schema: 1
 changelog:
+  - date: 2023-08-30
+    version: 6.1.0
+    changes:
+      - type: feature
+        text: "To make client integration more flexible for different projects setup, the `$PubNubAsStaticFramework` flag has been added to `PubNubSwift.podspec`.  With `$PubNubAsStaticFramework = true` in `Podfile` SDK will be integrated as a static library."
   - date: 2023-05-18
     version: 6.0.5
     changes:
@@ -485,7 +490,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.0.5.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

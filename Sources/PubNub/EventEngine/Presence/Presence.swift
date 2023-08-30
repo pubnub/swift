@@ -110,12 +110,12 @@ extension Presence {
     case wait
         
     enum Cancellable: AnyCancellableInvocation {
-      case scheduleNextHeartbeat
+      case wait
       case delayedHeartbeat
       
       var id: String {
         switch self {
-        case .scheduleNextHeartbeat:
+        case .wait:
           return "Presence.ScheduleNextHeartbeat"
         case .delayedHeartbeat:
           return "Presence.HeartbeatReconnect"
@@ -128,7 +128,7 @@ extension Presence {
       case .heartbeat(_,_):
         return "Presence.Heartbeat"
       case .wait:
-        return Cancellable.scheduleNextHeartbeat.id
+        return Cancellable.wait.id
       case .delayedHeartbeat:
         return Cancellable.delayedHeartbeat.id
       case .leave(_,_):

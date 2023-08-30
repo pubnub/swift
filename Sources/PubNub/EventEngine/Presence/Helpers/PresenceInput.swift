@@ -31,6 +31,16 @@ struct PresenceInput: Equatable {
   fileprivate let channelsSet: Set<String>
   fileprivate let groupsSet: Set<String>
   
+  init(channels: [String] = [], groups: [String] = []) {
+    channelsSet = Set(channels)
+    groupsSet = Set(groups)
+  }
+  
+  fileprivate init(channels: Set<String>, groups: Set<String>) {
+    channelsSet = channels
+    groupsSet = groups
+  }
+  
   var channels: [String] {
     channelsSet.map { $0 }
   }
@@ -41,16 +51,6 @@ struct PresenceInput: Equatable {
   
   var isEmpty: Bool {
     channelsSet.isEmpty && groupsSet.isEmpty
-  }
-  
-  init(channels: [String] = [], groups: [String] = []) {
-    channelsSet = Set(channels)
-    groupsSet = Set(groups)
-  }
-  
-  fileprivate init(channels: Set<String>, groups: Set<String>) {
-    channelsSet = channels
-    groupsSet = groups
   }
   
   static func +(lhs: PresenceInput, rhs: PresenceInput) -> PresenceInput {

@@ -30,8 +30,6 @@ import Foundation
 public class SubscriptionSession {
   /// An unique identifier for subscription session
   public let uuid = UUID()
-  /// PSV2 feature to subscribe with a custom filter expression.
-  public var filterExpression: String?
 
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
   var configuration: SubscriptionConfiguration

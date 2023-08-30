@@ -32,7 +32,6 @@ class SubscribeRequest {
   let groups: [String]
   let timetoken: Timetoken?
   let region: Int?
-  let filterExpression: String?
   
   private let configuration: SubscriptionConfiguration
   private let session: SessionReplaceable
@@ -49,7 +48,6 @@ class SubscribeRequest {
     groups: [String],
     timetoken: Timetoken? = nil,
     region: Int? = nil,
-    filterExpression: String? = nil,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
   ) {
@@ -58,7 +56,6 @@ class SubscribeRequest {
     self.groups = groups
     self.timetoken = timetoken
     self.region = region
-    self.filterExpression = filterExpression
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
   }
@@ -89,7 +86,7 @@ class SubscribeRequest {
           timetoken: timetoken,
           region: region?.description ?? nil,
           heartbeat: configuration.durationUntilTimeout,
-          filter: filterExpression ?? configuration.filterExpression
+          filter: configuration.filterExpression
         ), configuration: configuration
       ), requestOperator: nil
     )

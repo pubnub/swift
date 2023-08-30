@@ -28,28 +28,20 @@
 import Foundation
 
 struct SubscribeInput: Equatable {
-  let filterExpression: String?
   let channels: [String: PubNubChannel]
   let groups: [String: PubNubChannel]
   
-  init(
-    channels: [PubNubChannel] = [],
-    groups: [PubNubChannel] = [],
-    filterExpression: String? = nil
-  ) {
+  init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
     self.channels = channels.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
     self.groups = groups.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
-    self.filterExpression = filterExpression
   }
   
   private init(
     channels: [String: PubNubChannel],
-    groups: [String: PubNubChannel],
-    filterExpression: String?
+    groups: [String: PubNubChannel]
   ) {
     self.channels = channels
     self.groups = groups
-    self.filterExpression = filterExpression
   }
   
   var isEmpty: Bool {
@@ -115,8 +107,7 @@ struct SubscribeInput: Equatable {
     
     return SubscribeInput(
       channels: currentChannels,
-      groups: currentGroups,
-      filterExpression: rhs.filterExpression
+      groups: currentGroups
     )
   }
   
@@ -140,8 +131,7 @@ struct SubscribeInput: Equatable {
     }
     return SubscribeInput(
       channels: currentChannels,
-      groups: currentGroups,
-      filterExpression: lhs.filterExpression
+      groups: currentGroups
     )
   }
   

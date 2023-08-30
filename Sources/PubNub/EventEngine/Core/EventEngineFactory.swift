@@ -43,6 +43,7 @@ class EventEngineFactory {
       customInput: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configuration))
     )
   }
+  
   func presenceEngine(
     with configuration: SubscriptionConfiguration,
     dispatcher: some Dispatcher<Presence.Invocation, Presence.Event, Presence.EngineInput>,

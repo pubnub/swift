@@ -356,20 +356,18 @@ public extension PubNub {
   ///   - at: The initial timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
   ///   - region: The region code from a previous `SubscribeCursor`
-  ///   - filterOverride: Overrides the previous filter on the next successful request
   func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
     at timetoken: Timetoken? = nil,
-    withPresence: Bool = false,
-    filterOverride: String? = nil
+    withPresence: Bool = false
   ) {
-    subscription.filterExpression = filterOverride
-
-    subscription.subscribe(to: channels,
-                           and: channelGroups,
-                           at: SubscribeCursor(timetoken: timetoken),
-                           withPresence: withPresence)
+    subscription.subscribe(
+      to: channels,
+      and: channelGroups,
+      at: SubscribeCursor(timetoken: timetoken),
+      withPresence: withPresence
+    )
   }
 
   /// Unsubscribe from channels and/or channel groups
@@ -429,14 +427,6 @@ public extension PubNub {
   /// The current state of the subscription connection
   var connectionStatus: ConnectionStatus {
     return subscription.connectionStatus
-  }
-
-  /// An override for the default filter expression set during initialization
-  internal var subscribeFilterExpression: String? {
-    get { return subscription.filterExpression }
-    set {
-      subscription.filterExpression = newValue
-    }
   }
 }
 

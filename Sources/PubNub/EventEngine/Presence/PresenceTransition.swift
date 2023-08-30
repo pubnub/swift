@@ -71,7 +71,7 @@ class PresenceTransition: TransitionProtocol {
   private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.HeartbeatCooldown:
-      return [.cancel(.scheduleNextHeartbeat)]
+      return [.cancel(.wait)]
     case is Presence.HeartbeatReconnecting:
       return [.cancel(.delayedHeartbeat)]
     default:

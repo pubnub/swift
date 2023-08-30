@@ -188,8 +188,7 @@ fileprivate extension SubscribeTransition {
   ) -> TransitionResult<State, Invocation> {
     let newInput = SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
-      groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
-      filterExpression: state.input.filterExpression
+      groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) }
     )
     if newInput.isEmpty {
       return setUnsubscribedState(from: state)
@@ -229,8 +228,7 @@ fileprivate extension SubscribeTransition {
   ) -> TransitionResult<State, Invocation> {
     let newInput = SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
-      groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) },
-      filterExpression: state.input.filterExpression
+      groups: groups.map { PubNubChannel(id: $0, withPresence: $0.isPresenceChannelName) }
     )
     
     if newInput.isEmpty {

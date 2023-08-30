@@ -1,5 +1,5 @@
 //
-//  LeaveHeartbeatEffect.swift
+//  LeaveEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.

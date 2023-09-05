@@ -28,37 +28,32 @@
 import Foundation
 
 struct SubscribeInput: Equatable {
-  let filterExpression: String?
+  let channels: [String: PubNubChannel]
+  let groups: [String: PubNubChannel]
   
-  private let channels: [String: PubNubChannel]
-  private let groups: [String: PubNubChannel]
-  
-  init(
-    channels: [PubNubChannel] = [],
-    groups: [PubNubChannel] = [],
-    filterExpression: String? = nil
-  ) {
+  init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
     self.channels = channels.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
     self.groups = groups.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
-    self.filterExpression = filterExpression
   }
   
   private init(
     channels: [String: PubNubChannel],
-    groups: [String: PubNubChannel],
-    filterExpression: String?
+    groups: [String: PubNubChannel]
   ) {
     self.channels = channels
     self.groups = groups
-    self.filterExpression = filterExpression
+  }
+  
+  var isEmpty: Bool {
+    channels.isEmpty && groups.isEmpty
   }
   
   var subscribedChannels: [String] {
-    channels.map { $0.key }.sorted(by: <)
+    channels.map { $0.key }
   }
   
   var subscribedGroups: [String] {
-    groups.map { $0.key }.sorted(by: <)
+    groups.map { $0.key }
   }
   
   var allSubscribedChannels: [String] {
@@ -67,7 +62,7 @@ struct SubscribeInput: Equatable {
       if entry.value.isPresenceSubscribed {
         result.append(entry.value.presenceId)
       }
-    }.sorted(by: <)
+    }
   }
   
   var allSubscribedGroups: [String] {
@@ -76,51 +71,75 @@ struct SubscribeInput: Equatable {
       if entry.value.isPresenceSubscribed {
         result.append(entry.value.presenceId)
       }
-    }.sorted(by: <)
+    }
+  }
+  
+  var presenceSubscribedChannels: [String] {
+    channels.compactMap {
+      if $0.value.isPresenceSubscribed {
+        return $0.value.id
+      } else {
+        return nil
+      }
+    }
+  }
+  
+  var presenceSubscribedGroups: [String] {
+    groups.compactMap {
+      if $0.value.isPresenceSubscribed {
+        return $0.value.id
+      } else {
+        return nil
+      }
+    }
   }
   
   var totalSubscribedCount: Int {
     channels.count + groups.count
   }
   
-  func newInputByAdding(
-    channels: [PubNubChannel],
-    and groups: [PubNubChannel]
-  ) -> SubscribeInput {
-    var currentChannels = self.channels
-    var currentGroups = self.groups
+  static func +(lhs: SubscribeInput, rhs: SubscribeInput) -> SubscribeInput {
+    var currentChannels = lhs.channels
+    var currentGroups = rhs.groups
     
-    channels.forEach { _ = currentChannels.insert($0) }
-    groups.forEach { _ = currentGroups.insert($0) }
+    rhs.channels.values.forEach { _ = currentChannels.insert($0) }
+    lhs.groups.values.forEach { _ = currentGroups.insert($0) }
     
     return SubscribeInput(
       channels: currentChannels,
-      groups: currentGroups,
-      filterExpression: self.filterExpression
+      groups: currentGroups
     )
   }
   
-  func newInputByRemoving(
-    channels: [String],
-    and groups: [String],
-    presenceOnly: Bool = false
-  ) -> SubscribeInput {
-    var currentChannels = self.channels
-    var currentGroups = self.groups
+  static func -(lhs: SubscribeInput, rhs: (channels: [String], groups: [String])) -> SubscribeInput {
+    var currentChannels = lhs.channels
+    var currentGroups = lhs.groups
     
-    if presenceOnly {
-      channels.forEach { _ = currentChannels.unsubscribePresence($0) }
-      groups.forEach { _ = currentGroups.unsubscribePresence($0) }
-    } else {
-      channels.forEach { currentChannels.removeValue(forKey: $0) }
-      groups.forEach { currentGroups.removeValue(forKey: $0) }
+    rhs.channels.forEach {
+      if $0.isPresenceChannelName {
+        currentChannels.unsubscribePresence($0.trimmingPresenceChannelSuffix)
+      } else {
+        currentChannels.removeValue(forKey: $0)
+      }
     }
-    
+    rhs.groups.forEach {
+      if $0.isPresenceChannelName {
+        currentGroups.unsubscribePresence($0.trimmingPresenceChannelSuffix)
+      } else {
+        currentGroups.removeValue(forKey: $0)
+      }
+    }
     return SubscribeInput(
       channels: currentChannels,
-      groups: currentGroups,
-      filterExpression: self.filterExpression
+      groups: currentGroups
     )
+  }
+  
+  static func ==(lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
+    let equalChannels = lhs.allSubscribedChannels.sorted(by: <) == rhs.allSubscribedChannels.sorted(by: <)
+    let equalGroups = lhs.allSubscribedGroups.sorted(by: <) == rhs.allSubscribedGroups.sorted(by: <)
+    
+    return equalChannels && equalGroups
   }
 }
 
@@ -136,7 +155,7 @@ extension Dictionary where Key == String, Value == PubNubChannel {
 
   // Updates current Dictionary with the new channel value unsubscribed from Presence.
   // Returns the updated value if the corresponding entry matching the passed `id:` was found, otherwise `nil`
-  mutating func unsubscribePresence(_ id: String) -> Value? {
+  @discardableResult mutating func unsubscribePresence(_ id: String) -> Value? {
     if let match = self[id], match.isPresenceSubscribed {
       let updatedChannel = PubNubChannel(id: match.id, withPresence: false)
       self[match.id] = updatedChannel

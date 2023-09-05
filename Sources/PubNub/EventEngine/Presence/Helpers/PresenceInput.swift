@@ -1,5 +1,5 @@
 //
-//  TransitionProtocol.swift
+//  PresenceInput.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,39 +27,50 @@
 
 import Foundation
 
-protocol AnyIdentifiableInvocation {
-  var id: String { get }
-}
-
-protocol AnyCancellableInvocation: AnyIdentifiableInvocation {
+struct PresenceInput: Equatable {
+  fileprivate let channelsSet: Set<String>
+  fileprivate let groupsSet: Set<String>
   
-}
-
-protocol AnyEffectInvocation: AnyIdentifiableInvocation {
-  associatedtype Cancellable: AnyCancellableInvocation
-}
-
-struct TransitionResult<State, Invocation: AnyEffectInvocation> {
-  let state: State
-  let invocations: [EffectInvocation<Invocation>]
-  
-  init(state: State, invocations: [EffectInvocation<Invocation>] = []) {
-    self.state = state
-    self.invocations = invocations
+  init(channels: [String] = [], groups: [String] = []) {
+    channelsSet = Set(channels)
+    groupsSet = Set(groups)
   }
-}
-
-enum EffectInvocation<Invocation: AnyEffectInvocation> {
-  case managed(_ invocation: Invocation)
-  case regular(_ invocation: Invocation)
-  case cancel(_ invocation: Invocation.Cancellable)
-}
-
-protocol TransitionProtocol<State, Event, Invocation> {
-  associatedtype State
-  associatedtype Event
-  associatedtype Invocation: AnyEffectInvocation
   
-  func canTransition(from state: State, dueTo event: Event) -> Bool
-  func transition(from state: State, event: Event) -> TransitionResult<State, Invocation>
+  fileprivate init(channels: Set<String>, groups: Set<String>) {
+    channelsSet = channels
+    groupsSet = groups
+  }
+  
+  var channels: [String] {
+    channelsSet.map { $0 }
+  }
+  
+  var groups: [String] {
+    groupsSet.map { $0 }
+  }
+  
+  var isEmpty: Bool {
+    channelsSet.isEmpty && groupsSet.isEmpty
+  }
+  
+  static func +(lhs: PresenceInput, rhs: PresenceInput) -> PresenceInput {
+    PresenceInput(
+      channels: lhs.channelsSet.union(rhs.channelsSet),
+      groups: lhs.groupsSet.union(rhs.groupsSet)
+    )
+  }
+  
+  static func -(lhs: PresenceInput, rhs: PresenceInput) -> PresenceInput {
+    PresenceInput(
+      channels: lhs.channelsSet.subtracting(rhs.channelsSet),
+      groups: lhs.groupsSet.subtracting(rhs.groupsSet)
+    )
+  }
+  
+  static func ==(lhs: PresenceInput, rhs: PresenceInput) -> Bool {
+    let equalChannels = lhs.channels.sorted(by: <) == rhs.channels.sorted(by: <)
+    let equalGroups = lhs.groups.sorted(by: <) == rhs.groups.sorted(by: <)
+    
+    return equalChannels && equalGroups
+  }
 }

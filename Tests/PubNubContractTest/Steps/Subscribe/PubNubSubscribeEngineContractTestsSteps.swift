@@ -30,105 +30,6 @@ import Cucumberish
 
 @testable import PubNub
 
-class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
-  // A subscription session with wrapped Disptacher and Transition in order to record Invocations and Events
-  private var subscriptionSession: SubscriptionSession!
-  // A decorator that records Invocations and forwards all calls to the original instance
-  private var dispatcher: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>!
-  // A decorator that records Events and forwards all calls to the original instance
-  private var transition: TransitionDecorator<AnySubscribeState, Subscribe.Event, Subscribe.Invocation>!
-  // SubscribeEngine with observed Dispatcher and Transition
-  private var subscribeEngine: SubscribeEngine!
-  
-  override func handleAfterHook() {
-    dispatcher = nil
-    transition = nil
-    subscribeEngine = nil
-    subscriptionSession = nil
-    super.handleAfterHook()
-  }
-  override func handleBeforeHook() {
-    dispatcher = DispatcherDecorator(wrappedInstance: EffectDispatcher(
-      factory: SubscribeEffectFactory(session: HTTPSession(
-        configuration: URLSessionConfiguration.subscription,
-        sessionQueue: DispatchQueue(label: "Subscribe Response Queue"),
-        sessionStream: SessionListener()
-      ))
-    ))
-    transition = TransitionDecorator(
-      wrappedInstance: SubscribeTransition()
-    )
-    super.handleBeforeHook()
-  }
-
-  override var expectSubscribeFailure: Bool {
-    hasStep(with: "I receive an error in my subscribe response")
-  }
-  override func createPubNubClient() -> PubNub {
-    PubNub(configuration: self.configuration, subscriptionSession: subscriptionSession)
-  }
-
-  override public func setup() {
-    startCucumberHookEventsListening()
-    
-    Given("a linear reconnection policy with 3 retries") { args, _ in
-      self.replacePubNubConfiguration(with: PubNubConfiguration(
-        publishKey: defaultPublishKey,
-        subscribeKey: defaultSubscribeKey,
-        userId: UUID().uuidString,
-        useSecureConnections: false,
-        origin: mockServerAddress,
-        automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 0.5)),
-        supressLeaveEvents: true
-      ))
-      self.subscribeEngine = EventEngineFactory().subscribeEngine(
-        with: self.configuration,
-        dispatcher: self.dispatcher,
-        transition: self.transition
-      )
-      self.subscriptionSession = SubscriptionSession(
-        configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine
-      )
-    }
-    Given("the demo keyset with event engine enabled") { _, _ in
-      self.subscribeEngine = EventEngineFactory().subscribeEngine(
-        with: self.configuration,
-        dispatcher: self.dispatcher,
-        transition: self.transition
-      )
-      self.subscriptionSession = SubscriptionSession(
-        configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine
-      )
-    }
-    When("I subscribe") { _, _ in
-      self.subscribeSynchronously(self.client, to: ["test"])
-    }
-    Then("I receive an error in my subscribe response") { _, _ in
-      XCTAssertNotNil(self.receivedErrorStatuses.first)
-    }
-    Then("I receive the message in my subscribe response") { _, userInfo in
-      let messages = self.waitForMessages(self.client, count: 1) ?? []
-      XCTAssertNotNil(messages.first)
-    }
-    Match(["And"], "I observe the following:") { args, value in
-      let recordedEvents = self.transition.recordedEvents.map { $0.contractTestIdentifier }
-      let recordedInvocations = self.dispatcher.recordedInvocations.map { $0.contractTestIdentifier }
-      XCTAssertTrue(recordedEvents.elementsEqual(self.extractExpectedResults(from: value).events))
-      XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
-    }
-  }
-  
-  private func extractExpectedResults(from: [AnyHashable: Any]?) -> (events: [String], invocations: [String]) {
-    let dataTable = from?["DataTable"] as? Array<Array<String>> ?? []
-    let events = dataTable.compactMap { $0.first == "event" ? $0.last : nil }
-    let invocations = dataTable.compactMap { $0.first == "invocation" ? $0.last : nil }
-    
-    return (events: events, invocations: invocations)
-  }
-}
-
 extension Subscribe.Invocation: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
@@ -166,7 +67,7 @@ extension Subscribe.Invocation.Cancellable: ContractTestIdentifiable {
 extension Subscribe.Event: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .handshakeSucceess(_):
+    case .handshakeSuccess(_):
       return "HANDSHAKE_SUCCESS"
     case .handshakeFailure(_):
       return "HANDSHAKE_FAILURE"
@@ -197,5 +98,119 @@ extension Subscribe.Event: ContractTestIdentifiable {
     case .reconnect:
       return "RECONNECT"
     }
+  }
+}
+
+class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
+  // A subscription session with wrapped Disptacher and Transition in order to record Invocations and Events
+  private var subscriptionSession: SubscriptionSession!
+  // A decorator that records Invocations and forwards all calls to the original instance
+  private var dispatcher: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>!
+  // A decorator that records Events and forwards all calls to the original instance
+  private var transition: TransitionDecorator<any SubscribeState, Subscribe.Event, Subscribe.Invocation>!
+  // SubscribeEngine with observed Dispatcher and Transition
+  private var subscribeEngine: SubscribeEngine!
+  // PresenceEngine
+  private var presenceEngine: PresenceEngine!
+  
+  override func handleAfterHook() {
+    dispatcher = nil
+    transition = nil
+    subscribeEngine = nil
+    presenceEngine = nil
+    subscriptionSession = nil
+    super.handleAfterHook()
+  }
+  
+  override func handleBeforeHook() {
+    dispatcher = DispatcherDecorator(wrappedInstance: EffectDispatcher(
+      factory: SubscribeEffectFactory(session: HTTPSession(
+        configuration: URLSessionConfiguration.subscription,
+        sessionQueue: DispatchQueue(label: "Subscribe Response Queue"),
+        sessionStream: SessionListener()
+      ))
+    ))
+    transition = TransitionDecorator(
+      wrappedInstance: SubscribeTransition()
+    )
+    super.handleBeforeHook()
+  }
+
+  override var expectSubscribeFailure: Bool {
+    [
+      "Successfully restore subscribe with failures",
+      "Complete handshake failure",
+      "Handshake failure recovery",
+      "Receiving failure recovery"
+    ].contains(currentScenario?.name ?? "")
+  }
+  
+  override func createPubNubClient() -> PubNub {
+    PubNub(configuration: self.configuration, subscriptionSession: subscriptionSession)
+  }
+
+  override public func setup() {
+    startCucumberHookEventsListening()
+    
+    Given("a linear reconnection policy with 3 retries") { args, _ in
+      self.replacePubNubConfiguration(with: PubNubConfiguration(
+        publishKey: defaultPublishKey,
+        subscribeKey: defaultSubscribeKey,
+        userId: UUID().uuidString,
+        useSecureConnections: false,
+        origin: mockServerAddress,
+        automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 0.5)),
+        supressLeaveEvents: true
+      ))
+      self.subscribeEngine = EventEngineFactory().subscribeEngine(
+        with: self.configuration,
+        dispatcher: self.dispatcher,
+        transition: self.transition
+      )
+      self.subscriptionSession = SubscriptionSession(
+        configuration: self.configuration,
+        subscribeEngine: self.subscribeEngine,
+        presenceEngine: self.presenceEngine
+      )
+    }
+    Given("the demo keyset with event engine enabled") { _, _ in
+      self.subscribeEngine = EventEngineFactory().subscribeEngine(
+        with: self.configuration,
+        dispatcher: self.dispatcher,
+        transition: self.transition
+      )
+      self.subscriptionSession = SubscriptionSession(
+        configuration: self.configuration,
+        subscribeEngine: self.subscribeEngine,
+        presenceEngine: self.presenceEngine
+      )
+    }
+    When("I subscribe") { _, _ in
+      self.subscribeSynchronously(self.client, to: ["test"])
+    }
+    When("I subscribe with timetoken 42") { _, _ in
+      self.subscribeSynchronously(self.client, to: ["test"], timetoken: 42)
+    }
+    Then("I receive an error in my subscribe response") { _, _ in
+      XCTAssertNotNil(self.receivedErrorStatuses.first)
+    }
+    Then("I receive the message in my subscribe response") { _, userInfo in
+      let messages = self.waitForMessages(self.client, count: 1) ?? []
+      XCTAssertNotNil(messages.first)
+    }
+    Match(["And"], "I observe the following:") { args, value in
+      let recordedEvents = self.transition.recordedEvents.map { $0.contractTestIdentifier }
+      let recordedInvocations = self.dispatcher.recordedInvocations.map { $0.contractTestIdentifier }
+      XCTAssertTrue(recordedEvents.elementsEqual(self.extractExpectedResults(from: value).events))
+      XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
+    }
+  }
+  
+  private func extractExpectedResults(from: [AnyHashable: Any]?) -> (events: [String], invocations: [String]) {
+    let dataTable = from?["DataTable"] as? Array<Array<String>> ?? []
+    let events = dataTable.compactMap { $0.first == "event" ? $0.last : nil }
+    let invocations = dataTable.compactMap { $0.first == "invocation" ? $0.last : nil }
+    
+    return (events: events, invocations: invocations)
   }
 }

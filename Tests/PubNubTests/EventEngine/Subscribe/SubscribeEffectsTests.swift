@@ -86,13 +86,10 @@ class SubscribeEffectsTests: XCTestCase {
       with: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
-      if case let .handshakeSucceess(cursor) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(cursor == SubscribeCursor(timetoken: 12345, region: 1))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedCursor = SubscribeCursor(timetoken: 12345, region: 1)
+      let expectedEvent = Subscribe.Event.handshakeSuccess(cursor: expectedCursor)
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -114,13 +111,10 @@ class SubscribeEffectsTests: XCTestCase {
       )
     )
     effect.performTask { returnedEvents in
-      if case let .handshakeFailure(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost))
+      let expectedEvent = Subscribe.Event.handshakeFailure(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -145,14 +139,10 @@ class SubscribeEffectsTests: XCTestCase {
       )
     )
     effect.performTask { returnedEvents in
-      if case let .receiveSuccess(cursor, messages) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(cursor == SubscribeCursor(timetoken: 12345, region: 1))
-        XCTAssertTrue(messages == [firstMessage, secondMessage])
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedCursor = SubscribeCursor(timetoken: 12345, region: 1)
+      let expectedEvent = Subscribe.Event.receiveSuccess(cursor: expectedCursor, messages: [firstMessage, secondMessage])
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -177,13 +167,10 @@ class SubscribeEffectsTests: XCTestCase {
       )
     )
     effect.performTask { returnedEvents in
-      if case let .receiveFailure(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost))
+      let expectedEvent = Subscribe.Event.receiveFailure(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -204,18 +191,15 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     )
     effect.performTask { returnedEvents in
-      if case let .handshakeReconnectSuccess(cursor) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(cursor == SubscribeCursor(timetoken: 12345, region: 1))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedCursor = SubscribeCursor(timetoken: 12345, region: 1)
+      let expectedEvent = Subscribe.Event.handshakeReconnectSuccess(cursor: expectedCursor)
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -236,18 +220,15 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      if case let .handshakeReconnectFailure(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost))
+      let expectedEvent = Subscribe.Event.handshakeReconnectFailure(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -259,28 +240,20 @@ class SubscribeEffectsTests: XCTestCase {
 
     let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: config))
     let urlError = URLError(.badServerResponse)
-    
-    mockResponse(
-      errorIfAny: URLError(.cannotFindHost),
-      httpResponse: HTTPURLResponse(statusCode: 404)!
-    )
-    
+        
     let effect = factory.effect(
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 3,
+        retryAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      if case let .handshakeReconnectGiveUp(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.badServerResponse, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.badServerResponse)
+      let expectedEvent = Subscribe.Event.handshakeReconnectGiveUp(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -290,7 +263,8 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
+    let delay = 1.0
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(delay)))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -298,17 +272,17 @@ class SubscribeEffectsTests: XCTestCase {
       messages: []
     ))
     
-    let date = Date()
+    let startDate = Date()
     let effect = factory.effect(
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { _ in
-      XCTAssertTrue(Int(Date().timeIntervalSince(date)) == 1)
+      XCTAssertTrue(Int(Date().timeIntervalSince(startDate)) == Int(delay))
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 1.5)
@@ -332,19 +306,15 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      if case let .receiveReconnectSuccess(cursor, messages) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(cursor == SubscribeCursor(timetoken: 12345, region: 1))
-        XCTAssertTrue(messages == [firstMessage, secondMessage])
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedCursor = SubscribeCursor(timetoken: 12345, region: 1)
+      let expectedEvent = Subscribe.Event.receiveReconnectSuccess(cursor: expectedCursor, messages: [firstMessage, secondMessage])
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -367,18 +337,15 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      if case let .receiveReconnectFailure(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.nameResolutionFailure)
+      let expectedEvent = Subscribe.Event.receiveReconnectFailure(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -401,18 +368,15 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 3,
+        retryAttempt: 3,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      if case let .receiveReconnectGiveUp(error) = returnedEvents[0] {
-        XCTAssertTrue(returnedEvents.count == 1)
-        XCTAssertTrue(error.underlying == PubNubError(.badServerResponse, underlying: URLError(.cannotFindHost)))
-        expectation.fulfill()
-      } else {
-        XCTFail("Unexpected condition")
-      }
+      let expectedUnderlyingErr = PubNubError(.badServerResponse)
+      let expectedEvent = Subscribe.Event.receiveReconnectGiveUp(error: SubscribeError(underlying: expectedUnderlyingErr))
+      XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
+      expectation.fulfill()
     }
     wait(for: [expectation], timeout: 0.5)
   }
@@ -422,7 +386,8 @@ class SubscribeEffectsTests: XCTestCase {
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
 
-    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy()))
+    let delay = 1.0
+    let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(delay)))
     let urlError = URLError(.badServerResponse)
     
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -430,18 +395,18 @@ class SubscribeEffectsTests: XCTestCase {
       messages: [firstMessage, secondMessage]
     ))
     
-    let date = Date()
+    let startDate = Date()
     let effect = factory.effect(
       for: .receiveReconnect(
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { _ in
-      XCTAssertTrue(Int(Date().timeIntervalSince(date)) == 1)
+      XCTAssertTrue(Int(Date().timeIntervalSince(startDate)) == Int(delay))
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 1.5)
@@ -451,7 +416,8 @@ class SubscribeEffectsTests: XCTestCase {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
+    expectation.isInverted = true
+    
     let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
@@ -464,24 +430,24 @@ class SubscribeEffectsTests: XCTestCase {
       for: .handshakeReconnect(
         channels: ["test-channel"],
         groups: [],
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
     effect.cancelTask()
     
-    wait(for: [expectation], timeout: 2.0)
+    wait(for: [expectation], timeout: 1.0)
   }
   
   func test_CancelledReceiveReconnect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
+    expectation.isInverted = true
+    
     let customInput = EventEngineCustomInput(value: Subscribe.EngineInput(configuration: configWithLinearPolicy(1.0)))
     let urlError = URLError(.badServerResponse)
 
@@ -495,17 +461,16 @@ class SubscribeEffectsTests: XCTestCase {
         channels: ["test-channel"],
         groups: [],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
-        currentAttempt: 1,
+        retryAttempt: 1,
         reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
       ), with: customInput
     )
     effect.performTask { returnedEvents in
-      XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
     effect.cancelTask()
     
-    wait(for: [expectation], timeout: 2.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 }
 

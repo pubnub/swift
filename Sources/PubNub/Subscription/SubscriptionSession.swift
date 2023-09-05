@@ -30,20 +30,22 @@ import Foundation
 public class SubscriptionSession {
   /// An unique identifier for subscription session
   public let uuid = UUID()
-  /// PSV2 feature to subscribe with a custom filter expression.
-  public var filterExpression: String?
 
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
   var configuration: SubscriptionConfiguration
   var subscribeEngine: SubscribeEngine
+  var presenceEngine: PresenceEngine
   var previousTokenResponse: SubscribeCursor?
   
   internal init(
     configuration: SubscriptionConfiguration,
-    subscribeEngine: SubscribeEngine
+    subscribeEngine: SubscribeEngine,
+    presenceEngine: PresenceEngine
   ) {
     self.subscribeEngine = subscribeEngine
     self.configuration = configuration
+    self.presenceEngine = presenceEngine
+    self.listenForStateUpdates()
   }
 
   /// Names of all subscribed channels
@@ -74,7 +76,15 @@ public class SubscriptionSession {
     SubscribeSessionFactory.shared.sessionDestroyed()
   }
   
-  private func updateEventEngineCustomInput() {
+  private func listenForStateUpdates() {
+    subscribeEngine.onStateUpdated = { [weak self] state in
+      if state.hasTimetoken {
+        self?.previousTokenResponse = state.cursor
+      }
+    }
+  }
+  
+  private func updateSubscribeEngineInput() {
     subscribeEngine.customInput = EventEngineCustomInput(
       value: Subscribe.EngineInput(
         configuration: configuration,
@@ -83,9 +93,22 @@ public class SubscriptionSession {
     )
   }
   
-  private func send(event: Subscribe.Event) {
-    updateEventEngineCustomInput()
+  private func sendSubscribeEvent(event: Subscribe.Event) {
+    updateSubscribeEngineInput()
     subscribeEngine.send(event: event)
+  }
+  
+  private func updatePresenceEngineInput() {
+    presenceEngine.customInput = EventEngineCustomInput(
+      value: Presence.EngineInput(
+        configuration: configuration
+      )
+    )
+  }
+  
+  private func sendPresenceEvent(event: Presence.Event) {
+    updatePresenceEngineInput()
+    presenceEngine.send(event: event)
   }
 
   // MARK: - Subscription Loop
@@ -104,22 +127,26 @@ public class SubscriptionSession {
     at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false
   ) {
-    let newInput = subscribeEngine.state.input.newInputByAdding(
+    let newInput = subscribeEngine.state.input + SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: withPresence) },
-      and: groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
+      groups: groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
     )
     if let cursor = cursor, cursor.timetoken != 0 {
-      send(event: .subscriptionRestored(
+      sendSubscribeEvent(event: .subscriptionRestored(
         channels: newInput.allSubscribedChannels,
         groups: newInput.allSubscribedGroups,
         cursor: cursor
       ))
     } else {
-      send(event: .subscriptionChanged(
+      sendSubscribeEvent(event: .subscriptionChanged(
         channels: newInput.allSubscribedChannels,
         groups: newInput.allSubscribedGroups
       ))
     }
+    sendPresenceEvent(event: .joined(
+      channels: newInput.presenceSubscribedChannels,
+      groups: newInput.presenceSubscribedGroups
+    ))
   }
 
   /// Reconnect a disconnected subscription stream
@@ -130,15 +157,16 @@ public class SubscriptionSession {
     let groups = input.allSubscribedGroups
     
     if let cursor = cursor {
-      send(event: .subscriptionRestored(channels: channels, groups: groups, cursor: cursor))
+      sendSubscribeEvent(event: .subscriptionRestored(channels: channels, groups: groups, cursor: cursor))
     } else {
-      send(event: .reconnect)
+      sendSubscribeEvent(event: .reconnect)
     }
   }
 
   /// Disconnect the subscription stream
   public func disconnect() {
-    send(event: .disconnect)
+    sendSubscribeEvent(event: .disconnect)
+    sendPresenceEvent(event: .disconnect)
   }
 
   // MARK: - Unsubscribe
@@ -150,29 +178,24 @@ public class SubscriptionSession {
   ///   - and: List of channel groups to unsubscribe from
   ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   public func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
-    // Update Channel List
-    let newInput = subscribeEngine.state.input.newInputByRemoving(
-      channels: channels,
-      and: groups,
-      presenceOnly: presenceOnly
+    let newInput = subscribeEngine.state.input - (
+      channels: channels.map { presenceOnly ? $0.presenceChannelName : $0 },
+      groups: groups.map { presenceOnly ? $0.presenceChannelName : $0 }
     )
-    send(event: .subscriptionChanged(
+    sendSubscribeEvent(event: .subscriptionChanged(
       channels: newInput.allSubscribedChannels,
       groups: newInput.allSubscribedGroups
+    ))
+    sendPresenceEvent(event: .left(
+      channels: channels,
+      groups: groups
     ))
   }
 
   /// Unsubscribe from all channels and channel groups
   public func unsubscribeAll() {
-    send(event: .unsubscribeAll)
-  }
-}
-
-extension SubscriptionSession: EventEngineDelegate {
-  func onStateUpdated(state: AnySubscribeState) {
-    if state.hasTimetoken {
-      previousTokenResponse = state.cursor
-    }
+    sendSubscribeEvent(event: .unsubscribeAll)
+    sendPresenceEvent(event: .leftAll)
   }
 }
 
@@ -190,11 +213,11 @@ extension SubscriptionSession: EventStreamEmitter {
     listener.token = ListenerToken { [weak self, weak listener] in
       if let listener = listener {
         self?.privateListeners.remove(listener)
-        self?.updateEventEngineCustomInput()
+        self?.updateSubscribeEngineInput()
       }
     }
     privateListeners.update(listener)
-    updateEventEngineCustomInput()
+    updateSubscribeEngineInput()
   }
 
   public func notify(listeners closure: (ListenerType) -> Void) {

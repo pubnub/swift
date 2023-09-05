@@ -134,11 +134,12 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
   case third = "third"
   case fourth = "fourth"
   
+  var id: String {
+    rawValue
+  }
+  
   enum Cancellable: AnyCancellableInvocation {
-    init?(rawValue: String) {
-      nil
-    }
-    var rawValue: String {
+    var id: String {
       switch self {
       case .firstCancellable:
         return TestInvocation.first.rawValue

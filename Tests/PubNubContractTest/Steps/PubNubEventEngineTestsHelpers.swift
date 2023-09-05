@@ -33,20 +33,22 @@ protocol ContractTestIdentifiable {
   var contractTestIdentifier: String { get }
 }
 
-extension EffectInvocation: ContractTestIdentifiable {
+extension EffectInvocation: ContractTestIdentifiable where Invocation: ContractTestIdentifiable, Invocation.Cancellable: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
     case .managed(let invocation):
-      return (invocation as? ContractTestIdentifiable)?.contractTestIdentifier ?? ""
+      return invocation.contractTestIdentifier
     case .cancel(let cancellable):
-      return (cancellable as? ContractTestIdentifiable)?.contractTestIdentifier ?? ""
+      return cancellable.contractTestIdentifier
+    case .regular(let invocation):
+      return invocation.contractTestIdentifier
     }
   }
 }
 
 class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispatcher {
   private let wrappedInstance: any Dispatcher<Invocation, Event, Input>
-  var recordedInvocations: [EffectInvocation<Invocation>]
+  private(set) var recordedInvocations: [EffectInvocation<Invocation>]
 
   init(wrappedInstance: some Dispatcher<Invocation, Event, Input>) {
     self.wrappedInstance = wrappedInstance
@@ -65,11 +67,15 @@ class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispat
 
 class TransitionDecorator<State, Event, Invocation: AnyEffectInvocation>: TransitionProtocol {
   private let wrappedInstance: any TransitionProtocol<State, Event, Invocation>
-  var recordedEvents: [Event]
+  private(set) var recordedEvents: [Event]
    
   init(wrappedInstance: some TransitionProtocol<State, Event, Invocation>) {
     self.wrappedInstance = wrappedInstance
     self.recordedEvents = []
+  }
+  
+  func canTransition(from state: State, dueTo event: Event) -> Bool {
+    wrappedInstance.canTransition(from: state, dueTo: event)
   }
   
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {

@@ -27,6 +27,8 @@
 
 import Foundation
 
+// MARK: - EffectHandlerFactory
+
 protocol EffectHandlerFactory<EffectInvocation, Event, Input> {
   associatedtype EffectInvocation
   associatedtype Event
@@ -38,6 +40,8 @@ protocol EffectHandlerFactory<EffectInvocation, Event, Input> {
   ) -> any EffectHandler<Event>
 }
 
+// MARK: - EffectHandler
+
 protocol EffectHandler<Event> {
   associatedtype Event
     
@@ -47,4 +51,34 @@ protocol EffectHandler<Event> {
 
 extension EffectHandler {
   func cancelTask() {}
+}
+
+// MARK: - Delayed Effect Handler
+
+protocol DelayedEffectHandler: AnyObject, EffectHandler {
+  var workItem: DispatchWorkItem? { get set }
+  
+  func delayInterval() -> TimeInterval?
+  func onEarlyExit(notify completionBlock: @escaping ([Event]) -> Void)
+  func onDelayExpired(notify completionBlock: @escaping ([Event]) -> Void)
+}
+
+extension DelayedEffectHandler {
+  func performTask(completionBlock: @escaping ([Event]) -> Void) {
+    guard let delay = delayInterval() else {
+      onEarlyExit(notify: completionBlock); return
+    }
+    let workItem = DispatchWorkItem() { [weak self] in
+      self?.onDelayExpired(notify: completionBlock)
+    }
+    DispatchQueue.global(qos: .default).asyncAfter(
+      deadline: .now() + delay,
+      execute: workItem
+    )
+    self.workItem = workItem
+  }
+  
+  func cancelTask() {
+    workItem?.cancel()
+  }
 }

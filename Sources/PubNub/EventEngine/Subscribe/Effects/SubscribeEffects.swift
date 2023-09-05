@@ -27,23 +27,23 @@
 
 import Foundation
 
-// MARK: - SubscribeEffect (Common)
+// MARK: - Handshake Effect
 
-protocol SubscribeEffect: EffectHandler {
-  var request: SubscribeRequest { get }
+class HandshakeEffect: EffectHandler {
+  let request: SubscribeRequest
   
-  func onCompletion(with response: SubscribeResponse) -> Subscribe.Event
-  func onFailure(dueTo error: SubscribeError) -> Subscribe.Event
-}
-
-extension SubscribeEffect {
+  init(request: SubscribeRequest) {
+    self.request = request
+  }
+  
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    request.execute(onCompletion: {
+    request.execute(onCompletion: { [weak self] in
+      guard let _ = self else { return }
       switch $0 {
       case .success(let response):
-        completionBlock([onCompletion(with: response)])
+        completionBlock([.handshakeSuccess(cursor: response.cursor)])
       case .failure(let error):
-        completionBlock([onFailure(dueTo: error)])
+        completionBlock([.handshakeFailure(error: error)])
       }
     })
   }
@@ -51,108 +51,130 @@ extension SubscribeEffect {
   func cancelTask() {
     request.cancel()
   }
-}
-
-// MARK: - Subscribe Reconnect Effect (Common)
-
-protocol SubscribeReconnectEffect: SubscribeEffect {
-  var currentAttempt: Int { get }
-  var error: SubscribeError { get }
   
-  func onGivingUp(dueTo error: SubscribeError) -> Subscribe.Event
+  deinit {
+    cancelTask()
+  }
 }
 
-extension SubscribeReconnectEffect {
+// MARK: - Receiving Effect
+
+class ReceivingEffect: EffectHandler {
+  let request: SubscribeRequest
+  
+  init(request: SubscribeRequest) {
+    self.request = request
+  }
+  
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    if let reconnectionDelay = request.computeReconnectionDelay(dueTo: error, with: currentAttempt) {
-      DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + reconnectionDelay) {
-        if !request.isCancelled {
-          request.execute(onCompletion: {
-            switch $0 {
-            case .success(let response):
-              completionBlock([onCompletion(with: response)])
-            case .failure(let e):
-              if currentAttempt + 1 > request.retryLimit {
-                completionBlock([onGivingUp(dueTo: e)])
-              } else {
-                completionBlock([onFailure(dueTo: e)])
-              }
-            }
-          })
-        } else {
-          completionBlock([])
-        }
+    request.execute(onCompletion: { [weak self] in
+      guard let _ = self else { return }
+      switch $0 {
+      case .success(let response):
+        completionBlock([.receiveSuccess(cursor: response.cursor, messages: response.messages)])
+      case .failure(let error):
+        completionBlock([.receiveFailure(error: error)])
       }
-    } else {
-      completionBlock([onGivingUp(dueTo: error)])
-    }
+    })
+  }
+  
+  func cancelTask() {
+    request.cancel()
+  }
+  
+  deinit {
+    cancelTask()
   }
 }
 
-// MARK: - HandshakingEffect
+// MARK: - Handshake Reconnect Effect
 
-struct HandshakingEffect: SubscribeEffect {
-  let request: SubscribeRequest
-
-  func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {
-    .handshakeSucceess(cursor: response.cursor)
-  }
+class HandshakeReconnectEffect: DelayedEffectHandler {
+  typealias Event = Subscribe.Event
   
-  func onFailure(dueTo error: SubscribeError) -> Subscribe.Event {
-    .handshakeFailure(error: error)
-  }
-}
-
-// MARK: - ReceivingEffect
-
-struct ReceivingEffect: SubscribeEffect {
   let request: SubscribeRequest
-  
-  func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {
-    .receiveSuccess(cursor: response.cursor, messages: response.messages)
-  }
-  
-  func onFailure(dueTo error: SubscribeError) -> Subscribe.Event {
-    .receiveFailure(error: error)
-  }  
-}
-
-// MARK: - HandshakeReconnectEffect
-
-struct HandshakeReconnectEffect: SubscribeReconnectEffect {
-  let request: SubscribeRequest
+  let retryAttempt: Int
   let error: SubscribeError
-  let currentAttempt: Int
+  var workItem: DispatchWorkItem?
   
-  func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {
-    .handshakeReconnectSuccess(cursor: response.cursor)
+  init(request: SubscribeRequest, error: SubscribeError, retryAttempt: Int) {
+    self.request = request
+    self.error = error
+    self.retryAttempt = retryAttempt
   }
   
-  func onFailure(dueTo error: SubscribeError) -> Subscribe.Event {
-    .handshakeReconnectFailure(error: error)
+  func delayInterval() -> TimeInterval? {
+    request.reconnectionDelay(dueTo: error, with: retryAttempt)
   }
   
-  func onGivingUp(dueTo error: SubscribeError) -> Subscribe.Event {
-    .handshakeReconnectGiveUp(error: error)
+  func onEarlyExit(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {
+    completionBlock([.handshakeReconnectGiveUp(error: error)])
+  }
+  
+  func onDelayExpired(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {
+    request.execute(onCompletion: { [weak self] in
+      guard let _ = self else { return }
+      switch $0 {
+      case .success(let response):
+        completionBlock([.handshakeReconnectSuccess(cursor: response.cursor)])
+      case .failure(let error):
+        completionBlock([.handshakeReconnectFailure(error: error)])
+      }
+    })
+  }
+  
+  func cancelTask() {
+    request.cancel()
+    workItem?.cancel()
+  }
+  
+  deinit {
+    cancelTask()
   }
 }
 
-// MARK: - ReceiveReconnectEffect
+// MARK: - Receiving Reconnect Effect
 
-struct ReceiveReconnectEffect: SubscribeReconnectEffect {
+class ReceiveReconnectEffect: DelayedEffectHandler {
+  typealias Event = Subscribe.Event
+  
   let request: SubscribeRequest
+  let retryAttempt: Int
   let error: SubscribeError
-  let currentAttempt: Int
+  var workItem: DispatchWorkItem?
   
-  func onCompletion(with response: SubscribeResponse) -> Subscribe.Event {
-    .receiveReconnectSuccess(cursor: response.cursor, messages: response.messages)
+  init(request: SubscribeRequest, error: SubscribeError, retryAttempt: Int) {
+    self.request = request
+    self.error = error
+    self.retryAttempt = retryAttempt
   }
   
-  func onFailure(dueTo error: SubscribeError) -> Subscribe.Event {
-    .receiveReconnectFailure(error: error)
+  func delayInterval() -> TimeInterval? {
+    request.reconnectionDelay(dueTo: error, with: retryAttempt)
   }
   
-  func onGivingUp(dueTo error: SubscribeError) -> Subscribe.Event {
-    .receiveReconnectGiveUp(error: error)
+  func onEarlyExit(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {
+    completionBlock([.receiveReconnectGiveUp(error: error)])
+  }
+  
+  func onDelayExpired(notify completionBlock: @escaping ([Subscribe.Event]) -> Void) {
+    request.execute(onCompletion: { [weak self] in
+      guard let _ = self else { return }
+      switch $0 {
+      case .success(let response):
+        completionBlock([.receiveReconnectSuccess(cursor: response.cursor, messages: response.messages)])
+      case .failure(let error):
+        completionBlock([.receiveReconnectFailure(error: error)])
+      }
+    })
+  }
+  
+  func cancelTask() {
+    request.cancel()
+    workItem?.cancel()
+  }
+  
+  deinit {
+    cancelTask()
   }
 }

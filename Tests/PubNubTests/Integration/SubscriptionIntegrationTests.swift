@@ -98,12 +98,16 @@ class SubscriptionIntegrationTests: XCTestCase {
           pubnub.publish(channel: self.testChannel, message: "Test") { _ in }
           connectedCount += 1
           connectedExpect.fulfill()
+        case .connectionError(let error):
+          XCTFail("An error was returned: \(error)")
         case .disconnected:
           // Stop reconneced after N attempts
           if connectedCount < totalLoops {
             pubnub.subscribe(to: [self.testChannel])
           }
           disconnectedExpect.fulfill()
+        case .disconnectedUnexpectedly(let error):
+          XCTFail("An error was returned: \(error)")
         }
       case let .subscribeError(error):
         XCTFail("An error was returned: \(error)")

@@ -37,9 +37,7 @@ class SubscribeRequest {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
-  
-  private(set) var isCancelled: Bool = false
-  
+    
   var retryLimit: UInt {
     configuration.automaticRetry?.retryLimit ?? 0
   }
@@ -62,26 +60,21 @@ class SubscribeRequest {
     self.sessionResponseQueue = sessionResponseQueue
   }
   
-  func computeReconnectionDelay(
-    dueTo error: SubscribeError,
-    with currentAttempt: Int
-  ) -> TimeInterval? {
+  func reconnectionDelay(dueTo error: SubscribeError, with retryAttempt: Int) -> TimeInterval? {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard automaticRetry.retryLimit > currentAttempt else {
+    guard automaticRetry.retryLimit > retryAttempt else {
       return nil
     }
-    
-    if let underlyingError = error.underlying.underlying {
-      if automaticRetry.shouldRetry(response: error.urlResponse, error: underlyingError) {
-        return automaticRetry.policy.delay(for: currentAttempt)
-      } else {
-        return nil
-      }
-    } else {
-      return automaticRetry.policy.delay(for: currentAttempt)
+    guard let underlyingError = error.underlying.underlying else {
+      return automaticRetry.policy.delay(for: retryAttempt)
     }
+    let shouldRetry = automaticRetry.shouldRetry(
+      response: error.urlResponse,
+      error: underlyingError
+    )
+    return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
   }
         
   func execute(onCompletion: @escaping (Result<SubscribeResponse, SubscribeError>) -> Void) {
@@ -115,8 +108,7 @@ class SubscribeRequest {
   }
   
   func cancel() {
-    request?.cancel(PubNubError(.clientCancelled, router: nil))
-    isCancelled = true
+    request?.cancel(PubNubError(.clientCancelled))
   }
   
   deinit {

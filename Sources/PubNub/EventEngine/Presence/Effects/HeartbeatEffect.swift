@@ -1,8 +1,8 @@
 //
-//  ConnectionStatus.swift
+//  HeartbeatEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -27,37 +27,25 @@
 
 import Foundation
 
-/// Status of a connection to a remote system
-public enum ConnectionStatus: Equatable {
-  /// Successfully connected to a remote system
-  case connected
-  /// Explicit disconnect from a remote system
-  case disconnected
-  /// Unexpected disconnect from a remote system
-  case disconnectedUnexpectedly(PubNubError)
-  /// Unable to establish initial connection
-  case connectionError(PubNubError)
-
-  /// If the connection is connected or attempting to connect
-  public var isActive: Bool {
-    switch self {
-    case .connected:
-      return true
-    case .disconnected:
-      return false
-    case .connectionError(_):
-      return false
-    case .disconnectedUnexpectedly(_):
-      return false
+class HeartbeatEffect: EffectHandler {
+  private let request: PresenceHeartbeatRequest
+  
+  init(request: PresenceHeartbeatRequest) {
+    self.request = request
+  }
+  
+  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
+    request.execute() { result in
+      switch result {
+      case .success(_):
+        completionBlock([.heartbeatSuccess])
+      case .failure(let error):
+        completionBlock([.heartbeatFailed(error: error)])
+      }
     }
   }
-
-  /// If the connection is connected
-  public var isConnected: Bool {
-    if case .connected = self {
-      return true
-    } else {
-      return false
-    }
+  
+  deinit {
+    request.cancel()
   }
 }

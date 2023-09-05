@@ -48,7 +48,7 @@ class SubscribeRequestTests: XCTestCase {
     let urlResponse = HTTPURLResponse(statusCode: 500)
     let error = SubscribeError(underlying: PubNubError(.connectionFailure), urlResponse: urlResponse)
     
-    XCTAssertNil(request.computeReconnectionDelay(dueTo: error, with: 0))
+    XCTAssertNil(request.reconnectionDelay(dueTo: error, with: 0))
   }
   
   func test_SubscribeRequestWithRetryPolicy() {
@@ -69,9 +69,9 @@ class SubscribeRequestTests: XCTestCase {
     let urlError = URLError(.cannotFindHost)
     let subscribeError = SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
     
-    XCTAssertEqual(request.computeReconnectionDelay(dueTo: subscribeError, with: 0), 3)
-    XCTAssertEqual(request.computeReconnectionDelay(dueTo: subscribeError, with: 1), 3.0)
-    XCTAssertEqual(request.computeReconnectionDelay(dueTo: subscribeError, with: 2), nil)
+    XCTAssertEqual(request.reconnectionDelay(dueTo: subscribeError, with: 0), 3)
+    XCTAssertEqual(request.reconnectionDelay(dueTo: subscribeError, with: 1), 3.0)
+    XCTAssertEqual(request.reconnectionDelay(dueTo: subscribeError, with: 2), nil)
   }
   
   func test_SubscribeRequestDoesNotRetryForNonSupportedCode() {
@@ -97,6 +97,6 @@ class SubscribeRequestTests: XCTestCase {
     let urlError = URLError(.cannotFindHost)
     let subscribeError = SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
     
-    XCTAssertNil(request.computeReconnectionDelay(dueTo: subscribeError, with: 0))
+    XCTAssertNil(request.reconnectionDelay(dueTo: subscribeError, with: 0))
   }
 }

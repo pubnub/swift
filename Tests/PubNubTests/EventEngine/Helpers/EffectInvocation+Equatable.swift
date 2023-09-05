@@ -1,8 +1,8 @@
 //
-//  ConnectionStatus.swift
+//  EffectInvocation+Equatable.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -27,36 +27,18 @@
 
 import Foundation
 
-/// Status of a connection to a remote system
-public enum ConnectionStatus: Equatable {
-  /// Successfully connected to a remote system
-  case connected
-  /// Explicit disconnect from a remote system
-  case disconnected
-  /// Unexpected disconnect from a remote system
-  case disconnectedUnexpectedly(PubNubError)
-  /// Unable to establish initial connection
-  case connectionError(PubNubError)
+@testable import PubNub
 
-  /// If the connection is connected or attempting to connect
-  public var isActive: Bool {
-    switch self {
-    case .connected:
-      return true
-    case .disconnected:
-      return false
-    case .connectionError(_):
-      return false
-    case .disconnectedUnexpectedly(_):
-      return false
-    }
-  }
-
-  /// If the connection is connected
-  public var isConnected: Bool {
-    if case .connected = self {
-      return true
-    } else {
+extension EffectInvocation: Equatable where Invocation: Equatable {
+  public static func ==(lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
+    switch (lhs, rhs) {
+    case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
+      return lhsInvocation == rhsInvocation
+    case (let .regular(lhsInvocation), let .regular(rhsInvocation)):
+      return lhsInvocation == rhsInvocation
+    case (let .cancel(lhsId), let .cancel(rhsId)):
+      return lhsId.id == rhsId.id
+    default:
       return false
     }
   }

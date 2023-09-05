@@ -1,8 +1,8 @@
 //
-//  SubscriptionSession+Presence.swift
+//  WaitEffect.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
-//  Copyright © 2019 PubNub Inc.
+//  Copyright © 2023 PubNub Inc.
 //  https://www.pubnub.com/
 //  https://www.pubnub.com/terms
 //
@@ -27,34 +27,29 @@
 
 import Foundation
 
-extension SubscriptionSession {
-  // MARK: - Heartbeat Loop
-
-  func registerHeartbeatTimer() {
-   
+class WaitEffect: DelayedEffectHandler {
+  typealias Event = Presence.Event
+  
+  private let configuration: SubscriptionConfiguration
+  var workItem: DispatchWorkItem?
+  
+  init(configuration: SubscriptionConfiguration) {
+    self.configuration = configuration
   }
 
-  func stopHeartbeatTimer() {
-    
+  func delayInterval() -> TimeInterval? {
+    configuration.heartbeatInterval > 0 ? TimeInterval(configuration.heartbeatInterval) : nil
   }
-
-  /// The amount of seconds until the next attempted presence heartbeat
-  var nextPresenceHeartbeat: TimeInterval {
-    0.0
+  
+  func onEarlyExit(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    completionBlock([])
   }
-
-  @objc func peformHeartbeatLoop() {
-    
+  
+  func onDelayExpired(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
+    completionBlock([.timesUp])
   }
-
-  // MARK: - Leave
-
-  public func presenceLeave(
-    for _: String,
-    on channels: [String],
-    and groups: [String],
-    completion: @escaping (Result<Bool, Error>) -> Void
-  ) {
-    
+  
+  func cancelTask() {
+    workItem?.cancel()
   }
 }

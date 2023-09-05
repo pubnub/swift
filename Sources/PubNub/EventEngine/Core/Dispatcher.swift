@@ -58,7 +58,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
   }
   
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
-    effectsCache.hasPendingEffect(with: invocation.rawValue)
+    effectsCache.hasPendingEffect(with: invocation.id)
   }
     
   func dispatch(
@@ -66,21 +66,36 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Input>: Dispatche
     with customInput: EventEngineCustomInput<Input>,
     notify listener: DispatcherListener<Event>
   ) {
-      let effectsToRun = invocations.compactMap {
+    invocations.forEach {
       switch $0 {
       case .managed(let invocation):
-        return EffectWrapper(id: invocation.rawValue, effect: factory.effect(for: invocation, with: customInput))
+        executeEffect(
+          effect: factory.effect(for: invocation, with: customInput),
+          storageId: invocation.id,
+          notify: listener
+        )
+      case .regular(let invocation):
+        executeEffect(
+          effect: factory.effect(for: invocation, with: customInput),
+          storageId: UUID().uuidString,
+          notify: listener
+        )
       case .cancel(let cancelInvocation):
-        effectsCache.getEffect(with: cancelInvocation.rawValue)?.cancelTask(); return nil
+        effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask()
+        effectsCache.removeEffect(id: cancelInvocation.id)
       }
     }
-    
-    effectsToRun.forEach {
-      effectsCache.put(effect: $0.effect, with: $0.id)
-      $0.effect.performTask { [weak effectsCache, effectId = $0.id] results in
-        listener.onAnyInvocationCompleted(results)
-        effectsCache?.removeEffect(id: effectId)
-      }
+  }
+  
+  private func executeEffect(
+    effect: some EffectHandler<Event>,
+    storageId id: String,
+    notify listener: DispatcherListener<Event>
+  ) {
+    effectsCache.put(effect: effect, with: id)
+    effect.performTask { [weak effectsCache] results in
+      effectsCache?.removeEffect(id: id)
+      listener.onAnyInvocationCompleted(results)
     }
   }
 }

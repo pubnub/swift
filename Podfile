@@ -2,9 +2,23 @@ workspace 'PubNub'
 use_frameworks!
 
 target 'PubNubContractTests' do
-  pod 'Cucumberish', :git => 'https://github.com/parfeon/Cucumberish.git', :branch => 'master', :inhibit_warnings => true
+  platform :ios, '11.0'
+
+  pod 'Cucumberish', :inhibit_warnings => true
 end
 
 target 'PubNubContractTestsBeta' do
-  pod 'Cucumberish', :git => 'https://github.com/parfeon/Cucumberish.git', :branch => 'master', :inhibit_warnings => true
+  platform :ios, '11.0'
+  
+  pod 'Cucumberish', :inhibit_warnings => true
+end
+
+post_install do |installer_representation|
+  installer_representation.pods_project.targets.each do |target|
+      next unless target.name =~ /Cucumberish/
+      target.build_configurations.each do |config|
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+          config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+      end
+  end
 end

@@ -22,6 +22,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		189B68E4FC02AD0B17AE466E /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD05FCB038DFD6858F3DA3C4 /* Pods_PubNubContractTests.framework */; };
 		35012EB22850039D00CF7E0A /* PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8975284D323300DB0F3D /* PubNubUser.swift */; };
 		35012EB3285003A100CF7E0A /* Patcher+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8974284D323300DB0F3D /* Patcher+PubNubUser.swift */; };
 		35012EB5285003EC00CF7E0A /* PubNubUserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */; };
@@ -134,7 +135,7 @@
 		3558068A230F4C99005CDD92 /* InstanceIdOperatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35580687230F4B75005CDD92 /* InstanceIdOperatorTests.swift */; };
 		3558069A2311F968005CDD92 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355806992311F968005CDD92 /* SubscriptionStreamTests.swift */; };
 		3558069C231303D9005CDD92 /* AutomaticRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558069B231303D9005CDD92 /* AutomaticRetryTests.swift */; };
-		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
+		355806DB23145749005CDD92 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
 		3559977B23073D53000BCFD1 /* WeakBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3559977A23073D53000BCFD1 /* WeakBoxTests.swift */; };
 		3559977F23078A7C000BCFD1 /* message_counts_error_invalid_arguments.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559977E230787E7000BCFD1 /* message_counts_error_invalid_arguments.json */; };
 		3559978223079070000BCFD1 /* forbidden_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3559978023078F85000BCFD1 /* forbidden_Message.json */; };
@@ -399,9 +400,10 @@
 		79407BE5271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BD1271D4CFA0032076C /* PubNubFilesContractTestSteps.swift */; };
 		79407C00271D519F0032076C /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79407BFF271D519F0032076C /* Features */; };
 		79407C01271D519F0032076C /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79407BFF271D519F0032076C /* Features */; };
-		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
+		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
-		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
+		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; platformFilter = ios; };
+		9A00213F57BFCB1FD8A78032 /* Pods_PubNubContractTestsBeta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8921D127B4688AD68183F6CF /* Pods_PubNubContractTestsBeta.framework */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -418,7 +420,7 @@
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
-		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; };
+		OBJ_51 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = PubNub::PubNub::Product /* PubNub.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -530,6 +532,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		07088DE8F1DB2D0AFF58A437 /* Pods-PubNubContractTestsBeta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.debug.xcconfig"; sourceTree = "<group>"; };
 		35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserEvent.swift; sourceTree = "<group>"; };
 		35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipEvent.swift; sourceTree = "<group>"; };
 		35012EBB2850052500CF7E0A /* PubNubSpaceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpaceEvent.swift; sourceTree = "<group>"; };
@@ -917,6 +920,9 @@
 		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8250D0ECA70B93C96B802637 /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
+		8921D127B4688AD68183F6CF /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A3ED084D8E76E2C2C0A4F8F5 /* Pods-PubNubContractTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
@@ -924,6 +930,8 @@
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUUIDMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUUIDMetadataContractTestSteps.swift; sourceTree = "<group>"; };
+		AA559CC5BD2297671FE53309 /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
+		CD05FCB038DFD6858F3DA3C4 /* Pods_PubNubContractTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
@@ -932,8 +940,8 @@
 		OBJ_24 /* PubNubSwift.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; path = PubNubSwift.podspec; sourceTree = "<group>"; };
 		OBJ_6 /* Package.swift */ = {isa = PBXFileReference; explicitFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		OBJ_9 /* PubNub.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PubNub.h; sourceTree = "<group>"; };
-		"PubNub::PubNub::Product" /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		"PubNub::PubNubTests::Product" /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		PubNub::PubNub::Product /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		PubNub::PubNubTests::Product /* PubNubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; path = PubNubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1019,6 +1027,7 @@
 			buildActionMask = 0;
 			files = (
 				7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */,
+				189B68E4FC02AD0B17AE466E /* Pods_PubNubContractTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1027,6 +1036,7 @@
 			buildActionMask = 0;
 			files = (
 				79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */,
+				9A00213F57BFCB1FD8A78032 /* Pods_PubNubContractTestsBeta.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1887,6 +1897,10 @@
 		3DBD7CDD58292DFFDF108B95 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
+				A3ED084D8E76E2C2C0A4F8F5 /* Pods-PubNubContractTests.debug.xcconfig */,
+				8250D0ECA70B93C96B802637 /* Pods-PubNubContractTests.release.xcconfig */,
+				07088DE8F1DB2D0AFF58A437 /* Pods-PubNubContractTestsBeta.debug.xcconfig */,
+				AA559CC5BD2297671FE53309 /* Pods-PubNubContractTestsBeta.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -2025,6 +2039,15 @@
 			path = MessageCounts;
 			sourceTree = "<group>";
 		};
+		F9C1693B788C954B01A5318B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CD05FCB038DFD6858F3DA3C4 /* Pods_PubNubContractTests.framework */,
+				8921D127B4688AD68183F6CF /* Pods_PubNubContractTestsBeta.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		OBJ_12 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
@@ -2048,8 +2071,8 @@
 		OBJ_17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				"PubNub::PubNubTests::Product" /* PubNubTests.xctest */,
-				"PubNub::PubNub::Product" /* PubNub.framework */,
+				PubNub::PubNubTests::Product /* PubNubTests.xctest */,
+				PubNub::PubNub::Product /* PubNub.framework */,
 				3558073723145749005CDD92 /* PubNubIntTests.xctest */,
 				7941EF40270E433F0054D9EF /* PubNubContractTests.xctest */,
 				79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */,
@@ -2078,6 +2101,7 @@
 				OBJ_12 /* Tests */,
 				OBJ_17 /* Products */,
 				3DBD7CDD58292DFFDF108B95 /* Pods */,
+				F9C1693B788C954B01A5318B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -2318,9 +2342,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7941EF3D270E433F0054D9EF /* Build configuration list for PBXNativeTarget "PubNubContractTests" */;
 			buildPhases = (
+				3CCD53DF8F9B74F684203005 /* [CP] Check Pods Manifest.lock */,
 				7941EE6E270E433F0054D9EF /* Sources */,
 				7941EEA8270E433F0054D9EF /* Frameworks */,
 				7941EEAA270E433F0054D9EF /* Resources */,
+				7FB399EBB228CCEE60614706 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2336,9 +2362,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 79657AA8271A13F700BACEC5 /* Build configuration list for PBXNativeTarget "PubNubContractTestsBeta" */;
 			buildPhases = (
+				DCE0EF8D92E94B186E531760 /* [CP] Check Pods Manifest.lock */,
 				79657A97271A13F700BACEC5 /* Sources */,
 				79657AA2271A13F700BACEC5 /* Frameworks */,
 				79657AA5271A13F700BACEC5 /* Resources */,
+				0FF4E97A7741637319E3AA72 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2350,7 +2378,7 @@
 			productReference = 79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		"PubNub::PubNub" /* PubNub */ = {
+		PubNub::PubNub /* PubNub */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
@@ -2363,10 +2391,10 @@
 			);
 			name = PubNub;
 			productName = PubNub;
-			productReference = "PubNub::PubNub::Product" /* PubNub.framework */;
+			productReference = PubNub::PubNub::Product /* PubNub.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		"PubNub::PubNubTests" /* PubNubTests */ = {
+		PubNub::PubNubTests /* PubNubTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_45 /* Build configuration list for PBXNativeTarget "PubNubTests" */;
 			buildPhases = (
@@ -2381,7 +2409,7 @@
 			);
 			name = PubNubTests;
 			productName = PubNubTests;
-			productReference = "PubNub::PubNubTests::Product" /* PubNubTests.xctest */;
+			productReference = PubNub::PubNubTests::Product /* PubNubTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -2434,8 +2462,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				"PubNub::PubNub" /* PubNub */,
-				"PubNub::PubNubTests" /* PubNubTests */,
+				PubNub::PubNub /* PubNub */,
+				PubNub::PubNubTests /* PubNubTests */,
 				7941EE6B270E433F0054D9EF /* PubNubContractTests */,
 				79657A93271A13F700BACEC5 /* PubNubContractTestsBeta */,
 				3558069D23145749005CDD92 /* PubNubIntegration */,
@@ -2697,6 +2725,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		0FF4E97A7741637319E3AA72 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		359152A822BA9F5B0048842D /* Swift Format */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2732,6 +2777,67 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "swiftlint\n";
+		};
+		3CCD53DF8F9B74F684203005 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PubNubContractTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7FB399EBB228CCEE60614706 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DCE0EF8D92E94B186E531760 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-PubNubContractTestsBeta-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -3077,7 +3183,7 @@
 /* Begin PBXTargetDependency section */
 		3558069E23145749005CDD92 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 3558069F23145749005CDD92 /* PBXContainerItemProxy */;
 		};
 		358B8917284D206B00DB0F3D /* PBXTargetDependency */ = {
@@ -3097,17 +3203,17 @@
 		};
 		358B8962284D22B100DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 358B8961284D22B100DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B8966284D22D800DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 358B8965284D22D800DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B8968284D22E200DB0F3D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 358B8967284D22E200DB0F3D /* PBXContainerItemProxy */;
 		};
 		358B896A284D22E200DB0F3D /* PBXTargetDependency */ = {
@@ -3138,18 +3244,18 @@
 		7941EE6C270E433F0054D9EF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 7941EE6D270E433F0054D9EF /* PBXContainerItemProxy */;
 		};
 		79657A94271A13F700BACEC5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilter = ios;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 79657A95271A13F700BACEC5 /* PBXContainerItemProxy */;
 		};
 		OBJ_52 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = "PubNub::PubNub" /* PubNub */;
+			target = PubNub::PubNub /* PubNub */;
 			targetProxy = 35EA73F422B1916100D97BF0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -3168,7 +3274,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -3201,7 +3307,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -3225,6 +3331,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3250,7 +3357,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3275,6 +3382,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3297,7 +3405,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3329,7 +3437,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3354,7 +3462,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3371,6 +3479,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3397,7 +3506,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3423,6 +3532,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3446,7 +3556,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3479,7 +3589,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3511,7 +3621,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3534,6 +3644,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3559,7 +3670,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3585,6 +3696,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
@@ -3607,7 +3719,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2022 PubNub. All rights reserved.";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3639,7 +3751,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3672,7 +3784,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3720,7 +3832,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3745,7 +3857,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3769,7 +3881,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3801,7 +3913,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3831,7 +3943,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3864,7 +3976,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3887,6 +3999,7 @@
 		};
 		7941EF3E270E433F0054D9EF /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A3ED084D8E76E2C2C0A4F8F5 /* Pods-PubNubContractTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -3900,7 +4013,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -3928,6 +4041,7 @@
 		};
 		7941EF3F270E433F0054D9EF /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8250D0ECA70B93C96B802637 /* Pods-PubNubContractTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CLANG_ENABLE_MODULES = YES;
@@ -3941,7 +4055,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -3968,6 +4082,7 @@
 		};
 		79657AA9271A13F700BACEC5 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 07088DE8F1DB2D0AFF58A437 /* Pods-PubNubContractTestsBeta.debug.xcconfig */;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -3982,7 +4097,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -4010,6 +4125,7 @@
 		};
 		79657AAA271A13F700BACEC5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA559CC5BD2297671FE53309 /* Pods-PubNubContractTestsBeta.release.xcconfig */;
 			buildSettings = {
 				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -4024,7 +4140,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubContractTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -4053,6 +4169,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4064,7 +4181,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Sources/PubNub/PubNub_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
@@ -4092,6 +4209,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -4103,7 +4221,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = Sources/PubNub/PubNub_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
@@ -4254,7 +4372,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -4288,7 +4406,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",

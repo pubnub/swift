@@ -49,10 +49,10 @@ jobs:
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Setup Ruby 2.6.6
+      - name: Setup Ruby 2.7.0
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.6
+          ruby-version: 2.7.0
           bundler-cache: true
       - name: Cache Swift Package Manager
         uses: actions/cache@v3
@@ -83,10 +83,10 @@ jobs:
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Setup Ruby 2.6.6
+      - name: Setup Ruby 2.7.0
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.6
+          ruby-version: 2.7.0
           bundler-cache: true
       - name: Cache Swift Package Manager
         uses: actions/cache@v3

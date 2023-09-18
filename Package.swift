@@ -68,22 +68,34 @@ let package = Package(
     // Targets can depend on other targets in this package, and on products in packages which this package depends on.
     .target(
       name: "PubNub",
-      path: "Sources/PubNub"
+      path: "Sources/PubNub",
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
+      ]
     ),
     .target(
       name: "PubNubUser",
       dependencies: ["PubNub"],
-      path: "PubNubUser/Sources"
+      path: "PubNubUser/Sources",
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
+      ]
     ),
     .target(
       name: "PubNubSpace",
       dependencies: ["PubNub"],
-      path: "PubNubSpace/Sources"
+      path: "PubNubSpace/Sources",
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
+      ]
     ),
     .target(
       name: "PubNubMembership",
       dependencies: ["PubNub", "PubNubUser", "PubNubSpace"],
-      path: "PubNubMembership/Sources"
+      path: "PubNubMembership/Sources",
+      swiftSettings: [
+          .unsafeFlags(["-enable-library-evolution"]),
+      ]
     ),
     .testTarget(
       name: "PubNubTests",

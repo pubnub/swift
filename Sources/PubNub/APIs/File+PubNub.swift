@@ -160,9 +160,9 @@ public extension PubNub {
       switch result {
       case let .success(response):
         do {
-          let autoCrypto = requestConfig.customConfiguration?.cipherKey ?? configuration.cipherKey
+          let cryptorModule = requestConfig.customConfiguration?.cryptorModule ?? configuration.cryptorModule
           completion?(.success((
-            try URLRequest(from: response.payload, uploading: content, crypto: autoCrypto),
+            try URLRequest(from: response.payload, uploading: content, cryptorModule: cryptorModule),
             response.payload.fileId,
             response.payload.filename
           )))
@@ -450,7 +450,7 @@ public extension PubNub {
   ///   - downloadTo: The async `Result` of the method call
   /// - Returns: The new file download task. The `urlSessionTask` property can be used to access the underlying `URLSessionDownloadTask`
   func createFileURLSessionDownloadTask(
-    _ taskType: FileDownloadTaskType, session: URLSessionReplaceable, downloadTo url: URL, decrypt: Crypto? = nil
+    _ taskType: FileDownloadTaskType, session: URLSessionReplaceable, downloadTo url: URL, decrypt: CryptorModule? = nil
   ) -> HTTPFileDownloadTask {
     let downloadTask: URLSessionDownloadTask
     switch taskType {
@@ -464,7 +464,7 @@ public extension PubNub {
       task: downloadTask,
       session: session.configuration.identifier,
       downloadTo: url,
-      crypto: decrypt ?? configuration.cipherKey
+      cryptorModule: decrypt ?? configuration.cryptorModule
     )
 
     // Create task map inside Delegate

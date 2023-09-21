@@ -124,7 +124,7 @@ class MultipartInputStream: InputStream {
   }
 
   override func open() {
-    guard _streamStatus == .open else {
+    guard _streamStatus != .open else {
       return
     }
     _streamStatus = .open

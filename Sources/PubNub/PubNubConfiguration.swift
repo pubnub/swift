@@ -91,7 +91,7 @@ public struct PubNubConfiguration: Hashable {
     publishKey: String?,
     subscribeKey: String,
     userId: String,
-    cipherKey: Crypto? = nil,
+    cryptorModule: CryptorModule? = nil,
     authKey: String? = nil,
     authToken: String? = nil,
     useSecureConnections: Bool = true,
@@ -112,7 +112,7 @@ public struct PubNubConfiguration: Hashable {
 
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey
-    self.cipherKey = cipherKey
+    self.cryptorModule = cryptorModule
     self.authKey = authKey
     self.authToken = authToken
     self.userId = userId
@@ -144,7 +144,7 @@ public struct PubNubConfiguration: Hashable {
     publishKey: String?,
     subscribeKey: String,
     uuid: String,
-    cipherKey: Crypto? = nil,
+    cryptorModule: CryptorModule? = nil,
     authKey: String? = nil,
     authToken: String? = nil,
     useSecureConnections: Bool = true,
@@ -167,7 +167,7 @@ public struct PubNubConfiguration: Hashable {
       publishKey: publishKey,
       subscribeKey: subscribeKey,
       userId: uuid,
-      cipherKey: cipherKey,
+      cryptorModule: cryptorModule,
       authKey: authKey,
       authToken: authToken,
       useSecureConnections: useSecureConnections,
@@ -189,7 +189,7 @@ public struct PubNubConfiguration: Hashable {
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   public var subscribeKey: String
   /// If set, all communication will be encrypted with this key
-  public var cipherKey: Crypto?
+  public var cryptorModule: CryptorModule?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
   /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests

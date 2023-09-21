@@ -43,8 +43,8 @@ public protocol RouterConfiguration {
   var authKey: String? { get }
   /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   var authToken: String? { get }
-  /// If set, all communication will be encrypted with this key
-  var cipherKey: Crypto? { get }
+  /// If set, all communication will be encrypted with this module
+  var cryptorModule: CryptorModule? { get }
   /// Whether a request identifier should be included on outgoing requests
   var useRequestId: Bool { get }
   /// Ordered list of key-value pairs which identify various consumers.

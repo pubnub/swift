@@ -65,11 +65,14 @@ struct CryptorHeaderWithinStreamFinder {
         &buffer,
         maxLength: maxLength
       )
-      if numberOfBytesRead > 0 && buffer.count != numberOfBytesRead {
-        buffer = Array(buffer[0 ..< numberOfBytesRead])
+      guard numberOfBytesRead > 0 else {
+        break;
       }
-      content += buffer
-      
+      if buffer.count != numberOfBytesRead {
+        content += Array(buffer[0 ..< numberOfBytesRead])
+      } else {
+        content += buffer
+      }
     } while numberOfBytesRead < maxLength && stream.hasBytesAvailable;
     
     return Data(

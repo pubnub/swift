@@ -128,21 +128,24 @@ struct CryptorHeaderParser {
       return .none
     }
     guard let headerVersion = scanner.nextByte() else {
-      throw PubNubError(.unknownCryptorError, additional: ["Cannot find Crypto header version"])
+      throw PubNubError(.decryptionError, additional: ["Cannot find CryptorHeader's version byte"])
     }
     guard (1...1).contains(headerVersion) else {
-      throw PubNubError(.unknownCryptorError, additional: ["Invalid Crypto header version \(headerVersion)"])
+      throw PubNubError(.unknownCryptorError, additional: ["Invalid CryptorHeader's version \(headerVersion)"])
     }
     guard let cryptorId = scanner.nextBytes(4) else {
-      throw PubNubError(.unknownCryptorError, additional: ["Cannot find Cryptor identifier"])
+      throw PubNubError(.decryptionError, additional: ["Cannot find Cryptor identifier"])
     }
     guard let cryptorDataSize = scanner.nextByte() else {
-      throw PubNubError(.unknownCryptorError, additional: ["Cannot read Cryptor data size"])
+      throw PubNubError(.decryptionError, additional: ["Cannot read Cryptor data size"])
     }
     guard let cryptorDefinedData = scanner.nextBytes(Int(try computeCryptorDataSize(with: cryptorDataSize))) else {
-      throw PubNubError(.unknownCryptorError, additional: ["Cannot retrieve Cryptor defined data"])
+      throw PubNubError(.decryptionError, additional: ["Cannot retrieve Cryptor defined data"])
     }
-    return .v1(cryptorId: cryptorId.map { $0 }, data: cryptorDefinedData)
+    return .v1(
+      cryptorId: cryptorId.map { $0 },
+      data: cryptorDefinedData
+    )
   }
   
   private func computeCryptorDataSize(with sizeIndicator: UInt8) throws -> UInt16 {

@@ -28,8 +28,8 @@
 import Foundation
 
 public struct EncryptedStreamResult {
-  let stream: InputStream
-  let contentLength: Int
+  public let stream: InputStream
+  public let contentLength: Int
 }
 
 public struct CryptorModule {
@@ -40,7 +40,7 @@ public struct CryptorModule {
   
   typealias Base64EncodedString = String
   
-  internal init(default cryptor: Cryptor, cryptors: [Cryptor], encoding: String.Encoding = .utf8) {
+  public init(default cryptor: Cryptor, cryptors: [Cryptor] = [], encoding: String.Encoding = .utf8) {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
     self.defaultStringEncoding = encoding
@@ -58,26 +58,27 @@ public struct CryptorModule {
   }
   
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
-    guard let header = try? CryptorHeader.from(data: data) else {
-      return .failure(PubNubError(
-        .unknownCryptorError,
-        additional: ["Unable to decrypt Data due to malformed Cryptor's header"]
-      ))
-    }
-    guard let cryptor = cryptor(matching: header) else {
-      return .failure(PubNubError(
-        .unknownCryptorError,
-        additional: ["Cannot find matching Cryptor for \(header.cryptorId())"]
-      ))
-    }
-    return cryptor.decrypt(
-      data: EncryptedData(
-        metadata: header.metadataIfAny(),
-        data: data.subdata(in: header.length()..<data.count)
-      )
-    )
-    .mapError {
-      PubNubError(.decryptionError, underlying: $0)
+    do {
+      let header = try CryptorHeader.from(data: data)
+      
+      guard let cryptor = cryptor(matching: header) else {
+        return .failure(PubNubError(
+          .unknownCryptorError,
+          additional: ["Cannot find matching Cryptor for \(header.cryptorId())"]
+        ))
+      }
+      return cryptor.decrypt(
+        data: EncryptedData(
+          metadata: header.metadataIfAny(),
+          data: data.subdata(in: header.length()..<data.count)
+        )
+      ).mapError {
+        PubNubError(.decryptionError, underlying: $0)
+      }
+    } catch let error as PubNubError {
+      return .failure(error)
+    } catch {
+      return .failure(PubNubError(.unknownCryptorError, additional: ["Cannot decrypt InputStream"]))
     }
   }
   
@@ -108,27 +109,30 @@ public struct CryptorModule {
     contentLength: Int,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
-    guard let readHeaderResponse = try? CryptorHeaderWithinStreamFinder(stream: stream).findHeader() else {
-      return .failure(PubNubError(
-        .decryptionError,
-        additional: ["Unable to decrypt InputStream due to malformed Cryptor's header"]
-      ))
-    }
-    guard let cryptor = cryptor(matching: readHeaderResponse.header) else {
-      return .failure(PubNubError(
-        .unknownCryptorError,
-        additional: ["Cannot find matching Cryptor for \(readHeaderResponse.header.cryptorId())"]
-      ))
-    }
-    return cryptor.decrypt(
-      data: EncryptedStreamData(
-        stream: readHeaderResponse.continuationStream,
-        contentLength: contentLength - readHeaderResponse.header.length(),
-        metadata: readHeaderResponse.header.metadataIfAny()
-      ),
-      outputPath: outputPath
-    ).mapError {
-      PubNubError(.decryptionError, underlying: $0)
+    do {
+      let finder = CryptorHeaderWithinStreamFinder(stream: stream)
+      let readHeaderResponse = try finder.findHeader()
+      
+      guard let cryptor = cryptor(matching: readHeaderResponse.header) else {
+        return .failure(PubNubError(
+          .unknownCryptorError,
+          additional: ["Cannot find matching Cryptor for \(readHeaderResponse.header.cryptorId())"]
+        ))
+      }
+      return cryptor.decrypt(
+        data: EncryptedStreamData(
+          stream: readHeaderResponse.continuationStream,
+          contentLength: contentLength - readHeaderResponse.header.length(),
+          metadata: readHeaderResponse.header.metadataIfAny()
+        ),
+        outputPath: outputPath
+      ).mapError {
+        PubNubError(.decryptionError, underlying: $0)
+      }
+    } catch let error as PubNubError {
+      return .failure(error)
+    } catch {
+      return .failure(PubNubError(.unknownCryptorError, additional: ["Cannot decrypt InputStream"]))
     }
   }
   
@@ -144,7 +148,7 @@ public extension CryptorModule {
     CryptorModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
   static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
-    CryptorModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [])
+    CryptorModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
   }
 }
 

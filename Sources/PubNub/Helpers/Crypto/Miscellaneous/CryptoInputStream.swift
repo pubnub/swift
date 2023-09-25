@@ -229,10 +229,11 @@ public class CryptoInputStream: InputStream {
     if finalyse {
       var finalBuffer = writeBuffer
       let append = cryptedBytesLength > 0
-
+      
+      writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
+      
       if append {
         finalBuffer = [UInt8](repeating: 0, count: cryptorBufferSize)
-        writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
       }
 
       do {

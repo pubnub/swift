@@ -30,6 +30,8 @@ import Foundation
 struct CryptorHeaderWithinStreamFinder {
   let stream: InputStream
   
+  // Attempts to find CryptorHeader at the beginning of the given InputStream.
+  // Returns CryptorHeader (if any) and InputStream starting with encoded content
   func findHeader() throws -> (header: CryptorHeader, continuationStream: InputStream) {
     let possibleHeaderBytes = read(maxLength: 100)
     let parsingRes = try CryptorHeaderParser(data: possibleHeaderBytes).parseAndReturnProcessedBytes()
@@ -39,13 +41,20 @@ struct CryptorHeaderWithinStreamFinder {
     switch parsingRes.header {
     case .none:
       continuationStream = MultipartInputStream(
-        inputStreams: [InputStream(data: possibleHeaderBytes), stream]
+        inputStreams: [
+          InputStream(data: possibleHeaderBytes),
+          stream
+        ]
       )
     default:
       continuationStream = MultipartInputStream(
-        inputStreams: [InputStream(data: possibleHeaderBytes.suffix(from: noOfBytesProcessedByParser)), stream]
+        inputStreams: [
+          InputStream(data: possibleHeaderBytes.suffix(from: noOfBytesProcessedByParser)),
+          stream
+        ]
       )
     }
+    
     return (
       header: parsingRes.header,
       continuationStream: continuationStream

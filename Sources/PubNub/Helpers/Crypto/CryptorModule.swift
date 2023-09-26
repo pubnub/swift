@@ -64,7 +64,10 @@ public struct CryptorModule {
       guard let cryptor = cryptor(matching: header) else {
         return .failure(PubNubError(
           .unknownCryptorError,
-          additional: ["Cannot find matching Cryptor for \(header.cryptorId())"]
+          additional: [
+            "Could not find matching Cryptor for \(header.cryptorId()) while decrypting Data. " +
+            "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
+          ]
         ))
       }
       return cryptor.decrypt(
@@ -78,7 +81,11 @@ public struct CryptorModule {
     } catch let error as PubNubError {
       return .failure(error)
     } catch {
-      return .failure(PubNubError(.unknownCryptorError, additional: ["Cannot decrypt InputStream"]))
+      return .failure(PubNubError(
+        .decryptionError,
+        underlying: error,
+        additional: ["Cannot decrypt InputStream"])
+      )
     }
   }
   
@@ -116,7 +123,10 @@ public struct CryptorModule {
       guard let cryptor = cryptor(matching: readHeaderResponse.header) else {
         return .failure(PubNubError(
           .unknownCryptorError,
-          additional: ["Cannot find matching Cryptor for \(readHeaderResponse.header.cryptorId())"]
+          additional: [
+            "Could not find matching Cryptor for \(readHeaderResponse.header.cryptorId()) while decrypting InputStream. " +
+            "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
+          ]
         ))
       }
       return cryptor.decrypt(
@@ -132,7 +142,11 @@ public struct CryptorModule {
     } catch let error as PubNubError {
       return .failure(error)
     } catch {
-      return .failure(PubNubError(.unknownCryptorError, additional: ["Cannot decrypt InputStream"]))
+      return .failure(PubNubError(
+        .decryptionError,
+        underlying: error,
+        additional: ["Could not decrypt InputStream"])
+      )
     }
   }
   
@@ -166,7 +180,7 @@ extension CryptorModule: Hashable {
 
 extension CryptorModule: CustomStringConvertible {
   public var description: String {
-    "Default cryptor: \(defaultCryptor.id), other: \(cryptors.map { $0.id })"
+    "Default cryptor: \(defaultCryptor.id), others: \(cryptors.map { $0.id })"
   }
 }
 
@@ -175,7 +189,7 @@ internal extension CryptorModule {
     guard let data = string.data(using: defaultStringEncoding) else {
       return .failure(PubNubError(
         .encryptionError,
-        additional: ["Cannot create Data from provided \(string)"]
+        additional: ["Cannot create Data from provided String"]
       ))
     }
     return encrypt(data: data).map {
@@ -190,7 +204,7 @@ internal extension CryptorModule {
       } else {
         return .failure(PubNubError(
           .decryptionError,
-          additional: ["Cannot create String from provided Data \(data)"])
+          additional: ["Cannot create String from provided Data"])
         )
       }
     }

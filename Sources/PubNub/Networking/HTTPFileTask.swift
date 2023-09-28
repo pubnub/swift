@@ -264,9 +264,8 @@ public class HTTPFileDownloadTask: HTTPFileTask {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [encryptedURL.absoluteString])
     }
     
-    _ = cryptorModule.decrypt(
-      stream: inputStream,
-      contentLength: encryptedURL.sizeOf,
+    cryptorModule.decrypt(
+      stream: EncryptedStreamResult(stream: inputStream, contentLength: encryptedURL.sizeOf),
       to: outpuURL
     )
   }
@@ -332,9 +331,8 @@ public class HTTPFileDownloadTask: HTTPFileTask {
           throw PubNubError(.streamCouldNotBeInitialized, additional: [url.absoluteString])
         }
                 
-        _ = cryptorModule.decrypt(
-          stream: stream,
-          contentLength: url.sizeOf,
+        cryptorModule.decrypt(
+          stream: EncryptedStreamResult(stream: stream, contentLength: url.sizeOf),
           to: destinationURL
         )
       } else {

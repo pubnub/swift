@@ -295,9 +295,9 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .serviceNotEnabled:
       return "The PubNub Service that you're attempting to use has not be enabled for your keyset."
     case .encryptionError:
-      return "Failure performing an encryption operation"
+      return "Failure to perform encryption"
     case .decryptionError:
-      return "Failure performing a decryption operation"
+      return "Failure to perform decryption"
     case .unknownCryptorError:
       return "Unknown Cryptor error"
     }

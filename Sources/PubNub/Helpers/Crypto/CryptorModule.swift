@@ -30,6 +30,11 @@ import Foundation
 public struct EncryptedStreamResult {
   public let stream: InputStream
   public let contentLength: Int
+  
+  public init(stream: InputStream, contentLength: Int) {
+    self.stream = stream
+    self.contentLength = contentLength
+  }
 }
 
 public struct CryptorModule {
@@ -112,12 +117,11 @@ public struct CryptorModule {
   
   @discardableResult
   public func decrypt(
-    stream: InputStream,
-    contentLength: Int,
+    stream streamData: EncryptedStreamResult,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
     do {
-      let finder = CryptorHeaderWithinStreamFinder(stream: stream)
+      let finder = CryptorHeaderWithinStreamFinder(stream: streamData.stream)
       let readHeaderResponse = try finder.findHeader()
       
       guard let cryptor = cryptor(matching: readHeaderResponse.header) else {
@@ -132,7 +136,7 @@ public struct CryptorModule {
       return cryptor.decrypt(
         data: EncryptedStreamData(
           stream: readHeaderResponse.continuationStream,
-          contentLength: contentLength - readHeaderResponse.header.length(),
+          contentLength: streamData.contentLength - readHeaderResponse.header.length(),
           metadata: readHeaderResponse.header.metadataIfAny()
         ),
         outputPath: outputPath

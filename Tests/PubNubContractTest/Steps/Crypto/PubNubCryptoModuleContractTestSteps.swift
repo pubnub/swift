@@ -64,7 +64,8 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       let outputUrl = self.generateTestOutputUrl()
       
       let cryptorModule = self.createCryptorModule(cryptorKind, key: cipherKey, withRandomIV: withRandomIV)
-      let decryptingRes = cryptorModule.decrypt(stream: inputStream, contentLength: localUrl.sizeOf, to: outputUrl)
+      let encryptedStreamData = EncryptedStreamResult(stream: inputStream, contentLength: localUrl.sizeOf)
+      let decryptingRes = cryptorModule.decrypt(stream: encryptedStreamData, to: outputUrl)
       
       Then("I receive '(.*)'") { thenArgs, _ in
         switch thenArgs?.first ?? "" {
@@ -100,7 +101,8 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       let outputURL = self.generateTestOutputUrl()
 
       Then("Successfully decrypt an encrypted file with legacy code") { _, _ in
-        cryptorModule.decrypt(stream: res.stream, contentLength: res.contentLength, to: outputURL)
+        cryptorModule.decrypt(stream: res, to: outputURL)
+        
         let expectedData = try! Data(contentsOf: localFileUrl)
         let receivedData = try! Data(contentsOf: outputURL)
         XCTAssertEqual(expectedData, receivedData)
@@ -129,7 +131,11 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       let localFileUrl = self.localUrl(for: fileName)
       let stream = InputStream(url: localFileUrl)!
       let outputUrl = self.generateTestOutputUrl()
-      cryptorModule.decrypt(stream: stream, contentLength: localFileUrl.sizeOf, to: outputUrl)
+      
+      cryptorModule.decrypt(
+        stream: EncryptedStreamResult(stream: stream, contentLength: localFileUrl.sizeOf),
+        to: outputUrl
+      )
       
       Then("Decrypted file content equal to the '(.*)' file content") { thenArgs, _ in
         let expectedFileName = thenArgs?.first ?? ""

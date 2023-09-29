@@ -50,7 +50,7 @@ enum CryptorHeader: Equatable {
   func cryptorId() -> CryptorId {
     switch self {
     case .none:
-      return LegacyCryptor.legacyCryptorId
+      return LegacyCryptor.ID
     case .v1(let cryptorId, _):
       return cryptorId
     }

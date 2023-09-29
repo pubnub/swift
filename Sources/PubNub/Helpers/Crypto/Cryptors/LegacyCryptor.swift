@@ -31,9 +31,9 @@ import CommonCrypto
 public struct LegacyCryptor: Cryptor {
   private let key: Data
   private let withRandomIV: Bool
-
-  static let legacyCryptorId: CryptorId = [0x00, 0x00, 0x00, 0x00]
-
+  
+  static let ID: CryptorId = [0x00, 0x00, 0x00, 0x00]
+  
   public init(key: String, withRandomIV: Bool = true) {
     let hash = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
     let hexStrData = CryptorUtils.hexFrom(hash).lowercased(with: .current).data(using: .utf8) ?? Data()
@@ -42,7 +42,7 @@ public struct LegacyCryptor: Cryptor {
   }
   
   public var id: CryptorId {
-    Self.legacyCryptorId
+    Self.ID
   }
   
   public func encrypt(data: Data) -> Result<EncryptedData, Error> {

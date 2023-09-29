@@ -53,10 +53,14 @@ public struct CryptorModule {
   
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
     defaultCryptor.encrypt(data: data).map {
-      CryptorHeader.v1(
-        cryptorId: defaultCryptor.id,
-        data: $0.metadata
-      ).asData() + $0.data
+      if defaultCryptor.id == LegacyCryptor.ID {
+        return $0.data
+      } else {
+        return CryptorHeader.v1(
+          cryptorId: defaultCryptor.id,
+          data: $0.metadata
+        ).asData() + $0.data
+      }
     }.mapError {
       PubNubError(.encryptionError, underlying: $0)
     }
@@ -99,10 +103,11 @@ public struct CryptorModule {
       stream: stream,
       contentLength: contentLength
     ).map {
-      let header = CryptorHeader.v1(
+      let header = defaultCryptor.id != LegacyCryptor.ID ? CryptorHeader.v1(
         cryptorId: defaultCryptor.id,
         data: $0.metadata
-      )
+      ) : .none
+      
       let multipartInputStream = MultipartInputStream(
         inputStreams: [InputStream(data: header.asData()), $0.stream]
       )

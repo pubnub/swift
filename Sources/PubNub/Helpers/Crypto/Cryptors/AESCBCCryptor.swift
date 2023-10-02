@@ -28,6 +28,7 @@
 import Foundation
 import CommonCrypto
 
+/// Provides PubNub's **recommended** ``Cryptor`` for encryption/decryption
 public struct AESCBCCryptor: Cryptor {
   private let key: Data
   
@@ -144,12 +145,11 @@ public struct AESCBCCryptor: Cryptor {
       )
       if let stream = InputStream(url: outputPath) {
         return .success(stream)
-      } else {
-        return .failure(PubNubError(
-          .decryptionError,
-          additional: ["Cannot create final decoded stream"])
-        )
       }
+      return .failure(PubNubError(
+        .decryptionError,
+        additional: ["Cannot create resulting InputStream at \(outputPath)"]
+      ))
     } catch {
       return .failure(PubNubError(
         .decryptionError,

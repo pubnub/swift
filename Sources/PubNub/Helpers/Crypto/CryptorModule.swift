@@ -27,8 +27,11 @@
 
 import Foundation
 
+/// Represents the result of stream encryption
 public struct EncryptedStreamResult {
+  /// Encoded stream you can read from
   public let stream: InputStream
+  /// Content length of encoded stream
   public let contentLength: Int
   
   public init(stream: InputStream, contentLength: Int) {
@@ -37,6 +40,9 @@ public struct EncryptedStreamResult {
   }
 }
 
+/// Object capable of encryption/decryption.
+///
+/// - Important: Replaces obsolete [Crypto](https://github.com/pubnub/swift/blob/master/Sources/PubNub/Helpers/Crypto/Crypto.swift#L32)
 public struct CryptorModule {
   private let defaultCryptor: Cryptor
   private let cryptors: [Cryptor]
@@ -45,14 +51,35 @@ public struct CryptorModule {
   
   typealias Base64EncodedString = String
   
+  /// Initializes `CryptorModule` with custom ``Cryptor`` objects capable of encryption and decryption
+  ///
+  /// Use this constructor if you would like to provide **custom** objects for decryption and encryption and don't want to use PubNub's built-in `Cryptors`.
+  /// Otherwise, refer to convenience static factory methods such as ``aesCbcCryptoModule(with:withRandomIV:)``
+  /// and ``legacyCryptoModule(with:withRandomIV:)`` that returns `CryptorModule` configured for you.
+  ///
+  /// - Parameters:
+  ///   - default: Primary ``Cryptor`` instance used for encryption and decryption
+  ///   - cryptors: An optional list of ``Cryptor`` instances which older messages/files were encoded
+  ///   - encoding: Default String encoding used when publishing new messages
   public init(default cryptor: Cryptor, cryptors: [Cryptor] = [], encoding: String.Encoding = .utf8) {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
     self.defaultStringEncoding = encoding
   }
   
+  /// Encrypts the given `Data` object
+  /// 
+  /// - Parameters:
+  ///   - data: Data to encrypt
+  /// - Returns: A success, storing encrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
-    defaultCryptor.encrypt(data: data).map {
+    guard !data.isEmpty else {
+      return .failure(PubNubError(
+        .encryptionError,
+        additional: ["Cannot encrypt empty Data"])
+      )
+    }
+    return defaultCryptor.encrypt(data: data).map {
       if defaultCryptor.id == LegacyCryptor.ID {
         return $0.data
       } else {
@@ -66,7 +93,18 @@ public struct CryptorModule {
     }
   }
   
+  /// Decrypts the given `Data` object
+  ///
+  /// - Parameters:
+  ///   - data: Data to encrypt
+  /// - Returns: A success, storing decrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
+    guard !data.isEmpty else {
+      return .failure(PubNubError(
+        .decryptionError,
+        additional: ["Cannot decrypt empty Data"])
+      )
+    }
     do {
       let header = try CryptorHeader.from(data: data)
       
@@ -84,7 +122,17 @@ public struct CryptorModule {
           metadata: header.metadataIfAny(),
           data: data.subdata(in: header.length()..<data.count)
         )
-      ).mapError {
+      )
+      .flatMap {
+        if $0.isEmpty {
+          return .failure(PubNubError(
+            .decryptionError,
+            additional: ["Decrypting resulted with empty Data"])
+          )
+        }
+        return .success($0)
+      }
+      .mapError {
         PubNubError(.decryptionError, underlying: $0)
       }
     } catch let error as PubNubError {
@@ -98,7 +146,19 @@ public struct CryptorModule {
     }
   }
   
+  /// Encrypts the given `InputStream` object
+  ///
+  /// - Parameters:
+  ///   - stream: Stream to encrypt
+  ///   - contentLength: Content length of encoded stream
+  /// - Returns: A success, storing an ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamResult, PubNubError> {
+    guard contentLength > 0 else {
+      return .failure(PubNubError(
+        .encryptionError,
+        additional: ["Cannot encrypt empty InputStream"])
+      )
+    }
     return defaultCryptor.encrypt(
       stream: stream,
       contentLength: contentLength
@@ -120,12 +180,25 @@ public struct CryptorModule {
     }
   }
   
+  /// Decrypts the given `InputStream` object
+  ///
+  /// - Parameters:
+  ///   - data: A value describing encrypted stream
+  ///   - outputPath: URL where the stream should be decrypted to
+  /// - Returns: A success, storing a decrypted ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   @discardableResult
   public func decrypt(
     stream streamData: EncryptedStreamResult,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
     do {
+      guard streamData.contentLength > 0 else {
+        return .failure(PubNubError(
+          .decryptionError,
+          additional: ["Cannot decrypt empty InputStream"]
+        ))
+      }
+      
       let finder = CryptorHeaderWithinStreamFinder(stream: streamData.stream)
       let readHeaderResponse = try finder.findHeader()
       
@@ -145,7 +218,16 @@ public struct CryptorModule {
           metadata: readHeaderResponse.header.metadataIfAny()
         ),
         outputPath: outputPath
-      ).mapError {
+      ).flatMap {
+        if outputPath.sizeOf == 0 {
+          return .failure(PubNubError(
+            .decryptionError,
+            additional: ["Decrypting resulted with an empty File"])
+          )
+        }
+        return .success($0)
+      }
+      .mapError {
         PubNubError(.decryptionError, underlying: $0)
       }
     } catch let error as PubNubError {
@@ -166,10 +248,27 @@ public struct CryptorModule {
   }
 }
 
+/// Convenience methods for creating `CryptorModule`
 public extension CryptorModule {
+  
+  /// Returns **recommended** `CryptorModule` for encryption/decryption
+  ///
+  /// - Parameters:
+  ///   - key: Key used for encryption/decryption
+  ///   - withRandomIV: A flag describing whether random initialization vector should be used
+  ///
+  /// This method sets ``AESCBCCryptor`` as the primary object for decryption and encryption. It also instantiates ``LegacyCryptor`` with `withRandomIV`
+  /// flag in order to decode messages/files that were encoded in old way.
   static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
     CryptorModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
+  
+  /// Returns legacy `CryptorModule` for encryption/decryption
+  ///
+  /// - Parameters:
+  ///   - key: Key used for encryption/decryption
+  ///   - withRandomIV: A flag describing whether random initialization vector should be used
+  /// - Warning: It's highly recommended to always use ``aesCbcCryptoModule(with:withRandomIV:)``
   static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
     CryptorModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
   }

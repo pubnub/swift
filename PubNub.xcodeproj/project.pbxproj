@@ -1909,12 +1909,12 @@
 			path = EndpointError;
 			sourceTree = "<group>";
 		};
-		3D6265D22ABC8E6900FDD5E6 /* Crypto */ = {
+		3D6265D22ABC8E6900FDD5E6 /* CryptorModule */ = {
 			isa = PBXGroup;
 			children = (
 				3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */,
 			);
-			path = Crypto;
+			path = CryptorModule;
 			sourceTree = "<group>";
 		};
 		3D758DC42AB06977005D2B36 /* Miscellaneous */ = {
@@ -2000,7 +2000,7 @@
 		79407BC1271D4CFA0032076C /* Steps */ = {
 			isa = PBXGroup;
 			children = (
-				3D6265D22ABC8E6900FDD5E6 /* Crypto */,
+				3D6265D22ABC8E6900FDD5E6 /* CryptorModule */,
 				A5F88ECF2906A9DE00F49D5C /* Objects */,
 				79407BC2271D4CFA0032076C /* Access */,
 				79407BC4271D4CFA0032076C /* Message Actions */,

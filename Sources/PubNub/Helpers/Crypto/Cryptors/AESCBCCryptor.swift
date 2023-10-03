@@ -61,7 +61,7 @@ public struct AESCBCCryptor: Cryptor {
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }
@@ -69,6 +69,12 @@ public struct AESCBCCryptor: Cryptor {
   
   public func decrypt(data: EncryptedData) -> Result<Data, Error> {
     do {
+      if data.data.isEmpty {
+        return .failure(PubNubError(
+          .decryptionFailure,
+          additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
+        )
+      }
       return .success(
         try data.data.crypt(
           operation: CCOperation(kCCDecrypt),
@@ -82,7 +88,7 @@ public struct AESCBCCryptor: Cryptor {
       )
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }
@@ -116,7 +122,7 @@ public struct AESCBCCryptor: Cryptor {
       ))
     } catch {
       return .failure(PubNubError(
-        .encryptionError,
+        .encryptionFailure,
         underlying: error
       ))
     }
@@ -147,12 +153,12 @@ public struct AESCBCCryptor: Cryptor {
         return .success(stream)
       }
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         additional: ["Cannot create resulting InputStream at \(outputPath)"]
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }

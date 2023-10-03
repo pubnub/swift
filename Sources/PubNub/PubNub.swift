@@ -1244,6 +1244,40 @@ public extension PubNub {
   }
 }
 
+// MARK: - Crypto
+
+extension PubNub {
+  /// Encrypt some `Data` using the configuration CryptorModule value
+  /// - Parameter message: The plain text message to be encrypted
+  /// - Returns: A `Result` containing either the encryped Data or the Crypto Error
+  func encrypt(message: String) -> Result<Data, Error> {
+    guard let crypto = configuration.cryptorModule else {
+      PubNub.log.error(ErrorDescription.missingCryptoKey)
+      return .failure(CryptoError.invalidKey)
+    }
+
+    guard let dataMessage = message.data(using: .utf8) else {
+      return .failure(CryptoError.decodeError)
+    }
+
+    return crypto.encrypt(data: dataMessage)
+      .mapError { $0 as Error }
+  }
+
+  /// Decrypt some `Data` using the configuration CryptorModule value
+  /// - Parameter message: The encrypted `Data` to decrypt
+  /// - Returns: A `Result` containing either the decrypted plain text message as `Data` or the Crypto Error
+  func decrypt(data: Data) -> Result<Data, Error> {
+    guard let crypto = configuration.cryptorModule else {
+      PubNub.log.error(ErrorDescription.missingCryptoKey)
+      return .failure(CryptoError.invalidKey)
+    }
+
+    return crypto.decrypt(data: data)
+      .mapError { $0 as Error }
+  }
+}
+
 // MARK: - PAM
 
 public extension PubNub {

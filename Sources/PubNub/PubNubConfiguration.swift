@@ -59,7 +59,8 @@ public struct PubNubConfiguration: Hashable {
     self.init(
       publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
       subscribeKey: subscribeKey,
-      userId: uuid
+      userId: uuid,
+      cryptorModule: nil
     )
   }
 
@@ -73,7 +74,7 @@ public struct PubNubConfiguration: Hashable {
   ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
   ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
   ///   - userId: The unique identifier to be used as a device identifier
-  ///   - cipherKey: If set, all communication will be encrypted with this key
+  ///   - cryptorModule: If set, all communication will be encrypted with this module
   ///   - authKey: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - authToken: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - useSecureConnections: The PubNub Publish Key to be used when publishing data to a channel
@@ -91,7 +92,7 @@ public struct PubNubConfiguration: Hashable {
     publishKey: String?,
     subscribeKey: String,
     userId: String,
-    cryptorModule: CryptorModule? = nil,
+    cryptorModule: CryptorModule?,
     authKey: String? = nil,
     authToken: String? = nil,
     useSecureConnections: Bool = true,
@@ -127,6 +128,80 @@ public struct PubNubConfiguration: Hashable {
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
+  }
+
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, renamed: "init(publishKey:subscribeKey:userId:cryptorModule:authKey:authToken:useSecureConnections:origin:useInstanceId:useRequestId:automaticRetry:urlSessionConfiguration:urlSessionConfiguration:durationUntilTimeout:heartbeatInterval:supressLeaveEvents:requestMessageCountThreshold:filterExpression:)", message: "Parameter cipherKey: is deprecated. Use cryptorModule:")
+  /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
+  ///
+  /// - Attention: It is recommended that you use this initializer only if you have a
+  /// custom way to pass your PubNub Publish and Subscribe keys without storing them
+  /// inside your source code/code repository.
+  ///
+  /// - Parameters:
+  ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
+  ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
+  ///   - userId: The unique identifier to be used as a device identifier
+  ///   - cipherKey: If set, all communication will be encrypted with this key
+  ///   - authKey: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
+  ///   - authToken: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
+  ///   - useSecureConnections: The PubNub Publish Key to be used when publishing data to a channel
+  ///   - origin: Full origin (`subdomain`.`domain`) used for requests
+  ///   - useInstanceId: Whether a PubNub object instanceId should be included on outgoing requests
+  ///   - useRequestId: Whether a request identifier should be included on outgoing requests
+  ///   - automaticRetry: Reconnection policy which will be used if/when a request fails
+  ///   - urlSessionConfiguration: URLSessionConfiguration used for URLSession network events
+  ///   - durationUntilTimeout: How long (in seconds) the server will consider the client alive for presence
+  ///   - heartbeatInterval: How often (in seconds) the client will announce itself to server
+  ///   - supressLeaveEvents: Whether to send out the leave requests
+  ///   - requestMessageCountThreshold: The number of messages into the payload before emitting `RequestMessageCountExceeded`
+  ///   - filterExpression: PSV2 feature to subscribe with a custom filter expression.
+  public init(
+    publishKey: String?,
+    subscribeKey: String,
+    userId: String,
+    cipherKey: Crypto? = nil,
+    authKey: String? = nil,
+    authToken: String? = nil,
+    useSecureConnections: Bool = true,
+    origin: String = "ps.pndsn.com",
+    useInstanceId: Bool = false,
+    useRequestId: Bool = false,
+    automaticRetry: AutomaticRetry? = nil,
+    urlSessionConfiguration: URLSessionConfiguration = .pubnub,
+    durationUntilTimeout: UInt = 300,
+    heartbeatInterval: UInt = 0,
+    supressLeaveEvents: Bool = false,
+    requestMessageCountThreshold: UInt = 100,
+    filterExpression: String? = nil
+  ) {
+    let cryptorModule: CryptorModule?
+    
+    if let cipherKey = cipherKey {
+      cryptorModule = CryptorModule.legacyCryptoModule(with: cipherKey.keyString, withRandomIV: cipherKey.randomizeIV)
+    } else {
+      cryptorModule = nil
+    }
+    
+    self.init(
+      publishKey: publishKey,
+      subscribeKey: subscribeKey,
+      userId: userId,
+      cryptorModule: cryptorModule,
+      authKey: authKey,
+      authToken: authToken,
+      useSecureConnections: useSecureConnections,
+      origin: origin,
+      useInstanceId: useInstanceId,
+      useRequestId: useRequestId,
+      automaticRetry: automaticRetry,
+      urlSessionConfiguration: urlSessionConfiguration,
+      durationUntilTimeout: durationUntilTimeout,
+      heartbeatInterval: heartbeatInterval,
+      supressLeaveEvents: supressLeaveEvents,
+      requestMessageCountThreshold: requestMessageCountThreshold,
+      filterExpression: filterExpression
+    )
   }
 
   // swiftlint:disable:next line_length
@@ -190,6 +265,8 @@ public struct PubNubConfiguration: Hashable {
   public var subscribeKey: String
   /// If set, all communication will be encrypted with this key
   public var cryptorModule: CryptorModule?
+  /// If set, all communication will be encrypted with this key
+  public var cipherKey: Crypto?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
   /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests

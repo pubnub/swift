@@ -28,21 +28,9 @@
 import Foundation
 
 /// Represents the result of stream encryption
-public struct EncryptedStreamResult {
-  /// Encoded stream you can read from
-  public let stream: InputStream
-  /// Content length of encoded stream
-  public let contentLength: Int
-  
-  public init(stream: InputStream, contentLength: Int) {
-    self.stream = stream
-    self.contentLength = contentLength
-  }
-}
+public typealias EncryptedStreamResult = (stream: InputStream, contentLength: Int)
 
-/// Object capable of encryption/decryption.
-///
-/// - Important: Replaces obsolete [Crypto](https://github.com/pubnub/swift/blob/master/Sources/PubNub/Helpers/Crypto/Crypto.swift#L32)
+/// Object capable of encryption/decryption
 public struct CryptorModule {
   private let defaultCryptor: Cryptor
   private let cryptors: [Cryptor]
@@ -68,28 +56,27 @@ public struct CryptorModule {
   }
   
   /// Encrypts the given `Data` object
-  /// 
+  ///
   /// - Parameters:
   ///   - data: Data to encrypt
   /// - Returns: A success, storing encrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
-        .encryptionError,
+        .encryptionFailure,
         additional: ["Cannot encrypt empty Data"])
       )
     }
     return defaultCryptor.encrypt(data: data).map {
       if defaultCryptor.id == LegacyCryptor.ID {
         return $0.data
-      } else {
-        return CryptorHeader.v1(
-          cryptorId: defaultCryptor.id,
-          data: $0.metadata
-        ).asData() + $0.data
       }
+      return CryptorHeader.v1(
+        cryptorId: defaultCryptor.id,
+        dataLength: $0.metadata.count
+      ).toData() + $0.metadata + $0.data
     }.mapError {
-      PubNubError(.encryptionError, underlying: $0)
+      PubNubError(.encryptionFailure, underlying: $0)
     }
   }
   
@@ -101,8 +88,8 @@ public struct CryptorModule {
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
-        .decryptionError,
-        additional: ["Cannot decrypt empty Data"])
+        .decryptionFailure,
+        additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
       )
     }
     do {
@@ -110,36 +97,49 @@ public struct CryptorModule {
       
       guard let cryptor = cryptor(matching: header) else {
         return .failure(PubNubError(
-          .unknownCryptorError,
+          .unknownCryptorFailure,
           additional: [
             "Could not find matching Cryptor for \(header.cryptorId()) while decrypting Data. " +
             "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
           ]
         ))
       }
+      
+      let metadata: Data
+      let contentData: Data
+      
+      switch header {
+      case .none:
+        metadata = Data()
+        contentData = data
+      case .v1(_, let dataLength):
+        contentData = data.suffix(from: header.toData().count + dataLength)
+        metadata = data.subdata(in: header.toData().count..<header.toData().count + dataLength)
+      }
+      
       return cryptor.decrypt(
         data: EncryptedData(
-          metadata: header.metadataIfAny(),
-          data: data.subdata(in: header.length()..<data.count)
+          metadata: metadata,
+          data: contentData
         )
       )
       .flatMap {
         if $0.isEmpty {
           return .failure(PubNubError(
-            .decryptionError,
+            .decryptionFailure,
             additional: ["Decrypting resulted with empty Data"])
           )
         }
         return .success($0)
       }
       .mapError {
-        PubNubError(.decryptionError, underlying: $0)
+        PubNubError(.decryptionFailure, underlying: $0)
       }
     } catch let error as PubNubError {
       return .failure(error)
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error,
         additional: ["Cannot decrypt InputStream"])
       )
@@ -155,7 +155,7 @@ public struct CryptorModule {
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamResult, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
-        .encryptionError,
+        .encryptionFailure,
         additional: ["Cannot encrypt empty InputStream"])
       )
     }
@@ -165,76 +165,86 @@ public struct CryptorModule {
     ).map {
       let header = defaultCryptor.id != LegacyCryptor.ID ? CryptorHeader.v1(
         cryptorId: defaultCryptor.id,
-        data: $0.metadata
+        dataLength: $0.metadata.count
       ) : .none
       
-      let multipartInputStream = MultipartInputStream(
-        inputStreams: [InputStream(data: header.asData()), $0.stream]
-      )
+      let finalStream: MultipartInputStream
+      let finalContentLength: Int
+      
+      switch header {
+      case .none:
+        finalContentLength = $0.contentLength
+        finalStream = MultipartInputStream(inputStreams: [InputStream(data: header.toData()), $0.stream])
+      case .v1(_, let dataLength):
+        finalContentLength = $0.contentLength + header.toData().count + dataLength
+        finalStream = MultipartInputStream(inputStreams: [InputStream(data: header.toData() + $0.metadata), $0.stream])
+      }
+      
       return EncryptedStreamResult(
-        stream: multipartInputStream,
-        contentLength: $0.contentLength + header.length()
+        stream: finalStream,
+        contentLength: finalContentLength
       )
     }.mapError {
-      PubNubError(.encryptionError, underlying: $0)
+      PubNubError(.encryptionFailure, underlying: $0)
     }
   }
   
   /// Decrypts the given `InputStream` object
   ///
   /// - Parameters:
-  ///   - data: A value describing encrypted stream
+  ///   - streamData: A value describing encrypted stream
   ///   - outputPath: URL where the stream should be decrypted to
   /// - Returns: A success, storing a decrypted ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   @discardableResult
   public func decrypt(
-    stream streamData: EncryptedStreamResult,
+    streamData: EncryptedStreamResult,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
     do {
       guard streamData.contentLength > 0 else {
         return .failure(PubNubError(
-          .decryptionError,
+          .decryptionFailure,
           additional: ["Cannot decrypt empty InputStream"]
         ))
       }
       
       let finder = CryptorHeaderWithinStreamFinder(stream: streamData.stream)
-      let readHeaderResponse = try finder.findHeader()
+      let readHeaderResp = try finder.findHeader()
+      let cryptorDefinedData = readHeaderResp.cryptorDefinedData
       
-      guard let cryptor = cryptor(matching: readHeaderResponse.header) else {
+      guard let cryptor = cryptor(matching: readHeaderResp.header) else {
         return .failure(PubNubError(
-          .unknownCryptorError,
+          .unknownCryptorFailure,
           additional: [
-            "Could not find matching Cryptor for \(readHeaderResponse.header.cryptorId()) while decrypting InputStream. " +
+            "Could not find matching Cryptor for \(readHeaderResp.header.cryptorId()) while decrypting InputStream. " +
             "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
           ]
         ))
       }
       return cryptor.decrypt(
         data: EncryptedStreamData(
-          stream: readHeaderResponse.continuationStream,
-          contentLength: streamData.contentLength - readHeaderResponse.header.length(),
-          metadata: readHeaderResponse.header.metadataIfAny()
+          stream: readHeaderResp.continuationStream,
+          contentLength: streamData.contentLength - readHeaderResp.header.length() - cryptorDefinedData.count,
+          metadata: cryptorDefinedData
         ),
         outputPath: outputPath
       ).flatMap {
         if outputPath.sizeOf == 0 {
           return .failure(PubNubError(
-            .decryptionError,
+            .decryptionFailure,
             additional: ["Decrypting resulted with an empty File"])
           )
         }
         return .success($0)
       }
       .mapError {
-        PubNubError(.decryptionError, underlying: $0)
+        PubNubError(.decryptionFailure, underlying: $0)
       }
     } catch let error as PubNubError {
       return .failure(error)
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error,
         additional: ["Could not decrypt InputStream"])
       )
@@ -296,7 +306,7 @@ internal extension CryptorModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
     guard let data = string.data(using: defaultStringEncoding) else {
       return .failure(PubNubError(
-        .encryptionError,
+        .encryptionFailure,
         additional: ["Cannot create Data from provided String"]
       ))
     }
@@ -311,7 +321,7 @@ internal extension CryptorModule {
         return .success(stringValue)
       } else {
         return .failure(PubNubError(
-          .decryptionError,
+          .decryptionFailure,
           additional: ["Cannot create String from provided Data"])
         )
       }

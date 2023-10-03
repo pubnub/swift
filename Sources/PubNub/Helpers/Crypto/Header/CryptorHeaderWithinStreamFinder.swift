@@ -30,33 +30,37 @@ import Foundation
 struct CryptorHeaderWithinStreamFinder {
   let stream: InputStream
   
-  // Attempts to find CryptorHeader at the beginning of the given InputStream.
-  // Returns CryptorHeader (if any) and InputStream starting with encoded content
-  func findHeader() throws -> (header: CryptorHeader, continuationStream: InputStream) {
-    let possibleHeaderBytes = read(maxLength: 100)
-    let parsingRes = try CryptorHeaderParser(data: possibleHeaderBytes).parseAndReturnProcessedBytes()
-    let noOfBytesProcessedByParser = parsingRes.bytesProcessed.count
-    let continuationStream: InputStream
+  // Attempts to find CryptorHeader in the given InputStream.
+  // Returns InputStream that immediately follows CryptorHeader
+  func findHeader() throws -> (header: CryptorHeader, cryptorDefinedData: Data, continuationStream: InputStream) {
+    let buffer = read(maxLength: 1024)
+    let header = try CryptorHeaderParser(data: buffer).parse()
+    let headerLength = header.length()
     
-    switch parsingRes.header {
+    let continuationStream: InputStream
+    let cryptorDefinedData: Data
+    
+    switch header {
     case .none:
-      continuationStream = MultipartInputStream(
-        inputStreams: [
-          InputStream(data: possibleHeaderBytes),
-          stream
-        ]
-      )
-    default:
-      continuationStream = MultipartInputStream(
-        inputStreams: [
-          InputStream(data: possibleHeaderBytes.suffix(from: noOfBytesProcessedByParser)),
-          stream
-        ]
-      )
+      // There is no CryptorHeader, so all supplied buffer bytes belong to the contents of the File
+      cryptorDefinedData = Data()
+      continuationStream = MultipartInputStream(inputStreams: [InputStream(data: buffer), stream])
+    case .v1(_, let dataLength):
+      // Detects whether it's safe to extract metadata
+      guard headerLength + dataLength < buffer.count else {
+        throw PubNubError(.decryptionFailure, additional: ["Cannot extract metadata for CryptorHeader v1"])
+      }
+      // Extracts Cryptor-defined data from the supplied buffer
+      cryptorDefinedData = buffer.subdata(in: headerLength..<headerLength + dataLength)
+      // Extracts possible bytes from the supplied buffer that follow metadata. These bytes are File content
+      let exceedFileContent = InputStream(data: buffer.suffix(from: headerLength + dataLength))
+      // Returns final InputStream that follows CryptorHeader
+      continuationStream = MultipartInputStream(inputStreams: [exceedFileContent, stream])
     }
     
     return (
-      header: parsingRes.header,
+      header: header,
+      cryptorDefinedData: cryptorDefinedData,
       continuationStream: continuationStream
     )
   }

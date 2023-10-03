@@ -66,12 +66,12 @@ public struct LegacyCryptor: Cryptor {
       
       // Join IV and encrypted content when using a random IV
       return .success(EncryptedData(
-        metadata: ivData,
+        metadata: Data(),
         data: vectorGen.isRandom() ? ivData + encrypted : encrypted
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }
@@ -90,6 +90,13 @@ public struct LegacyCryptor: Cryptor {
         cipherText = data.data
       }
       
+      if cipherText.isEmpty {
+        return .failure(PubNubError(
+          .decryptionFailure,
+          additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
+        )
+      }
+      
       return .success(
         try data.data.crypt(
           operation: CCOperation(kCCDecrypt),
@@ -103,7 +110,7 @@ public struct LegacyCryptor: Cryptor {
       )
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }
@@ -139,7 +146,7 @@ public struct LegacyCryptor: Cryptor {
       ))
     } catch {
       return .failure(PubNubError(
-        .encryptionError,
+        .encryptionFailure,
         underlying: error
       ))
     }
@@ -171,12 +178,12 @@ public struct LegacyCryptor: Cryptor {
         return .success(inputStream)
       }
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         additional: ["Cannot create resulting InputStream at \(outputPath)"]
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionError,
+        .decryptionFailure,
         underlying: error
       ))
     }

@@ -32,143 +32,160 @@ import XCTest
 import CommonCrypto
 
 public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
+  var cryptorKind: String!
+  var cipherKey: String!
+  var randomIV: Bool = true
+  var otherCryptors: [String] = []
+  var cryptorModule: CryptorModule!
+  
+  var encryptDataRes: Result<Data, PubNubError>!
+  var decryptDataRes: Result<Data, PubNubError>!
+  var encryptStreamRes: Result<EncryptedStreamResult, PubNubError>!
+  var decryptStreamRes: Result<InputStream, PubNubError>!
+  
+  var givenFileUrl: URL!
+  var outputPath: URL!
+  var encryptAsBinary: Bool!
+  var decryptAsBinary: Bool!
+  
+  override public func handleBeforeHook() {
+    cryptorKind = ""
+    cipherKey = ""
+    randomIV = true
+    otherCryptors = []
+    cryptorModule = nil
+    
+    encryptDataRes = nil
+    decryptDataRes = nil
+    encryptStreamRes = nil
+    decryptStreamRes = nil
+    
+    givenFileUrl = nil
+    outputPath = nil
+    encryptAsBinary = nil
+    decryptAsBinary = nil
+    
+    super.handleBeforeHook()
+  }
+  
   public override func setup() {
     startCucumberHookEventsListening()
-    
-    var cryptorKind: String = ""
-    var cipherKey: String = ""
-    var randomIV: Bool = true
-    var otherCryptors: [String] = []
-    
+        
     Given("Crypto module with '(.*)' cryptor") { args, userInfo in
-      cryptorKind = args?.first as? String ?? ""
+      self.cryptorKind = args?.first as? String ?? ""
     }
     Given("Legacy code with '(.*)' cipher key and '(.*)' vector") { args, userInfo in
-      cipherKey = args?.first as? String ?? ""
-      randomIV = args?.first ?? "" == "random"
+      self.cipherKey = args?.first as? String ?? ""
+      self.randomIV = args?.first ?? "" == "random"
     }
     Given("Crypto module with default '(.*)' and additional '(.*)'") { args, userInfo in
-      cryptorKind = args?.first ?? ""
-      otherCryptors = [args?.last ?? ""]
+      self.cryptorKind = args?.first ?? ""
+      self.otherCryptors = [args?.last ?? ""]
     }
     Match(["*"], "with '(.*)' cipher key") { args, userInfo in
-      cipherKey = args?.first ?? ""
+      self.cipherKey = args?.first ?? ""
     }
     Match(["*"], "with '(.*)' vector") { args, userInfo in
-      randomIV = args?.first ?? "" == "random"
+      self.randomIV = args?.first ?? "" == "random"
     }
     When("I decrypt '(.*)' file") { args, userInfo in
-      let fileName = args?.first ?? ""
-      let localUrl = self.localUrl(for: fileName)
-      let inputStream = InputStream(url: localUrl)!
-      let outputUrl = self.generateTestOutputUrl()
+      self.outputPath = self.generateTestOutputUrl()
+      self.givenFileUrl = self.localUrl(for: args?.first ?? "")
+      self.cryptorModule = self.createCryptorModule()
+      self.decryptAsBinary = false
       
-      let cryptorModule = self.createCryptorModule(cryptorKind, key: cipherKey, withRandomIV: randomIV)
-      let encryptedStreamData = EncryptedStreamResult(stream: inputStream, contentLength: localUrl.sizeOf)
-      let decryptingRes = cryptorModule.decrypt(stream: encryptedStreamData, to: outputUrl)
-      
-      Then("I receive '(.*)'") { thenArgs, _ in
-        switch thenArgs?.first ?? "" {
-        case "unknown cryptor error":
-          XCTAssertTrue(self.failureIfAny(from: decryptingRes)?.reason == .unknownCryptorError)
-        case "decryption error":
-          XCTAssertTrue(self.failureIfAny(from: decryptingRes)?.reason == .decryptionError)
-        case "success":
-          XCTAssertNotNil(try? decryptingRes.get())
-        default:
-          XCTFail("Unsupported outcome")
-        }
-      }
-    }
-    When("I encrypt '(.*)' file as 'binary'") { args, userInfo in
-      let fileName = args?.first ?? ""
-      let cryptorModule = self.createCryptorModule(cryptorKind, key: cipherKey, withRandomIV: randomIV)
-      let localFileUrl = self.localUrl(for: fileName)
-      let inputData = try! Data(contentsOf: localFileUrl)
-      let encryptedDataRes = cryptorModule.encrypt(data: inputData)
-      
-      Then("Successfully decrypt an encrypted file with legacy code") { _, _ in
-        let decryptedData = try! cryptorModule.decrypt(data: try! encryptedDataRes.get()).get()
-        XCTAssertEqual(inputData, decryptedData)
-      }
-      Then("I receive 'encryption error'") { _, _ in
-        guard case .failure(let failure) = encryptedDataRes else {
-          XCTFail("Encryption error is expected"); return;
-        }
-        XCTAssertTrue(failure.reason == .encryptionError)
-      }
-    }
-    When("I encrypt '(.*)' file as 'stream'") { args, userInfo in
-      let fileName = args?.first ?? ""
-      let cryptorModule = self.createCryptorModule(cryptorKind, key: cipherKey, withRandomIV: randomIV)
-      let localFileUrl = self.localUrl(for: fileName)
-      let inputStream = InputStream(url: localFileUrl)!
-      let encryptRes = cryptorModule.encrypt(stream: inputStream, contentLength: localFileUrl.sizeOf)
-      let outputURL = self.generateTestOutputUrl()
-
-      Then("Successfully decrypt an encrypted file with legacy code") { _, _ in
-        cryptorModule.decrypt(stream: try! encryptRes.get(), to: outputURL)
-        
-        let expectedData = try! Data(contentsOf: localFileUrl)
-        let receivedData = try! Data(contentsOf: outputURL)
-        XCTAssertEqual(expectedData, receivedData)
-      }
-      
-      Then("I receive 'encryption error'") { _, _ in
-        guard case .failure(let failure) = encryptRes else {
-          XCTFail("Encryption error is expected"); return;
-        }
-        XCTAssertTrue(failure.reason == .encryptionError)
-      }
-    }
-    
-    When("I decrypt '(.*)' file as 'binary'") { args, _ in
-      let fileName = args?.first ?? ""
-      let cryptorModule = self.createCryptorModule(cryptorKind, additional: otherCryptors, key: cipherKey, withRandomIV: randomIV)
-      let localFileUrl = self.localUrl(for: fileName)
-      let localData = try! Data(contentsOf: localFileUrl)
-      let decryptResult = cryptorModule.decrypt(data: localData)
-            
-      Then("Decrypted file content equal to the '(.*)' file content") { thenArgs, _ in
-        let fileNameToCompare = thenArgs?.first ?? ""
-        let fileNameUrlToCompare = self.localUrl(for: fileNameToCompare)
-        let expectedData = try! Data(contentsOf: fileNameUrlToCompare)
-        let receivedData = try! decryptResult.get()
-        XCTAssertEqual(expectedData, receivedData)
-      }
-      
-      Then("I receive 'decryption error'") { _, _ in
-        guard case .failure(let failure) = decryptResult else {
-          XCTFail("Decryption error is expected"); return;
-        }
-        XCTAssertTrue(failure.reason == .decryptionError)
-      }
-    }
-    
-    When("I decrypt '(.*)' file as 'stream'") { args, _ in
-      let fileName = args?.first ?? ""
-      let cryptorModule = self.createCryptorModule(cryptorKind, key: cipherKey, withRandomIV: randomIV)
-      let localFileUrl = self.localUrl(for: fileName)
-      let stream = InputStream(url: localFileUrl)!
-      let outputUrl = self.generateTestOutputUrl()
-      
-      let decryptRes = cryptorModule.decrypt(
-        stream: EncryptedStreamResult(stream: stream, contentLength: localFileUrl.sizeOf),
-        to: outputUrl
+      let encryptedStreamResult = EncryptedStreamResult(
+        stream: InputStream(url: self.givenFileUrl)!,
+        contentLength: self.givenFileUrl.sizeOf
       )
-      
-      Then("Decrypted file content equal to the '(.*)' file content") { thenArgs, _ in
-        let expectedFileName = thenArgs?.first ?? ""
-        let decodedData = try! Data(contentsOf: outputUrl)
-        let expectedData = try! Data(contentsOf: self.localUrl(for: expectedFileName))
-        XCTAssertEqual(decodedData, expectedData)
+      self.decryptStreamRes = self.cryptorModule.decrypt(
+        streamData: encryptedStreamResult,
+        to: self.outputPath
+      )
+    }
+    
+    When("I decrypt '(.*)' file as '(.*)'") { args, _ in
+      self.givenFileUrl = self.localUrl(for: args?.first ?? "")
+      self.outputPath = self.generateTestOutputUrl()
+      self.cryptorModule = self.createCryptorModule()
+      self.decryptAsBinary = args?.last == "binary"
+
+      if self.decryptAsBinary {
+        let dataToDecrypt = try! Data(contentsOf: self.givenFileUrl)
+        self.decryptDataRes = self.cryptorModule.decrypt(data: dataToDecrypt)
+      } else {
+        let encryptedStreamResult = EncryptedStreamResult(
+          stream: InputStream(url: self.givenFileUrl)!,
+          contentLength: self.givenFileUrl.sizeOf
+        )
+        self.decryptStreamRes = self.cryptorModule.decrypt(
+          streamData: encryptedStreamResult,
+          to: self.outputPath
+        )
       }
+    }
+    
+    When("I encrypt '(.*)' file as '(.*)'") { args, userInfo in
+      self.givenFileUrl = self.localUrl(for: args?.first ?? "")
+      self.encryptAsBinary = args?.last == "binary"
+      self.outputPath = self.generateTestOutputUrl()
+      self.cryptorModule = self.createCryptorModule()
       
-      Then("I receive 'decryption error'") { _, _ in
-        guard case .failure(let failure) = decryptRes else {
-          XCTFail("Decryption error is expected"); return;
+      if self.encryptAsBinary {
+        let dataToEncrypt = try! Data(contentsOf: self.givenFileUrl)
+        self.encryptDataRes = self.cryptorModule.encrypt(data: dataToEncrypt)
+      } else {
+        let streamToEncrypt = InputStream(url: self.givenFileUrl)!
+        let contentLength = self.givenFileUrl.sizeOf
+        self.encryptStreamRes = self.cryptorModule.encrypt(stream: streamToEncrypt, contentLength: contentLength)
+      }
+    }
+    
+    Then("I receive '(.*)'") { thenArgs, _ in
+      switch thenArgs?.first ?? "" {
+      case "decryption error":
+        if self.decryptAsBinary {
+          XCTAssertTrue(self.failureIfAny(from: self.decryptDataRes)?.reason == .decryptionFailure)
+        } else {
+          XCTAssertTrue(self.failureIfAny(from: self.decryptStreamRes)?.reason == .decryptionFailure)
         }
-        XCTAssertTrue(failure.reason == .decryptionError)
+      case "encryption error":
+        if self.encryptAsBinary {
+          XCTAssertTrue(self.failureIfAny(from: self.encryptDataRes)?.reason == .encryptionFailure)
+        } else {
+          XCTAssertTrue(self.failureIfAny(from: self.encryptStreamRes)?.reason == .encryptionFailure)
+        }
+      case "unknown cryptor error":
+        XCTAssertTrue(self.failureIfAny(from: self.decryptStreamRes)?.reason == .unknownCryptorFailure)
+      case "success":
+        XCTAssertNotNil(try? self.decryptStreamRes?.get())
+      default:
+        XCTFail("Unsupported outcome")
+      }
+    }
+    
+    Then("Successfully decrypt an encrypted file with legacy code") { _, _ in
+      let expectedData = try! Data(contentsOf: self.givenFileUrl)
+      
+      if self.encryptAsBinary {
+        let encryptedData = try! self.encryptDataRes.get()
+        let decryptedData = try! self.cryptorModule.decrypt(data: encryptedData).get()
+        XCTAssertEqual(expectedData, decryptedData)
+      } else {
+        self.cryptorModule.decrypt(streamData: try! self.encryptStreamRes.get(), to: self.outputPath)
+        let decryptedData = try! Data(contentsOf: self.outputPath)
+        XCTAssertEqual(expectedData, decryptedData)
+      }
+    }
+    
+    Then("Decrypted file content equal to the '(.*)' file content") { thenArgs, _ in
+      let fileNameUrlToCompare = self.localUrl(for: thenArgs?.first ?? "")
+      let expectedData = try! Data(contentsOf: fileNameUrlToCompare)
+
+      if self.decryptAsBinary {
+        XCTAssertEqual(expectedData, try! self.decryptDataRes.get())
+      } else {
+        XCTAssertEqual(expectedData, try! Data(contentsOf: self.outputPath))
       }
     }
   }
@@ -182,18 +199,25 @@ fileprivate extension PubNubCryptoModuleContractTestSteps {
     return URL(fileURLWithPath: finalPath)
   }
   
-  func createCryptorModule(_ id: String, additional cryptors: [String] = [], key: String, withRandomIV: Bool) -> CryptorModule {
-    let additionalCryptors = cryptors.map { id -> Cryptor in
-      id == "acrh" ? AESCBCCryptor(key: key) : LegacyCryptor(key: key, withRandomIV: withRandomIV)
-    }
-    return CryptorModule(
-      default: id == "acrh" ? AESCBCCryptor(key: key) : LegacyCryptor(key: key, withRandomIV: withRandomIV),
-      cryptors: additionalCryptors
+  func createCryptorModule() -> CryptorModule {
+    CryptorModule(
+      default: self.createCryptor(for: self.cryptorKind),
+      cryptors: self.otherCryptors.map { self.createCryptor(for: $0) }
     )
   }
   
-  func failureIfAny<Success, Error>(from result: Result<Success, Error>) -> Error? {
-    guard case .failure(let failure) = result else { return nil }
+  func createCryptor(for stringIdentifier: String) -> Cryptor {
+    if stringIdentifier == "acrh" {
+      return AESCBCCryptor(key: self.cipherKey)
+    } else {
+      return LegacyCryptor(key: self.cipherKey, withRandomIV: self.randomIV)
+    }
+  }
+  
+  func failureIfAny<Success, Error>(from result: Result<Success, Error>?) -> Error? {
+    guard case .failure(let failure) = result else {
+      return nil
+    }
     return failure
   }
   

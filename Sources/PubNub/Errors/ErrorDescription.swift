@@ -294,11 +294,11 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "The Content-Length was incorrect for the content being uploaded"
     case .serviceNotEnabled:
       return "The PubNub Service that you're attempting to use has not be enabled for your keyset."
-    case .encryptionError:
+    case .encryptionFailure:
       return "Failure to perform encryption"
-    case .decryptionError:
+    case .decryptionFailure:
       return "Failure to perform decryption"
-    case .unknownCryptorError:
+    case .unknownCryptorFailure:
       return "Unknown Cryptor error"
     }
   }

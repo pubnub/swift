@@ -28,16 +28,18 @@
 import Foundation
 
 /// An `InputStream` that can combine multiple streams into a single stream
-class MultipartInputStream: InputStream {
+public class MultipartInputStream: InputStream {
   let inputStreams: [InputStream]
-
+  public let length: Int
+  
   private var currentIndex: Int
   private var _streamStatus: Stream.Status
   private var _streamError: Error?
   private weak var _delegate: StreamDelegate?
 
-  init(inputStreams: [InputStream]) {
+  init(inputStreams: [InputStream], length: Int = 0) {
     self.inputStreams = inputStreams
+    self.length = length
     currentIndex = 0
     _streamStatus = .notOpen
     _streamError = nil
@@ -47,15 +49,15 @@ class MultipartInputStream: InputStream {
   }
 
   // Subclass
-  override var streamStatus: Stream.Status {
+  public override var streamStatus: Stream.Status {
     return _streamStatus
   }
 
-  override var streamError: Error? {
+  public override var streamError: Error? {
     return _streamError
   }
 
-  override var delegate: StreamDelegate? {
+  public override var delegate: StreamDelegate? {
     get {
       return _delegate
     }
@@ -64,7 +66,7 @@ class MultipartInputStream: InputStream {
     }
   }
 
-  override func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
+  public override func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
     if _streamStatus == .closed {
       return 0
     }
@@ -112,36 +114,36 @@ class MultipartInputStream: InputStream {
     return totalNumberOfBytesRead
   }
 
-  override func getBuffer(
+  public override func getBuffer(
     _: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>,
     length _: UnsafeMutablePointer<Int>
   ) -> Bool {
     return false
   }
 
-  override var hasBytesAvailable: Bool {
+  public override var hasBytesAvailable: Bool {
     return true
   }
 
-  override func open() {
+  public override func open() {
     guard _streamStatus != .open else {
       return
     }
     _streamStatus = .open
   }
 
-  override func close() {
+  public override func close() {
     _streamStatus = .closed
   }
 
-  override func property(forKey _: Stream.PropertyKey) -> Any? {
+  public override func property(forKey _: Stream.PropertyKey) -> Any? {
     return nil
   }
 
-  override func setProperty(_: Any?, forKey _: Stream.PropertyKey) -> Bool {
+  public override func setProperty(_: Any?, forKey _: Stream.PropertyKey) -> Bool {
     return false
   }
 
-  override func schedule(in _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
-  override func remove(from _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
+  public override func schedule(in _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
+  public override func remove(from _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
 }

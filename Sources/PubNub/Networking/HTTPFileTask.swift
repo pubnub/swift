@@ -265,7 +265,8 @@ public class HTTPFileDownloadTask: HTTPFileTask {
     }
     
     cryptorModule.decrypt(
-      streamData: (stream: inputStream, contentLength: encryptedURL.sizeOf),
+      stream: inputStream,
+      contentLength: encryptedURL.sizeOf,
       to: outpuURL
     )
   }
@@ -332,7 +333,8 @@ public class HTTPFileDownloadTask: HTTPFileTask {
         }
                 
         cryptorModule.decrypt(
-          streamData: (stream: stream, contentLength: url.sizeOf),
+          stream: stream,
+          contentLength: url.sizeOf,
           to: destinationURL
         )
       } else {

@@ -172,7 +172,8 @@ class CryptoTests: XCTestCase {
       try? FileManager.default.removeItem(at: outputPath)
 
       cryptorModule.decrypt(
-        streamData: EncryptedStreamResult(stream: InputStream(data: ecrypted), contentLength: ecrypted.count),
+        stream: InputStream(data: ecrypted),
+        contentLength: ecrypted.count,
         to: outputPath
       )
       
@@ -213,7 +214,8 @@ class CryptoTests: XCTestCase {
       try? FileManager.default.removeItem(at: decryptedURL)
       
       cryptorModule.decrypt(
-        streamData: encryptedStreamResult,
+        stream: encryptedStreamResult,
+        contentLength: encryptedStreamResult.length,
         to: decryptedURL
       )
       

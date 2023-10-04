@@ -28,8 +28,7 @@
 import Foundation
 import CommonCrypto
 
-/// Provides backward-compatible way of encryption/decryption that matches
-/// deprecated [Crypto](https://github.com/pubnub/swift/blob/master/Sources/PubNub/Helpers/Crypto/Crypto.swift#L32)
+/// Provides a backward-compatible way of encryption/decryption
 ///
 /// - Important: Using this `Cryptor` for encoding is strongly discouraged. Use ``AESCBCCryptor`` instead.
 public struct LegacyCryptor: Cryptor {

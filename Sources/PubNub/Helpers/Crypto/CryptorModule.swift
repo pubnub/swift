@@ -27,9 +27,6 @@
 
 import Foundation
 
-/// Represents the result of stream encryption
-public typealias EncryptedStreamResult = (stream: InputStream, contentLength: Int)
-
 /// Object capable of encryption/decryption
 public struct CryptorModule {
   private let defaultCryptor: Cryptor
@@ -152,7 +149,7 @@ public struct CryptorModule {
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
   /// - Returns: A success, storing an ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
-  public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamResult, PubNubError> {
+  public func encrypt(stream: InputStream, contentLength: Int) -> Result<MultipartInputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
         .encryptionFailure,
@@ -167,23 +164,19 @@ public struct CryptorModule {
         cryptorId: defaultCryptor.id,
         dataLength: $0.metadata.count
       ) : .none
-      
-      let finalStream: MultipartInputStream
-      let finalContentLength: Int
-      
+            
       switch header {
       case .none:
-        finalContentLength = $0.contentLength
-        finalStream = MultipartInputStream(inputStreams: [InputStream(data: header.toData()), $0.stream])
+        return MultipartInputStream(
+          inputStreams: [InputStream(data: header.toData()), $0.stream],
+          length: $0.contentLength
+        )
       case .v1(_, let dataLength):
-        finalContentLength = $0.contentLength + header.toData().count + dataLength
-        finalStream = MultipartInputStream(inputStreams: [InputStream(data: header.toData() + $0.metadata), $0.stream])
+        return MultipartInputStream(
+          inputStreams: [InputStream(data: header.toData() + $0.metadata), $0.stream],
+          length: $0.contentLength + header.toData().count + dataLength
+        )
       }
-      
-      return EncryptedStreamResult(
-        stream: finalStream,
-        contentLength: finalContentLength
-      )
     }.mapError {
       PubNubError(.encryptionFailure, underlying: $0)
     }
@@ -197,18 +190,19 @@ public struct CryptorModule {
   /// - Returns: A success, storing a decrypted ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   @discardableResult
   public func decrypt(
-    streamData: EncryptedStreamResult,
+    stream: InputStream,
+    contentLength: Int,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
     do {
-      guard streamData.contentLength > 0 else {
+      guard contentLength > 0 else {
         return .failure(PubNubError(
           .decryptionFailure,
           additional: ["Cannot decrypt empty InputStream"]
         ))
       }
       
-      let finder = CryptorHeaderWithinStreamFinder(stream: streamData.stream)
+      let finder = CryptorHeaderWithinStreamFinder(stream: stream)
       let readHeaderResp = try finder.findHeader()
       let cryptorDefinedData = readHeaderResp.cryptorDefinedData
       
@@ -224,7 +218,7 @@ public struct CryptorModule {
       return cryptor.decrypt(
         data: EncryptedStreamData(
           stream: readHeaderResp.continuationStream,
-          contentLength: streamData.contentLength - readHeaderResp.header.length() - cryptorDefinedData.count,
+          contentLength: contentLength - readHeaderResp.header.length() - cryptorDefinedData.count,
           metadata: cryptorDefinedData
         ),
         outputPath: outputPath

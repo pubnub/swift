@@ -40,7 +40,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   
   var encryptDataRes: Result<Data, PubNubError>!
   var decryptDataRes: Result<Data, PubNubError>!
-  var encryptStreamRes: Result<EncryptedStreamResult, PubNubError>!
+  var encryptStreamRes: Result<MultipartInputStream, PubNubError>!
   var decryptStreamRes: Result<InputStream, PubNubError>!
   
   var givenFileUrl: URL!
@@ -94,12 +94,9 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       self.cryptorModule = self.createCryptorModule()
       self.decryptAsBinary = false
       
-      let encryptedStreamResult = EncryptedStreamResult(
-        stream: InputStream(url: self.givenFileUrl)!,
-        contentLength: self.givenFileUrl.sizeOf
-      )
       self.decryptStreamRes = self.cryptorModule.decrypt(
-        streamData: encryptedStreamResult,
+        stream: InputStream(url: self.givenFileUrl)!,
+        contentLength: self.givenFileUrl.sizeOf,
         to: self.outputPath
       )
     }
@@ -114,12 +111,9 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
         let dataToDecrypt = try! Data(contentsOf: self.givenFileUrl)
         self.decryptDataRes = self.cryptorModule.decrypt(data: dataToDecrypt)
       } else {
-        let encryptedStreamResult = EncryptedStreamResult(
-          stream: InputStream(url: self.givenFileUrl)!,
-          contentLength: self.givenFileUrl.sizeOf
-        )
         self.decryptStreamRes = self.cryptorModule.decrypt(
-          streamData: encryptedStreamResult,
+          stream: InputStream(url: self.givenFileUrl)!,
+          contentLength: self.givenFileUrl.sizeOf,
           to: self.outputPath
         )
       }
@@ -172,7 +166,9 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
         let decryptedData = try! self.cryptorModule.decrypt(data: encryptedData).get()
         XCTAssertEqual(expectedData, decryptedData)
       } else {
-        self.cryptorModule.decrypt(streamData: try! self.encryptStreamRes.get(), to: self.outputPath)
+        let encryptedStream = try! self.encryptStreamRes.get()
+        let length = encryptedStream.length
+        self.cryptorModule.decrypt(stream: encryptedStream, contentLength: length, to: self.outputPath)
         let decryptedData = try! Data(contentsOf: self.outputPath)
         XCTAssertEqual(expectedData, decryptedData)
       }

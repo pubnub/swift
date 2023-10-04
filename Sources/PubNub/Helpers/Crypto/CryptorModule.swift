@@ -32,7 +32,6 @@ public struct CryptorModule {
   private let defaultCryptor: Cryptor
   private let cryptors: [Cryptor]
   private let legacyCryptorId: CryptorId = []
-  private let defaultStringEncoding: String.Encoding
   
   typealias Base64EncodedString = String
   
@@ -45,11 +44,9 @@ public struct CryptorModule {
   /// - Parameters:
   ///   - default: Primary ``Cryptor`` instance used for encryption and decryption
   ///   - cryptors: An optional list of ``Cryptor`` instances which older messages/files were encoded
-  ///   - encoding: Default String encoding used when publishing new messages
-  public init(default cryptor: Cryptor, cryptors: [Cryptor] = [], encoding: String.Encoding = .utf8) {
+  public init(default cryptor: Cryptor, cryptors: [Cryptor] = []) {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
-    self.defaultStringEncoding = encoding
   }
   
   /// Encrypts the given `Data` object
@@ -148,7 +145,7 @@ public struct CryptorModule {
   /// - Parameters:
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
-  /// - Returns: A success, storing an ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns: A success, storing a `MultipartInputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<MultipartInputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
@@ -187,7 +184,7 @@ public struct CryptorModule {
   /// - Parameters:
   ///   - streamData: A value describing encrypted stream
   ///   - outputPath: URL where the stream should be decrypted to
-  /// - Returns: A success, storing a decrypted ``EncryptedStreamResult`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns: A success, storing a decrypted `InputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   @discardableResult
   public func decrypt(
     stream: InputStream,
@@ -261,8 +258,9 @@ public extension CryptorModule {
   ///   - key: Key used for encryption/decryption
   ///   - withRandomIV: A flag describing whether random initialization vector should be used
   ///
-  /// This method sets ``AESCBCCryptor`` as the primary object for decryption and encryption. It also instantiates ``LegacyCryptor`` with `withRandomIV`
-  /// flag in order to decode messages/files that were encoded in old way.
+  /// This method sets ``AESCBCCryptor`` as the primary object for decryption and encryption. It also
+  /// instantiates ``LegacyCryptor``under the hood with `withRandomIV`. This way, you can interact with historical
+  /// messages or messages sent from older clients
   static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
     CryptorModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
@@ -298,7 +296,7 @@ extension CryptorModule: CustomStringConvertible {
 
 internal extension CryptorModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
-    guard let data = string.data(using: defaultStringEncoding) else {
+    guard let data = string.data(using: .utf8) else {
       return .failure(PubNubError(
         .encryptionFailure,
         additional: ["Cannot create Data from provided String"]
@@ -311,7 +309,7 @@ internal extension CryptorModule {
   
   func decryptedString(from data: Data) -> Result<String, PubNubError> {
     decrypt(data: data).flatMap {
-      if let stringValue = String(data: $0, encoding: defaultStringEncoding) {
+      if let stringValue = String(data: $0, encoding: .utf8) {
         return .success(stringValue)
       } else {
         return .failure(PubNubError(

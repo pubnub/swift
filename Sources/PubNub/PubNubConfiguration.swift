@@ -131,7 +131,7 @@ public struct PubNubConfiguration: Hashable {
   }
 
   // swiftlint:disable:next line_length
-  @available(*, deprecated, renamed: "init(publishKey:subscribeKey:userId:cryptorModule:authKey:authToken:useSecureConnections:origin:useInstanceId:useRequestId:automaticRetry:urlSessionConfiguration:urlSessionConfiguration:durationUntilTimeout:heartbeatInterval:supressLeaveEvents:requestMessageCountThreshold:filterExpression:)", message: "Parameter cipherKey: is deprecated. Use cryptorModule:")
+  @available(*, deprecated, renamed: "init(publishKey:subscribeKey:userId:cryptorModule:authKey:authToken:useSecureConnections:origin:useInstanceId:useRequestId:automaticRetry:urlSessionConfiguration:urlSessionConfiguration:durationUntilTimeout:heartbeatInterval:supressLeaveEvents:requestMessageCountThreshold:filterExpression:)", message: "Provide 'cryptorModule:' instead of 'cipherKey' for encrypted communication:")
   /// Creates a configuration using the specified PubNub Publish and Subscribe Keys
   ///
   /// - Attention: It is recommended that you use this initializer only if you have a
@@ -178,7 +178,7 @@ public struct PubNubConfiguration: Hashable {
     let cryptorModule: CryptorModule?
     
     if let cipherKey = cipherKey {
-      cryptorModule = CryptorModule.legacyCryptoModule(with: cipherKey.keyString, withRandomIV: cipherKey.randomizeIV)
+      cryptorModule = CryptorModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
     } else {
       cryptorModule = nil
     }
@@ -266,6 +266,8 @@ public struct PubNubConfiguration: Hashable {
   /// If set, all communication will be encrypted with this key
   public var cryptorModule: CryptorModule?
   /// If set, all communication will be encrypted with this key
+  /// - Warning: This parameter is deprecated. Use `cryptorModule` instead.
+  @available(*, deprecated, message: "Use 'cryptorModule' instead")
   public var cipherKey: Crypto?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?

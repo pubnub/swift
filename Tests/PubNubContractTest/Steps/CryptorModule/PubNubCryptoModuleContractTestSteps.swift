@@ -27,9 +27,10 @@
 
 import Cucumberish
 import Foundation
-import PubNub
 import XCTest
 import CommonCrypto
+
+@testable import PubNub
 
 public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   var cryptorKind: String!
@@ -40,7 +41,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   
   var encryptDataRes: Result<Data, PubNubError>!
   var decryptDataRes: Result<Data, PubNubError>!
-  var encryptStreamRes: Result<MultipartInputStream, PubNubError>!
+  var encryptStreamRes: Result<InputStream, PubNubError>!
   var decryptStreamRes: Result<InputStream, PubNubError>!
   
   var givenFileUrl: URL!
@@ -167,7 +168,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
         XCTAssertEqual(expectedData, decryptedData)
       } else {
         let encryptedStream = try! self.encryptStreamRes.get()
-        let length = encryptedStream.length
+        let length = (encryptedStream as! MultipartInputStream).length
         self.cryptorModule.decrypt(stream: encryptedStream, contentLength: length, to: self.outputPath)
         let decryptedData = try! Data(contentsOf: self.outputPath)
         XCTAssertEqual(expectedData, decryptedData)

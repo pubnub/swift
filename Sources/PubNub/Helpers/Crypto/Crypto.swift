@@ -32,47 +32,14 @@ import Foundation
 ///
 /// - Warning: This struct is deprecated. Use ``CryptorModule`` instead.
 public struct Crypto: Hashable {
-  /// The key used when encrypting/decrypting
-  public let key: Data
-  /// The String Encoding strategy to be used by default
-  public let defaultStringEncoding: String.Encoding
+  /// Key initially provided by the user
+  let key: String
   /// Whether random initialization vector should be used
-  public let randomizeIV: Bool
+  let randomizeIV: Bool
   
-  // Keeps originally provided input by the user
-  internal let keyString: String
-  
-  public init?(key: String, withRandomIV: Bool = true, encoding: String.Encoding = .utf8) {
-    guard let data = key.data(using: encoding), let keyData = SHA256.hash(data: data) else {
-      PubNub.log.error("Crypto failed to `init` while converting `String` key to `Data`"); return nil
-    }
-
-    let keySize = keyData.count
-    let keySizeRange = (kCCKeySizeAES128 ... kCCKeySizeAES256)
-      
-    if keySizeRange.contains(keyData.count) {
-      PubNub.log.error("Key size not valid for algorithm: \(keySize) not in \(keySizeRange)")
-    }
-    
-    self.key = keyData
-    self.keyString = key
-    self.defaultStringEncoding = encoding
+  public init(key: String, withRandomIV: Bool = true) {
+    self.key = key
     self.randomizeIV = withRandomIV
-  }
-
-  enum SHA256 {
-    static func hash(data: Data) -> Data? {
-      var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-      data.withUnsafeBytes {
-        _ = CC_SHA256($0.baseAddress, CC_LONG(data.count), &hash)
-      }
-      return hexFrom(Data(hash)).lowercased(with: .current).data(using: .utf8)
-    }
-
-    static func hexFrom(_ data: Data) -> String {
-      let midpoint = data.count / 2
-      return data[..<midpoint].map { String(format: "%02lX", UInt($0)) }.joined()
-    }
   }
 }
 

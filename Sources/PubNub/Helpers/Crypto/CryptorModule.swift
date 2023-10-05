@@ -147,12 +147,12 @@ public struct CryptorModule {
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
   /// - Returns: A success, storing a `MultipartInputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
-  public func encrypt(stream: InputStream, contentLength: Int) -> Result<MultipartInputStream, PubNubError> {
+  public func encrypt(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
         .encryptionFailure,
-        additional: ["Cannot encrypt empty InputStream"])
-      )
+        additional: ["Cannot encrypt empty InputStream"]
+      ))
     }
     return defaultCryptor.encrypt(
       stream: stream,
@@ -183,8 +183,9 @@ public struct CryptorModule {
   /// Decrypts the given `InputStream` object
   ///
   /// - Parameters:
-  ///   - streamData: A value describing encrypted stream
-  ///   - outputPath: URL where the stream should be decrypted to
+  ///   - stream: Stream to decrypt
+  ///   - contentLength: Content length of encrypted stream
+  ///   - to: URL where the stream should be decrypted to
   /// - Returns: A success, storing a decrypted `InputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   @discardableResult
   public func decrypt(
@@ -238,8 +239,8 @@ public struct CryptorModule {
       return .failure(PubNubError(
         .decryptionFailure,
         underlying: error,
-        additional: ["Could not decrypt InputStream"])
-      )
+        additional: ["Could not decrypt InputStream"]
+      ))
     }
   }
   

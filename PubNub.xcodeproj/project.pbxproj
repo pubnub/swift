@@ -207,7 +207,7 @@
 		3595120922FF7B4800C9D3AE /* messageHistory_Delete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */; };
 		3595120B22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120A22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json */; };
 		3595120D22FFA67300C9D3AE /* history_delete_not_enabled_for_key_Message.json in Resources */ = {isa = PBXBuildFile; fileRef = 3595120C22FFA67300C9D3AE /* history_delete_not_enabled_for_key_Message.json */; };
-		359512102301DCAB00C9D3AE /* CryptoError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3595120F2301DCAB00C9D3AE /* CryptoError.swift */; };
+		359512102301DCAB00C9D3AE /* Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3595120F2301DCAB00C9D3AE /* Crypto.swift */; };
 		359C2C1422EBB56A009C3B4B /* Int+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */; };
 		359C2C1622EE29ED009C3B4B /* time_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359C2C1522EE29E2009C3B4B /* time_success.json */; };
 		35A66A7E22F861BA00AC67A9 /* SubscriptionSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A66A7422F861BA00AC67A9 /* SubscriptionSession.swift */; };
@@ -742,7 +742,7 @@
 		3595120822FF7B4800C9D3AE /* messageHistory_Delete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Delete_success.json; sourceTree = "<group>"; };
 		3595120A22FF8AC100C9D3AE /* messageHistory_Fetch_success_multipleChannels.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = messageHistory_Fetch_success_multipleChannels.json; sourceTree = "<group>"; };
 		3595120C22FFA67300C9D3AE /* history_delete_not_enabled_for_key_Message.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = history_delete_not_enabled_for_key_Message.json; sourceTree = "<group>"; };
-		3595120F2301DCAB00C9D3AE /* CryptoError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoError.swift; sourceTree = "<group>"; };
+		3595120F2301DCAB00C9D3AE /* Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Crypto.swift; sourceTree = "<group>"; };
 		359C2C1322EBB56A009C3B4B /* Int+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+PubNubTests.swift"; sourceTree = "<group>"; };
 		359C2C1522EE29E2009C3B4B /* time_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = time_success.json; sourceTree = "<group>"; };
 		359F778A22B7FDDB00B6B46F /* Gemfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = Gemfile; sourceTree = "<group>"; };
@@ -1090,7 +1090,7 @@
 		3522250B25340B8900A5B330 /* Crypto */ = {
 			isa = PBXGroup;
 			children = (
-				3595120F2301DCAB00C9D3AE /* CryptoError.swift */,
+				3595120F2301DCAB00C9D3AE /* Crypto.swift */,
 				3D758DBE2AAA1C49005D2B36 /* CryptorModule.swift */,
 				3D758DCC2AB06B98005D2B36 /* Header */,
 				3D758DC52AB06983005D2B36 /* Cryptors */,
@@ -3129,7 +3129,7 @@
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
-				359512102301DCAB00C9D3AE /* CryptoError.swift in Sources */,
+				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				354ADA8E22DA7F280093EFFB /* SessionStream.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
 				3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */,

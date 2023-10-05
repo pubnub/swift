@@ -107,8 +107,9 @@ public struct CryptorModule {
         metadata = Data()
         contentData = data
       case .v1(_, let dataLength):
-        contentData = data.suffix(from: header.toData().count + dataLength)
-        metadata = data.subdata(in: header.toData().count..<header.toData().count + dataLength)
+        let offset = header.toData().count
+        contentData = data.suffix(from: offset + dataLength)
+        metadata = data.subdata(in: offset..<offset + dataLength)
       }
       
       return cryptor.decrypt(

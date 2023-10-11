@@ -59,8 +59,7 @@ public struct PubNubConfiguration: Hashable {
     self.init(
       publishKey: bundle.infoDictionary?[pubPlistKey] as? String,
       subscribeKey: subscribeKey,
-      userId: uuid,
-      cryptorModule: nil
+      userId: uuid
     )
   }
 
@@ -117,6 +116,8 @@ public struct PubNubConfiguration: Hashable {
     } else {
       if let cipherKey = cipherKey {
         self.cryptorModule = CryptorModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
+        // Preserves cipherKey for backward compatibility if anyone has already accessed it before
+        self.cipherKey = cipherKey
       }
     }
 

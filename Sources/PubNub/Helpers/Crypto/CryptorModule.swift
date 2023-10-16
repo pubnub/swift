@@ -39,7 +39,7 @@ public struct CryptorModule {
   ///
   /// Use this constructor if you would like to provide **custom** objects for decryption and encryption and don't want to use PubNub's built-in `Cryptors`.
   /// Otherwise, refer to convenience static factory methods such as ``aesCbcCryptoModule(with:withRandomIV:)``
-  /// and ``legacyCryptoModule(with:withRandomIV:)`` that returns `CryptorModule` configured for you.
+  /// and ``legacyCryptoModule(with:withRandomIV:)`` that return `CryptorModule` configured for you.
   ///
   /// - Parameters:
   ///   - default: Primary ``Cryptor`` instance used for encryption and decryption
@@ -77,7 +77,7 @@ public struct CryptorModule {
   /// Decrypts the given `Data` object
   ///
   /// - Parameters:
-  ///   - data: Data to encrypt
+  ///   - data: Data to decrypt
   /// - Returns: A success, storing decrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
@@ -146,7 +146,7 @@ public struct CryptorModule {
   /// - Parameters:
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
-  /// - Returns: A success, storing a `MultipartInputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns: A success, storing an `InputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(

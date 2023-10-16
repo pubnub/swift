@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.1.0"
+version: "6.2.0"
 schema: 1
 changelog:
+  - date: 2023-10-16
+    version: v6.2.0
+    changes:
+      - type: feature
+        text: "Add CryptorModule that allows configuring SDK to encrypt and decrypt messages."
+      - type: bug
+        text: "Improved security of crypto implementation by adding AES-CBC cryptor."
   - date: 2023-08-30
     version: 6.1.0
     changes:
@@ -490,7 +497,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.1.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

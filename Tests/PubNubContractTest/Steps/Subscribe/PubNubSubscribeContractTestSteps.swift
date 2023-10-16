@@ -30,11 +30,11 @@ import Foundation
 import PubNub
 
 public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
-  fileprivate var cipherKey: Crypto?
+  fileprivate var cryptorModule: CryptorModule?
 
   override public var configuration: PubNubConfiguration {
     var config = super.configuration
-    config.cipherKey = cipherKey
+    config.cryptorModule = cryptorModule
 
     if let scenario = self.currentScenario, scenario.name.contains("auto-retry") {
       config.automaticRetry = AutomaticRetry(retryLimit: 10, policy: .linear(delay: 0.1))
@@ -52,7 +52,7 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
   }
 
   override public func handleBeforeHook() {
-    cipherKey = nil
+    cryptorModule = nil
     super.handleBeforeHook()
   }
 
@@ -64,11 +64,11 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
     startCucumberHookEventsListening()
 
     Given("the crypto keyset") { _, _ in
-      self.cipherKey = Crypto(key: "enigma")
+      self.cryptorModule = CryptorModule.legacyCryptoModule(with: "enigma")
     }
 
     Given("the invalid-crypto keyset") { _, _ in
-      self.cipherKey = Crypto(key: "secret")
+      self.cryptorModule = CryptorModule.legacyCryptoModule(with: "secret")
     }
 
     When("I subscribe") { _, _ in

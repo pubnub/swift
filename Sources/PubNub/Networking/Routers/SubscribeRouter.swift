@@ -136,25 +136,19 @@ struct SubscribeDecoder: ResponseDecoder {
     }
   }
 
-  func decrypt(_ crypto: Crypto, message: SubscribeMessagePayload) -> SubscribeMessagePayload {
+  func decrypt(_ cryptorModule: CryptorModule, message: SubscribeMessagePayload) -> SubscribeMessagePayload {
     // Convert base64 string into Data
     if let messageData = message.payload.dataOptional {
       // If a message fails we just return the original and move on
-      do {
-        let decryptedPayload = try crypto.decrypt(encrypted: messageData).get()
-        if let decodedString = String(bytes: decryptedPayload, encoding: crypto.defaultStringEncoding) {
-          // Create mutable copy of payload
-          var message = message
-          message.payload = AnyJSON(reverse: decodedString)
-
-          return message
-        } else {
-          PubNub.log.error("\(ErrorDescription.cryptoStringEncodeFailed) \(decryptedPayload.base64EncodedString())")
-
-          return message
-        }
-      } catch {
+      switch cryptorModule.decryptedString(from: messageData) {
+      case .success(let decodedString):
+        // Create mutable copy of payload
+        var message = message
+        message.payload = AnyJSON(reverse: decodedString)
+        return message
+      case .failure(let error):
         PubNub.log.error("Subscribe message failed to decrypt due to \(error)")
+        return message
       }
     }
 
@@ -163,7 +157,7 @@ struct SubscribeDecoder: ResponseDecoder {
 
   func decrypt(response: SubscribeEndpointResponse) -> Result<SubscribeEndpointResponse, Error> {
     // End early if we don't have a cipher key
-    guard let crypto = response.router.configuration.cipherKey else {
+    guard let cryptorModule = response.router.configuration.cryptorModule else {
       return .success(response)
     }
 
@@ -171,11 +165,11 @@ struct SubscribeDecoder: ResponseDecoder {
     for (index, message) in messages.enumerated() {
       switch message.messageType {
       case .message:
-        messages[index] = decrypt(crypto, message: message)
+        messages[index] = decrypt(cryptorModule, message: message)
       case .signal:
-        messages[index] = decrypt(crypto, message: message)
+        messages[index] = decrypt(cryptorModule, message: message)
       case .file:
-        messages[index] = decrypt(crypto, message: message)
+        messages[index] = decrypt(cryptorModule, message: message)
       default:
         messages[index] = message
       }

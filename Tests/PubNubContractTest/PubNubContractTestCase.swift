@@ -35,6 +35,9 @@ let defaultSubscribeKey = "demo-36"
 let defaultPublishKey = "demo-36"
 
 @objc public class PubNubContractTestCase: XCTestCase {
+  
+  fileprivate var listener: SubscriptionListener!
+  
   public var messageReceivedHandler: ((PubNubMessage, [PubNubMessage]) -> Void)?
   public var statusReceivedHandler: ((SubscriptionListener.StatusEvent, [SubscriptionListener.StatusEvent]) -> Void)?
   fileprivate static var _receivedErrorStatuses: [SubscriptionListener.StatusEvent] = []
@@ -225,7 +228,8 @@ let defaultPublishKey = "demo-36"
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
     PubNubTimeContractTestSteps().setup()
-
+    PubNubCryptoModuleContractTestSteps().setup()
+    
     /// Objects acceptance testins.
     PubNubObjectsContractTests().setup()
     PubNubObjectsChannelMetadataContractTestSteps().setup()
@@ -245,7 +249,7 @@ let defaultPublishKey = "demo-36"
   ) {
     let subscribeStatusExpect = expectation(description: "Subscribe statuses")
     subscribeStatusExpect.assertForOverFulfill = false
-    let listener = SubscriptionListener()
+    self.listener = SubscriptionListener()
 
     listener.didReceiveStatus = { [weak self] result in
       guard let strongSelf = self else { return }

@@ -1247,32 +1247,46 @@ public extension PubNub {
 // MARK: - Crypto
 
 extension PubNub {
-  /// Encrypt some `Data` using the configuration Cipher Key value
-  /// - Parameter message: The plaintext message to be encrypted
-  /// - Returns: A `Result` containing either the encryped Data or the Crypto Error
-  func encrypt(message: String) -> Result<Data, Error> {
-    guard let crypto = configuration.cipherKey else {
+  /// Encrypt some `Data` using the configuration `CryptorModule` value
+  /// - Parameter message: The plain text message to be encrypted
+  /// - Returns: A `Result` containing either the encryped Data (mapped to Base64-encoded  data) or the Crypto Error
+  public func encrypt(message: String) -> Result<Data, Error> {
+    guard let cryptorModule = configuration.cryptorModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
     }
-
     guard let dataMessage = message.data(using: .utf8) else {
       return .failure(CryptoError.decodeError)
     }
-
-    return crypto.encrypt(encoded: dataMessage)
+    
+    return cryptorModule.encrypt(data: dataMessage).map {
+      $0.base64EncodedData()
+    }.mapError {
+      $0 as Error
+    }
   }
 
-  /// Decrypt some `Data` using the configuration Cipher Key value
+  /// Decrypt some `Data` using the configuration CryptorModule value
   /// - Parameter message: The encrypted `Data` to decrypt
-  /// - Returns: A `Result` containing either the decrypted plaintext message as `Data` or the Crypto Error
-  func decrypt(data: Data) -> Result<Data, Error> {
-    guard let crypto = configuration.cipherKey else {
+  /// - Returns: A `Result` containing either the decrypted plain text message  or the Crypto Error
+  public func decrypt(data: Data) -> Result<String, Error> {
+    guard let cryptorModule = configuration.cryptorModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
     }
-
-    return crypto.decrypt(encrypted: data)
+    guard let base64EncodedData = Data(base64Encoded: data) else {
+      PubNub.log.error("Cannot create Base64-encoded data")
+      return .failure(CryptoError.decodeError)
+    }
+    
+    return cryptorModule.decrypt(data: base64EncodedData)
+      .flatMap {
+        guard let string = String(data: $0, encoding: .utf8) else {
+          return .failure(PubNubError(.decryptionFailure, additional: ["Cannot create String from received bytes"]))
+        }
+        return .success(string)
+      }
+      .mapError { $0 as Error }
   }
 }
 

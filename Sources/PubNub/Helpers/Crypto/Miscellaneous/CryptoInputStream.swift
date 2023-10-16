@@ -26,11 +26,28 @@
 //
 
 import Foundation
+import CommonCrypto
 
 /// A stream that provides read-only stream functionality while performing crypto operations
 public class CryptoInputStream: InputStream {
   // swiftlint:disable:previous type_body_length
-
+  public struct DataSource {
+    let key: Data
+    let iv: Data
+    let options: CCOptions
+    let cipher: Cipher
+  }
+  
+  public struct Cipher {
+    let algorithm: CCAlgorithm
+    let blockSize: Int
+  }
+  
+  public enum Operation {
+    case decrypt
+    case encrypt
+  }
+  
   /// Estimated size of the final crypted output
   public var estimatedCryptoCount: Int = 0
 
@@ -38,17 +55,16 @@ public class CryptoInputStream: InputStream {
   private var cipherStream: InputStream
   private var rawDataBufferRead: Int = -1
   private var rawDataBuffer: [UInt8]?
-  private var rawDataLength: Int
+  private var rawDataLength: Int = 0
   private var rawDataRead: Int = 0
 
   private var cryptoStream: CryptoStream?
-  private var operation: Crypto.Operation
-  private var crypto: Crypto
+  private var operation: Operation
+  private var crypto: DataSource
 
   // Buffer for data which has been encrypted / decrypted from cipher stream.
   private var cryptedBuffer: [UInt8]?
   private var cryptedBufferRead: Int = -1
-  private var cryptedDataLength: Int = -1
   private var cryptedDataFinalysed: Bool = false
   private var cryptedBytes: Int = 0
   private var totalCrypted: Int = 0
@@ -57,38 +73,128 @@ public class CryptoInputStream: InputStream {
   private weak var _delegate: StreamDelegate?
   private var _streamStatus: Stream.Status = .notOpen
   private var _streamError: Error?
+  
+  // A flag describing whether an IV vector is included at the beginning of encoded/decoded content
+  private let includeInitializationVectorInContent: Bool
 
-  public init(_ operation: Crypto.Operation, input: InputStream, contentLength: Int, with crypto: Crypto) {
+  public init(
+    operation: CryptoInputStream.Operation,
+    input: InputStream,
+    contentLength: Int,
+    with crypto: CryptoInputStream.DataSource,
+    includeInitializationVectorInContent: Bool = false
+  ) {
     self.operation = operation
     self.crypto = crypto
-    // We should always be using a random IV
-    self.crypto.randomizeIV = true
-
-    rawDataLength = contentLength - (operation == .decrypt ? crypto.cipher.blockSize : 0)
-    // The estimated content length is the IV length plus the crypted length
-    estimatedCryptoCount = crypto.cipher.blockSize + crypto.cipher.outputSize(from: rawDataLength)
+    self.includeInitializationVectorInContent = includeInitializationVectorInContent
+    
+    if operation == .encrypt {
+      do {
+        cryptedBufferRead = 0
+        let ivBuffer = crypto.iv.map { $0 }
+        
+        let cryptoStream = try CryptoStream(
+          operation: CCOperation(operation == .decrypt ? kCCDecrypt : kCCEncrypt),
+          algorithm: crypto.cipher.algorithm,
+          options: crypto.options,
+          keyBuffer: crypto.key.map { $0 },
+          keyLength: crypto.key.count,
+          ivBuffer: ivBuffer
+        )
+        if includeInitializationVectorInContent {
+          cryptedBuffer = ivBuffer
+          rawDataLength = contentLength
+          estimatedCryptoCount = crypto.cipher.blockSize + cryptoStream.getOutputLength(inputLength: rawDataLength, isFinal: true)
+        } else {
+          rawDataLength = contentLength
+          estimatedCryptoCount = cryptoStream.getOutputLength(inputLength: rawDataLength, isFinal: true)
+        }
+        self.cryptoStream = cryptoStream
+        
+      } catch {
+        _streamError = error
+        _streamStatus = .error
+      }
+    } else {
+      
+      // Create a buffer to store the IV in that matches the cipher block size
+      var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
+      
+      if includeInitializationVectorInContent {
+        switch input.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) {
+        case let bytesRead where bytesRead < 0:
+          // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
+          _streamStatus = .error
+          _streamError = input.streamError
+        default:
+          // 0 represents end of the current buffer
+          break
+        }
+      } else {
+        initializationVectorBuffer = crypto.iv.map { $0 }
+      }
+      
+      // Init the Crypto Stream
+      do {
+        let decryptStream = try CryptoStream(
+          operation: CCOperation(operation == .decrypt ? kCCDecrypt : kCCEncrypt),
+          algorithm: crypto.cipher.algorithm,
+          options: crypto.options,
+          keyBuffer: crypto.key.map { $0 },
+          keyLength: crypto.key.count,
+          ivBuffer: initializationVectorBuffer
+        )
+        
+        if includeInitializationVectorInContent {
+          rawDataLength = contentLength - crypto.cipher.blockSize
+          // The estimated content length is the IV length plus the crypted length
+          estimatedCryptoCount = crypto.cipher.blockSize + decryptStream.getOutputLength(inputLength: rawDataLength, isFinal: true)
+        } else {
+          rawDataLength = contentLength
+          estimatedCryptoCount = decryptStream.getOutputLength(inputLength: rawDataLength, isFinal: true)
+        }
+        
+        self.cryptoStream = decryptStream
+      } catch {
+        _streamError = error
+        _streamStatus = .error
+      }
+    }
+    
     cipherStream = input
 
     // required because `init()` is not marked as a designated initializer
     super.init(data: Data())
   }
 
-  public convenience init?(_ operation: Crypto.Operation, url: URL, with crypto: Crypto) {
+  public convenience init?(
+    operation: CryptoInputStream.Operation,
+    url: URL,
+    with crypto: CryptoInputStream.DataSource
+  ) {
     // Create a stream from the content source
     guard let plaintextStream = InputStream(url: url) else {
       PubNub.log.error("Could not create `SecureInputStream` due to underlying InputStream(url:) failing for \(url)")
       return nil
     }
 
-    self.init(operation, input: plaintextStream, contentLength: url.sizeOf, with: crypto)
+    self.init(operation: operation, input: plaintextStream, contentLength: url.sizeOf, with: crypto)
   }
 
-  public convenience init(_ operation: Crypto.Operation, data: Data, with crypto: Crypto) {
-    self.init(operation, input: InputStream(data: data), contentLength: data.count, with: crypto)
+  public convenience init(
+    operation: CryptoInputStream.Operation,
+    data: Data,
+    with crypto: CryptoInputStream.DataSource
+  ) {
+    self.init(operation: operation, input: InputStream(data: data), contentLength: data.count, with: crypto)
   }
 
-  public convenience init?(_ operation: Crypto.Operation, fileAtPath path: String, with crypto: Crypto) {
-    self.init(operation, url: URL(fileURLWithPath: path), with: crypto)
+  public convenience init?(
+    operation: CryptoInputStream.Operation,
+    fileAtPath path: String,
+    with crypto: DataSource
+  ) {
+    self.init(operation: operation, url: URL(fileURLWithPath: path), with: crypto)
   }
 
   deinit {
@@ -185,10 +291,11 @@ public class CryptoInputStream: InputStream {
     if finalyse {
       var finalBuffer = writeBuffer
       let append = cryptedBytesLength > 0
-
+      
+      writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
+      
       if append {
         finalBuffer = [UInt8](repeating: 0, count: cryptorBufferSize)
-        writeBuffer = Array(writeBuffer[..<cryptedBytesLength])
       }
 
       do {
@@ -297,91 +404,23 @@ public class CryptoInputStream: InputStream {
   // MARK: - Encrypt
 
   func encrypt(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
-    // Create Crypto if it does not exist
-    let encryptStream: CryptoStream
-    if let cryptoStream = cryptoStream {
-      encryptStream = cryptoStream
-    } else {
-      // Init the Crypto Stream
-      do {
-        // Create a randomized buffer of data the length of the cipher block size
-        let ivBuffer = try Crypto.randomInitializationVector(byteCount: crypto.cipher.blockSize)
-        cryptedBuffer = ivBuffer
-
-        cryptedBufferRead = 0
-
-        encryptStream = try CryptoStream(
-          operation: operation, algorithm: crypto.cipher, options: Crypto.paddingLength,
-          keyBuffer: crypto.key.map { $0 }, keyLength: crypto.key.count,
-          ivBuffer: ivBuffer
-        )
-
-        cryptedDataLength = encryptStream.getOutputLength(
-          inputLength: rawDataLength, isFinal: true
-        ) + crypto.cipher.blockSize
-      } catch {
-        _streamError = error
-        _streamStatus = .error
-        return -1
-      }
-
-      // Assign the created stream to self so we retain it for future loops
-      cryptoStream = encryptStream
-    }
-
     return crypt(
       outputBuffer: buffer,
       maxLength: maxLength,
       inputStream: cipherStream,
       readByteOffset: 0,
-      cryptoStream: encryptStream
+      cryptoStream: self.cryptoStream!
     )
   }
 
   // MARK: - Decrypt
 
   func decrypt(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
-    // Create Crypto if it does not exist
-    let decryptStream: CryptoStream
-    if let cryptoStream = cryptoStream {
-      decryptStream = cryptoStream
-    } else {
-      // Create a buffer to store the IV in that matches the cipher block size
-      var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
-
-      switch cipherStream.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) {
-      case let bytesRead where bytesRead < 0:
-        // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
-        _streamStatus = .error
-        _streamError = cipherStream.streamError
-        return bytesRead
-      default:
-        // 0 represents end of the current buffer
-        break
-      }
-
-      // Init the Crypto Stream
-      do {
-        decryptStream = try CryptoStream(
-          operation: operation, algorithm: crypto.cipher, options: Crypto.paddingLength,
-          keyBuffer: crypto.key.map { $0 }, keyLength: crypto.key.count,
-          ivBuffer: initializationVectorBuffer
-        )
-      } catch {
-        _streamError = error
-        _streamStatus = .error
-        return -1
-      }
-
-      // Assign the created stream to self so we retain it for future loops
-      cryptoStream = decryptStream
-    }
-
     return crypt(
       outputBuffer: buffer,
       maxLength: maxLength,
       inputStream: cipherStream,
-      cryptoStream: decryptStream
+      cryptoStream: self.cryptoStream!
     )
   }
 

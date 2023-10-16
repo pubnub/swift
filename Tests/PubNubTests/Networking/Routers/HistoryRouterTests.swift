@@ -176,7 +176,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
+    configWithCipher.cryptorModule = CryptorModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false)
 
     let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
@@ -203,7 +203,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "NotTheRightKey", withRandomIV: false)
+    configWithCipher.cryptorModule = CryptorModule.legacyCryptoModule(with: "NotTheRightKey", withRandomIV: false)
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
@@ -231,7 +231,7 @@ extension HistoryRouterTests {
     }
 
     var configWithCipher = config
-    configWithCipher.cipherKey = Crypto(key: "SomeTestString", withRandomIV: false)
+    configWithCipher.cryptorModule = CryptorModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false)
 
     let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in

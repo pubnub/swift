@@ -73,7 +73,8 @@ public struct PubNubConfiguration: Hashable {
   ///   - publishKey: The PubNub Publish Key to be used when publishing data to a channel
   ///   - subscribeKey: The PubNub Subscribe Key to be used when getting data from a channel
   ///   - userId: The unique identifier to be used as a device identifier
-  ///   - cipherKey: If set, all communication will be encrypted with this key
+  ///   - cipherKey: ~~If set, all communication will be encrypted with this key~~
+  ///   - cryptorModule: If set, all communication will be encrypted with this module
   ///   - authKey: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - authToken: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - useSecureConnections: The PubNub Publish Key to be used when publishing data to a channel
@@ -92,6 +93,7 @@ public struct PubNubConfiguration: Hashable {
     subscribeKey: String,
     userId: String,
     cipherKey: Crypto? = nil,
+    cryptorModule: CryptorModule? = nil,
     authKey: String? = nil,
     authToken: String? = nil,
     useSecureConnections: Bool = true,
@@ -109,10 +111,18 @@ public struct PubNubConfiguration: Hashable {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UserId should not be empty.")
     }
+    if let cryptorModule = cryptorModule {
+      self.cryptorModule = cryptorModule
+    } else {
+      if let cipherKey = cipherKey {
+        self.cryptorModule = CryptorModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
+        // Preserves cipherKey for backward compatibility if anyone has already accessed it before
+        self.cipherKey = cipherKey
+      }
+    }
 
     self.publishKey = publishKey
     self.subscribeKey = subscribeKey
-    self.cipherKey = cipherKey
     self.authKey = authKey
     self.authToken = authToken
     self.userId = userId
@@ -189,6 +199,9 @@ public struct PubNubConfiguration: Hashable {
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   public var subscribeKey: String
   /// If set, all communication will be encrypted with this key
+  public var cryptorModule: CryptorModule?
+  /// If set, all communication will be encrypted with this key
+  @available(*, deprecated, message: "Use 'cryptorModule' instead")
   public var cipherKey: Crypto?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?

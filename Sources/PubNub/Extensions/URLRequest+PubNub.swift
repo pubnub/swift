@@ -46,7 +46,7 @@ public extension URLRequest {
   internal init(
     from response: GenerateUploadURLResponse,
     uploading content: PubNub.FileUploadContent,
-    crypto: Crypto? = nil
+    cryptorModule: CryptorModule? = nil
   ) throws {
     self.init(url: response.uploadRequestURL)
     method = response.uploadMethod
@@ -65,30 +65,32 @@ public extension URLRequest {
     postfixData.append("\r\n--\(response.fileId)--")
 
     // Get Content InputStream
-    guard var contentStream = content.inputStream else {
+    guard let contentStream = content.inputStream else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [content.debugDescription])
     }
-
-    // If we were given a Crypto payload we should convert the stream to a secure stream
-    if let crypto = crypto {
-      let cryptoStream = CryptoInputStream(
-        .encrypt, input: contentStream, contentLength: content.contentLength, with: crypto
-      )
-      setValue(
-        "\(prefixData.count + cryptoStream.estimatedCryptoCount + postfixData.count)",
-        forHTTPHeaderField: "Content-Length"
-      )
-      contentStream = cryptoStream
+    
+    let finalStream: InputStream
+    let contentLength: Int
+    
+    // If we were given a Crypto module we should convert the stream to a secure stream
+    if let cryptorModule = cryptorModule {
+      switch cryptorModule.encrypt(stream: contentStream, contentLength: content.contentLength) {
+      case .success(let encryptingResult):
+        finalStream = encryptingResult
+        contentLength = prefixData.count + ((encryptingResult as? MultipartInputStream)?.length ?? 0) + postfixData.count
+      case .failure(let encryptionError):
+        throw encryptionError
+      }      
     } else {
-      setValue("\(prefixData.count + content.contentLength + postfixData.count)", forHTTPHeaderField: "Content-Length")
+      finalStream = contentStream
+      contentLength = prefixData.count + content.contentLength + postfixData.count
     }
 
-    let inputStream = MultipartInputStream(
-      inputStreams: [InputStream(data: prefixData), contentStream, InputStream(data: postfixData)]
-    )
-
-    httpBodyStream = inputStream
-
+    setValue("\(contentLength)", forHTTPHeaderField: "Content-Length")
     setValue("multipart/form-data; boundary=\(response.fileId)", forHTTPHeaderField: "Content-Type")
+    
+    httpBodyStream = MultipartInputStream(
+      inputStreams: [InputStream(data: prefixData), finalStream, InputStream(data: postfixData)]
+    )
   }
 }

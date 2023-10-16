@@ -30,9 +30,6 @@ import Foundation
 
 /// Encrypts of Decrypts a stream of data
 public class CryptoStream {
-  /// The operation that will be performed
-  public let operation: Crypto.Operation
-
   /// A pointer to the returned CCCryptorRef.
   private var context = UnsafeMutablePointer<CCCryptorRef?>.allocate(capacity: 1)
 
@@ -46,12 +43,12 @@ public class CryptoStream {
   ///   - keyLength: Length of key material.
   ///   - ivBuffer: Initialization vector material
   public init(
-    operation: Crypto.Operation, algorithm: Crypto.Cipher, options: CCOptions,
+    operation: CCOperation, algorithm: CCAlgorithm, options: CCOptions,
     keyBuffer: UnsafeRawPointer, keyLength: Int, ivBuffer: UnsafeRawPointer
   ) throws {
     let status = CCCryptorCreate(
-      operation.ccValue,
-      algorithm.rawValue,
+      operation,
+      algorithm,
       options,
       keyBuffer,
       keyLength,
@@ -62,8 +59,6 @@ public class CryptoStream {
     if status != kCCSuccess {
       throw CryptoError(from: status)
     }
-
-    self.operation = operation
   }
 
   //// Process (encrypt, decrypt) some data. The result, if any, is written to a caller-provided buffer.

@@ -236,7 +236,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   /// The  block that is called when the task completes
   public var completionBlock: ((Result<URL, Error>) -> Void)?
   /// The crypto object that will attempt to decrypt the file
-  public var crypto: Crypto?
+  public var cryptorModule: CryptorModule?
 
   /// The location where the temporary downloaded file should be copied
   public private(set) var destinationURL: URL
@@ -250,19 +250,25 @@ public class HTTPFileDownloadTask: HTTPFileTask {
     (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
   }
 
-  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, crypto: Crypto?) {
-    destinationURL = url
-    self.crypto = crypto
+  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptorModule: CryptorModule?) {
+    self.destinationURL = url
+    self.cryptorModule = cryptorModule
 
     super.init(task: task, session: identifier)
   }
 
-  func decrypt(_ encryptedURL: URL, to outpuURL: URL, using crypto: Crypto) throws {
-    // If we were provided a crypto object we should try and decrypt the file
-    guard let secureStream = CryptoInputStream(.decrypt, url: encryptedURL, with: crypto) else {
+  func decrypt(_ encryptedURL: URL, to outpuURL: URL, using cryptorModule: CryptorModule) throws {
+    // If we were provided a Crypto object we should try and decrypt the file
+    
+    guard let inputStream = InputStream(url: encryptedURL) else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [encryptedURL.absoluteString])
     }
-    try secureStream.writeEncodedData(to: outpuURL)
+    
+    cryptorModule.decrypt(
+      stream: inputStream,
+      contentLength: encryptedURL.sizeOf,
+      to: outpuURL
+    )
   }
 
   open func temporaryURL() -> URL {
@@ -318,15 +324,19 @@ public class HTTPFileDownloadTask: HTTPFileTask {
       // Update destination to be a unique file
       destinationURL = fileManager.makeUniqueFilename(destinationURL)
 
-      if let crypto = crypto {
+      if let cryptorModule = cryptorModule {
         // Set the encrypted in case something goes wrong
         encryptedURL = url
-
-        // If we were provided a crypto object we should try and decrypt the file
-        guard let secureStream = CryptoInputStream(.decrypt, url: url, with: crypto) else {
+        
+        guard let stream = InputStream(url: url) else {
           throw PubNubError(.streamCouldNotBeInitialized, additional: [url.absoluteString])
         }
-        try secureStream.writeEncodedData(to: destinationURL)
+                
+        cryptorModule.decrypt(
+          stream: stream,
+          contentLength: url.sizeOf,
+          to: destinationURL
+        )
       } else {
         try fileManager.moveItem(at: url, to: destinationURL)
       }

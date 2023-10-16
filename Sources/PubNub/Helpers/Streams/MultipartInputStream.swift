@@ -30,14 +30,16 @@ import Foundation
 /// An `InputStream` that can combine multiple streams into a single stream
 class MultipartInputStream: InputStream {
   let inputStreams: [InputStream]
-
+  let length: Int
+  
   private var currentIndex: Int
   private var _streamStatus: Stream.Status
   private var _streamError: Error?
   private weak var _delegate: StreamDelegate?
 
-  init(inputStreams: [InputStream]) {
+  init(inputStreams: [InputStream], length: Int = 0) {
     self.inputStreams = inputStreams
+    self.length = length
     currentIndex = 0
     _streamStatus = .notOpen
     _streamError = nil
@@ -124,7 +126,7 @@ class MultipartInputStream: InputStream {
   }
 
   override func open() {
-    guard _streamStatus == .open else {
+    guard _streamStatus != .open else {
       return
     }
     _streamStatus = .open

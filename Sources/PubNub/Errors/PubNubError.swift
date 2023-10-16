@@ -105,6 +105,9 @@ public struct PubNubError: Error {
 
     // Crypto
     case missingCryptoKey
+    case encryptionFailure
+    case decryptionFailure
+    case unknownCryptorFailure
 
     // Request Processing
     case requestMutatorFailure
@@ -232,6 +235,8 @@ public struct PubNubError: Error {
         return .streamFailure
       case .fileTooLarge, .fileMissingAtPath, .fileAccessDenied, .fileContentLength:
         return .fileManagement
+      case .encryptionFailure, .decryptionFailure, .unknownCryptorFailure:
+        return .crypto
       }
     }
   }

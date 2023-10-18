@@ -39,7 +39,7 @@ class PresenceTransition: TransitionProtocol {
     case .left(_,_):
       return !(state is Presence.HeartbeatInactive)
     case .heartbeatSuccess:
-      return state is Presence.Heartbeating
+      return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
     case .heartbeatFailed(_):
       return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
     case .heartbeatGiveUp(_):

@@ -28,18 +28,15 @@
 import Foundation
 
 struct SubscribeInput: Equatable {
-  let channels: [String: PubNubChannel]
-  let groups: [String: PubNubChannel]
+  private let channels: [String: PubNubChannel]
+  private let groups: [String: PubNubChannel]
   
   init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
     self.channels = channels.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
     self.groups = groups.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
   }
   
-  private init(
-    channels: [String: PubNubChannel],
-    groups: [String: PubNubChannel]
-  ) {
+  private init(channels: [String: PubNubChannel], groups: [String: PubNubChannel]) {
     self.channels = channels
     self.groups = groups
   }

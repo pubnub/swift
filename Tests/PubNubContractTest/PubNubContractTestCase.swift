@@ -239,6 +239,7 @@ let defaultPublishKey = "demo-36"
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
     PubNubSubscribeEngineContractTestsSteps().setup()
+    PubNubPresenceEngineContractTestsSteps().setup()
     PubNubTimeContractTestSteps().setup()
 
     /// Objects acceptance testins.

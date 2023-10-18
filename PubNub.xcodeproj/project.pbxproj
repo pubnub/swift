@@ -397,6 +397,12 @@
 		3D9B29FA2A65609000C988C9 /* EmitMessagesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */; };
 		3D9B29FB2A65609000C988C9 /* SubscribeRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */; };
 		3D9B29FD2A6560FB00C988C9 /* PresenceTransitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */; };
+		3DACA65B2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA65A2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift */; };
+		3DACA65C2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA65A2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift */; };
+		3DACA65E2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA65D2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
+		3DACA65F2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA65D2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
+		3DACA6612AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA6602AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift */; };
+		3DACA6622AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACA6602AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift */; };
 		3DB0E9102A83E0110065B4FD /* EffectInvocation+Equatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB0E90F2A83E0110065B4FD /* EffectInvocation+Equatable.swift */; };
 		3DB56B622A715CB100FC35A0 /* PresenceEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */; };
 		3DB56B652A715F7E00FC35A0 /* HeartbeatEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */; };
@@ -413,8 +419,6 @@
 		3DE748872A1FA426009B0809 /* SubscribeTransition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE7487B2A1FA426009B0809 /* SubscribeTransition.swift */; };
 		3DE7488E2A1FA449009B0809 /* DispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE748892A1FA449009B0809 /* DispatcherTests.swift */; };
 		3DF393A42A2F48BC00C62970 /* EventEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */; };
-		3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
-		3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
 		3DFA338E2A8CDFD4003B595F /* LeaveEffectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA338D2A8CDFD4003B595F /* LeaveEffectTests.swift */; };
 		3DFA33902A8CED14003B595F /* LeaveEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA338F2A8CED14003B595F /* LeaveEffect.swift */; };
 		3DFA33922A8CED6B003B595F /* PresenceHeartbeatRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFA33912A8CED6B003B595F /* PresenceHeartbeatRequest.swift */; };
@@ -960,6 +964,9 @@
 		3D9B29F42A65609000C988C9 /* EmitMessagesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitMessagesTests.swift; sourceTree = "<group>"; };
 		3D9B29F52A65609000C988C9 /* SubscribeRequestTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequestTests.swift; sourceTree = "<group>"; };
 		3D9B29FC2A6560FB00C988C9 /* PresenceTransitionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceTransitionTests.swift; sourceTree = "<group>"; };
+		3DACA65A2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineContractTestSteps.swift; sourceTree = "<group>"; };
+		3DACA65D2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
+		3DACA6602AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPresenceEngineContractTestSteps.swift; sourceTree = "<group>"; };
 		3DB0E90F2A83E0110065B4FD /* EffectInvocation+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EffectInvocation+Equatable.swift"; sourceTree = "<group>"; };
 		3DB56B612A715CB100FC35A0 /* PresenceEffectFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEffectFactory.swift; sourceTree = "<group>"; };
 		3DB56B632A715F1700FC35A0 /* HeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffectTests.swift; sourceTree = "<group>"; };
@@ -976,7 +983,6 @@
 		3DE7487B2A1FA426009B0809 /* SubscribeTransition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeTransition.swift; sourceTree = "<group>"; };
 		3DE748892A1FA449009B0809 /* DispatcherTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatcherTests.swift; sourceTree = "<group>"; };
 		3DF393A32A2F48BC00C62970 /* EventEngineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineFactory.swift; sourceTree = "<group>"; };
-		3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
 		3DFA338D2A8CDFD4003B595F /* LeaveEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveEffectTests.swift; sourceTree = "<group>"; };
 		3DFA338F2A8CED14003B595F /* LeaveEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaveEffect.swift; sourceTree = "<group>"; };
 		3DFA33912A8CED6B003B595F /* PresenceHeartbeatRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PresenceHeartbeatRequest.swift; sourceTree = "<group>"; };
@@ -2042,6 +2048,16 @@
 			path = Subscribe;
 			sourceTree = "<group>";
 		};
+		3DACA6552AD706E400FCBF43 /* EventEngine */ = {
+			isa = PBXGroup;
+			children = (
+				3DACA65A2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift */,
+				3DACA65D2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift */,
+				3DACA6602AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift */,
+			);
+			path = EventEngine;
+			sourceTree = "<group>";
+		};
 		3DB0E90E2A83E0010065B4FD /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -2150,6 +2166,7 @@
 			isa = PBXGroup;
 			children = (
 				3D371DE52A4EE20700953D7F /* PubNubEventEngineTestsHelpers.swift */,
+				3DACA6552AD706E400FCBF43 /* EventEngine */,
 				A5F88ECF2906A9DE00F49D5C /* Objects */,
 				79407BC2271D4CFA0032076C /* Access */,
 				79407BC4271D4CFA0032076C /* Message Actions */,
@@ -2192,7 +2209,6 @@
 			isa = PBXGroup;
 			children = (
 				79407BC9271D4CFA0032076C /* PubNubSubscribeContractTestSteps.swift */,
-				3DF4783E2A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift */,
 			);
 			path = Subscribe;
 			sourceTree = "<group>";
@@ -3183,12 +3199,14 @@
 				79407BDE271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
 				A5115F2B291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE4271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
+				3DACA65B2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift in Sources */,
 				79407BD8271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
 				A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
-				3DF478412A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
+				3DACA65E2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
 				A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDA271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445EF2906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
+				3DACA6612AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift in Sources */,
 				79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */,
 				79407BD6271D4CFA0032076C /* PubNubAccessContractTestSteps.swift in Sources */,
 				A56445F22907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */,
@@ -3208,12 +3226,14 @@
 				79407BDF271D4CFA0032076C /* PubNubPushContractTestSteps.swift in Sources */,
 				A5115F2C291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */,
 				79407BE5271D4CFA0032076C /* PubNubFilesContractTestSteps.swift in Sources */,
+				3DACA65C2AD706FD00FCBF43 /* PubNubEventEngineContractTestSteps.swift in Sources */,
 				79407BD9271D4CFA0032076C /* PubNubMessageActionsContractTestSteps.swift in Sources */,
 				A5115F29291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
-				3DF478422A58539500EDDCF6 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
+				3DACA65F2AD70E9500FCBF43 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
 				A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
 				79407BDB271D4CFA0032076C /* PubNubTimeContractTestSteps.swift in Sources */,
 				A56445F02906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */,
+				3DACA6622AD70EAD00FCBF43 /* PubNubPresenceEngineContractTestSteps.swift in Sources */,
 				79407BD5271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */,
 				79407BD7271D4CFA0032076C /* PubNubAccessContractTestSteps.swift in Sources */,
 				A56445F32907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */,
@@ -3530,7 +3550,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -3563,7 +3583,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -4620,7 +4640,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",
@@ -4654,7 +4674,7 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = PubNub.xcodeproj/PubNubTests_Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@loader_path/../Frameworks",

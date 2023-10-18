@@ -383,6 +383,31 @@ class PresenceTransitionTests: XCTestCase {
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
+  func testPresence_ReconnectForHeartbeatingState() {
+    let input = PresenceInput(
+      channels: ["c1", "c2"],
+      groups: ["g1", "g2"]
+    )
+    
+    let results = transition.transition(
+      from: Presence.Heartbeating(input: input),
+      event: .heartbeatFailed(error: PubNubError(.unknown))
+    )
+    let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
+      .managed(.delayedHeartbeat(
+        channels: ["c1", "c2"], groups: ["g1", "g2"],
+        retryAttempt: 0, error: PubNubError(.unknown)
+      ))
+    ]
+    let expectedState = Presence.HeartbeatReconnecting(
+      input: input,
+      retryAttempt: 0, error: PubNubError(.unknown)
+    )
+    
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+  }
+  
   // MARK: - Disconnect
 
   func testPresence_DisconnectForHeartbeatingState() {

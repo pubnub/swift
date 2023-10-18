@@ -101,36 +101,27 @@ extension Subscribe.Event: ContractTestIdentifiable {
   }
 }
 
-class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
-  // A subscription session with wrapped Disptacher and Transition in order to record Invocations and Events
-  private var subscriptionSession: SubscriptionSession!
+class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSteps {
   // A decorator that records Invocations and forwards all calls to the original instance
-  private var dispatcher: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>!
+  private var dispatcherDecorator: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.EngineInput>!
   // A decorator that records Events and forwards all calls to the original instance
-  private var transition: TransitionDecorator<any SubscribeState, Subscribe.Event, Subscribe.Invocation>!
-  // SubscribeEngine with observed Dispatcher and Transition
-  private var subscribeEngine: SubscribeEngine!
-  // PresenceEngine
-  private var presenceEngine: PresenceEngine!
+  private var transitionDecorator: TransitionDecorator<any SubscribeState, Subscribe.Event, Subscribe.Invocation>!
   
   override func handleAfterHook() {
-    dispatcher = nil
-    transition = nil
-    subscribeEngine = nil
-    presenceEngine = nil
-    subscriptionSession = nil
+    dispatcherDecorator = nil
+    transitionDecorator = nil
     super.handleAfterHook()
   }
   
   override func handleBeforeHook() {
-    dispatcher = DispatcherDecorator(wrappedInstance: EffectDispatcher(
+    dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: SubscribeEffectFactory(session: HTTPSession(
         configuration: URLSessionConfiguration.subscription,
         sessionQueue: DispatchQueue(label: "Subscribe Response Queue"),
         sessionStream: SessionListener()
       ))
     ))
-    transition = TransitionDecorator(
+    transitionDecorator = TransitionDecorator(
       wrappedInstance: SubscribeTransition()
     )
     super.handleBeforeHook()
@@ -146,7 +137,24 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
   }
   
   override func createPubNubClient() -> PubNub {
-    PubNub(configuration: self.configuration, subscriptionSession: subscriptionSession)
+    let factory = EventEngineFactory()
+    let subscriptionSession = SubscriptionSession(
+      configuration: self.configuration,
+      subscribeEngine: factory.subscribeEngine(
+        with: self.configuration,
+        dispatcher: self.dispatcherDecorator,
+        transition: self.transitionDecorator
+      ),
+      presenceEngine: factory.presenceEngine(
+        with: self.configuration,
+        dispatcher: EmptyDispatcher(),
+        transition: PresenceTransition()
+      )
+    )
+    return PubNub(
+      configuration: self.configuration,
+      subscriptionSession: subscriptionSession
+    )
   }
 
   override public func setup() {
@@ -162,28 +170,9 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
         automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 0.5)),
         supressLeaveEvents: true
       ))
-      self.subscribeEngine = EventEngineFactory().subscribeEngine(
-        with: self.configuration,
-        dispatcher: self.dispatcher,
-        transition: self.transition
-      )
-      self.subscriptionSession = SubscriptionSession(
-        configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine,
-        presenceEngine: self.presenceEngine
-      )
     }
     Given("the demo keyset with event engine enabled") { _, _ in
-      self.subscribeEngine = EventEngineFactory().subscribeEngine(
-        with: self.configuration,
-        dispatcher: self.dispatcher,
-        transition: self.transition
-      )
-      self.subscriptionSession = SubscriptionSession(
-        configuration: self.configuration,
-        subscribeEngine: self.subscribeEngine,
-        presenceEngine: self.presenceEngine
-      )
+      debugPrint("Preserves existing configuration, there's no need to replace")
     }
     When("I subscribe") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
@@ -199,18 +188,10 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubContractTestCase {
       XCTAssertNotNil(messages.first)
     }
     Match(["And"], "I observe the following:") { args, value in
-      let recordedEvents = self.transition.recordedEvents.map { $0.contractTestIdentifier }
-      let recordedInvocations = self.dispatcher.recordedInvocations.map { $0.contractTestIdentifier }
+      let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
+      let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
       XCTAssertTrue(recordedEvents.elementsEqual(self.extractExpectedResults(from: value).events))
       XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
     }
-  }
-  
-  private func extractExpectedResults(from: [AnyHashable: Any]?) -> (events: [String], invocations: [String]) {
-    let dataTable = from?["DataTable"] as? Array<Array<String>> ?? []
-    let events = dataTable.compactMap { $0.first == "event" ? $0.last : nil }
-    let invocations = dataTable.compactMap { $0.first == "invocation" ? $0.last : nil }
-    
-    return (events: events, invocations: invocations)
   }
 }

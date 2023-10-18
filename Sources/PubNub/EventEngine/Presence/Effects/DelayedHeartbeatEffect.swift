@@ -56,7 +56,7 @@ class DelayedHeartbeatEffect: DelayedEffectHandler {
     case 1:
       return 0.5 * Double(configuration.durationUntilTimeout)
     case 2:
-      return Double(configuration.durationUntilTimeout) - 1.0
+      return 0.5 * Double(configuration.durationUntilTimeout) - 1.0
     default:
       return nil
     }

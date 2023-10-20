@@ -295,7 +295,7 @@ fileprivate extension SubscribeTransition {
       ), invocations: [
         .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
-          newStatus: .connectionError(error.underlying),
+          newStatus: .connectionError,
           error: error
         )))
       ]
@@ -363,7 +363,7 @@ fileprivate extension SubscribeTransition {
       ), invocations: [
         .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
-          newStatus: .disconnectedUnexpectedly(error.underlying),
+          newStatus: .disconnectedUnexpectedly,
           error: error
         )))
       ]

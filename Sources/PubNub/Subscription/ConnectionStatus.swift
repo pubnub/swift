@@ -29,25 +29,27 @@ import Foundation
 
 /// Status of a connection to a remote system
 public enum ConnectionStatus: Equatable {
+  /// Attempting to connect to a remote system
+  @available(*, unavailable)
+  case connecting
+  /// Attempting to reconnect to a remote system
+  @available(*, unavailable)
+  case reconnecting
   /// Successfully connected to a remote system
   case connected
   /// Explicit disconnect from a remote system
   case disconnected
   /// Unexpected disconnect from a remote system
-  case disconnectedUnexpectedly(PubNubError)
+  case disconnectedUnexpectedly
   /// Unable to establish initial connection
-  case connectionError(PubNubError)
+  case connectionError
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
     switch self {
-    case .connected:
+    case .connecting, .connected, .reconnecting:
       return true
-    case .disconnected:
-      return false
-    case .connectionError(_):
-      return false
-    case .disconnectedUnexpectedly(_):
+    default:
       return false
     }
   }

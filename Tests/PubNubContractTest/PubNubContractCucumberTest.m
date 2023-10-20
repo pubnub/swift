@@ -64,42 +64,17 @@ void CucumberishInit(void) {
   // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
   excludeTags = nil;
   
-  // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
+  // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS §WILL BE MERGED.
   NSArray *includedTags = @[
-    @"contract=getChannelMetadataOfChat",
-    @"contract=getChannelMetadataOfDMWithCustom",
-    @"contract=setChannelMetadataForChat",
-    @"contract=removeChannelMetadataOfChat",
-    @"contract=getAllChannelMetadata",
-    @"contract=getAllChannelMetadataWithCustom",
-
-    @"contract=getUUIDMetadataOfAlice",
-    @"contract=getUUIDMetadataOfBobWithCustom",
-    @"contract=setUUIDMetadataForAlice",
-    @"contract=removeUUIDMetadataOfAlice",
-    @"contract=getAllUUIDMetadata",
-    @"contract=getAllUUIDMetadataWithCustom",
-    
-    @"contract=getMembersOfChatChannel",
-    @"contract=getMembersOfVipChatChannelWithCustomAndUuidWithCustom",
-    @"contract=setMembersForChatChannel",
-    @"contract=setMembersForChatChannelWithCustomAndUuidWithCustom",
-    @"contract=removeMembersForChatChannel",
-    @"contract=manageMembersForChatChannel",
-
-    @"contract=getAliceMemberships",
-    @"contract=getAliceMemberships",
-    @"contract=getBobMembershipWithCustomAndChannelCustom",
-    @"contract=setAliceMembership",
-    @"contract=removeAliceMembership",
-    @"contract=manageAliceMemberships"
+    @"contract=presenceJoin",
+    @"contract=presenceJoinWithAnError",
+    @"contract=presenceJoinWithConstantFailures",
+    @"contract=presenceJoinAndLeave"
   ];
-
-  
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"
                                fromBundle:bundle
                               includeTags:includedTags
-                              excludeTags:excludeTags];
+                              excludeTags:nil];
 }

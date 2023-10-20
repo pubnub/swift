@@ -27,93 +27,57 @@
 
 import Foundation
 
+@available(*, deprecated, message: "Use methods on PubNub's instance instead")
 public class SubscriptionSession {
   /// An unique identifier for subscription session
-  public let uuid = UUID()
+  public var uuid: UUID {
+    strategy.uuid
+  }
+  
   /// PSV2 feature to subscribe with a custom filter expression.
   @available(*, unavailable)
   public var filterExpression: String?
+
+  private let strategy: any SubscriptionSessionStrategy
   
-  var privateListeners: WeakSet<ListenerType> = WeakSet([])
-  var configuration: SubscriptionConfiguration
-  var subscribeEngine: SubscribeEngine
-  var presenceEngine: PresenceEngine
-  var previousTokenResponse: SubscribeCursor?
+  var previousTokenResponse: SubscribeCursor? {
+    strategy.previousTokenResponse
+  }
   
-  internal init(
-    configuration: SubscriptionConfiguration,
-    subscribeEngine: SubscribeEngine,
-    presenceEngine: PresenceEngine
-  ) {
-    self.subscribeEngine = subscribeEngine
-    self.configuration = configuration
-    self.presenceEngine = presenceEngine
-    self.listenForStateUpdates()
+  var configuration: SubscriptionConfiguration {
+    get {
+      strategy.configuration
+    } set {
+      strategy.configuration = newValue
+    }
+  }
+  
+  internal init(strategy: any SubscriptionSessionStrategy) {
+    self.strategy = strategy
   }
 
   /// Names of all subscribed channels
   ///
   /// This list includes both regular and presence channel names
   public var subscribedChannels: [String] {
-    subscribeEngine.state.input.subscribedChannels
+    strategy.subscribedChannels
   }
   
   /// List of actively subscribed groups
   public var subscribedChannelGroups: [String] {
-    subscribeEngine.state.input.subscribedGroups
+    strategy.subscribedChannelGroups
   }
 
   /// Combined value of all subscribed channels and groups
   public var subscriptionCount: Int {
-    subscribeEngine.state.input.totalSubscribedCount
+    strategy.subscriptionCount
   }
   
   /// Current connection status
   public var connectionStatus: ConnectionStatus {
-    subscribeEngine.state.connectionStatus
+    strategy.connectionStatus
   }
-  
-  deinit {
-    PubNub.log.debug("SubscriptionSession Destroyed")
-    // Poke the session factory to clean up nil values
-    SubscribeSessionFactory.shared.sessionDestroyed()
-  }
-  
-  private func listenForStateUpdates() {
-    subscribeEngine.onStateUpdated = { [weak self] state in
-      if state.hasTimetoken {
-        self?.previousTokenResponse = state.cursor
-      }
-    }
-  }
-  
-  private func updateSubscribeEngineInput() {
-    subscribeEngine.customInput = EventEngineCustomInput(
-      value: Subscribe.EngineInput(
-        configuration: configuration,
-        listeners: privateListeners.allObjects
-      )
-    )
-  }
-  
-  private func sendSubscribeEvent(event: Subscribe.Event) {
-    updateSubscribeEngineInput()
-    subscribeEngine.send(event: event)
-  }
-  
-  private func updatePresenceEngineInput() {
-    presenceEngine.customInput = EventEngineCustomInput(
-      value: Presence.EngineInput(
-        configuration: configuration
-      )
-    )
-  }
-  
-  private func sendPresenceEvent(event: Presence.Event) {
-    updatePresenceEngineInput()
-    presenceEngine.send(event: event)
-  }
-
+        
   // MARK: - Subscription Loop
 
   /// Subscribe to channels and/or channel groups
@@ -130,46 +94,23 @@ public class SubscriptionSession {
     at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false
   ) {
-    let newInput = subscribeEngine.state.input + SubscribeInput(
-      channels: channels.map { PubNubChannel(id: $0, withPresence: withPresence) },
-      groups: groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
+    strategy.subscribe(
+      to: channels,
+      and: groups,
+      at: cursor,
+      withPresence: withPresence
     )
-    if let cursor = cursor, cursor.timetoken != 0 {
-      sendSubscribeEvent(event: .subscriptionRestored(
-        channels: newInput.allSubscribedChannels,
-        groups: newInput.allSubscribedGroups,
-        cursor: cursor
-      ))
-    } else {
-      sendSubscribeEvent(event: .subscriptionChanged(
-        channels: newInput.allSubscribedChannels,
-        groups: newInput.allSubscribedGroups
-      ))
-    }
-    sendPresenceEvent(event: .joined(
-      channels: newInput.presenceSubscribedChannels,
-      groups: newInput.presenceSubscribedGroups
-    ))
   }
 
   /// Reconnect a disconnected subscription stream
   /// - parameter timetoken: The timetoken to subscribe with
   public func reconnect(at cursor: SubscribeCursor? = nil) {
-    let input = subscribeEngine.state.input
-    let channels = input.allSubscribedChannels
-    let groups = input.allSubscribedGroups
-    
-    if let cursor = cursor {
-      sendSubscribeEvent(event: .subscriptionRestored(channels: channels, groups: groups, cursor: cursor))
-    } else {
-      sendSubscribeEvent(event: .reconnect)
-    }
+    strategy.reconnect(at: cursor)
   }
 
   /// Disconnect the subscription stream
   public func disconnect() {
-    sendSubscribeEvent(event: .disconnect)
-    sendPresenceEvent(event: .disconnect)
+    strategy.disconnect()
   }
 
   // MARK: - Unsubscribe
@@ -181,24 +122,16 @@ public class SubscriptionSession {
   ///   - and: List of channel groups to unsubscribe from
   ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   public func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
-    let newInput = subscribeEngine.state.input - (
-      channels: channels.map { presenceOnly ? $0.presenceChannelName : $0 },
-      groups: groups.map { presenceOnly ? $0.presenceChannelName : $0 }
+    strategy.unsubscribe(
+      from: channels,
+      and: groups,
+      presenceOnly: presenceOnly
     )
-    sendSubscribeEvent(event: .subscriptionChanged(
-      channels: newInput.allSubscribedChannels,
-      groups: newInput.allSubscribedGroups
-    ))
-    sendPresenceEvent(event: .left(
-      channels: channels,
-      groups: groups
-    ))
   }
 
   /// Unsubscribe from all channels and channel groups
   public func unsubscribeAll() {
-    sendSubscribeEvent(event: .unsubscribeAll)
-    sendPresenceEvent(event: .leftAll)
+    strategy.unsubscribeAll()
   }
 }
 
@@ -206,25 +139,15 @@ extension SubscriptionSession: EventStreamEmitter {
   public typealias ListenerType = BaseSubscriptionListener
 
   public var listeners: [ListenerType] {
-    privateListeners.allObjects
+    strategy.listeners
   }
 
   public func add(_ listener: ListenerType) {
-    // Ensure that we cancel the previously attached token
-    listener.token?.cancel()
-    // Add new token to the listener
-    listener.token = ListenerToken { [weak self, weak listener] in
-      if let listener = listener {
-        self?.privateListeners.remove(listener)
-        self?.updateSubscribeEngineInput()
-      }
-    }
-    privateListeners.update(listener)
-    updateSubscribeEngineInput()
+    strategy.add(listener)
   }
 
   public func notify(listeners closure: (ListenerType) -> Void) {
-    listeners.forEach { closure($0) }
+    strategy.notify(listeners: closure)
   }
 }
 

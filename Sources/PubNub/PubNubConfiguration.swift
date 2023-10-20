@@ -220,6 +220,8 @@ public struct PubNubConfiguration: Hashable {
   public var useInstanceId: Bool
   /// Whether a request identifier should be included on outgoing requests
   public var useRequestId: Bool
+  /// A flag describing whether to enable new strategy for handling subscription loop
+  public var enableEventEngine: Bool = false
   /// Reconnection policy which will be used if/when a request fails
   public var automaticRetry: AutomaticRetry?
   /// URLSessionConfiguration used for URLSession network events

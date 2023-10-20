@@ -39,6 +39,7 @@ import Foundation
 ///
 /// - Important: Having multiple `SubscriptionSession` instances will result in
 /// increase network usage and battery drain.
+@available(*, deprecated, message: "Use methods on PubNub's instance instead")
 public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
@@ -71,12 +72,31 @@ public class SubscribeSessionFactory {
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
     
     return sessions.lockedWrite { dictionary in
+      let finalSubscribeSession = subscribeSession ?? HTTPSession(
+        configuration: URLSessionConfiguration.subscription,
+        sessionQueue: subscribeQueue,
+        sessionStream: SessionListener()
+      )
+      let finalPresenceSession = presenceSession ?? HTTPSession(
+        configuration: URLSessionConfiguration.pubnub,
+        sessionQueue: subscribeQueue,
+        sessionStream: SessionListener()
+      )
+      
+      guard let config = config as? PubNubConfiguration else {
+        preconditionFailure("Unexpected configuration that doesn't match PubNubConfiguration")
+      }
+      guard config.enableEventEngine else {
+        return SubscriptionSession(
+          strategy: LegacySubscriptionSessionStrategy(
+            configuration: config,
+            network: finalSubscribeSession,
+            presenceSession: finalPresenceSession
+          )
+        )
+      }
       let subscribeDispatcher = EffectDispatcher(
-        factory: SubscribeEffectFactory(session: subscribeSession ?? HTTPSession(
-          configuration: URLSessionConfiguration.subscription,
-          sessionQueue: subscribeQueue,
-          sessionStream: SessionListener()
-        ))
+        factory: SubscribeEffectFactory(session: finalSubscribeSession)
       )
       let subscribeEngine = EventEngineFactory().subscribeEngine(
         with: config,
@@ -84,11 +104,7 @@ public class SubscribeSessionFactory {
         transition: SubscribeTransition()
       )
       let presenceDispatcher = EffectDispatcher(
-        factory: PresenceEffectFactory(session: presenceSession ?? HTTPSession(
-          configuration: URLSessionConfiguration.pubnub,
-          sessionQueue: subscribeQueue,
-          sessionStream: SessionListener()
-        ))
+        factory: PresenceEffectFactory(session: finalPresenceSession)
       )
       let presenceEngine = EventEngineFactory().presenceEngine(
         with: config,
@@ -96,10 +112,13 @@ public class SubscribeSessionFactory {
         transition: PresenceTransition()
       )
       let subscriptionSession = SubscriptionSession(
-        configuration: config,
-        subscribeEngine: subscribeEngine,
-        presenceEngine: presenceEngine
+        strategy: EventEngineSubscriptionSessionStrategy(
+          configuration: config,
+          subscribeEngine: subscribeEngine,
+          presenceEngine: presenceEngine
+        )
       )
+      
       dictionary.updateValue(
         WeakBox(subscriptionSession),
         forKey: configHash

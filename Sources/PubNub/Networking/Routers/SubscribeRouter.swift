@@ -136,11 +136,11 @@ struct SubscribeDecoder: ResponseDecoder {
     }
   }
 
-  func decrypt(_ cryptorModule: CryptorModule, message: SubscribeMessagePayload) -> SubscribeMessagePayload {
+  func decrypt(_ cryptoModule: CryptoModule, message: SubscribeMessagePayload) -> SubscribeMessagePayload {
     // Convert base64 string into Data
     if let messageData = message.payload.dataOptional {
       // If a message fails we just return the original and move on
-      switch cryptorModule.decryptedString(from: messageData) {
+      switch cryptoModule.decryptedString(from: messageData) {
       case .success(let decodedString):
         // Create mutable copy of payload
         var message = message
@@ -157,7 +157,7 @@ struct SubscribeDecoder: ResponseDecoder {
 
   func decrypt(response: SubscribeEndpointResponse) -> Result<SubscribeEndpointResponse, Error> {
     // End early if we don't have a cipher key
-    guard let cryptorModule = response.router.configuration.cryptorModule else {
+    guard let cryptoModule = response.router.configuration.cryptoModule else {
       return .success(response)
     }
 
@@ -165,11 +165,11 @@ struct SubscribeDecoder: ResponseDecoder {
     for (index, message) in messages.enumerated() {
       switch message.messageType {
       case .message:
-        messages[index] = decrypt(cryptorModule, message: message)
+        messages[index] = decrypt(cryptoModule, message: message)
       case .signal:
-        messages[index] = decrypt(cryptorModule, message: message)
+        messages[index] = decrypt(cryptoModule, message: message)
       case .file:
-        messages[index] = decrypt(cryptorModule, message: message)
+        messages[index] = decrypt(cryptoModule, message: message)
       default:
         messages[index] = message
       }

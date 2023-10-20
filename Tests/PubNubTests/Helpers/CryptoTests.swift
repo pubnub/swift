@@ -31,16 +31,16 @@ import XCTest
 
 class CryptoTests: XCTestCase {
   func testEncryptDecrypt_Data() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "SomeTestString")
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
     
     guard let testData = testMessage.data(using: .utf16) else {
       return XCTFail("Could not create Data from test string")
     }
-    guard let encryptedData = try? cryptorModule.encrypt(data: testData).get() else {
+    guard let encryptedData = try? cryptoModule.encrypt(data: testData).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
-    guard let decryptedData = try? cryptorModule.decrypt(data: encryptedData).get() else {
+    guard let decryptedData = try? cryptoModule.decrypt(data: encryptedData).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
     let decryptedString = String(
@@ -51,15 +51,15 @@ class CryptoTests: XCTestCase {
   }
 
   func testEncryptDecrypt_String() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "SomeTestString")
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = true.description
     
-    guard let encryptedString = try? cryptorModule.encrypt(string: testMessage).get() else {
+    guard let encryptedString = try? cryptoModule.encrypt(string: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
     guard
       let encryptedStringAsData = Data(base64Encoded: encryptedString),
-      let decryptedString = try? cryptorModule.decryptedString(from: encryptedStringAsData).get()
+      let decryptedString = try? cryptoModule.decryptedString(from: encryptedStringAsData).get()
     else {
       return XCTFail("Decrypted Data should not be nil")
     }
@@ -67,17 +67,17 @@ class CryptoTests: XCTestCase {
   }
 
   func testEncryptDecrypt_JSONString() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "SomeTestString")
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
     let jsonMessage = testMessage.jsonDescription
     
     guard let testData = jsonMessage.data(using: .utf8) else {
       return XCTFail("Could not create Data from test string")
     }
-    guard let encryptedData = try? cryptorModule.encrypt(data: testData).get() else {
+    guard let encryptedData = try? cryptoModule.encrypt(data: testData).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
-    guard let decryptedData = try? cryptorModule.decrypt(data: encryptedData).get() else {
+    guard let decryptedData = try? cryptoModule.decrypt(data: encryptedData).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
     let decryptedString = String(
@@ -90,24 +90,24 @@ class CryptoTests: XCTestCase {
 
   func testDefaultRandomizedIVEncryptDecrypt() {
     let testMessage = "Test Message To Be Encrypted"
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "MyCoolCipherKey")
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey")
     
-    guard let encryptedString1 = try? cryptorModule.encrypt(string: testMessage).get() else {
+    guard let encryptedString1 = try? cryptoModule.encrypt(string: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
-    guard let encryptedString2 = try? cryptorModule.encrypt(string: testMessage).get() else {
+    guard let encryptedString2 = try? cryptoModule.encrypt(string: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
     guard let encryptedString1Data = Data(base64Encoded: encryptedString1) else {
       return XCTFail("Cannot create Data from Base-64 encoded \(encryptedString1)")
     }
-    guard let decryptedString1 = try? cryptorModule.decryptedString(from: encryptedString1Data).get() else {
+    guard let decryptedString1 = try? cryptoModule.decryptedString(from: encryptedString1Data).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
     guard let encryptedString2Data = Data(base64Encoded: encryptedString2) else {
       return XCTFail("Cannot create Data from Base-64 encoded \(encryptedString2)")
     }
-    guard let decryptedString2 = try? cryptorModule.decryptedString(from: encryptedString2Data).get() else {
+    guard let decryptedString2 = try? cryptoModule.decryptedString(from: encryptedString2Data).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
     
@@ -117,7 +117,7 @@ class CryptoTests: XCTestCase {
   }
 
   func testOtherSDKContractTest() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "MyCoolCipherKey", withRandomIV: false)
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey", withRandomIV: false)
     let message = "\"Hello there!\""
     
     guard let messageData = message.data(using: .utf8) else {
@@ -125,8 +125,8 @@ class CryptoTests: XCTestCase {
     }
 
     do {
-      let encryptedMessage = try cryptorModule.encrypt(data: messageData).get()
-      let decrypted = try cryptorModule.decrypt(data: encryptedMessage).get()
+      let encryptedMessage = try cryptoModule.encrypt(data: messageData).get()
+      let decrypted = try cryptoModule.decrypt(data: encryptedMessage).get()
       XCTAssertEqual(message, String(bytes: decrypted, encoding: .utf8))
     } catch {
       XCTFail("Crypto failed due to \(error)")
@@ -134,21 +134,21 @@ class CryptoTests: XCTestCase {
   }
 
   func testOtherSDK_RandomIV() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(with: "enigma", withRandomIV: true)
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "enigma", withRandomIV: true)
     let plainText = "yay!"
     let otherSDKBase64 = "MTIzNDU2Nzg5MDEyMzQ1NjdnONoCgo0wbuMGGMmfMX0="
 
     do {
-      let swiftEncryptedString = try cryptorModule.encrypt(string: plainText).get()
+      let swiftEncryptedString = try cryptoModule.encrypt(string: plainText).get()
       let swiftEncryptedStringAsData = Data(base64Encoded: swiftEncryptedString)!
-      let swiftDecryptedString = try cryptorModule.decryptedString(from: swiftEncryptedStringAsData).get()
+      let swiftDecryptedString = try cryptoModule.decryptedString(from: swiftEncryptedStringAsData).get()
 
       XCTAssertEqual(plainText, swiftDecryptedString)
 
       guard let otherData = Data(base64Encoded: otherSDKBase64) else {
         return XCTFail("Could not create data from Base64")
       }
-      let otherDecrypted = try cryptorModule.decrypt(data: otherData).get()
+      let otherDecrypted = try cryptoModule.decrypt(data: otherData).get()
       XCTAssertEqual(plainText, String(data: otherDecrypted, encoding: .utf8))
     } catch {
       XCTFail("Crypto failed due to \(error)")
@@ -156,7 +156,7 @@ class CryptoTests: XCTestCase {
   }
 
   func testStreamOtherSDK() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(
+    let cryptoModule = CryptoModule.legacyCryptoModule(
       with: "enigma",
       withRandomIV: true
     )
@@ -171,7 +171,7 @@ class CryptoTests: XCTestCase {
       // Purges existing item (if any)
       try? FileManager.default.removeItem(at: outputPath)
 
-      cryptorModule.decrypt(
+      cryptoModule.decrypt(
         stream: InputStream(data: ecrypted),
         contentLength: ecrypted.count,
         to: outputPath
@@ -186,7 +186,7 @@ class CryptoTests: XCTestCase {
   }
 
   func testStreamEncryptDecrypt() {
-    let cryptorModule = CryptorModule.legacyCryptoModule(
+    let cryptoModule = CryptoModule.legacyCryptoModule(
       with: "enigma",
       withRandomIV: true
     )
@@ -205,7 +205,7 @@ class CryptoTests: XCTestCase {
       let data = try Data(contentsOf: plainTextURL)
       let inputStream = InputStream(data: data)
       
-      let encryptedStreamResult = try cryptorModule.encrypt(
+      let encryptedStreamResult = try cryptoModule.encrypt(
         stream: inputStream,
         contentLength: data.count
       ).get() as! MultipartInputStream
@@ -213,7 +213,7 @@ class CryptoTests: XCTestCase {
       let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream")
       try? FileManager.default.removeItem(at: decryptedURL)
       
-      cryptorModule.decrypt(
+      cryptoModule.decrypt(
         stream: encryptedStreamResult,
         contentLength: encryptedStreamResult.length,
         to: decryptedURL

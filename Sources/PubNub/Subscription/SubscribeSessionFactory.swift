@@ -134,7 +134,7 @@ extension SubscriptionConfiguration {
     hasher.combine(useSecureConnections.hashValue)
     hasher.combine(origin.hashValue)
     hasher.combine(authKey.hashValue)
-    hasher.combine(cryptorModule.hashValue)
+    hasher.combine(cryptoModule.hashValue)
     return hasher.finalize()
   }
 }

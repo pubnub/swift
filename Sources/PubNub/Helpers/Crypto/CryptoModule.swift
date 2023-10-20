@@ -1,5 +1,5 @@
 //
-//  CryptorModule.swift
+//  CryptoModule.swift
 //
 //  PubNub Real-time Cloud-Hosted Push API and Push Notification Client Frameworks
 //  Copyright © 2023 PubNub Inc.
@@ -27,19 +27,29 @@
 
 import Foundation
 
+@available(*, unavailable, renamed: "CryptoModule")
+public class CryptorModule {
+  public static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
+    preconditionFailure("This method is no longer available")
+  }
+  public static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
+    preconditionFailure("This method is no longer available")
+  }
+}
+
 /// Object capable of encryption/decryption
-public struct CryptorModule {
+public struct CryptoModule {
   private let defaultCryptor: Cryptor
   private let cryptors: [Cryptor]
   private let legacyCryptorId: CryptorId = []
   
   typealias Base64EncodedString = String
   
-  /// Initializes `CryptorModule` with custom ``Cryptor`` objects capable of encryption and decryption
+  /// Initializes `CryptoModule` with custom ``Cryptor`` objects capable of encryption and decryption
   ///
   /// Use this constructor if you would like to provide **custom** objects for decryption and encryption and don't want to use PubNub's built-in `Cryptors`.
   /// Otherwise, refer to convenience static factory methods such as ``aesCbcCryptoModule(with:withRandomIV:)``
-  /// and ``legacyCryptoModule(with:withRandomIV:)`` that return `CryptorModule` configured for you.
+  /// and ``legacyCryptoModule(with:withRandomIV:)`` that return `CryptoModule` configured for you.
   ///
   /// - Parameters:
   ///   - default: Primary ``Cryptor`` instance used for encryption and decryption
@@ -251,10 +261,10 @@ public struct CryptorModule {
   }
 }
 
-/// Convenience methods for creating `CryptorModule`
-public extension CryptorModule {
+/// Convenience methods for creating `CryptoModule`
+public extension CryptoModule {
   
-  /// Returns **recommended** `CryptorModule` for encryption/decryption
+  /// Returns **recommended** `CryptoModule` for encryption/decryption
   ///
   /// - Parameters:
   ///   - key: Key used for encryption/decryption
@@ -263,40 +273,40 @@ public extension CryptorModule {
   /// This method sets ``AESCBCCryptor`` as the primary object for decryption and encryption. It also
   /// instantiates ``LegacyCryptor``under the hood with `withRandomIV`. This way, you can interact with historical
   /// messages or messages sent from older clients
-  static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
-    CryptorModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
+  static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
+    CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
   
-  /// Returns legacy `CryptorModule` for encryption/decryption
+  /// Returns legacy `CryptoModule` for encryption/decryption
   ///
   /// - Parameters:
   ///   - key: Key used for encryption/decryption
   ///   - withRandomIV: A flag describing whether random initialization vector should be used
   /// - Warning: It's highly recommended to always use ``aesCbcCryptoModule(with:withRandomIV:)``
-  static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptorModule {
-    CryptorModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
+  static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
+    CryptoModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
   }
 }
 
-extension CryptorModule: Equatable {
-  public static func ==(lhs: CryptorModule, rhs: CryptorModule) -> Bool {
+extension CryptoModule: Equatable {
+  public static func ==(lhs: CryptoModule, rhs: CryptoModule) -> Bool {
     lhs.cryptors.map { $0.id } == rhs.cryptors.map { $0.id }
   }
 }
 
-extension CryptorModule: Hashable {
+extension CryptoModule: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(cryptors.map { $0.id })
   }
 }
 
-extension CryptorModule: CustomStringConvertible {
+extension CryptoModule: CustomStringConvertible {
   public var description: String {
     "Default cryptor: \(defaultCryptor.id), others: \(cryptors.map { $0.id })"
   }
 }
 
-internal extension CryptorModule {
+internal extension CryptoModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
     guard let data = string.data(using: .utf8) else {
       return .failure(PubNubError(

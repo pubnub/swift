@@ -46,7 +46,7 @@ public extension URLRequest {
   internal init(
     from response: GenerateUploadURLResponse,
     uploading content: PubNub.FileUploadContent,
-    cryptorModule: CryptorModule? = nil
+    cryptoModule: CryptoModule? = nil
   ) throws {
     self.init(url: response.uploadRequestURL)
     method = response.uploadMethod
@@ -73,8 +73,8 @@ public extension URLRequest {
     let contentLength: Int
     
     // If we were given a Crypto module we should convert the stream to a secure stream
-    if let cryptorModule = cryptorModule {
-      switch cryptorModule.encrypt(stream: contentStream, contentLength: content.contentLength) {
+    if let cryptoModule = cryptoModule {
+      switch cryptoModule.encrypt(stream: contentStream, contentLength: content.contentLength) {
       case .success(let encryptingResult):
         finalStream = encryptingResult
         contentLength = prefixData.count + ((encryptingResult as? MultipartInputStream)?.length ?? 0) + postfixData.count

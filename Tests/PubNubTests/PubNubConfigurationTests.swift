@@ -46,7 +46,7 @@ class PubNubConfigurationTests: XCTestCase {
 
     XCTAssertNil(config.publishKey)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
-    XCTAssertNil(config.cryptorModule)
+    XCTAssertNil(config.cryptoModule)
     XCTAssertNil(config.authKey)
     XCTAssertNotNil(config.uuid)
     XCTAssertEqual(config.useSecureConnections, true)

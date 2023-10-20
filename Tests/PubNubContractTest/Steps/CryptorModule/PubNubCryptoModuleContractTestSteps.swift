@@ -37,7 +37,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   var cipherKey: String!
   var randomIV: Bool = true
   var otherCryptors: [String] = []
-  var cryptorModule: CryptorModule!
+  var cryptoModule: CryptoModule!
   
   var encryptDataRes: Result<Data, PubNubError>!
   var decryptDataRes: Result<Data, PubNubError>!
@@ -54,7 +54,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
     cipherKey = ""
     randomIV = true
     otherCryptors = []
-    cryptorModule = nil
+    cryptoModule = nil
     
     encryptDataRes = nil
     decryptDataRes = nil
@@ -92,10 +92,10 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
     When("I decrypt '(.*)' file") { args, userInfo in
       self.outputPath = self.generateTestOutputUrl()
       self.givenFileUrl = self.localUrl(for: args?.first ?? "")
-      self.cryptorModule = self.createCryptorModule()
+      self.cryptoModule = self.createCryptorModule()
       self.decryptAsBinary = false
       
-      self.decryptStreamRes = self.cryptorModule.decrypt(
+      self.decryptStreamRes = self.cryptoModule.decrypt(
         stream: InputStream(url: self.givenFileUrl)!,
         contentLength: self.givenFileUrl.sizeOf,
         to: self.outputPath
@@ -105,14 +105,14 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
     When("I decrypt '(.*)' file as '(.*)'") { args, _ in
       self.givenFileUrl = self.localUrl(for: args?.first ?? "")
       self.outputPath = self.generateTestOutputUrl()
-      self.cryptorModule = self.createCryptorModule()
+      self.cryptoModule = self.createCryptorModule()
       self.decryptAsBinary = args?.last == "binary"
 
       if self.decryptAsBinary {
         let dataToDecrypt = try! Data(contentsOf: self.givenFileUrl)
-        self.decryptDataRes = self.cryptorModule.decrypt(data: dataToDecrypt)
+        self.decryptDataRes = self.cryptoModule.decrypt(data: dataToDecrypt)
       } else {
-        self.decryptStreamRes = self.cryptorModule.decrypt(
+        self.decryptStreamRes = self.cryptoModule.decrypt(
           stream: InputStream(url: self.givenFileUrl)!,
           contentLength: self.givenFileUrl.sizeOf,
           to: self.outputPath
@@ -124,15 +124,15 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       self.givenFileUrl = self.localUrl(for: args?.first ?? "")
       self.encryptAsBinary = args?.last == "binary"
       self.outputPath = self.generateTestOutputUrl()
-      self.cryptorModule = self.createCryptorModule()
+      self.cryptoModule = self.createCryptorModule()
       
       if self.encryptAsBinary {
         let dataToEncrypt = try! Data(contentsOf: self.givenFileUrl)
-        self.encryptDataRes = self.cryptorModule.encrypt(data: dataToEncrypt)
+        self.encryptDataRes = self.cryptoModule.encrypt(data: dataToEncrypt)
       } else {
         let streamToEncrypt = InputStream(url: self.givenFileUrl)!
         let contentLength = self.givenFileUrl.sizeOf
-        self.encryptStreamRes = self.cryptorModule.encrypt(stream: streamToEncrypt, contentLength: contentLength)
+        self.encryptStreamRes = self.cryptoModule.encrypt(stream: streamToEncrypt, contentLength: contentLength)
       }
     }
     
@@ -164,12 +164,12 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
       
       if self.encryptAsBinary {
         let encryptedData = try! self.encryptDataRes.get()
-        let decryptedData = try! self.cryptorModule.decrypt(data: encryptedData).get()
+        let decryptedData = try! self.cryptoModule.decrypt(data: encryptedData).get()
         XCTAssertEqual(expectedData, decryptedData)
       } else {
         let encryptedStream = try! self.encryptStreamRes.get()
         let length = (encryptedStream as! MultipartInputStream).length
-        self.cryptorModule.decrypt(stream: encryptedStream, contentLength: length, to: self.outputPath)
+        self.cryptoModule.decrypt(stream: encryptedStream, contentLength: length, to: self.outputPath)
         let decryptedData = try! Data(contentsOf: self.outputPath)
         XCTAssertEqual(expectedData, decryptedData)
       }
@@ -196,8 +196,8 @@ fileprivate extension PubNubCryptoModuleContractTestSteps {
     return URL(fileURLWithPath: finalPath)
   }
   
-  func createCryptorModule() -> CryptorModule {
-    CryptorModule(
+  func createCryptorModule() -> CryptoModule {
+    CryptoModule(
       default: self.createCryptor(for: self.cryptorKind),
       cryptors: self.otherCryptors.map { self.createCryptor(for: $0) }
     )

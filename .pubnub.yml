@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.2.0"
+version: "6.2.1"
 schema: 1
 changelog:
+  - date: 2023-10-23
+    version: 6.2.1
+    changes:
+      - type: bug
+        text: "Align on namings across all supported platforms."
   - date: 2023-10-16
     version: v6.2.0
     changes:
@@ -497,7 +502,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

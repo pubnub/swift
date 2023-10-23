@@ -92,9 +92,9 @@ struct PublishRouter: HTTPRouter {
   }
 
   func append(message: JSONCodable, to partialPath: String) -> Result<String, Error> {
-    if let cryptorModule = configuration.cryptorModule {
+    if let cryptoModule = configuration.cryptoModule {
       return message.jsonDataResult.flatMap { jsonData in
-        cryptorModule.encrypt(data: jsonData).mapError { $0 as Error }
+        cryptoModule.encrypt(data: jsonData).mapError { $0 as Error }
           .flatMap { .success("\(partialPath)\($0.base64EncodedString().urlEncodeSlash.jsonDescription)") }
       }
     }
@@ -145,9 +145,9 @@ struct PublishRouter: HTTPRouter {
   var body: Result<Data?, Error> {
     switch endpoint {
     case let .compressedPublish(message, _, _, _, _):
-      if let cryptorModule = configuration.cryptorModule {
+      if let cryptoModule = configuration.cryptoModule {
         return message.jsonStringifyResult.flatMap {
-          cryptorModule.encrypt(string: $0)
+          cryptoModule.encrypt(string: $0)
             .map { $0.jsonDescription.data(using: .utf8) }
             .mapError { $0 as Error }
         }

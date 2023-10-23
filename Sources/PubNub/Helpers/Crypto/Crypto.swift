@@ -30,7 +30,7 @@ import Foundation
 
 /// Object capable of encryption/decryption
 ///
-/// - Warning: This struct is deprecated. Use ``CryptorModule`` instead.
+/// - Warning: This struct is deprecated. Use ``CryptoModule`` instead.
 public struct Crypto: Hashable {
   /// Key initially provided by the user
   let key: String

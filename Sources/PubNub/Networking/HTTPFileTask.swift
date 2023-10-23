@@ -236,7 +236,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   /// The  block that is called when the task completes
   public var completionBlock: ((Result<URL, Error>) -> Void)?
   /// The crypto object that will attempt to decrypt the file
-  public var cryptorModule: CryptorModule?
+  public var cryptoModule: CryptoModule?
 
   /// The location where the temporary downloaded file should be copied
   public private(set) var destinationURL: URL
@@ -250,21 +250,21 @@ public class HTTPFileDownloadTask: HTTPFileTask {
     (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
   }
 
-  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptorModule: CryptorModule?) {
+  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptoModule: CryptoModule?) {
     self.destinationURL = url
-    self.cryptorModule = cryptorModule
+    self.cryptoModule = cryptoModule
 
     super.init(task: task, session: identifier)
   }
 
-  func decrypt(_ encryptedURL: URL, to outpuURL: URL, using cryptorModule: CryptorModule) throws {
+  func decrypt(_ encryptedURL: URL, to outpuURL: URL, using cryptoModule: CryptoModule) throws {
     // If we were provided a Crypto object we should try and decrypt the file
     
     guard let inputStream = InputStream(url: encryptedURL) else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [encryptedURL.absoluteString])
     }
     
-    cryptorModule.decrypt(
+    cryptoModule.decrypt(
       stream: inputStream,
       contentLength: encryptedURL.sizeOf,
       to: outpuURL
@@ -324,7 +324,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
       // Update destination to be a unique file
       destinationURL = fileManager.makeUniqueFilename(destinationURL)
 
-      if let cryptorModule = cryptorModule {
+      if let cryptoModule = cryptoModule {
         // Set the encrypted in case something goes wrong
         encryptedURL = url
         
@@ -332,7 +332,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
           throw PubNubError(.streamCouldNotBeInitialized, additional: [url.absoluteString])
         }
                 
-        cryptorModule.decrypt(
+        cryptoModule.decrypt(
           stream: stream,
           contentLength: url.sizeOf,
           to: destinationURL

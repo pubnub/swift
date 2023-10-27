@@ -28,19 +28,32 @@
 @testable import PubNub
 import XCTest
 
-final class SubscribeRouterTests: XCTestCase {
-  let config = PubNubConfiguration(
-    publishKey: "FakeTestString",
-    subscribeKey: "FakeTestString",
-    userId: UUID().uuidString,
-    enableEventEngine: false
-  )
+class SubscribeRouterTests: XCTestCase {
+  var config: PubNubConfiguration!
+  
   let testChannel = "TestChannel"
   let testAction = PubNubMessageActionBase(
     actionType: "reaction", actionValue: "winky_face",
     actionTimetoken: 15_725_459_793_173_220, messageTimetoken: 15_725_459_448_096_144,
     publisher: "SomeUser", channel: "TestChannel", published: 15_725_459_794_105_070
   )
+  
+  // MARK: - Set Up
+  
+  override func setUp() {
+    super.setUp()
+    config = PubNubConfiguration(
+      publishKey: "FakeTestString",
+      subscribeKey: "FakeTestString",
+      userId: UUID().uuidString,
+      enableEventEngine: false
+    )
+  }
+  
+  override func tearDown() {
+    config = nil
+    super.tearDown()
+  }
 
   // MARK: - Endpoint Tests
 

@@ -696,7 +696,7 @@ class SubscribeTransitionTests: XCTestCase {
       .cancel(.handshakeReconnect),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
-        newStatus: .connectionError(PubNubError(.unknown)),
+        newStatus: .connectionError,
         error: SubscribeError(underlying: PubNubError(.unknown))
       )))
     ]
@@ -727,7 +727,7 @@ class SubscribeTransitionTests: XCTestCase {
       .cancel(.receiveReconnect),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
-        newStatus: .disconnectedUnexpectedly(PubNubError(.unknown)),
+        newStatus: .disconnectedUnexpectedly,
         error: SubscribeError(underlying: PubNubError(.unknown))
       )))
     ]

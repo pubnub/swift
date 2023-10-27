@@ -104,7 +104,8 @@ public struct PubNubConfiguration: Hashable {
     heartbeatInterval: UInt = 0,
     supressLeaveEvents: Bool = false,
     requestMessageCountThreshold: UInt = 100,
-    filterExpression: String? = nil
+    filterExpression: String? = nil,
+    enableEventEngine: Bool = false
   ) {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UserId should not be empty.")
@@ -127,6 +128,7 @@ public struct PubNubConfiguration: Hashable {
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
+    self.enableEventEngine = enableEventEngine
   }
 
   // swiftlint:disable:next line_length
@@ -220,7 +222,7 @@ public struct PubNubConfiguration: Hashable {
   public var useInstanceId: Bool
   /// Whether a request identifier should be included on outgoing requests
   public var useRequestId: Bool
-  /// A flag describing whether to enable new strategy for handling subscription loop
+  /// A flag describing whether to enable the new strategy for handling subscription loop
   public var enableEventEngine: Bool = false
   /// Reconnection policy which will be used if/when a request fails
   public var automaticRetry: AutomaticRetry?

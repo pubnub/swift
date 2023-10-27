@@ -134,6 +134,7 @@ enum QueryKey: String {
   case filter
   case sort
   case descending = "desc"
+  case eventEngine = "ee"
 }
 
 /// The PubNub Key requirement for a given Endpoint

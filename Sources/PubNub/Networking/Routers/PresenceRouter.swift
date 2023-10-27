@@ -95,13 +95,15 @@ struct PresenceRouter: HTTPRouter {
   }
 
   // Init
-  init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  init(_ endpoint: Endpoint, configuration: RouterConfiguration, eventEngineEnabled: Bool = false) {
     self.endpoint = endpoint
     self.configuration = configuration
+    self.eventEngineEnabled = eventEngineEnabled
   }
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
+  var eventEngineEnabled: Bool
 
   // Protocol Properties
   var service: PubNubService {
@@ -143,8 +145,14 @@ struct PresenceRouter: HTTPRouter {
     case let .heartbeat(_, groups, presenceTimeout):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.appendIfPresent(key: .heartbeat, value: presenceTimeout?.description)
+      if eventEngineEnabled {
+        query.append(URLQueryItem(key: .eventEngine, value: nil))
+      }
     case let .leave(_, groups):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      if eventEngineEnabled {
+        query.append(URLQueryItem(key: .eventEngine, value: nil))
+      }
     case let .hereNow(_, groups, includeUUIDs, includeState):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))

@@ -88,26 +88,24 @@ class SubscriptionIntegrationTests: XCTestCase {
     listener.didReceiveSubscription = { [unowned self] event in
       switch event {
       case .messageReceived:
-//        print("messageReceived: \(message)")
         pubnub.unsubscribe(from: [self.testChannel])
         publishExpect.fulfill()
       case let .connectionStatusChanged(status):
-//        print("connectionStatusChanged: \(status)")
         switch status {
         case .connected:
           pubnub.publish(channel: self.testChannel, message: "Test") { _ in }
           connectedCount += 1
           connectedExpect.fulfill()
-        case .connectionError(let error):
-          XCTFail("An error was returned: \(error)")
+        case .connectionError:
+          XCTFail("An error was returned")
         case .disconnected:
           // Stop reconneced after N attempts
           if connectedCount < totalLoops {
             pubnub.subscribe(to: [self.testChannel])
           }
           disconnectedExpect.fulfill()
-        case .disconnectedUnexpectedly(let error):
-          XCTFail("An error was returned: \(error)")
+        case .disconnectedUnexpectedly:
+          XCTFail("An error was returned")
         }
       case let .subscribeError(error):
         XCTFail("An error was returned: \(error)")

@@ -108,9 +108,9 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   func subscribe(
     to channels: [String],
-    and groups: [String] = [],
-    at cursor: SubscribeCursor? = nil,
-    withPresence: Bool = false
+    and groups: [String],
+    at cursor: SubscribeCursor?,
+    withPresence: Bool
   ) {
     let newInput = subscribeEngine.state.input + SubscribeInput(
       channels: channels.map { PubNubChannel(id: $0, withPresence: withPresence) },
@@ -134,7 +134,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     ))
   }
 
-  func reconnect(at cursor: SubscribeCursor? = nil) {
+  func reconnect(at cursor: SubscribeCursor?) {
     let input = subscribeEngine.state.input
     let channels = input.allSubscribedChannels
     let groups = input.allSubscribedGroups
@@ -153,7 +153,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   // MARK: - Unsubscribe
 
-  func unsubscribe(from channels: [String], and groups: [String] = [], presenceOnly: Bool = false) {
+  func unsubscribe(from channels: [String], and groups: [String], presenceOnly: Bool) {
     let newInput = subscribeEngine.state.input - (
       channels: channels.map { presenceOnly ? $0.presenceChannelName : $0 },
       groups: groups.map { presenceOnly ? $0.presenceChannelName : $0 }

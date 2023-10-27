@@ -86,7 +86,8 @@ class SubscribeRequest {
           timetoken: timetoken,
           region: region?.description ?? nil,
           heartbeat: configuration.durationUntilTimeout,
-          filter: configuration.filterExpression
+          filter: configuration.filterExpression,
+          eventEngineEnabled: true
         ), configuration: configuration
       ), requestOperator: nil
     )

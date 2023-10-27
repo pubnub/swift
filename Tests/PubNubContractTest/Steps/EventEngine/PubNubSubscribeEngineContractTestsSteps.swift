@@ -139,16 +139,18 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
   override func createPubNubClient() -> PubNub {
     let factory = EventEngineFactory()
     let subscriptionSession = SubscriptionSession(
-      configuration: self.configuration,
-      subscribeEngine: factory.subscribeEngine(
-        with: self.configuration,
-        dispatcher: self.dispatcherDecorator,
-        transition: self.transitionDecorator
-      ),
-      presenceEngine: factory.presenceEngine(
-        with: self.configuration,
-        dispatcher: EmptyDispatcher(),
-        transition: PresenceTransition()
+      strategy: EventEngineSubscriptionSessionStrategy(
+        configuration: self.configuration,
+        subscribeEngine: factory.subscribeEngine(
+          with: self.configuration,
+          dispatcher: self.dispatcherDecorator,
+          transition: self.transitionDecorator
+        ),
+        presenceEngine: factory.presenceEngine(
+          with: self.configuration,
+          dispatcher: EmptyDispatcher(),
+          transition: PresenceTransition()
+        )
       )
     )
     return PubNub(
@@ -168,11 +170,19 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
         useSecureConnections: false,
         origin: mockServerAddress,
         automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 0.5)),
-        supressLeaveEvents: true
+        supressLeaveEvents: true,
+        enableEventEngine: true
       ))
     }
     Given("the demo keyset with event engine enabled") { _, _ in
-      debugPrint("Preserves existing configuration, there's no need to replace")
+      self.replacePubNubConfiguration(with: PubNubConfiguration(
+        publishKey: defaultPublishKey,
+        subscribeKey: defaultSubscribeKey,
+        userId: UUID().uuidString,
+        useSecureConnections: false,
+        origin: mockServerAddress,
+        enableEventEngine: true
+      ))
     }
     When("I subscribe") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])

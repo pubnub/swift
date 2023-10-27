@@ -27,7 +27,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "Use methods on PubNub's instance instead")
+@available(*, deprecated)
 public class SubscriptionSession {
   /// An unique identifier for subscription session
   public var uuid: UUID {

@@ -110,17 +110,20 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
   }
   
   override func createPubNubClient() -> PubNub {
+    let factory = EventEngineFactory()
     let subscriptionSession = SubscriptionSession(
-      configuration: self.configuration,
-      subscribeEngine: EventEngineFactory().subscribeEngine(
-        with: self.configuration,
-        dispatcher: EmptyDispatcher(),
-        transition: SubscribeTransition()
-      ),
-      presenceEngine: EventEngineFactory().presenceEngine(
-        with: configuration,
-        dispatcher: self.dispatcherDecorator,
-        transition: self.transitionDecorator
+      strategy: EventEngineSubscriptionSessionStrategy(
+        configuration: self.configuration,
+        subscribeEngine: factory.subscribeEngine(
+          with: self.configuration,
+          dispatcher: EmptyDispatcher(),
+          transition: SubscribeTransition()
+        ),
+        presenceEngine: factory.presenceEngine(
+          with: configuration,
+          dispatcher: self.dispatcherDecorator,
+          transition: self.transitionDecorator
+        )
       )
     )
     return PubNub(
@@ -131,56 +134,5 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
   
   override public func setup() {
     startCucumberHookEventsListening()
-    
-    Given("the demo keyset with Presence Event Engine enabled") { _, _ in
-      self.replacePubNubConfiguration(with: PubNubConfiguration(
-        publishKey: defaultPublishKey,
-        subscribeKey: defaultSubscribeKey,
-        userId: UUID().uuidString,
-        useSecureConnections: false,
-        origin: mockServerAddress,
-        durationUntilTimeout: 20,
-        supressLeaveEvents: true
-      ))
-    }
-    When("I join '(.*)', '(.*)', '(.*)' channels") { args, _ in
-      let firstChannel = args?[0] ?? ""
-      let secondChannel = args?[1] ?? ""
-      let thirdChannel = args?[2] ?? ""
-      
-      self.subscribeWithPresence(to: [firstChannel, secondChannel, thirdChannel])
-    }
-    Match(["And"], "I leave '(.*)' and '(.*)' channels") { args, _ in
-      let firstChannel = args?[0] ?? ""
-      let secondChannel = args?[1] ?? ""
-      self.unsubscribe(from: [firstChannel, secondChannel])
-    }
-    Then("I observe the following:") { args, value in
-      let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
-      let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
-            
-      XCTAssertTrue(recordedEvents.elementsEqual(self.extractExpectedResults(from: value).events))
-      XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
-    }
-  }
-  
-  private func subscribeWithPresence(to channels: [String] = [], and groups: [String] = []) {
-    let expectation = XCTestExpectation()
-    // Gives some time to proceed asynchronous requests
-    DispatchQueue.main.asyncAfter(deadline: .now() + 30) { expectation.fulfill() }
-    self.client.subscribe(to: channels, and: groups, withPresence: true)
-    self.wait(for: [expectation], timeout: 32.0)
-  }
-  
-  private func unsubscribe(from channels: [String] = [], and groups: [String] = []) {
-    let expectation = XCTestExpectation()
-    // Gives some time to proceed asynchronous requests
-    DispatchQueue.main.asyncAfter(deadline: .now() + 30) { expectation.fulfill() }
-    self.client.unsubscribe(from: channels, and: groups)
-    self.wait(for: [expectation], timeout: 32.0)
-  }
-  
-  private func withAsyncDelay() {
-    // TODO:
   }
 }

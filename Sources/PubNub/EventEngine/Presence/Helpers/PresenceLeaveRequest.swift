@@ -53,7 +53,7 @@ class PresenceLeaveRequest {
   func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
     request = session.request(with: PresenceRouter(
       .leave(channels: channels, groups: groups),
-      configuration: configuration), requestOperator: nil
+      configuration: configuration, eventEngineEnabled: true), requestOperator: nil
     )
     request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
       switch result {

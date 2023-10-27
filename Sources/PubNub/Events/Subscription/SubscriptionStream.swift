@@ -51,38 +51,8 @@ public enum SubscriptionChangeEvent {
   }
 }
 
-/// The header of a PubNub subscribe response for zero or more events
-public struct SubscribeResponseHeader {
-  /// The channels that are actively subscribed
-  public let channels: [PubNubChannel]
-  /// The groups that are actively subscribed
-  public let groups: [PubNubChannel]
-  /// The most recent successful Timetoken used in subscriptionstatus
-  public let previous: SubscribeCursor?
-  /// Timetoken that will be used on the next subscription cycle
-  public let next: SubscribeCursor?
-
-  public init(
-    channels: [PubNubChannel],
-    groups: [PubNubChannel],
-    previous: SubscribeCursor?,
-    next: SubscribeCursor?
-  ) {
-    self.channels = channels
-    self.groups = groups
-    self.previous = previous
-    self.next = next
-  }
-}
-
 /// Local events emitted from the Subscribe method
 public enum PubNubSubscribeEvent {
-  /// A change in the Channel or Group state occured
-  @available(*, unavailable)
-  case subscriptionChanged(SubscriptionChangeEvent)
-  /// A subscribe response was received
-  @available(*, unavailable)
-  case responseReceived(SubscribeResponseHeader)
   /// The connection status of the PubNub subscription was changed
   case connectionChanged(ConnectionStatus)
   /// An error was received
@@ -100,9 +70,6 @@ public enum PubNubCoreEvent {
   case signalReceived(PubNubMessage)
   /// A change in the subscription connection has occurred
   case connectionStatusChanged(ConnectionStatus)
-  /// A change in the subscribed channels or groups has occurred
-  @available(*, unavailable)
-  case subscriptionChanged(SubscriptionChangeEvent)
   /// A presence change has been received
   case presenceChanged(PubNubPresenceChange)
   /// A User object has been updated
@@ -175,9 +142,6 @@ public final class CoreListener: BaseSubscriptionListener {
   public var didReceiveBatchSubscription: (([SubscriptionEvent]) -> Void)?
   /// Receiver for all subscription events
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
-  /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
-  @available(*, unavailable)
-  public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
   /// Receiver for status (Connection & Error) events
   public var didReceiveStatus: ((StatusEvent) -> Void)?
   /// Receiver for presence events

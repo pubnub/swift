@@ -36,29 +36,9 @@ protocol SubscriptionSessionStrategy: EventStreamEmitter where ListenerType == B
   var connectionStatus: ConnectionStatus { get }
   var previousTokenResponse: SubscribeCursor? { get set }
 
+  func subscribe(to channels: [String], and groups: [String], at cursor: SubscribeCursor?, withPresence: Bool)
+  func unsubscribe(from channels: [String], and groups: [String], presenceOnly: Bool)
+  func reconnect(at cursor: SubscribeCursor?)
   func disconnect()
   func unsubscribeAll()
-}
-
-extension SubscriptionSessionStrategy {
-  func subscribe(
-    to channels: [String],
-    and groups: [String] = [],
-    at cursor: SubscribeCursor? = nil,
-    withPresence: Bool = false
-  ) {
-    
-  }
-  
-  public func unsubscribe(
-    from channels: [String],
-    and groups: [String] = [],
-    presenceOnly: Bool = false
-  ) {
-    
-  }
-  
-  public func reconnect(at cursor: SubscribeCursor? = nil) {
-    
-  }
 }

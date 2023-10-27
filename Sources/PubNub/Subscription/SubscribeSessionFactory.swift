@@ -39,7 +39,7 @@ import Foundation
 ///
 /// - Important: Having multiple `SubscriptionSession` instances will result in
 /// increase network usage and battery drain.
-@available(*, deprecated, message: "Use methods on PubNub's instance instead")
+@available(*, deprecated)
 public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
@@ -87,13 +87,18 @@ public class SubscribeSessionFactory {
         preconditionFailure("Unexpected configuration that doesn't match PubNubConfiguration")
       }
       guard config.enableEventEngine else {
-        return SubscriptionSession(
+        let subscriptionSession = SubscriptionSession(
           strategy: LegacySubscriptionSessionStrategy(
             configuration: config,
             network: finalSubscribeSession,
             presenceSession: finalPresenceSession
           )
         )
+        dictionary.updateValue(
+          WeakBox(subscriptionSession),
+          forKey: configHash
+        )
+        return subscriptionSession        
       }
       let subscribeDispatcher = EffectDispatcher(
         factory: SubscribeEffectFactory(session: finalSubscribeSession)

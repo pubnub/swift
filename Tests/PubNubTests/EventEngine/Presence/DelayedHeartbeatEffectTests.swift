@@ -103,7 +103,7 @@ class DelayedHeartbeatEffectTests: XCTestCase {
     
     effect.performTask { returnedEvents in
       XCTAssertTrue(returnedEvents.elementsEqual([.heartbeatSuccess]))
-      XCTAssertEqual(Int(Date().timeIntervalSince(startDate)), Int(timeout) - 1)
+      XCTAssertEqual(Int(Date().timeIntervalSince(startDate)), Int(0.5 * Double(timeout)) - 1)
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 3.5)

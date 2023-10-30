@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.2.1"
+version: "6.2.2"
 schema: 1
 changelog:
+  - date: 2023-10-30
+    version: 6.2.2
+    changes:
+      - type: improvement
+        text: "Update license information."
   - date: 2023-10-23
     version: 6.2.1
     changes:
@@ -502,7 +507,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

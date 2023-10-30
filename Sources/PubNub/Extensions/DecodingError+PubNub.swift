@@ -1,9 +1,11 @@
 //
 //  DecodingError+PubNub.swift
-//  PubNub
 //
-//  Created by Craig Lane on 1/8/20.
-//  Copyright © 2020 PubNub. All rights reserved.
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
 //
 
 import Foundation

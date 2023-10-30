@@ -5,10 +5,7 @@ Pod::Spec.new do |s|
   s.documentation_url = 'https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk'
   s.authors = { 'PubNub, Inc.' => 'support@pubnub.com' }
   s.social_media_url = 'https://twitter.com/pubnub'
-  s.license = { :type => 'MIT', :file => 'LICENSE' }
-
   s.source = { :git => 'https://github.com/pubnub/swift.git', :tag => s.version }
-
   s.summary = 'PubNub Swift-based SDK for iOS, macOS, tvOS, & watchOS'
   s.description = <<-DESC
 

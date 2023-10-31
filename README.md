@@ -156,5 +156,6 @@ If you **need help** or have a **general question**, contact <support@pubnub.com
 
 ## License
 
-The PubNub Swift SDK is released under the MIT license.
+The PubNub Swift SDK is released under the `PubNub Software Development Kit License`.
+
 [See LICENSE](https://github.com/pubnub/swift/blob/master/LICENSE) for details.

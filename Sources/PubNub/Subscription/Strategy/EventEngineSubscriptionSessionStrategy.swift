@@ -71,7 +71,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   
   private func listenForStateUpdates() {
     subscribeEngine.onStateUpdated = { [weak self] state in
-      if state.hasTimetoken {
+      if state is Subscribe.ReceivingState && state.hasTimetoken {
         self?.previousTokenResponse = state.cursor
       }
     }

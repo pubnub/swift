@@ -34,10 +34,6 @@ public class SubscriptionSession {
     strategy.uuid
   }
   
-  /// PSV2 feature to subscribe with a custom filter expression.
-  @available(*, unavailable)
-  public var filterExpression: String?
-
   private let strategy: any SubscriptionSessionStrategy
   
   var previousTokenResponse: SubscribeCursor? {

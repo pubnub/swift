@@ -69,16 +69,17 @@ public extension PubNubMessage {
 
 /// The default implementation of the `PubNubMessage` protocol
 public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
-  var concretePayload: AnyJSON
   public var publisher: String?
-  var concreteMessageActions: [PubNubMessageActionBase]
   public var channel: String
   public var subscription: String?
   public var published: Timetoken
-  var concreteMetadata: AnyJSON?
-
   public var messageType: PubNubMessageType
-
+  public var error: PubNubError?
+  
+  var concretePayload: AnyJSON
+  var concreteMessageActions: [PubNubMessageActionBase]
+  var concreteMetadata: AnyJSON?
+  
   public var payload: JSONCodable {
     get { return concretePayload }
     set {
@@ -155,14 +156,51 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     metadata: AnyJSON?,
     messageType: PubNubMessageType = .unknown
   ) {
-    concretePayload = payload
-    concreteMessageActions = actions
+    self.concretePayload = payload
+    self.concreteMessageActions = actions
     self.publisher = publisher
     self.channel = channel
     self.subscription = subscription
     self.published = published
-    concreteMetadata = metadata
+    self.concreteMetadata = metadata
     self.messageType = messageType
+  }
+  
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    
+    try container.encode(self.concretePayload, forKey: .concretePayload)
+    try container.encodeIfPresent(self.publisher, forKey: .publisher)
+    try container.encode(self.concreteMessageActions, forKey: .concreteMessageActions)
+    try container.encode(self.channel, forKey: .channel)
+    try container.encodeIfPresent(self.subscription, forKey: .subscription)
+    try container.encode(self.published, forKey: .published)
+    try container.encodeIfPresent(self.concreteMetadata, forKey: .concreteMetadata)
+    try container.encode(self.messageType, forKey: .messageType)
+  }
+  
+  enum CodingKeys: CodingKey {
+    case concretePayload
+    case publisher
+    case concreteMessageActions
+    case channel
+    case subscription
+    case published
+    case concreteMetadata
+    case messageType
+  }
+  
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    
+    self.concretePayload = try container.decode(AnyJSON.self, forKey: .concretePayload)
+    self.publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
+    self.concreteMessageActions = try container.decode([PubNubMessageActionBase].self, forKey: .concreteMessageActions)
+    self.channel = try container.decode(String.self, forKey: .channel)
+    self.subscription = try container.decodeIfPresent(String.self, forKey: .subscription)
+    self.published = try container.decode(Timetoken.self, forKey: .published)
+    self.concreteMetadata = try container.decodeIfPresent(AnyJSON.self, forKey: .concreteMetadata)
+    self.messageType = try container.decode(PubNubMessageType.self, forKey: .messageType)
   }
 }
 

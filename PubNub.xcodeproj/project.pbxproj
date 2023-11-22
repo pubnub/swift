@@ -389,6 +389,7 @@
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DBB2C212ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
 		3DBB2C222ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
+		3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
@@ -924,6 +925,7 @@
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubCryptoModuleContractTestSteps.swift; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
+		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
@@ -1320,6 +1322,7 @@
 			isa = PBXGroup;
 			children = (
 				359287C423185EEE0046F7A2 /* subscription_success.json */,
+				3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */,
 				35C6B6DF22F513D80054F242 /* subscription_mixed_success.json */,
 				359287BE23183DBB0046F7A2 /* subscription_signal_success.json */,
 				359287C023183E4A0046F7A2 /* subscription_presence_success.json */,
@@ -2637,6 +2640,7 @@
 				35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */,
 				35FE93F122EF93A90051C455 /* serverCertificateUntrusted.json in Resources */,
 				35A6C79A22FBC2AD00E97CC5 /* groups_delete_success.json in Resources */,
+				3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */,
 				35293A872369F0230049A71F /* addMessageAction_error_400.json in Resources */,
 				35FE93F622EF93A90051C455 /* cannotParseResponse.json in Resources */,
 				35A6C79C22FBC2D100E97CC5 /* groups_channels_add_success.json in Resources */,

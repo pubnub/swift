@@ -21,7 +21,6 @@ final class HistoryRouterTests: XCTestCase {
   )
 
   let testChannel = "TestChannel"
-
   let testSingleChannel = ["TestChannel"]
   let testMultiChannels = ["TestChannel", "OtherTestChannel"]
 }
@@ -188,15 +187,14 @@ extension HistoryRouterTests {
     var configWithCipher = config
     configWithCipher.cryptoModule = CryptoModule.legacyCryptoModule(with: "NotTheRightKey", withRandomIV: false)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
         let channelMessages = messagesByChannel[self.testChannel]
         XCTAssertNotNil(channelMessages)
-        XCTAssertEqual(
-          channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ=="
-        )
+        XCTAssertEqual(channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ==")
+        XCTAssertTrue((channelMessages ?? []).reduce(into: true) { $0 = $0 && $1.error?.reason == .decryptionFailure })
         XCTAssertEqual(next?.start, 15_657_268_328_421_957)
       case let .failure(error):
         XCTFail("Fetch History request failed with error: \(error.localizedDescription)")

@@ -38,7 +38,9 @@ public protocol PubNubMessage {
   var metadata: JSONCodable? { get set }
   /// The type of message that was received
   var messageType: PubNubMessageType { get set }
-
+  /// An error (if any) occured while getting this message
+  var error: PubNubError? { get set }
+  
   /// Allows for transcoding between different MessageEvent types
   init(from other: PubNubMessage) throws
 }
@@ -110,7 +112,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
-      messageType: other.messageType
+      messageType: other.messageType,
+      error: other.error
     )
   }
 
@@ -123,7 +126,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
-      messageType: subscribe.messageType.asPubNubMessageType
+      messageType: subscribe.messageType.asPubNubMessageType,
+      error: subscribe.error
     )
   }
 
@@ -142,7 +146,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      messageType: history.messageType ?? .unknown
+      messageType: history.messageType ?? .unknown,
+      error: history.error
     )
   }
 
@@ -154,7 +159,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
-    messageType: PubNubMessageType = .unknown
+    messageType: PubNubMessageType = .unknown,
+    error: PubNubError? = nil
   ) {
     self.concretePayload = payload
     self.concreteMessageActions = actions
@@ -164,6 +170,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.published = published
     self.concreteMetadata = metadata
     self.messageType = messageType
+    self.error = error
   }
   
   public func encode(to encoder: Encoder) throws {

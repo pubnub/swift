@@ -917,7 +917,7 @@ extension SubscribeRouterTests {
     listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
-      XCTAssertNil(message.error)
+      XCTAssertTrue(message.error?.reason == .decryptionFailure)
       
       pubNubWithMockedSession.unsubscribeAll()
       messageExpect.fulfill()

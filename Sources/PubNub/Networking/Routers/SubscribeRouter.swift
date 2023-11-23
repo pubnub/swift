@@ -120,23 +120,25 @@ struct SubscribeDecoder: ResponseDecoder {
   }
 
   func decrypt(_ cryptoModule: CryptoModule, message: SubscribeMessagePayload) -> SubscribeMessagePayload {
-    // Convert base64 string into Data
+    var message = message
+    // Convert Base64 string into Data
     if let messageData = message.payload.dataOptional {
       // If a message fails we just return the original and move on
       switch cryptoModule.decryptedString(from: messageData) {
       case .success(let decodedString):
         // Create mutable copy of payload
-        var message = message
         message.payload = AnyJSON(reverse: decodedString)
         return message
       case .failure(let error):
-        PubNub.log.error("Subscribe message failed to decrypt due to \(error)")
-        var message = message
+        PubNub.log.warn("Subscribe message failed to decrypt due to \(error)")
         message.error = error
         return message
       }
     }
-
+    message.error = PubNubError(
+      .decryptionFailure,
+      additional: ["Cannot decrypt message due to invalid Base-64 input"]
+    )
     return message
   }
 

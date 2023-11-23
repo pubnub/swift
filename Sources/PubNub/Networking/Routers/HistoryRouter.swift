@@ -202,10 +202,24 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               messageType: message.messageType,
               error: error
             )
-            PubNub.log.error("History message failed to decrypt due to \(error)")
+            PubNub.log.warn("History message failed to decrypt due to \(error)")
           }
+        } else {
+          messages[index] = MessageHistoryMessagePayload(
+            message: message.message,
+            timetoken: message.timetoken,
+            meta: message.meta,
+            uuid: message.uuid,
+            messageType: message.messageType,
+            error: PubNubError(
+              .decryptionFailure,
+              additional: ["Cannot decrypt message due to invalid Base-64 input"]
+            )
+          )
         }
       }
+      
+      
       return messages
     }
     

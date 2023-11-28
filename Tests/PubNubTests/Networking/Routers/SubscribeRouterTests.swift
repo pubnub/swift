@@ -887,6 +887,124 @@ extension SubscribeRouterTests {
     defer { listener.cancel() }
     wait(for: [statusExpect], timeout: 1.0)
   }
+}
 
+// MARK: - Subscription with CryptoModule enabled
+
+extension SubscribeRouterTests {
+  func testSubscribe_DecryptNonEncryptedMessage() {
+    let messageExpect = XCTestExpectation(description: "Message Event")
+
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_message_success", "cancelled"]
+    ).session else {
+      return XCTFail("Could not create mock url session")
+    }
+    
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
+    )
+    let pubNubWithMockedSession = PubNub(
+      configuration: config,
+      subscribeSession: session
+    )
+
+    let listener = SubscriptionListener()
+        
+    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+      XCTAssertEqual(message.channel, self?.testChannel)
+      XCTAssertEqual(message.payload.stringOptional, "Test Message")
+      XCTAssertTrue(message.error?.reason == .decryptionFailure)
+      
+      pubNubWithMockedSession.unsubscribeAll()
+      messageExpect.fulfill()
+    }
+    
+    pubNubWithMockedSession.add(listener)
+    pubNubWithMockedSession.subscribe(to: [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [messageExpect], timeout: 1.0)
+  }
+  
+  func testSubscribe_DecryptEncryptedMessage() {
+    let messageExpect = XCTestExpectation(description: "Message Event")
+
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_encrypted_message_success", "cancelled"]
+    ).session else {
+      return XCTFail("Could not create mock url session")
+    }
+    
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
+    )
+    let pubNubWithMockedSession = PubNub(
+      configuration: config,
+      subscribeSession: session
+    )
+
+    let listener = SubscriptionListener()
+        
+    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+      XCTAssertEqual(message.channel, self?.testChannel)
+      XCTAssertEqual(message.payload.stringOptional, "Test Message")
+      XCTAssertNil(message.error)
+      
+      pubNubWithMockedSession.unsubscribeAll()
+      messageExpect.fulfill()
+    }
+    
+    pubNubWithMockedSession.add(listener)
+    pubNubWithMockedSession.subscribe(to: [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [messageExpect], timeout: 1.0)
+  }
+  
+  func testSubscribe_DecryptEncryptedMessageWithMismatchedKey() {
+    let messageExpect = XCTestExpectation(description: "Message Event")
+
+    guard let session = try? MockURLSession.mockSession(
+      for: ["subscription_encrypted_message_success", "cancelled"]
+    ).session else {
+      return XCTFail("Could not create mock url session")
+    }
+    
+    let config = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "lorem-ipsum-dolor-sit-amet")
+    )
+    let pubNubWithMockedSession = PubNub(
+      configuration: config,
+      subscribeSession: session
+    )
+
+    let listener = SubscriptionListener()
+    
+    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+      XCTAssertEqual(message.channel, self?.testChannel)
+      XCTAssertEqual(message.payload.stringOptional, "UE5FRAFBQ1JIEGOmGQMIMXD+91V+5hTxm7p7uEUhEEYohYLQz5fEGITC")
+      XCTAssertTrue(message.error?.reason == .decryptionFailure)
+      
+      pubNubWithMockedSession.unsubscribeAll()
+      messageExpect.fulfill()
+    }
+    
+    pubNubWithMockedSession.add(listener)
+    pubNubWithMockedSession.subscribe(to: [testChannel])
+
+    defer { listener.cancel() }
+    wait(for: [messageExpect], timeout: 1.0)
+  }
+  
   // swiftlint:disable:next file_length
 }

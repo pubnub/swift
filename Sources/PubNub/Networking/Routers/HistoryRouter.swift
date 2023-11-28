@@ -190,13 +190,36 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               timetoken: message.timetoken,
               meta: message.meta,
               uuid: message.uuid,
-              messageType: message.messageType
+              messageType: message.messageType,
+              error: nil
             )
           case .failure(let error):
-            PubNub.log.error("History message failed to decrypt due to \(error)")
+            messages[index] = MessageHistoryMessagePayload(
+              message: message.message,
+              timetoken: message.timetoken,
+              meta: message.meta,
+              uuid: message.uuid,
+              messageType: message.messageType,
+              error: error
+            )
+            PubNub.log.warn("History message failed to decrypt due to \(error)")
           }
+        } else {
+          messages[index] = MessageHistoryMessagePayload(
+            message: message.message,
+            timetoken: message.timetoken,
+            meta: message.meta,
+            uuid: message.uuid,
+            messageType: message.messageType,
+            error: PubNubError(
+              .decryptionFailure,
+              additional: ["Cannot decrypt message due to invalid Base-64 input"]
+            )
+          )
         }
       }
+      
+      
       return messages
     }
     
@@ -284,6 +307,7 @@ struct MessageHistoryMessagePayload: Codable {
   let uuid: String?
   let messageType: PubNubMessageType?
   let actions: RawMessageAction
+  let error: PubNubError?
   
   init(
     message: JSONCodable,
@@ -291,7 +315,8 @@ struct MessageHistoryMessagePayload: Codable {
     meta: JSONCodable? = nil,
     uuid: String?,
     messageType: PubNubMessageType?,
-    actions: RawMessageAction = [:]
+    actions: RawMessageAction = [:],
+    error: PubNubError?
   ) {
     self.message = message.codableValue
     self.timetoken = timetoken
@@ -299,6 +324,7 @@ struct MessageHistoryMessagePayload: Codable {
     self.messageType = messageType
     self.meta = meta?.codableValue
     self.actions = actions
+    self.error = error
   }
   
   enum CodingKeys: String, CodingKey {
@@ -319,6 +345,7 @@ struct MessageHistoryMessagePayload: Codable {
     messageType = try container.decodeIfPresent(PubNubMessageType.self, forKey: .messageType)
     timetoken = Timetoken(try container.decode(String.self, forKey: .timetoken)) ?? 0
     actions = try container.decodeIfPresent(RawMessageAction.self, forKey: .actions) ?? [:]
+    error = nil
   }
   
   public func encode(to encoder: Encoder) throws {

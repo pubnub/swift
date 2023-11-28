@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.2.2"
+version: "6.2.3"
 schema: 1
 changelog:
+  - date: 2023-11-28
+    version: 6.2.3
+    changes:
+      - type: bug
+        text: "Handle unencrypted message while getting it with CryptoModule configured."
   - date: 2023-10-30
     version: 6.2.2
     changes:
@@ -507,7 +512,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.3.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

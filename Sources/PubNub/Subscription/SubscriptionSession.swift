@@ -208,11 +208,13 @@ public class SubscriptionSession {
     stopSubscribeLoop(.longPollingRestart)
 
     // Will compre this in the error response to see if we need to restart
-    let nextSubscribe = longPollingSession
-      .request(with: router, requestOperator: configuration.automaticRetry)
+    let nextSubscribe = longPollingSession.request(
+      with: router,
+      requestOperator: configuration.automaticRetry?[.subscribe]
+    )
     let currentSubscribeID = nextSubscribe.requestID
+    
     request = nextSubscribe
-
     request?
       .validate()
       .response(on: .main, decoder: SubscribeDecoder()) { [weak self] result in

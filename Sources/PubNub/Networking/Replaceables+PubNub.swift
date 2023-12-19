@@ -126,6 +126,7 @@ public protocol SessionReplaceable {
 
   func route<Decoder>(
     _ router: HTTPRouter,
+    requestOperator: RequestOperator?,
     responseDecoder: Decoder,
     responseQueue: DispatchQueue,
     completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
@@ -135,11 +136,12 @@ public protocol SessionReplaceable {
 public extension SessionReplaceable {
   func route<Decoder>(
     _ router: HTTPRouter,
+    requestOperator: RequestOperator? = nil,
     responseDecoder: Decoder,
     responseQueue: DispatchQueue = .main,
     completion: @escaping (Result<EndpointResponse<Decoder.Payload>, Error>) -> Void
   ) where Decoder: ResponseDecoder {
-    request(with: router, requestOperator: nil)
+    request(with: router, requestOperator: requestOperator)
       .validate()
       .response(
         on: responseQueue,

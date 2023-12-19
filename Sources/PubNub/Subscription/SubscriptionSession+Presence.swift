@@ -55,7 +55,7 @@ extension SubscriptionSession {
     )
 
     nonSubscribeSession
-      .request(with: router, requestOperator: configuration.automaticRetry)
+      .request(with: router, requestOperator: configuration.automaticRetry?[.heartbeat])
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { [weak self] result in
         switch result {

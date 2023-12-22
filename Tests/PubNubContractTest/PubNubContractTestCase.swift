@@ -23,20 +23,31 @@ let defaultPublishKey = "demo-36"
   
   public var messageReceivedHandler: ((PubNubMessage, [PubNubMessage]) -> Void)?
   public var statusReceivedHandler: ((SubscriptionListener.StatusEvent, [SubscriptionListener.StatusEvent]) -> Void)?
+  public var presenceChangeReceivedHandler: ((PubNubPresenceChange, [PubNubPresenceChange]) -> Void)?
+
   fileprivate static var _receivedErrorStatuses: [SubscriptionListener.StatusEvent] = []
   fileprivate static var _receivedStatuses: [SubscriptionListener.StatusEvent] = []
   fileprivate static var _receivedMessages: [PubNubMessage] = []
+  fileprivate static var _receivedPresenceChanges: [PubNubPresenceChange] = []
+
   fileprivate static var _currentScenario: CCIScenarioDefinition?
   fileprivate static var _apiCallResults: [Any] = []
-  fileprivate var currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
-                                                             subscribeKey: defaultSubscribeKey,
-                                                             userId: UUID().uuidString,
-                                                             useSecureConnections: false,
-                                                             origin: mockServerAddress,
-                                                             supressLeaveEvents: true)
+  
+  fileprivate static var _currentConfiguration = PubNubContractTestCase._defaultConfiguration
+  fileprivate static var _defaultConfiguration: PubNubConfiguration {
+    PubNubConfiguration(
+      publishKey: defaultPublishKey,
+      subscribeKey: defaultSubscribeKey,
+      userId: UUID().uuidString,
+      useSecureConnections: false,
+      origin: mockServerAddress,
+      supressLeaveEvents: true
+    )
+  }
+    
   fileprivate static var currentClient: PubNub?
 
-  public var configuration: PubNubConfiguration { currentConfiguration }
+  public var configuration: PubNubConfiguration { PubNubContractTestCase._currentConfiguration }
 
   public var expectSubscribeFailure: Bool { false }
 
@@ -62,6 +73,11 @@ let defaultPublishKey = "demo-36"
     get { PubNubContractTestCase._receivedMessages }
     set { PubNubContractTestCase._receivedMessages = newValue }
   }
+  
+  public var receivedPresenceChanges: [PubNubPresenceChange] {
+    get { PubNubContractTestCase._receivedPresenceChanges }
+    set { PubNubContractTestCase._receivedPresenceChanges = newValue }
+  }
 
   public var apiCallResults: [Any] {
     get { PubNubContractTestCase._apiCallResults }
@@ -70,10 +86,20 @@ let defaultPublishKey = "demo-36"
 
   public var client: PubNub {
     if PubNubContractTestCase.currentClient == nil {
-      PubNubContractTestCase.currentClient = PubNub(configuration: configuration)
+      PubNubContractTestCase.currentClient = createPubNubClient()
     }
-
     return PubNubContractTestCase.currentClient!
+  }
+  
+  func replacePubNubConfiguration(with configuration: PubNubConfiguration) {
+    if PubNubContractTestCase.currentClient != nil {
+      preconditionFailure("Cannot replace configuration when PubNub instance was already created")
+    }
+    PubNubContractTestCase._currentConfiguration = configuration
+  }
+  
+  func createPubNubClient() -> PubNub {
+    PubNub(configuration: configuration)
   }
 
   public func startCucumberHookEventsListening() {
@@ -90,19 +116,14 @@ let defaultPublishKey = "demo-36"
   }
 
   public func handleAfterHook() {
-    currentConfiguration = PubNubConfiguration(publishKey: defaultPublishKey,
-                                               subscribeKey: defaultSubscribeKey,
-                                               userId: UUID().uuidString,
-                                               useSecureConnections: false,
-                                               origin: mockServerAddress,
-                                               supressLeaveEvents: true)
-
+    PubNubContractTestCase._currentConfiguration = PubNubContractTestCase._defaultConfiguration
     PubNubContractTestCase.currentClient?.unsubscribeAll()
     PubNubContractTestCase.currentClient = nil
 
     receivedErrorStatuses.removeAll()
     receivedStatuses.removeAll()
     receivedMessages.removeAll()
+    receivedPresenceChanges.removeAll()
     apiCallResults.removeAll()
   }
 
@@ -210,6 +231,8 @@ let defaultPublishKey = "demo-36"
     PubNubPushContractTestSteps().setup()
     PubNubPublishContractTestSteps().setup()
     PubNubSubscribeContractTestSteps().setup()
+    PubNubSubscribeEngineContractTestsSteps().setup()
+    PubNubPresenceEngineContractTestsSteps().setup()
     PubNubTimeContractTestSteps().setup()
     PubNubCryptoModuleContractTestSteps().setup()
     
@@ -284,6 +307,15 @@ let defaultPublishKey = "demo-36"
         handler(message, strongSelf.receivedMessages)
       }
     }
+    
+    listener.didReceivePresence = { [weak self] presenceChange in
+      guard let strongSelf = self else { return }
+      strongSelf.receivedPresenceChanges.append(presenceChange)
+      
+      if let handler = strongSelf.presenceChangeReceivedHandler {
+        handler(presenceChange, strongSelf.receivedPresenceChanges)
+      }
+    }
 
     client.add(listener)
     client.subscribe(to: channels, and: groups, at: timetoken, withPresence: presence)
@@ -308,6 +340,33 @@ let defaultPublishKey = "demo-36"
       return Array(receivedMessages[..<count])
     } else {
       return receivedMessages.count > 0 ? receivedMessages : nil
+    }
+  }
+  
+  // MARK: - Presence
+  
+  @discardableResult
+  public func waitForPresenceChanges(_: PubNub, count: Int) -> [PubNubPresenceChange]? {
+    if receivedPresenceChanges.count < count {
+      let receivedPresenceChangeExpectation = expectation(description: "Subscribe messages")
+      receivedPresenceChangeExpectation.assertForOverFulfill = false
+      presenceChangeReceivedHandler = { _, presenceChanges in
+        if presenceChanges.count >= count {
+          receivedPresenceChangeExpectation.fulfill()
+        }
+      }
+
+      wait(for: [receivedPresenceChangeExpectation], timeout: 10.0)
+    }
+
+    defer {
+      receivedPresenceChanges.removeAll()
+    }
+    
+    if receivedPresenceChanges.count > count {
+      return Array(receivedPresenceChanges[..<count])
+    } else {
+      return receivedPresenceChanges.count > 0 ? receivedPresenceChanges : nil
     }
   }
 

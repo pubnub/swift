@@ -71,6 +71,9 @@ public struct PubNubConfiguration: Hashable {
   ///   - supressLeaveEvents: Whether to send out the leave requests
   ///   - requestMessageCountThreshold: The number of messages into the payload before emitting `RequestMessageCountExceeded`
   ///   - filterExpression: PSV2 feature to subscribe with a custom filter expression.
+  ///   - enableEventEngine: Whether to enable a new, experimental implementation of Subscription and Presence handling
+  ///   - maintainPresenceState: Whether to automatically resend the last Presence channel state,
+  ///    applies only if `heartbeatInterval` is greater than 0 and `enableEventEngine` is true
   public init(
     publishKey: String?,
     subscribeKey: String,
@@ -89,7 +92,9 @@ public struct PubNubConfiguration: Hashable {
     heartbeatInterval: UInt = 0,
     supressLeaveEvents: Bool = false,
     requestMessageCountThreshold: UInt = 100,
-    filterExpression: String? = nil
+    filterExpression: String? = nil,
+    enableEventEngine: Bool = false,
+    maintainPresenceState: Bool = false
   ) {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UserId should not be empty.")
@@ -120,6 +125,8 @@ public struct PubNubConfiguration: Hashable {
     self.supressLeaveEvents = supressLeaveEvents
     self.requestMessageCountThreshold = requestMessageCountThreshold
     self.filterExpression = filterExpression
+    self.enableEventEngine = enableEventEngine
+    self.maintainPresenceState = maintainPresenceState
   }
 
   // swiftlint:disable:next line_length
@@ -216,6 +223,14 @@ public struct PubNubConfiguration: Hashable {
   public var useInstanceId: Bool
   /// Whether a request identifier should be included on outgoing requests
   public var useRequestId: Bool
+  /// This controls whether to enable a new, experimental implementation of Subscription and Presence handling.
+  ///
+  /// This switch can help you verify the behavior of the PubNub SDK with the new engine enabled
+  /// in your app. It will default to true in a future SDK release.
+  public var enableEventEngine: Bool = false
+  /// When `true` the SDK will resend the last channel state that was set using `PubNub.setPresence`.
+  /// Applies only if `heartbeatInterval` is greater than 0 and `enableEventEngine` is true
+  public var maintainPresenceState: Bool = false
   /// Reconnection policy which will be used if/when a request fails
   public var automaticRetry: AutomaticRetry?
   /// URLSessionConfiguration used for URLSession network events

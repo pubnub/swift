@@ -11,22 +11,20 @@
 import Foundation
 
 /// Status of a connection to a remote system
-public enum ConnectionStatus {
-  /// Attempting to connect to a remote system
-  case connecting
+public enum ConnectionStatus: Equatable {
   /// Successfully connected to a remote system
   case connected
-  /// Attempting to reconnect to a remote system
-  case reconnecting
   /// Explicit disconnect from a remote system
   case disconnected
   /// Unexpected disconnect from a remote system
   case disconnectedUnexpectedly
+  /// Unable to establish initial connection
+  case connectionError
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
     switch self {
-    case .connecting, .connected, .reconnecting:
+    case .connected:
       return true
     default:
       return false
@@ -35,30 +33,24 @@ public enum ConnectionStatus {
 
   /// If the connection is connected
   public var isConnected: Bool {
-    return self == .connected
+    if case .connected = self {
+      return true
+    } else {
+      return false
+    }
   }
-
+  
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
-    case (.connecting, .reconnecting):
-      return false
-    case (.connecting, _):
+    case (.connected, .disconnected):
       return true
-    case (.connected, .connecting):
-      return false
-    case (.connected, _):
+    case (.disconnected, .connected):
       return true
-    case (.reconnecting, .connecting):
-      return false
-    case (.reconnecting, _):
+    case (.connected, .disconnectedUnexpectedly):
       return true
-    case (.disconnected, .connecting):
+    case (.disconnected, .connectionError):
       return true
-    case (.disconnected, _):
-      return false
-    case (.disconnectedUnexpectedly, .connecting):
-      return true
-    case (.disconnectedUnexpectedly, _):
+    default:
       return false
     }
   }

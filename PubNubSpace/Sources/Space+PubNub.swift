@@ -16,7 +16,6 @@ import PubNub
 public protocol PubNubSpaceInterface {
   /// A copy of the configuration object used for this session
   var configuration: PubNubConfiguration { get }
-
   /// Session used for performing request/response REST calls
   var networkSession: SessionReplaceable { get }
 
@@ -213,6 +212,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
+        requestOperator: configuration.automaticRetry?[.appContext],
         responseDecoder: FetchMultipleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -237,6 +237,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
+        requestOperator: configuration.automaticRetry?[.appContext],
         responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -273,6 +274,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
+        requestOperator: configuration.automaticRetry?[.appContext],
         responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -317,6 +319,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
+        requestOperator: configuration.automaticRetry?[.appContext],
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in

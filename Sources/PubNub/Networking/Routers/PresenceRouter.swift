@@ -15,7 +15,7 @@ import Foundation
 struct PresenceRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case heartbeat(channels: [String], groups: [String], presenceTimeout: UInt?)
+    case heartbeat(channels: [String], groups: [String], channelStates: [String: [String:JSONCodableScalar]], presenceTimeout: UInt?)
     case leave(channels: [String], groups: [String])
     case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
     case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
@@ -44,7 +44,7 @@ struct PresenceRouter: HTTPRouter {
 
     var channels: [String] {
       switch self {
-      case let .heartbeat(channels, _, _):
+      case let .heartbeat(channels, _, _, _):
         return channels
       case let .leave(channels, _):
         return channels
@@ -61,7 +61,7 @@ struct PresenceRouter: HTTPRouter {
 
     var groups: [String] {
       switch self {
-      case let .heartbeat(_, groups, _):
+      case let .heartbeat(_, groups, _, _):
         return groups
       case let .leave(_, groups):
         return groups
@@ -85,7 +85,7 @@ struct PresenceRouter: HTTPRouter {
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
-
+  
   // Protocol Properties
   var service: PubNubService {
     return .presence
@@ -99,10 +99,10 @@ struct PresenceRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case let .heartbeat(channels, _, _):
+    case let .heartbeat(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/heartbeat"
     case let .leave(channels, _):
-      path = "/v2/presence/sub_key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
+      path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
     case let .hereNow(channels, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)"
     case .hereNowGlobal:
@@ -123,11 +123,28 @@ struct PresenceRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .heartbeat(_, groups, presenceTimeout):
-      query.appendIfNotEmpty(key: .channelGroup, value: groups)
-      query.appendIfPresent(key: .heartbeat, value: presenceTimeout?.description)
+    case let .heartbeat(_, groups, channelStates, presenceTimeout):
+      query.appendIfNotEmpty(
+        key: .channelGroup,
+        value: groups
+      )
+      query.appendIfPresent(
+        key: .heartbeat,
+        value: presenceTimeout?.description
+      )
+      query.append(
+        key: .eventEngine,
+        value: nil,
+        when: configuration.enableEventEngine
+      )
+      query.appendIfPresent(
+        key: .state,
+        value: try? channelStates.mapValues { $0.mapValues { $0.codableValue } }.encodableJSONString.get(),
+        when: configuration.enableEventEngine && configuration.maintainPresenceState && !channelStates.isEmpty
+      )
     case let .leave(_, groups):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
+      query.append(key: .eventEngine, value: nil, when: configuration.enableEventEngine)
     case let .hereNow(_, groups, includeUUIDs, includeState):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
@@ -157,7 +174,7 @@ struct PresenceRouter: HTTPRouter {
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case let .heartbeat(channels, groups, _):
+    case let .heartbeat(channels, groups, _, _):
       return isInvalidForReason(
         (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
     case let .leave(channels, groups):
@@ -197,7 +214,7 @@ struct AnyPresencePayload<Payload>: Codable where Payload: Codable {
   let payload: Payload
 }
 
-// MARK: - Heree Now Response
+// MARK: - Here Now Response
 
 struct HereNowResponseDecoder: ResponseDecoder {
   typealias Payload = [String: HereNowChannelsPayload]

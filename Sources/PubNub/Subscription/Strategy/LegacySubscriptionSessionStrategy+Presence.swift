@@ -1,5 +1,5 @@
 //
-//  SubscriptionSession+Presence.swift
+//  LegacySubscriptionSessionStrategy+Presence.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -10,7 +10,8 @@
 
 import Foundation
 
-extension SubscriptionSession {
+extension LegacySubscriptionSessionStrategy {
+  
   // MARK: - Heartbeat Loop
 
   func registerHeartbeatTimer() {
@@ -50,12 +51,12 @@ extension SubscriptionSession {
 
     // Perform Heartbeat
     let router = PresenceRouter(
-      .heartbeat(channels: channels, groups: groups, presenceTimeout: configuration.durationUntilTimeout),
+      .heartbeat(channels: channels, groups: groups, channelStates: [:], presenceTimeout: configuration.durationUntilTimeout),
       configuration: configuration
     )
 
     nonSubscribeSession
-      .request(with: router, requestOperator: configuration.automaticRetry)
+      .request(with: router, requestOperator: configuration.automaticRetry?[.presence])
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { [weak self] result in
         switch result {

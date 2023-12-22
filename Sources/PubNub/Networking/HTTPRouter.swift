@@ -32,6 +32,10 @@ public protocol RouterConfiguration {
   var useRequestId: Bool { get }
   /// Ordered list of key-value pairs which identify various consumers.
   var consumerIdentifiers: [String: String] { get }
+  /// This controls whether to enable a new, experimental implementation of Subscription and Presence handling
+  var enableEventEngine: Bool { get }
+  /// When `true` the SDK will resend the last channel state that was set using `PubNub.setPresence`
+  var maintainPresenceState: Bool { get }
 }
 
 public extension RouterConfiguration {
@@ -117,6 +121,7 @@ enum QueryKey: String {
   case filter
   case sort
   case descending = "desc"
+  case eventEngine = "ee"
 }
 
 /// The PubNub Key requirement for a given Endpoint

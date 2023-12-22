@@ -250,26 +250,14 @@ class MasterDetailTableViewController: UITableViewController {
           print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
         case let .connectionStatusChanged(connectionChange):
           switch connectionChange {
-          case .connecting:
-            print("Status connecting...")
           case .connected:
             print("Status connected!")
-          case .reconnecting:
-            print("Status reconnecting...")
+          case .connectionError:
+            print("Error while attempting to initialize connection")
           case .disconnected:
             print("Status disconnected")
           case .disconnectedUnexpectedly:
-            print("Status disconnected unexpectedly!")
-          }
-        case let .subscriptionChanged(subscribeChange):
-          switch subscribeChange {
-          case let .subscribed(channels, groups):
-            print("\(channels) and \(groups) were added to subscription")
-          case let .responseHeader(channels, groups, previous, next):
-            print("\(channels) and \(groups) recevied a response at \(previous?.timetoken ?? 0)")
-            print("\(next?.timetoken ?? 0) will be used as the new timetoken")
-          case let .unsubscribed(channels, groups):
-            print("\(channels) and \(groups) were removed from subscription")
+            print("Disconnected unexpectedly")
           }
         case let .presenceChanged(presenceChange):
           print("The channel \(presenceChange.channel) has an updated occupancy of \(presenceChange.occupancy)")

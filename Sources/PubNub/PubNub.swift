@@ -448,6 +448,17 @@ public extension PubNub {
   var connectionStatus: ConnectionStatus {
     return subscription.connectionStatus
   }
+  
+  /// An override for the default filter expression set during initialization
+  var subscribeFilterExpression: String? {
+    get {
+      return subscription.filterExpression
+    }
+    set {
+      subscription.filterExpression = newValue
+      configuration.filterExpression = newValue
+    }
+  }
 }
 
 // MARK: - Presence Management

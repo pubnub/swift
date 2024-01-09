@@ -17,11 +17,16 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let presenceStateContainer: PresenceStateContainer
 
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
-  var configuration: PubNubConfiguration
+  var configuration: SubscriptionConfiguration
   var previousTokenResponse: SubscribeCursor?
+  var filterExpression: String? {
+    didSet {
+      onFilterExpressionChanged()
+    }
+  }
   
   internal init(
-    configuration: PubNubConfiguration,
+    configuration: SubscriptionConfiguration,
     subscribeEngine: SubscribeEngine,
     presenceEngine: PresenceEngine,
     presenceStateContainer: PresenceStateContainer
@@ -30,6 +35,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     self.configuration = configuration
     self.presenceEngine = presenceEngine
     self.presenceStateContainer = presenceStateContainer
+    self.filterExpression = configuration.filterExpression
     self.listenForStateUpdates()
   }
 
@@ -88,6 +94,14 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   private func sendPresenceEvent(event: Presence.Event) {
     updatePresenceEngineDependencies()
     presenceEngine.send(event: event)
+  }
+  
+  private func onFilterExpressionChanged() {
+    let currentState = subscribeEngine.state
+    let channels = currentState.input.allSubscribedChannels
+    let groups = currentState.input.allSubscribedGroups
+
+    sendSubscribeEvent(event: .subscriptionChanged(channels: channels, groups: groups))
   }
 
   // MARK: - Subscription Loop

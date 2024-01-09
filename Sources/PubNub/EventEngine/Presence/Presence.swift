@@ -79,7 +79,7 @@ extension Presence {
 
 extension Presence {
   struct Dependencies {
-    let configuration: PubNubConfiguration
+    let configuration: SubscriptionConfiguration
   }
 }
 

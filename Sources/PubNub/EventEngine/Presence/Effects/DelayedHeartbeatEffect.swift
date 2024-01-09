@@ -14,7 +14,7 @@ class DelayedHeartbeatEffect: DelayedEffectHandler {
   typealias Event = Presence.Event
   
   private let request: PresenceHeartbeatRequest
-  private let configuration: PubNubConfiguration
+  private let configuration: SubscriptionConfiguration
   private let retryAttempt: Int
   private let reason: PubNubError
   
@@ -24,7 +24,7 @@ class DelayedHeartbeatEffect: DelayedEffectHandler {
     request: PresenceHeartbeatRequest,
     retryAttempt: Int,
     reason: PubNubError,
-    configuration: PubNubConfiguration
+    configuration: SubscriptionConfiguration
   ) {
     self.request = request
     self.retryAttempt = retryAttempt

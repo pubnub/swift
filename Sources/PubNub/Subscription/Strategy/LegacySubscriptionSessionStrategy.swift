@@ -17,7 +17,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let sessionStream: SessionListener
   let responseQueue: DispatchQueue
   
-  var configuration: PubNubConfiguration
+  var configuration: SubscriptionConfiguration
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
   var filterExpression: String?
   var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
@@ -68,7 +68,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   var internalState = Atomic<SubscriptionState>(SubscriptionState())
 
   internal init(
-    configuration: PubNubConfiguration,
+    configuration: SubscriptionConfiguration,
     network subscribeSession: SessionReplaceable,
     presenceSession: SessionReplaceable
   ) {

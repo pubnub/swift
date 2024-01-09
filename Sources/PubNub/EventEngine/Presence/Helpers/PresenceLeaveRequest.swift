@@ -13,7 +13,7 @@ import Foundation
 class PresenceLeaveRequest {
   let channels: [String]
   let groups: [String]
-  let configuration: PubNubConfiguration
+  let configuration: SubscriptionConfiguration
   
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
@@ -22,7 +22,7 @@ class PresenceLeaveRequest {
   init(
     channels: [String],
     groups: [String],
-    configuration: PubNubConfiguration,
+    configuration: SubscriptionConfiguration,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
   ) {

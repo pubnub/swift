@@ -125,10 +125,10 @@ extension Subscribe {
 
 extension Subscribe {
   struct Dependencies {
-    let configuration: PubNubConfiguration
+    let configuration: SubscriptionConfiguration
     let listeners: [BaseSubscriptionListener]
     
-    init(configuration: PubNubConfiguration, listeners: [BaseSubscriptionListener] = []) {
+    init(configuration: SubscriptionConfiguration, listeners: [BaseSubscriptionListener] = []) {
       self.configuration = configuration
       self.listeners = listeners
     }

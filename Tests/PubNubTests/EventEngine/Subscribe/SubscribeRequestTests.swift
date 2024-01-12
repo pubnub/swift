@@ -29,10 +29,10 @@ class SubscribeRequestTests: XCTestCase {
       sessionResponseQueue: .main
     )
     
-    let urlResponse = HTTPURLResponse(statusCode: 500)
-    let error = SubscribeError(underlying: PubNubError(.connectionFailure), urlResponse: urlResponse)
+    let urlResponse = HTTPURLResponse(statusCode: 500)!
+    let error = PubNubError(.connectionFailure, affected: [.response(urlResponse)])
     
-    XCTAssertNil(request.reconnectionDelay(dueTo: error, with: 0))
+    XCTAssertNil(request.reconnectionDelay(dueTo: error, retryAttempt: 0))
   }
   
   func test_SubscribeRequestDoesNotRetryForNonSupportedCode() {
@@ -57,8 +57,8 @@ class SubscribeRequestTests: XCTestCase {
     )
     
     let urlError = URLError(.cannotFindHost)
-    let subscribeError = SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError)
     
-    XCTAssertNil(request.reconnectionDelay(dueTo: subscribeError, with: 0))
+    XCTAssertNil(request.reconnectionDelay(dueTo: pubNubError, retryAttempt: 0))
   }
 }

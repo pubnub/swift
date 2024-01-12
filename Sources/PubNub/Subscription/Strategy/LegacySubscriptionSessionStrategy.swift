@@ -76,14 +76,27 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     var mutableSession = subscribeSession
 
     filterExpression = configuration.filterExpression
-
     nonSubscribeSession = presenceSession
 
     responseQueue = DispatchQueue(label: "com.pubnub.subscription.response", qos: .default)
     sessionStream = SessionListener(queue: responseQueue)
 
+    // Add listener to session
     mutableSession.sessionStream = sessionStream
     longPollingSession = mutableSession
+    
+    sessionStream.didRetryRequest = { [weak self] _ in
+      self?.connectionStatus = .reconnecting
+    }
+
+    sessionStream.sessionDidReceiveChallenge = { [weak self] _, _ in
+      if self?.connectionStatus == .reconnecting {
+        // Delay time for server to process connection after TLS handshake
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.05) {
+          self?.connectionStatus = .connected
+        }
+      }
+    }
   }
 
   deinit {
@@ -119,7 +132,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     }
 
     if subscribeChange.didChange {
-      // notify { $0.emit(subscribe: .subscriptionChanged(subscribeChange)) }
+      notify { $0.emit(subscribe: .subscriptionChanged(subscribeChange)) }
     }
 
     if subscribeChange.didChange || !connectionStatus.isActive {
@@ -127,11 +140,13 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     }
   }
 
-  func reconnect(at cursor: SubscribeCursor?) {
+  /// Reconnect a disconnected subscription stream
+  /// - parameter timetoken: The timetoken to subscribe with
+  func reconnect(at cursor: SubscribeCursor? = nil) {
     if !connectionStatus.isActive {
+      connectionStatus = .connecting
       // Start subscribe loop
       performSubscribeLoop(at: cursor)
-
       // Start presence heartbeat
       registerHeartbeatTimer()
     } else {
@@ -150,7 +165,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   func stopSubscribeLoop(_ reason: PubNubError.Reason) -> Bool {
     // Cancel subscription requests
     request?.cancel(PubNubError(reason, router: request?.router))
-
     return connectionStatus.isActive
   }
 
@@ -159,28 +173,28 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     let (channels, groups) = internalState.lockedWrite { state -> ([String], [String]) in
       (state.allSubscribedChannels, state.allSubscribedGroups)
     }
-
+    
     // Don't start subscription if there no channels/groups
     if channels.isEmpty, groups.isEmpty {
       return
     }
-
+    
     // Create Endpoing
     let router = SubscribeRouter(
       .subscribe(
-        channels: channels, groups: groups, channelStates: [:], timetoken: cursor?.timetoken,
-        region: cursor?.region.description, heartbeat: configuration.durationUntilTimeout,
-        filter: filterExpression
-      ), configuration: configuration
+        channels: channels, groups: groups, channelStates: [:],
+        timetoken: cursor?.timetoken, region: cursor?.region.description,
+        heartbeat: configuration.durationUntilTimeout, filter: filterExpression
+      ),configuration: configuration
     )
-
+    
     // Cancel previous request before starting new one
     stopSubscribeLoop(.longPollingRestart)
-
-    // Will compre this in the error response to see if we need to restart
-    let nextSubscribe = longPollingSession
-      .request(with: router, requestOperator: configuration.automaticRetry)
+    
+    // Will compare this in the error response to see if we need to restart
+    let nextSubscribe = longPollingSession.request(with: router, requestOperator: configuration.automaticRetry)
     let currentSubscribeID = nextSubscribe.requestID
+    
     request = nextSubscribe
 
     request?
@@ -219,6 +233,15 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
                 pubnubGroups[$0] = PubNubChannel(channel: $0)
               }
             }
+            
+            listener.emit(subscribe: .responseReceived(
+              SubscribeResponseHeader(
+                channels: pubnubChannels.values.map { $0 },
+                groups: pubnubGroups.values.map { $0 },
+                previous: cursor,
+                next: response.payload.cursor
+              ))
+            )
           }
 
           // Attempt to detect missed messages due to queue overflow
@@ -250,7 +273,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
             }
 
           self?.notify { $0.emit(batch: events) }
-
           self?.previousTokenResponse = response.payload.cursor
 
           // Repeat the request
@@ -258,12 +280,12 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
         case let .failure(error):
           self?.notify { [unowned self] in
             $0.emit(subscribe:
-              .errorReceived(PubNubError.event(error, router: self?.request?.router))
+                .errorReceived(PubNubError.event(error, router: self?.request?.router))
             )
           }
-
+          
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart ||
-            error.pubNubError?.reason == .longPollingReset {
+              error.pubNubError?.reason == .longPollingReset {
             if self?.subscriptionCount == 0 {
               self?.connectionStatus = .disconnected
             } else if self?.request?.requestID == currentSubscribeID {
@@ -301,6 +323,9 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     }
 
     if subscribeChange.didChange {
+      notify {
+        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
+      }
       // Call unsubscribe to cleanup remaining state items
       unsubscribeCleanup(subscribeChange: subscribeChange)
     }
@@ -321,6 +346,9 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     }
 
     if subscribeChange.didChange {
+      notify {
+        $0.emit(subscribe: .subscriptionChanged(subscribeChange))
+      }
       // Cancel previous subscribe request.
       stopSubscribeLoop(.longPollingReset)
       // Call unsubscribe to cleanup remaining state items
@@ -333,9 +361,11 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     if !configuration.supressLeaveEvents {
       switch subscribeChange {
       case let .unsubscribed(channels, groups):
-        presenceLeave(for: configuration.uuid,
-                      on: channels.map { $0.id },
-                      and: groups.map { $0.id }) { [weak self] result in
+        presenceLeave(
+          for: configuration.uuid,
+          on: channels.map { $0.id },
+          and: groups.map { $0.id }
+        ) { [weak self] result in
           switch result {
           case .success:
             if !channels.isEmpty {
@@ -375,7 +405,6 @@ extension LegacySubscriptionSessionStrategy: EventStreamEmitter {
   func add(_ listener: ListenerType) {
     // Ensure that we cancel the previously attached token
     listener.token?.cancel()
-
     // Add new token to the listener
     listener.token = ListenerToken { [weak self, weak listener] in
       if let listener = listener {

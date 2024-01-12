@@ -348,7 +348,7 @@ let defaultPublishKey = "demo-36"
   @discardableResult
   public func waitForPresenceChanges(_: PubNub, count: Int) -> [PubNubPresenceChange]? {
     if receivedPresenceChanges.count < count {
-      let receivedPresenceChangeExpectation = expectation(description: "Subscribe messages")
+      let receivedPresenceChangeExpectation = expectation(description: "Presence Events")
       receivedPresenceChangeExpectation.assertForOverFulfill = false
       presenceChangeReceivedHandler = { _, presenceChanges in
         if presenceChanges.count >= count {

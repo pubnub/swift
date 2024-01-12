@@ -383,7 +383,6 @@
 		3D389FE72B35AF4A006928E7 /* EmitStatusEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCB2B35AF4A006928E7 /* EmitStatusEffect.swift */; };
 		3D389FE82B35AF4A006928E7 /* SubscribeEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCC2B35AF4A006928E7 /* SubscribeEffects.swift */; };
 		3D389FE92B35AF4A006928E7 /* SubscribeEffectFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCD2B35AF4A006928E7 /* SubscribeEffectFactory.swift */; };
-		3D389FEA2B35AF4A006928E7 /* SubscribeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCF2B35AF4A006928E7 /* SubscribeError.swift */; };
 		3D389FEB2B35AF4A006928E7 /* SubscribeInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FD02B35AF4A006928E7 /* SubscribeInput.swift */; };
 		3D389FEC2B35AF4A006928E7 /* SubscribeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FD12B35AF4A006928E7 /* SubscribeRequest.swift */; };
 		3D389FED2B35AF4A006928E7 /* Subscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FD22B35AF4A006928E7 /* Subscribe.swift */; };
@@ -425,6 +424,7 @@
 		3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */; };
 		3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */; };
 		3D38A0302B35B208006928E7 /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */; };
+		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
 		3D758DBF2AAA1C49005D2B36 /* CryptoModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */; };
 		3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DC62AB06A12005D2B36 /* CryptoInputStream.swift */; };
@@ -969,7 +969,6 @@
 		3D389FCB2B35AF4A006928E7 /* EmitStatusEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitStatusEffect.swift; sourceTree = "<group>"; };
 		3D389FCC2B35AF4A006928E7 /* SubscribeEffects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffects.swift; sourceTree = "<group>"; };
 		3D389FCD2B35AF4A006928E7 /* SubscribeEffectFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffectFactory.swift; sourceTree = "<group>"; };
-		3D389FCF2B35AF4A006928E7 /* SubscribeError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeError.swift; sourceTree = "<group>"; };
 		3D389FD02B35AF4A006928E7 /* SubscribeInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeInput.swift; sourceTree = "<group>"; };
 		3D389FD12B35AF4A006928E7 /* SubscribeRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeRequest.swift; sourceTree = "<group>"; };
 		3D389FD22B35AF4A006928E7 /* Subscribe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribe.swift; sourceTree = "<group>"; };
@@ -1007,6 +1006,7 @@
 		3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacySubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
+		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
 		3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoModule.swift; sourceTree = "<group>"; };
 		3D758DC62AB06A12005D2B36 /* CryptoInputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoInputStream.swift; sourceTree = "<group>"; };
@@ -1241,6 +1241,7 @@
 		35458BA1230CB32F0085B502 /* Subscription */ = {
 			isa = PBXGroup;
 			children = (
+				3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */,
 				35458BA2230CB3570085B502 /* SubscribeSessionFactoryTests.swift */,
 			);
 			path = Subscription;
@@ -2056,7 +2057,6 @@
 		3D389FCE2B35AF4A006928E7 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
-				3D389FCF2B35AF4A006928E7 /* SubscribeError.swift */,
 				3D389FD02B35AF4A006928E7 /* SubscribeInput.swift */,
 				3D389FD12B35AF4A006928E7 /* SubscribeRequest.swift */,
 			);
@@ -3395,7 +3395,6 @@
 				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
 				3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */,
 				357024BF283C07C900567EE8 /* Objects+PubNub.swift in Sources */,
-				3D389FEA2B35AF4A006928E7 /* SubscribeError.swift in Sources */,
 				35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */,
 				3D758DD52AB48A6A005D2B36 /* CryptorHeader.swift in Sources */,
 				35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */,
@@ -3511,6 +3510,7 @@
 				35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */,
 				3D38A00C2B35AF6A006928E7 /* SubscribeInputTests.swift in Sources */,
 				3D38A0132B35AF6B006928E7 /* HeartbeatEffectTests.swift in Sources */,
+				3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */,
 				35403F8A253617A8004B978E /* XMLCodingTests.swift in Sources */,
 				3557CDF8237F4611004BBACC /* MessageActionsRouterTests.swift in Sources */,
 				35CDFEAD22E7655700F3B9F2 /* URL+PubNubTests.swift in Sources */,

@@ -41,20 +41,30 @@ protocol DelayedEffectHandler: AnyObject, EffectHandler {
   var workItem: DispatchWorkItem? { get set }
   
   func delayInterval() -> TimeInterval?
-  func onEarlyExit(notify completionBlock: @escaping ([Event]) -> Void)
+  func onEmptyInterval(notify completionBlock: @escaping ([Event]) -> Void)
   func onDelayExpired(notify completionBlock: @escaping ([Event]) -> Void)
 }
 
-extension DelayedEffectHandler {
-  func performTask(completionBlock: @escaping ([Event]) -> Void) {
-    guard let delay = delayInterval() else {
-      onEarlyExit(notify: completionBlock); return
+// MARK: - TimerEffect
+
+class TimerEffect: EffectHandler {
+  private let interval: TimeInterval
+  private var workItem: DispatchWorkItem?
+  
+  init?(interval: TimeInterval?) {
+    if let interval = interval {
+      self.interval = interval
+    } else {
+      return nil
     }
-    let workItem = DispatchWorkItem() { [weak self] in
-      self?.onDelayExpired(notify: completionBlock)
+  }
+  
+  func performTask(completionBlock: @escaping ([Void]) -> Void) {
+    let workItem = DispatchWorkItem() {
+      completionBlock([])
     }
     DispatchQueue.global(qos: .default).asyncAfter(
-      deadline: .now() + delay,
+      deadline: .now() + interval,
       execute: workItem
     )
     self.workItem = workItem

@@ -19,13 +19,13 @@ class SubscribeInputTests: XCTestCase {
       PubNubChannel(id: "second-channel")
     ])
     
-    let expectedAllSubscribedChannels = ["first-channel", "second-channel"]
-    let expectedSubscribedChannels = ["first-channel", "second-channel"]
+    let expAllSubscribedChannelNames = ["first-channel", "second-channel"]
+    let expSubscribedChannelNames = ["first-channel", "second-channel"]
 
-    XCTAssertTrue(input.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(input.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(input.subscribedGroups.isEmpty)
-    XCTAssertTrue(input.allSubscribedGroups.isEmpty)
+    XCTAssertTrue(input.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(input.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(input.subscribedGroupNames.isEmpty)
+    XCTAssertTrue(input.allSubscribedGroupNames.isEmpty)
   }
   
   func test_ChannelsWithPresence() {
@@ -34,13 +34,13 @@ class SubscribeInputTests: XCTestCase {
       PubNubChannel(id: "second-channel")
     ])
     
-    let expectedAllSubscribedChannels = ["first-channel", "first-channel-pnpres", "second-channel"]
-    let expectedSubscribedChannels = ["first-channel", "second-channel"]
+    let expAllSubscribedChannelNames = ["first-channel", "first-channel-pnpres", "second-channel"]
+    let expSubscribedChannelNames = ["first-channel", "second-channel"]
 
-    XCTAssertTrue(input.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(input.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(input.subscribedGroups.isEmpty)
-    XCTAssertTrue(input.allSubscribedGroups.isEmpty)
+    XCTAssertTrue(input.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(input.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(input.subscribedGroupNames.isEmpty)
+    XCTAssertTrue(input.allSubscribedGroupNames.isEmpty)
   }
   
   func test_ChannelGroups() {
@@ -55,15 +55,15 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     
-    let expectedAllSubscribedChannels = ["first-channel", "second-channel"]
-    let expectedSubscribedChannels = ["first-channel", "second-channel"]
-    let expectedAllSubscribedGroups = ["group-1", "group-2"]
-    let expectedSubscribedGroups = ["group-1", "group-2"]
+    let expAllSubscribedChannelNames = ["first-channel", "second-channel"]
+    let expSubscribedChannelNames = ["first-channel", "second-channel"]
+    let expAllSubscribedGroupNames = ["group-1", "group-2"]
+    let expSubscribedGroupNames = ["group-1", "group-2"]
     
-    XCTAssertTrue(input.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(input.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(input.subscribedGroups.sorted(by: <).elementsEqual(expectedSubscribedGroups))
-    XCTAssertTrue(input.allSubscribedGroups.sorted(by: <).elementsEqual(expectedAllSubscribedGroups))
+    XCTAssertTrue(input.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(input.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(input.subscribedGroupNames.sorted(by: <).elementsEqual(expSubscribedGroupNames))
+    XCTAssertTrue(input.allSubscribedGroupNames.sorted(by: <).elementsEqual(expAllSubscribedGroupNames))
   }
   
   func test_addingInputContainsNoDuplicates() {
@@ -77,23 +77,26 @@ class SubscribeInputTests: XCTestCase {
         PubNubChannel(id: "g2")
       ]
     )
-    let result = input1 + SubscribeInput(channels: [
+    let result = input1.adding(channels: [
       PubNubChannel(id: "c1"),
       PubNubChannel(id: "c3", withPresence: true)
-    ], groups: [
+    ], and: [
       PubNubChannel(id: "g1"),
       PubNubChannel(id: "g3")
     ])
     
-    let expectedAllSubscribedChannels = ["c1", "c2", "c2-pnpres", "c3", "c3-pnpres"]
-    let expectedSubscribedChannels = ["c1", "c2", "c3"]
-    let expectedAllSubscribedGroups = ["g1", "g2", "g3"]
-    let expectedSubscribedGroups = ["g1", "g2", "g3"]
+    let newInput = result.newInput
+    let expAllSubscribedChannelNames = ["c1", "c2", "c2-pnpres", "c3", "c3-pnpres"]
+    let expSubscribedChannelNames = ["c1", "c2", "c3"]
+    let expAllSubscribedGroupNames = ["g1", "g2", "g3"]
+    let expSubscribedGroupNames = ["g1", "g2", "g3"]
     
-    XCTAssertTrue(result.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(result.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(result.subscribedGroups.sorted(by: <).elementsEqual(expectedSubscribedGroups))
-    XCTAssertTrue(result.allSubscribedGroups.sorted(by: <).elementsEqual(expectedAllSubscribedGroups))
+    XCTAssertTrue(newInput.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedGroupNames.sorted(by: <).elementsEqual(expSubscribedGroupNames))
+    XCTAssertTrue(newInput.allSubscribedGroupNames.sorted(by: <).elementsEqual(expAllSubscribedGroupNames))
+    XCTAssertTrue(result.insertedChannels == [PubNubChannel(id: "c3", withPresence: true)])
+    XCTAssertTrue(result.insertedGroups == [PubNubChannel(id: "g3")])
   }
   
   func test_RemovingInput() {
@@ -110,16 +113,28 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     
-    let result = input1 - (channels: ["c1", "c3"], groups: ["g1", "g3"])
-    let expectedAllSubscribedChannels = ["c2", "c2-pnpres"]
-    let expectedSubscribedChannels = ["c2"]
-    let expectedAllSubscribedGroups = ["g2"]
-    let expectedSubscribedGroups = ["g2"]
-
-    XCTAssertTrue(result.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(result.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(result.subscribedGroups.sorted(by: <).elementsEqual(expectedSubscribedGroups))
-    XCTAssertTrue(result.allSubscribedGroups.sorted(by: <).elementsEqual(expectedAllSubscribedGroups))
+    let result = input1.removing(channels: ["c1", "c3"], and: ["g1", "g3"])
+    let newInput = result.newInput
+    let expAllSubscribedChannelNames = ["c2", "c2-pnpres"]
+    let expSubscribedChannelNames = ["c2"]
+    let expAllSubscribedGroupNames = ["g2"]
+    let expSubscribedGroupNames = ["g2"]
+    
+    let expRemovedChannels = [
+      PubNubChannel(id: "c1", withPresence: true),
+      PubNubChannel(id: "c3", withPresence: true)
+    ]
+    let expRemovedGroups = [
+      PubNubChannel(id: "g1"),
+      PubNubChannel(id: "g3")
+    ]
+    
+    XCTAssertTrue(newInput.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedGroupNames.sorted(by: <).elementsEqual(expSubscribedGroupNames))
+    XCTAssertTrue(newInput.allSubscribedGroupNames.sorted(by: <).elementsEqual(expAllSubscribedGroupNames))
+    XCTAssertTrue(result.removedChannels == expRemovedChannels)
+    XCTAssertTrue(result.removedGroups == expRemovedGroups)
   }
   
   func test_RemovingInputWithPresenceOnly() {
@@ -136,19 +151,20 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     
-    let result = input1 - (
+    let result = input1.removing(
       channels: ["c1".presenceChannelName, "c2".presenceChannelName, "c3".presenceChannelName],
-      groups: ["g1".presenceChannelName, "g3".presenceChannelName]
+      and: ["g1".presenceChannelName, "g3".presenceChannelName]
     )
     
-    let expectedAllSubscribedChannels = ["c1", "c2", "c3"]
-    let expectedSubscribedChannels = ["c1", "c2", "c3"]
-    let expectedAllSubscribedGroups = ["g1", "g2", "g2-pnpres", "g3"]
-    let expectedSubscribedGroups = ["g1", "g2", "g3"]
-
-    XCTAssertTrue(result.allSubscribedChannels.sorted(by: <).elementsEqual(expectedAllSubscribedChannels))
-    XCTAssertTrue(result.subscribedChannels.sorted(by: <).elementsEqual(expectedSubscribedChannels))
-    XCTAssertTrue(result.subscribedGroups.sorted(by: <).elementsEqual(expectedSubscribedGroups))
-    XCTAssertTrue(result.allSubscribedGroups.sorted(by: <).elementsEqual(expectedAllSubscribedGroups))
+    let newInput = result.newInput
+    let expAllSubscribedChannelNames = ["c1", "c2", "c3"]
+    let expSubscribedChannelNames = ["c1", "c2", "c3"]
+    let expAllSubscribedGroupNames = ["g1", "g2", "g2-pnpres", "g3"]
+    let expSubscribedGroupNames = ["g1", "g2", "g3"]
+        
+    XCTAssertTrue(newInput.allSubscribedChannelNames.sorted(by: <).elementsEqual(expAllSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedChannelNames.sorted(by: <).elementsEqual(expSubscribedChannelNames))
+    XCTAssertTrue(newInput.subscribedGroupNames.sorted(by: <).elementsEqual(expSubscribedGroupNames))
+    XCTAssertTrue(newInput.allSubscribedGroupNames.sorted(by: <).elementsEqual(expAllSubscribedGroupNames))
   }
 }

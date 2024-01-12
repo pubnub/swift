@@ -19,13 +19,12 @@ class PAMTokenTests: XCTestCase {
     subscribeKey: "",
     userId: "tester"
   )
-  let eventEngineEnabledConfig = PubNubConfiguration(
+  let eeEnabledConfig = PubNubConfiguration(
     publishKey: "",
     subscribeKey: "",
     userId: "tester",
     enableEventEngine: true
   )
-  
   static let allPermissionsToken = "qEF2AkF0GmEI03xDdHRsGDxDcmVzpURjaGFuoWljaGFubmVsLTEY70NncnChb2NoYW5uZWxfZ3JvdXAtMQVDdXNyoENzcGOgRHV1aWShZnV1aWQtMRhoQ3BhdKVEY2hhbqFtXmNoYW5uZWwtXFMqJBjvQ2dycKF0XjpjaGFubmVsX2dyb3VwLVxTKiQFQ3VzcqBDc3BjoER1dWlkoWpedXVpZC1cUyokGGhEbWV0YaBEdXVpZHR0ZXN0LWF1dGhvcml6ZWQtdXVpZENzaWdYIPpU-vCe9rkpYs87YUrFNWkyNq8CVvmKwEjVinnDrJJc"
 }
 
@@ -60,30 +59,28 @@ extension PAMTokenTests {
   }
 
   func testSetToken() {
-    testSetToken(config: config)
-    testSetToken(config: eventEngineEnabledConfig)
+    for config in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(config.enableEventEngine)") { _ in
+        let pubnub = PubNub(configuration: config)
+        pubnub.set(token: "access-token")
+
+        XCTAssertEqual(pubnub.configuration.authToken, "access-token")
+        XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
+      }
+    }
   }
 
   func testChangeToken() {
-    testChangeToken(config: config)
-    testChangeToken(config: eventEngineEnabledConfig)
-  }
-  
-  private func testSetToken(config: PubNubConfiguration) {
-    let pubnub = PubNub(configuration: config)
-    pubnub.set(token: "access-token")
+    for config in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(config.enableEventEngine)") { _ in
+        let pubnub = PubNub(configuration: config)
+        pubnub.set(token: "access-token")
+        pubnub.set(token: "access-token-updated")
 
-    XCTAssertEqual(pubnub.configuration.authToken, "access-token")
-    XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
-  }
-  
-  private func testChangeToken(config: PubNubConfiguration) {
-    let pubnub = PubNub(configuration: config)
-    pubnub.set(token: "access-token")
-    pubnub.set(token: "access-token-updated")
-
-    XCTAssertEqual(pubnub.configuration.authToken, "access-token-updated")
-    XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token-updated")
+        XCTAssertEqual(pubnub.configuration.authToken, "access-token-updated")
+        XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token-updated")
+      }
+    }
   }
 
   // swiftlint:enable line_length

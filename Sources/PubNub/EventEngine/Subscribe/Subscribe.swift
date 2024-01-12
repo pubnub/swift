@@ -48,14 +48,14 @@ extension Subscribe {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let retryAttempt: Int
-    let reason: SubscribeError
+    let reason: PubNubError
     let connectionStatus = ConnectionStatus.disconnected
   }
   
   struct HandshakeFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let error: SubscribeError
+    let error: PubNubError
     let connectionStatus = ConnectionStatus.disconnected
   }
   
@@ -69,7 +69,7 @@ extension Subscribe {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let retryAttempt: Int
-    let reason: SubscribeError
+    let reason: PubNubError
     let connectionStatus = ConnectionStatus.connected
   }
   
@@ -82,7 +82,7 @@ extension Subscribe {
   struct ReceiveFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let error: SubscribeError
+    let error: PubNubError
     let connectionStatus = ConnectionStatus.disconnected
   }
   
@@ -100,15 +100,15 @@ extension Subscribe {
     case subscriptionChanged(channels: [String], groups: [String])
     case subscriptionRestored(channels: [String], groups: [String], cursor: SubscribeCursor)
     case handshakeSuccess(cursor: SubscribeCursor)
-    case handshakeFailure(error: SubscribeError)
+    case handshakeFailure(error: PubNubError)
     case handshakeReconnectSuccess(cursor: SubscribeCursor)
-    case handshakeReconnectFailure(error: SubscribeError)
-    case handshakeReconnectGiveUp(error: SubscribeError)
+    case handshakeReconnectFailure(error: PubNubError)
+    case handshakeReconnectGiveUp(error: PubNubError)
     case receiveSuccess(cursor: SubscribeCursor, messages: [SubscribeMessagePayload])
-    case receiveFailure(error: SubscribeError)
+    case receiveFailure(error: PubNubError)
     case receiveReconnectSuccess(cursor: SubscribeCursor, messages: [SubscribeMessagePayload])
-    case receiveReconnectFailure(error: SubscribeError)
-    case receiveReconnectGiveUp(error: SubscribeError)
+    case receiveReconnectFailure(error: PubNubError)
+    case receiveReconnectGiveUp(error: PubNubError)
     case disconnect
     case reconnect
     case unsubscribeAll
@@ -119,7 +119,7 @@ extension Subscribe {
   struct ConnectionStatusChange: Equatable {
     let oldStatus: ConnectionStatus
     let newStatus: ConnectionStatus
-    let error: SubscribeError?
+    let error: PubNubError?
   }
 }
 
@@ -140,9 +140,9 @@ extension Subscribe {
 extension Subscribe {
   enum Invocation: AnyEffectInvocation {
     case handshakeRequest(channels: [String], groups: [String])
-    case handshakeReconnect(channels: [String], groups: [String], retryAttempt: Int, reason: SubscribeError)
+    case handshakeReconnect(channels: [String], groups: [String], retryAttempt: Int, reason: PubNubError)
     case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
-    case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, retryAttempt: Int, reason: SubscribeError)
+    case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, retryAttempt: Int, reason: PubNubError)
     case emitStatus(change: Subscribe.ConnectionStatusChange)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
     

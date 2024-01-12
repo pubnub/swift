@@ -21,14 +21,18 @@ extension LegacySubscriptionSessionStrategy {
       return
     }
 
-    let timer = Timer(fireAt: Date(timeIntervalSinceNow: Double(configuration.heartbeatInterval)),
-                      interval: 0.0,
-                      target: self,
-                      selector: #selector(peformHeartbeatLoop),
-                      userInfo: nil,
-                      repeats: false)
-
-    RunLoop.main.add(timer, forMode: .common)
+    let timer = Timer(
+      fireAt: Date(timeIntervalSinceNow: Double(configuration.heartbeatInterval)),
+      interval: 0.0,
+      target: self,
+      selector: #selector(peformHeartbeatLoop),
+      userInfo: nil,
+      repeats: false
+    )
+    RunLoop.main.add(
+      timer,
+      forMode: .common
+    )
     presenceTimer = timer
   }
 

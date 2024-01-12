@@ -77,8 +77,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .handshakeRequest(
-            channels: state.input.allSubscribedChannels,
-            groups: state.input.allSubscribedGroups
+            channels: state.input.allSubscribedChannelNames,
+            groups: state.input.allSubscribedGroupNames
           )
         )
       ]
@@ -86,8 +86,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .handshakeReconnect(
-            channels: state.input.allSubscribedChannels,
-            groups: state.input.allSubscribedGroups,
+            channels: state.input.allSubscribedChannelNames,
+            groups: state.input.allSubscribedGroupNames,
             retryAttempt: state.retryAttempt,
             reason: state.reason
           )
@@ -97,8 +97,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .receiveMessages(
-            channels: state.input.allSubscribedChannels,
-            groups: state.input.allSubscribedGroups,
+            channels: state.input.allSubscribedChannelNames,
+            groups: state.input.allSubscribedGroupNames,
             cursor: state.cursor
           )
         )
@@ -107,8 +107,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .receiveReconnect(
-            channels: state.input.allSubscribedChannels,
-            groups: state.input.allSubscribedGroups,
+            channels: state.input.allSubscribedChannelNames,
+            groups: state.input.allSubscribedGroupNames,
             cursor: state.cursor,
             retryAttempt: state.retryAttempt,
             reason: state.reason
@@ -226,7 +226,7 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setHandshakeReconnectingState(
     from state: State,
-    error: SubscribeError
+    error: PubNubError
   ) -> TransitionResult<State, Invocation> {
     return TransitionResult<State, Invocation>(
       state: Subscribe.HandshakeReconnectingState(
@@ -242,7 +242,7 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setHandshakeFailedState(
     from state: State,
-    error: SubscribeError
+    error: PubNubError
   ) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Subscribe.HandshakeFailedState(
@@ -291,7 +291,7 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setReceiveReconnectingState(
     from state: State,
-    error: SubscribeError
+    error: PubNubError
   ) -> TransitionResult<State, Invocation> {
     return TransitionResult(
       state: Subscribe.ReceiveReconnectingState(
@@ -307,7 +307,7 @@ fileprivate extension SubscribeTransition {
 fileprivate extension SubscribeTransition {
   func setReceiveFailedState(
     from state: State,
-    error: SubscribeError
+    error: PubNubError
   ) -> TransitionResult<State, Invocation> {
     guard let state = state as? Subscribe.ReceiveReconnectingState else {
       return TransitionResult(state: state)

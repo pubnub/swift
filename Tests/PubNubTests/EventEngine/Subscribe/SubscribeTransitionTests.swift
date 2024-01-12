@@ -122,7 +122,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .subscriptionChanged(
         channels: ["c1", "c1", "c1-pnpres", "c2"],
@@ -180,14 +180,13 @@ class SubscribeTransitionTests: XCTestCase {
   }
   
   func test_SubscriptionChangedForHandshakeReconnectingState() throws {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
-        retryAttempt: 1, reason: reason
+        retryAttempt: 1,
+        reason: reason
       ),
       event: .subscriptionChanged(
         channels: ["c1", "c1", "c1-pnpres", "c2"],
@@ -296,7 +295,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 500100900, region: 11),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .subscriptionChanged(
         channels: ["c1", "c1", "c1-pnpres", "c2"],
@@ -367,7 +366,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 500100900, region: 11),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ),
       event: .subscriptionChanged(
         channels: ["c1", "c1", "c1-pnpres", "c2"],
@@ -454,7 +453,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 1500100900, region: 41),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ),
       event: .subscriptionRestored(
         channels: ["c1", "c1-pnpres", "c2", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -499,7 +498,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 1500100900, region: 41),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .subscriptionRestored(
         channels: ["c1", "c1-pnpres", "c2", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -613,14 +612,13 @@ class SubscribeTransitionTests: XCTestCase {
   }
 
   func test_SubscriptionRestoredForHandshakeReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
-        retryAttempt: 1, reason: reason
+        retryAttempt: 1,
+        reason: reason
       ),
       event: .subscriptionRestored(
         channels: ["c1", "c1-pnpres", "c2", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -664,7 +662,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .subscriptionRestored(
         channels: ["c1", "c1-pnpres", "c2", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -752,8 +750,8 @@ class SubscribeTransitionTests: XCTestCase {
         newStatus: .connected,
         error: nil
       ))),
-      .managed(.receiveMessages(channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+      .managed(.receiveMessages(channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         cursor: cursor
       ))
     ]
@@ -771,22 +769,22 @@ class SubscribeTransitionTests: XCTestCase {
   func test_HandshakeFailureForHandshakingState() {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
-      event: .handshakeFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .handshakeFailure(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .managed(.handshakeReconnect(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         retryAttempt: 0,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ))
     ]
     let expectedState = Subscribe.HandshakeReconnectingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 0, region: 0),
       retryAttempt: 0,
-      reason: SubscribeError(underlying: PubNubError(.unknown))
+      reason: PubNubError(.unknown)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -796,9 +794,7 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Reconnect Success
 
   func test_HandshakeReconnectSuccessForReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let cursor = SubscribeCursor(
       timetoken: 200400600,
       region: 45
@@ -807,7 +803,8 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
-        retryAttempt: 1, reason: reason
+        retryAttempt: 1,
+        reason: reason
       ),
       event: .handshakeReconnectSuccess(cursor: cursor)
     )
@@ -819,8 +816,8 @@ class SubscribeTransitionTests: XCTestCase {
         error: nil
       ))),
       .managed(.receiveMessages(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         cursor: SubscribeCursor(timetoken: 200400600, region: 45)
       ))
     ]
@@ -836,9 +833,7 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Reconnect Failure
 
   func test_HandshakeReconnectFailedForReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
@@ -846,13 +841,13 @@ class SubscribeTransitionTests: XCTestCase {
         retryAttempt: 0,
         reason: reason
       ),
-      event: .handshakeReconnectFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .handshakeReconnectFailure(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
       .managed(.handshakeReconnect(
-        channels: input.allSubscribedChannels, groups: input.allSubscribedGroups,
-        retryAttempt: 1, reason: SubscribeError(underlying: PubNubError(.unknown))
+        channels: input.allSubscribedChannelNames, groups: input.allSubscribedGroupNames,
+        retryAttempt: 1, reason: PubNubError(.unknown)
       ))
     ]
     let expectedState = Subscribe.HandshakeReconnectingState(
@@ -869,9 +864,7 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Give Up
 
   func test_HandshakeGiveUpForReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
@@ -879,20 +872,20 @@ class SubscribeTransitionTests: XCTestCase {
         retryAttempt: 3,
         reason: reason
       ),
-      event: .handshakeReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .handshakeReconnectGiveUp(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .connectionError,
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       )))
     ]
     let expectedState = Subscribe.HandshakeFailedState(
       input: input,
       cursor: SubscribeCursor(timetoken: 0, region: 0),
-      error: SubscribeError(underlying: PubNubError(.unknown))
+      error: PubNubError(.unknown)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -902,28 +895,27 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Receive Give Up
 
   func test_ReceiveGiveUpForReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
         input: input, cursor: SubscribeCursor(timetoken: 18001000, region: 123),
-        retryAttempt: 3, reason: reason
+        retryAttempt: 3,
+        reason: reason
       ),
-      event: .receiveReconnectGiveUp(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .receiveReconnectGiveUp(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
       .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnectedUnexpectedly,
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       )))
     ]
     let expectedState = Subscribe.ReceiveFailedState(
       input: input,
       cursor: SubscribeCursor(timetoken: 18001000, region: 123),
-      error: SubscribeError(underlying: PubNubError(.unknown))
+      error: PubNubError(.unknown)
     )
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -950,8 +942,8 @@ class SubscribeTransitionTests: XCTestCase {
         forCursor: SubscribeCursor(timetoken: 18002000, region: 123)
       )),
       .managed(.receiveMessages(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         cursor: SubscribeCursor(timetoken: 18002000, region: 123)
       ))
     ]
@@ -967,24 +959,22 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Receive Failed
 
   func test_ReceiveFailedForReceivingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11)
       ),
-      event: .receiveFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .receiveFailure(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
       .managed(.receiveReconnect(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
         retryAttempt: 0,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ))
     ]
     let expectedState = Subscribe.ReceiveReconnectingState(
@@ -999,9 +989,7 @@ class SubscribeTransitionTests: XCTestCase {
   }
 
   func test_ReceiveReconnectFailedForReconnectingState() {
-    let reason = SubscribeError(
-      underlying: PubNubError(.unknown)
-    )
+    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
         input: input,
@@ -1009,16 +997,16 @@ class SubscribeTransitionTests: XCTestCase {
         retryAttempt: 1,
         reason: reason
       ),
-      event: .receiveReconnectFailure(error: SubscribeError(underlying: PubNubError(.unknown)))
+      event: .receiveReconnectFailure(error: PubNubError(.unknown))
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
       .managed(.receiveReconnect(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups,
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
         retryAttempt: 2,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ))
     ]
     let expectedState = Subscribe.ReceiveReconnectingState(
@@ -1041,8 +1029,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups)
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames)
       )
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -1058,14 +1046,14 @@ class SubscribeTransitionTests: XCTestCase {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input, cursor: SubscribeCursor(timetoken: 0, region: 0),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .reconnect
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -1087,8 +1075,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -1105,14 +1093,14 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 123, region: 456),
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       event: .reconnect
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
-        channels: input.allSubscribedChannels,
-        groups: input.allSubscribedGroups
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -1154,7 +1142,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ),
       event: .disconnect
     )
@@ -1206,7 +1194,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 123, region: 456),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.unknown))
+        reason: PubNubError(.unknown)
       ),
       event: .disconnect
     )
@@ -1254,7 +1242,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.badRequest))
+        reason: PubNubError(.badRequest)
       ),
       event: .unsubscribeAll
     )
@@ -1276,7 +1264,7 @@ class SubscribeTransitionTests: XCTestCase {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input, cursor: SubscribeCursor(timetoken: 0, region: 0),
-        error: SubscribeError(underlying: PubNubError(.badRequest))
+        error: PubNubError(.badRequest)
       ),
       event: .unsubscribeAll
     )
@@ -1339,7 +1327,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 123, region: 456),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(.badRequest))
+        reason: PubNubError(.badRequest)
       ),
       event: .unsubscribeAll
     )
@@ -1362,7 +1350,7 @@ class SubscribeTransitionTests: XCTestCase {
       from: Subscribe.ReceiveFailedState(
         input: input,
         cursor: SubscribeCursor(timetoken: 123, region: 456),
-        error: SubscribeError(underlying: PubNubError(.badRequest))
+        error: PubNubError(.badRequest)
       ),
       event: .unsubscribeAll
     )

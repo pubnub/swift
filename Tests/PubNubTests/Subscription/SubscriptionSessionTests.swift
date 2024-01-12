@@ -30,111 +30,93 @@ import XCTest
 @testable import PubNub
 
 class SubscriptionSessionTests: XCTestCase {
-  var config: PubNubConfiguration!
-  var eventEngineEnabledConfig: PubNubConfiguration!
-  
+  let config = PubNubConfiguration(
+    publishKey: "FakeTestString",
+    subscribeKey: "FakeTestString",
+    userId: UUID().uuidString
+  )
+  let eeEnabledConfig = PubNubConfiguration(
+    publishKey: "FakeTestString",
+    subscribeKey: "FakeTestString",
+    userId: UUID().uuidString,
+    enableEventEngine: true
+  )
   let testChannel = "TestChannel"
   
-  override func setUp() {
-    super.setUp()
-    
-    config = PubNubConfiguration(
-      publishKey: "FakeTestString",
-      subscribeKey: "FakeTestString",
-      userId: UUID().uuidString
-    )
-    eventEngineEnabledConfig = PubNubConfiguration(
-      publishKey: "FakeTestString",
-      subscribeKey: "FakeTestString",
-      userId: UUID().uuidString,
-      enableEventEngine: true
-    )
-  }
-  
-  override func tearDown() {
-    config = nil
-    eventEngineEnabledConfig = nil
-    
-    super.tearDown()
-  }
-  
   func testSubscriptionSession_PreviousTimetokenResponse() {
-    test_PreviousTimetokenResponse(configuration: config)
-    test_PreviousTimetokenResponse(configuration: eventEngineEnabledConfig)
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
+        let messageExpect = XCTestExpectation(description: "Message Event")
+        let statusExpect = XCTestExpectation(description: "Status Event")
+
+        guard let session = try? MockURLSession.mockSession(
+          for: ["subscription_handshake_success", "subscription_message_success", "cancelled"]
+        ).session else {
+          return XCTFail("Could not create mock url session")
+        }
+
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
+        let listener = SubscriptionListener()
+        
+        listener.didReceiveMessage = { message in
+          XCTAssertEqual(
+            subscription.previousTokenResponse,
+            SubscribeCursor(timetoken: 15614817397807903, region: 2)
+          )
+          subscription.unsubscribeAll()
+          messageExpect.fulfill()
+        }
+        listener.didReceiveStatus = { status in
+          if let status = try? status.get(), status == .connected {
+            XCTAssertEqual(
+              subscription.previousTokenResponse,
+              SubscribeCursor(timetoken: 16873352451141050, region: 42)
+            )
+            statusExpect.fulfill()
+          }
+        }
+        
+        subscription.add(listener)
+        subscription.subscribe(to: [testChannel])
+
+        XCTAssertEqual(subscription.subscribedChannels, [testChannel])
+
+        defer { listener.cancel() }
+        wait(for: [messageExpect, statusExpect], timeout: 1.0)
+        
+      }
+    }
   }
   
   func testSubscriptionSession_PreviousTimetokenResponseOnError() {
-    test_PreviousTimetokenResponseOnError(configuration: config)
-    test_PreviousTimetokenResponseOnError(configuration: eventEngineEnabledConfig)
-  }
-}
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
+        let statusExpect = XCTestExpectation(description: "Status Event")
 
-fileprivate extension SubscriptionSessionTests {
-  func test_PreviousTimetokenResponse(configuration config: PubNubConfiguration) {
-    let messageExpect = XCTestExpectation(description: "Message Event")
-    let statusExpect = XCTestExpectation(description: "Status Event")
+        guard let session = try? MockURLSession.mockSession(
+          for: ["badURL", "cancelled"]
+        ).session else {
+          return XCTFail("Could not create mock url session")
+        }
 
-    guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_handshake_success", "subscription_message_success", "cancelled"]
-    ).session else {
-      return XCTFail("Could not create mock url session")
-    }
+        let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
+        let listener = SubscriptionListener()
 
-    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    let listener = SubscriptionListener()
-    
-    listener.didReceiveMessage = { message in
-      XCTAssertEqual(
-        subscription.previousTokenResponse,
-        SubscribeCursor(timetoken: 15614817397807903, region: 2)
-      )
-      subscription.unsubscribeAll()
-      messageExpect.fulfill()
-    }
-    listener.didReceiveStatus = { status in
-      if let status = try? status.get(), status == .connected {
-        XCTAssertEqual(
-          subscription.previousTokenResponse,
-          SubscribeCursor(timetoken: 16873352451141050, region: 42)
-        )
-        statusExpect.fulfill()
+        listener.didReceiveStatus = { status in
+          if case .failure(_) = status {
+            XCTAssertNil(subscription.previousTokenResponse)
+            statusExpect.fulfill()
+          }
+        }
+        
+        subscription.add(listener)
+        subscription.subscribe(to: [testChannel], at: SubscribeCursor(timetoken: 123456, region: 1))
+
+        XCTAssertEqual(subscription.subscribedChannels, [testChannel])
+
+        defer { listener.cancel() }
+        wait(for: [statusExpect], timeout: 1.0)
       }
     }
-    
-    subscription.add(listener)
-    subscription.subscribe(to: [testChannel])
-
-    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
-
-    defer { listener.cancel() }
-    wait(for: [messageExpect, statusExpect], timeout: 1.0)
-  }
-  
-  func test_PreviousTimetokenResponseOnError(configuration config: PubNubConfiguration) {
-    let statusExpect = XCTestExpectation(description: "Status Event")
-
-    guard let session = try? MockURLSession.mockSession(
-      for: ["badURL", "cancelled"]
-    ).session else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
-    let listener = SubscriptionListener()
-
-    listener.didReceiveStatus = { status in
-      if case .failure(_) = status {
-        XCTAssertNil(subscription.previousTokenResponse)
-        statusExpect.fulfill()
-      }
-    }
-    
-    subscription.add(listener)
-    subscription.subscribe(to: [testChannel], at: SubscribeCursor(timetoken: 123456, region: 1))
-
-    XCTAssertEqual(subscription.subscribedChannels, [testChannel])
-
-    defer { listener.cancel() }
-    wait(for: [statusExpect], timeout: 1.0)
   }
 }

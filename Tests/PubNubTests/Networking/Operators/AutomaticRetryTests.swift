@@ -18,7 +18,7 @@ class AutomaticRetryTests: XCTestCase {
   func testReconnectionPolicy_DefaultLinearPolicy() {
     switch defaultLinearPolicy {
     case let .linear(delay):
-      XCTAssertEqual(delay, 2)
+      XCTAssertEqual(delay, 3)
     default:
       XCTFail("Default Linear Policy should only match to linear case")
     }
@@ -26,9 +26,10 @@ class AutomaticRetryTests: XCTestCase {
 
   func testReconnectionPolicy_DefaultExponentialPolicy() {
     switch defaultExpoentialPolicy {
-    case let .exponential(minDelay, maxDelay):
-      XCTAssertEqual(minDelay, 2)
-      XCTAssertEqual(maxDelay, 150)
+    case let .legacyExponential(base, scale, max):
+      XCTAssertEqual(base, 2)
+      XCTAssertEqual(scale, 2)
+      XCTAssertEqual(max, 300)
     default:
       XCTFail("Default Exponential Policy should only match to linear case")
     }
@@ -38,101 +39,88 @@ class AutomaticRetryTests: XCTestCase {
 
   func testEquatable_Init_Valid_() {
     let testPolicy = AutomaticRetry.default
-    let automaticRetry = AutomaticRetry()
+    let policy = AutomaticRetry()
 
-    XCTAssertEqual(testPolicy, automaticRetry)
+    XCTAssertEqual(testPolicy, policy)
   }
 
-  func testEquatable_Init_Exponential_InvalidMinDelay() {
-    let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: 0, maxDelay: 30)
-    let validBasePolicy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: 2, maxDelay: 30)
-    let automaticRetry = AutomaticRetry(
+  func testEquatable_Init_Exponential_InvalidBase() {
+    let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 0,
+      scale: 3.0,
+      maxDelay: 1
+    )
+    let validBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 2, scale: 3.0, maxDelay: 1
+    )
+    let testPolicy = AutomaticRetry(
+      retryLimit: 2, policy: invalidBasePolicy, retryableHTTPStatusCodes: [], retryableURLErrorCodes: []
+    )
+
+    XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
+    XCTAssertEqual(testPolicy.policy, validBasePolicy)
+  }
+
+  func testEquatable_Init_Exponential_InvalidScale() {
+    let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 2, scale: -1.0, maxDelay: 1
+    )
+    let validBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 2, scale: 0.0, maxDelay: 1
+    )
+    let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: invalidBasePolicy,
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: []
     )
 
-    XCTAssertNotEqual(automaticRetry.policy, invalidBasePolicy)
-    XCTAssertEqual(automaticRetry.policy, validBasePolicy)
+    XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
+    XCTAssertEqual(testPolicy.policy, validBasePolicy)
   }
-  
-  func testEquatable_Init_Exponential_MinDelayGreaterThanMaxDelay() {
-    let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: 10, maxDelay: 5)
-    let validBasePolicy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: 10, maxDelay: 10)
-    let automaticRetry = AutomaticRetry(
+
+  func testEquatable_Init_Exponential_InvalidBaseAndScale() {
+    let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 0, scale: -1.0, maxDelay: 1
+    )
+    let validBasePolicy = AutomaticRetry.ReconnectionPolicy.legacyExponential(
+      base: 2, scale: 0.0, maxDelay: 1
+    )
+    let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: invalidBasePolicy,
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: []
     )
 
-    XCTAssertNotEqual(automaticRetry.policy, invalidBasePolicy)
-    XCTAssertEqual(automaticRetry.policy, validBasePolicy)
-  }
-  
-  func testEquatable_Init_Exponential_TooHighRetryLimit() {
-    let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: 5, maxDelay: 60)
-    let automaticRetry = AutomaticRetry(
-      retryLimit: 12,
-      policy: policy,
-      retryableHTTPStatusCodes: [],
-      retryableURLErrorCodes: []
-    )
-
-    XCTAssertEqual(automaticRetry.policy, policy)
-    XCTAssertEqual(automaticRetry.retryLimit, 10)
+    XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
+    XCTAssertEqual(testPolicy.policy, validBasePolicy)
   }
 
   func testEquatable_Init_Linear_InvalidDelay() {
     let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: -1.0)
     let validBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 2.0)
-    let automaticRetry = AutomaticRetry(
+    let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: invalidBasePolicy,
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: []
     )
 
-    XCTAssertNotEqual(automaticRetry.policy, invalidBasePolicy)
-    XCTAssertEqual(automaticRetry.policy, validBasePolicy)
-  }
-  
-  func testEquatable_Init_Linear_TooHighRetryLimit() {
-    let policy = AutomaticRetry.ReconnectionPolicy.linear(delay: 3.0)
-    let automaticRetry = AutomaticRetry(
-      retryLimit: 12,
-      policy: policy,
-      retryableHTTPStatusCodes: [],
-      retryableURLErrorCodes: []
-    )
-
-    XCTAssertEqual(automaticRetry.policy, policy)
-    XCTAssertEqual(automaticRetry.retryLimit, 10)
+    XCTAssertNotEqual(testPolicy.policy, invalidBasePolicy)
+    XCTAssertEqual(testPolicy.policy, validBasePolicy)
   }
 
   func testEquatable_Init_Linear_Valid() {
-    let validLinearPolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 3.0)
-    let automaticRetry = AutomaticRetry(
+    let validLinearPolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 2.0)
+    let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: validLinearPolicy,
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: []
     )
 
-    XCTAssertEqual(automaticRetry.policy, validLinearPolicy)
-  }
-
-  func testEquatable_Init_Other() {
-    let linearPolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 3.0)
-    let automaticRetry = AutomaticRetry(
-      retryLimit: 2,
-      policy: linearPolicy,
-      retryableHTTPStatusCodes: [],
-      retryableURLErrorCodes: []
-    )
-
-    XCTAssertEqual(automaticRetry.policy, linearPolicy)
+    XCTAssertEqual(testPolicy.policy, validLinearPolicy)
   }
 
   // MARK: - retry(:session:for:dueTo:completion:)
@@ -157,11 +145,11 @@ class AutomaticRetryTests: XCTestCase {
     guard let url = URL(string: "http://example.com") else {
       return XCTFail("Could not create URL")
     }
+    
     let testStatusCode = 500
-
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
-      policy: .linear(delay: 3.0),
+      policy: .linear(delay: 2.0),
       retryableHTTPStatusCodes: [testStatusCode],
       retryableURLErrorCodes: []
     )
@@ -180,7 +168,7 @@ class AutomaticRetryTests: XCTestCase {
     let testError = URLError(testURLErrorCode)
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
-      policy: .linear(delay: 3.0),
+      policy: .linear(delay: 2.0),
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: [testURLErrorCode]
     )
@@ -192,7 +180,7 @@ class AutomaticRetryTests: XCTestCase {
     let testError = URLError(.timedOut)
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
-      policy: .linear(delay: 3.0),
+      policy: .linear(delay: 2.0),
       retryableHTTPStatusCodes: [],
       retryableURLErrorCodes: []
     )
@@ -200,34 +188,71 @@ class AutomaticRetryTests: XCTestCase {
     XCTAssertFalse(testPolicy.shouldRetry(response: nil, error: testError))
   }
 
-  // MARK: - exponentialBackoffDelay(for:scale:current:)
+  // MARK: - legacyExponential(base:scale:maxDelay:)
 
-  func testExponentialBackoffDelay_DefaultScale() {
+  func testLegacyExponentialBackoffDelay_DefaultScale() {
     let maxRetryCount = 5
+    let scale = 2.0
+    let base: UInt = 3
     let maxDelay = UInt.max
-    // Usage of Range due to random delay (0...1) that's always added to the final value
-    let delayForRetry: [ClosedRange<Double>] = [2.0...3.0, 4.0...5.0, 8.0...9.0, 16.0...17.0, 32.0...33.0]
-
+    let delayForRetry = [2.0...3.0, 6.0...7.0, 18.0...19.0, 54.0...55.0, 162.0...163.0]
+    
     for count in 0..<maxRetryCount {
-      let reconnectionPolicy = AutomaticRetry.ReconnectionPolicy.exponential(
-        minDelay: 2,
-        maxDelay: maxDelay
-      )
-      XCTAssertTrue(delayForRetry[count].contains(reconnectionPolicy.delay(for: count)))
+      let policy = AutomaticRetry.ReconnectionPolicy.legacyExponential(base: base, scale: scale, maxDelay: maxDelay)
+      let delay = policy.delay(for: count)
+      XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
 
-  func testExponentialBackoffDelay_MaxDelayHit() {
-    // Usage of Range due to random delay (0...1) that's always added to the final value
-    let delayForRetry: [ClosedRange<Double>] = [2.0...3.0, 3.0...4.0, 3.0...4.0, 3.0...4.0, 3.0...4.0]
+  func testLegacyExponentialBackoffDelay_MaxDelayHit() {
     let maxRetryCount = 5
+    let scale = 2.0
+    let base: UInt = 2
+    let maxDelay: UInt = 0
+    let delayForRetry = [2.0...3.0, 2.0...3.0, 2.0...3.0, 2.0...3.0, 2.0...3.0]
 
     for count in 0..<maxRetryCount {
-      let reconnectionPolicy = AutomaticRetry.ReconnectionPolicy.exponential(
-        minDelay: 2,
-        maxDelay: 3
-      )
-      XCTAssertTrue(delayForRetry[count].contains(reconnectionPolicy.delay(for: count)))
+      let policy = AutomaticRetry.ReconnectionPolicy.legacyExponential(base: base, scale: scale, maxDelay: maxDelay)
+      let delay = policy.delay(for: count)
+      XCTAssertTrue(delayForRetry[count].contains(delay))
+    }
+  }
+  
+  // MARK: - exponentialBackoff(minDelay:maxDelay)
+  
+  func testExponentialBackoffDelay() {
+    let maxRetryCount = 5
+    let maxDelay = UInt.max
+    let delayForRetry = [2.0...3.0, 4.0...5.0, 8.0...9.0, 16.0...17.0, 32.0...33.0]
+    
+    for count in 0..<maxRetryCount {
+      let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: maxDelay)
+      let delay = policy.delay(for: count)
+      XCTAssertTrue(delayForRetry[count].contains(delay))
+    }
+  }
+  
+  func testExponentialBackoffDelay_MaxDelayHit() {
+    let maxRetryCount = 5
+    let maxDelay = 15
+    let delayForRetry = [2.0...3.0, 4.0...5.0, 8.0...9.0, 15.0...16.0, 15.0...16.0]
+    
+    for count in 0..<maxRetryCount {
+      let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: UInt(maxDelay))
+      let delay = policy.delay(for: count)
+      XCTAssertTrue(delayForRetry[count].contains(delay))
+    }
+  }
+  
+  func testExponentialBackoffDelay_MinDelayHit() {
+    let maxRetryCount = 5
+    let maxDelay = UInt.max
+    let delayForRetry = [8.0...9.0, 16...17, 32.0...33.0, 64.0...65.0, 128.0...129.0]
+    
+    for count in 0..<maxRetryCount {
+      let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(8.0), maxDelay: UInt(maxDelay))
+      let delay = policy.delay(for: count)
+      XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
 }

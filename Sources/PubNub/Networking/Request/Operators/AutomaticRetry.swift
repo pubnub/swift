@@ -30,16 +30,22 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   static let minDelay: UInt = 2
   
   /// Provides the action taken when a retry is to be performed
-  public enum ReconnectionPolicy: Hashable {
+  public enum ReconnectionPolicy: Hashable, Equatable {
     /// Exponential backoff with base/scale factor of 2, and a 150s max delay
-    public static let defaultExponential: ReconnectionPolicy = .exponential(minDelay: minDelay, maxDelay: 150)
-    /// Linear reconnect every 2 seconds
-    public static let defaultLinear: ReconnectionPolicy = .linear(delay: Double(minDelay))
+    public static let defaultExponential: ReconnectionPolicy = .legacyExponential(base: 2, scale: 2, maxDelay: 300)
+    /// Linear reconnect every 3 seconds
+    public static let defaultLinear: ReconnectionPolicy = .linear(delay: Double(3))
 
+    /// Reconnect with an exponential backoff
+    @available(*, unavailable, renamed: "legacyExponential(base:scale:maxDelay:)")
+    case exponential(base: UInt, scale: Double, maxDelay: UInt)
     /// Reconnect with an exponential backoff
     case exponential(minDelay: UInt, maxDelay: UInt)
     /// Attempt to reconnect every X seconds
     case linear(delay: Double)
+    /// Reconnect with an exponential backoff
+    @available(*, deprecated, message: "Use exponential(minDelay:maxDelay:) instead")
+    case legacyExponential(base: UInt, scale: Double, maxDelay: UInt)
 
     func delay(for retryAttempt: Int) -> TimeInterval {
       /// Generates a random interval that's added to the final value
@@ -47,28 +53,30 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       let randomDelay = Double.random(in: 0...1)
       
       switch self {
+      case let .legacyExponential(base, scale, maxDelay):
+        return legacyExponentialBackoffDelay(for: base, scale: scale, maxDelay: maxDelay, current: retryAttempt) + randomDelay
       case let .exponential(minDelay, maxDelay):
-        return exponentialBackoffDelay(minDelay: minDelay, maxDelay: maxDelay, current: retryAttempt) + randomDelay
+        return min(Double(maxDelay), Double(minDelay) * pow(2, Double(retryAttempt))) + randomDelay
       case let .linear(delay):
         return delay + randomDelay
       }
     }
 
-    func exponentialBackoffDelay(minDelay: UInt, maxDelay: UInt, current retryCount: Int) -> Double {
-      return min(Double(maxDelay), Double(minDelay) * pow(2, Double(retryCount)))
+    func legacyExponentialBackoffDelay(for base: UInt, scale: Double, maxDelay: UInt, current retryCount: Int) -> Double {
+      max(min(pow(Double(base), Double(retryCount)) * scale, Double(maxDelay)), Double(AutomaticRetry.minDelay))
     }
   }
   
-  /// List of known endpoint groups (by context)
+  /// List of known endpoint groups (by context) possible to retry
   public enum Endpoint {
     /// Sending a message
     case messageSend
-    /// Subscribing to channels and channel groups to receive realtime updates
+    /// Subscribing to channels and channel groups
     case subscribe
-    /// Groups Presence related methods
+    /// Presence related methods
     case presence
-    /// Groups Files related methods
-    /// - Important: Downloading and uploading a File isn't included
+    /// List Files, publish a File, remove a File
+    /// - Important: File download and upload aren't part of retrying.
     case files
     /// History related methods
     case messageStorage
@@ -126,41 +134,54 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       .messageActions
     ]
   ) {
+    self.retryLimit = Self.validate(
+      value: UInt(retryLimit),
+      using: retryLimit < 10,
+      replaceOnFailure: UInt(10),
+      warningMessage: "The `retryLimit` must be less than or equal 10"
+    )
+    
     switch policy {
     case let .exponential(minDelay, maxDelay):
-      var finalMinDelay: UInt = minDelay
-      var finalMaxDelay: UInt = maxDelay
-      var finalRetryLimit: UInt = retryLimit
-      
-      if finalRetryLimit > 10 {
-        PubNub.log.warn("The `retryLimit` for exponential policy must be less than or equal 10")
-        finalRetryLimit = 10
-      }
-      if finalMinDelay < Self.minDelay {
-        PubNub.log.warn("The `minDelay` must be a minimum of \(Self.minDelay)")
-        finalMinDelay = Self.minDelay
-      }
-      if finalMinDelay > finalMaxDelay {
-        PubNub.log.warn("The `minDelay` \"\(minDelay)\" must be greater or equal `maxDelay` \"\(maxDelay)\"")
-        finalMaxDelay = minDelay
-      }
-      self.retryLimit = finalRetryLimit
-      self.policy = .exponential(minDelay: finalMinDelay, maxDelay: finalMaxDelay)
-      
+      let validatedMinDelay = Self.validate(
+        value: minDelay,
+        using: minDelay > Self.minDelay,
+        replaceOnFailure: Self.minDelay,
+        warningMessage: "The `minDelay` must be a minimum of \(Self.minDelay)"
+      )
+      let validatedMaxDelay = Self.validate(
+        value: maxDelay,
+        using: maxDelay >= minDelay,
+        replaceOnFailure: Self.minDelay,
+        warningMessage: "The `maxDelay` must be greater than or equal \(Self.minDelay)"
+      )
+      self.policy = .exponential(
+        minDelay: validatedMinDelay,
+        maxDelay: validatedMaxDelay
+      )
     case let .linear(delay):
-      var finalRetryLimit = retryLimit
-      var finalDelay = delay
-      
-      if finalRetryLimit > 10 {
-        PubNub.log.warn("The `retryLimit` for linear policy must be less than or equal 10")
-        finalRetryLimit = 10
-      }
-      if finalDelay < 0 || UInt(finalDelay) < Self.minDelay {
-        PubNub.log.warn("The `linear.delay` must be greater than or equal \(Self.minDelay).")
-        finalDelay = Double(Self.minDelay)
-      }
-      self.retryLimit = finalRetryLimit
-      self.policy = .linear(delay: finalDelay)
+      self.policy = .linear(delay: Self.validate(
+        value: delay,
+        using: delay >= Double(Self.minDelay),
+        replaceOnFailure: Double(Self.minDelay),
+        warningMessage: "The `linear.delay` must be greater than or equal \(Self.minDelay)."
+      ))
+    case let .legacyExponential(base, scale, maxDelay):
+      self.policy = .legacyExponential(
+        base: Self.validate(
+          value: base,
+          using: base >= 2,
+          replaceOnFailure: 2,
+          warningMessage: "The `exponential.base` must be a minimum of 2."
+        ),
+        scale: Self.validate(
+          value: scale,
+          using: scale > 0,
+          replaceOnFailure: 0,
+          warningMessage: "The `exponential.scale` must be a positive value."
+        ),
+        maxDelay: maxDelay
+      )
     }
     
     self.retryableHTTPStatusCodes = retryableHTTPStatusCodes
@@ -202,5 +223,14 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       return true
     }
     return false
+  }
+}
+
+private extension AutomaticRetry {
+  static func validate<T>(value: T, using condition: Bool, replaceOnFailure: T, warningMessage message: String) -> T {
+    guard condition else {
+      PubNub.log.warn(message); return replaceOnFailure
+    }
+    return value
   }
 }

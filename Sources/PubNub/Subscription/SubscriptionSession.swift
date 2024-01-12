@@ -10,7 +10,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "Subscribe and unsubscribe using methods from PubNub object")
+@available(*, deprecated, message: "Subscribe and unsubscribe using methods from a PubNub object")
 public class SubscriptionSession {
   /// An unique identifier for subscription session
   public var uuid: UUID {
@@ -18,7 +18,7 @@ public class SubscriptionSession {
   }
   
   /// PSV2 feature to subscribe with a custom filter expression.
-  @available(*, deprecated, message: "Use `subscribeFilterExpression` from PubNub object")
+  @available(*, deprecated, message: "Use `subscribeFilterExpression` from a PubNub object")
   public var filterExpression: String? {
     get {
       strategy.filterExpression

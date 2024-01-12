@@ -16,7 +16,7 @@ struct EmitStatusEffect: EffectHandler {
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     if let error = statusChange.error {
       listeners.forEach {
-        $0.emit(subscribe: .errorReceived(error.underlying))
+        $0.emit(subscribe: .errorReceived(error))
       }
     }
     listeners.forEach {

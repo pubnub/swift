@@ -23,9 +23,8 @@ class SubscribeRequest {
   
   private var request: RequestReplaceable?
     
-  var retryLimit: UInt {
-    configuration.automaticRetry?.retryLimit ?? 0
-  }
+  var retryLimit: UInt { configuration.automaticRetry?.retryLimit ?? 0 }
+  var onAuthChallengeReceived: (() -> Void)?
   
   init(
     configuration: SubscriptionConfiguration,
@@ -45,9 +44,15 @@ class SubscribeRequest {
     self.region = region
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
+    
+    if let sessionListener = session.sessionStream as? SessionListener {
+      sessionListener.sessionDidReceiveChallenge = { [weak self] _, _ in
+        self?.onAuthChallengeReceived?()
+      }
+    }
   }
   
-  func reconnectionDelay(dueTo error: SubscribeError, with retryAttempt: Int) -> TimeInterval? {
+  func reconnectionDelay(dueTo error: PubNubError, retryAttempt: Int) -> TimeInterval? {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
@@ -57,17 +62,20 @@ class SubscribeRequest {
     guard automaticRetry.retryLimit > retryAttempt else {
       return nil
     }
-    guard let underlyingError = error.underlying.underlying else {
+    guard let underlyingError = error.underlying else {
       return automaticRetry.policy.delay(for: retryAttempt)
     }
+    guard let urlResponse = error.affected.findFirst(by: PubNubError.AffectedValue.response) else {
+      return nil
+    }
     let shouldRetry = automaticRetry.shouldRetry(
-      response: error.urlResponse,
+      response: urlResponse,
       error: underlyingError
     )
     return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
   }
         
-  func execute(onCompletion: @escaping (Result<SubscribeResponse, SubscribeError>) -> Void) {
+  func execute(onCompletion: @escaping (Result<SubscribeResponse, PubNubError>) -> Void) {
     let router = SubscribeRouter(
       .subscribe(
         channels: channels,
@@ -87,21 +95,19 @@ class SubscribeRequest {
     request?.validate().response(
       on: sessionResponseQueue,
       decoder: SubscribeDecoder(),
-      completion: { [weak self] result in
+      completion: { result in
         switch result {
         case .success(let response):
           onCompletion(.success(response.payload))
         case .failure(let error):
-          onCompletion(.failure(SubscribeError(
-            underlying: error as? PubNubError ?? PubNubError(.unknown, underlying: error),
-            urlResponse: self?.request?.urlResponse
-          )))
+          onCompletion(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))
         }
       }
     )
   }
   
   func cancel() {
+    onAuthChallengeReceived = nil
     request?.cancel(PubNubError(.clientCancelled))
   }
   

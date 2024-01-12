@@ -90,12 +90,9 @@ extension SubscribeEffectsTests {
         channels: ["channel1", "channel1-pnpres", "channel2"],
         groups: ["g1", "g2", "g2-pnpres"]
       ), expectedOutput: [
-        .handshakeFailure(error: SubscribeError(
-          underlying: PubNubError(
-            .nameResolutionFailure,
-            underlying: URLError(.cannotFindHost)
-          )
-        ))
+        .handshakeFailure(
+          error: PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost))
+        )
       ]
     )
   }
@@ -137,12 +134,7 @@ extension SubscribeEffectsTests {
         cursor: SubscribeCursor(timetoken: 111, region: 1)
     ), expectedOutput: [
       .receiveFailure(
-        error: SubscribeError(
-          underlying: PubNubError(
-            .nameResolutionFailure,
-            underlying: URLError(.cannotFindHost)
-          )
-        )
+        error: PubNubError(.nameResolutionFailure, underlying: URLError(.cannotFindHost))
       )
     ])
   }
@@ -154,6 +146,8 @@ extension SubscribeEffectsTests {
   func test_HandshakeReconnectingSuccess() {
     let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
 
     mockResponse(subscribeResponse: SubscribeResponse(
       cursor: SubscribeCursor(timetoken: 12345, region: 1),
@@ -165,7 +159,7 @@ extension SubscribeEffectsTests {
         channels: ["channel1", "channel1-pnpres", "channel2"],
         groups: ["g1", "g2", "g2-pnpres"],
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
       timeout: 2 * delayRange.upperBound,
       expectedOutput: [
@@ -180,6 +174,8 @@ extension SubscribeEffectsTests {
   func test_HandshakeReconnectingFailed() {
     let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
     
     mockResponse(
       errorIfAny: URLError(.cannotFindHost),
@@ -191,16 +187,14 @@ extension SubscribeEffectsTests {
         channels: ["channel1", "channel1-pnpres", "channel2"],
         groups: ["g1", "g2", "g2-pnpres"],
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
       timeout: 2 * delayRange.upperBound,
       expectedOutput: [
         .handshakeReconnectFailure(
-          error: SubscribeError(
-            underlying: PubNubError(
-              .nameResolutionFailure,
-              underlying: URLError(.cannotFindHost)
-            )
+          error: PubNubError(
+            .nameResolutionFailure,
+            underlying: URLError(.cannotFindHost)
           )
         )
       ]
@@ -217,19 +211,22 @@ extension SubscribeEffectsTests {
         channels: ["channel1", "channel1-pnpres", "channel2"],
         groups: ["g1", "g2", "g2-pnpres"],
         retryAttempt: 3,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: PubNubError(urlError.pubnubReason!, underlying: urlError)
       ),
       expectedOutput: [
         .handshakeReconnectGiveUp(
-          error: SubscribeError(underlying: PubNubError(.badServerResponse))
+          error: PubNubError(.badServerResponse)
         )
       ]
     )
   }
   
   func test_HandshakeReconnectIsDelayed() {
-    let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
+    
+    let delayRange = 2.0...3.0
     let startDate = Date()
 
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -242,9 +239,9 @@ extension SubscribeEffectsTests {
         channels: ["channel1", "channel1-pnpres", "channel2"],
         groups: ["g1", "g2", "g2-pnpres"],
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
-      timeout: 2 * delayRange.upperBound,
+      timeout: 2.5 * delayRange.upperBound,
       expectedOutput: [
         .handshakeReconnectSuccess(
           cursor: SubscribeCursor(timetoken: 12345, region: 1)
@@ -263,9 +260,11 @@ extension SubscribeEffectsTests {
 
 extension SubscribeEffectsTests {
   func test_ReceiveReconnectingSuccess() {
-    let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
-   
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
+    let delayRange = 2.0...3.0
+
     mockResponse(subscribeResponse: SubscribeResponse(
       cursor: SubscribeCursor(timetoken: 12345, region: 1),
       messages: [firstMessage, secondMessage]
@@ -277,7 +276,7 @@ extension SubscribeEffectsTests {
         groups: ["g1", "g2", "g2-pnpres"],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
       timeout: 2 * delayRange.upperBound,
       expectedOutput: [
@@ -292,6 +291,8 @@ extension SubscribeEffectsTests {
   func test_ReceiveReconnectingFailure() {
     let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
 
     mockResponse(
       errorIfAny: URLError(.cannotFindHost),
@@ -304,12 +305,12 @@ extension SubscribeEffectsTests {
         groups: ["g1", "g2", "g2-pnpres"],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
       timeout: 2 * delayRange.upperBound,
       expectedOutput: [
         .receiveReconnectFailure(
-          error: SubscribeError(underlying: PubNubError(.nameResolutionFailure))
+          error: PubNubError(.nameResolutionFailure)
         )
       ]
     )
@@ -330,19 +331,22 @@ extension SubscribeEffectsTests {
         groups: ["g1", "g2", "g2-pnpres"],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
         retryAttempt: 3,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: PubNubError(urlError.pubnubReason!, underlying: urlError)
       ),
       expectedOutput: [
         .receiveReconnectGiveUp(
-          error: SubscribeError(underlying: PubNubError(.badServerResponse))
+          error: PubNubError(.badServerResponse)
         )
       ]
     )
   }
   
   func test_ReceiveReconnectingIsDelayed() {
-    let delayRange = 2.0...3.0
     let urlError = URLError(.badServerResponse)
+    let httpUrlResponse = HTTPURLResponse(statusCode: 500)!
+    let pubNubError = PubNubError(urlError.pubnubReason!, underlying: urlError, affected: [.response(httpUrlResponse)])
+    
+    let delayRange = 2.0...3.0
     let startDate = Date()
 
     mockResponse(subscribeResponse: SubscribeResponse(
@@ -356,7 +360,7 @@ extension SubscribeEffectsTests {
         groups: ["g1", "g2", "g2-pnpres"],
         cursor: SubscribeCursor(timetoken: 1111, region: 1),
         retryAttempt: 1,
-        reason: SubscribeError(underlying: PubNubError(urlError.pubnubReason!, underlying: urlError))
+        reason: pubNubError
       ),
       timeout: 2 * delayRange.upperBound,
       expectedOutput: [

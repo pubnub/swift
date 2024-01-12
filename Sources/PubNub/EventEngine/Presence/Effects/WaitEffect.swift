@@ -10,29 +10,27 @@
 
 import Foundation
 
-class WaitEffect: DelayedEffectHandler {
-  typealias Event = Presence.Event
-  
-  private let configuration: SubscriptionConfiguration
-  var workItem: DispatchWorkItem?
+class WaitEffect: EffectHandler {
+  private let timerEffect: TimerEffect?
   
   init(configuration: SubscriptionConfiguration) {
-    self.configuration = configuration
-  }
-
-  func delayInterval() -> TimeInterval? {
-    configuration.heartbeatInterval > 0 ? TimeInterval(configuration.heartbeatInterval) : nil
-  }
-  
-  func onEarlyExit(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
-    completionBlock([])
+    if configuration.heartbeatInterval > 0 {
+      self.timerEffect = TimerEffect(interval: TimeInterval(configuration.heartbeatInterval))
+    } else {
+      self.timerEffect = nil
+    }
   }
   
-  func onDelayExpired(notify completionBlock: @escaping ([Presence.Event]) -> Void) {
-    completionBlock([.timesUp])
+  func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
+    guard let timerEffect = timerEffect else {
+      completionBlock([]); return
+    }
+    timerEffect.performTask(completionBlock: { _ in
+      completionBlock([.timesUp])
+    })
   }
   
   func cancelTask() {
-    workItem?.cancel()
+    timerEffect?.cancelTask()
   }
 }

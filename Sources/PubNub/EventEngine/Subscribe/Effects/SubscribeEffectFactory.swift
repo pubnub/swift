@@ -43,7 +43,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        )
+        ), listeners: dependencies.value.listeners
       )
     case .handshakeReconnect(let channels, let groups, let retryAttempt, let reason):
       return HandshakeReconnectEffect(
@@ -55,7 +55,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        ),
+        ), listeners: dependencies.value.listeners,
         error: reason,
         retryAttempt: retryAttempt
       )
@@ -70,7 +70,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           region: cursor.region,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        )
+        ), listeners: dependencies.value.listeners
       )
     case .receiveReconnect(let channels, let groups, let cursor, let retryAttempt, let reason):
       return ReceiveReconnectEffect(
@@ -83,7 +83,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           region: cursor.region,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        ),
+        ), listeners: dependencies.value.listeners,
         error: reason,
         retryAttempt: retryAttempt
       )

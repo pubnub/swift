@@ -78,7 +78,7 @@ class EmitStatusTests: XCTestCase {
       statusChange: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .connected,
-        error: SubscribeError(underlying: PubNubError(.unknown))
+        error: PubNubError(.unknown)
       ),
       listeners: listeners
     )

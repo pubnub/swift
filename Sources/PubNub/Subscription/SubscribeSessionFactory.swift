@@ -22,7 +22,7 @@ import Foundation
 ///
 /// - Important: Having multiple `SubscriptionSession` instances will result in
 /// increase network usage and battery drain.
-@available(*, deprecated, message: "Use methods from PubNub object to subscribe/unsubscribe")
+@available(*, deprecated, message: "Use methods from a PubNub object to subscribe/unsubscribe")
 public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
@@ -134,7 +134,7 @@ public class SubscribeSessionFactory {
 // MARK: - SubscriptionConfiguration
 
 /// The configuration used to determine the uniqueness of a `SubscriptionSession`
-@available(*, deprecated, message: "Use PubNub object with PubNubConfiguration that matches the parameters below")
+@available(*, deprecated, message: "Use a PubNub object with PubNubConfiguration that matches the parameters below")
 public protocol SubscriptionConfiguration: RouterConfiguration {
   /// Reconnection policy which will be used if/when a request fails
   var automaticRetry: AutomaticRetry? { get }

@@ -52,8 +52,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ),
         retryAttempt: retryAttempt,
-        reason: reason,
-        configuration: dependencies.value.configuration
+        reason: reason
       )
     case .leave(let channels, let groups):
       return LeaveEffect(

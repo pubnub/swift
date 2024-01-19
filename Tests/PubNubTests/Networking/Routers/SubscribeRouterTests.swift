@@ -198,23 +198,18 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testSubscribe_Message() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_message_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_message_success", "cancelled"])
-    ]
-    
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let messageExpect = XCTestExpectation(description: "Message Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_message_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveMessage = { [weak self] message in
@@ -236,7 +231,7 @@ extension SubscribeRouterTests {
         XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
-        wait(for: [messageExpect, statusExpect], timeout: 1.0)
+        wait(for: [messageExpect, statusExpect], timeout: 33.0)
       }
     }
   }
@@ -246,24 +241,19 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testSubscribe_Presence() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_presence_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_presence_success", "cancelled"])
-    ]
-    
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let presenceExpect = XCTestExpectation(description: "Presence Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_presence_success", "cancelled"]
         ).session
         else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceivePresence = { [weak self] presence in
@@ -297,23 +287,18 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testSubscribe_Signal() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_signal_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_signal_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let signalExpect = XCTestExpectation(description: "Signal Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_signal_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSignal = { [weak self] signal in
@@ -348,19 +333,14 @@ extension SubscribeRouterTests {
 extension SubscribeRouterTests {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Set() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_uuidSet_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_uuidSet_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_uuidSet_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
@@ -373,7 +353,7 @@ extension SubscribeRouterTests {
           eTag: "UserUpdateEtag"
         )
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { event in
@@ -425,24 +405,19 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Removed() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_uuidRemove_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_uuidRemove_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_uuidRemove_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { event in
@@ -492,19 +467,14 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next function_body_length
   func testSubscribe_ChannelMetadata_Set() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_channelSet_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_channelSet_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_channelSet_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
@@ -568,24 +538,19 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_ChannelMetadata_Removed() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_channelRemove_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_channelRemove_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_channelRemove_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { event in
@@ -635,24 +600,19 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Set() {
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: ["subscription_membershipSet_success", "cancelled"]),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success", "subscription_membershipSet_success", "cancelled"])
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_membershipSet_success", "cancelled"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
         let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
         let testMembership = PubNubMembershipMetadataBase(
@@ -708,20 +668,14 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Removed() {
-    let urlAssets = ["subscription_membershipRemove_success", "leave_success"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_membershipRemove_success", "leave_success"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
@@ -786,25 +740,19 @@ extension SubscribeRouterTests {
 extension SubscribeRouterTests {
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_MessageAction_Added() {
-    let urlAssets = ["subscription_addMessageAction_success", "leave_success"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let actionExpect = XCTestExpectation(description: "Message Action Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_addMessageAction_success", "leave_success"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { [weak self] event in
@@ -854,25 +802,19 @@ extension SubscribeRouterTests {
 
   // swiftlint:disable:next cyclomatic_complexity function_body_length
   func testSubscribe_MessageAction_Removed() {
-    let urlAssets = ["subscription_removeMessageAction_success", "leave_success"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let actionExpect = XCTestExpectation(description: "Message Action Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_removeMessageAction_success", "leave_success"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { [weak self] event in
@@ -925,26 +867,20 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testSubscribe_Mixed() {
-    let urlAssets = ["subscription_mixed_success", "leave_success"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-     (config: config, urlAssets: urlAssets),
-     (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let messageExpect = XCTestExpectation(description: "Message Event")
         let presenceExpect = XCTestExpectation(description: "Presence Event")
         let signalExpect = XCTestExpectation(description: "Signal Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets
+          for: ["subscription_handshake_success", "subscription_mixed_success", "leave_success"]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
 
         let listener = SubscriptionListener()
         var payloadCount = 0
@@ -981,7 +917,7 @@ extension SubscribeRouterTests {
         XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
-        wait(for: [signalExpect, statusExpect], timeout: 33.0)
+        wait(for: [signalExpect, statusExpect], timeout: 1.0)
       }
     }
   }
@@ -991,14 +927,8 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testInvalidJSONResponse() {
-    let urlAssets = ["cancelled"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-    
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         // swiftlint:disable:next line_length
         let corruptBase64Response = "eyJ0Ijp7InQiOiIxNTkxMjE4MzQ0MTUyNjM1MCIsInIiOjF9LCJtIjpbeyJhIjoiMyIsImYiOjUxMiwicCI6eyJ0IjoiMTU5MTIxODM0NDE1NTQyMDAiLCJyIjoxfSwiayI6ImRlbW8tMzYiLCJjIjoic3dpZnRJbnZhbGlkSlNPTi7/IiwiZCI6ImhlbGxvIiwiYiI6InN3aWZ0SW52YWxpZEpTT04uKiJ9XX0="
 
@@ -1010,13 +940,13 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
 
         guard let session = try? MockURLSession.mockSession(
-          for: testData.urlAssets,
+          for: ["subscription_handshake_success", "cancelled"],
           raw: [corruptedData]
         ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { event in
@@ -1052,22 +982,18 @@ extension SubscribeRouterTests {
 
 extension SubscribeRouterTests {
   func testUnsubscribe() {
-    let urlAssets = ["subscription_mixed_success", "cancelled"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-    
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let statusExpect = XCTestExpectation(description: "Status Event")
         statusExpect.expectedFulfillmentCount = 2
 
-        guard let session = try? MockURLSession.mockSession(for: testData.urlAssets).session else {
+        guard let session = try? MockURLSession.mockSession(
+          for: ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]
+        ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { [unowned self] event in
@@ -1109,21 +1035,17 @@ extension SubscribeRouterTests {
   }
 
   func testUnsubscribeAll() {
-    let urlAssets = ["subscription_mixed_success", "cancelled"]
-    let testCases: [(config: PubNubConfiguration, urlAssets: [String])] = [
-      (config: config, urlAssets: urlAssets),
-      (config: eeEnabledConfig, urlAssets: ["subscription_handshake_success"] + urlAssets)
-    ]
-    
-    testCases.forEach { testData in
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(testData.config)") { _ in
+    for configuration in [config, eeEnabledConfig] {
+      XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let statusExpect = XCTestExpectation(description: "Status Event")
 
-        guard let session = try? MockURLSession.mockSession(for: testData.urlAssets).session else {
+        guard let session = try? MockURLSession.mockSession(
+          for: ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]
+        ).session else {
           return XCTFail("Could not create mock url session")
         }
 
-        let subscription = SubscribeSessionFactory.shared.getSession(from: testData.config, with: session)
+        let subscription = SubscribeSessionFactory.shared.getSession(from: configuration, with: session)
         let otherChannel = "OtherChannel"
         let listener = SubscriptionListener()
         

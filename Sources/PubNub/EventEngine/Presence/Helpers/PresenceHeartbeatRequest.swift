@@ -14,7 +14,6 @@ import Foundation
 
 class PresenceStateContainer {
   private var channelStates: Atomic<[String: [String: JSONCodableScalar]]> = Atomic([:])
-  private var channelGroupStates: Atomic<[String: [String: JSONCodableScalar]]> = Atomic([:])
   
   static var shared: PresenceStateContainer = PresenceStateContainer()
   private init() {}
@@ -27,14 +26,6 @@ class PresenceStateContainer {
     }
   }
   
-  func registerState(_ state: [String: JSONCodableScalar], forChannelGroups groups: [String]) {
-    channelGroupStates.lockedWrite { channelGroupStates in
-      groups.forEach {
-        channelGroupStates[$0] = state
-      }
-    }
-  }
-  
   func removeState(forChannels channels: [String]) {
     channelStates.lockedWrite { channelStates in
       channels.map {
@@ -43,26 +34,10 @@ class PresenceStateContainer {
     }
   }
   
-  func removeState(forGroups groups: [String]) {
-    channelGroupStates.lockedWrite { channelGroupStates in
-      groups.map {
-        channelGroupStates[$0] = nil
-      }
-    }
-  }
-  
   func getStates(forChannels channels: [String]) -> [String: [String: JSONCodableScalar]] {
     channelStates.lockedRead {
       $0.filter {
         channels.contains($0.key)
-      }
-    }
-  }
-  
-  func getStates(forGroups channelGroups: [String]) -> [String: [String: JSONCodableScalar]] {
-    channelGroupStates.lockedRead {
-      $0.filter {
-        channelGroups.contains($0.key)
       }
     }
   }

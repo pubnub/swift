@@ -92,17 +92,8 @@ class HandshakeReconnectEffect: EffectHandler {
   }
   
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    subscribeEffect.listeners.forEach {
-      $0.emit(subscribe: .connectionChanged(.reconnecting))
-    }
     guard let timerEffect = timerEffect else {
       completionBlock([.handshakeReconnectGiveUp(error: error)]); return
-    }
-    subscribeEffect.request.onAuthChallengeReceived = { [weak self] in
-      // Delay time for server to process connection after TLS handshake
-      DispatchQueue.global(qos: .default).asyncAfter(deadline: DispatchTime.now() + 0.05) {
-        self?.subscribeEffect.listeners.forEach { $0.emit(subscribe: .connectionChanged(.connected)) }
-      }
     }
     timerEffect.performTask { [weak self] _ in
       self?.subscribeEffect.performTask(completionBlock: completionBlock)

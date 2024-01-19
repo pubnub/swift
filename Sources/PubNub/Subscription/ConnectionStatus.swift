@@ -48,29 +48,31 @@ public enum ConnectionStatus: Equatable {
   
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
-    case (.connecting, .reconnecting):
-      return false
-    case (.connecting, _):
+    case (.connecting, .connected):
       return true
-    case (.connected, .connecting):
-      return false
-    case (.connected, _):
+    case (.connecting, .disconnected):
       return true
-    case (.reconnecting, .connecting):
-      return false
-    case (.reconnecting, _):
+    case (.connecting, .disconnectedUnexpectedly):
+      return true
+    case (.connecting, .connectionError):
+      return true
+    case (.connected, .disconnected):
+      return true
+    case (.reconnecting, .connected):
+      return true
+    case (.reconnecting, .disconnected):
+      return true
+    case (.reconnecting, .disconnectedUnexpectedly):
+      return true
+    case (.reconnecting, .connectionError):
       return true
     case (.disconnected, .connecting):
       return true
-    case (.disconnected, _):
-      return false
     case (.disconnectedUnexpectedly, .connecting):
       return true
-    case (.disconnectedUnexpectedly, _):
-      return false
     case (.connectionError, .connecting):
       return true
-    case (.connectionError, _):
+    default:
       return false
     }
   }

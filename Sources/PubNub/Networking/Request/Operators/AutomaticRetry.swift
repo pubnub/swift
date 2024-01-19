@@ -204,7 +204,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     let retryAfterValue = urlResponse?.allHeaderFields[Constant.retryAfterHeaderKey]
     
     if let retryAfterValue = retryAfterValue as? TimeInterval {
-      return completion(.success(retryAfterValue))
+      return completion(.success(retryAfterValue + Double.random(in: 0...1)))
     } else {
       return completion(.success(policy.delay(for: request.retryCount)))
     }

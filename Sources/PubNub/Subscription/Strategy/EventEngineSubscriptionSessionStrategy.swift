@@ -148,19 +148,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
 
   func reconnect(at cursor: SubscribeCursor?) {
-    let input = subscribeEngine.state.input
-    let channels = input.allSubscribedChannelNames
-    let groups = input.allSubscribedGroupNames
-    
-    if let cursor = cursor {
-      sendSubscribeEvent(event: .subscriptionRestored(
-        channels: channels,
-        groups: groups,
-        cursor: cursor
-      ))
-    } else {
-      sendSubscribeEvent(event: .reconnect)
-    }
+    sendSubscribeEvent(event: .reconnect(cursor: cursor))
   }
 
   func disconnect() {
@@ -180,7 +168,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     if newInput != currentInput {
       if configuration.maintainPresenceState {
         presenceStateContainer.removeState(forChannels: channels)
-        presenceStateContainer.removeState(forGroups: groups)
       }
       sendSubscribeEvent(event: .subscriptionChanged(
         channels: newInput.allSubscribedChannelNames,

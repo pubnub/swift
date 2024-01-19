@@ -73,7 +73,6 @@ public struct PubNubConfiguration: Hashable {
   ///   - filterExpression: PSV2 feature to subscribe with a custom filter expression.
   ///   - enableEventEngine: Whether to enable a new, experimental implementation of Subscription and Presence handling
   ///   - maintainPresenceState: Whether to automatically resend the last Presence channel state,
-  ///    applies only if `heartbeatInterval` is greater than 0 and `enableEventEngine` is true
   public init(
     publishKey: String?,
     subscribeKey: String,
@@ -94,7 +93,7 @@ public struct PubNubConfiguration: Hashable {
     requestMessageCountThreshold: UInt = 100,
     filterExpression: String? = nil,
     enableEventEngine: Bool = false,
-    maintainPresenceState: Bool = false
+    maintainPresenceState: Bool = true
   ) {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UserId should not be empty.")

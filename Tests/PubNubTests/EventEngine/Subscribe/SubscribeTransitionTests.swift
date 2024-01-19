@@ -745,8 +745,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .connected,
         error: nil
       ))),
@@ -810,8 +810,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .connected,
         error: nil
       ))),
@@ -876,8 +876,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .connectionError,
         error: PubNubError(.unknown)
       )))
@@ -906,7 +906,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnectedUnexpectedly,
         error: PubNubError(.unknown)
@@ -1025,7 +1025,7 @@ class SubscribeTransitionTests: XCTestCase {
   func test_ReconnectForHandshakeStoppedState() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeStoppedState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
-      event: .reconnect
+      event: .reconnect(cursor: nil)
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
@@ -1048,7 +1048,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input, cursor: SubscribeCursor(timetoken: 0, region: 0),
         error: PubNubError(.unknown)
       ),
-      event: .reconnect
+      event: .reconnect(cursor: nil)
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
@@ -1071,7 +1071,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 123, region: 456)
       ),
-      event: .reconnect
+      event: .reconnect(cursor: nil)
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
@@ -1095,7 +1095,7 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 123, region: 456),
         error: PubNubError(.unknown)
       ),
-      event: .reconnect
+      event: .reconnect(cursor: nil)
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
@@ -1121,8 +1121,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1148,8 +1148,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1173,7 +1173,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnected,
         error: nil
@@ -1200,7 +1200,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnected,
         error: nil
@@ -1224,8 +1224,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1248,8 +1248,8 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connecting,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1269,8 +1269,8 @@ class SubscribeTransitionTests: XCTestCase {
       event: .unsubscribeAll
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .connectionError,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1287,7 +1287,7 @@ class SubscribeTransitionTests: XCTestCase {
       event: .unsubscribeAll
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .disconnected,
         error: nil
@@ -1309,7 +1309,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnected,
         error: nil
@@ -1333,7 +1333,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveReconnect),
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
         newStatus: .disconnected,
         error: nil
@@ -1355,8 +1355,8 @@ class SubscribeTransitionTests: XCTestCase {
       event: .unsubscribeAll
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: .disconnectedUnexpectedly,
         newStatus: .disconnected,
         error: nil
       )))
@@ -1376,7 +1376,7 @@ class SubscribeTransitionTests: XCTestCase {
       event: .unsubscribeAll
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .managed(.emitStatus(change: Subscribe.ConnectionStatusChange(
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .disconnected,
         newStatus: .disconnected,
         error: nil

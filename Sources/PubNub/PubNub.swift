@@ -485,7 +485,6 @@ public extension PubNub {
     )
     if configuration.enableEventEngine && configuration.maintainPresenceState {
       presenceStateContainer.registerState(state, forChannels: channels)
-      presenceStateContainer.registerState(state, forChannelGroups: groups)
     }
 
     route(

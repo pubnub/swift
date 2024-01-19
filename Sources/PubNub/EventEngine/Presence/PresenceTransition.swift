@@ -38,7 +38,7 @@ class PresenceTransition: TransitionProtocol {
     case .leftAll:
       return !(state is Presence.HeartbeatInactive)
     case .disconnect:
-      return true
+      return !(state is Presence.HeartbeatInactive)
     case .reconnect:
       return state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed
     }

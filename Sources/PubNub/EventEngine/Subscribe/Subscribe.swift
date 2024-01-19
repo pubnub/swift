@@ -35,7 +35,7 @@ extension Subscribe {
   struct HandshakingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let connectionStatus = ConnectionStatus.disconnected
+    let connectionStatus = ConnectionStatus.connecting
   }
   
   struct HandshakeStoppedState: SubscribeState {
@@ -49,14 +49,14 @@ extension Subscribe {
     let cursor: SubscribeCursor
     let retryAttempt: Int
     let reason: PubNubError
-    let connectionStatus = ConnectionStatus.disconnected
+    let connectionStatus = ConnectionStatus.connecting
   }
   
   struct HandshakeFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
-    let connectionStatus = ConnectionStatus.disconnected
+    let connectionStatus = ConnectionStatus.connectionError
   }
   
   struct ReceivingState: SubscribeState {
@@ -83,7 +83,7 @@ extension Subscribe {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
-    let connectionStatus = ConnectionStatus.disconnected
+    let connectionStatus = ConnectionStatus.disconnectedUnexpectedly
   }
   
   struct UnsubscribedState: SubscribeState {
@@ -110,7 +110,7 @@ extension Subscribe {
     case receiveReconnectFailure(error: PubNubError)
     case receiveReconnectGiveUp(error: PubNubError)
     case disconnect
-    case reconnect
+    case reconnect(cursor: SubscribeCursor?)
     case unsubscribeAll
   }
 }

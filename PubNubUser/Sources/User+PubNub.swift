@@ -219,7 +219,7 @@ public extension PubNubUserInterface {
     (requestConfig.customSession ?? networkSession)?
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchMultipleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -247,7 +247,7 @@ public extension PubNubUserInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) {
@@ -288,7 +288,7 @@ public extension PubNubUserInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchSingleValueResponseDecoder<PubNubUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -337,7 +337,7 @@ public extension PubNubUserInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in

@@ -15,7 +15,7 @@ import Foundation
 struct PresenceRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case heartbeat(channels: [String], groups: [String], channelStates: [String: [String:JSONCodableScalar]], presenceTimeout: UInt?)
+    case heartbeat(channels: [String], groups: [String], channelStates: [String: JSONCodable], presenceTimeout: UInt?)
     case leave(channels: [String], groups: [String])
     case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
     case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
@@ -139,7 +139,7 @@ struct PresenceRouter: HTTPRouter {
       )
       query.appendIfPresent(
         key: .state,
-        value: try? channelStates.mapValues { $0.mapValues { $0.codableValue } }.encodableJSONString.get(),
+        value: try? channelStates.mapValues { $0.codableValue }.encodableJSONString.get(),
         when: configuration.enableEventEngine && configuration.maintainPresenceState && !channelStates.isEmpty
       )
     case let .leave(_, groups):

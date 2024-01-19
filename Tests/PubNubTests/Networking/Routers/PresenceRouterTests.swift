@@ -429,7 +429,7 @@ extension PresenceRouterTests {
   }
   
   func testHeartbeat_QueryParamsWithEventEngineEnabled() {
-    let stateContainer = PresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 
@@ -470,7 +470,7 @@ extension PresenceRouterTests {
   }
   
   func testHeartbeat_QueryParamsWithEventEngineDisabled() {
-    let stateContainer = PresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 
@@ -502,7 +502,7 @@ extension PresenceRouterTests {
   }
   
   func testHeartbeat_QueryParamsWithMaintainPresenceStateDisabled() {
-    let stateContainer = PresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 

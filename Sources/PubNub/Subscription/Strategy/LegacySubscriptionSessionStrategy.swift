@@ -192,7 +192,10 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     stopSubscribeLoop(.longPollingRestart)
     
     // Will compare this in the error response to see if we need to restart
-    let nextSubscribe = longPollingSession.request(with: router, requestOperator: configuration.automaticRetry)
+    let nextSubscribe = longPollingSession.request(
+      with: router,
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .subscribe)
+    )
     let currentSubscribeID = nextSubscribe.requestID
     
     request = nextSubscribe

@@ -267,7 +267,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchMultipleValueResponseDecoder<PubNubMembership.PartialSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -320,7 +320,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchMultipleValueResponseDecoder<PubNubMembership.PartialUser>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -366,7 +366,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -403,7 +403,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -466,7 +466,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -503,7 +503,7 @@ public extension PubNubMembershipInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in

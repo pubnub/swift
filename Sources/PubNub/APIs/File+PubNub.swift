@@ -29,7 +29,7 @@ public extension PubNub {
   ) {
     route(
       FileManagementRouter(.list(channel: channel, limit: limit, next: next), configuration: configuration),
-      requestOperator: configuration.automaticRetry?[.files],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
       responseDecoder: FileListResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -61,7 +61,7 @@ public extension PubNub {
   ) {
     route(
       FileManagementRouter(.delete(channel: channel, fileId: fileId, filename: filename), configuration: configuration),
-      requestOperator: configuration.automaticRetry?[.files],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
       responseDecoder: FileGeneralSuccessResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -139,7 +139,7 @@ public extension PubNub {
         .generateURL(channel: channel, body: .init(name: remoteFilename)),
         configuration: configuration
       ),
-      requestOperator: configuration.automaticRetry?[.files],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
       responseDecoder: FileGenerateResponseDecoder(),
       custom: requestConfig
     ) { [configuration] result in
@@ -230,7 +230,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.files],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
       responseDecoder: PublishResponseDecoder(),
       custom: request.customRequestConfig
     ) { result in

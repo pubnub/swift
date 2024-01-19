@@ -212,7 +212,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchMultipleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -237,7 +237,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -274,7 +274,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchSingleValueResponseDecoder<PubNubSpace>(),
         responseQueue: requestConfig.responseQueue
       ) { result in
@@ -319,7 +319,7 @@ public extension PubNubSpaceInterface {
     (requestConfig.customSession ?? networkSession)
       .route(
         router,
-        requestOperator: configuration.automaticRetry?[.appContext],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .appContext),
         responseDecoder: FetchStatusResponseDecoder(),
         responseQueue: requestConfig.responseQueue
       ) { result in

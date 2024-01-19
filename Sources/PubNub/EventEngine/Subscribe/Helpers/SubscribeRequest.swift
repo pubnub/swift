@@ -19,7 +19,7 @@ class SubscribeRequest {
   private let configuration: SubscriptionConfiguration
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
-  private let channelStates: [String: [String: JSONCodableScalar]]
+  private let channelStates: [String: JSONCodable]
   
   private var request: RequestReplaceable?
     
@@ -30,7 +30,7 @@ class SubscribeRequest {
     configuration: SubscriptionConfiguration,
     channels: [String],
     groups: [String],
-    channelStates: [String: [String: JSONCodableScalar]],
+    channelStates: [String: JSONCodable],
     timetoken: Timetoken? = nil,
     region: Int? = nil,
     session: SessionReplaceable,
@@ -56,7 +56,7 @@ class SubscribeRequest {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard automaticRetry[.subscribe] != nil else {
+    guard automaticRetry.retryOperator(for: .subscribe) != nil else {
       return nil
     }
     guard automaticRetry.retryLimit > retryAttempt else {

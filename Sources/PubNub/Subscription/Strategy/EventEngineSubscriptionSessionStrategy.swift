@@ -14,7 +14,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let uuid = UUID()
   let subscribeEngine: SubscribeEngine
   let presenceEngine: PresenceEngine
-  let presenceStateContainer: PresenceStateContainer
+  let presenceStateContainer: PubNubPresenceStateContainer
 
   var privateListeners: WeakSet<ListenerType> = WeakSet([])
   var configuration: SubscriptionConfiguration
@@ -29,7 +29,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     configuration: SubscriptionConfiguration,
     subscribeEngine: SubscribeEngine,
     presenceEngine: PresenceEngine,
-    presenceStateContainer: PresenceStateContainer
+    presenceStateContainer: PubNubPresenceStateContainer
   ) {
     self.subscribeEngine = subscribeEngine
     self.configuration = configuration

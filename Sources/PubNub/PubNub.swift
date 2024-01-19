@@ -34,7 +34,7 @@ public class PubNub {
   // Global log instance for Logging issues/events
   public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
   // Container that holds current Presence states for given channels/channel groups
-  internal let presenceStateContainer = PresenceStateContainer.shared
+  internal let presenceStateContainer = PubNubPresenceStateContainer.shared
   
   /// Creates a PubNub session with the specified configuration
   ///
@@ -287,7 +287,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageSend],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageSend),
       responseDecoder: PublishResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -327,7 +327,7 @@ public extension PubNub {
         .fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.messageSend],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageSend),
       responseDecoder: PublishResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -356,7 +356,7 @@ public extension PubNub {
         .signal(message: message.codableValue, channel: channel),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.messageSend],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageSend),
       responseDecoder: PublishResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -483,16 +483,19 @@ public extension PubNub {
       .setState(channels: channels, groups: groups, state: state),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    if configuration.enableEventEngine && configuration.maintainPresenceState {
-      presenceStateContainer.registerState(state, forChannels: channels)
-    }
-
+    let shouldMaintainPresenceState = configuration.enableEventEngine && configuration.maintainPresenceState
+    
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.presence],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: PresenceResponseDecoder<AnyPresencePayload<AnyJSON>>(),
       custom: requestConfig
-    ) { result in
+    ) { [weak self] result in
+      if case .success(_) = result {
+        if shouldMaintainPresenceState {
+          self?.presenceStateContainer.registerState(AnyJSON(state), forChannels: channels)
+        }
+      }
       completion?(result.map { $0.payload.payload })
     }
   }
@@ -519,7 +522,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.presence],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: GetPresenceStateResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -567,7 +570,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.presence],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: decoder,
       custom: requestConfig
     ) { result in
@@ -589,7 +592,7 @@ public extension PubNub {
   ) {
     route(
       PresenceRouter(.whereNow(uuid: uuid), configuration: requestConfig.customConfiguration ?? configuration),
-      requestOperator: configuration.automaticRetry?[.presence],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: PresenceResponseDecoder<AnyPresencePayload<WhereNowPayload>>(),
       custom: requestConfig
     ) { result in
@@ -613,7 +616,7 @@ public extension PubNub {
   ) {
     route(
       ChannelGroupsRouter(.channelGroups, configuration: requestConfig.customConfiguration ?? configuration),
-      requestOperator: configuration.automaticRetry?[.channelGroups],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
       responseDecoder: ChannelGroupResponseDecoder<GroupListPayloadResponse>(),
       custom: requestConfig
     ) { result in
@@ -639,7 +642,7 @@ public extension PubNub {
         .deleteGroup(group: channelGroup),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.channelGroups],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -664,7 +667,7 @@ public extension PubNub {
         .channelsForGroup(group: group),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.channelGroups],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
       responseDecoder: ChannelGroupResponseDecoder<ChannelListPayloadResponse>(),
       custom: requestConfig
     ) { result in
@@ -691,7 +694,7 @@ public extension PubNub {
         .addChannelsToGroup(group: group, channels: channels),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.channelGroups],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -718,7 +721,7 @@ public extension PubNub {
         .removeChannelsForGroup(group: group, channels: channels),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.channelGroups],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -749,7 +752,7 @@ public extension PubNub {
         .listPushChannels(pushToken: deviceToken, pushType: pushType),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
       responseDecoder: RegisteredPushChannelsResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -782,7 +785,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
       responseDecoder: ModifyPushResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -855,7 +858,7 @@ public extension PubNub {
         .removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
       responseDecoder: ModifyPushResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -884,7 +887,7 @@ public extension PubNub {
         .manageAPNS(pushToken: deviceToken, environment: environment, topic: topic, adding: [], removing: []),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
       responseDecoder: RegisteredPushChannelsResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -931,7 +934,7 @@ public extension PubNub {
     } else {
       route(
         router,
-        requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
         responseDecoder: ModifyPushResponseDecoder(),
         custom: requestConfig
       ) { result in
@@ -1011,7 +1014,7 @@ public extension PubNub {
         .removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.devicePushNotifications],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
       responseDecoder: ModifyPushResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1089,7 +1092,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageStorage],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageStorage),
       responseDecoder: MessageHistoryResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1123,7 +1126,7 @@ public extension PubNub {
         .delete(channel: channel, start: start, end: end),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.messageStorage],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageStorage),
       responseDecoder: GenericServiceResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1150,7 +1153,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageStorage],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageStorage),
       responseDecoder: MessageCountsResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1179,7 +1182,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageStorage],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageStorage),
       responseDecoder: MessageCountsResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1210,7 +1213,7 @@ public extension PubNub {
         .fetch(channel: channel, start: page?.start, end: page?.end, limit: page?.limit),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
-      requestOperator: configuration.automaticRetry?[.messageActions],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageActions),
       responseDecoder: MessageActionsResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1253,7 +1256,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageActions],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageActions),
       responseDecoder: MessageActionResponseDecoder(),
       custom: requestConfig
     ) { result in
@@ -1298,7 +1301,7 @@ public extension PubNub {
 
     route(
       router,
-      requestOperator: configuration.automaticRetry?[.messageActions],
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .messageActions),
       responseDecoder: DeleteResponseDecoder(),
       custom: requestConfig
     ) { result in

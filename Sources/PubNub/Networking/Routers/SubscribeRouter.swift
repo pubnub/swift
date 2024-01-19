@@ -16,7 +16,7 @@ struct SubscribeRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CaseAccessible, CustomStringConvertible {
     case subscribe(
-      channels: [String], groups: [String], channelStates: [String: [String: JSONCodableScalar]],
+      channels: [String], groups: [String], channelStates: [String: JSONCodable],
       timetoken: Timetoken?, region: String?,
       heartbeat: UInt?, filter: String?
     )
@@ -90,7 +90,7 @@ struct SubscribeRouter: HTTPRouter {
       )
       query.appendIfPresent(
         key: .state,
-        value: try? channelStates.mapValues { $0.mapValues { $0.codableValue } }.encodableJSONString.get(),
+        value: try? channelStates.mapValues { $0.codableValue }.encodableJSONString.get(),
         when: configuration.enableEventEngine && configuration.maintainPresenceState && !channelStates.isEmpty
       )
     }

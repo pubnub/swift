@@ -210,7 +210,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     }
   }
   
-  public subscript(endpoint: AutomaticRetry.Endpoint) -> RequestOperator? {
+  public func retryOperator(for endpoint: AutomaticRetry.Endpoint) -> RequestOperator? {
     excluded.contains(endpoint) ? nil : self
   }
 

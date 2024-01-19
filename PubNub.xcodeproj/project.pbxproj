@@ -439,6 +439,7 @@
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DBB2C212ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
 		3DBB2C222ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
+		3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */; };
 		3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
@@ -1020,6 +1021,7 @@
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubCryptoModuleContractTestSteps.swift; sourceTree = "<group>"; };
+		3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceStateContainer.swift; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
@@ -2067,6 +2069,7 @@
 			isa = PBXGroup;
 			children = (
 				3D389FD52B35AF4A006928E7 /* Presence.swift */,
+				3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */,
 				3D389FD62B35AF4A006928E7 /* PresenceTransition.swift */,
 				3D389FD72B35AF4A006928E7 /* Effects */,
 				3D389FDD2B35AF4A006928E7 /* Helpers */,
@@ -3468,6 +3471,7 @@
 				3D389FF32B35AF4A006928E7 /* WaitEffect.swift in Sources */,
 				35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */,
 				358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */,
+				3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */,
 				3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
 				3D389FE52B35AF4A006928E7 /* EventEngineFactory.swift in Sources */,

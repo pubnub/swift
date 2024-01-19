@@ -10,41 +10,6 @@
 
 import Foundation
 
-// MARK: - PresenceStateContainer
-
-class PresenceStateContainer {
-  private var channelStates: Atomic<[String: [String: JSONCodableScalar]]> = Atomic([:])
-  
-  static var shared: PresenceStateContainer = PresenceStateContainer()
-  private init() {}
-  
-  func registerState(_ state: [String: JSONCodableScalar], forChannels channels: [String]) {
-    channelStates.lockedWrite { channelStates in
-      channels.forEach {
-        channelStates[$0] = state
-      }
-    }
-  }
-  
-  func removeState(forChannels channels: [String]) {
-    channelStates.lockedWrite { channelStates in
-      channels.map {
-        channelStates[$0] = nil
-      }
-    }
-  }
-  
-  func getStates(forChannels channels: [String]) -> [String: [String: JSONCodableScalar]] {
-    channelStates.lockedRead {
-      $0.filter {
-        channels.contains($0.key)
-      }
-    }
-  }
-}
-
-// MARK: - PresenceHeartbeatRequest
-
 class PresenceHeartbeatRequest {
   let channels: [String]
   let groups: [String]
@@ -52,13 +17,13 @@ class PresenceHeartbeatRequest {
   
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
-  private let channelStates: [String: [String: JSONCodableScalar]]
+  private let channelStates: [String: JSONCodable]
   private var request: RequestReplaceable?
   
   init(
     channels: [String],
     groups: [String],
-    channelStates: [String: [String: JSONCodableScalar]],
+    channelStates: [String: JSONCodable],
     configuration: SubscriptionConfiguration,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
@@ -100,7 +65,7 @@ class PresenceHeartbeatRequest {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
     }
-    guard automaticRetry[.presence] != nil else {
+    guard automaticRetry.retryOperator(for: .presence) != nil else {
       return nil
     }
     guard automaticRetry.retryLimit > retryAttempt else {

@@ -14,13 +14,13 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let messageCache: MessageCache
-  private let presenceStateContainer: PresenceStateContainer
+  private let presenceStateContainer: PubNubPresenceStateContainer
   
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .global(qos: .default),
     messageCache: MessageCache = MessageCache(),
-    presenceStateContainer: PresenceStateContainer
+    presenceStateContainer: PubNubPresenceStateContainer
   ) {
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue

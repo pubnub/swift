@@ -60,7 +60,10 @@ extension LegacySubscriptionSessionStrategy {
     )
 
     nonSubscribeSession
-      .request(with: router, requestOperator: configuration.automaticRetry?[.presence])
+      .request(
+        with: router,
+        requestOperator: configuration.automaticRetry?.retryOperator(for: .presence)
+      )
       .validate()
       .response(on: .main, decoder: GenericServiceResponseDecoder()) { [weak self] result in
         switch result {

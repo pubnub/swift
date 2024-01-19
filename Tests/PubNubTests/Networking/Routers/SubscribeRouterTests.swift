@@ -66,7 +66,7 @@ extension SubscribeRouterTests {
       enableEventEngine: true,
       maintainPresenceState: true
     )
-    let channelStates: [String: [String: JSONCodableScalar]] = [
+    let channelStates: [String: JSONCodable] = [
       "c1": ["x": 1],
       "c2": ["a": "someText"]
     ]
@@ -107,7 +107,7 @@ extension SubscribeRouterTests {
       enableEventEngine: false,
       maintainPresenceState: true
     )
-    let channelStates: [String: [String: JSONCodableScalar]] = [
+    let channelStates: [String: JSONCodable] = [
       "c1": ["x": 1],
       "c2": ["a": "someText"]
     ]
@@ -139,7 +139,7 @@ extension SubscribeRouterTests {
       enableEventEngine: true,
       maintainPresenceState: false
     )
-    let channelStates: [String: [String: JSONCodableScalar]] = [
+    let channelStates: [String: JSONCodable] = [
       "c1": ["x": 1],
       "c2": ["a": "someText"]
     ]
@@ -231,7 +231,7 @@ extension SubscribeRouterTests {
         XCTAssertEqual(subscription.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
-        wait(for: [messageExpect, statusExpect], timeout: 33.0)
+        wait(for: [messageExpect, statusExpect], timeout: 1.0)
       }
     }
   }

@@ -13,12 +13,12 @@ import Foundation
 class PresenceEffectFactory: EffectHandlerFactory {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
-  private let presenceStateContainer: PresenceStateContainer
+  private let presenceStateContainer: PubNubPresenceStateContainer
   
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .global(qos: .default),
-    presenceStateContainer: PresenceStateContainer
+    presenceStateContainer: PubNubPresenceStateContainer
   ) {
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue

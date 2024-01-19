@@ -18,7 +18,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   
   init(
     session: SessionReplaceable,
-    sessionResponseQueue: DispatchQueue = .global(qos: .default),
+    sessionResponseQueue: DispatchQueue = .main,
     messageCache: MessageCache = MessageCache(),
     presenceStateContainer: PubNubPresenceStateContainer
   ) {

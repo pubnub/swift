@@ -169,15 +169,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       if configuration.maintainPresenceState {
         presenceStateContainer.removeState(forChannels: channels)
       }
-      sendSubscribeEvent(event: .subscriptionChanged(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedGroupNames
-      ))
-      sendPresenceEvent(event: .left(
-        channels: channels,
-        groups: groups
-      ))
-      
+      // Ensures that local event is emitted before receiving .disconnected connection status
       notify {
         $0.emit(subscribe: .subscriptionChanged(
           .unsubscribed(
@@ -186,15 +178,21 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
           ))
         )
       }
+      sendSubscribeEvent(event: .subscriptionChanged(
+        channels: newInput.allSubscribedChannelNames,
+        groups: newInput.allSubscribedGroupNames
+      ))
+      sendPresenceEvent(event: .left(
+        channels: channels,
+        groups: groups
+      ))
     }
   }
 
   func unsubscribeAll() {
     let currentInput = subscribeEngine.state.input
     
-    sendSubscribeEvent(event: .unsubscribeAll)
-    sendPresenceEvent(event: .leftAll)
-    
+    // Ensures that local event is emitted before receiving .disconnected connection status
     notify {
       $0.emit(subscribe: .subscriptionChanged(
         .unsubscribed(
@@ -203,6 +201,9 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
         )
       ))
     }
+    
+    sendSubscribeEvent(event: .unsubscribeAll)
+    sendPresenceEvent(event: .leftAll)
   }
 }
 

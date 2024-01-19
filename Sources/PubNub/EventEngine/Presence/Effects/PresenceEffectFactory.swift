@@ -17,7 +17,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
   
   init(
     session: SessionReplaceable,
-    sessionResponseQueue: DispatchQueue = .global(qos: .default),
+    sessionResponseQueue: DispatchQueue = .main,
     presenceStateContainer: PubNubPresenceStateContainer
   ) {
     self.session = session

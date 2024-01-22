@@ -22,6 +22,7 @@ import Foundation
 ///
 /// - Important: Having multiple `SubscriptionSession` instances will result in
 /// increase network usage and battery drain.
+@available(*, deprecated, message: "Use methods from a PubNub object to subscribe/unsubscribe")
 public class SubscribeSessionFactory {
   private typealias SessionMap = [Int: WeakBox<SubscriptionSession>]
 
@@ -45,26 +46,80 @@ public class SubscribeSessionFactory {
     with subscribeSession: SessionReplaceable? = nil,
     presenceSession: SessionReplaceable? = nil
   ) -> SubscriptionSession {
+    // The hash value for the given configuration
     let configHash = config.subscriptionHashValue
+    // Returns a session (if any) that matches the hash value
     if let session = sessions.lockedRead({ $0[configHash]?.underlying }) {
       PubNub.log.debug("Found existing session for config hash \(config.subscriptionHashValue)")
       return session
     }
-
+    
     PubNub.log.debug("Creating new session for with hash value \(config.subscriptionHashValue)")
+    
     return sessions.lockedWrite { dictionary in
-      let subscribeSession = subscribeSession ?? HTTPSession(configuration: URLSessionConfiguration.subscription,
-                                                             sessionQueue: subscribeQueue)
-
-      let presenceSession = presenceSession ?? HTTPSession(configuration: URLSessionConfiguration.pubnub,
-                                                           sessionQueue: subscribeSession.sessionQueue)
-
-      let subscriptionSession = SubscriptionSession(configuration: config,
-                                                    network: subscribeSession,
-                                                    presenceSession: presenceSession)
-
-      dictionary.updateValue(WeakBox(subscriptionSession), forKey: configHash)
+      let subscriptionSession = SubscriptionSession(
+        strategy: resolveStrategy(
+          configuration: config,
+          subscribeSession: subscribeSession,
+          presenceSession: presenceSession
+        )
+      )
+      dictionary.updateValue(
+        WeakBox(subscriptionSession),
+        forKey: configHash
+      )
       return subscriptionSession
+    }
+    
+    func resolveStrategy(
+      configuration: SubscriptionConfiguration,
+      subscribeSession: SessionReplaceable?,
+      presenceSession: SessionReplaceable?
+    ) -> any SubscriptionSessionStrategy {
+      // Creates default network session objects if they're not provided
+      let subscribeSession = subscribeSession ?? HTTPSession(
+        configuration: URLSessionConfiguration.subscription,
+        sessionQueue: subscribeQueue,
+        sessionStream: SessionListener(queue: subscribeQueue)
+      )
+      let presenceSession = presenceSession ?? HTTPSession(
+        configuration: URLSessionConfiguration.pubnub,
+        sessionQueue: subscribeQueue,
+        sessionStream: SessionListener(queue: subscribeQueue)
+      )
+      
+      if let config = config as? PubNubConfiguration, config.enableEventEngine {
+        let subscribeEffectFactory = SubscribeEffectFactory(
+          session: subscribeSession,
+          presenceStateContainer: .shared
+        )
+        let subscribeEngine = EventEngineFactory().subscribeEngine(
+          with: config,
+          dispatcher: EffectDispatcher(factory: subscribeEffectFactory),
+          transition: SubscribeTransition()
+        )
+        let presenceEffectFactory = PresenceEffectFactory(
+          session: presenceSession,
+          presenceStateContainer: .shared
+        )
+        let presenceEngine = EventEngineFactory().presenceEngine(
+          with: config,
+          dispatcher: EffectDispatcher(factory: presenceEffectFactory),
+          transition: PresenceTransition(configuration: config)
+        )
+        return EventEngineSubscriptionSessionStrategy(
+          configuration: config,
+          subscribeEngine: subscribeEngine,
+          presenceEngine: presenceEngine,
+          presenceStateContainer: .shared
+        )
+      }
+      
+      return LegacySubscriptionSessionStrategy(
+        configuration: configuration,
+        network: subscribeSession,
+        presenceSession: presenceSession
+      )
     }
   }
 
@@ -79,6 +134,7 @@ public class SubscribeSessionFactory {
 // MARK: - SubscriptionConfiguration
 
 /// The configuration used to determine the uniqueness of a `SubscriptionSession`
+@available(*, deprecated, message: "Use a PubNub object with PubNubConfiguration that matches the parameters below")
 public protocol SubscriptionConfiguration: RouterConfiguration {
   /// Reconnection policy which will be used if/when a request fails
   var automaticRetry: AutomaticRetry? { get }

@@ -74,7 +74,7 @@ public struct PubNubChannel: Hashable {
   /// The presence channel name
   public let presenceId: String
   /// If the channel is currently subscribed with presence
-  public var isPresenceSubscribed: Bool
+  public let isPresenceSubscribed: Bool
 
   public init(id: String, withPresence: Bool = false) {
     self.id = id
@@ -117,27 +117,5 @@ extension PubNubChannel: Codable {
     try container.encode(id, forKey: .id)
     try container.encode(presenceId, forKey: .presenceId)
     try container.encode(isPresenceSubscribed, forKey: .isPresenceSubscribed)
-  }
-}
-
-public extension Dictionary where Key == String, Value == PubNubChannel {
-  /// Inserts the provided channel if that channel doesn't already exist
-  mutating func insert(_ channel: Value) -> Bool {
-    if let match = self[channel.id], match == channel {
-      return false
-    }
-
-    self[channel.id] = channel
-    return true
-  }
-
-  /// Updates the subscribedPresence state on the channel matching the provided name
-  mutating func unsubscribePresence(_ id: String) -> Value? {
-    if var match = self[id], match.isPresenceSubscribed {
-      match.isPresenceSubscribed = false
-      self[match.id] = match
-      return match
-    }
-    return nil
   }
 }

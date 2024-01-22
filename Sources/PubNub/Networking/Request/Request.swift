@@ -317,7 +317,7 @@ final class Request {
       if let error = state.error {
         return .failure(error)
       }
-
+      
       if let request = state.urlRequests.last,
          let response = state.tasks.last?.httpResponse,
          let data = state.responesData {

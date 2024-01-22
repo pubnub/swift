@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.2.3"
+version: "6.3.0"
 schema: 1
 changelog:
+  - date: 2024-01-22
+    version: 6.3.0
+    changes:
+      - type: feature
+        text: "Introducing Subscribe & Presence EventEngine."
   - date: 2023-11-28
     version: 6.2.3
     changes:
@@ -512,7 +517,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.2.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/6.3.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

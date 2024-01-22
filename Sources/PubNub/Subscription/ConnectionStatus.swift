@@ -11,17 +11,21 @@
 import Foundation
 
 /// Status of a connection to a remote system
-public enum ConnectionStatus {
+public enum ConnectionStatus: Equatable {
   /// Attempting to connect to a remote system
-  case connecting
+  @available(*, deprecated, message: "This case will be removed in future versions")
+   case connecting
   /// Successfully connected to a remote system
   case connected
-  /// Attempting to reconnect to a remote system
-  case reconnecting
   /// Explicit disconnect from a remote system
   case disconnected
+  /// Attempting to reconnect to a remote system
+  @available(*, deprecated, message: "This case will be removed in future versions")
+  case reconnecting
   /// Unexpected disconnect from a remote system
   case disconnectedUnexpectedly
+  /// Unable to establish initial connection. Applies if `enableEventEngine` in `PubNubConfiguration` is true.
+  case connectionError
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
@@ -35,30 +39,40 @@ public enum ConnectionStatus {
 
   /// If the connection is connected
   public var isConnected: Bool {
-    return self == .connected
+    if case .connected = self {
+      return true
+    } else {
+      return false
+    }
   }
-
+  
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
-    case (.connecting, .reconnecting):
-      return false
-    case (.connecting, _):
+    case (.connecting, .connected):
       return true
-    case (.connected, .connecting):
-      return false
-    case (.connected, _):
+    case (.connecting, .disconnected):
       return true
-    case (.reconnecting, .connecting):
-      return false
-    case (.reconnecting, _):
+    case (.connecting, .disconnectedUnexpectedly):
+      return true
+    case (.connecting, .connectionError):
+      return true
+    case (.connected, .disconnected):
+      return true
+    case (.reconnecting, .connected):
+      return true
+    case (.reconnecting, .disconnected):
+      return true
+    case (.reconnecting, .disconnectedUnexpectedly):
+      return true
+    case (.reconnecting, .connectionError):
       return true
     case (.disconnected, .connecting):
       return true
-    case (.disconnected, _):
-      return false
     case (.disconnectedUnexpectedly, .connecting):
       return true
-    case (.disconnectedUnexpectedly, _):
+    case (.connectionError, .connecting):
+      return true
+    default:
       return false
     }
   }

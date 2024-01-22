@@ -260,6 +260,8 @@ class MasterDetailTableViewController: UITableViewController {
             print("Status disconnected")
           case .disconnectedUnexpectedly:
             print("Status disconnected unexpectedly!")
+          case .connectionError:
+            print("Cannot establish initial conection to the remote system")
           }
         case let .subscriptionChanged(subscribeChange):
           switch subscribeChange {

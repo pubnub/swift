@@ -52,7 +52,22 @@ public extension Array where Element == URLQueryItem {
   internal mutating func appendIfPresent(key: QueryKey, value: String?) {
     appendIfPresent(name: key.rawValue, value: value)
   }
-
+  
+  internal mutating func append(key: QueryKey, value: @autoclosure () -> String?, when condition: Bool) {
+    if condition {
+      append(URLQueryItem(name: key.rawValue, value: value()))
+    }
+  }
+  
+  internal mutating func appendIfPresent(key: QueryKey, value: @autoclosure () -> String?, when condition: Bool) {
+    guard condition else {
+      return
+    }
+    if let value = value() {
+      append(URLQueryItem(name: key.rawValue, value: value))
+    }
+  }
+  
   /// Creates a new query item with a csv string value and appends only if the value is not empty
   mutating func appendIfNotEmpty(name: String, value: [String]) {
     if !value.isEmpty {

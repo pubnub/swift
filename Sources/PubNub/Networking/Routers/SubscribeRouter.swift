@@ -15,9 +15,11 @@ import Foundation
 struct SubscribeRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CaseAccessible, CustomStringConvertible {
-    case subscribe(channels: [String], groups: [String],
-                   timetoken: Timetoken?, region: String?,
-                   heartbeat: UInt?, filter: String?)
+    case subscribe(
+      channels: [String], groups: [String], channelStates: [String: JSONCodable],
+      timetoken: Timetoken?, region: String?,
+      heartbeat: UInt?, filter: String?
+    )
 
     var description: String {
       switch self {
@@ -35,7 +37,7 @@ struct SubscribeRouter: HTTPRouter {
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
-
+  
   // Protocol Properties
   var service: PubNubService {
     return .subscribe
@@ -49,7 +51,7 @@ struct SubscribeRouter: HTTPRouter {
     let path: String
 
     switch endpoint {
-    case let .subscribe(channels, _, _, _, _, _):
+    case let .subscribe(channels, _, _, _, _, _, _):
       path = "/v2/subscribe/\(subscribeKey)/\(channels.commaOrCSVString.urlEncodeSlash)/0"
     }
 
@@ -60,12 +62,37 @@ struct SubscribeRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .subscribe(_, groups, timetoken, region, heartbeat, filter):
-      query.appendIfNotEmpty(key: .channelGroup, value: groups)
-      query.appendIfPresent(key: .timetokenShort, value: timetoken?.description)
-      query.appendIfPresent(key: .regionShort, value: region?.description)
-      query.appendIfPresent(key: .filterExpr, value: filter)
-      query.appendIfPresent(key: .heartbeat, value: heartbeat?.description)
+    case let .subscribe(_, groups, channelStates, timetoken, region, heartbeat, filter):
+      query.appendIfNotEmpty(
+        key: .channelGroup,
+        value: groups
+      )
+      query.appendIfPresent(
+        key: .timetokenShort,
+        value: timetoken?.description
+      )
+      query.appendIfPresent(
+        key: .regionShort,
+        value: region?.description
+      )
+      query.appendIfPresent(
+        key: .filterExpr,
+        value: filter
+      )
+      query.appendIfPresent(
+        key: .heartbeat,
+        value: heartbeat?.description
+      )
+      query.append(
+        key: .eventEngine,
+        value: nil,
+        when: configuration.enableEventEngine
+      )
+      query.appendIfPresent(
+        key: .state,
+        value: try? channelStates.mapValues { $0.codableValue }.encodableJSONString.get(),
+        when: configuration.enableEventEngine && configuration.maintainPresenceState && !channelStates.isEmpty
+      )
     }
 
     return .success(query)
@@ -74,7 +101,7 @@ struct SubscribeRouter: HTTPRouter {
   // Validated
   var validationErrorDetail: String? {
     switch endpoint {
-    case let .subscribe(channels, groups, _, _, _, _):
+    case let .subscribe(channels, groups, _, _, _, _, _):
       return isInvalidForReason(
         (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
     }

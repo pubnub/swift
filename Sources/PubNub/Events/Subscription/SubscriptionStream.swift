@@ -11,13 +11,12 @@
 import Foundation
 
 /// A channel or group that has successfully been subscribed or unsubscribed
+@available(*, deprecated, message: "This enumeration will be removed in future versions")
 public enum SubscriptionChangeEvent {
   /// The channels or groups that have successfully been subscribed
   case subscribed(channels: [PubNubChannel], groups: [PubNubChannel])
   /// The response header for one or more subscription events
-  case responseHeader(
-    channels: [PubNubChannel], groups: [PubNubChannel], previous: SubscribeCursor?, next: SubscribeCursor?
-  )
+  case responseHeader(channels: [PubNubChannel], groups: [PubNubChannel], previous: SubscribeCursor?, next: SubscribeCursor?)
   /// The channels or groups that have successfully been unsubscribed
   case unsubscribed(channels: [PubNubChannel], groups: [PubNubChannel])
 
@@ -35,6 +34,7 @@ public enum SubscriptionChangeEvent {
 }
 
 /// The header of a PubNub subscribe response for zero or more events
+@available(*, deprecated, message: "This struct will be removed in future versions")
 public struct SubscribeResponseHeader {
   /// The channels that are actively subscribed
   public let channels: [PubNubChannel]
@@ -61,8 +61,10 @@ public struct SubscribeResponseHeader {
 /// Local events emitted from the Subscribe method
 public enum PubNubSubscribeEvent {
   /// A change in the Channel or Group state occured
+  @available(*, deprecated, message: "This case will be removed in future versions")
   case subscriptionChanged(SubscriptionChangeEvent)
   /// A subscribe response was received
+  @available(*, deprecated, message: "This case will be removed in future versions")
   case responseReceived(SubscribeResponseHeader)
   /// The connection status of the PubNub subscription was changed
   case connectionChanged(ConnectionStatus)
@@ -79,16 +81,12 @@ public enum PubNubCoreEvent {
   case messageReceived(PubNubMessage)
   /// A signal has been received
   case signalReceived(PubNubMessage)
-
   /// A change in the subscription connection has occurred
   case connectionStatusChanged(ConnectionStatus)
-
   /// A change in the subscribed channels or groups has occurred
   case subscriptionChanged(SubscriptionChangeEvent)
-
   /// A presence change has been received
   case presenceChanged(PubNubPresenceChange)
-
   /// A User object has been updated
   case uuidMetadataSet(PubNubUUIDMetadataChangeset)
   /// A User object has been deleted
@@ -101,15 +99,12 @@ public enum PubNubCoreEvent {
   case membershipMetadataSet(PubNubMembershipMetadata)
   /// A Membership object has been deleted
   case membershipMetadataRemoved(PubNubMembershipMetadata)
-
   /// A MessageAction was added to a published message
   case messageActionAdded(PubNubMessageAction)
   /// A MessageAction was removed from a published message
   case messageActionRemoved(PubNubMessageAction)
-
   /// A File was uploaded to storage
   case fileUploaded(PubNubFileEvent)
-
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -162,7 +157,6 @@ public final class CoreListener: BaseSubscriptionListener {
   public var didReceiveBatchSubscription: (([SubscriptionEvent]) -> Void)?
   /// Receiver for all subscription events
   public var didReceiveSubscription: ((SubscriptionEvent) -> Void)?
-
   /// Receiver for changes in the subscribe/unsubscribe status of channels/groups
   public var didReceiveSubscriptionChange: ((SubscriptionChangeEvent) -> Void)?
   /// Receiver for status (Connection & Error) events
@@ -173,13 +167,10 @@ public final class CoreListener: BaseSubscriptionListener {
   public var didReceiveMessage: ((PubNubMessage) -> Void)?
   /// Receiver for signal events
   public var didReceiveSignal: ((PubNubMessage) -> Void)?
-
   /// Receiver for Object Metadata Events
   public var didReceiveObjectMetadataEvent: ((ObjectMetadataChangeEvents) -> Void)?
-
   /// Receiver for message action events
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
-
   /// Receiver for File Upload events
   public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
 
@@ -275,14 +266,12 @@ public final class CoreListener: BaseSubscriptionListener {
         self?.didReceiveMessage?(message)
       case let .signalReceived(signal):
         self?.didReceiveSignal?(signal)
-
       case let .connectionStatusChanged(status):
         self?.didReceiveStatus?(.success(status))
       case let .subscriptionChanged(change):
         self?.didReceiveSubscriptionChange?(change)
       case let .presenceChanged(presence):
         self?.didReceivePresence?(presence)
-
       case let .uuidMetadataSet(metadata):
         self?.didReceiveObjectMetadataEvent?(.setUUID(metadata))
       case let .uuidMetadataRemoved(metadataId):
@@ -295,7 +284,6 @@ public final class CoreListener: BaseSubscriptionListener {
         self?.didReceiveObjectMetadataEvent?(.setMembership(membership))
       case let .membershipMetadataRemoved(membership):
         self?.didReceiveObjectMetadataEvent?(.removedMembership(membership))
-
       case let .messageActionAdded(action):
         self?.didReceiveMessageAction?(.added(action))
       case let .messageActionRemoved(action):

@@ -16,7 +16,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let presenceEngine: PresenceEngine
   let presenceStateContainer: PubNubPresenceStateContainer
 
-  var privateListeners: WeakSet<ListenerType> = WeakSet([])
+  var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
   var configuration: SubscriptionConfiguration
   var previousTokenResponse: SubscribeCursor?
   var filterExpression: String? {
@@ -73,7 +73,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     subscribeEngine.dependencies = EventEngineDependencies(
       value: Subscribe.Dependencies(
         configuration: configuration,
-        listeners: privateListeners.allObjects
+        listeners: listeners.allObjects
       )
     )
   }
@@ -104,47 +104,92 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     sendSubscribeEvent(event: .subscriptionChanged(channels: channels, groups: groups))
   }
 
-  // MARK: - Subscription Loop
-
   func subscribe(
-    to channels: [String],
-    and groups: [String],
-    at cursor: SubscribeCursor?,
-    withPresence: Bool
+    to channels: [PubNubChannel],
+    and groups: [PubNubChannel],
+    at cursor: SubscribeCursor?
   ) {
-    let currentInput = subscribeEngine.state.input
-    let newChannels = channels.map { PubNubChannel(id: $0, withPresence: withPresence) }
-    let newGroups = groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
-    let addingResult = currentInput.adding(channels: newChannels, and: newGroups)
-    let newInput = addingResult.newInput
+    let currentChannelsAndGroups = subscribeEngine.state.input
+    let insertionResult = currentChannelsAndGroups.adding(channels: channels, and: groups)
+    let newChannelsAndGroups = insertionResult.newInput
     
-    if newInput != currentInput {
-      if let cursor = cursor, cursor.timetoken != 0 {
-        sendSubscribeEvent(event: .subscriptionRestored(
-          channels: newInput.allSubscribedChannelNames,
-          groups: newInput.allSubscribedGroupNames,
-          cursor: cursor
-        ))
-      } else {
-        sendSubscribeEvent(event: .subscriptionChanged(
-          channels: newInput.allSubscribedChannelNames,
-          groups: newInput.allSubscribedGroupNames
-        ))
-      }
-      sendPresenceEvent(event: .joined(
-        channels: newInput.subscribedChannelNames,
-        groups: newInput.subscribedGroupNames
+    if let cursor = cursor, cursor.timetoken != 0 {
+      sendSubscribeEvent(event: .subscriptionRestored(
+        channels: newChannelsAndGroups.allSubscribedChannelNames,
+        groups: newChannelsAndGroups.allSubscribedGroupNames,
+        cursor: cursor
       ))
-      
+      sendPresenceEvent(event: .joined(
+        channels: newChannelsAndGroups.subscribedChannelNames,
+        groups: newChannelsAndGroups.subscribedGroupNames
+      ))
+    } else if newChannelsAndGroups != currentChannelsAndGroups {
+      sendSubscribeEvent(event: .subscriptionChanged(
+        channels: newChannelsAndGroups.allSubscribedChannelNames,
+        groups: newChannelsAndGroups.allSubscribedGroupNames
+      ))
+      sendPresenceEvent(event: .joined(
+        channels: newChannelsAndGroups.subscribedChannelNames,
+        groups: newChannelsAndGroups.subscribedGroupNames
+      ))
+    } else {
+      // No unique channels or channel groups were provided.
+      // There's no need to alter the Subscribe loop.
+    }
+    if !insertionResult.insertedChannels.isEmpty || !insertionResult.insertedGroups.isEmpty {
       notify {
         $0.emit(subscribe: .subscriptionChanged(
           .subscribed(
-            channels: addingResult.insertedChannels,
-            groups: addingResult.insertedGroups
+            channels: insertionResult.insertedChannels,
+            groups: insertionResult.insertedGroups
           ))
         )
       }
     }
+  }
+  
+  func unsubscribeFrom(
+    channels: [PubNubChannel],
+    presenceChannelsOnly: [PubNubChannel],
+    groups: [PubNubChannel],
+    presenceGroupsOnly: [PubNubChannel]
+  )  {
+    // Retrieve the current list of subscribed channels and channel groups
+    let currentChannelsAndGroups = subscribeEngine.state.input
+    // Provides the outcome after updating the list of channels and channel groups
+    let removingResult = currentChannelsAndGroups.removing(
+      channels: channels,presenceChannelsOnly: presenceChannelsOnly,
+      groups: groups, presenceGroupsOnly: presenceGroupsOnly
+    )
+    
+    // Exits if there are no differences for channels or channel groups
+    guard removingResult.newInput != currentChannelsAndGroups else {
+      return
+    }
+    if configuration.maintainPresenceState {
+      presenceStateContainer.removeState(forChannels: removingResult.removedChannels.map { $0.id })
+    }
+    // Dispatch local event first to guarantee the expected order of events.
+    // An event indicating unsubscribing from channels and channel groups
+    // should be emitted before an event related to disconnecting
+    // from the Subscribe loop, assuming you unsubscribed from all channels
+    // and channel groups
+    notify {
+      $0.emit(subscribe: .subscriptionChanged(
+        .unsubscribed(
+          channels: removingResult.removedChannels,
+          groups: removingResult.removedGroups
+        ))
+      )
+    }
+    sendSubscribeEvent(event: .subscriptionChanged(
+      channels: removingResult.newInput.allSubscribedChannelNames,
+      groups: removingResult.newInput.allSubscribedGroupNames
+    ))
+    sendPresenceEvent(event: .left(
+      channels: removingResult.removedChannels.map { $0.id },
+      groups: removingResult.removedGroups.map { $0.id }
+    ))
   }
 
   func reconnect(at cursor: SubscribeCursor?) {
@@ -156,43 +201,14 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     sendPresenceEvent(event: .disconnect)
   }
 
-  // MARK: - Unsubscribe
-
-  func unsubscribe(from channels: [String], and groups: [String], presenceOnly: Bool) {
-    let unsubscribedChannels = channels.map { presenceOnly ? $0.presenceChannelName : $0 }
-    let unsubscribedGroups = groups.map { presenceOnly ? $0.presenceChannelName : $0 }
-    let currentInput = subscribeEngine.state.input
-    let removingRes = subscribeEngine.state.input.removing(channels: unsubscribedChannels, and: unsubscribedGroups)
-    let newInput = removingRes.newInput
-    
-    if newInput != currentInput {
-      if configuration.maintainPresenceState {
-        presenceStateContainer.removeState(forChannels: channels)
-      }
-      // Ensures that local event is emitted before receiving .disconnected connection status
-      notify {
-        $0.emit(subscribe: .subscriptionChanged(
-          .unsubscribed(
-            channels: removingRes.removedChannels,
-            groups: removingRes.removedGroups
-          ))
-        )
-      }
-      sendSubscribeEvent(event: .subscriptionChanged(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedGroupNames
-      ))
-      sendPresenceEvent(event: .left(
-        channels: channels,
-        groups: groups
-      ))
-    }
-  }
-
   func unsubscribeAll() {
     let currentInput = subscribeEngine.state.input
     
-    // Ensures that local event is emitted before receiving .disconnected connection status
+    // Dispatch local event first to guarantee the expected order of events.
+    // An event indicating unsubscribing from channels and channel groups
+    // should be emitted before an event related to disconnecting
+    // from the Subscribe loop, assuming you unsubscribed from all channels
+    // and channel groups
     notify {
       $0.emit(subscribe: .subscriptionChanged(
         .unsubscribed(
@@ -205,30 +221,12 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     sendSubscribeEvent(event: .unsubscribeAll)
     sendPresenceEvent(event: .leftAll)
   }
-}
-
-extension EventEngineSubscriptionSessionStrategy: EventStreamEmitter {
-  typealias ListenerType = BaseSubscriptionListener
-
-  var listeners: [ListenerType] {
-    privateListeners.allObjects
-  }
-
-  func add(_ listener: ListenerType) {
-    // Ensure that we cancel the previously attached token
-    listener.token?.cancel()
-    // Add new token to the listener
-    listener.token = ListenerToken { [weak self, weak listener] in
-      if let listener = listener {
-        self?.privateListeners.remove(listener)
-        self?.updateSubscribeEngineDependencies()
-      }
-    }
-    privateListeners.update(listener)
+  
+  func onListenerAdded(_ listener: BaseSubscriptionListener) {
     updateSubscribeEngineDependencies()
   }
-
-  func notify(listeners closure: (ListenerType) -> Void) {
-    listeners.forEach { closure($0) }
+  
+  private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
+    listeners.allObjects.forEach { closure($0) }
   }
 }

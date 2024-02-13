@@ -10,7 +10,7 @@
 
 import Foundation
 
-protocol SubscriptionSessionStrategy: EventStreamEmitter where ListenerType == BaseSubscriptionListener {
+protocol SubscriptionSessionStrategy: AnyObject {
   var uuid: UUID { get }
   var configuration: SubscriptionConfiguration { get set }
   var subscribedChannels: [String] { get }
@@ -19,9 +19,21 @@ protocol SubscriptionSessionStrategy: EventStreamEmitter where ListenerType == B
   var connectionStatus: ConnectionStatus { get }
   var previousTokenResponse: SubscribeCursor? { get set }
   var filterExpression: String? { get set }
+  var listeners: WeakSet<BaseSubscriptionListener> { get set }
+
+  func subscribe(
+    to channels: [PubNubChannel],
+    and groups: [PubNubChannel],
+    at cursor: SubscribeCursor?
+  )
+  func unsubscribeFrom(
+    channels: [PubNubChannel],
+    presenceChannelsOnly: [PubNubChannel],
+    groups: [PubNubChannel],
+    presenceGroupsOnly: [PubNubChannel]
+  )
   
-  func subscribe(to channels: [String], and groups: [String], at cursor: SubscribeCursor?, withPresence: Bool)
-  func unsubscribe(from channels: [String], and groups: [String], presenceOnly: Bool)
+  func onListenerAdded(_ listener: BaseSubscriptionListener)
   func reconnect(at cursor: SubscribeCursor?)
   func disconnect()
   func unsubscribeAll()

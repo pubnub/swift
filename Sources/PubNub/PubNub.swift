@@ -461,6 +461,56 @@ public extension PubNub {
   }
 }
 
+extension PubNub: SubscribeReceiver {
+  func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
+    subscription.registerAdapter(adapter)
+  }
+  
+  func internalSubscribe(
+    with channels: [Subscription],
+    and groups: [Subscription],
+    at timetoken: Timetoken?
+  ) {
+    subscription.internalSubscribe(
+      with: channels,
+      and: groups,
+      at: timetoken
+    )
+  }
+  
+  func internalUnsubscribe(
+    from channels: [Subscription],
+    and groups: [Subscription],
+    presenceOnly: Bool
+  ) {
+    subscription.internalUnsubscribe(
+      from: channels,
+      and: groups,
+      presenceOnly: presenceOnly
+    )
+  }
+}
+
+// MARK: - EntityCreator
+
+extension PubNub: EntityCreator {
+  public func channel(_ name: String) -> ChannelRepresentation {
+    subscription.channel(name)
+  }
+  
+  public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
+    subscription.channelGroup(name)
+  }
+  
+  public func userMetadata(_ name: String) -> UserMetadataRepresentation {
+    subscription.userMetadata(name)
+  }
+  
+  public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
+    subscription.channelMetadata(name)
+  }
+}
+
 // MARK: - Presence Management
 
 public extension PubNub {
@@ -1399,4 +1449,115 @@ public extension PubNub {
     configuration.consumerIdentifiers[identifier] = value
   }
   // swiftlint:disable:next file_length
+}
+
+// MARK: - Global EventEmitter
+
+/// An extension to the PubNub class, making it conform to the `EventEmitter` protocol and serving
+/// as a global emitter for all entities.
+///
+/// This extension enables `PubNub` instances to act as event emitters, allowing them to dispatch
+/// various types of events for all registered entities in the Subscribe loop.
+extension PubNub: EventEmitter {
+  public var queue: DispatchQueue {
+    subscription.queue
+  }
+  
+  public var uuid: UUID {
+    subscription.uuid
+  }
+  
+  public var eventStream: ((PubNubEvent) -> Void)? {
+    get {
+      subscription.eventStream
+    }
+    set {
+      subscription.eventStream = newValue
+    }
+  }
+  
+  public var eventsStream: (([PubNubEvent]) -> Void)? {
+    get {
+      subscription.eventsStream
+    }
+    set {
+      subscription.eventsStream = newValue
+    }
+  }
+  
+  public var messagesStream: ((PubNubMessage) -> Void)? {
+    get {
+      subscription.messagesStream
+    }
+    set {
+      subscription.messagesStream = newValue
+    }
+  }
+  
+  public var signalsStream: ((PubNubMessage) -> Void)? {
+    get {
+      subscription.signalsStream
+    }
+    set {
+      subscription.signalsStream = newValue
+    }
+  }
+  
+  public var presenceStream: ((PubNubPresenceChange) -> Void)? {
+    get {
+      subscription.presenceStream
+    }
+    set {
+      subscription.presenceStream = newValue
+    }
+  }
+  
+  public var messageActionsStream: ((PubNubMessageActionEvent) -> Void)? {
+    get {
+      subscription.messageActionsStream
+    }
+    set {
+      subscription.messageActionsStream = newValue
+    }
+  }
+  
+  public var filesStream: ((PubNubFileEvent) -> Void)? {
+    get {
+      subscription.filesStream
+    }
+    set {
+      subscription.filesStream = newValue
+    }
+  }
+  
+  public var appContextStream: ((PubNubAppContextEvent) -> Void)? {
+    get {
+      subscription.appContextStream
+    }
+    set {
+      subscription.appContextStream = newValue
+    }
+  }
+}
+
+/// An extension to the `PubNub` class, making it conform to the `StatusEmitter` protocol and serving
+/// as a global listener for connection changes and possible errors along the way.
+extension PubNub: StatusEmitter {
+  public var didReceiveConnectionStatusChange: ((ConnectionStatus) -> Void)? {
+    get {
+      subscription.didReceiveConnectionStatusChange
+    }
+    set {
+      subscription.didReceiveConnectionStatusChange = newValue
+    }
+  }
+  
+  public var didReceiveSubscribeError: ((PubNubError) -> Void)? {
+    get {
+      subscription.didReceiveSubscribeError
+    }
+    set {
+      subscription.didReceiveSubscribeError = newValue
+    }
+  }
 }

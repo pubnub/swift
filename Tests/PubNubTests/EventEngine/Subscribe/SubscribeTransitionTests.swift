@@ -180,13 +180,12 @@ class SubscribeTransitionTests: XCTestCase {
   }
   
   func test_SubscriptionChangedForHandshakeReconnectingState() throws {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 1,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .subscriptionChanged(
         channels: ["c1", "c1", "c1-pnpres", "c2"],
@@ -612,13 +611,12 @@ class SubscribeTransitionTests: XCTestCase {
   }
 
   func test_SubscriptionRestoredForHandshakeReconnectingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 1,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .subscriptionRestored(
         channels: ["c1", "c1-pnpres", "c2", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -794,7 +792,6 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Reconnect Success
 
   func test_HandshakeReconnectSuccessForReconnectingState() {
-    let reason = PubNubError(.unknown)
     let cursor = SubscribeCursor(
       timetoken: 200400600,
       region: 45
@@ -804,7 +801,7 @@ class SubscribeTransitionTests: XCTestCase {
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 1,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .handshakeReconnectSuccess(cursor: cursor)
     )
@@ -833,13 +830,12 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Reconnect Failure
 
   func test_HandshakeReconnectFailedForReconnectingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 0,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .handshakeReconnectFailure(error: PubNubError(.unknown))
     )
@@ -854,7 +850,7 @@ class SubscribeTransitionTests: XCTestCase {
       input: input,
       cursor: SubscribeCursor(timetoken: 0, region: 0),
       retryAttempt: 1,
-      reason: reason
+      reason: PubNubError(.unknown)
     )
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -864,13 +860,12 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Handshake Give Up
 
   func test_HandshakeGiveUpForReconnectingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.HandshakeReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 0, region: 0),
         retryAttempt: 3,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .handshakeReconnectGiveUp(error: PubNubError(.unknown))
     )
@@ -895,12 +890,11 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Receive Give Up
 
   func test_ReceiveGiveUpForReconnectingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
         input: input, cursor: SubscribeCursor(timetoken: 18001000, region: 123),
         retryAttempt: 3,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .receiveReconnectGiveUp(error: PubNubError(.unknown))
     )
@@ -959,7 +953,6 @@ class SubscribeTransitionTests: XCTestCase {
   // MARK: - Receive Failed
 
   func test_ReceiveFailedForReceivingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -981,7 +974,7 @@ class SubscribeTransitionTests: XCTestCase {
       input: input,
       cursor: SubscribeCursor(timetoken: 100500900, region: 11),
       retryAttempt: 0,
-      reason: reason
+      reason: PubNubError(.unknown)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -989,13 +982,12 @@ class SubscribeTransitionTests: XCTestCase {
   }
 
   func test_ReceiveReconnectFailedForReconnectingState() {
-    let reason = PubNubError(.unknown)
     let results = transition.transition(
       from: Subscribe.ReceiveReconnectingState(
         input: input,
         cursor: SubscribeCursor(timetoken: 100500900, region: 11),
         retryAttempt: 1,
-        reason: reason
+        reason: PubNubError(.unknown)
       ),
       event: .receiveReconnectFailure(error: PubNubError(.unknown))
     )
@@ -1013,7 +1005,7 @@ class SubscribeTransitionTests: XCTestCase {
       input: input,
       cursor: SubscribeCursor(timetoken: 100500900, region: 11),
       retryAttempt: 2,
-      reason: reason
+      reason: PubNubError(.unknown)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))

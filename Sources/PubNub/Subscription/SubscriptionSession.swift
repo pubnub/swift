@@ -11,7 +11,7 @@
 import Foundation
 
 @available(*, deprecated, message: "Subscribe and unsubscribe using methods from a PubNub object")
-public class SubscriptionSession: EventEmitter {
+public class SubscriptionSession: EventEmitter, StatusEmitter {
   /// A unique identifier for subscription session
   public var uuid: UUID {
     strategy.uuid
@@ -31,16 +31,18 @@ public class SubscriptionSession: EventEmitter {
   }
   
   /// `EventEmitter` conformance
-  public var eventStream: ((PubNubEvent) -> Void)?
-  public var eventsStream: (([PubNubEvent]) -> Void)?
-  public var messagesStream: ((PubNubMessage) -> Void)?
-  public var signalsStream: ((PubNubMessage) -> Void)?
-  public var presenceStream: ((PubNubPresenceChange) -> Void)?
-  public var messageActionsStream: ((PubNubMessageActionEvent) -> Void)?
-  public var filesStream: ((PubNubFileEvent) -> Void)?
-  public var appContextStream: ((PubNubAppContextEvent) -> Void)?
-  public var didReceiveConnectionStatusChange: ((ConnectionStatus) -> Void)?
-  public var didReceiveSubscribeError: ((PubNubError) -> Void)?
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  
+  /// `StatusEmitter` conformance
+  public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
+  public var onSubscribeError: ((PubNubError) -> Void)?
 
   var previousTokenResponse: SubscribeCursor? {
     strategy.previousTokenResponse
@@ -70,9 +72,9 @@ public class SubscriptionSession: EventEmitter {
     statusListener.didReceiveStatus = { [weak self] statusChange in
       switch statusChange {
       case .success(let newStatus):
-        self?.didReceiveConnectionStatusChange?(newStatus)
+        self?.onConnectionStateChange?(newStatus)
       case .failure(let error):
-        self?.didReceiveSubscribeError?(error)
+        self?.onSubscribeError?(error)
       }
     }
     return statusListener

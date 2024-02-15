@@ -15,9 +15,9 @@ import Foundation
 /// A protocol for types that emit PubNub status events from the Subscribe loop.
 public protocol StatusEmitter: AnyObject {
   /// A closure to be called when the connection status changes.
-  var didReceiveConnectionStatusChange: ((ConnectionStatus) -> Void)? { get set }
+  var onConnectionStateChange: ((ConnectionStatus) -> Void)? { get set }
   /// A closure to be called when a subscription error occurs.
-  var didReceiveSubscribeError: ((PubNubError) -> Void)? { get set }
+  var onSubscribeError: ((PubNubError) -> Void)? { get set }
 }
 
 // MARK: - EventEmitter
@@ -31,24 +31,24 @@ public protocol EventEmitter: AnyObject {
   /// A unique emitter's identifier
   var uuid: UUID { get }
   /// Receiver for a single event
-  var eventStream: ((PubNubEvent) -> Void)? { get set }
-  /// Receiver for multiple events. This will also emit individual events to `eventStream:`
-  var eventsStream: (([PubNubEvent]) -> Void)? { get set }
+  var onEvent: ((PubNubEvent) -> Void)? { get set }
+  /// Receiver for multiple events. This will also emit individual events to `onEvent:`
+  var onEvents: (([PubNubEvent]) -> Void)? { get set }
   /// Receiver for Message events
-  var messagesStream: ((PubNubMessage) -> Void)? { get set }
+  var onMessage: ((PubNubMessage) -> Void)? { get set }
   /// Receiver for Signal events
-  var signalsStream: ((PubNubMessage) -> Void)? { get set }
+  var onSignal: ((PubNubMessage) -> Void)? { get set }
   /// Receiver for Presence events
-  var presenceStream: ((PubNubPresenceChange) -> Void)? { get set }
+  var onPresence: ((PubNubPresenceChange) -> Void)? { get set }
   /// Receiver for Message Action events
-  var messageActionsStream: ((PubNubMessageActionEvent) -> Void)? { get set }
+  var onMessageAction: ((PubNubMessageActionEvent) -> Void)? { get set }
   /// Receiver for File Upload events
-  var filesStream: ((PubNubFileEvent) -> Void)? { get set }
+  var onFileEvent: ((PubNubFileEvent) -> Void)? { get set }
   /// Receiver for App Context events
-  var appContextStream: ((PubNubAppContextEvent) -> Void)? { get set }
+  var onAppContext: ((PubNubAppContextEvent) -> Void)? { get set }
 }
 
-/// A protocol representing a type that can be used to dispose of subscriptions.
+/// A protocol representing a type that can be utilized to dispose of a conforming object.
 public protocol SubscriptionDisposable {
   /// Determines whether current emitter is disposed
   var isDisposed: Bool { get }
@@ -60,23 +60,23 @@ extension EventEmitter {
   func emit(events: [PubNubEvent]) {
     queue.async { [weak self] in
       if !events.isEmpty {
-        self?.eventsStream?(events)
+        self?.onEvents?(events)
       }
       for event in events {
-        self?.eventStream?(event)
+        self?.onEvent?(event)
         switch event {
         case let .messageReceived(message):
-          self?.messagesStream?(message)
+          self?.onMessage?(message)
         case let .signalReceived(signal):
-          self?.signalsStream?(signal)
+          self?.onSignal?(signal)
         case let .presenceChange(presence):
-          self?.presenceStream?(presence)
+          self?.onPresence?(presence)
         case let .appContextEvent(appContextEvent):
-          self?.appContextStream?(appContextEvent)
+          self?.onAppContext?(appContextEvent)
         case let .messageActionEvent(messageActionEvent):
-          self?.messageActionsStream?(messageActionEvent)
+          self?.onMessageAction?(messageActionEvent)
         case let .fileUploadEvent(fileEvent):
-          self?.filesStream?(fileEvent)
+          self?.onFileEvent?(fileEvent)
         }
       }
     }
@@ -85,14 +85,14 @@ extension EventEmitter {
 
 extension EventEmitter {
   func clearCallbacks() {
-    eventStream = nil
-    eventsStream = nil
-    messagesStream = nil
-    signalsStream = nil
-    presenceStream = nil
-    messageActionsStream = nil
-    filesStream = nil
-    appContextStream = nil
+    onEvent = nil
+    onEvents = nil
+    onMessage = nil
+    onSignal = nil
+    onPresence = nil
+    onMessageAction = nil
+    onFileEvent = nil
+    onAppContext = nil
   }
 }
 

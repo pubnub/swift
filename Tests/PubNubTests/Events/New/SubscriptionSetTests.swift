@@ -58,30 +58,30 @@ class SubscriptionSetTests: XCTestCase {
       pubnub.channel("c2")
     ])
     
-    subscription.eventsStream = { _ in
+    subscription.onEvents = { _ in
       allEventsExpectation.fulfill()
       singleEventExpectation.fulfill()
     }
-    subscription.messagesStream = { _ in
+    subscription.onMessage = { _ in
       messagesExpectation.fulfill()
       singleEventExpectation.fulfill()
     }
-    subscription.signalsStream = { _ in
+    subscription.onSignal = { _ in
       signalExpectation.fulfill()
       singleEventExpectation.fulfill()
     }
-    subscription.messageActionsStream = { _ in
+    subscription.onMessageAction = { _ in
       messageAction.fulfill()
       singleEventExpectation.fulfill()
     }
-    subscription.presenceStream = { _ in
+    subscription.onPresence = { _ in
       presenceChangeExpectation.fulfill()
     }
-    subscription.appContextStream = { _ in
+    subscription.onAppContext = { _ in
       appContextExpectation.fulfill()
       singleEventExpectation.fulfill()
     }
-    subscription.filesStream = { _ in
+    subscription.onFileEvent = { _ in
       fileExpectation.fulfill()
       singleEventExpectation.fulfill()
     }

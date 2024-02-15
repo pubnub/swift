@@ -246,12 +246,12 @@ class SubscriptionIntegrationTests: XCTestCase {
         let pubnub = PubNub(configuration: config)
         var statusCounter = 0
         
-        pubnub.messagesStream = { [unowned pubnub] message in
+        pubnub.onMessage = { [unowned pubnub] message in
           XCTAssertTrue(message.payload.stringOptional == "This is a message")
           messageExpect.fulfill()
           pubnub.unsubscribe(from: [self.testChannel])
         }
-        pubnub.didReceiveConnectionStatusChange = { [unowned pubnub] change in
+        pubnub.onConnectionStateChange = { [unowned pubnub] change in
           if statusCounter == 0 {
             XCTAssertTrue(change == .connecting)
           } else if statusCounter == 1 {

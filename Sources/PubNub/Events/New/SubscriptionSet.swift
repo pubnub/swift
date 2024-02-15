@@ -14,14 +14,14 @@ import Foundation
 ///
 /// Use this class to manage multiple `Subscription` concurrently.
 public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
-  public var eventStream: ((PubNubEvent) -> Void)?
-  public var eventsStream: (([PubNubEvent]) -> Void)?
-  public var messagesStream: ((PubNubMessage) -> Void)?
-  public var signalsStream: ((PubNubMessage) -> Void)?
-  public var presenceStream: ((PubNubPresenceChange) -> Void)?
-  public var messageActionsStream: ((PubNubMessageActionEvent) -> Void)?
-  public var filesStream: ((PubNubFileEvent) -> Void)?
-  public var appContextStream: ((PubNubAppContextEvent) -> Void)?
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
   
   public let queue: DispatchQueue
   /// Additional subscription options
@@ -67,8 +67,8 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   ///
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
-  ///   - subscriptions: A collection of existing `Subscription` instances to include in the Subscribe loop.
-  ///   - options: Additional subscription options for configuring the subscription set  ///
+  ///   - subscriptions: A collection of existing `Subscription` instances to include in the Subscribe loop
+  ///   - options: Additional subscription options
   public init(
     queue: DispatchQueue = .main,
     subscriptions: any Collection<Subscription>,
@@ -157,8 +157,13 @@ extension SubscriptionSet: SubscribeCapable {
     receiver.registerAdapter(adapter)
     currentSubscriptions.forEach { receiver.registerAdapter($0.adapter) }
     
-    let channels = currentSubscriptions.filter { $0.subscriptionType == .channel }.allObjects
-    let groups = currentSubscriptions.filter { $0.subscriptionType == .channelGroup }.allObjects
+    let channels = currentSubscriptions.filter {
+      $0.subscriptionType == .channel
+    }.allObjects
+    
+    let groups = currentSubscriptions.filter {
+      $0.subscriptionType == .channelGroup
+    }.allObjects
     
     receiver.internalSubscribe(
       with: channels,

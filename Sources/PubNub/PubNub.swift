@@ -1462,102 +1462,61 @@ extension PubNub: EventEmitter {
   public var queue: DispatchQueue {
     subscription.queue
   }
-  
   public var uuid: UUID {
     subscription.uuid
   }
   
-  public var eventStream: ((PubNubEvent) -> Void)? {
-    get {
-      subscription.eventStream
-    }
-    set {
-      subscription.eventStream = newValue
-    }
+  public var onEvent: ((PubNubEvent) -> Void)? {
+    get { subscription.onEvent }
+    set { subscription.onEvent = newValue }
   }
   
-  public var eventsStream: (([PubNubEvent]) -> Void)? {
-    get {
-      subscription.eventsStream
-    }
-    set {
-      subscription.eventsStream = newValue
-    }
+  public var onEvents: (([PubNubEvent]) -> Void)? {
+    get { subscription.onEvents }
+    set { subscription.onEvents = newValue }
   }
   
-  public var messagesStream: ((PubNubMessage) -> Void)? {
-    get {
-      subscription.messagesStream
-    }
-    set {
-      subscription.messagesStream = newValue
-    }
+  public var onMessage: ((PubNubMessage) -> Void)? {
+    get { subscription.onMessage }
+    set { subscription.onMessage = newValue }
   }
   
-  public var signalsStream: ((PubNubMessage) -> Void)? {
-    get {
-      subscription.signalsStream
-    }
-    set {
-      subscription.signalsStream = newValue
-    }
+  public var onSignal: ((PubNubMessage) -> Void)? {
+    get { subscription.onSignal }
+    set { subscription.onSignal = newValue }
   }
   
-  public var presenceStream: ((PubNubPresenceChange) -> Void)? {
-    get {
-      subscription.presenceStream
-    }
-    set {
-      subscription.presenceStream = newValue
-    }
+  public var onPresence: ((PubNubPresenceChange) -> Void)? {
+    get { subscription.onPresence }
+    set { subscription.onPresence = newValue }
   }
   
-  public var messageActionsStream: ((PubNubMessageActionEvent) -> Void)? {
-    get {
-      subscription.messageActionsStream
-    }
-    set {
-      subscription.messageActionsStream = newValue
-    }
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)? {
+    get { subscription.onMessageAction }
+    set { subscription.onMessageAction = newValue }
   }
   
-  public var filesStream: ((PubNubFileEvent) -> Void)? {
-    get {
-      subscription.filesStream
-    }
-    set {
-      subscription.filesStream = newValue
-    }
+  public var onFileEvent: ((PubNubFileEvent) -> Void)? {
+    get { subscription.onFileEvent }
+    set { subscription.onFileEvent = newValue }
   }
   
-  public var appContextStream: ((PubNubAppContextEvent) -> Void)? {
-    get {
-      subscription.appContextStream
-    }
-    set {
-      subscription.appContextStream = newValue
-    }
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)? {
+    get { subscription.onAppContext }
+    set { subscription.onAppContext = newValue }
   }
 }
 
 /// An extension to the `PubNub` class, making it conform to the `StatusEmitter` protocol and serving
 /// as a global listener for connection changes and possible errors along the way.
 extension PubNub: StatusEmitter {
-  public var didReceiveConnectionStatusChange: ((ConnectionStatus) -> Void)? {
-    get {
-      subscription.didReceiveConnectionStatusChange
-    }
-    set {
-      subscription.didReceiveConnectionStatusChange = newValue
-    }
+  public var onConnectionStateChange: ((ConnectionStatus) -> Void)? {
+    get { subscription.onConnectionStateChange }
+    set { subscription.onConnectionStateChange = newValue }
   }
   
-  public var didReceiveSubscribeError: ((PubNubError) -> Void)? {
-    get {
-      subscription.didReceiveSubscribeError
-    }
-    set {
-      subscription.didReceiveSubscribeError = newValue
-    }
+  public var onSubscribeError: ((PubNubError) -> Void)? {
+    get { subscription.onSubscribeError }
+    set { subscription.onSubscribeError = newValue }
   }
 }

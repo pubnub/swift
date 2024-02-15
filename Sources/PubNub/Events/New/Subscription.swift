@@ -43,14 +43,14 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   // Stores the timetoken the user subscribed with
   private(set) var timetoken: Timetoken?
   
-  public var eventStream: ((PubNubEvent) -> Void)?
-  public var eventsStream: (([PubNubEvent]) -> Void)?
-  public var messagesStream: ((PubNubMessage) -> Void)?
-  public var signalsStream: ((PubNubMessage) -> Void)?
-  public var presenceStream: ((PubNubPresenceChange) -> Void)?
-  public var messageActionsStream: ((PubNubMessageActionEvent) -> Void)?
-  public var filesStream: ((PubNubFileEvent) -> Void)?
-  public var appContextStream: ((PubNubAppContextEvent) -> Void)?
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
   
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(

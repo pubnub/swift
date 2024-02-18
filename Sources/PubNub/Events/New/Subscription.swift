@@ -165,35 +165,31 @@ extension Subscription: SubscribeMessagesReceiver {
   
   func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
     let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
-    let receivedFromCurrentEntity: Bool
+    let isMatchingEntity: Bool
     
     if subscriptionType == .channel {
-      receivedFromCurrentEntity = entity.name.matches(string: payload.channel)
+      isMatchingEntity = isMatchingEntityName(entity.name, string: payload.channel)
     } else if subscriptionType == .channelGroup {
-      receivedFromCurrentEntity = entity.name.matches(string: payload.subscription ?? payload.channel)
+      isMatchingEntity = isMatchingEntityName(entity.name, string: payload.subscription ?? payload.channel)
     } else {
-      receivedFromCurrentEntity = true
+      isMatchingEntity = true
     }
     
-    if receivedFromCurrentEntity && isNewerOrEqualToTimetoken {
+    if isMatchingEntity && isNewerOrEqualToTimetoken {
       let event = payload.asPubNubEvent()
       return options.filterCriteriaSatisfied(event: event) ? event : nil
     } else {
       return nil
     }
   }
-}
-
-// MARK: - Helper String extension
-
-fileprivate extension String {
-  func matches(string: String) -> Bool {
-    guard hasSuffix(".*") else {
-      return self == string
+  
+  fileprivate func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
+    guard entityName.hasSuffix(".*") else {
+      return entityName == string
     }
-    let pattern = "^" + self + "$"
-    let predicate = NSPredicate(format: "SELF MATCHES %@", pattern)
-
-    return predicate.evaluate(with: string)
+    if let firstIndex = entityName.lastIndex(of: "."), let secondIndex = string.lastIndex(of: ".") {
+      return entityName.prefix(upTo: firstIndex) == string.prefix(upTo: secondIndex)
+    }
+    return false
   }
 }

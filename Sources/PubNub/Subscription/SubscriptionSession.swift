@@ -394,11 +394,11 @@ extension SubscriptionSession: EntityCreator {
   }
   
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    UserMetadataRepresentation(name: name, receiver: self)
+    UserMetadataRepresentation(id: name, receiver: self)
   }
   
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    ChannelMetadataRepresentation(name: name, receiver: self)
+    ChannelMetadataRepresentation(id: name, receiver: self)
   }
 }
 

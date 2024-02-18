@@ -41,7 +41,7 @@ public class UserMetadataRepresentation: Subscribable {
 
 /// Represents channel metadata that can be subscribed to and unsubscribed from using the PubNub service.
 public class ChannelMetadataRepresentation: Subscribable {
-  init(name: String, receiver: SubscribeReceiver) {
-    super.init(name: name, subscriptionType: .channel, receiver: receiver)
+  init(id: String, receiver: SubscribeReceiver) {
+    super.init(name: id, subscriptionType: .channel, receiver: receiver)
   }
 }

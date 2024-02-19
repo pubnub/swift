@@ -42,7 +42,6 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
   
   /// `StatusEmitter` conformance
   public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
-  public var onSubscribeError: ((PubNubError) -> Void)?
 
   var previousTokenResponse: SubscribeCursor? {
     strategy.previousTokenResponse
@@ -70,11 +69,8 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
     // Detects status changes and forwards events to the current instance
     // representing the Subscribe loop's status emitter
     statusListener.didReceiveStatus = { [weak self] statusChange in
-      switch statusChange {
-      case .success(let newStatus):
+      if case .success(let newStatus) = statusChange {
         self?.onConnectionStateChange?(newStatus)
-      case .failure(let error):
-        self?.onSubscribeError?(error)
       }
     }
     return statusListener

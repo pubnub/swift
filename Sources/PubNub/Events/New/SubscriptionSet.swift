@@ -49,7 +49,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   ///   - options: Additional subscription options
   public init(
     queue: DispatchQueue = .main,
-    entities: any Collection<Subscribable>,
+    entities: any Collection<Subscribable> = [],
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) {
     self.queue = queue
@@ -71,7 +71,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   ///   - options: Additional subscription options
   public init(
     queue: DispatchQueue = .main,
-    subscriptions: any Collection<Subscription>,
+    subscriptions: any Collection<Subscription> = [],
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) {
     self.queue = queue

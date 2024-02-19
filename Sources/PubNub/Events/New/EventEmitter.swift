@@ -16,8 +16,6 @@ import Foundation
 public protocol StatusEmitter: AnyObject {
   /// A closure to be called when the connection status changes.
   var onConnectionStateChange: ((ConnectionStatus) -> Void)? { get set }
-  /// A closure to be called when a subscription error occurs.
-  var onSubscribeError: ((PubNubError) -> Void)? { get set }
 }
 
 // MARK: - EventEmitter

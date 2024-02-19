@@ -873,7 +873,7 @@ class SubscribeTransitionTests: XCTestCase {
       .cancel(.handshakeReconnect),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connecting,
-        newStatus: .connectionError,
+        newStatus: .connectionError(PubNubError(.unknown)),
         error: PubNubError(.unknown)
       )))
     ]
@@ -902,7 +902,7 @@ class SubscribeTransitionTests: XCTestCase {
       .cancel(.receiveReconnect),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: .connected,
-        newStatus: .disconnectedUnexpectedly,
+        newStatus: .disconnectedUnexpectedly(PubNubError(.unknown)),
         error: PubNubError(.unknown)
       )))
     ]
@@ -1262,7 +1262,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connectionError,
+        oldStatus: .connectionError(PubNubError(.badRequest)),
         newStatus: .disconnected,
         error: nil
       )))
@@ -1348,7 +1348,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnectedUnexpectedly,
+        oldStatus: .disconnectedUnexpectedly(PubNubError(.badRequest)),
         newStatus: .disconnected,
         error: nil
       )))

@@ -1514,9 +1514,4 @@ extension PubNub: StatusEmitter {
     get { subscription.onConnectionStateChange }
     set { subscription.onConnectionStateChange = newValue }
   }
-  
-  public var onSubscribeError: ((PubNubError) -> Void)? {
-    get { subscription.onSubscribeError }
-    set { subscription.onSubscribeError = newValue }
-  }
 }

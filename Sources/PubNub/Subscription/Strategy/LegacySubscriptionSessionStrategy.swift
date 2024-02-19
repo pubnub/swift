@@ -279,7 +279,9 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
             // Repeat the request
             self?.performSubscribeLoop(at: cursor)
           } else {
-            self?.connectionStatus = .disconnectedUnexpectedly
+            self?.connectionStatus = .disconnectedUnexpectedly(
+              error.pubNubError ?? PubNubError(.unknown, underlying: error)
+            )
           }
         }
       }

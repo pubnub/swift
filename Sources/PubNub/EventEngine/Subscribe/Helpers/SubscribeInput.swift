@@ -120,21 +120,21 @@ struct SubscribeInput: Equatable {
   }
   
   func removing(
-    channels: [PubNubChannel],
+    mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
-    groups: [PubNubChannel],
+    mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   ) -> SubscribeInput.RemovingResult {
     // Gets a copy of current channels and channel groups
     var currentChannels = channelEntries
     var currentGroups = groupEntries
     
-    let removedChannels = channels.compactMap {
+    let removedChannels = mainChannels.compactMap {
       currentChannels.removeValue(forKey: $0.id)
     } + presenceChannelsOnly.compactMap {
       currentChannels.unsubscribePresence($0.id)
     }
-    let removedGroups = groups.compactMap {
+    let removedGroups = mainGroups.compactMap {
       currentGroups.removeValue(forKey: $0.id)
     } + presenceGroupsOnly.compactMap {
       currentGroups.unsubscribePresence($0.id)

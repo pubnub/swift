@@ -149,17 +149,17 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
   
   func unsubscribeFrom(
-    channels: [PubNubChannel],
+    mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
-    groups: [PubNubChannel],
+    mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   )  {
     // Retrieve the current list of subscribed channels and channel groups
     let currentChannelsAndGroups = subscribeEngine.state.input
     // Provides the outcome after updating the list of channels and channel groups
     let removingResult = currentChannelsAndGroups.removing(
-      channels: channels,presenceChannelsOnly: presenceChannelsOnly,
-      groups: groups, presenceGroupsOnly: presenceGroupsOnly
+      mainChannels: mainChannels, presenceChannelsOnly: presenceChannelsOnly,
+      mainGroups: mainGroups, presenceGroupsOnly: presenceGroupsOnly
     )
     
     // Exits if there are no differences for channels or channel groups

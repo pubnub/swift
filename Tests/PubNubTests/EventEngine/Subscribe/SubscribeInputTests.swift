@@ -113,9 +113,9 @@ class SubscribeInputTests: XCTestCase {
       ]
     )
     let result = input1.removing(
-      channels: [PubNubChannel(id: "c1"), PubNubChannel(id: "c3")],
+      mainChannels: [PubNubChannel(id: "c1"), PubNubChannel(id: "c3")],
       presenceChannelsOnly: [],
-      groups: [PubNubChannel(id: "g1"), PubNubChannel(id: "g3")],
+      mainGroups: [PubNubChannel(id: "g1"), PubNubChannel(id: "g3")],
       presenceGroupsOnly: []
     )
     
@@ -164,9 +164,9 @@ class SubscribeInputTests: XCTestCase {
       PubNubChannel(id: "g3")
     ]
     let result = input1.removing(
-      channels: [],
+      mainChannels: [],
       presenceChannelsOnly: presenceChannelsToRemove,
-      groups: [],
+      mainGroups: [],
       presenceGroupsOnly: presenceGroupsToRemove
     )
     

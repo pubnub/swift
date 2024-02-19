@@ -466,6 +466,10 @@ extension PubNub: SubscribeReceiver {
     subscription.registerAdapter(adapter)
   }
   
+  func hasRegisteredAdapter(with uuid: UUID) -> Bool {
+    subscription.hasRegisteredAdapter(with: uuid)
+  }
+  
   func internalSubscribe(
     with channels: [Subscription],
     and groups: [Subscription],

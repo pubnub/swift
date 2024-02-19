@@ -79,6 +79,7 @@ public extension EntityCreator {
 // and channel groups.
 protocol SubscribeReceiver: AnyObject {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter)
+  func hasRegisteredAdapter(with uuid: UUID) -> Bool
   
   func internalSubscribe(
     with channels: [Subscription],

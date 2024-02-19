@@ -290,19 +290,19 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   // MARK: - Unsubscribe
   
   func unsubscribeFrom(
-    channels: [PubNubChannel],
+    mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
-    groups: [PubNubChannel],
+    mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   ) {
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
       .unsubscribed(
-        channels: channels.compactMap {
+        channels: mainChannels.compactMap {
           state.channels.removeValue(forKey: $0.id)
         } + presenceChannelsOnly.compactMap {
           state.channels.unsubscribePresence($0.id)
         },
-        groups: groups.compactMap {
+        groups: mainGroups.compactMap {
           state.groups.removeValue(forKey: $0.id)
         } + presenceGroupsOnly.compactMap {
           state.groups.unsubscribePresence($0.id)

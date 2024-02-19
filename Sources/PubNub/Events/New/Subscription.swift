@@ -86,11 +86,15 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   /// Use this method to create a new instance with the same configuration as the current `Subscription`.
   /// The clone is a separate instance that can be used independently.
   public func clone() -> Subscription {
-    Subscription(
+    let clonedSubscription = Subscription(
       queue: queue,
       entity: entity,
       options: options
     )
+    if receiver?.hasRegisteredAdapter(with: uuid) ?? false {
+      receiver?.registerAdapter(clonedSubscription.adapter)
+    }
+    return clonedSubscription
   }
   
   /// Disposes the current `Subscription`, ending the subscription.

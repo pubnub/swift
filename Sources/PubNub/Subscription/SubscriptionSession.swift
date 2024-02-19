@@ -207,6 +207,10 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
 // MARK: - SubscribeIntentReceiver
 
 extension SubscriptionSession: SubscribeReceiver {
+  func hasRegisteredAdapter(with uuid: UUID) -> Bool {
+    strategy.listeners.contains { $0?.uuid == uuid }
+  }
+  
   // Registers a subscription adapter to translate events from a legacy listener
   // into the new Listeners API.
   //
@@ -225,7 +229,7 @@ extension SubscriptionSession: SubscribeReceiver {
   // Maps the raw channel/channel group array to collections of `PubNubChannel` that should be unsubscribed to.
   private typealias UnsubscribeRetrievalRes = (
     presenceOnlyItems: [PubNubChannel],
-    items: [PubNubChannel]
+    mainItems: [PubNubChannel]
   )
   
   // Composes final PubNubChannel lists the user should subscribe to
@@ -308,9 +312,9 @@ extension SubscriptionSession: SubscribeReceiver {
       remove(channelGroupSubscription.adapter)
     }
     strategy.unsubscribeFrom(
-      channels: extractingChannelsRes.items,
+      mainChannels: extractingChannelsRes.mainItems,
       presenceChannelsOnly: extractingChannelsRes.presenceOnlyItems,
-      groups: extractingGroupsRes.items,
+      mainGroups: extractingGroupsRes.mainItems,
       presenceGroupsOnly: extractingGroupsRes.presenceOnlyItems
     )
   }
@@ -361,7 +365,7 @@ extension SubscriptionSession: SubscribeReceiver {
     
     return UnsubscribeRetrievalRes(
       presenceOnlyItems: presenceItems,
-      items: channels
+      mainItems: channels
     )
   }
 }

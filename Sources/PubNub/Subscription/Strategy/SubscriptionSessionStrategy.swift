@@ -27,9 +27,9 @@ protocol SubscriptionSessionStrategy: AnyObject {
     at cursor: SubscribeCursor?
   )
   func unsubscribeFrom(
-    channels: [PubNubChannel],
+    mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
-    groups: [PubNubChannel],
+    mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   )
   

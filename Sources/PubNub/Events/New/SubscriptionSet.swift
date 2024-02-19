@@ -126,7 +126,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
       options: options
     )
     if let receiver = currentSubscriptions.first?.receiver, receiver.hasRegisteredAdapter(with: uuid) {
-      receiver.registerAdapter(adapter)
+      receiver.registerAdapter(clonedSubscriptionSet.adapter)
     }
     return clonedSubscriptionSet
   }

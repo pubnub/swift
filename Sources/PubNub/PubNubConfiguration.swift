@@ -92,7 +92,7 @@ public struct PubNubConfiguration: Hashable {
     supressLeaveEvents: Bool = false,
     requestMessageCountThreshold: UInt = 100,
     filterExpression: String? = nil,
-    enableEventEngine: Bool = false,
+    enableEventEngine: Bool = true,
     maintainPresenceState: Bool = true
   ) {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
@@ -226,7 +226,7 @@ public struct PubNubConfiguration: Hashable {
   ///
   /// This switch can help you verify the behavior of the PubNub SDK with the new engine enabled
   /// in your app. It will default to true in a future SDK release.
-  public var enableEventEngine: Bool = false
+  public var enableEventEngine: Bool = true
   /// When `true` the SDK will resend the last channel state that was set using `PubNub.setPresence`.
   /// Applies only if `heartbeatInterval` is greater than 0 and `enableEventEngine` is true
   public var maintainPresenceState: Bool = false

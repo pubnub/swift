@@ -49,7 +49,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   public var onSignal: ((PubNubMessage) -> Void)?
   public var onPresence: ((PubNubPresenceChange) -> Void)?
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
-  public var onFileEvent: ((PubNubFileEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
   
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`

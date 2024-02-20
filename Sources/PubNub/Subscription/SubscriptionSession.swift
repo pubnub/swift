@@ -37,7 +37,7 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
   public var onSignal: ((PubNubMessage) -> Void)?
   public var onPresence: ((PubNubPresenceChange) -> Void)?
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
-  public var onFileEvent: ((PubNubFileEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
   
   /// `StatusEmitter` conformance

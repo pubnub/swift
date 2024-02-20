@@ -1500,7 +1500,7 @@ extension PubNub: EventEmitter {
     set { subscription.onMessageAction = newValue }
   }
   
-  public var onFileEvent: ((PubNubFileEvent) -> Void)? {
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)? {
     get { subscription.onFileEvent }
     set { subscription.onFileEvent = newValue }
   }

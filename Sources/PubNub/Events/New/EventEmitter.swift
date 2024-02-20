@@ -40,8 +40,8 @@ public protocol EventEmitter: AnyObject {
   var onPresence: ((PubNubPresenceChange) -> Void)? { get set }
   /// Receiver for Message Action events
   var onMessageAction: ((PubNubMessageActionEvent) -> Void)? { get set }
-  /// Receiver for File Upload events
-  var onFileEvent: ((PubNubFileEvent) -> Void)? { get set }
+  /// Receiver for File events
+  var onFileEvent: ((PubNubFileChangeEvent) -> Void)? { get set }
   /// Receiver for App Context events
   var onAppContext: ((PubNubAppContextEvent) -> Void)? { get set }
 }
@@ -67,14 +67,17 @@ extension EventEmitter {
           self?.onMessage?(message)
         case let .signalReceived(signal):
           self?.onSignal?(signal)
-        case let .presenceChange(presence):
+        case let .presenceChanged(presence):
           self?.onPresence?(presence)
-        case let .appContextEvent(appContextEvent):
+        case let .appContextChanged(appContextEvent):
           self?.onAppContext?(appContextEvent)
-        case let .messageActionEvent(messageActionEvent):
+        case let .messageActionChanged(messageActionEvent):
           self?.onMessageAction?(messageActionEvent)
-        case let .fileUploadEvent(fileEvent):
-          self?.onFileEvent?(fileEvent)
+        case let .fileChanged(fileEvent):
+          switch fileEvent {
+          case let .uploaded(fileInfo):
+            self?.onFileEvent?(.uploaded(fileInfo))
+          }
         }
       }
     }

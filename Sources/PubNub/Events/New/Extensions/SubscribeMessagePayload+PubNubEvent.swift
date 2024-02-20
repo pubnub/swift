@@ -23,17 +23,17 @@ extension SubscribeMessagePayload {
       }
       switch objectAction.subscribeEvent {
       case .channelMetadataRemoved(let metadataId):
-        return .appContextEvent(.removedChannel(metadataId: metadataId))
+        return .appContextChanged(.channelMetadataRemoved(metadataId: metadataId))
       case .channelMetadataSet(let changes):
-        return .appContextEvent(.setChannel(changes))
+        return .appContextChanged(.channelMetadataSet(changes))
       case .uuidMetadataSet(let changes):
-        return .appContextEvent(.setUUID(changes))
+        return .appContextChanged(.userMetadataSet(changes))
       case .uuidMetadataRemoved(let metadataId):
-        return .appContextEvent(.removedUUID(metadataId: metadataId))
+        return .appContextChanged(.userMetadataRemoved(metadataId: metadataId))
       case .membershipMetadataSet(let metadata):
-        return .appContextEvent(.setMembership(metadata))
+        return .appContextChanged(.membershipMetadataSet(metadata))
       case .membershipMetadataRemoved(let metadata):
-        return .appContextEvent(.removedMembership(metadata))
+        return .appContextChanged(.membershipMetadataRemoved(metadata))
       default:
         return .messageReceived(PubNubMessageBase(from: self))
       }
@@ -47,20 +47,20 @@ extension SubscribeMessagePayload {
       }
       switch actionEvent {
       case .added:
-        return .messageActionEvent(.added(messageAction))
+        return .messageActionChanged(.added(messageAction))
       case .removed:
-        return .messageActionEvent(.removed(messageAction))
+        return .messageActionChanged(.removed(messageAction))
       }
     case .file:
       guard let fileMessage = try? PubNubFileEventBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))
       }
-      return .fileUploadEvent(fileMessage)
+      return .fileChanged(.uploaded(fileMessage))
     case .presence:
       guard let presence = PubNubPresenceChangeBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))
       }
-      return .presenceChange(presence)
+      return .presenceChanged(presence)
     }
   }
 }

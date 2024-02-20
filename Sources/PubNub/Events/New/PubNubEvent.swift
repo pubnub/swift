@@ -17,13 +17,13 @@ public enum PubNubEvent {
   /// A signal has been received
   case signalReceived(PubNubMessage)
   /// A presence change has been received
-  case presenceChange(PubNubPresenceChange)
+  case presenceChanged(PubNubPresenceChange)
   /// A MessageAction was added/removed to a published message
-  case messageActionEvent(PubNubMessageActionEvent)
+  case messageActionChanged(PubNubMessageActionEvent)
   /// A File was uploaded to storage
-  case fileUploadEvent(PubNubFileEvent)
+  case fileChanged(PubNubFileChangeEvent)
   /// A Membership object has been added/removed/updated
-  case appContextEvent(PubNubAppContextEvent)
+  case appContextChanged(PubNubAppContextEvent)
 }
 
 /// Possible subevents for Message Actions
@@ -37,15 +37,20 @@ public enum PubNubMessageActionEvent {
 /// Possible subevents for AppContext
 public enum PubNubAppContextEvent {
   /// The `PubNubUUIDMetadataChangeset` of the set Membership
-  case setUUID(PubNubUUIDMetadataChangeset)
+  case userMetadataSet(PubNubUUIDMetadataChangeset)
   /// The unique identifer of the UUID that was removed
-  case removedUUID(metadataId: String)
+  case userMetadataRemoved(metadataId: String)
   /// The changeset for the Channel object that changed
-  case setChannel(PubNubChannelMetadataChangeset)
+  case channelMetadataSet(PubNubChannelMetadataChangeset)
   /// The unique identifer of the Channel that was removed
-  case removedChannel(metadataId: String)
+  case channelMetadataRemoved(metadataId: String)
   /// The `PubNubMembershipMetadata` of the set Membership
-  case setMembership(PubNubMembershipMetadata)
+  case membershipMetadataSet(PubNubMembershipMetadata)
   /// The `PubNubMembershipMetadata` of the removed Membership
-  case removedMembership(PubNubMembershipMetadata)
+  case membershipMetadataRemoved(PubNubMembershipMetadata)
+}
+
+/// Possible subevents for File
+public enum PubNubFileChangeEvent {
+  case uploaded(PubNubFileEvent)
 }

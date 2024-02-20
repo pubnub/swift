@@ -19,7 +19,8 @@ class SubscriptionIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(
       publishKey: "",
       subscribeKey: "",
-      userId: UUID().uuidString
+      userId: UUID().uuidString,
+      enableEventEngine: false
     )
     let eeConfiguration = PubNubConfiguration(
       publishKey: "",
@@ -32,10 +33,13 @@ class SubscriptionIntegrationTests: XCTestCase {
       XCTContext.runActivity(named: "Testing configuration with enableEventEngine=\(config.enableEventEngine)") { _ in
         let subscribeExpect = expectation(description: "Subscribe Expectation")
         let connectingExpect = expectation(description: "Connecting Expectation")
+        
         let disconnectedExpect = expectation(description: "Disconnected Expectation")
+        disconnectedExpect.assertForOverFulfill = true
+        disconnectedExpect.expectedFulfillmentCount = 1
         
         // Should return subscription key error
-        let pubnub = PubNub(configuration: configuration)
+        let pubnub = PubNub(configuration: config)
         let listener = SubscriptionListener()
         
         listener.didReceiveSubscription = { event in
@@ -45,6 +49,8 @@ class SubscriptionIntegrationTests: XCTestCase {
             case .connecting:
               connectingExpect.fulfill()
             case .disconnectedUnexpectedly:
+              disconnectedExpect.fulfill()
+            case .connectionError(_):
               disconnectedExpect.fulfill()
             default:
               XCTFail("Only should emit these two states")

@@ -14,9 +14,24 @@ struct SubscribeInput: Equatable {
   private let channelEntries: [String: PubNubChannel]
   private let groupEntries: [String: PubNubChannel]
   
+  typealias InsertingResult = (
+    newInput: SubscribeInput,
+    insertedChannels: [PubNubChannel],
+    insertedGroups: [PubNubChannel]
+  )
+  typealias RemovingResult = (
+    newInput: SubscribeInput,
+    removedChannels: [PubNubChannel],
+    removedGroups: [PubNubChannel]
+  )
+  
   init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
-    self.channelEntries = channels.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
-    self.groupEntries = groups.reduce(into: [String: PubNubChannel]()) { r, channel in _ = r.insert(channel) }
+    self.channelEntries = channels.reduce(into: [String: PubNubChannel]()) { r, channel in
+      _ = r.insert(channel)
+    }
+    self.groupEntries = groups.reduce(into: [String: PubNubChannel]()) { r, channel in
+      _ = r.insert(channel)
+    }
   }
   
   private init(channels: [String: PubNubChannel], groups: [String: PubNubChannel]) {
@@ -89,18 +104,15 @@ struct SubscribeInput: Equatable {
   func adding(
     channels: [PubNubChannel],
     and groups: [PubNubChannel]
-  ) -> (
-    newInput: SubscribeInput,
-    insertedChannels: [PubNubChannel],
-    insertedGroups: [PubNubChannel]
-  ) {
+  ) -> SubscribeInput.InsertingResult {
+    // Gets a copy of current channels and channel groups
     var currentChannels = channelEntries
     var currentGroups = groupEntries
     
     let insertedChannels = channels.filter { currentChannels.insert($0) }
     let insertedGroups = groups.filter { currentGroups.insert($0) }
     
-    return (
+    return InsertingResult(
       newInput: SubscribeInput(channels: currentChannels, groups: currentGroups),
       insertedChannels: insertedChannels,
       insertedGroups: insertedGroups
@@ -108,33 +120,26 @@ struct SubscribeInput: Equatable {
   }
   
   func removing(
-    channels: [String],
-    and groups: [String]
-  ) -> (
-    newInput: SubscribeInput,
-    removedChannels: [PubNubChannel],
-    removedGroups: [PubNubChannel]
-  ) {
+    mainChannels: [PubNubChannel],
+    presenceChannelsOnly: [PubNubChannel],
+    mainGroups: [PubNubChannel],
+    presenceGroupsOnly: [PubNubChannel]
+  ) -> SubscribeInput.RemovingResult {
+    // Gets a copy of current channels and channel groups
     var currentChannels = channelEntries
     var currentGroups = groupEntries
     
-    let removedChannels = channels.compactMap {
-      if $0.isPresenceChannelName {
-        return currentChannels.unsubscribePresence($0.trimmingPresenceChannelSuffix)
-      } else {
-        return currentChannels.removeValue(forKey: $0)
-      }
+    let removedChannels = mainChannels.compactMap {
+      currentChannels.removeValue(forKey: $0.id)
+    } + presenceChannelsOnly.compactMap {
+      currentChannels.unsubscribePresence($0.id)
     }
-    
-    let removedGroups = groups.compactMap {
-      if $0.isPresenceChannelName {
-        return currentGroups.unsubscribePresence($0.trimmingPresenceChannelSuffix)
-      } else {
-        return currentGroups.removeValue(forKey: $0)
-      }
+    let removedGroups = mainGroups.compactMap {
+      currentGroups.removeValue(forKey: $0.id)
+    } + presenceGroupsOnly.compactMap {
+      currentGroups.unsubscribePresence($0.id)
     }
-    
-    return (
+    return RemovingResult(
       newInput: SubscribeInput(channels: currentChannels, groups: currentGroups),
       removedChannels: removedChannels,
       removedGroups: removedGroups
@@ -157,28 +162,6 @@ extension Dictionary where Key == String, Value == PubNubChannel {
     }
     self[channel.id] = channel
     return true
-  }
-  
-  func difference(_ dict: [Key:Value]) -> [Key: Value] {
-    let entriesInSelfAndNotInDict = filter {
-      dict[$0.0] != self[$0.0]
-    }
-    return entriesInSelfAndNotInDict.reduce([Key:Value]()) { (res, entry) -> [Key:Value] in
-      var res = res
-      res[entry.0] = entry.1
-      return res
-    }
-  }
-  
-  func intersection(_ dict: [Key:Value]) -> [Key: Value] {
-    let entriesInSelfAndInDict = filter {
-      dict[$0.0] == self[$0.0]
-    }
-    return entriesInSelfAndInDict.reduce([Key:Value]()) { (res, entry) -> [Key:Value] in
-      var res = res
-      res[entry.0] = entry.1
-      return res
-    }
   }
 
   // Updates current Dictionary with the new channel value unsubscribed from Presence.

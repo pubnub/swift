@@ -300,15 +300,22 @@ public final class CoreListener: BaseSubscriptionListener {
 /// Listener that will emit events related to PubNub subscription and presence APIs
 open class BaseSubscriptionListener: EventStreamReceiver, Hashable {
   // EventStream
-  public let uuid = UUID()
+  public let uuid: UUID
   public var queue: DispatchQueue
 
   /// Whether you would like to avoid receiving cancellation errors from this listener
   public var supressCancellationErrors: Bool = true
+  // Keeps a mechanism to cancel a listener
   var token: ListenerToken?
 
   public init(queue: DispatchQueue = .main) {
     self.queue = queue
+    self.uuid = UUID()
+  }
+  
+  init(queue: DispatchQueue = .main, uuid: UUID = UUID()) {
+    self.queue = queue
+    self.uuid = uuid
   }
 
   deinit {
@@ -316,9 +323,12 @@ open class BaseSubscriptionListener: EventStreamReceiver, Hashable {
   }
 
   open func emit(batch _: [SubscribeMessagePayload]) {}
-
   open func emit(subscribe _: PubNubSubscribeEvent) {}
 
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(uuid)
+  }
+  
   public static func == (lhs: BaseSubscriptionListener, rhs: BaseSubscriptionListener) -> Bool {
     return lhs.uuid == rhs.uuid
   }

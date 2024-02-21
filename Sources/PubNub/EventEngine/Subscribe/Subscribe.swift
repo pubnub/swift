@@ -56,7 +56,14 @@ extension Subscribe {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
-    let connectionStatus = ConnectionStatus.connectionError
+    let connectionStatus: ConnectionStatus
+    
+    init(input: SubscribeInput, cursor: SubscribeCursor, error: PubNubError) {
+      self.input = input
+      self.cursor = cursor
+      self.error = error
+      self.connectionStatus = .connectionError(error)
+    }
   }
   
   struct ReceivingState: SubscribeState {
@@ -83,7 +90,14 @@ extension Subscribe {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
-    let connectionStatus = ConnectionStatus.disconnectedUnexpectedly
+    let connectionStatus: ConnectionStatus
+    
+    init(input: SubscribeInput, cursor: SubscribeCursor, error: PubNubError) {
+      self.input = input
+      self.cursor = cursor
+      self.error = error
+      self.connectionStatus = .disconnectedUnexpectedly(error)
+    }
   }
   
   struct UnsubscribedState: SubscribeState {

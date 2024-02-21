@@ -18,7 +18,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let responseQueue: DispatchQueue
   
   var configuration: SubscriptionConfiguration
-  var privateListeners: WeakSet<ListenerType> = WeakSet([])
+  var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
   var filterExpression: String?
   var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
   var presenceTimer: Timer?
@@ -110,36 +110,24 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   // MARK: - Subscription Loop
 
   func subscribe(
-    to channels: [String],
-    and groups: [String],
-    at cursor: SubscribeCursor?,
-    withPresence: Bool
+    to channels: [PubNubChannel],
+    and groups: [PubNubChannel],
+    at cursor: SubscribeCursor?
   ) {
-    if channels.isEmpty, groups.isEmpty {
-      return
-    }
-
-    let channelObject = channels.map { PubNubChannel(id: $0, withPresence: withPresence) }
-    let groupObjects = groups.map { PubNubChannel(id: $0, withPresence: withPresence) }
-
-    // Don't attempt to start subscription if there are no changes
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
-
-      let newChannels = channelObject.filter { state.channels.insert($0) }
-      let newGroups = groupObjects.filter { state.groups.insert($0) }
-
-      return .subscribed(channels: newChannels, groups: newGroups)
+      .subscribed(
+        channels: channels.filter { state.channels.insert($0) },
+        groups: groups.filter { state.groups.insert($0) }
+      )
     }
-
     if subscribeChange.didChange {
       notify { $0.emit(subscribe: .subscriptionChanged(subscribeChange)) }
     }
-
     if subscribeChange.didChange || !connectionStatus.isActive {
       reconnect(at: cursor)
     }
   }
-
+  
   /// Reconnect a disconnected subscription stream
   /// - parameter timetoken: The timetoken to subscribe with
   func reconnect(at cursor: SubscribeCursor? = nil) {
@@ -173,12 +161,10 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     let (channels, groups) = internalState.lockedWrite { state -> ([String], [String]) in
       (state.allSubscribedChannels, state.allSubscribedGroups)
     }
-    
     // Don't start subscription if there no channels/groups
     if channels.isEmpty, groups.isEmpty {
       return
     }
-    
     // Create Endpoing
     let router = SubscribeRouter(
       .subscribe(
@@ -199,7 +185,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     let currentSubscribeID = nextSubscribe.requestID
     
     request = nextSubscribe
-
     request?
       .validate()
       .response(on: .main, decoder: SubscribeDecoder()) { [weak self] result in
@@ -208,10 +193,8 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
           guard let strongSelf = self else {
             return
           }
-
           // Reset heartbeat timer
           self?.registerHeartbeatTimer()
-
           // Ensure that we're connected now the response has been processed
           self?.connectionStatus = .connected
 
@@ -263,15 +246,12 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
               // Update Cache and notify if not a duplicate message
               if !strongSelf.messageCache.contains(message) {
                 self?.messageCache.append(message)
-
                 // Remove oldest value if we're at max capacity
                 if strongSelf.messageCache.count >= 100 {
                   self?.messageCache.remove(at: 0)
                 }
-
                 return true
               }
-
               return false
             }
 
@@ -286,7 +266,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
                 .errorReceived(PubNubError.event(error, router: self?.request?.router))
             )
           }
-          
           if error.pubNubError?.reason == .clientCancelled || error.pubNubError?.reason == .longPollingRestart ||
               error.pubNubError?.reason == .longPollingReset {
             if self?.subscriptionCount == 0 {
@@ -297,34 +276,39 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
             }
           } else if let cursor = error.pubNubError?.affected.findFirst(by: PubNubError.AffectedValue.subscribe) {
             self?.previousTokenResponse = cursor
-
             // Repeat the request
             self?.performSubscribeLoop(at: cursor)
           } else {
-            self?.connectionStatus = .disconnectedUnexpectedly
+            self?.connectionStatus = .disconnectedUnexpectedly(
+              error.pubNubError ?? PubNubError(.unknown, underlying: error)
+            )
           }
         }
       }
   }
 
   // MARK: - Unsubscribe
-
-  func unsubscribe(from channels: [String], and groups: [String], presenceOnly: Bool) {
-    // Update Channel List
+  
+  func unsubscribeFrom(
+    mainChannels: [PubNubChannel],
+    presenceChannelsOnly: [PubNubChannel],
+    mainGroups: [PubNubChannel],
+    presenceGroupsOnly: [PubNubChannel]
+  ) {
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
-      if presenceOnly {
-        let presenceChannelsRemoved = channels.compactMap { state.channels.unsubscribePresence($0) }
-        let presenceGroupsRemoved = groups.compactMap { state.groups.unsubscribePresence($0) }
-
-        return .unsubscribed(channels: presenceChannelsRemoved, groups: presenceGroupsRemoved)
-      } else {
-        let removedChannels = channels.compactMap { state.channels.removeValue(forKey: $0) }
-        let removedGroups = groups.compactMap { state.groups.removeValue(forKey: $0) }
-
-        return .unsubscribed(channels: removedChannels, groups: removedGroups)
-      }
+      .unsubscribed(
+        channels: mainChannels.compactMap {
+          state.channels.removeValue(forKey: $0.id)
+        } + presenceChannelsOnly.compactMap {
+          state.channels.unsubscribePresence($0.id)
+        },
+        groups: mainGroups.compactMap {
+          state.groups.removeValue(forKey: $0.id)
+        } + presenceGroupsOnly.compactMap {
+          state.groups.unsubscribePresence($0.id)
+        }
+      )
     }
-
     if subscribeChange.didChange {
       notify {
         $0.emit(subscribe: .subscriptionChanged(subscribeChange))
@@ -396,28 +380,12 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       reconnect(at: previousTokenResponse)
     }
   }
-}
-
-extension LegacySubscriptionSessionStrategy: EventStreamEmitter {
-  typealias ListenerType = BaseSubscriptionListener
-
-  var listeners: [ListenerType] {
-    return privateListeners.allObjects
+  
+  func onListenerAdded(_ listener: BaseSubscriptionListener) {
+    
   }
-
-  func add(_ listener: ListenerType) {
-    // Ensure that we cancel the previously attached token
-    listener.token?.cancel()
-    // Add new token to the listener
-    listener.token = ListenerToken { [weak self, weak listener] in
-      if let listener = listener {
-        self?.privateListeners.remove(listener)
-      }
-    }
-    privateListeners.update(listener)
-  }
-
-  func notify(listeners closure: (ListenerType) -> Void) {
-    listeners.forEach { closure($0) }
+  
+  private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
+    listeners.allObjects.forEach { closure($0) }
   }
 }

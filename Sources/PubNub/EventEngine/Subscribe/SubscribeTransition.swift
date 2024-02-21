@@ -258,7 +258,7 @@ fileprivate extension SubscribeTransition {
       ), invocations: [
         .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
-          newStatus: .connectionError,
+          newStatus: .connectionError(error),
           error: error
         )))
       ]
@@ -329,7 +329,7 @@ fileprivate extension SubscribeTransition {
       ), invocations: [
         .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
           oldStatus: state.connectionStatus,
-          newStatus: .disconnectedUnexpectedly,
+          newStatus: .disconnectedUnexpectedly(error),
           error: error
         )))
       ]

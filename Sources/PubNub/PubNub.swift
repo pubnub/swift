@@ -461,6 +461,60 @@ public extension PubNub {
   }
 }
 
+extension PubNub: SubscribeReceiver {
+  func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
+    subscription.registerAdapter(adapter)
+  }
+  
+  func hasRegisteredAdapter(with uuid: UUID) -> Bool {
+    subscription.hasRegisteredAdapter(with: uuid)
+  }
+  
+  func internalSubscribe(
+    with channels: [Subscription],
+    and groups: [Subscription],
+    at timetoken: Timetoken?
+  ) {
+    subscription.internalSubscribe(
+      with: channels,
+      and: groups,
+      at: timetoken
+    )
+  }
+  
+  func internalUnsubscribe(
+    from channels: [Subscription],
+    and groups: [Subscription],
+    presenceOnly: Bool
+  ) {
+    subscription.internalUnsubscribe(
+      from: channels,
+      and: groups,
+      presenceOnly: presenceOnly
+    )
+  }
+}
+
+// MARK: - EntityCreator
+
+extension PubNub: EntityCreator {
+  public func channel(_ name: String) -> ChannelRepresentation {
+    subscription.channel(name)
+  }
+  
+  public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
+    subscription.channelGroup(name)
+  }
+  
+  public func userMetadata(_ name: String) -> UserMetadataRepresentation {
+    subscription.userMetadata(name)
+  }
+  
+  public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
+    subscription.channelMetadata(name)
+  }
+}
+
 // MARK: - Presence Management
 
 public extension PubNub {
@@ -1399,4 +1453,69 @@ public extension PubNub {
     configuration.consumerIdentifiers[identifier] = value
   }
   // swiftlint:disable:next file_length
+}
+
+// MARK: - Global EventEmitter
+
+/// An extension to the PubNub class, making it conform to the `EventEmitter` protocol and serving
+/// as a global emitter for all entities.
+///
+/// This extension enables `PubNub` instances to act as event emitters, allowing them to dispatch
+/// various types of events for all registered entities in the Subscribe loop.
+extension PubNub: EventEmitter {
+  public var queue: DispatchQueue {
+    subscription.queue
+  }
+  public var uuid: UUID {
+    subscription.uuid
+  }
+  
+  public var onEvent: ((PubNubEvent) -> Void)? {
+    get { subscription.onEvent }
+    set { subscription.onEvent = newValue }
+  }
+  
+  public var onEvents: (([PubNubEvent]) -> Void)? {
+    get { subscription.onEvents }
+    set { subscription.onEvents = newValue }
+  }
+  
+  public var onMessage: ((PubNubMessage) -> Void)? {
+    get { subscription.onMessage }
+    set { subscription.onMessage = newValue }
+  }
+  
+  public var onSignal: ((PubNubMessage) -> Void)? {
+    get { subscription.onSignal }
+    set { subscription.onSignal = newValue }
+  }
+  
+  public var onPresence: ((PubNubPresenceChange) -> Void)? {
+    get { subscription.onPresence }
+    set { subscription.onPresence = newValue }
+  }
+  
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)? {
+    get { subscription.onMessageAction }
+    set { subscription.onMessageAction = newValue }
+  }
+  
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)? {
+    get { subscription.onFileEvent }
+    set { subscription.onFileEvent = newValue }
+  }
+  
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)? {
+    get { subscription.onAppContext }
+    set { subscription.onAppContext = newValue }
+  }
+}
+
+/// An extension to the `PubNub` class, making it conform to the `StatusEmitter` protocol and serving
+/// as a global listener for connection changes and possible errors along the way.
+extension PubNub: StatusEmitter {
+  public var onConnectionStateChange: ((ConnectionStatus) -> Void)? {
+    get { subscription.onConnectionStateChange }
+    set { subscription.onConnectionStateChange = newValue }
+  }
 }

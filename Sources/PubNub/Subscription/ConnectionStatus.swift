@@ -23,9 +23,9 @@ public enum ConnectionStatus: Equatable {
   @available(*, deprecated, message: "This case will be removed in future versions")
   case reconnecting
   /// Unexpected disconnect from a remote system
-  case disconnectedUnexpectedly
+  case disconnectedUnexpectedly(PubNubError)
   /// Unable to establish initial connection. Applies if `enableEventEngine` in `PubNubConfiguration` is true.
-  case connectionError
+  case connectionError(PubNubError)
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {

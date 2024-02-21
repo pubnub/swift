@@ -92,7 +92,9 @@ class SubscriptionSessionTests: XCTestCase {
     for configuration in [config, eeEnabledConfig] {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let statusExpect = XCTestExpectation(description: "Status Event")
-
+        statusExpect.assertForOverFulfill = true
+        statusExpect.expectedFulfillmentCount = configuration.enableEventEngine ? 2 : 1
+        
         guard let session = try? MockURLSession.mockSession(
           for: ["badURL", "cancelled"]
         ).session else {
@@ -102,10 +104,16 @@ class SubscriptionSessionTests: XCTestCase {
         let subscription = SubscribeSessionFactory.shared.getSession(from: config, with: session)
         let listener = SubscriptionListener()
 
-        listener.didReceiveStatus = { status in
+        listener.didReceiveStatus = { [unowned subscription] status in
           if case .failure(_) = status {
             XCTAssertNil(subscription.previousTokenResponse)
             statusExpect.fulfill()
+          }
+          if case .success(let newStatus) = status {
+            if newStatus == .connectionError(PubNubError(.invalidURL)) {
+              XCTAssertNil(subscription.previousTokenResponse)
+              statusExpect.fulfill()
+            }
           }
         }
         

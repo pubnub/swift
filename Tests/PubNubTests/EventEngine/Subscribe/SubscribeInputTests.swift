@@ -112,8 +112,13 @@ class SubscribeInputTests: XCTestCase {
         PubNubChannel(id: "g3")
       ]
     )
+    let result = input1.removing(
+      mainChannels: [PubNubChannel(id: "c1"), PubNubChannel(id: "c3")],
+      presenceChannelsOnly: [],
+      mainGroups: [PubNubChannel(id: "g1"), PubNubChannel(id: "g3")],
+      presenceGroupsOnly: []
+    )
     
-    let result = input1.removing(channels: ["c1", "c3"], and: ["g1", "g3"])
     let newInput = result.newInput
     let expAllSubscribedChannelNames = ["c2", "c2-pnpres"]
     let expSubscribedChannelNames = ["c2"]
@@ -150,14 +155,23 @@ class SubscribeInputTests: XCTestCase {
         PubNubChannel(id: "g3", withPresence: true)
       ]
     )
-    
+    let presenceChannelsToRemove = [
+      PubNubChannel(id: "c1", withPresence: true),
+      PubNubChannel(id: "c3", withPresence: true)
+    ]
+    let presenceGroupsToRemove = [
+      PubNubChannel(id: "g1"),
+      PubNubChannel(id: "g3")
+    ]
     let result = input1.removing(
-      channels: ["c1".presenceChannelName, "c2".presenceChannelName, "c3".presenceChannelName],
-      and: ["g1".presenceChannelName, "g3".presenceChannelName]
+      mainChannels: [],
+      presenceChannelsOnly: presenceChannelsToRemove,
+      mainGroups: [],
+      presenceGroupsOnly: presenceGroupsToRemove
     )
     
     let newInput = result.newInput
-    let expAllSubscribedChannelNames = ["c1", "c2", "c3"]
+    let expAllSubscribedChannelNames = ["c1", "c2", "c2-pnpres", "c3"]
     let expSubscribedChannelNames = ["c1", "c2", "c3"]
     let expAllSubscribedGroupNames = ["g1", "g2", "g2-pnpres", "g3"]
     let expSubscribedGroupNames = ["g1", "g2", "g3"]

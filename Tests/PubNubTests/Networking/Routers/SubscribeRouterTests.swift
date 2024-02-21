@@ -16,7 +16,8 @@ final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(
     publishKey: "FakeTestString",
     subscribeKey: "FakeTestString",
-    userId: UUID().uuidString
+    userId: UUID().uuidString,
+    enableEventEngine: false
   )
   let eeEnabledConfig = PubNubConfiguration(
     publishKey: "FakeTestString",
@@ -514,7 +515,7 @@ extension SubscribeRouterTests {
           }
         }
         
-        listener.didReceiveObjectMetadataEvent = { event in
+        listener.didReceiveObjectMetadataEvent = { [unowned subscription] event in
           switch event {
           case let .setChannel(changeset):
             XCTAssertEqual(changeset.metadataId, "TestSpaceID")
@@ -712,7 +713,7 @@ extension SubscribeRouterTests {
           }
         }
         
-        listener.didReceiveObjectMetadataEvent = { event in
+        listener.didReceiveObjectMetadataEvent = {  [unowned subscription] event in
           switch event {
           case let .removedMembership(membership):
             XCTAssertEqual(try? membership.transcode(), testMembership)
@@ -1102,7 +1103,7 @@ extension SubscribeRouterTests {
     let messageExpect = XCTestExpectation(description: "Message Event")
 
     guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_message_success", "cancelled"]
+      for: ["subscription_handshake_success", "subscription_message_success", "cancelled"]
     ).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -1117,10 +1118,9 @@ extension SubscribeRouterTests {
       configuration: config,
       subscribeSession: session
     )
-
     let listener = SubscriptionListener()
         
-    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+    listener.didReceiveMessage = { [weak self, unowned pubNubWithMockedSession] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
       XCTAssertTrue(message.error?.reason == .decryptionFailure)
@@ -1139,7 +1139,7 @@ extension SubscribeRouterTests {
     let messageExpect = XCTestExpectation(description: "Message Event")
 
     guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_encrypted_message_success", "cancelled"]
+      for: ["subscription_handshake_success", "subscription_encrypted_message_success", "cancelled"]
     ).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -1154,10 +1154,9 @@ extension SubscribeRouterTests {
       configuration: config,
       subscribeSession: session
     )
-
     let listener = SubscriptionListener()
         
-    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+    listener.didReceiveMessage = { [weak self, unowned pubNubWithMockedSession] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
       XCTAssertNil(message.error)
@@ -1176,7 +1175,7 @@ extension SubscribeRouterTests {
     let messageExpect = XCTestExpectation(description: "Message Event")
 
     guard let session = try? MockURLSession.mockSession(
-      for: ["subscription_encrypted_message_success", "cancelled"]
+      for: ["subscription_handshake_success", "subscription_encrypted_message_success", "cancelled"]
     ).session else {
       return XCTFail("Could not create mock url session")
     }
@@ -1194,7 +1193,7 @@ extension SubscribeRouterTests {
 
     let listener = SubscriptionListener()
     
-    listener.didReceiveMessage = { [weak self, pubNubWithMockedSession] message in
+    listener.didReceiveMessage = { [weak self, unowned pubNubWithMockedSession] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "UE5FRAFBQ1JIEGOmGQMIMXD+91V+5hTxm7p7uEUhEEYohYLQz5fEGITC")
       XCTAssertTrue(message.error?.reason == .decryptionFailure)

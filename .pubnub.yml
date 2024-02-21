@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "6.3.0"
+version: "7.0.0"
 schema: 1
 changelog:
+  - date: 2024-02-21
+    version: 7.0.0
+    changes:
+      - type: feature
+        text: "Adding the new Listeners API."
+      - type: feature
+        text: "Enabling EventEngine by default."
   - date: 2024-01-22
     version: 6.3.0
     changes:
@@ -517,7 +524,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/6.3.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

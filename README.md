@@ -23,8 +23,8 @@ PubNub takes care of the infrastructure and APIs needed for the realtime communi
 
 ## Requirements
 
-* iOS 9.0+ / macOS 10.11+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 11+
+* iOS 12.0+ / macOS 10.13+ / Mac Catalyst 13.0+ / tvOS 12.0+ / watchOS 4.0+
+* Xcode 15+
 * Swift 5+
 
 The PubNub Swift SDK doesn't contain any external dependencies.
@@ -53,7 +53,7 @@ For more information see Apple's guide on [Adding Package Dependencies to Your A
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 4.0'
+  pod 'PubNubSwift', '~> 7.0'
 end
 ```
 
@@ -72,7 +72,7 @@ Officially supported: Carthage 0.33 and up.
 Add the following to `Cartfile`:
 
 ```ruby
-github "pubnub/swift" ~> 4.0
+github "pubnub/swift" ~> 7.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:
@@ -96,7 +96,7 @@ carthage update
     var config = PubNubConfiguration(
       publishKey: "myPublishKey",
       subscribeKey: "mySubscribeKey",
-      uuid: "myUniqueUUID"
+      userId: "myUniqueUserId"
     )
     let pubnub = PubNub(configuration: config)
     ```

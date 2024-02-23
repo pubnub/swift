@@ -67,7 +67,7 @@ pod install
 
 ### [Carthage](https://github.com/Carthage/Carthage)
 
-Officially supported: Carthage 0.33 and up.
+Officially supported: Carthage 0.39.1 and up.
 
 Add the following to `Cartfile`:
 
@@ -78,7 +78,7 @@ github "pubnub/swift" ~> 7.0
 Then in the directory containing your `Cartfile`, execute the following:
 
 ```bash
-carthage update
+carthage update --use-xcframeworks
 ```
 
 ## Configure PubNub
@@ -93,7 +93,7 @@ carthage update
 1. Create and configure a PubNub object:
 
     ```swift
-    var config = PubNubConfiguration(
+    let config = PubNubConfiguration(
       publishKey: "myPublishKey",
       subscribeKey: "mySubscribeKey",
       userId: "myUniqueUserId"
@@ -105,26 +105,28 @@ carthage update
 
 ```swift
 // Create a new listener instance
-let listener = SubscriptionListener()
+let subscription = pubnub.channel("channelName").subscription()
 
 // Add listener event callbacks
-listener.didReceiveSubscription = { event in
+subscription.onEvent = { event in
   switch event {
-  case let .messageReceived(message):
-    print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
-  case let .connectionStatusChanged(status):
-    print("Status Received: \(status)")
-  case let .presenceChanged(presence):
-    print("Presence Received: \(presence)")
-  case let .subscribeError(error):
-    print("Subscription Error \(error)")
-  default:
-    break
+  case .messageReceived(let message):
+    print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUserID")")
+  case .presenceChanged(let presenceChange):
+    print("Presence Received: \(presenceChange)")
+  case .appContextChanged(let appContextEvent):
+    print("App Context Event")
+  case .messageActionChanged(let messageActionEvent):
+    print(messageActionEvent)
+  case .fileChanged(let fileEvent):
+    print(fileEvent)
+  case .signalReceived(let message):
+    print("Signal Received: \(message) Publisher: \(message.publisher ?? "defaultUserID")")
   }
 }
 
 // Start receiving subscription events
-pubnub.add(listener)
+subscription.subscribe()
 ```
 
 > NOTE: You can check the UUID of the publisher of a particular message by checking the `message.publisher` property in the subscription listener. You must also provide a default value for `publisher`, as the `UUID` parameter is optional.

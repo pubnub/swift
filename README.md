@@ -115,11 +115,11 @@ subscription.onEvent = { event in
   case .presenceChanged(let presenceChange):
     print("Presence Received: \(presenceChange)")
   case .appContextChanged(let appContextEvent):
-    print("App Context Event")
+    print("App Context Event: \(appContextEvent)")
   case .messageActionChanged(let messageActionEvent):
-    print(messageActionEvent)
+    print("Message Action Event: \(messageActionEvent)")
   case .fileChanged(let fileEvent):
-    print(fileEvent)
+    print("File Event: \(fileEvent)")
   case .signalReceived(let message):
     print("Signal Received: \(message) Publisher: \(message.publisher ?? "defaultUserID")")
   }

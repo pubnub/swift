@@ -119,11 +119,13 @@ struct SubscribeDecoder: ResponseDecoder {
     do {
       let decodedPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
 
-      let decodedResponse = EndpointResponse<Payload>(router: response.router,
-                                                      request: response.request,
-                                                      response: response.response,
-                                                      data: response.data,
-                                                      payload: decodedPayload)
+      let decodedResponse = EndpointResponse<Payload>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: decodedPayload
+      )
 
       return .success(decodedResponse)
     } catch {

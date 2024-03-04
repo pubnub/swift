@@ -32,7 +32,6 @@ public final class HTTPSession {
   public var defaultRequestOperator: RequestOperator?
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
   var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
-
   /// Default HTTPSession configuration for PubNub REST endpoints
   static var pubnub = HTTPSession(configuration: .pubnub)
 
@@ -43,13 +42,14 @@ public final class HTTPSession {
     requestQueue: DispatchQueue? = nil,
     sessionStream: SessionStream? = nil
   ) {
-    precondition(session.delegateQueue.underlyingQueue === sessionQueue,
-                 "Session.sessionQueue must be the same DispatchQueue used as the URLSession.delegate underlyingQueue")
+    precondition(
+      session.delegateQueue.underlyingQueue === sessionQueue,
+      "Session.sessionQueue must be the same DispatchQueue used as the URLSession.delegate underlyingQueue"
+    )
 
     self.session = session
     self.sessionQueue = sessionQueue
     self.requestQueue = requestQueue ?? DispatchQueue(label: "com.pubnub.session.requestQueue", target: sessionQueue)
-
     self.delegate = delegate
     self.sessionStream = sessionStream
 
@@ -65,18 +65,26 @@ public final class HTTPSession {
     requestQueue: DispatchQueue? = nil,
     sessionStream: SessionStream? = nil
   ) {
-    let delegateQueue = OperationQueue(maxConcurrentOperationCount: 1,
-                                       underlyingQueue: sessionQueue,
-                                       name: "org.pubnub.httpClient.URLSessionReplaceableDelegate")
+    let delegateQueue = OperationQueue(
+      maxConcurrentOperationCount: 1,
+      underlyingQueue: sessionQueue,
+      name: "org.pubnub.httpClient.URLSessionReplaceableDelegate"
+    )
 
-    let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: delegateQueue)
+    let session = URLSession(
+      configuration: configuration,
+      delegate: delegate,
+      delegateQueue: delegateQueue
+    )
     session.sessionDescription = "Underlying URLSession for: com.pubnub.session"
 
-    self.init(session: session,
-              delegate: delegate,
-              sessionQueue: sessionQueue,
-              requestQueue: requestQueue,
-              sessionStream: sessionStream)
+    self.init(
+      session: session,
+      delegate: delegate,
+      sessionQueue: sessionQueue,
+      requestQueue: requestQueue,
+      sessionStream: sessionStream
+    )
   }
 
   deinit {
@@ -85,7 +93,6 @@ public final class HTTPSession {
     taskToRequest.values.forEach {
       $0.cancel(PubNubError(.sessionDeinitialized, router: $0.router))
     }
-
     invalidateAndCancel()
   }
 
@@ -112,12 +119,14 @@ public final class HTTPSession {
     with router: HTTPRouter,
     requestOperator: RequestOperator? = nil
   ) -> RequestReplaceable {
-    let request = Request(with: router,
-                          requestQueue: sessionQueue,
-                          sessionStream: sessionStream,
-                          requestOperator: requestOperator,
-                          delegate: self,
-                          createdBy: sessionID)
+    let request = Request(
+      with: router,
+      requestQueue: sessionQueue,
+      sessionStream: sessionStream,
+      requestOperator: requestOperator,
+      delegate: self,
+      createdBy: sessionID
+    )
 
     perform(request)
 
@@ -225,7 +234,6 @@ public final class HTTPSession {
   public func invalidateAndCancel() {
     // Ensure that we lock out task creation prior to invalidating
     isInvalidated = true
-
     session.invalidateAndCancel()
   }
 }

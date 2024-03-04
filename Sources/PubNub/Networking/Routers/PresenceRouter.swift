@@ -241,11 +241,13 @@ struct HereNowResponseDecoder: ResponseDecoder {
         ).payload.channels
       }
 
-      let decodedResponse = EndpointResponse<Payload>(router: response.router,
-                                                      request: response.request,
-                                                      response: response.response,
-                                                      data: response.data,
-                                                      payload: hereNowPayload)
+      let decodedResponse = EndpointResponse<Payload>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: hereNowPayload
+      )
 
       return .success(decodedResponse)
     } catch {

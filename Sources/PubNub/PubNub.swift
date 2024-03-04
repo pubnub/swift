@@ -16,25 +16,20 @@ public class PubNub {
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
   public private(set) var configuration: PubNubConfiguration
-
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
   /// Session used for performing subscription calls
   public let subscription: SubscriptionSession
-
   /// The URLSession used when making File upload/download requests
   public var fileURLSession: URLSessionReplaceable
   /// The URLSessionDelegate used by the `fileSession` to handle file responses
-  public var fileSessionManager: FileSessionManager? {
-    return fileURLSession.delegate as? FileSessionManager
-  }
-
+  public var fileSessionManager: FileSessionManager? { fileURLSession.delegate as? FileSessionManager }
   /// Global log instance for the PubNub SDK
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
   // Global log instance for Logging issues/events
   public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
   // Container that holds current Presence states for given channels/channel groups
-  internal let presenceStateContainer = PubNubPresenceStateContainer.shared
+  let presenceStateContainer: PubNubPresenceStateContainer
   
   /// Creates a PubNub session with the specified configuration
   ///
@@ -49,64 +44,21 @@ public class PubNub {
     subscribeSession: SessionReplaceable? = nil,
     fileSession: URLSessionReplaceable? = nil
   ) {
-    let instanceID = UUID()
-    
-    // Default operators based on config
-    var operators = [RequestOperator]()
-    if let retryOperator = configuration.automaticRetry {
-      operators.append(retryOperator)
-    }
-    if configuration.useInstanceId {
-      let instanceIdOperator = InstanceIdOperator(instanceID: instanceID.description)
-      operators.append(instanceIdOperator)
-    }
+    let container = DependencyContainer(instanceID: UUID(), configuration: configuration)
+    container.register(value: session, forKey: HTTPSessionDependencyKey.self)
+    container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
+    container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
 
-    // Mutable session
-    var networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
-
-    // Configure the default request operators
-    if networkSession.defaultRequestOperator == nil {
-      networkSession.defaultRequestOperator = MultiplexRequestOperator(operators: operators)
-    } else {
-      networkSession.defaultRequestOperator = networkSession
-        .defaultRequestOperator?
-        .merge(requestOperator: MultiplexRequestOperator(operators: operators))
-    }
-    
-    let fileSession = fileSession ?? URLSession(
-      configuration: .pubnubBackground,
-      delegate: FileSessionManager(),
-      delegateQueue: .main
-    )
-    
-    // Set initial session also based on configuration
-    let subscriptionSession = SubscribeSessionFactory.shared.getSession(
-      from: configuration,
-      with: subscribeSession,
-      presenceSession: session
-    )
-    
-    self.init(
-      instanceID: instanceID,
-      configuration: configuration,
-      session: networkSession,
-      fileSession: fileSession,
-      subscriptionSession: subscriptionSession
-    )
+    self.init(container: container)
   }
   
-  init(
-    instanceID: UUID = UUID(),
-    configuration: PubNubConfiguration,
-    session: SessionReplaceable,
-    fileSession: URLSessionReplaceable,
-    subscriptionSession: SubscriptionSession
-  ) {
-    self.instanceID = instanceID
-    self.configuration = configuration
-    self.subscription = subscriptionSession
-    self.networkSession = session
-    self.fileURLSession = fileSession
+  init(container: DependencyContainer) {
+    self.instanceID = container.instanceID
+    self.configuration = container.configuration
+    self.subscription = container.subscriptionSession
+    self.networkSession = container.httpSession
+    self.fileURLSession = container.fileURLSession
+    self.presenceStateContainer = container.presenceStateContainer
   }
 
   func route<Decoder>(

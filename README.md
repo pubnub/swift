@@ -42,7 +42,7 @@ You have several options to set up your project. We provide instructions here fo
 1. Create or open your project inside of Xcode
 1. Navigate to File > Swift Packages > Add Package Dependency
 1. Search for PubNub and select the swift package owned by pubnub, and hit the Next button
-1. Use the `Up to Next Major Version` rule spanning from `4.0.0` < `5.0.0`, and hit the Next button
+1. Use the `Up to Next Major Version` rule spanning from `7.0.0` < `8.0.0`, and hit the Next button
 
 For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
 

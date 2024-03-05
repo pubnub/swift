@@ -23,8 +23,8 @@ PubNub takes care of the infrastructure and APIs needed for the realtime communi
 
 ## Requirements
 
-* iOS 9.0+ / macOS 10.11+ / Mac Catalyst 13.0+ / tvOS 9.0+ / watchOS 2.0+
-* Xcode 11+
+* iOS 12.0+ / macOS 10.13+ / Mac Catalyst 13.0+ / tvOS 12.0+ / watchOS 4.0+
+* Xcode 15+
 * Swift 5+
 
 The PubNub Swift SDK doesn't contain any external dependencies.
@@ -53,7 +53,7 @@ For more information see Apple's guide on [Adding Package Dependencies to Your A
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 4.0'
+  pod 'PubNubSwift', '~> 7.0'
 end
 ```
 
@@ -67,18 +67,18 @@ pod install
 
 ### [Carthage](https://github.com/Carthage/Carthage)
 
-Officially supported: Carthage 0.33 and up.
+Officially supported: Carthage 0.39.1 and up.
 
 Add the following to `Cartfile`:
 
 ```ruby
-github "pubnub/swift" ~> 4.0
+github "pubnub/swift" ~> 7.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:
 
 ```bash
-carthage update
+carthage update --use-xcframeworks
 ```
 
 ## Configure PubNub
@@ -93,10 +93,10 @@ carthage update
 1. Create and configure a PubNub object:
 
     ```swift
-    var config = PubNubConfiguration(
+    let config = PubNubConfiguration(
       publishKey: "myPublishKey",
       subscribeKey: "mySubscribeKey",
-      uuid: "myUniqueUUID"
+      userId: "myUniqueUserId"
     )
     let pubnub = PubNub(configuration: config)
     ```
@@ -105,26 +105,28 @@ carthage update
 
 ```swift
 // Create a new listener instance
-let listener = SubscriptionListener()
+let subscription = pubnub.channel("channelName").subscription()
 
 // Add listener event callbacks
-listener.didReceiveSubscription = { event in
+subscription.onEvent = { event in
   switch event {
-  case let .messageReceived(message):
-    print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
-  case let .connectionStatusChanged(status):
-    print("Status Received: \(status)")
-  case let .presenceChanged(presence):
-    print("Presence Received: \(presence)")
-  case let .subscribeError(error):
-    print("Subscription Error \(error)")
-  default:
-    break
+  case .messageReceived(let message):
+    print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUserID")")
+  case .presenceChanged(let presenceChange):
+    print("Presence Received: \(presenceChange)")
+  case .appContextChanged(let appContextEvent):
+    print("App Context Event: \(appContextEvent)")
+  case .messageActionChanged(let messageActionEvent):
+    print("Message Action Event: \(messageActionEvent)")
+  case .fileChanged(let fileEvent):
+    print("File Event: \(fileEvent)")
+  case .signalReceived(let message):
+    print("Signal Received: \(message) Publisher: \(message.publisher ?? "defaultUserID")")
   }
 }
 
 // Start receiving subscription events
-pubnub.add(listener)
+subscription.subscribe()
 ```
 
 > NOTE: You can check the UUID of the publisher of a particular message by checking the `message.publisher` property in the subscription listener. You must also provide a default value for `publisher`, as the `UUID` parameter is optional.

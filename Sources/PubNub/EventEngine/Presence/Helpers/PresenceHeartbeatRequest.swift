@@ -13,7 +13,7 @@ import Foundation
 class PresenceHeartbeatRequest {
   let channels: [String]
   let groups: [String]
-  let configuration: SubscriptionConfiguration
+  let configuration: PubNubConfiguration
   
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
@@ -24,7 +24,7 @@ class PresenceHeartbeatRequest {
     channels: [String],
     groups: [String],
     channelStates: [String: JSONCodable],
-    configuration: SubscriptionConfiguration,
+    configuration: PubNubConfiguration,
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue
   ) {

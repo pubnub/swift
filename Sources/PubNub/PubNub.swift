@@ -18,8 +18,6 @@ public class PubNub {
   public private(set) var configuration: PubNubConfiguration
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
-  /// Session used for performing subscription calls
-  public let subscription: SubscriptionSession
   /// The URLSession used when making File upload/download requests
   public var fileURLSession: URLSessionReplaceable
   /// The URLSessionDelegate used by the `fileSession` to handle file responses
@@ -28,6 +26,8 @@ public class PubNub {
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
   // Global log instance for Logging issues/events
   public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
+  /// Session used for performing subscription calls
+  let subscription: SubscriptionSession
   // Container that holds current Presence states for given channels/channel groups
   let presenceStateContainer: PubNubPresenceStateContainer
   

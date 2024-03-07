@@ -17,7 +17,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let presenceStateContainer: PubNubPresenceStateContainer
 
   var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
-  var configuration: SubscriptionConfiguration
+  var configuration: PubNubConfiguration
   var previousTokenResponse: SubscribeCursor?
   var filterExpression: String? {
     didSet {
@@ -26,7 +26,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
   
   internal init(
-    configuration: SubscriptionConfiguration,
+    configuration: PubNubConfiguration,
     subscribeEngine: SubscribeEngine,
     presenceEngine: PresenceEngine,
     presenceStateContainer: PubNubPresenceStateContainer
@@ -57,8 +57,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   
   deinit {
     PubNub.log.debug("SubscriptionSession Destroyed")
-    // Poke the session factory to clean up nil values
-    SubscribeSessionFactory.shared.sessionDestroyed()
   }
   
   private func listenForStateUpdates() {
@@ -220,10 +218,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     
     sendSubscribeEvent(event: .unsubscribeAll)
     sendPresenceEvent(event: .leftAll)
-  }
-  
-  func onListenerAdded(_ listener: BaseSubscriptionListener) {
-    updateSubscribeEngineDependencies()
   }
   
   private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {

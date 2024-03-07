@@ -17,7 +17,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let sessionStream: SessionListener
   let responseQueue: DispatchQueue
   
-  var configuration: SubscriptionConfiguration
+  var configuration: PubNubConfiguration
   var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
   var filterExpression: String?
   var messageCache = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
@@ -68,7 +68,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   var internalState = Atomic<SubscriptionState>(SubscriptionState())
 
   internal init(
-    configuration: SubscriptionConfiguration,
+    configuration: PubNubConfiguration,
     network subscribeSession: SessionReplaceable,
     presenceSession: SessionReplaceable
   ) {
@@ -103,8 +103,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     PubNub.log.debug("SubscriptionSession Destroyed")
     longPollingSession.invalidateAndCancel()
     nonSubscribeSession.invalidateAndCancel()
-    // Poke the session factory to clean up nil values
-    SubscribeSessionFactory.shared.sessionDestroyed()
   }
 
   // MARK: - Subscription Loop
@@ -379,10 +377,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     } else {
       reconnect(at: previousTokenResponse)
     }
-  }
-  
-  func onListenerAdded(_ listener: BaseSubscriptionListener) {
-    
   }
   
   private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {

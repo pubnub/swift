@@ -16,7 +16,7 @@ class SubscribeRequest {
   let timetoken: Timetoken?
   let region: Int?
   
-  private let configuration: SubscriptionConfiguration
+  private let configuration: PubNubConfiguration
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let channelStates: [String: JSONCodable]
@@ -27,7 +27,7 @@ class SubscribeRequest {
   var onAuthChallengeReceived: (() -> Void)?
   
   init(
-    configuration: SubscriptionConfiguration,
+    configuration: PubNubConfiguration,
     channels: [String],
     groups: [String],
     channelStates: [String: JSONCodable],

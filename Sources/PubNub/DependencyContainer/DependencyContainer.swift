@@ -16,7 +16,7 @@ protocol DependencyKey {
   // A value associated with a given `DependencyKey`
   associatedtype Value
   // Creates a value of the type Value for a given `DependencyKey` if no existing dependency
-  // is found in the `DependencyContainer`. Note that `container` parameter is used in case of
+  // is found in the `DependencyContainer`. The `container` parameter is used in case of
   // nested dependencies, i.e., when the dependency being created depends on other objects in the `DependencyContainer`.
   static func value(from container: DependencyContainer) -> Value
 }
@@ -26,7 +26,7 @@ protocol DependencyKey {
 class DependencyContainer {
   private var values: [ObjectIdentifier: Any] = [:]
   
-  init(instanceID: UUID, configuration: PubNubConfiguration) {
+  init(instanceID: UUID = UUID(), configuration: PubNubConfiguration) {
     self[PubNubConfigurationDependencyKey.self] = configuration
     self[PubNubInstanceIDDependencyKey.self] = instanceID
   }
@@ -44,10 +44,12 @@ class DependencyContainer {
     }
   }
   
-  func register<K>(value: K.Value?, forKey key: K.Type) where K: DependencyKey {
+  @discardableResult
+  func register<K: DependencyKey>(value: K.Value?, forKey key: K.Type) -> DependencyContainer {
     if let value {
       values[ObjectIdentifier(key)] = value
     }
+    return self
   }
 }
 
@@ -60,16 +62,12 @@ extension DependencyContainer {
     self[PubNubInstanceIDDependencyKey.self]
   }
   
-  var automaticRetry: RequestOperator? {
-    configuration.automaticRetry
+  var fileURLSession: URLSessionReplaceable {
+    self[FileURLSessionDependencyKey.self]
   }
   
-  var instanceIDOperator: RequestOperator? {
-    configuration.useInstanceId ? InstanceIdOperator(instanceID: instanceID.uuidString) : nil
-  }
-  
-  var presenceStateContainer: PubNubPresenceStateContainer {
-    self[PresenceStateContainerDependencyKey.self]
+  var subscriptionSession: SubscriptionSession {
+    self[SubscriptionSessionDependencyKey.self]
   }
   
   var httpSession: SessionReplaceable {
@@ -79,37 +77,55 @@ extension DependencyContainer {
     )
   }
   
-  var httpSubscribeSession: SessionReplaceable {
+  var presenceStateContainer: PubNubPresenceStateContainer {
+    self[PresenceStateContainerDependencyKey.self]
+  }
+  
+  fileprivate var automaticRetry: RequestOperator? {
+    configuration.automaticRetry
+  }
+  
+  fileprivate var instanceIDOperator: RequestOperator? {
+    configuration.useInstanceId ? InstanceIdOperator(instanceID: instanceID.uuidString) : nil
+  }
+  
+  fileprivate var httpSubscribeSession: SessionReplaceable {
     resolveSession(
       session: self[HTTPSubscribeSessionDependencyKey.self],
       with: [instanceIDOperator].compactMap { $0 }
     )
   }
   
-  var httpPresenceSession: SessionReplaceable {
+  fileprivate var httpPresenceSession: SessionReplaceable {
     resolveSession(
       session: self[HTTPPresenceSessionDependencyKey.self],
       with: [instanceIDOperator].compactMap { $0 }
     )
   }
   
-  var httpSubscribeSessionQueue: DispatchQueue {
+  fileprivate var httpSubscribeSessionQueue: DispatchQueue {
     self[HTTPSubscribeSessionQueueDependencyKey.self]
   }
   
-  var fileURLSession: URLSessionReplaceable {
-    self[FileURLSessionDependencyKey.self]
-  }
-  
-  var subscribeEventEngine: SubscribeEngine {
+  fileprivate var subscribeEventEngine: SubscribeEngine {
     self[SubscribeEventEngineDependencyKey.self]
   }
   
-  var subscribeEffectFactory: SubscribeEffectFactory {
+  fileprivate var subscribeEffectFactory: SubscribeEffectFactory {
     self[SubscribeEffectFactoryDependencyKey.self]
   }
   
-  private func resolveSession(session: SessionReplaceable, with operators: [RequestOperator?]) -> SessionReplaceable {
+  fileprivate var presenceEffectFactory: PresenceEffectFactory {
+    self[PresenceEffectFactoryDependencyKey.self]
+  }
+  
+  fileprivate var presenceEngine: PresenceEngine {
+    self[PresenceEventEngineDependencyKey.self]
+  }
+}
+
+fileprivate extension DependencyContainer {
+  func resolveSession(session: SessionReplaceable, with operators: [RequestOperator?]) -> SessionReplaceable {
     session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
       operators: operators.compactMap { $0 }
     )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
@@ -230,15 +246,6 @@ struct PresenceEventEngineDependencyKey: DependencyKey {
   }
 }
 
-extension DependencyContainer {
-  var presenceEffectFactory: PresenceEffectFactory {
-    self[PresenceEffectFactoryDependencyKey.self]
-  }
-  var presenceEngine: PresenceEngine {
-    self[PresenceEventEngineDependencyKey.self]
-  }
-}
-
 // MARK: - SubscriptionSession
 
 struct SubscriptionSessionDependencyKey: DependencyKey {
@@ -261,11 +268,5 @@ struct SubscriptionSessionDependencyKey: DependencyKey {
         )
       )
     }
-  }
-}
-
-extension DependencyContainer {
-  var subscriptionSession: SubscriptionSession {
-    self[SubscriptionSessionDependencyKey.self]
   }
 }

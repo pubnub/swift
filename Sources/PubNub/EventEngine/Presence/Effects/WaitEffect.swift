@@ -13,7 +13,7 @@ import Foundation
 class WaitEffect: EffectHandler {
   private let timerEffect: TimerEffect?
   
-  init(configuration: SubscriptionConfiguration) {
+  init(configuration: PubNubConfiguration) {
     if configuration.heartbeatInterval > 0 {
       self.timerEffect = TimerEffect(interval: TimeInterval(configuration.heartbeatInterval))
     } else {

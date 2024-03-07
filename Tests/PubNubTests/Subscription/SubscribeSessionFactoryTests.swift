@@ -14,19 +14,30 @@ import XCTest
 class SubscribeSessionFactoryTests: XCTestCase {
   func testLoggingSameInstance() {
     let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey", userId: UUID().uuidString)
-    let first = SubscribeSessionFactory.shared.getSession(from: config)
-    let second = SubscribeSessionFactory.shared.getSession(from: config)
+    let dependencyContainer = DependencyContainer(configuration: config)
+    let first = dependencyContainer.subscriptionSession
+    let second = dependencyContainer.subscriptionSession
 
     XCTAssertEqual(first.uuid, second.uuid)
   }
 
   func testMutlipleInstances() {
-    let config = PubNubConfiguration(publishKey: nil, subscribeKey: "FakeKey", userId: UUID().uuidString)
-    var newConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "OtherKey", userId: UUID().uuidString)
-    newConfig.authKey = "SomeNewKey"
-
-    let first = SubscribeSessionFactory.shared.getSession(from: config)
-    let third = SubscribeSessionFactory.shared.getSession(from: newConfig)
+    let config = PubNubConfiguration(
+      publishKey: nil,
+      subscribeKey: "FakeKey",
+      userId: UUID().uuidString
+    )
+    let newConfig = PubNubConfiguration(
+      publishKey: nil,
+      subscribeKey: "OtherKey",
+      userId: UUID().uuidString,
+      authKey: "SomeNewKey"
+    )
+    
+    let dependencyContainer = DependencyContainer(configuration: config)
+    let nextDependencyContainer = DependencyContainer(configuration: config)
+    let first = dependencyContainer.subscriptionSession
+    let third = nextDependencyContainer.subscriptionSession
 
     XCTAssertNotEqual(first.uuid, third.uuid)
   }

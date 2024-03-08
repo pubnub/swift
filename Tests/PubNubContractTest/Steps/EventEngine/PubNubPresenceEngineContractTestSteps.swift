@@ -88,10 +88,20 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
     let container = DependencyContainer(configuration: self.configuration)
     let key = PresenceEventEngineDependencyKey.self
     
+    let dispatcher = DispatcherDecorator(wrappedInstance: EffectDispatcher(
+      factory: PresenceEffectFactory(
+        session: container[HTTPPresenceSessionDependencyKey.self],
+        presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
+      )
+    ))
+    let transition = TransitionDecorator(
+      wrappedInstance: PresenceTransition(configuration: configuration)
+    )
+    
     container[key] = PresenceEngine(
       state: Presence.HeartbeatInactive(),
-      transition: TransitionDecorator(wrappedInstance: container[PresenceTransitionDependencyKey.self]),
-      dispatcher: DispatcherDecorator(wrappedInstance: container[PresenceEffectDispatcherDependencyKey.self]),
+      transition: transition,
+      dispatcher: dispatcher,
       dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration))
     )
     

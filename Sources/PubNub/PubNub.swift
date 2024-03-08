@@ -45,7 +45,7 @@ public class PubNub {
     fileSession: URLSessionReplaceable? = nil
   ) {
     let container = DependencyContainer(instanceID: UUID(), configuration: configuration)
-    container.register(value: session, forKey: HTTPSessionDependencyKey.self)
+    container.register(value: session, forKey: DefaultHTTPSessionDependencyKey.self)
     container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
     container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
 
@@ -56,7 +56,7 @@ public class PubNub {
     self.instanceID = container.instanceID
     self.configuration = container.configuration
     self.subscription = container.subscriptionSession
-    self.networkSession = container.httpSession
+    self.networkSession = container.defaultHTTPSession
     self.fileURLSession = container.fileURLSession
     self.presenceStateContainer = container.presenceStateContainer
   }

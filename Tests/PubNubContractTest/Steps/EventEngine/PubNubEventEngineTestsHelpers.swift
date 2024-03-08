@@ -16,7 +16,10 @@ protocol ContractTestIdentifiable {
   var contractTestIdentifier: String { get }
 }
 
-extension EffectInvocation: ContractTestIdentifiable where Invocation: ContractTestIdentifiable, Invocation.Cancellable: ContractTestIdentifiable {
+extension EffectInvocation: ContractTestIdentifiable where
+  Invocation: ContractTestIdentifiable,
+  Invocation.Cancellable: ContractTestIdentifiable
+{
   var contractTestIdentifier: String {
     switch self {
     case .managed(let invocation):

@@ -371,7 +371,6 @@
 		3D389FE22B35AF4A006928E7 /* Dispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC42B35AF4A006928E7 /* Dispatcher.swift */; };
 		3D389FE32B35AF4A006928E7 /* EffectHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC52B35AF4A006928E7 /* EffectHandler.swift */; };
 		3D389FE42B35AF4A006928E7 /* EventEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC62B35AF4A006928E7 /* EventEngine.swift */; };
-		3D389FE52B35AF4A006928E7 /* EventEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC72B35AF4A006928E7 /* EventEngineFactory.swift */; };
 		3D389FE62B35AF4A006928E7 /* EmitMessagesEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCA2B35AF4A006928E7 /* EmitMessagesEffect.swift */; };
 		3D389FE72B35AF4A006928E7 /* EmitStatusEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCB2B35AF4A006928E7 /* EmitStatusEffect.swift */; };
 		3D389FE82B35AF4A006928E7 /* SubscribeEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FCC2B35AF4A006928E7 /* SubscribeEffects.swift */; };
@@ -969,7 +968,6 @@
 		3D389FC42B35AF4A006928E7 /* Dispatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dispatcher.swift; sourceTree = "<group>"; };
 		3D389FC52B35AF4A006928E7 /* EffectHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EffectHandler.swift; sourceTree = "<group>"; };
 		3D389FC62B35AF4A006928E7 /* EventEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventEngine.swift; sourceTree = "<group>"; };
-		3D389FC72B35AF4A006928E7 /* EventEngineFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventEngineFactory.swift; sourceTree = "<group>"; };
 		3D389FCA2B35AF4A006928E7 /* EmitMessagesEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitMessagesEffect.swift; sourceTree = "<group>"; };
 		3D389FCB2B35AF4A006928E7 /* EmitStatusEffect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmitStatusEffect.swift; sourceTree = "<group>"; };
 		3D389FCC2B35AF4A006928E7 /* SubscribeEffects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscribeEffects.swift; sourceTree = "<group>"; };
@@ -2025,7 +2023,6 @@
 				3D389FC42B35AF4A006928E7 /* Dispatcher.swift */,
 				3D389FC52B35AF4A006928E7 /* EffectHandler.swift */,
 				3D389FC62B35AF4A006928E7 /* EventEngine.swift */,
-				3D389FC72B35AF4A006928E7 /* EventEngineFactory.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -3571,7 +3568,6 @@
 				3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */,
 				3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
-				3D389FE52B35AF4A006928E7 /* EventEngineFactory.swift in Sources */,
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,
 				35EE358C22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift in Sources */,

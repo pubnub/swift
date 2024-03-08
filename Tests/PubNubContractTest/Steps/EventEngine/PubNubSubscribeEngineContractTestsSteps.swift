@@ -86,9 +86,17 @@ extension Subscribe.Event: ContractTestIdentifiable {
 
 class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSteps {
   // A decorator that records Invocations and forwards all calls to the original instance
-  private var dispatcherDecorator: DispatcherDecorator<Subscribe.Invocation, Subscribe.Event, Subscribe.Dependencies>!
+  private var dispatcherDecorator: DispatcherDecorator<
+    Subscribe.Invocation,
+    Subscribe.Event,
+    Subscribe.Dependencies
+  >!
   // A decorator that records Events and forwards all calls to the original instance
-  private var transitionDecorator: TransitionDecorator<any SubscribeState, Subscribe.Event, Subscribe.Invocation>!
+  private var transitionDecorator: TransitionDecorator<
+    any SubscribeState,
+    Subscribe.Event,
+    Subscribe.Invocation
+  >!
   
   override func handleAfterHook() {
     dispatcherDecorator = nil
@@ -106,57 +114,17 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
   }
   
   override func createPubNubClient() -> PubNub {
-    /// Wraps original EffectDispatcher with Decorator that allows recording incoming Invocations
-    dispatcherDecorator = DispatcherDecorator(
-      wrappedInstance: EffectDispatcher(
-        factory: SubscribeEffectFactory(
-          session: HTTPSession(
-            configuration: URLSessionConfiguration.subscription,
-            sessionQueue: .global(qos: .default),
-            sessionStream: SessionListener(queue: .global(qos: .default))
-          ), presenceStateContainer: .shared
-        )
-      )
-    )
-    /// Wraps original Transition with Decorator that allows recording incoming Events
-    transitionDecorator = TransitionDecorator(
-      wrappedInstance: SubscribeTransition()
+    let container = DependencyContainer(configuration: self.configuration)
+    let key = SubscribeEventEngineDependencyKey.self
+    
+    container[key] = SubscribeEngine(
+      state: Subscribe.UnsubscribedState(),
+      transition: TransitionDecorator(wrappedInstance: container[SubscribeTransitionDependencyKey.self]),
+      dispatcher: DispatcherDecorator(wrappedInstance: container[SubscribeEffectDispatcherDependencyKey.self]),
+      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration))
     )
     
-    let factory = EventEngineFactory()
-    let configuration = self.configuration
-    
-    let subscribeEngine = factory.subscribeEngine(
-      with: configuration,
-      dispatcher: self.dispatcherDecorator,
-      transition: self.transitionDecorator
-    )
-    let presenceEffectFactory = PresenceEffectFactory(
-      session: HTTPSession(
-        configuration: .pubnub,
-        sessionQueue: .global(qos: .default),
-        sessionStream: SessionListener(queue: .global(qos: .default))
-      ), presenceStateContainer: .shared
-    )
-    let presenceEngine = factory.presenceEngine(
-      with: configuration,
-      dispatcher: EffectDispatcher(factory: presenceEffectFactory),
-      transition: PresenceTransition(configuration: configuration)
-    )
-    let subscriptionSession = SubscriptionSession(
-      strategy: EventEngineSubscriptionSessionStrategy(
-        configuration: configuration,
-        subscribeEngine: subscribeEngine,
-        presenceEngine: presenceEngine,
-        presenceStateContainer: .shared
-      )
-    )
-    return PubNub(
-      configuration: configuration,
-      session: HTTPSession(configuration: configuration.urlSessionConfiguration),
-      fileSession: URLSession(configuration: .pubnubBackground),
-      subscriptionSession: subscriptionSession
-    )
+    return PubNub(container: container)
   }
 
   override public func setup() {

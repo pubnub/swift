@@ -117,20 +117,20 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
     let container = DependencyContainer(configuration: self.configuration)
     let key = SubscribeEventEngineDependencyKey.self
     
-    let dispatcher = DispatcherDecorator(wrappedInstance: EffectDispatcher(
+    self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: SubscribeEffectFactory(
-        session: container[DefaultHTTPSessionDependencyKey.self],
+        session: container[HTTPSubscribeSessionDependencyKey.self],
         presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
       )
     ))
-    let transition = TransitionDecorator(
+    self.transitionDecorator = TransitionDecorator(
       wrappedInstance: SubscribeTransition()
     )
         
     container[key] = SubscribeEngine(
       state: Subscribe.UnsubscribedState(),
-      transition: transition,
-      dispatcher: dispatcher,
+      transition: self.transitionDecorator,
+      dispatcher: self.dispatcherDecorator,
       dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration))
     )
     

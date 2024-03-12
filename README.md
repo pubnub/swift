@@ -5,7 +5,7 @@
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Build Status](https://travis-ci.org/pubnub/swift.svg?branch=master)](https://travis-ci.org/pubnub/swift)
-[![Codacy Coverage Grade Badge](https://api.codacy.com/project/badge/Grade/d6dbd8cad97d42bbb72c47137e94d6f5)](https://www.codacy.com?utm_source=github.com&utm_medium=referral&utm_content=pubnub/swift&utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ea96a32a311944eaa09b4c452db4d397)](https://app.codacy.com?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 This is the official PubNub Swift SDK repository.
 
@@ -59,7 +59,7 @@ end
 
 > Note: Replace `YOUR_TARGET_NAME` with your target's name.
 
-In the directory containing your `Podfile`. execute the following:
+In the directory containing your `Podfile` execute the following:
 
 ```bash
 pod install

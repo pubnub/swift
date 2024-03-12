@@ -25,16 +25,20 @@ protocol DependencyKey {
 // conforming to the `DependencyKey` protocol.
 class DependencyContainer {
   private var values: [ObjectIdentifier: Any] = [:]
-  
+
   init(instanceID: UUID = UUID(), configuration: PubNubConfiguration) {
     self[PubNubConfigurationDependencyKey.self] = configuration
     self[PubNubInstanceIDDependencyKey.self] = instanceID
   }
-  
+
   subscript<K>(key: K.Type) -> K.Value where K: DependencyKey {
     get {
       if let existingValue = values[ObjectIdentifier(key)] {
-        return existingValue as! K.Value
+        if let existingValue = existingValue as? K.Value {
+          return existingValue
+        } else {
+          preconditionFailure("Cannot resolve value for \(key)")
+        }
       }
       let value = key.value(from: self)
       values[ObjectIdentifier(key)] = value
@@ -43,7 +47,7 @@ class DependencyContainer {
       values[ObjectIdentifier(key)] = newValue
     }
   }
-  
+
   @discardableResult
   func register<K: DependencyKey>(value: K.Value?, forKey key: K.Type) -> DependencyContainer {
     if let value {
@@ -53,73 +57,73 @@ class DependencyContainer {
   }
 }
 
-typealias SubscribeEngine = EventEngine<(any SubscribeState), Subscribe.Event, Subscribe.Invocation, Subscribe.Dependencies>
-typealias PresenceEngine = EventEngine<(any PresenceState), Presence.Event, Presence.Invocation, Presence.Dependencies>
+typealias SubscribeEngine = EventEngine<any SubscribeState, Subscribe.Event, Subscribe.Invocation, Subscribe.Dependencies>
+typealias PresenceEngine = EventEngine<any PresenceState, Presence.Event, Presence.Invocation, Presence.Dependencies>
 
 extension DependencyContainer {
   var configuration: PubNubConfiguration {
     self[PubNubConfigurationDependencyKey.self]
   }
-  
+
   var instanceID: UUID {
     self[PubNubInstanceIDDependencyKey.self]
   }
-  
+
   var fileURLSession: URLSessionReplaceable {
     self[FileURLSessionDependencyKey.self]
   }
-  
+
   var subscriptionSession: SubscriptionSession {
     self[SubscriptionSessionDependencyKey.self]
   }
-  
+
   var presenceStateContainer: PubNubPresenceStateContainer {
     self[PresenceStateContainerDependencyKey.self]
   }
-  
+
   var defaultHTTPSession: SessionReplaceable {
     resolveSession(
       session: self[DefaultHTTPSessionDependencyKey.self],
       with: [automaticRetry].compactMap { $0 }
     )
   }
-  
+
   fileprivate var httpSubscribeSession: SessionReplaceable {
     resolveSession(
       session: self[HTTPSubscribeSessionDependencyKey.self],
       with: [instanceIDOperator].compactMap { $0 }
     )
   }
-  
+
   fileprivate var httpPresenceSession: SessionReplaceable {
     resolveSession(
       session: self[HTTPPresenceSessionDependencyKey.self],
       with: [instanceIDOperator].compactMap { $0 }
     )
   }
-  
+
   fileprivate var automaticRetry: RequestOperator? {
     configuration.automaticRetry
   }
-  
+
   fileprivate var instanceIDOperator: RequestOperator? {
     configuration.useInstanceId ? InstanceIdOperator(instanceID: instanceID.uuidString) : nil
   }
-  
+
   fileprivate var httpSubscribeSessionQueue: DispatchQueue {
     self[HTTPSubscribeSessionQueueDependencyKey.self]
   }
-  
+
   fileprivate var subscribeEngine: SubscribeEngine {
     self[SubscribeEventEngineDependencyKey.self]
   }
-  
+
   fileprivate var presenceEngine: PresenceEngine {
     self[PresenceEventEngineDependencyKey.self]
   }
 }
 
-fileprivate extension DependencyContainer {
+private extension DependencyContainer {
   func resolveSession(session: SessionReplaceable, with operators: [RequestOperator?]) -> SessionReplaceable {
     session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
       operators: operators.compactMap { $0 }

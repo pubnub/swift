@@ -1471,3 +1471,5 @@ extension PubNub: StatusEmitter {
     set { subscription.onConnectionStateChange = newValue }
   }
 }
+
+// swiftlint:disable:this file_length

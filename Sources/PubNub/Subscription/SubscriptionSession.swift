@@ -55,13 +55,11 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
     }
   }
   
-  private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = {
-    BaseSubscriptionListenerAdapter(
-      receiver: self,
-      uuid: uuid,
-      queue: queue
-    )
-  }()
+  private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(
+    receiver: self,
+    uuid: uuid,
+    queue: queue
+  )
   
   private lazy var globalStatusListener: BaseSubscriptionListener = {
     // Creates legacy listener under the hood to capture status changes
@@ -80,14 +78,14 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
   private var globalGroupSubscriptions: [String: Subscription] = [:]
   private let strategy: any SubscriptionSessionStrategy
   
-  internal init(
+  init(
     strategy: any SubscriptionSessionStrategy,
     eventsQueue queue: DispatchQueue = .main
   ) {
     self.strategy = strategy
     self.queue = queue
-    self.add(globalEventsListener)
-    self.add(globalStatusListener)
+    add(globalEventsListener)
+    add(globalStatusListener)
   }
 
   /// Names of all subscribed channels
@@ -121,36 +119,35 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
   ///   - and: List of channel groups to subscribe on
   ///   - at: The timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
-  ///   - setting: The object containing the state for the channel(s).
   public func subscribe(
     to channels: [String],
     and groups: [String] = [],
     at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false
   ) {
-    let channelSubscriptions = channels.map {
-      channel($0).subscription(
+    let channelSubscriptions = channels.compactMap {
+      globalChannelSubscriptions[$0] == nil || cursor != nil ? channel($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      )
+      ) : nil
     }
-    let channelGroupSubscriptions = groups.map {
-      channelGroup($0).subscription(
+    let channelGroupSubscriptions = groups.compactMap {
+      globalGroupSubscriptions[$0] == nil || cursor != nil ? channelGroup($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      )
+      ) : nil
     }
     internalSubscribe(
       with: channelSubscriptions,
       and: channelGroupSubscriptions,
       at: cursor?.timetoken
     )
-    channelSubscriptions.forEach { subscription in
+    for subscription in channelSubscriptions {
       subscription.subscriptionNames.flatMap { $0 }.forEach {
         globalChannelSubscriptions[$0] = subscription
       }
     }
-    channelGroupSubscriptions.forEach { subscription in
+    for subscription in channelGroupSubscriptions {
       subscription.subscriptionNames.flatMap { $0 }.forEach {
         globalGroupSubscriptions[$0] = subscription
       }
@@ -246,10 +243,10 @@ extension SubscriptionSession: SubscribeReceiver {
     let extractingChannelsRes = retrieveItemsToSubscribe(from: channels)
     let extractingGroupsRes = retrieveItemsToSubscribe(from: groups)
     
-    channels.forEach { channelSubscription in
+    for channelSubscription in channels {
       registerAdapter(channelSubscription.adapter)
     }
-    groups.forEach { groupSubscription in
+    for groupSubscription in groups {
       registerAdapter(groupSubscription.adapter)
     }
     strategy.subscribe(
@@ -305,10 +302,10 @@ extension SubscriptionSession: SubscribeReceiver {
       type: .channelGroup,
       presenceItemsOnly: presenceOnly
     )
-    channels.forEach { channelSubscription in
+    for channelSubscription in channels {
       remove(channelSubscription.adapter)
     }
-    channelGroups.forEach { channelGroupSubscription in
+    for channelGroupSubscription in channelGroups {
       remove(channelGroupSubscription.adapter)
     }
     strategy.unsubscribeFrom(
@@ -357,10 +354,10 @@ extension SubscriptionSession: SubscribeReceiver {
         for: $0.presenceId,
         type: type
       ) <= 1 &&
-      subscriptionCount(
-        for: $0.id,
-        type: type
-      ) <= 1
+        subscriptionCount(
+          for: $0.id,
+          type: type
+        ) <= 1
     }
     
     return UnsubscribeRetrievalRes(
@@ -370,7 +367,7 @@ extension SubscriptionSession: SubscribeReceiver {
   }
 }
 
-fileprivate extension WeakSet where Element == BaseSubscriptionListener {
+private extension WeakSet where Element == BaseSubscriptionListener {
   func subscriptions(excluding uuid: UUID? = nil) -> [BaseSubscriptionListenerAdapter] {
     compactMap {
       if let listener = $0 as? BaseSubscriptionListenerAdapter {
@@ -447,7 +444,7 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType : [String]] {
+  var subscriptionTopology: [SubscribableType: [String]] {
     var result: [SubscribableType: [String]] = [:]
     result[.channel] = []
     result[.channelGroup] = []

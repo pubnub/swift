@@ -50,7 +50,7 @@ class SubscriptionIntegrationTests: XCTestCase {
               connectingExpect.fulfill()
             case .disconnectedUnexpectedly:
               disconnectedExpect.fulfill()
-            case .connectionError(_):
+            case .connectionError:
               disconnectedExpect.fulfill()
             default:
               XCTFail("Only should emit these two states")
@@ -74,13 +74,15 @@ class SubscriptionIntegrationTests: XCTestCase {
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testUnsubscribeResubscribe() {
     let configurationFromBundle = PubNubConfiguration(
-      from: testsBundle
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      enableEventEngine: false
     )
     let configWithEventEngineEnabled = PubNubConfiguration(
       publishKey: configurationFromBundle.publishKey,
       subscribeKey: configurationFromBundle.subscribeKey,
-      userId: configurationFromBundle.userId,
-      enableEventEngine: true
+      userId: configurationFromBundle.userId
     )
     
     for config in [configurationFromBundle, configWithEventEngineEnabled] {
@@ -153,13 +155,15 @@ class SubscriptionIntegrationTests: XCTestCase {
   
   func test_MixedSubscriptions() {
     let configurationFromBundle = PubNubConfiguration(
-      from: testsBundle
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      enableEventEngine: false
     )
     let configWithEventEngineEnabled = PubNubConfiguration(
       publishKey: configurationFromBundle.publishKey,
       subscribeKey: configurationFromBundle.subscribeKey,
-      userId: configurationFromBundle.userId,
-      enableEventEngine: true
+      userId: configurationFromBundle.userId
     )
     
     for config in [configurationFromBundle, configWithEventEngineEnabled] {
@@ -230,13 +234,15 @@ class SubscriptionIntegrationTests: XCTestCase {
   
   func test_GlobalSubscription() {
     let configurationFromBundle = PubNubConfiguration(
-      from: testsBundle
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      enableEventEngine: false
     )
     let configWithEventEngineEnabled = PubNubConfiguration(
       publishKey: configurationFromBundle.publishKey,
       subscribeKey: configurationFromBundle.subscribeKey,
-      userId: configurationFromBundle.userId,
-      enableEventEngine: true
+      userId: configurationFromBundle.userId
     )
     
     for config in [configurationFromBundle, configWithEventEngineEnabled] {
@@ -279,7 +285,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     }
   }
   
-  func test_SimultaneousSubscriptions() {
+  func test_SimultaneousSubscriptionToDifferentChannels() {
     let expectation = XCTestExpectation(description: "Expectation")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = 3
@@ -287,15 +293,12 @@ class SubscriptionIntegrationTests: XCTestCase {
     let publishExpectation = XCTestExpectation(description: "Publish")
     publishExpectation.assertForOverFulfill = true
     publishExpectation.expectedFulfillmentCount = 1
-    
-    let configWithEventEngineEnabled = PubNubConfiguration(
+        
+    let pubnub = PubNub(configuration: PubNubConfiguration(
       publishKey: PubNubConfiguration(from: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
-      enableEventEngine: true
-    )
-    
-    let pubnub = PubNub(configuration: configWithEventEngineEnabled)
+      userId: PubNubConfiguration(from: testsBundle).userId
+    ))
     let timetoken = Timetoken(Int(Date().timeIntervalSince1970 * 10000000))
 
     pubnub.publish(channel: testChannel, message: "Message", completion: { [unowned pubnub, unowned self] _ in
@@ -303,12 +306,13 @@ class SubscriptionIntegrationTests: XCTestCase {
         publishExpectation.fulfill()
       })
     })
+    
     wait(for: [publishExpectation], timeout: 1.5)
     
     let anotherChannel = testChannel.appending("2")
     let listener = SubscriptionListener()
    
-    listener.didReceiveMessage = { message in
+    listener.didReceiveMessage = { _ in
       expectation.fulfill()
     }
     
@@ -319,5 +323,34 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     defer { pubnub.disconnect() }
     wait(for: [expectation], timeout: 10)
+  }
+  
+  func test_SimultaneousSubscriptionsToTheSameChannel() {
+    let expectation = XCTestExpectation(description: "Test Simultaneous Subscriptions")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 2
+    
+    let pubnub = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId
+    ))
+    
+    pubnub.onConnectionStateChange = { newStatus in
+      switch newStatus {
+      case .connecting:
+        expectation.fulfill()
+      case .connected:
+        expectation.fulfill()
+      default:
+        XCTFail("Unexpected connection status")
+      }
+    }
+    
+    pubnub.subscribe(to: ["channel"])
+    pubnub.subscribe(to: ["channel"])
+    
+    XCTAssertEqual(pubnub.subscribedChannels, ["channel"])
+    wait(for: [expectation], timeout: 3.0)
   }
 }

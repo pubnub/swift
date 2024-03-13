@@ -351,6 +351,34 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.subscribe(to: ["channel"])
     
     XCTAssertEqual(pubnub.subscribedChannels, ["channel"])
-    wait(for: [expectation], timeout: 3.0)
+    wait(for: [expectation], timeout: 5.0)
+  }
+  
+  func test_SimultaneousSubscriptionsToTheSameChannelWithTimetoken() {
+    let expectation = XCTestExpectation(description: "Test Simultaneous Subscriptions With Timetoken")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 3
+    
+    let pubnub = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId
+    ))
+    
+    pubnub.onConnectionStateChange = { newStatus in
+      switch newStatus {
+      case .connecting:
+        expectation.fulfill()
+      case .connected:
+        expectation.fulfill()
+      default:
+        XCTFail("Unexpected connection status")
+      }
+    }
+    
+    pubnub.subscribe(to: ["channel"])
+    pubnub.subscribe(to: ["channel"], at: Timetoken(Int(Date().timeIntervalSince1970 * 10000000)))
+    
+    wait(for: [expectation], timeout: 5.0)
   }
 }

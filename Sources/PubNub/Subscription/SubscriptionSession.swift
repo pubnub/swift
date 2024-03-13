@@ -126,16 +126,16 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
     withPresence: Bool = false
   ) {
     let channelSubscriptions = channels.compactMap {
-      globalChannelSubscriptions[$0] == nil || cursor != nil ? channel($0).subscription(
+      channel($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      ) : nil
+      )
     }
     let channelGroupSubscriptions = groups.compactMap {
-      globalGroupSubscriptions[$0] == nil || cursor != nil ? channelGroup($0).subscription(
+      channelGroup($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      ) : nil
+      )
     }
     internalSubscribe(
       with: channelSubscriptions,
@@ -294,12 +294,10 @@ extension SubscriptionSession: SubscribeReceiver {
   ) {
     let extractingChannelsRes = extractItemsToUnsubscribe(
       from: channels,
-      type: .channel,
       presenceItemsOnly: presenceOnly
     )
     let extractingGroupsRes = extractItemsToUnsubscribe(
       from: channelGroups,
-      type: .channelGroup,
       presenceItemsOnly: presenceOnly
     )
     for channelSubscription in channels {
@@ -316,66 +314,62 @@ extension SubscriptionSession: SubscribeReceiver {
     )
   }
   
-  private func subscriptionCount(for name: String, type: SubscribableType) -> Int {
-    subscriptionTopology[type]?.filter { $0 == name }.count ?? 0
+  // Returns an array of subscriptions that subscribe to at least one name in common with the given Subscription
+  func matchingSubscriptions(for subscription: Subscription, presenceOnly: Bool) -> [SubscribeMessagesReceiver] {
+    let allSubscriptions = strategy.listeners.compactMap {
+      $0 as? BaseSubscriptionListenerAdapter
+    }
+    let namesToFind = subscription.subscriptionNames.filter {
+      presenceOnly ? $0.isPresenceChannelName : true
+    }
+    
+    return allSubscriptions.filter {
+      $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
+    }.compactMap {
+      $0.receiver
+    }.filter {
+      ($0.subscriptionTopology[subscription.subscriptionType] ?? [String]()).contains {
+        namesToFind.contains($0)
+      }
+    }
   }
 
   // Creates the final list of Presence channels/channel groups and main channels/channel groups
   // the user should unsubscribe from according to the following rules:
   //
-  // 1. Unsubscribes from the main channel happen if:
+  // 1. Unsubscribing from the main channel happens if:
   //  * There are no references to its Presence equivalent from other subscriptions
   //  * There are no references to the main channel from other subscriptions
   // 2. Unsubscribing from the Presence channel happens if:
   //  * There are no references to it from other subscriptions
   private func extractItemsToUnsubscribe(
     from subscriptions: [Subscription],
-    type: SubscribableType,
     presenceItemsOnly: Bool
   ) -> UnsubscribeRetrievalRes {
-    let presenceItems = Set(subscriptions.flatMap {
+    let presenceItems = Set(subscriptions.filter {
+      matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
+    }.flatMap {
       $0.subscriptionNames
     }).filter {
       $0.isPresenceChannelName
     }.map {
       PubNubChannel(channel: $0)
-    }.filter {
-      subscriptionCount(for: $0.presenceId, type: type) <= 1
     }
     
-    let channels = presenceItemsOnly ? [] : Set(subscriptions.flatMap {
+    let channels = presenceItemsOnly ? [] : Set(subscriptions.filter {
+      matchingSubscriptions(for: $0, presenceOnly: false).isEmpty && matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
+    }.flatMap {
       $0.subscriptionNames
     }).symmetricDifference(presenceItems.map {
       $0.presenceId
     }).map {
       PubNubChannel(id: $0, withPresence: false)
-    }.filter {
-      subscriptionCount(
-        for: $0.presenceId,
-        type: type
-      ) <= 1 &&
-        subscriptionCount(
-          for: $0.id,
-          type: type
-        ) <= 1
     }
     
     return UnsubscribeRetrievalRes(
       presenceOnlyItems: presenceItems,
       mainItems: channels
     )
-  }
-}
-
-private extension WeakSet where Element == BaseSubscriptionListener {
-  func subscriptions(excluding uuid: UUID? = nil) -> [BaseSubscriptionListenerAdapter] {
-    compactMap {
-      if let listener = $0 as? BaseSubscriptionListenerAdapter {
-        return listener.uuid != uuid ? listener : nil
-      } else {
-        return nil
-      }
-    }
   }
 }
 
@@ -445,17 +439,7 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
   var subscriptionTopology: [SubscribableType: [String]] {
-    var result: [SubscribableType: [String]] = [:]
-    result[.channel] = []
-    result[.channelGroup] = []
-    
-    return strategy.listeners.subscriptions(
-      excluding: globalEventsListener.uuid
-    ).reduce(into: result) { res, current in
-      let currentRes = current.receiver?.subscriptionTopology ?? [:]
-      res[.channel]?.append(contentsOf: currentRes[.channel] ?? [])
-      res[.channelGroup]?.append(contentsOf: currentRes[.channelGroup] ?? [])
-    }
+    [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
   }
   
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {

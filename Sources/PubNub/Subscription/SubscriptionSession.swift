@@ -357,7 +357,14 @@ extension SubscriptionSession: SubscribeReceiver {
     }
     
     let channels = presenceItemsOnly ? [] : Set(subscriptions.filter {
-      matchingSubscriptions(for: $0, presenceOnly: false).isEmpty && matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
+      matchingSubscriptions(
+        for: $0,
+        presenceOnly: false
+      ).isEmpty &&
+        matchingSubscriptions(
+          for: $0,
+          presenceOnly: true
+        ).isEmpty
     }.flatMap {
       $0.subscriptionNames
     }).symmetricDifference(presenceItems.map {

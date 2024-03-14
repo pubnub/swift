@@ -1381,9 +1381,9 @@ public extension PubNub {
 // MARK: - Crypto
 
 extension PubNub {
-  /// Encrypt some `Data` using the configuration `CryptoModule` value
+  /// Encrypts the `Data` object using `CryptoModule` provided in configuration
   /// - Parameter message: The plain text message to be encrypted
-  /// - Returns: A `Result` containing either the encryped Data (mapped to Base64-encoded  data) or the Crypto Error
+  /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
   public func encrypt(message: String) -> Result<Data, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
@@ -1400,9 +1400,9 @@ extension PubNub {
     }
   }
 
-  /// Decrypt some `Data` using the configuration CryptoModule value
+  /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
   /// - Parameter message: The encrypted `Data` to decrypt
-  /// - Returns: A `Result` containing either the decrypted plain text message  or the Crypto Error
+  /// - Returns: A `Result` containing either the decrypted plain text message  or the `CryptoError`
   public func decrypt(data: Data) -> Result<String, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)

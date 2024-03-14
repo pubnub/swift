@@ -147,3 +147,10 @@ public struct AESCBCCryptor: Cryptor {
     }
   }
 }
+
+extension AESCBCCryptor: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(key)
+    hasher.combine(id)
+  }
+}

@@ -186,7 +186,7 @@ fileprivate extension PubNubCryptoModuleContractTestSteps {
     )
   }
   
-  func createCryptor(for stringIdentifier: String) -> Cryptor {
+  func createCryptor(for stringIdentifier: String) -> any Cryptor {
     if stringIdentifier == "acrh" {
       return AESCBCCryptor(key: self.cipherKey)
     } else {

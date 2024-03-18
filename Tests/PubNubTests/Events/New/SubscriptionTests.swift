@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import XCTest
 @testable import PubNub
+import XCTest
 
 class SubscriptionTests: XCTestCase {
   private let pubnub = PubNub(
@@ -24,27 +24,27 @@ class SubscriptionTests: XCTestCase {
     let messagesExpectation = XCTestExpectation(description: "Message")
     messagesExpectation.assertForOverFulfill = true
     messagesExpectation.expectedFulfillmentCount = 1
-
+    
     let signalExpectation = XCTestExpectation(description: "Signal")
     signalExpectation.assertForOverFulfill = true
     signalExpectation.expectedFulfillmentCount = 1
-
+    
     let messageAction = XCTestExpectation(description: "Message Action")
     messageAction.assertForOverFulfill = true
     messageAction.expectedFulfillmentCount = 1
-
+    
     let presenceChangeExpectation = XCTestExpectation(description: "Presence")
     presenceChangeExpectation.assertForOverFulfill = true
     presenceChangeExpectation.expectedFulfillmentCount = 1
-
+    
     let appContextExpectation = XCTestExpectation(description: "App Context")
     appContextExpectation.assertForOverFulfill = true
     appContextExpectation.expectedFulfillmentCount = 1
-
+    
     let fileExpectation = XCTestExpectation(description: "File")
     fileExpectation.assertForOverFulfill = true
     fileExpectation.expectedFulfillmentCount = 1
-
+    
     let allEventsExpectation = XCTestExpectation(description: "All Events")
     allEventsExpectation.assertForOverFulfill = true
     allEventsExpectation.expectedFulfillmentCount = 1
@@ -102,28 +102,28 @@ class SubscriptionTests: XCTestCase {
     let messagesExpectation = XCTestExpectation(description: "Message")
     messagesExpectation.isInverted = true
     messagesExpectation.assertForOverFulfill = true
-
+    
     let signalExpectation = XCTestExpectation(description: "Signal")
     signalExpectation.isInverted = true
     signalExpectation.assertForOverFulfill = true
-
+    
     let messageAction = XCTestExpectation(description: "Message Action")
     messageAction.isInverted = true
     messageAction.assertForOverFulfill = true
-
+    
     let presenceChangeExpectation = XCTestExpectation(description: "Presence")
     presenceChangeExpectation.isInverted = true
     presenceChangeExpectation.assertForOverFulfill = true
     presenceChangeExpectation.expectedFulfillmentCount = 1
-
+    
     let appContextExpectation = XCTestExpectation(description: "App Context")
     appContextExpectation.isInverted = true
     appContextExpectation.assertForOverFulfill = true
-
+    
     let fileExpectation = XCTestExpectation(description: "File")
     fileExpectation.isInverted = true
     fileExpectation.assertForOverFulfill = true
-
+    
     let allEventsExpectation = XCTestExpectation(description: "All Events")
     allEventsExpectation.isInverted = true
     allEventsExpectation.assertForOverFulfill = true
@@ -185,7 +185,7 @@ class SubscriptionTests: XCTestCase {
     let channel = pubnub.channel("channel.item.*")
     let subscription = channel.subscription()
     
-    subscription.onMessage = { message in
+    subscription.onMessage = { _ in
       expectation.fulfill()
     }
     subscription.onPayloadsReceived(

@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.0.0"
+version: "7.1.0"
 schema: 1
 changelog:
+  - date: 2024-03-18
+    version: 7.1.0
+    changes:
+      - type: bug
+        text: "Preventing disconnection when subscribing via `PubNub` to a channel that was already subscribed to."
+      - type: bug
+        text: "Fixes for computing a hash value in `CryptoModule`."
   - date: 2024-02-21
     version: 7.0.0
     changes:
@@ -524,7 +531,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.0.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

@@ -15,6 +15,7 @@ public class CryptorModule {
   public static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
     preconditionFailure("This method is no longer available")
   }
+
   public static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
     preconditionFailure("This method is no longer available")
   }
@@ -22,22 +23,23 @@ public class CryptorModule {
 
 /// Object capable of encryption/decryption
 public struct CryptoModule {
-  private let defaultCryptor: Cryptor
-  private let cryptors: [Cryptor]
+  private let defaultCryptor: any Cryptor
+  private let cryptors: [any Cryptor]
   private let legacyCryptorId: CryptorId = []
   
   typealias Base64EncodedString = String
   
   /// Initializes `CryptoModule` with custom ``Cryptor`` objects capable of encryption and decryption
   ///
-  /// Use this constructor if you would like to provide **custom** objects for decryption and encryption and don't want to use PubNub's built-in `Cryptors`.
-  /// Otherwise, refer to convenience static factory methods such as ``aesCbcCryptoModule(with:withRandomIV:)``
-  /// and ``legacyCryptoModule(with:withRandomIV:)`` that return `CryptoModule` configured for you.
+  /// Use this constructor if you would like to provide **custom** objects for decryption and encryption
+  /// and don't want to use PubNub's built-in `Cryptors`. Otherwise, refer to convenience static factory methods
+  /// such as ``aesCbcCryptoModule(with:withRandomIV:)``and ``legacyCryptoModule(with:withRandomIV:)``
+  /// that return `CryptoModule` configured for you.
   ///
   /// - Parameters:
   ///   - default: Primary ``Cryptor`` instance used for encryption and decryption
   ///   - cryptors: An optional list of ``Cryptor`` instances which older messages/files were encoded
-  public init(default cryptor: Cryptor, cryptors: [Cryptor] = []) {
+  public init(default cryptor: any Cryptor, cryptors: [any Cryptor] = []) {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
   }
@@ -46,13 +48,15 @@ public struct CryptoModule {
   ///
   /// - Parameters:
   ///   - data: Data to encrypt
-  /// - Returns: A success, storing encrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: An encrypted `Data` object
+  ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
         .encryptionFailure,
-        additional: ["Cannot encrypt empty Data"])
-      )
+        additional: ["Cannot encrypt empty Data"]
+      ))
     }
     return defaultCryptor.encrypt(data: data).map {
       if defaultCryptor.id == LegacyCryptor.ID {
@@ -71,13 +75,15 @@ public struct CryptoModule {
   ///
   /// - Parameters:
   ///   - data: Data to decrypt
-  /// - Returns: A success, storing decrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///  - **Success**: A decrypted `Data` object
+  ///  - **Failure**: `PubNubError` describing the reason of failure
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
         .decryptionFailure,
-        additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
-      )
+        additional: ["Cannot decrypt empty Data in \(String(describing: self))"]
+      ))
     }
     do {
       let header = try CryptorHeader.from(data: data)
@@ -87,7 +93,7 @@ public struct CryptoModule {
           .unknownCryptorFailure,
           additional: [
             "Could not find matching Cryptor for \(header.cryptorId()) while decrypting Data. " +
-            "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
+              "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
           ]
         ))
       }
@@ -115,8 +121,8 @@ public struct CryptoModule {
         if $0.isEmpty {
           return .failure(PubNubError(
             .decryptionFailure,
-            additional: ["Decrypting resulted with empty Data"])
-          )
+            additional: ["Decrypting resulted with empty Data"]
+          ))
         }
         return .success($0)
       }
@@ -129,8 +135,8 @@ public struct CryptoModule {
       return .failure(PubNubError(
         .decryptionFailure,
         underlying: error,
-        additional: ["Cannot decrypt InputStream"])
-      )
+        additional: ["Cannot decrypt InputStream"]
+      ))
     }
   }
   
@@ -139,7 +145,9 @@ public struct CryptoModule {
   /// - Parameters:
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
-  /// - Returns: A success, storing an `InputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: An `InputStream` value
+  ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
@@ -179,7 +187,9 @@ public struct CryptoModule {
   ///   - stream: Stream to decrypt
   ///   - contentLength: Content length of encrypted stream
   ///   - to: URL where the stream should be decrypted to
-  /// - Returns: A success, storing a decrypted `InputStream` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///  - **Success**: A decrypted `InputStream` object
+  ///  - **Failure**: `PubNubError` describing the reason of failure
   @discardableResult
   public func decrypt(
     stream: InputStream,
@@ -203,7 +213,7 @@ public struct CryptoModule {
           .unknownCryptorFailure,
           additional: [
             "Could not find matching Cryptor for \(readHeaderResp.header.cryptorId()) while decrypting InputStream. " +
-            "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
+              "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
           ]
         ))
       }
@@ -218,8 +228,8 @@ public struct CryptoModule {
         if outputPath.sizeOf == 0 {
           return .failure(PubNubError(
             .decryptionFailure,
-            additional: ["Decrypting resulted with an empty File"])
-          )
+            additional: ["Decrypting resulted with an empty File"]
+          ))
         }
         return .success($0)
       }
@@ -237,7 +247,7 @@ public struct CryptoModule {
     }
   }
   
-  private func cryptor(matching header: CryptorHeader) -> Cryptor? {
+  private func cryptor(matching header: CryptorHeader) -> (any Cryptor)? {
     header.cryptorId() == defaultCryptor.id ? defaultCryptor : cryptors.first(where: {
       $0.id == header.cryptorId()
     })
@@ -246,7 +256,6 @@ public struct CryptoModule {
 
 /// Convenience methods for creating `CryptoModule`
 public extension CryptoModule {
-  
   /// Returns **recommended** `CryptoModule` for encryption/decryption
   ///
   /// - Parameters:
@@ -279,7 +288,9 @@ extension CryptoModule: Equatable {
 
 extension CryptoModule: Hashable {
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(cryptors.map { $0.id })
+    for cryptor in cryptors {
+      hasher.combine(cryptor)
+    }
   }
 }
 
@@ -289,7 +300,7 @@ extension CryptoModule: CustomStringConvertible {
   }
 }
 
-internal extension CryptoModule {
+extension CryptoModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
     guard let data = string.data(using: .utf8) else {
       return .failure(PubNubError(
@@ -309,8 +320,8 @@ internal extension CryptoModule {
       } else {
         return .failure(PubNubError(
           .decryptionFailure,
-          additional: ["Cannot create String from provided Data"])
-        )
+          additional: ["Cannot create String from provided Data"]
+        ))
       }
     }
   }

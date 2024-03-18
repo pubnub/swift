@@ -16,7 +16,6 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPublishEndpoint() {
     let publishExpect = expectation(description: "Publish Response")
-
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
@@ -37,19 +36,19 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testSignalTooLong() {
     let publishExpect = expectation(description: "Publish Response")
-
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    client.signal(channel: "SwiftITest",
-                  message: ["$": "35.75", "HI": "b62", "t": "BO"]) { result in
+    client.signal(
+      channel: "SwiftITest",
+      message: ["$": "35.75", "HI": "b62", "t": "BO"]
+    ) { result in
       switch result {
       case .success:
         XCTFail("Publish should fail")
       case let .failure(error):
-        XCTAssertEqual(error.pubNubError?.reason,
-                       PubNubError.Reason.messageTooLong)
+        XCTAssertEqual(error.pubNubError?.reason, PubNubError.Reason.messageTooLong)
       }
       publishExpect.fulfill()
     }
@@ -59,15 +58,16 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testCompressedPublishEndpoint() {
     let compressedPublishExpect = expectation(description: "Compressed Publish Response")
-
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
     // Publish a simple message to the demo_tutorial channel
-    client.publish(channel: "SwiftITest",
-                   message: "TestCompressedPublish",
-                   shouldCompress: true) { result in
+    client.publish(
+      channel: "SwiftITest",
+      message: "TestCompressedPublish",
+      shouldCompress: true
+    ) { result in
       switch result {
       case .success:
         break
@@ -82,7 +82,6 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testFireEndpoint() {
     let fireExpect = expectation(description: "Fire Response")
-
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
@@ -103,7 +102,6 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testSignalEndpoint() {
     let signalExpect = expectation(description: "Signal Response")
-
     // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
@@ -124,7 +122,6 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPushblishEscapedString() {
     let message = "{\"text\": \"bob\", \"duckName\": \"swiftduck\"}"
-
     let publishExpect = expectation(description: "Publish Response")
 
     // Instantiate PubNub
@@ -137,8 +134,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       case .success:
         XCTFail("Publish should fail")
       case let .failure(error):
-        XCTAssertEqual(error.pubNubError?.reason,
-                       PubNubError.Reason.requestContainedInvalidJSON)
+        XCTAssertEqual(error.pubNubError?.reason, PubNubError.Reason.requestContainedInvalidJSON)
       }
       publishExpect.fulfill()
     }
@@ -180,5 +176,65 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
 
     wait(for: [publishExpect], timeout: 10.0)
+  }
+
+  func testPublish_WithCryptoModulesFromDifferentClients() {
+    let firstClient = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
+    ))
+    let secondClient = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
+    ))
+
+    let channelForFistClient = "ChannelA"
+    let channelForSecondClient = "ChannelB"
+
+    let publishExpect = expectation(description: "Publish Response")
+    publishExpect.assertForOverFulfill = true
+    publishExpect.expectedFulfillmentCount = 2
+
+    let subscribeExpect = expectation(description: "Subscribe Response")
+    subscribeExpect.assertForOverFulfill = true
+    subscribeExpect.assertForOverFulfill = true
+
+    for client in [firstClient, secondClient] {
+      client.onConnectionStateChange = { [unowned client] newStatus in
+        if newStatus == .connected {
+          client.publish(
+            channel: client === firstClient ? channelForFistClient : channelForSecondClient,
+            message: "This is a message"
+          ) { result in
+            switch result {
+            case .success:
+              publishExpect.fulfill()
+            case let .failure(error):
+              XCTFail("Unexpected failure: \(error)")
+            }
+          }
+        }
+      }
+    }
+
+    let subscription = firstClient.channel(channelForFistClient).subscription()
+    let subscriptionFromSecondClient = secondClient.channel(channelForSecondClient).subscription()
+
+    subscription.onMessage = { message in
+      XCTAssertEqual(message.payload.stringOptional, "This is a message")
+      subscribeExpect.fulfill()
+    }
+    subscriptionFromSecondClient.onMessage = { message in
+      XCTAssertEqual(message.payload.stringOptional, "This is a message")
+      subscribeExpect.fulfill()
+    }
+    subscription.subscribe()
+    subscriptionFromSecondClient.subscribe()
+
+    wait(for: [publishExpect, subscribeExpect], timeout: 10.0)
   }
 }

@@ -33,7 +33,7 @@ public struct EncryptedStreamData {
 public typealias CryptorId = [UInt8]
 
 /// Protocol for all types that encapsulate concrete encryption/decryption operations
-public protocol Cryptor {
+public protocol Cryptor: Hashable {
   /// Unique 4-byte identifier across all `Cryptor`
   ///
   /// - Important: `[0x41, 0x43, 0x52, 0x48]` and `[0x00, 0x00, 0x00, 0x00]` values are reserved

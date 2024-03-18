@@ -171,3 +171,11 @@ public struct LegacyCryptor: Cryptor {
     }
   }
 }
+
+extension LegacyCryptor: Hashable {
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(key)
+    hasher.combine(withRandomIV)
+    hasher.combine(LegacyCryptor.ID)
+  }
+}

@@ -55,11 +55,30 @@ class PubNubConfigurationTests: XCTestCase {
   }
 
   func testInit_RawValues() {
-    let config = PubNubConfiguration(publishKey: publishKeyValue,
-                                     subscribeKey: subscribeKeyValue,
-                                     userId: UUID().uuidString)
+    let config = PubNubConfiguration(
+      publishKey: publishKeyValue,
+      subscribeKey: subscribeKeyValue,
+      userId: UUID().uuidString
+    )
 
     XCTAssertEqual(config.publishKey, publishKeyValue)
     XCTAssertEqual(config.subscribeKey, subscribeKeyValue)
+  }
+
+  func testConfigurations_DifferentCryptoModules() {
+    let firstConfig = PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
+    )
+    let secondConfig = PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId,
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
+    )
+
+    XCTAssertNotEqual(firstConfig.hashValue, secondConfig.hashValue)
   }
 }

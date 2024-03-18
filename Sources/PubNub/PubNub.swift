@@ -111,15 +111,14 @@ public extension PubNub {
     public var customSession: SessionReplaceable?
     /// The endpoint configuration used by the request
     public var customConfiguration: RouterConfiguration?
-    /// The response queue that will
+    /// The queue that will be used for dispatching a response
     public var responseQueue: DispatchQueue
 
     /// Default init for all fields
     /// - Parameters:
     ///   - customSession: The custom Network session that that will be used to make the request
     ///   - customConfiguration: The endpoint configuration used by the request
-    ///   - responseQueue: The response queue that will
-    ///
+    ///   - responseQueue: The queue that will be used for dispatching a response
     public init(
       customSession: SessionReplaceable? = nil,
       customConfiguration: RouterConfiguration? = nil,
@@ -141,6 +140,7 @@ public extension PubNub {
     /// - Parameters:
     ///   - start: The value of the  start of a next page
     ///   - end: The value of the end of a slice of paged data
+    ///   - totalCount: Number of items to fetch
     public init(start: String? = nil, end: String? = nil, totalCount: Int? = nil) {
       self.start = start
       self.end = end
@@ -292,7 +292,6 @@ public extension PubNub {
   /// - Parameters:
   ///   - channel: The destination of the message
   ///   - message: The message to publish
-  ///   - shouldCompress: Whether the message needs to be compressed before transmission
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `Timetoken` of the published Message
@@ -327,7 +326,6 @@ public extension PubNub {
   ///   - and: List of channel groups to subscribe on
   ///   - at: The initial timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
-  ///   - region: The region code from a previous `SubscribeCursor`
   func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
@@ -358,14 +356,12 @@ public extension PubNub {
   }
 
   /// Stops the subscriptions in progress
-  /// - Important: This subscription might be shared with multiple `PubNub` instances.
   func disconnect() {
     subscription.disconnect()
   }
 
   /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
-  /// - Important: This subscription might be shared with multiple `PubNub` instances.
   func reconnect(at timetoken: Timetoken? = nil) {
     subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
   }
@@ -475,6 +471,7 @@ public extension PubNub {
   ///   - state: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
+  ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The presence State set as a `JSONCodable`
   ///     - **Failure**: An `Error` describing the failure
@@ -511,6 +508,7 @@ public extension PubNub {
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
+  ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the UUID that set the State and a `Dictionary` of channels mapped to their respective State
   ///     - **Failure**: An `Error` describing the failure
@@ -637,7 +635,6 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The channel-group that was removed
   ///     - **Failure**: An `Error` describing the failure
-  ///   - result: A `Result` containing  either the removed channel-group  **or** an `Error`
   func remove(
     channelGroup: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -1051,7 +1048,7 @@ public extension PubNub {
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` of a `Dictionary` of channels mapped to an `Array` their respective `PubNubMessages`, and the next request `PubNubBoundedPage` (if one exists)
+  ///     - **Success**: A `Tuple` containing a `Dictionary` mapping channels to `PubNubMessage` arrays, and an optional next `PubNubBoundedPage`.
   ///     - **Failure**: An `Error` describing the failure
   func fetchMessageHistory(
     for channels: [String],
@@ -1353,8 +1350,8 @@ extension PubNub {
   }
 
   /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
-  /// - Parameter message: The encrypted `Data` to decrypt
-  /// - Returns: A `Result` containing either the decrypted plain text message  or the `CryptoError`
+  /// - Parameter data: The encrypted `Data` to decrypt
+  /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
   public func decrypt(data: Data) -> Result<String, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)

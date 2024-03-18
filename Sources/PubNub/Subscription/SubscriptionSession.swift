@@ -11,15 +11,14 @@
 import Foundation
 
 class SubscriptionSession: EventEmitter, StatusEmitter {
-  /// A unique identifier for subscription session
-  var uuid: UUID {
-    strategy.uuid
-  }
-  
-  /// An underlying queue to dispatch events
+  // An underlying queue to dispatch events
   let queue: DispatchQueue
+  // A unique identifier for subscription session
+  var uuid: UUID { strategy.uuid }
+  // The `Timetoken` used for the last successful subscription request
+  var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
   
-  /// PSV2 feature to subscribe with a custom filter expression.
+  // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {
       strategy.filterExpression
@@ -27,8 +26,14 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       strategy.filterExpression = newValue
     }
   }
+  var configuration: PubNubConfiguration {
+    get {
+      strategy.configuration
+    } set {
+      strategy.configuration = newValue
+    }
+  }
   
-  /// `EventEmitter` conformance
   var onEvent: ((PubNubEvent) -> Void)?
   var onEvents: (([PubNubEvent]) -> Void)?
   var onMessage: ((PubNubMessage) -> Void)?
@@ -37,21 +42,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   var onAppContext: ((PubNubAppContextEvent) -> Void)?
-  
-  /// `StatusEmitter` conformance
   var onConnectionStateChange: ((ConnectionStatus) -> Void)?
-
-  var previousTokenResponse: SubscribeCursor? {
-    strategy.previousTokenResponse
-  }
-  
-  var configuration: PubNubConfiguration {
-    get {
-      strategy.configuration
-    } set {
-      strategy.configuration = newValue
-    }
-  }
   
   private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(
     receiver: self,
@@ -86,37 +77,30 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     add(globalStatusListener)
   }
 
-  /// Names of all subscribed channels
-  ///
-  /// This list includes both regular and presence channel names
+  // Names of all subscribed channels
+  //
+  // This list includes both regular and presence channel names
   var subscribedChannels: [String] {
     strategy.subscribedChannels
   }
   
-  /// List of actively subscribed groups
+  // List of actively subscribed groups
   var subscribedChannelGroups: [String] {
     strategy.subscribedChannelGroups
   }
 
-  /// Combined value of all subscribed channels and groups
+  // Combined value of all subscribed channels and groups
   var subscriptionCount: Int {
     strategy.subscriptionCount
   }
   
-  /// Current connection status
+  // Current connection status
   var connectionStatus: ConnectionStatus {
     strategy.connectionStatus
   }
         
   // MARK: - Subscription Loop
 
-  /// Subscribe to channels and/or channel groups
-  ///
-  /// - Parameters:
-  ///   - to: List of channels to subscribe on
-  ///   - and: List of channel groups to subscribe on
-  ///   - at: The timetoken to subscribe with
-  ///   - withPresence: If true it also subscribes to presence events on the specified channels.
   func subscribe(
     to channels: [String],
     and groups: [String] = [],
@@ -141,36 +125,31 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       at: cursor?.timetoken
     )
     for subscription in channelSubscriptions {
-      subscription.subscriptionNames.flatMap { $0 }.forEach {
+      subscription.subscriptionNames.compactMap { $0 }.forEach {
         globalChannelSubscriptions[$0] = subscription
       }
     }
     for subscription in channelGroupSubscriptions {
-      subscription.subscriptionNames.flatMap { $0 }.forEach {
+      subscription.subscriptionNames.compactMap { $0 }.forEach {
         globalGroupSubscriptions[$0] = subscription
       }
     }
   }
 
-  /// Reconnect a disconnected subscription stream
-  /// - parameter timetoken: The timetoken to subscribe with
+  // MARK: - Reconnect
+  
   func reconnect(at cursor: SubscribeCursor? = nil) {
     strategy.reconnect(at: cursor)
   }
 
-  /// Disconnect the subscription stream
+  // MARK: - Disconnect
+  
   func disconnect() {
     strategy.disconnect()
   }
 
   // MARK: - Unsubscribe
 
-  /// Unsubscribe from channels and/or channel groups
-  ///
-  /// - Parameters:
-  ///   - from: List of channels to unsubscribe from
-  ///   - and: List of channel groups to unsubscribe from
-  ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   func unsubscribe(
     from channels: [String],
     and groups: [String] = [],
@@ -193,7 +172,6 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     }
   }
 
-  /// Unsubscribe from all channels and channel groups
   func unsubscribeAll() {
     strategy.unsubscribeAll()
   }

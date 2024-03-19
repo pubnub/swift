@@ -99,9 +99,9 @@ class DelayedHeartbeatEffectTests: XCTestCase {
   }
 }
 
-fileprivate extension DelayedHeartbeatEffectTests {
+private extension DelayedHeartbeatEffectTests {
   func mockResponse(_ response: GenericServicePayloadResponse) {
-    mockUrlSession.responseForDataTask = { task, id in
+    mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
       task.mockData = try? Constant.jsonEncoder.encode(response)
       task.mockResponse = HTTPURLResponse(statusCode: response.status)

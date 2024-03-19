@@ -49,7 +49,7 @@ class PresenceHeartbeatRequest {
     )
     request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
       switch result {
-      case .success(_):
+      case .success:
         completionBlock(.success(()))
       case .failure(let error):
         completionBlock(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))

@@ -8,25 +8,25 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 
 @testable import PubNub
 
 extension Subscribe.Invocation: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .handshakeRequest(_, _):
+    case .handshakeRequest:
       return "HANDSHAKE"
-    case .handshakeReconnect(_, _, _, _):
+    case .handshakeReconnect:
       return "HANDSHAKE_RECONNECT"
-    case .receiveMessages(_, _, _):
+    case .receiveMessages:
       return "RECEIVE_MESSAGES"
-    case .receiveReconnect(_, _, _, _, _):
+    case .receiveReconnect:
       return "RECEIVE_RECONNECT"
-    case .emitMessages(_,_):
+    case .emitMessages:
       return "EMIT_MESSAGES"
-    case .emitStatus(_):
+    case .emitStatus:
       return "EMIT_STATUS"
     }
   }
@@ -50,29 +50,29 @@ extension Subscribe.Invocation.Cancellable: ContractTestIdentifiable {
 extension Subscribe.Event: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .handshakeSuccess(_):
+    case .handshakeSuccess:
       return "HANDSHAKE_SUCCESS"
-    case .handshakeFailure(_):
+    case .handshakeFailure:
       return "HANDSHAKE_FAILURE"
-    case .handshakeReconnectSuccess(_):
+    case .handshakeReconnectSuccess:
       return "HANDSHAKE_RECONNECT_SUCCESS"
-    case .handshakeReconnectFailure(_):
+    case .handshakeReconnectFailure:
       return "HANDSHAKE_RECONNECT_FAILURE"
-    case .handshakeReconnectGiveUp(_):
+    case .handshakeReconnectGiveUp:
       return "HANDSHAKE_RECONNECT_GIVEUP"
-    case .receiveSuccess(_,_):
+    case .receiveSuccess:
       return "RECEIVE_SUCCESS"
-    case .receiveFailure(_):
+    case .receiveFailure:
       return "RECEIVE_FAILURE"
-    case .receiveReconnectSuccess(_,_):
+    case .receiveReconnectSuccess:
       return "RECEIVE_RECONNECT_SUCCESS"
-    case .receiveReconnectFailure(_):
+    case .receiveReconnectFailure:
       return "RECEIVE_RECONNECT_FAILURE"
-    case .receiveReconnectGiveUp(_):
+    case .receiveReconnectGiveUp:
       return "RECEIVE_RECONNECT_GIVEUP"
-    case .subscriptionChanged(_, _):
+    case .subscriptionChanged:
       return "SUBSCRIPTION_CHANGED"
-    case .subscriptionRestored(_, _, _):
+    case .subscriptionRestored:
       return "SUBSCRIPTION_RESTORED"
     case .unsubscribeAll:
       return "UNSUBSCRIBE_ALL"
@@ -140,7 +140,7 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
   override public func setup() {
     startCucumberHookEventsListening()
     
-    Given("a linear reconnection policy with 3 retries") { args, _ in
+    Given("a linear reconnection policy with 3 retries") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -179,12 +179,12 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
       XCTAssertNotNil(self.receivedErrorStatuses.first)
     }
     
-    Then("I receive the message in my subscribe response") { _, userInfo in
+    Then("I receive the message in my subscribe response") { _, _ in
       let messages = self.waitForMessages(self.client, count: 1) ?? []
       XCTAssertNotNil(messages.first)
     }
     
-    Match(["And"], "I observe the following:") { args, value in
+    Match(["And"], "I observe the following:") { _, value in
       let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
       let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
       

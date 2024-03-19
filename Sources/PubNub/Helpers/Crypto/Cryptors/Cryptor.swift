@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import CommonCrypto
+import Foundation
 
 /// Represents the result of encrypted `Data`
 public struct EncryptedData {
@@ -38,7 +38,7 @@ public protocol Cryptor: Hashable {
   ///
   /// - Important: `[0x41, 0x43, 0x52, 0x48]` and `[0x00, 0x00, 0x00, 0x00]` values are reserved
   var id: CryptorId { get }
-  
+
   /// Encrypts the given `Data` object
   ///
   /// - Parameters:
@@ -47,7 +47,7 @@ public protocol Cryptor: Hashable {
   ///   - **Success**: ``EncryptedData`` representing encrypted content
   ///   - **Failure**: `Error` describing the reason of failure
   func encrypt(data: Data) -> Result<EncryptedData, Error>
-  
+
   /// Decrypts the given `Data` object
   ///
   /// - Parameters:
@@ -56,7 +56,7 @@ public protocol Cryptor: Hashable {
   ///   - **Success**: ``Data`` representing decrypted content
   ///   - **Failure**: `Error` describing the reason of failure
   func decrypt(data: EncryptedData) -> Result<Data, Error>
-  
+
   /// Encrypts the given `InputStream` object
   ///
   /// - Parameters:
@@ -66,9 +66,9 @@ public protocol Cryptor: Hashable {
   ///   - **Success**: ``EncryptedStreamData`` representing encrypted content
   ///   - **Failure**: `Error` describing the reason of failure
   func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamData, Error>
-  
+
   /// Decrypts the given `InputStream` object
-  /// 
+  ///
   /// - Parameters:
   ///   - data: A value describing encrypted stream
   ///   - outputPath: URL where the stream should be decrypted to

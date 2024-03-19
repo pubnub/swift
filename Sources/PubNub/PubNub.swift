@@ -30,7 +30,7 @@ public class PubNub {
   let subscription: SubscriptionSession
   // Container that holds current Presence states for given channels/channel groups
   let presenceStateContainer: PubNubPresenceStateContainer
-  
+
   /// Creates a PubNub session with the specified configuration
   ///
   /// - Parameters:
@@ -51,7 +51,7 @@ public class PubNub {
 
     self.init(container: container)
   }
-  
+
   init(container: DependencyContainer) {
     self.instanceID = container.instanceID
     self.configuration = container.configuration
@@ -396,7 +396,7 @@ public extension PubNub {
   var connectionStatus: ConnectionStatus {
     return subscription.connectionStatus
   }
-  
+
   /// An override for the default filter expression set during initialization
   var subscribeFilterExpression: String? {
     get {
@@ -413,11 +413,11 @@ extension PubNub: SubscribeReceiver {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
     subscription.registerAdapter(adapter)
   }
-  
+
   func hasRegisteredAdapter(with uuid: UUID) -> Bool {
     subscription.hasRegisteredAdapter(with: uuid)
   }
-  
+
   func internalSubscribe(
     with channels: [Subscription],
     and groups: [Subscription],
@@ -429,7 +429,7 @@ extension PubNub: SubscribeReceiver {
       at: timetoken
     )
   }
-  
+
   func internalUnsubscribe(
     from channels: [Subscription],
     and groups: [Subscription],
@@ -449,15 +449,15 @@ extension PubNub: EntityCreator {
   public func channel(_ name: String) -> ChannelRepresentation {
     subscription.channel(name)
   }
-  
+
   public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
     subscription.channelGroup(name)
   }
-  
+
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
     subscription.userMetadata(name)
   }
-  
+
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
     subscription.channelMetadata(name)
   }
@@ -487,14 +487,14 @@ public extension PubNub {
       configuration: requestConfig.customConfiguration ?? configuration
     )
     let shouldMaintainPresenceState = configuration.enableEventEngine && configuration.maintainPresenceState
-    
+
     route(
       router,
       requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: PresenceResponseDecoder<AnyPresencePayload<AnyJSON>>(),
       custom: requestConfig
     ) { [weak self] result in
-      if case .success(_) = result {
+      if case .success = result {
         if shouldMaintainPresenceState {
           self?.presenceStateContainer.registerState(AnyJSON(state), forChannels: channels)
         }
@@ -1224,9 +1224,7 @@ public extension PubNub {
       case let .success(response):
         completion?(.success((
           actions: response.payload.actions.map { PubNubMessageActionBase(from: $0, on: channel) },
-          next: PubNubBoundedPageBase(
-            start: response.payload.start, end: response.payload.end, limit: response.payload.limit
-          )
+          next: PubNubBoundedPageBase(start: response.payload.start, end: response.payload.end, limit: response.payload.limit)
         )))
       case let .failure(error):
         completion?(.failure(error))
@@ -1329,11 +1327,11 @@ public extension PubNub {
 
 // MARK: - Crypto
 
-extension PubNub {
+public extension PubNub {
   /// Encrypts the `Data` object using `CryptoModule` provided in configuration
   /// - Parameter message: The plain text message to be encrypted
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
-  public func encrypt(message: String) -> Result<Data, Error> {
+  func encrypt(message: String) -> Result<Data, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
@@ -1341,7 +1339,7 @@ extension PubNub {
     guard let dataMessage = message.data(using: .utf8) else {
       return .failure(CryptoError.decodeError)
     }
-    
+
     return cryptoModule.encrypt(data: dataMessage).map {
       $0.base64EncodedData()
     }.mapError {
@@ -1352,7 +1350,7 @@ extension PubNub {
   /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
   /// - Parameter data: The encrypted `Data` to decrypt
   /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
-  public func decrypt(data: Data) -> Result<String, Error> {
+  func decrypt(data: Data) -> Result<String, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
@@ -1361,7 +1359,7 @@ extension PubNub {
       PubNub.log.error("Cannot create Base64-encoded data")
       return .failure(CryptoError.decodeError)
     }
-    
+
     return cryptoModule.decrypt(data: base64EncodedData)
       .flatMap {
         guard let string = String(data: $0, encoding: .utf8) else {
@@ -1415,45 +1413,46 @@ extension PubNub: EventEmitter {
   public var queue: DispatchQueue {
     subscription.queue
   }
+
   public var uuid: UUID {
     subscription.uuid
   }
-  
+
   public var onEvent: ((PubNubEvent) -> Void)? {
     get { subscription.onEvent }
     set { subscription.onEvent = newValue }
   }
-  
+
   public var onEvents: (([PubNubEvent]) -> Void)? {
     get { subscription.onEvents }
     set { subscription.onEvents = newValue }
   }
-  
+
   public var onMessage: ((PubNubMessage) -> Void)? {
     get { subscription.onMessage }
     set { subscription.onMessage = newValue }
   }
-  
+
   public var onSignal: ((PubNubMessage) -> Void)? {
     get { subscription.onSignal }
     set { subscription.onSignal = newValue }
   }
-  
+
   public var onPresence: ((PubNubPresenceChange) -> Void)? {
     get { subscription.onPresence }
     set { subscription.onPresence = newValue }
   }
-  
+
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)? {
     get { subscription.onMessageAction }
     set { subscription.onMessageAction = newValue }
   }
-  
+
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)? {
     get { subscription.onFileEvent }
     set { subscription.onFileEvent = newValue }
   }
-  
+
   public var onAppContext: ((PubNubAppContextEvent) -> Void)? {
     get { subscription.onAppContext }
     set { subscription.onAppContext = newValue }

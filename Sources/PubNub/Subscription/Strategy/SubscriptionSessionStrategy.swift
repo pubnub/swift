@@ -32,7 +32,7 @@ protocol SubscriptionSessionStrategy: AnyObject {
     mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   )
-  
+
   func reconnect(at cursor: SubscribeCursor?)
   func disconnect()
   func unsubscribeAll()

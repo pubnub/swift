@@ -40,7 +40,7 @@ class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispat
     self.wrappedInstance = wrappedInstance
     self.recordedInvocations = []
   }
-  
+
   func dispatch(
     invocations: [EffectInvocation<Invocation>],
     with dependencies: EventEngineDependencies<Input>,
@@ -54,16 +54,16 @@ class DispatcherDecorator<Invocation: AnyEffectInvocation, Event, Input>: Dispat
 class TransitionDecorator<State, Event, Invocation: AnyEffectInvocation>: TransitionProtocol {
   private let wrappedInstance: any TransitionProtocol<State, Event, Invocation>
   private(set) var recordedEvents: [Event]
-   
+
   init(wrappedInstance: some TransitionProtocol<State, Event, Invocation>) {
     self.wrappedInstance = wrappedInstance
     self.recordedEvents = []
   }
-  
+
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     wrappedInstance.canTransition(from: state, dueTo: event)
   }
-  
+
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     recordedEvents.append(event)
     return wrappedInstance.transition(from: state, event: event)

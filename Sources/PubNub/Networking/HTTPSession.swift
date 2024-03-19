@@ -90,8 +90,8 @@ public final class HTTPSession {
   deinit {
     PubNub.log.debug("Session Destroyed \(sessionID) with active requests \(taskToRequest.values.map { $0.requestID })")
 
-    taskToRequest.values.forEach {
-      $0.cancel(PubNubError(.sessionDeinitialized, router: $0.router))
+    for value in taskToRequest.values {
+      value.cancel(PubNubError(.sessionDeinitialized, router: value.router))
     }
     invalidateAndCancel()
   }

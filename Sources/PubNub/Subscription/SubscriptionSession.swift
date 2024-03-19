@@ -26,6 +26,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       strategy.filterExpression = newValue
     }
   }
+
   var configuration: PubNubConfiguration {
     get {
       strategy.configuration

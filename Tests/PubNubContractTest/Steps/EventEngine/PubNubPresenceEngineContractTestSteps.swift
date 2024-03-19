@@ -8,19 +8,19 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 
 @testable import PubNub
 
 extension Presence.Invocation: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .heartbeat(_, _):
+    case .heartbeat:
       return "HEARTBEAT"
-    case .leave(_, _):
+    case .leave:
       return "LEAVE"
-    case .delayedHeartbeat(_, _, _, _):
+    case .delayedHeartbeat:
       return "DELAYED_HEARTBEAT"
     case .wait:
       return "WAIT"
@@ -42,9 +42,9 @@ extension Presence.Invocation.Cancellable: ContractTestIdentifiable {
 extension Presence.Event: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .joined(_, _):
+    case .joined:
       return "JOINED"
-    case .left(_, _):
+    case .left:
       return "LEFT"
     case .leftAll:
       return "LEFT_ALL"
@@ -56,9 +56,9 @@ extension Presence.Event: ContractTestIdentifiable {
       return "TIMES_UP"
     case .heartbeatSuccess:
       return "HEARTBEAT_SUCCESS"
-    case .heartbeatFailed(_):
+    case .heartbeatFailed:
       return "HEARTBEAT_FAILURE"
-    case .heartbeatGiveUp(_):
+    case .heartbeatGiveUp:
       return "HEARTBEAT_GIVEUP"
     }
   }
@@ -111,7 +111,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
   override public func setup() {
     startCucumberHookEventsListening()
     
-    Given("^the demo keyset with Presence Event Engine enabled$") { args, _ in
+    Given("^the demo keyset with Presence Event Engine enabled$") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -122,7 +122,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       ))
     }
     
-    Given("a linear reconnection policy with 3 retries") { args, _ in
+    Given("a linear reconnection policy with 3 retries") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -166,7 +166,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.subscribeSynchronously(self.client, to: [firstChannel, secondChannel, thirdChannel], with: true)
     }
     
-    Then("^I wait for getting Presence joined events$") { args, _ in
+    Then("^I wait for getting Presence joined events$") { _, _ in
       XCTAssertNotNil(self.waitForPresenceChanges(self.client, count: 3))
     }
     
@@ -174,7 +174,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.waitFor(delay: TimeInterval(args!.first!)!)
     }
     
-    Then("^I wait for getting Presence left events$") { args, _ in
+    Then("^I wait for getting Presence left events$") { _, _ in
       XCTAssertNotNil(self.waitForPresenceChanges(self.client, count: 2))
     }
     
@@ -189,7 +189,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.waitFor(delay: 9.5)
     }
     
-    Match(["And", "Then"], "^I observe the following Events and Invocations of the Presence EE:$") { args, value in
+    Match(["And", "Then"], "^I observe the following Events and Invocations of the Presence EE:$") { _, value in
       let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
       let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
       
@@ -197,7 +197,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
     }
     
-    Then("^I don't observe any Events and Invocations of the Presence EE") { args, value in
+    Then("^I don't observe any Events and Invocations of the Presence EE") { _, _ in
       XCTAssertTrue(self.transitionDecorator.recordedEvents.isEmpty)
       XCTAssertTrue(self.dispatcherDecorator.recordedInvocations.isEmpty)
     }

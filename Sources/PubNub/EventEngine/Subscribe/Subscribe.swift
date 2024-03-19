@@ -37,13 +37,13 @@ extension Subscribe {
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.connecting
   }
-  
+
   struct HandshakeStoppedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
-  
+
   struct HandshakeReconnectingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
@@ -51,13 +51,13 @@ extension Subscribe {
     let reason: PubNubError
     let connectionStatus = ConnectionStatus.connecting
   }
-  
+
   struct HandshakeFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
     let connectionStatus: ConnectionStatus
-    
+
     init(input: SubscribeInput, cursor: SubscribeCursor, error: PubNubError) {
       self.input = input
       self.cursor = cursor
@@ -65,13 +65,13 @@ extension Subscribe {
       self.connectionStatus = .connectionError(error)
     }
   }
-  
+
   struct ReceivingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.connected
   }
-  
+
   struct ReceiveReconnectingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
@@ -79,19 +79,19 @@ extension Subscribe {
     let reason: PubNubError
     let connectionStatus = ConnectionStatus.connected
   }
-  
+
   struct ReceiveStoppedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
-  
+
   struct ReceiveFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let error: PubNubError
     let connectionStatus: ConnectionStatus
-    
+
     init(input: SubscribeInput, cursor: SubscribeCursor, error: PubNubError) {
       self.input = input
       self.cursor = cursor
@@ -99,10 +99,10 @@ extension Subscribe {
       self.connectionStatus = .disconnectedUnexpectedly(error)
     }
   }
-  
+
   struct UnsubscribedState: SubscribeState {
-    let cursor: SubscribeCursor = SubscribeCursor(timetoken: 0)!
-    let input: SubscribeInput = SubscribeInput()
+    let cursor: SubscribeCursor = .init(timetoken: 0)!
+    let input: SubscribeInput = .init()
     let connectionStatus = ConnectionStatus.disconnected
   }
 }
@@ -141,7 +141,7 @@ extension Subscribe {
   struct Dependencies {
     let configuration: PubNubConfiguration
     let listeners: [BaseSubscriptionListener]
-    
+
     init(configuration: PubNubConfiguration, listeners: [BaseSubscriptionListener] = []) {
       self.configuration = configuration
       self.listeners = listeners
@@ -159,7 +159,7 @@ extension Subscribe {
     case receiveReconnect(channels: [String], groups: [String], cursor: SubscribeCursor, retryAttempt: Int, reason: PubNubError)
     case emitStatus(change: Subscribe.ConnectionStatusChange)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
-    
+
     enum Cancellable: AnyCancellableInvocation {
       case handshakeRequest
       case handshakeReconnect
@@ -182,17 +182,17 @@ extension Subscribe {
 
     var id: String {
       switch self {
-      case .handshakeRequest(_, _):
+      case .handshakeRequest:
         return Cancellable.handshakeRequest.id
-      case .handshakeReconnect(_, _, _, _):
+      case .handshakeReconnect:
         return Cancellable.handshakeReconnect.id
-      case .receiveMessages(_, _, _):
+      case .receiveMessages:
         return Cancellable.receiveMessages.id
-      case .receiveReconnect(_, _, _, _, _):
+      case .receiveReconnect:
         return Cancellable.receiveReconnect.id
-      case .emitMessages(_,_):
+      case .emitMessages:
         return "Subscribe.EmitMessages"
-      case .emitStatus(_):
+      case .emitStatus:
         return "Subscribe.EmitStatus"
       }
     }

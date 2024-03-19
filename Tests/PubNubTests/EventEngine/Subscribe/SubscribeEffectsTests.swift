@@ -466,13 +466,13 @@ extension SubscribeEffectsTests {
 
 // MARK: - Helpers
 
-fileprivate extension SubscribeEffectsTests {
+private extension SubscribeEffectsTests {
   func mockResponse(
     subscribeResponse: SubscribeResponse? = nil,
     errorIfAny: Error? = nil,
     httpResponse: HTTPURLResponse = HTTPURLResponse(statusCode: 200)!
   ) {
-    mockUrlSession.responseForDataTask = { task, id in
+    mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = errorIfAny
       task.mockData = try? Constant.jsonEncoder.encode(subscribeResponse)
       task.mockResponse = httpResponse
@@ -481,7 +481,7 @@ fileprivate extension SubscribeEffectsTests {
   }
 }
 
-fileprivate let firstMessage = SubscribeMessagePayload(
+private let firstMessage = SubscribeMessagePayload(
   shard: "",
   subscription: nil,
   channel: "test-channel",
@@ -496,7 +496,7 @@ fileprivate let firstMessage = SubscribeMessagePayload(
   error: nil
 )
 
-fileprivate let secondMessage = SubscribeMessagePayload(
+private let secondMessage = SubscribeMessagePayload(
   shard: "",
   subscription: nil,
   channel: "test-channel",

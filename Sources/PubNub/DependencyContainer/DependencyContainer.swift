@@ -124,12 +124,12 @@ extension DependencyContainer {
 }
 
 private extension DependencyContainer {
-  func resolveSession(session: SessionReplaceable, with operators: [RequestOperator?]) -> SessionReplaceable {
+  func resolveSession(session: SessionReplaceable, with operators: [RequestOperator]) -> SessionReplaceable {
     session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
-      operators: operators.compactMap { $0 }
+      operators: operators
     )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
-      operators: operators.compactMap { $0 })
-    )
+      operators: operators
+    ))
   }
 }
 

@@ -126,12 +126,15 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
     self.transitionDecorator = TransitionDecorator(
       wrappedInstance: SubscribeTransition()
     )
-        
-    container[key] = SubscribeEngine(
-      state: Subscribe.UnsubscribedState(),
-      transition: self.transitionDecorator,
-      dispatcher: self.dispatcherDecorator,
-      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration))
+    
+    container.register(
+      value: SubscribeEngine(
+        state: Subscribe.UnsubscribedState(),
+        transition: self.transitionDecorator,
+        dispatcher: self.dispatcherDecorator,
+        dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration))
+      ),
+      forKey: SubscribeEventEngineDependencyKey.self
     )
     
     return PubNub(container: container)

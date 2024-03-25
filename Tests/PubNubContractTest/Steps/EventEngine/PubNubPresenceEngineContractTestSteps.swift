@@ -98,11 +98,14 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       wrappedInstance: PresenceTransition(configuration: configuration)
     )
     
-    container[key] = PresenceEngine(
-      state: Presence.HeartbeatInactive(),
-      transition: self.transitionDecorator,
-      dispatcher: self.dispatcherDecorator,
-      dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration))
+    container.register(
+      value: PresenceEngine(
+        state: Presence.HeartbeatInactive(),
+        transition: self.transitionDecorator,
+        dispatcher: self.dispatcherDecorator,
+        dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration))
+      ),
+      forKey: PresenceEventEngineDependencyKey.self
     )
     
     return PubNub(container: container)

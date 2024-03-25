@@ -24,35 +24,82 @@ protocol DependencyKey {
 // The class that serves as a registry for dependencies. Each dependency is associated with a unique key
 // conforming to the `DependencyKey` protocol.
 class DependencyContainer {
-  private var values: [ObjectIdentifier: Any] = [:]
+  private var resolvedValues: [ObjectIdentifier: any Wrappable] = [:]
+  private var registeredKeys: [ObjectIdentifier: (key: any DependencyKey.Type, scope: Scope)] = [:]
 
+  // Defines the lifecycle of the given dependency
+  enum Scope {
+    // The dependency is owned by the container. It lives as long as the container itself lives.
+    // The dependency is strongly referenced by the container.
+    case container
+    // The container does not own the dependency. The dependency could be deallocated even if the container
+    // is still alive, if there are no more strong references to it.
+    case weak
+    // Indicates that the DependencyContainer doesn't keep any reference (neither strong nor weak) to the dependency.
+    // Each time the dependency is requested, a new instance is created and returned
+    case transient
+  }
+  
   init(instanceID: UUID = UUID(), configuration: PubNubConfiguration) {
-    self[PubNubConfigurationDependencyKey.self] = configuration
-    self[PubNubInstanceIDDependencyKey.self] = instanceID
+    register(value: configuration, forKey: PubNubConfigurationDependencyKey.self)
+    register(value: instanceID, forKey: PubNubInstanceIDDependencyKey.self)
+    register(key: FileURLSessionDependencyKey.self, scope: .weak)
+    register(key: DefaultHTTPSessionDependencyKey.self, scope: .weak)
+    register(key: HTTPSubscribeSessionDependencyKey.self, scope: .weak)
+    register(key: HTTPPresenceSessionDependencyKey.self, scope: .weak)
+    register(key: HTTPSubscribeSessionQueueDependencyKey.self, scope: .weak)
+    register(key: PresenceStateContainerDependencyKey.self, scope: .weak)
+    register(key: SubscribeEventEngineDependencyKey.self, scope: .weak)
+    register(key: PresenceEventEngineDependencyKey.self, scope: .weak)
+    register(key: SubscriptionSessionDependencyKey.self, scope: .weak)
   }
 
   subscript<K>(key: K.Type) -> K.Value where K: DependencyKey {
     get {
-      if let existingValue = values[ObjectIdentifier(key)] {
-        if let existingValue = existingValue as? K.Value {
-          return existingValue
+      guard let underlyingKey = registeredKeys[ObjectIdentifier(key)] else {
+        preconditionFailure("Cannot find \(key). Ensure this key was registered before")
+      }
+      if underlyingKey.scope == .transient {
+        if let value = underlyingKey.key.value(from: self) as? K.Value {
+          return value
         } else {
-          preconditionFailure("Cannot resolve value for \(key)")
+          preconditionFailure("Cannot create value for key \(key)")
         }
       }
-      let value = key.value(from: self)
-      values[ObjectIdentifier(key)] = value
-      return value
-    } set {
-      values[ObjectIdentifier(key)] = newValue
+      if let valueWrapper = resolvedValues[ObjectIdentifier(key)] {
+        if let underlyingValue = valueWrapper.value as? K.Value {
+          return underlyingValue
+        }
+      }
+      if let value = underlyingKey.key.value(from: self) as? K.Value {
+        if Mirror(reflecting: value).displayStyle == .class && underlyingKey.scope == .weak {
+          resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
+        } else {
+          resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
+        }
+        return value
+      }
+      preconditionFailure("Cannot create value for key \(key)")
     }
+  }
+  
+  func register<K: DependencyKey>(key: K.Type, scope: Scope = .container) {
+    registeredKeys[ObjectIdentifier(key)] = (key: key, scope: scope)
   }
 
   @discardableResult
-  func register<K: DependencyKey>(value: K.Value?, forKey key: K.Type) -> DependencyContainer {
-    if let value {
-      values[ObjectIdentifier(key)] = value
+  func register<K: DependencyKey>(value: K.Value?, forKey key: K.Type, in scope: Scope = .container) -> DependencyContainer {
+    guard let value = value else {
+      return self
     }
+    registeredKeys[ObjectIdentifier(key)] = (key: key, scope: scope)
+
+    if Mirror(reflecting: value).displayStyle == .class && scope == .weak {
+      resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
+    } else {
+      resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
+    }
+    
     return self
   }
 }
@@ -259,5 +306,35 @@ struct SubscriptionSessionDependencyKey: DependencyKey {
         )
       )
     }
+  }
+}
+
+// Provides a standard interface for objects that wrap or encapsulate other objects in a dependency container context.
+protocol Wrappable<T> {
+  associatedtype T
+  var value: T? { get }
+}
+
+// A concrete implementation of the `Wrappable` protocol, designed to hold a weak reference to the object it wraps.
+// It only accepts classes (reference types) as its generic parameter, because weak references
+// can only be made to reference types.
+private class WeakWrapper<T: AnyObject>: Wrappable {
+  private weak var optionalValue: T?
+  
+  var value: T? {
+    optionalValue
+  }
+  
+  init(_ value: T) {
+    self.optionalValue = value
+  }
+}
+
+// Holds a strong reference to the object it wraps
+private class ValueWrapper<T>: Wrappable {
+  let value: T?
+  
+  init(_ value: T) {
+    self.value = value
   }
 }

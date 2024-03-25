@@ -80,7 +80,7 @@ class DependencyContainer {
     }
     preconditionFailure("Cannot create value for key \(key)")
   }
-  
+
   func register<K: DependencyKey>(key: K.Type, scope: Scope = .container) {
     registeredKeys[ObjectIdentifier(key)] = (key: key, scope: scope)
   }
@@ -97,7 +97,7 @@ class DependencyContainer {
     } else {
       resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
     }
-    
+
     return self
   }
 }
@@ -318,11 +318,11 @@ protocol Wrappable<T> {
 // can only be made to reference types.
 private class WeakWrapper<T: AnyObject>: Wrappable {
   private weak var optionalValue: T?
-  
+
   var value: T? {
     optionalValue
   }
-  
+
   init(_ value: T) {
     self.optionalValue = value
   }
@@ -331,7 +331,7 @@ private class WeakWrapper<T: AnyObject>: Wrappable {
 // Holds a strong reference to the object it wraps
 private class ValueWrapper<T>: Wrappable {
   let value: T?
-  
+
   init(_ value: T) {
     self.value = value
   }

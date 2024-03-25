@@ -39,7 +39,7 @@ class DependencyContainer {
     // Each time the dependency is requested, a new instance is created and returned
     case transient
   }
-  
+
   init(instanceID: UUID = UUID(), configuration: PubNubConfiguration) {
     register(value: configuration, forKey: PubNubConfigurationDependencyKey.self)
     register(value: instanceID, forKey: PubNubInstanceIDDependencyKey.self)
@@ -55,32 +55,30 @@ class DependencyContainer {
   }
 
   subscript<K>(key: K.Type) -> K.Value where K: DependencyKey {
-    get {
-      guard let underlyingKey = registeredKeys[ObjectIdentifier(key)] else {
-        preconditionFailure("Cannot find \(key). Ensure this key was registered before")
-      }
-      if underlyingKey.scope == .transient {
-        if let value = underlyingKey.key.value(from: self) as? K.Value {
-          return value
-        } else {
-          preconditionFailure("Cannot create value for key \(key)")
-        }
-      }
-      if let valueWrapper = resolvedValues[ObjectIdentifier(key)] {
-        if let underlyingValue = valueWrapper.value as? K.Value {
-          return underlyingValue
-        }
-      }
-      if let value = underlyingKey.key.value(from: self) as? K.Value {
-        if Mirror(reflecting: value).displayStyle == .class && underlyingKey.scope == .weak {
-          resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
-        } else {
-          resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
-        }
-        return value
-      }
-      preconditionFailure("Cannot create value for key \(key)")
+    guard let underlyingKey = registeredKeys[ObjectIdentifier(key)] else {
+      preconditionFailure("Cannot find \(key). Ensure this key was registered before")
     }
+    if underlyingKey.scope == .transient {
+      if let value = underlyingKey.key.value(from: self) as? K.Value {
+        return value
+      } else {
+        preconditionFailure("Cannot create value for key \(key)")
+      }
+    }
+    if let valueWrapper = resolvedValues[ObjectIdentifier(key)] {
+      if let underlyingValue = valueWrapper.value as? K.Value {
+        return underlyingValue
+      }
+    }
+    if let value = underlyingKey.key.value(from: self) as? K.Value {
+      if Mirror(reflecting: value).displayStyle == .class && underlyingKey.scope == .weak {
+        resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
+      } else {
+        resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
+      }
+      return value
+    }
+    preconditionFailure("Cannot create value for key \(key)")
   }
   
   func register<K: DependencyKey>(key: K.Type, scope: Scope = .container) {

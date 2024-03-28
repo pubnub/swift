@@ -34,11 +34,6 @@ struct MessageActionsRouter: HTTPRouter {
   struct AddRequestBody: Codable, Hashable {
     let type: String
     let value: String
-
-    init(type: String, value: String) {
-      self.type = type
-      self.value = value
-    }
   }
 
   // Init

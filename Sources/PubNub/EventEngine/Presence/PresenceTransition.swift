@@ -14,24 +14,24 @@ class PresenceTransition: TransitionProtocol {
   typealias State = (any PresenceState)
   typealias Event = Presence.Event
   typealias Invocation = Presence.Invocation
-  
+
   private let configuration: PubNubConfiguration
 
   init(configuration: PubNubConfiguration) {
     self.configuration = configuration
   }
-  
+
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
-    case .joined(_,_):
+    case .joined:
       return configuration.heartbeatInterval > 0
-    case .left(_,_):
+    case .left:
       return !(state is Presence.HeartbeatInactive)
     case .heartbeatSuccess:
       return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
-    case .heartbeatFailed(_):
+    case .heartbeatFailed:
       return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
-    case .heartbeatGiveUp(_):
+    case .heartbeatGiveUp:
       return state is Presence.HeartbeatReconnecting
     case .timesUp:
       return state is Presence.HeartbeatCooldown
@@ -43,7 +43,7 @@ class PresenceTransition: TransitionProtocol {
       return state is Presence.HeartbeatStopped || state is Presence.HeartbeatFailed
     }
   }
-  
+
   private func onEntry(to state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.Heartbeating:
@@ -62,7 +62,7 @@ class PresenceTransition: TransitionProtocol {
       return []
     }
   }
-  
+
   private func onExit(from state: State) -> [EffectInvocation<Invocation>] {
     switch state {
     case is Presence.HeartbeatCooldown:
@@ -73,10 +73,10 @@ class PresenceTransition: TransitionProtocol {
       return []
     }
   }
-  
+
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     var results: TransitionResult<State, Invocation>
-    
+
     switch event {
     case .joined(let channels, let groups):
       results = heartbeatingTransition(from: state, joining: (channels: channels, groups: groups))
@@ -97,7 +97,7 @@ class PresenceTransition: TransitionProtocol {
     case .disconnect:
       results = heartbeatStoppedTransition(from: state)
     }
-    
+
     return TransitionResult(
       state: results.state,
       invocations: onExit(from: state) + results.invocations + onEntry(to: results.state)

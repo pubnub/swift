@@ -11,7 +11,7 @@
 import Foundation
 
 extension LegacySubscriptionSessionStrategy {
-  
+
   // MARK: - Heartbeat Loop
 
   func registerHeartbeatTimer() {

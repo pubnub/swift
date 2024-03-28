@@ -102,7 +102,7 @@ extension EventEmitter {
 // into concrete events for the user.
 protocol SubscribeMessagesReceiver: AnyObject {
   // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribableType : [String]] { get }
+  var subscriptionTopology: [SubscribableType: [String]] { get }
   // This method should return an array of `PubNubEvent` instances,
   // representing the concrete events for the user.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]
@@ -112,18 +112,18 @@ protocol SubscribeMessagesReceiver: AnyObject {
 // and either `Subscription` or `SubscriptionSet`, forwarding the received payloads.
 class BaseSubscriptionListenerAdapter: BaseSubscriptionListener {
   private(set) weak var receiver: SubscribeMessagesReceiver?
-  
+
   init(receiver: SubscribeMessagesReceiver, uuid: UUID, queue: DispatchQueue) {
     self.receiver = receiver
     super.init(queue: queue, uuid: uuid)
   }
-  
+
   override func emit(batch: [SubscribeMessagePayload]) {
     if let receiver = receiver {
       receiver.onPayloadsReceived(payloads: batch)
     }
   }
-  
+
   deinit {
     cancel()
   }

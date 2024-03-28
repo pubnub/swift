@@ -38,7 +38,7 @@ public class Subscribable: Subscriber {
   weak var receiver: SubscribeReceiver?
   /// An underlying subscription type
   let subscriptionType: SubscribableType
-  
+
   init(name: String, subscriptionType: SubscribableType, receiver: SubscribeReceiver) {
     self.name = name
     self.subscriptionType = subscriptionType
@@ -96,15 +96,15 @@ public typealias SubscriptionInterface = EventEmitter & SubscriptionDisposable &
 /// Use this class to define various subscription options that can be applied.
 public class SubscriptionOptions {
   let allOptions: [SubscriptionOptions]
-  
+
   init(allOptions: [SubscriptionOptions] = []) {
     self.allOptions = allOptions
   }
-  
+
   convenience init() {
     self.init(allOptions: [])
   }
-    
+
   func filterCriteriaSatisfied(event: PubNubEvent) -> Bool {
     allOptions.compactMap {
       $0 as? FilterOption
@@ -112,16 +112,16 @@ public class SubscriptionOptions {
       filteringResult = filteringResult && filter.predicate(event)
     })
   }
-  
+
   func hasPresenceOption() -> Bool {
     !(allOptions.filter { $0 is ReceivePresenceEvents }.isEmpty)
   }
-    
+
   /// Provides an instance of `PubNubSubscriptionOptions` with no additional options.
   public static func empty() -> SubscriptionOptions {
     SubscriptionOptions(allOptions: [])
   }
-  
+
   /// Combines two instances of `PubNubSubscriptionOptions` using the `+` operator.
   ///
   /// - Parameters:
@@ -135,7 +135,7 @@ public class SubscriptionOptions {
   ) -> SubscriptionOptions {
     var lhsOptions: [SubscriptionOptions] = lhs.allOptions
     var rhsOptions: [SubscriptionOptions] = rhs.allOptions
-    
+
     if lhs.allOptions.isEmpty {
       lhsOptions = [lhs]
     }

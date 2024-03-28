@@ -24,7 +24,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       onFilterExpressionChanged()
     }
   }
-  
+
   internal init(
     configuration: PubNubConfiguration,
     subscribeEngine: SubscribeEngine,
@@ -42,23 +42,23 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   var subscribedChannels: [String] {
     subscribeEngine.state.input.subscribedChannelNames
   }
-  
+
   var subscribedChannelGroups: [String] {
     subscribeEngine.state.input.subscribedGroupNames
   }
-  
+
   var subscriptionCount: Int {
     subscribeEngine.state.input.totalSubscribedCount
   }
-  
+
   var connectionStatus: ConnectionStatus {
     subscribeEngine.state.connectionStatus
   }
-  
+
   deinit {
     PubNub.log.debug("SubscriptionSession Destroyed")
   }
-  
+
   private func listenForStateUpdates() {
     subscribeEngine.onStateUpdated = { [weak self] state in
       if state is Subscribe.ReceivingState && state.hasTimetoken {
@@ -66,7 +66,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       }
     }
   }
-  
+
   private func updateSubscribeEngineDependencies() {
     subscribeEngine.dependencies = EventEngineDependencies(
       value: Subscribe.Dependencies(
@@ -75,12 +75,12 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       )
     )
   }
-  
+
   private func sendSubscribeEvent(event: Subscribe.Event) {
     updateSubscribeEngineDependencies()
     subscribeEngine.send(event: event)
   }
-  
+
   private func updatePresenceEngineDependencies() {
     presenceEngine.dependencies = EventEngineDependencies(
       value: Presence.Dependencies(
@@ -88,12 +88,12 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       )
     )
   }
-  
+
   private func sendPresenceEvent(event: Presence.Event) {
     updatePresenceEngineDependencies()
     presenceEngine.send(event: event)
   }
-  
+
   private func onFilterExpressionChanged() {
     let currentState = subscribeEngine.state
     let channels = currentState.input.allSubscribedChannelNames
@@ -110,7 +110,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     let currentChannelsAndGroups = subscribeEngine.state.input
     let insertionResult = currentChannelsAndGroups.adding(channels: channels, and: groups)
     let newChannelsAndGroups = insertionResult.newInput
-    
+
     if let cursor = cursor, cursor.timetoken != 0 {
       sendSubscribeEvent(event: .subscriptionRestored(
         channels: newChannelsAndGroups.allSubscribedChannelNames,
@@ -145,13 +145,13 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       }
     }
   }
-  
+
   func unsubscribeFrom(
     mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
     mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
-  )  {
+  ) {
     // Retrieve the current list of subscribed channels and channel groups
     let currentChannelsAndGroups = subscribeEngine.state.input
     // Provides the outcome after updating the list of channels and channel groups
@@ -159,7 +159,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       mainChannels: mainChannels, presenceChannelsOnly: presenceChannelsOnly,
       mainGroups: mainGroups, presenceGroupsOnly: presenceGroupsOnly
     )
-    
+
     // Exits if there are no differences for channels or channel groups
     guard removingResult.newInput != currentChannelsAndGroups else {
       return
@@ -201,7 +201,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   func unsubscribeAll() {
     let currentInput = subscribeEngine.state.input
-    
+
     // Dispatch local event first to guarantee the expected order of events.
     // An event indicating unsubscribing from channels and channel groups
     // should be emitted before an event related to disconnecting
@@ -215,11 +215,11 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
         )
       ))
     }
-    
+
     sendSubscribeEvent(event: .unsubscribeAll)
     sendPresenceEvent(event: .leftAll)
   }
-  
+
   private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
     listeners.allObjects.forEach { closure($0) }
   }

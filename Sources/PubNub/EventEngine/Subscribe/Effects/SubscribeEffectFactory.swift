@@ -15,7 +15,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   private let sessionResponseQueue: DispatchQueue
   private let messageCache: MessageCache
   private let presenceStateContainer: PubNubPresenceStateContainer
-  
+
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .main,
@@ -27,7 +27,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
     self.messageCache = messageCache
     self.presenceStateContainer = presenceStateContainer
   }
-  
+
   func effect(
     for invocation: Subscribe.Invocation,
     with dependencies: EventEngineDependencies<Subscribe.Dependencies>
@@ -101,7 +101,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
       )
     }
   }
-  
+
   deinit {
     session.invalidateAndCancel()
   }

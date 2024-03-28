@@ -14,20 +14,20 @@ import CommonCrypto
 /// Provides PubNub's **recommended** ``Cryptor`` for encryption/decryption
 public struct AESCBCCryptor: Cryptor {
   private let key: Data
-  
+
   public init(key: String) {
     self.key = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
   }
-  
+
   public var id: CryptorId {
     [0x41, 0x43, 0x52, 0x48]
   }
-  
+
   public func encrypt(data: Data) -> Result<EncryptedData, Error> {
     do {
       let ivGenerator = CryptorVector.random(bytesCount: kCCBlockSizeAES128)
       let ivData = try ivGenerator.data()
-      
+
       let encrypted = try data.crypt(
         operation: CCOperation(kCCEncrypt),
         algorithm: CCAlgorithm(kCCAlgorithmAES128),
@@ -37,7 +37,7 @@ public struct AESCBCCryptor: Cryptor {
         initializationVector: ivData,
         messageData: data
       )
-      
+
       return .success(EncryptedData(
         metadata: ivData,
         data: encrypted
@@ -49,7 +49,7 @@ public struct AESCBCCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func decrypt(data: EncryptedData) -> Result<Data, Error> {
     do {
       if data.data.isEmpty {
@@ -76,12 +76,12 @@ public struct AESCBCCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamData, Error> {
     do {
       let ivGenerator = CryptorVector.random(bytesCount: kCCBlockSizeAES128)
       let ivData = try ivGenerator.data()
-      
+
       let cryptoInputStreamCipher = CryptoInputStream.Cipher(
         algorithm: CCAlgorithm(kCCAlgorithmAES128),
         blockSize: kCCBlockSizeAES128
@@ -110,7 +110,7 @@ public struct AESCBCCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error> {
     do {
       let cryptoInputStreamCipher = CryptoInputStream.Cipher(

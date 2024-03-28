@@ -14,7 +14,7 @@ import Foundation
 class MultipartInputStream: InputStream {
   let inputStreams: [InputStream]
   let length: Int
-  
+
   private var currentIndex: Int
   private var _streamStatus: Stream.Status
   private var _streamError: Error?

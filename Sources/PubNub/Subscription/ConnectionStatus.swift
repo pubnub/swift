@@ -45,7 +45,7 @@ public enum ConnectionStatus: Equatable {
       return false
     }
   }
-  
+
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
     case (.connecting, .connected):

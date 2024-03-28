@@ -26,9 +26,9 @@ public struct CryptoModule {
   private let defaultCryptor: any Cryptor
   private let cryptors: [any Cryptor]
   private let legacyCryptorId: CryptorId = []
-  
+
   typealias Base64EncodedString = String
-  
+
   /// Initializes `CryptoModule` with custom ``Cryptor`` objects capable of encryption and decryption
   ///
   /// Use this constructor if you would like to provide **custom** objects for decryption and encryption
@@ -43,7 +43,7 @@ public struct CryptoModule {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
   }
-  
+
   /// Encrypts the given `Data` object
   ///
   /// - Parameters:
@@ -70,7 +70,7 @@ public struct CryptoModule {
       PubNubError(.encryptionFailure, underlying: $0)
     }
   }
-  
+
   /// Decrypts the given `Data` object
   ///
   /// - Parameters:
@@ -87,7 +87,7 @@ public struct CryptoModule {
     }
     do {
       let header = try CryptorHeader.from(data: data)
-      
+
       guard let cryptor = cryptor(matching: header) else {
         return .failure(PubNubError(
           .unknownCryptorFailure,
@@ -97,10 +97,10 @@ public struct CryptoModule {
           ]
         ))
       }
-      
+
       let metadata: Data
       let contentData: Data
-      
+
       switch header {
       case .none:
         metadata = Data()
@@ -110,7 +110,7 @@ public struct CryptoModule {
         contentData = data.suffix(from: offset + dataLength)
         metadata = data.subdata(in: offset..<offset + dataLength)
       }
-      
+
       return cryptor.decrypt(
         data: EncryptedData(
           metadata: metadata,
@@ -139,7 +139,7 @@ public struct CryptoModule {
       ))
     }
   }
-  
+
   /// Encrypts the given `InputStream` object
   ///
   /// - Parameters:
@@ -163,7 +163,7 @@ public struct CryptoModule {
         cryptorId: defaultCryptor.id,
         dataLength: $0.metadata.count
       ) : .none
-            
+
       switch header {
       case .none:
         return MultipartInputStream(
@@ -180,7 +180,7 @@ public struct CryptoModule {
       PubNubError(.encryptionFailure, underlying: $0)
     }
   }
-  
+
   /// Decrypts the given `InputStream` object
   ///
   /// - Parameters:
@@ -203,11 +203,11 @@ public struct CryptoModule {
           additional: ["Cannot decrypt empty InputStream"]
         ))
       }
-      
+
       let finder = CryptorHeaderWithinStreamFinder(stream: stream)
       let readHeaderResp = try finder.findHeader()
       let cryptorDefinedData = readHeaderResp.cryptorDefinedData
-      
+
       guard let cryptor = cryptor(matching: readHeaderResp.header) else {
         return .failure(PubNubError(
           .unknownCryptorFailure,
@@ -246,7 +246,7 @@ public struct CryptoModule {
       ))
     }
   }
-  
+
   private func cryptor(matching header: CryptorHeader) -> (any Cryptor)? {
     header.cryptorId() == defaultCryptor.id ? defaultCryptor : cryptors.first(where: {
       $0.id == header.cryptorId()
@@ -268,7 +268,7 @@ public extension CryptoModule {
   static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
     CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
-  
+
   /// Returns legacy `CryptoModule` for encryption/decryption
   ///
   /// - Parameters:
@@ -312,7 +312,7 @@ extension CryptoModule {
       $0.base64EncodedString()
     }
   }
-  
+
   func decryptedString(from data: Data) -> Result<String, PubNubError> {
     decrypt(data: data).flatMap {
       if let stringValue = String(data: $0, encoding: .utf8) {

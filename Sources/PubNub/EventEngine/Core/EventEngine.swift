@@ -18,10 +18,10 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
   private let dispatcher: any Dispatcher<Invocation, Event, Input>
   private(set) var state: State
-  
+
   var dependencies: EventEngineDependencies<Input>
   var onStateUpdated: ((State) -> Void)?
-    
+
   init(
     state: State,
     transition: some TransitionProtocol<State, Event, Invocation>,
@@ -35,10 +35,10 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     self.dispatcher = dispatcher
     self.dependencies = dependencies
   }
-  
+
   func send(event: Event) {
     objc_sync_enter(self)
-    
+
     defer {
       objc_sync_exit(self)
     }
@@ -48,13 +48,13 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     ) else {
       return
     }
-    
+
     let transitionResult = transition.transition(from: state, event: event)
     let invocations = transitionResult.invocations
-    
+
     state = transitionResult.state
     onStateUpdated?(state)
-    
+
     let listener = DispatcherListener<Event>(
       onAnyInvocationCompleted: { [weak self] results in
         results.forEach {

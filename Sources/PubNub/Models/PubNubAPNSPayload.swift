@@ -64,7 +64,7 @@ public struct PubNubPushTarget: Codable, Hashable {
     case excludedDevices = "excluded_devices"
     case topic
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(self.environment, forKey: .environment)

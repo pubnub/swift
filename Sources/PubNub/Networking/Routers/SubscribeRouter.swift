@@ -37,7 +37,7 @@ struct SubscribeRouter: HTTPRouter {
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
-  
+
   // Protocol Properties
   var service: PubNubService {
     return .subscribe

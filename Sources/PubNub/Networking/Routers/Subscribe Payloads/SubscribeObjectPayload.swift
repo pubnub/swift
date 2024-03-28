@@ -27,20 +27,6 @@ struct SubscribeObjectMetadataPayload {
     case channel
     case membership
   }
-
-  init(
-    source: String,
-    version: String,
-    event: Action,
-    type: MetadataType,
-    subscribeEvent: SubscriptionEvent
-  ) {
-    self.source = source
-    self.version = version
-    self.event = event
-    self.type = type
-    self.subscribeEvent = subscribeEvent
-  }
 }
 
 extension SubscribeObjectMetadataPayload: Codable {

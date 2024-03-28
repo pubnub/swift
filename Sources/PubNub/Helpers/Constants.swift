@@ -162,7 +162,7 @@ public extension Constant {
   /// Produces a `User-Agent` header according to
   /// [RFC7231 section 5.5.3](https://tools.ietf.org/html/rfc7231#section-5.5.3)
   static let userAgentHeaderKey = "User-Agent"
-  
+
   /// A header indicating how long to wait before making a new request
   /// [RFC6585 section 4](https://datatracker.ietf.org/doc/html/rfc6585#section-4)
   static let retryAfterHeaderKey = "Retry-After"

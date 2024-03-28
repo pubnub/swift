@@ -16,11 +16,11 @@ private let sentinel = "PNED"
 enum CryptorHeader: Equatable {
   case none
   case v1(cryptorId: CryptorId, dataLength: Int)
-      
+
   func length() -> Int {
     toData().count
   }
-    
+
   func cryptorId() -> CryptorId {
     switch self {
     case .none:
@@ -29,16 +29,16 @@ enum CryptorHeader: Equatable {
       return cryptorId
     }
   }
-  
+
   func toData() -> Data {
     guard case .v1(let cryptorId, let dataLength) = self else {
       return Data()
     }
-    
+
     var finalData = sentinel.data(using: .ascii) ?? Data()
     finalData += Data(bytes: [1], count: 1)
     finalData += Data(bytes: cryptorId, count: cryptorId.count)
-    
+
     if dataLength < 255 {
       finalData += Data(bytes: [dataLength], count: 1)
     } else {
@@ -46,34 +46,34 @@ enum CryptorHeader: Equatable {
     }
     return finalData
   }
-  
+
   static func from(data: Data) throws -> Self {
     try CryptorHeaderParser(data: data).parse()
   }
 }
 
-fileprivate class CryptorHeaderDataScanner {
+private class CryptorHeaderDataScanner {
   private(set) var nextIndex: Int = 0
   private let data: Data
-  
+
   init(data: Data) {
     self.data = data
   }
-    
+
   func nextBytes(_ count: Int) -> Data? {
     let previousValue = nextIndex
     let newValue = nextIndex + count
-    
+
     guard newValue <= data.count else { return nil }
     nextIndex = newValue
-    
+
     return data.subdata(in: previousValue..<newValue)
   }
-  
+
   func nextByte() -> UInt8? {
     nextBytes(1)?.first
   }
-  
+
   func bytesRead() -> Data {
     data.suffix(nextIndex)
   }
@@ -82,11 +82,11 @@ fileprivate class CryptorHeaderDataScanner {
 struct CryptorHeaderParser {
   private let scanner: CryptorHeaderDataScanner
   private let supportedVersionsRange: ClosedRange<UInt8> = (1...1)
-  
+
   init(data: Data) {
     self.scanner = CryptorHeaderDataScanner(data: data)
   }
-  
+
   func parse() throws -> CryptorHeader {
     guard let possibleSentinelBytes = scanner.nextBytes(4) else {
       return .none
@@ -117,7 +117,7 @@ struct CryptorHeaderParser {
       dataLength: Int(finalCryptorDataSize)
     )
   }
-  
+
   private func computeCryptorDataSize(with sizeIndicator: Int) throws -> UInt16 {
     guard sizeIndicator > 255 else {
       return UInt16(sizeIndicator)

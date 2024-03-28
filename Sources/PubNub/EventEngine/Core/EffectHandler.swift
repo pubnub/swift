@@ -15,7 +15,7 @@ protocol EffectHandlerFactory<Invocation, Event, Dependencies> {
   associatedtype Invocation
   associatedtype Event
   associatedtype Dependencies
-  
+
   func effect(
     for invocation: Invocation,
     with dependencies: EventEngineDependencies<Dependencies>
@@ -26,7 +26,7 @@ protocol EffectHandlerFactory<Invocation, Event, Dependencies> {
 
 protocol EffectHandler<Event> {
   associatedtype Event
-    
+
   func performTask(completionBlock: @escaping ([Event]) -> Void)
   func cancelTask()
 }
@@ -39,7 +39,7 @@ extension EffectHandler {
 
 protocol DelayedEffectHandler: AnyObject, EffectHandler {
   var workItem: DispatchWorkItem? { get set }
-  
+
   func delayInterval() -> TimeInterval?
   func onEmptyInterval(notify completionBlock: @escaping ([Event]) -> Void)
   func onDelayExpired(notify completionBlock: @escaping ([Event]) -> Void)
@@ -50,7 +50,7 @@ protocol DelayedEffectHandler: AnyObject, EffectHandler {
 class TimerEffect: EffectHandler {
   private let interval: TimeInterval
   private var workItem: DispatchWorkItem?
-  
+
   init?(interval: TimeInterval?) {
     if let interval = interval {
       self.interval = interval
@@ -58,9 +58,9 @@ class TimerEffect: EffectHandler {
       return nil
     }
   }
-  
+
   func performTask(completionBlock: @escaping ([Void]) -> Void) {
-    let workItem = DispatchWorkItem() {
+    let workItem = DispatchWorkItem {
       completionBlock([])
     }
     DispatchQueue.global(qos: .default).asyncAfter(
@@ -69,7 +69,7 @@ class TimerEffect: EffectHandler {
     )
     self.workItem = workItem
   }
-  
+
   func cancelTask() {
     workItem?.cancel()
   }

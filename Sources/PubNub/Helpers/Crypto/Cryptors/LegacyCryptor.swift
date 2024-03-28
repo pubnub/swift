@@ -17,25 +17,25 @@ import CommonCrypto
 public struct LegacyCryptor: Cryptor {
   private let key: Data
   private let withRandomIV: Bool
-  
+
   static let ID: CryptorId = [0x00, 0x00, 0x00, 0x00]
-  
+
   public init(key: String, withRandomIV: Bool = true) {
     let hash = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
     let hexStrData = CryptorUtils.hexFrom(hash).lowercased(with: .current).data(using: .utf8) ?? Data()
     self.key = hexStrData
     self.withRandomIV = withRandomIV
   }
-  
+
   public var id: CryptorId {
     Self.ID
   }
-  
+
   public func encrypt(data: Data) -> Result<EncryptedData, Error> {
     do {
       let vectorGen = withRandomIV ? CryptorVector.random(bytesCount: kCCBlockSizeAES128) : CryptorVector.fixed
       let ivData = try vectorGen.data()
-      
+
       let encrypted = try data.crypt(
         operation: CCOperation(kCCEncrypt),
         algorithm: CCAlgorithm(kCCAlgorithmAES128),
@@ -45,7 +45,7 @@ public struct LegacyCryptor: Cryptor {
         initializationVector: ivData,
         messageData: data
       )
-      
+
       // Join IV and encrypted content when using a random IV
       return .success(EncryptedData(
         metadata: Data(),
@@ -58,11 +58,11 @@ public struct LegacyCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func decrypt(data: EncryptedData) -> Result<Data, Error> {
     let iv: Data
     let cipherText: Data
-    
+
     do {
       if withRandomIV {
         iv = data.data.prefix(kCCBlockSizeAES128)
@@ -71,14 +71,14 @@ public struct LegacyCryptor: Cryptor {
         iv = try CryptorVector.fixed.data()
         cipherText = data.data
       }
-      
+
       if cipherText.isEmpty {
         return .failure(PubNubError(
           .decryptionFailure,
           additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
         )
       }
-      
+
       return .success(
         try data.data.crypt(
           operation: CCOperation(kCCDecrypt),
@@ -97,13 +97,13 @@ public struct LegacyCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamData, Error> {
     do {
       // Always uses random IV for InputStream processing
       let ivGenerator = CryptorVector.random(bytesCount: kCCBlockSizeAES128)
       let iv = try ivGenerator.data()
-      
+
       let cryptoInputStreamCipher = CryptoInputStream.Cipher(
         algorithm: CCAlgorithm(kCCAlgorithmAES128),
         blockSize: kCCBlockSizeAES128
@@ -133,7 +133,7 @@ public struct LegacyCryptor: Cryptor {
       ))
     }
   }
-  
+
   public func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error> {
     do {
       let cryptoInputStreamCipher = CryptoInputStream.Cipher(

@@ -12,17 +12,17 @@ import Foundation
 
 struct CryptorHeaderWithinStreamFinder {
   let stream: InputStream
-  
+
   // Attempts to find CryptorHeader in the given InputStream.
   // Returns InputStream that immediately follows CryptorHeader
   func findHeader() throws -> (header: CryptorHeader, cryptorDefinedData: Data, continuationStream: InputStream) {
     let buffer = read(maxLength: 1024)
     let header = try CryptorHeaderParser(data: buffer).parse()
     let headerLength = header.length()
-    
+
     let continuationStream: InputStream
     let cryptorDefinedData: Data
-    
+
     switch header {
     case .none:
       // There is no CryptorHeader, so all supplied buffer bytes belong to the contents of the File
@@ -40,19 +40,19 @@ struct CryptorHeaderWithinStreamFinder {
       // Returns final InputStream that follows CryptorHeader
       continuationStream = MultipartInputStream(inputStreams: [exceedFileContent, stream])
     }
-    
+
     return (
       header: header,
       cryptorDefinedData: cryptorDefinedData,
       continuationStream: continuationStream
     )
   }
-  
+
   private func read(maxLength: Int) -> Data {
     var buffer = [UInt8](repeating: 0, count: maxLength)
     var numberOfBytesRead = 0
     var content: [UInt8] = []
-    
+
     if stream.streamStatus == .notOpen {
       stream.open()
     }
@@ -62,15 +62,15 @@ struct CryptorHeaderWithinStreamFinder {
         maxLength: maxLength
       )
       guard numberOfBytesRead > 0 else {
-        break;
+        break
       }
       if buffer.count != numberOfBytesRead {
         content += Array(buffer[0 ..< numberOfBytesRead])
       } else {
         content += buffer
       }
-    } while numberOfBytesRead < maxLength && stream.hasBytesAvailable;
-    
+    } while numberOfBytesRead < maxLength && stream.hasBytesAvailable
+
     return Data(
       bytes: content,
       count: content.count

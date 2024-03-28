@@ -14,7 +14,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let presenceStateContainer: PubNubPresenceStateContainer
-  
+
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .main,
@@ -24,7 +24,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
     self.sessionResponseQueue = sessionResponseQueue
     self.presenceStateContainer = presenceStateContainer
   }
-  
+
   func effect(
     for invocation: Presence.Invocation,
     with dependencies: EventEngineDependencies<Presence.Dependencies>
@@ -68,7 +68,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
       return WaitEffect(configuration: dependencies.value.configuration)
     }
   }
-  
+
   deinit {
     session.invalidateAndCancel()
   }

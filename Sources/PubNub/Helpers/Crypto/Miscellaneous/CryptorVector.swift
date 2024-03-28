@@ -14,7 +14,7 @@ import CommonCrypto
 enum CryptorVector {
   case fixed
   case random(bytesCount: Int)
-  
+
   func data() throws -> Data {
     switch self {
     case .fixed:
@@ -23,7 +23,7 @@ enum CryptorVector {
       return try randomInitializationVector(with: byteCount)
     }
   }
-  
+
   func isFixed() -> Bool {
     if case .fixed = self {
       return true
@@ -31,22 +31,22 @@ enum CryptorVector {
       return false
     }
   }
-  
+
   func isRandom() -> Bool {
-    if case .random(_) = self {
+    if case .random = self {
       return true
     } else {
       return false
     }
   }
-  
+
   private func staticInitializationVector() throws -> Data {
     guard let initializationVector = "0123456789012345".data(using: .utf8) else {
       throw CryptoError.rngFailure
     }
     return initializationVector
   }
-  
+
   private func randomInitializationVector(with byteCount: Int) throws -> Data {
     var bytes: [UInt8] = Array(repeating: UInt8(0), count: byteCount)
     let status = CCRandomGenerateBytes(&bytes, byteCount)

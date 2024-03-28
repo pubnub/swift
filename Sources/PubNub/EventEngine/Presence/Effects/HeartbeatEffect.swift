@@ -12,22 +12,22 @@ import Foundation
 
 class HeartbeatEffect: EffectHandler {
   private let request: PresenceHeartbeatRequest
-  
+
   init(request: PresenceHeartbeatRequest) {
     self.request = request
   }
-  
+
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    request.execute() { result in
+    request.execute { result in
       switch result {
-      case .success(_):
+      case .success:
         completionBlock([.heartbeatSuccess])
       case .failure(let error):
         completionBlock([.heartbeatFailed(error: error)])
       }
     }
   }
-  
+
   deinit {
     request.cancel()
   }

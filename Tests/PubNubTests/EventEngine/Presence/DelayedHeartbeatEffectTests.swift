@@ -28,9 +28,10 @@ class DelayedHeartbeatEffectTests: XCTestCase {
   }
   
   override func tearDown() {
-    mockUrlSession = nil
     delegate = nil
+    mockUrlSession = nil
     httpSession = nil
+    factory = nil
     super.tearDown()
   }
   
@@ -43,7 +44,7 @@ class DelayedHeartbeatEffectTests: XCTestCase {
     
     let delayRange = 2.0...3.0
     let automaticRetry = AutomaticRetry(retryLimit: 3, policy: .linear(delay: delayRange.lowerBound), excluded: [])
-    let effect = configureEffect(attempt: 0, automaticRetry: automaticRetry, error: PubNubError(.unknown))
+    let effect = configureEffectToTest(retryAttempt: 0, automaticRetry: automaticRetry, dueTo: PubNubError(.unknown))
     let startDate = Date()
     
     effect.performTask { returnedEvents in
@@ -65,7 +66,7 @@ class DelayedHeartbeatEffectTests: XCTestCase {
     let delayRange = 2.0...3.0
     let automaticRetry = AutomaticRetry(retryLimit: 3, policy: .linear(delay: delayRange.lowerBound), excluded: [])
     let error = PubNubError(.unknown)
-    let effect = configureEffect(attempt: 0, automaticRetry: automaticRetry, error: error)
+    let effect = configureEffectToTest(retryAttempt: 0, automaticRetry: automaticRetry, dueTo: error)
     
     effect.performTask { returnedEvents in
       let expectedError = PubNubError(.internalServiceError)
@@ -84,7 +85,7 @@ class DelayedHeartbeatEffectTests: XCTestCase {
     
     let automaticRetry = AutomaticRetry(retryLimit: 3, policy: .linear(delay: 2.0), excluded: [])
     let error = PubNubError(.unknown)
-    let effect = configureEffect(attempt: 3, automaticRetry: automaticRetry, error: error)
+    let effect = configureEffectToTest(retryAttempt: 3, automaticRetry: automaticRetry, dueTo: error)
     
     mockResponse(GenericServicePayloadResponse(status: 200))
     
@@ -98,9 +99,9 @@ class DelayedHeartbeatEffectTests: XCTestCase {
   }
 }
 
-fileprivate extension DelayedHeartbeatEffectTests {
+private extension DelayedHeartbeatEffectTests {
   func mockResponse(_ response: GenericServicePayloadResponse) {
-    mockUrlSession.responseForDataTask = { task, id in
+    mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
       task.mockData = try? Constant.jsonEncoder.encode(response)
       task.mockResponse = HTTPURLResponse(statusCode: response.status)
@@ -108,9 +109,10 @@ fileprivate extension DelayedHeartbeatEffectTests {
     }
   }
   
-  func configureEffect(
-    attempt: Int, automaticRetry: AutomaticRetry?,
-    error: PubNubError
+  func configureEffectToTest(
+    retryAttempt attempt: Int,
+    automaticRetry: AutomaticRetry?,
+    dueTo error: PubNubError
   ) -> any EffectHandler<Presence.Event> {
     factory.effect(
       for: .delayedHeartbeat(

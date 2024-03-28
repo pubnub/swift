@@ -20,6 +20,7 @@ extension PresenceState {
   var channels: [String] {
     input.channels
   }
+
   var groups: [String] {
     input.groups
   }
@@ -36,7 +37,7 @@ extension Presence {
   struct Heartbeating: PresenceState {
     let input: PresenceInput
   }
-  
+
   struct HeartbeatCooldown: PresenceState {
     let input: PresenceInput
   }
@@ -46,18 +47,18 @@ extension Presence {
     let retryAttempt: Int
     let error: PubNubError
   }
-  
+
   struct HeartbeatFailed: PresenceState {
     let input: PresenceInput
     let error: PubNubError
   }
-  
+
   struct HeartbeatStopped: PresenceState {
     let input: PresenceInput
   }
-  
+
   struct HeartbeatInactive: PresenceState {
-    let input: PresenceInput = PresenceInput()
+    let input: PresenceInput = .init()
   }
 }
 
@@ -79,7 +80,7 @@ extension Presence {
 
 extension Presence {
   struct Dependencies {
-    let configuration: SubscriptionConfiguration
+    let configuration: PubNubConfiguration
   }
 }
 
@@ -91,11 +92,11 @@ extension Presence {
     case leave(channels: [String], groups: [String])
     case delayedHeartbeat(channels: [String], groups: [String], retryAttempt: Int, error: PubNubError)
     case wait
-        
+
     enum Cancellable: AnyCancellableInvocation {
       case wait
       case delayedHeartbeat
-      
+
       var id: String {
         switch self {
         case .wait:
@@ -105,16 +106,16 @@ extension Presence {
         }
       }
     }
-    
+
     var id: String {
       switch self {
-      case .heartbeat(_,_):
+      case .heartbeat:
         return "Presence.Heartbeat"
       case .wait:
         return Cancellable.wait.id
       case .delayedHeartbeat:
         return Cancellable.delayedHeartbeat.id
-      case .leave(_,_):
+      case .leave:
         return "Presence.Leave"
       }
     }

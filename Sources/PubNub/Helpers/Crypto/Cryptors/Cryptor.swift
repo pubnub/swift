@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import CommonCrypto
+import Foundation
 
 /// Represents the result of encrypted `Data`
 public struct EncryptedData {
@@ -38,34 +38,42 @@ public protocol Cryptor: Hashable {
   ///
   /// - Important: `[0x41, 0x43, 0x52, 0x48]` and `[0x00, 0x00, 0x00, 0x00]` values are reserved
   var id: CryptorId { get }
-  
+
   /// Encrypts the given `Data` object
   ///
   /// - Parameters:
   ///   - data: Data to encrypt
-  /// - Returns: A success, storing an ``EncryptedData`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: ``EncryptedData`` representing encrypted content
+  ///   - **Failure**: `Error` describing the reason of failure
   func encrypt(data: Data) -> Result<EncryptedData, Error>
-  
+
   /// Decrypts the given `Data` object
   ///
   /// - Parameters:
   ///   - data: Data to encrypt
-  /// - Returns: A success, storing decrypted `Data` if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: ``Data`` representing decrypted content
+  ///   - **Failure**: `Error` describing the reason of failure
   func decrypt(data: EncryptedData) -> Result<Data, Error>
-  
+
   /// Encrypts the given `InputStream` object
   ///
   /// - Parameters:
   ///   - stream: Stream to encrypt
   ///   - contentLength: Content length of encoded stream
-  /// - Returns: A success, storing an ``EncryptedStreamData`` value if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: ``EncryptedStreamData`` representing encrypted content
+  ///   - **Failure**: `Error` describing the reason of failure
   func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamData, Error>
-  
+
   /// Decrypts the given `InputStream` object
-  /// 
+  ///
   /// - Parameters:
   ///   - data: A value describing encrypted stream
   ///   - outputPath: URL where the stream should be decrypted to
-  /// - Returns: A success, storing a decrypted `InputStream` value at the given path if operation succeeds. Otherwise, a failure storing `PubNubError` is returned
+  /// - Returns:
+  ///   - **Success**: ``InputStream`` representing decrypted content
+  ///   - **Failure**: `Error` describing the reason of failure
   func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error>
 }

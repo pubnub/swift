@@ -8,19 +8,19 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import Cucumberish
+import Foundation
 
 @testable import PubNub
 
 extension Presence.Invocation: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .heartbeat(_, _):
+    case .heartbeat:
       return "HEARTBEAT"
-    case .leave(_, _):
+    case .leave:
       return "LEAVE"
-    case .delayedHeartbeat(_, _, _, _):
+    case .delayedHeartbeat:
       return "DELAYED_HEARTBEAT"
     case .wait:
       return "WAIT"
@@ -42,9 +42,9 @@ extension Presence.Invocation.Cancellable: ContractTestIdentifiable {
 extension Presence.Event: ContractTestIdentifiable {
   var contractTestIdentifier: String {
     switch self {
-    case .joined(_, _):
+    case .joined:
       return "JOINED"
-    case .left(_, _):
+    case .left:
       return "LEFT"
     case .leftAll:
       return "LEFT_ALL"
@@ -56,9 +56,9 @@ extension Presence.Event: ContractTestIdentifiable {
       return "TIMES_UP"
     case .heartbeatSuccess:
       return "HEARTBEAT_SUCCESS"
-    case .heartbeatFailed(_):
+    case .heartbeatFailed:
       return "HEARTBEAT_FAILURE"
-    case .heartbeatGiveUp(_):
+    case .heartbeatGiveUp:
       return "HEARTBEAT_GIVEUP"
     }
   }
@@ -66,9 +66,17 @@ extension Presence.Event: ContractTestIdentifiable {
 
 class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsSteps {
   // A decorator that records Invocations and forwards all calls to the original instance
-  private var dispatcherDecorator: DispatcherDecorator<Presence.Invocation, Presence.Event, Presence.Dependencies>!
+  private var dispatcherDecorator: DispatcherDecorator<
+    Presence.Invocation,
+    Presence.Event,
+    Presence.Dependencies
+  >!
   // A decorator that records Events and forwards all calls to the original instance
-  private var transitionDecorator: TransitionDecorator<any PresenceState, Presence.Event, Presence.Invocation>!
+  private var transitionDecorator: TransitionDecorator<
+    any PresenceState,
+    Presence.Event,
+    Presence.Invocation
+  >!
   
   override func handleAfterHook() {
     dispatcherDecorator = nil
@@ -77,63 +85,36 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
   }
     
   override func createPubNubClient() -> PubNub {
-    let configuration = self.configuration
-    let factory = EventEngineFactory()
-
-    /// Wraps original EffectDispatcher with Decorator that allows recording incoming Invocations
-    dispatcherDecorator = DispatcherDecorator(
-      wrappedInstance: EffectDispatcher(
-        factory: PresenceEffectFactory(
-          session: HTTPSession(
-            configuration: .pubnub,
-            sessionQueue: .global(qos: .default),
-            sessionStream: SessionListener(queue: .global(qos: .default))
-          ), presenceStateContainer: .shared
-        )
+    let container = DependencyContainer(configuration: self.configuration)
+    let key = PresenceEventEngineDependencyKey.self
+    
+    self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
+      factory: PresenceEffectFactory(
+        session: container[HTTPPresenceSessionDependencyKey.self],
+        presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
       )
-    )
-    /// Wraps original Transition with Decorator that allows recording incoming Events
-    transitionDecorator = TransitionDecorator(
+    ))
+    self.transitionDecorator = TransitionDecorator(
       wrappedInstance: PresenceTransition(configuration: configuration)
     )
-        
-    let subscribeEffectFactory = SubscribeEffectFactory(
-      session: HTTPSession(
-        configuration: URLSessionConfiguration.subscription,
-        sessionQueue: .global(qos: .default),
-        sessionStream: SessionListener(queue: .global(qos: .default))
-      ), presenceStateContainer: .shared
+    
+    container.register(
+      value: PresenceEngine(
+        state: Presence.HeartbeatInactive(),
+        transition: self.transitionDecorator,
+        dispatcher: self.dispatcherDecorator,
+        dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration))
+      ),
+      forKey: PresenceEventEngineDependencyKey.self
     )
-    let subscribeEngine = EventEngineFactory().subscribeEngine(
-      with: configuration,
-      dispatcher: EffectDispatcher(factory: subscribeEffectFactory),
-      transition: SubscribeTransition()
-    )
-    let presenceEngine = factory.presenceEngine(
-      with: configuration,
-      dispatcher: dispatcherDecorator,
-      transition: transitionDecorator
-    )
-    let subscriptionSession = SubscriptionSession(
-      strategy: EventEngineSubscriptionSessionStrategy(
-        configuration: configuration,
-        subscribeEngine: subscribeEngine,
-        presenceEngine: presenceEngine,
-        presenceStateContainer: .shared
-      )
-    )
-    return PubNub(
-      configuration: configuration,
-      session: HTTPSession(configuration: configuration.urlSessionConfiguration),
-      fileSession: URLSession(configuration: .pubnubBackground),
-      subscriptionSession: subscriptionSession
-    )
+    
+    return PubNub(container: container)
   }
   
   override public func setup() {
     startCucumberHookEventsListening()
     
-    Given("^the demo keyset with Presence Event Engine enabled$") { args, _ in
+    Given("^the demo keyset with Presence Event Engine enabled$") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -144,7 +125,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       ))
     }
     
-    Given("a linear reconnection policy with 3 retries") { args, _ in
+    Given("a linear reconnection policy with 3 retries") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -188,7 +169,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.subscribeSynchronously(self.client, to: [firstChannel, secondChannel, thirdChannel], with: true)
     }
     
-    Then("^I wait for getting Presence joined events$") { args, _ in
+    Then("^I wait for getting Presence joined events$") { _, _ in
       XCTAssertNotNil(self.waitForPresenceChanges(self.client, count: 3))
     }
     
@@ -196,7 +177,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.waitFor(delay: TimeInterval(args!.first!)!)
     }
     
-    Then("^I wait for getting Presence left events$") { args, _ in
+    Then("^I wait for getting Presence left events$") { _, _ in
       XCTAssertNotNil(self.waitForPresenceChanges(self.client, count: 2))
     }
     
@@ -211,7 +192,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       self.waitFor(delay: 9.5)
     }
     
-    Match(["And", "Then"], "^I observe the following Events and Invocations of the Presence EE:$") { args, value in
+    Match(["And", "Then"], "^I observe the following Events and Invocations of the Presence EE:$") { _, value in
       let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
       let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
       
@@ -219,7 +200,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       XCTAssertTrue(recordedInvocations.elementsEqual(self.extractExpectedResults(from: value).invocations))
     }
     
-    Then("^I don't observe any Events and Invocations of the Presence EE") { args, value in
+    Then("^I don't observe any Events and Invocations of the Presence EE") { _, _ in
       XCTAssertTrue(self.transitionDecorator.recordedEvents.isEmpty)
       XCTAssertTrue(self.dispatcherDecorator.recordedInvocations.isEmpty)
     }

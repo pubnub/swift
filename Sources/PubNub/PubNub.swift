@@ -16,26 +16,21 @@ public class PubNub {
   public let instanceID: UUID
   /// A copy of the configuration object used for this session
   public private(set) var configuration: PubNubConfiguration
-
   /// Session used for performing request/response REST calls
   public let networkSession: SessionReplaceable
-  /// Session used for performing subscription calls
-  public let subscription: SubscriptionSession
-
   /// The URLSession used when making File upload/download requests
   public var fileURLSession: URLSessionReplaceable
   /// The URLSessionDelegate used by the `fileSession` to handle file responses
-  public var fileSessionManager: FileSessionManager? {
-    return fileURLSession.delegate as? FileSessionManager
-  }
-
+  public var fileSessionManager: FileSessionManager? { fileURLSession.delegate as? FileSessionManager }
   /// Global log instance for the PubNub SDK
   public static var log = PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
   // Global log instance for Logging issues/events
   public static var logLog = PubNubLogger(levels: [.log], writers: [ConsoleLogWriter()])
+  /// Session used for performing subscription calls
+  let subscription: SubscriptionSession
   // Container that holds current Presence states for given channels/channel groups
-  internal let presenceStateContainer = PubNubPresenceStateContainer.shared
-  
+  let presenceStateContainer: PubNubPresenceStateContainer
+
   /// Creates a PubNub session with the specified configuration
   ///
   /// - Parameters:
@@ -49,64 +44,21 @@ public class PubNub {
     subscribeSession: SessionReplaceable? = nil,
     fileSession: URLSessionReplaceable? = nil
   ) {
-    let instanceID = UUID()
-    
-    // Default operators based on config
-    var operators = [RequestOperator]()
-    if let retryOperator = configuration.automaticRetry {
-      operators.append(retryOperator)
-    }
-    if configuration.useInstanceId {
-      let instanceIdOperator = InstanceIdOperator(instanceID: instanceID.description)
-      operators.append(instanceIdOperator)
-    }
+    let container = DependencyContainer(instanceID: UUID(), configuration: configuration)
+    container.register(value: session, forKey: DefaultHTTPSessionDependencyKey.self)
+    container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
+    container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
 
-    // Mutable session
-    var networkSession = session ?? HTTPSession(configuration: configuration.urlSessionConfiguration)
-
-    // Configure the default request operators
-    if networkSession.defaultRequestOperator == nil {
-      networkSession.defaultRequestOperator = MultiplexRequestOperator(operators: operators)
-    } else {
-      networkSession.defaultRequestOperator = networkSession
-        .defaultRequestOperator?
-        .merge(requestOperator: MultiplexRequestOperator(operators: operators))
-    }
-    
-    let fileSession = fileSession ?? URLSession(
-      configuration: .pubnubBackground,
-      delegate: FileSessionManager(),
-      delegateQueue: .main
-    )
-    
-    // Set initial session also based on configuration
-    let subscriptionSession = SubscribeSessionFactory.shared.getSession(
-      from: configuration,
-      with: subscribeSession,
-      presenceSession: session
-    )
-    
-    self.init(
-      instanceID: instanceID,
-      configuration: configuration,
-      session: networkSession,
-      fileSession: fileSession,
-      subscriptionSession: subscriptionSession
-    )
+    self.init(container: container)
   }
-  
-  init(
-    instanceID: UUID = UUID(),
-    configuration: PubNubConfiguration,
-    session: SessionReplaceable,
-    fileSession: URLSessionReplaceable,
-    subscriptionSession: SubscriptionSession
-  ) {
-    self.instanceID = instanceID
-    self.configuration = configuration
-    self.subscription = subscriptionSession
-    self.networkSession = session
-    self.fileURLSession = fileSession
+
+  init(container: DependencyContainer) {
+    self.instanceID = container.instanceID
+    self.configuration = container.configuration
+    self.subscription = container.subscriptionSession
+    self.networkSession = container.defaultHTTPSession
+    self.fileURLSession = container.fileURLSession
+    self.presenceStateContainer = container.presenceStateContainer
   }
 
   func route<Decoder>(
@@ -159,15 +111,14 @@ public extension PubNub {
     public var customSession: SessionReplaceable?
     /// The endpoint configuration used by the request
     public var customConfiguration: RouterConfiguration?
-    /// The response queue that will
+    /// The queue that will be used for dispatching a response
     public var responseQueue: DispatchQueue
 
     /// Default init for all fields
     /// - Parameters:
     ///   - customSession: The custom Network session that that will be used to make the request
     ///   - customConfiguration: The endpoint configuration used by the request
-    ///   - responseQueue: The response queue that will
-    ///
+    ///   - responseQueue: The queue that will be used for dispatching a response
     public init(
       customSession: SessionReplaceable? = nil,
       customConfiguration: RouterConfiguration? = nil,
@@ -189,6 +140,7 @@ public extension PubNub {
     /// - Parameters:
     ///   - start: The value of the  start of a next page
     ///   - end: The value of the end of a slice of paged data
+    ///   - totalCount: Number of items to fetch
     public init(start: String? = nil, end: String? = nil, totalCount: Int? = nil) {
       self.start = start
       self.end = end
@@ -340,7 +292,6 @@ public extension PubNub {
   /// - Parameters:
   ///   - channel: The destination of the message
   ///   - message: The message to publish
-  ///   - shouldCompress: Whether the message needs to be compressed before transmission
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `Timetoken` of the published Message
@@ -375,7 +326,6 @@ public extension PubNub {
   ///   - and: List of channel groups to subscribe on
   ///   - at: The initial timetoken to subscribe with
   ///   - withPresence: If true it also subscribes to presence events on the specified channels.
-  ///   - region: The region code from a previous `SubscribeCursor`
   func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
@@ -406,14 +356,12 @@ public extension PubNub {
   }
 
   /// Stops the subscriptions in progress
-  /// - Important: This subscription might be shared with multiple `PubNub` instances.
   func disconnect() {
     subscription.disconnect()
   }
 
   /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
-  /// - Important: This subscription might be shared with multiple `PubNub` instances.
   func reconnect(at timetoken: Timetoken? = nil) {
     subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
   }
@@ -448,7 +396,7 @@ public extension PubNub {
   var connectionStatus: ConnectionStatus {
     return subscription.connectionStatus
   }
-  
+
   /// An override for the default filter expression set during initialization
   var subscribeFilterExpression: String? {
     get {
@@ -465,11 +413,11 @@ extension PubNub: SubscribeReceiver {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
     subscription.registerAdapter(adapter)
   }
-  
+
   func hasRegisteredAdapter(with uuid: UUID) -> Bool {
     subscription.hasRegisteredAdapter(with: uuid)
   }
-  
+
   func internalSubscribe(
     with channels: [Subscription],
     and groups: [Subscription],
@@ -481,7 +429,7 @@ extension PubNub: SubscribeReceiver {
       at: timetoken
     )
   }
-  
+
   func internalUnsubscribe(
     from channels: [Subscription],
     and groups: [Subscription],
@@ -501,15 +449,15 @@ extension PubNub: EntityCreator {
   public func channel(_ name: String) -> ChannelRepresentation {
     subscription.channel(name)
   }
-  
+
   public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
     subscription.channelGroup(name)
   }
-  
+
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
     subscription.userMetadata(name)
   }
-  
+
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
     subscription.channelMetadata(name)
   }
@@ -523,6 +471,7 @@ public extension PubNub {
   ///   - state: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
+  ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The presence State set as a `JSONCodable`
   ///     - **Failure**: An `Error` describing the failure
@@ -538,14 +487,14 @@ public extension PubNub {
       configuration: requestConfig.customConfiguration ?? configuration
     )
     let shouldMaintainPresenceState = configuration.enableEventEngine && configuration.maintainPresenceState
-    
+
     route(
       router,
       requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
       responseDecoder: PresenceResponseDecoder<AnyPresencePayload<AnyJSON>>(),
       custom: requestConfig
     ) { [weak self] result in
-      if case .success(_) = result {
+      if case .success = result {
         if shouldMaintainPresenceState {
           self?.presenceStateContainer.registerState(AnyJSON(state), forChannels: channels)
         }
@@ -559,6 +508,7 @@ public extension PubNub {
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
   ///   - and: The queue the completion handler should be returned on
+  ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing the UUID that set the State and a `Dictionary` of channels mapped to their respective State
   ///     - **Failure**: An `Error` describing the failure
@@ -685,7 +635,6 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The channel-group that was removed
   ///     - **Failure**: An `Error` describing the failure
-  ///   - result: A `Result` containing  either the removed channel-group  **or** an `Error`
   func remove(
     channelGroup: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -1099,7 +1048,7 @@ public extension PubNub {
   ///   - page: The paging object used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` of a `Dictionary` of channels mapped to an `Array` their respective `PubNubMessages`, and the next request `PubNubBoundedPage` (if one exists)
+  ///     - **Success**: A `Tuple` containing a `Dictionary` mapping channels to `PubNubMessage` arrays, and an optional next `PubNubBoundedPage`.
   ///     - **Failure**: An `Error` describing the failure
   func fetchMessageHistory(
     for channels: [String],
@@ -1275,9 +1224,7 @@ public extension PubNub {
       case let .success(response):
         completion?(.success((
           actions: response.payload.actions.map { PubNubMessageActionBase(from: $0, on: channel) },
-          next: PubNubBoundedPageBase(
-            start: response.payload.start, end: response.payload.end, limit: response.payload.limit
-          )
+          next: PubNubBoundedPageBase(start: response.payload.start, end: response.payload.end, limit: response.payload.limit)
         )))
       case let .failure(error):
         completion?(.failure(error))
@@ -1380,11 +1327,11 @@ public extension PubNub {
 
 // MARK: - Crypto
 
-extension PubNub {
+public extension PubNub {
   /// Encrypts the `Data` object using `CryptoModule` provided in configuration
   /// - Parameter message: The plain text message to be encrypted
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
-  public func encrypt(message: String) -> Result<Data, Error> {
+  func encrypt(message: String) -> Result<Data, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
@@ -1392,7 +1339,7 @@ extension PubNub {
     guard let dataMessage = message.data(using: .utf8) else {
       return .failure(CryptoError.decodeError)
     }
-    
+
     return cryptoModule.encrypt(data: dataMessage).map {
       $0.base64EncodedData()
     }.mapError {
@@ -1401,9 +1348,9 @@ extension PubNub {
   }
 
   /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
-  /// - Parameter message: The encrypted `Data` to decrypt
-  /// - Returns: A `Result` containing either the decrypted plain text message  or the `CryptoError`
-  public func decrypt(data: Data) -> Result<String, Error> {
+  /// - Parameter data: The encrypted `Data` to decrypt
+  /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
+  func decrypt(data: Data) -> Result<String, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
       return .failure(CryptoError.invalidKey)
@@ -1412,7 +1359,7 @@ extension PubNub {
       PubNub.log.error("Cannot create Base64-encoded data")
       return .failure(CryptoError.decodeError)
     }
-    
+
     return cryptoModule.decrypt(data: base64EncodedData)
       .flatMap {
         guard let string = String(data: $0, encoding: .utf8) else {
@@ -1466,45 +1413,46 @@ extension PubNub: EventEmitter {
   public var queue: DispatchQueue {
     subscription.queue
   }
+
   public var uuid: UUID {
     subscription.uuid
   }
-  
+
   public var onEvent: ((PubNubEvent) -> Void)? {
     get { subscription.onEvent }
     set { subscription.onEvent = newValue }
   }
-  
+
   public var onEvents: (([PubNubEvent]) -> Void)? {
     get { subscription.onEvents }
     set { subscription.onEvents = newValue }
   }
-  
+
   public var onMessage: ((PubNubMessage) -> Void)? {
     get { subscription.onMessage }
     set { subscription.onMessage = newValue }
   }
-  
+
   public var onSignal: ((PubNubMessage) -> Void)? {
     get { subscription.onSignal }
     set { subscription.onSignal = newValue }
   }
-  
+
   public var onPresence: ((PubNubPresenceChange) -> Void)? {
     get { subscription.onPresence }
     set { subscription.onPresence = newValue }
   }
-  
+
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)? {
     get { subscription.onMessageAction }
     set { subscription.onMessageAction = newValue }
   }
-  
+
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)? {
     get { subscription.onFileEvent }
     set { subscription.onFileEvent = newValue }
   }
-  
+
   public var onAppContext: ((PubNubAppContextEvent) -> Void)? {
     get { subscription.onAppContext }
     set { subscription.onAppContext = newValue }
@@ -1519,3 +1467,5 @@ extension PubNub: StatusEmitter {
     set { subscription.onConnectionStateChange = newValue }
   }
 }
+
+// swiftlint:disable:this file_length

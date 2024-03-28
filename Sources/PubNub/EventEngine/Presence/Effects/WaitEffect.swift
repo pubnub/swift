@@ -12,15 +12,15 @@ import Foundation
 
 class WaitEffect: EffectHandler {
   private let timerEffect: TimerEffect?
-  
-  init(configuration: SubscriptionConfiguration) {
+
+  init(configuration: PubNubConfiguration) {
     if configuration.heartbeatInterval > 0 {
       self.timerEffect = TimerEffect(interval: TimeInterval(configuration.heartbeatInterval))
     } else {
       self.timerEffect = nil
     }
   }
-  
+
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
     guard let timerEffect = timerEffect else {
       completionBlock([]); return
@@ -29,7 +29,7 @@ class WaitEffect: EffectHandler {
       completionBlock([.timesUp])
     })
   }
-  
+
   func cancelTask() {
     timerEffect?.cancelTask()
   }

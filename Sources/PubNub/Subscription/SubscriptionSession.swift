@@ -10,50 +10,40 @@
 
 import Foundation
 
-@available(*, deprecated, message: "Subscribe and unsubscribe using methods from a PubNub object")
-public class SubscriptionSession: EventEmitter, StatusEmitter {
-  /// A unique identifier for subscription session
-  public var uuid: UUID {
-    strategy.uuid
-  }
+class SubscriptionSession: EventEmitter, StatusEmitter {
+  // An underlying queue to dispatch events
+  let queue: DispatchQueue
+  // A unique identifier for subscription session
+  var uuid: UUID { strategy.uuid }
+  // The `Timetoken` used for the last successful subscription request
+  var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
   
-  /// An underlying queue to dispatch events
-  public let queue: DispatchQueue
-  
-  /// PSV2 feature to subscribe with a custom filter expression.
-  @available(*, deprecated, message: "Use `subscribeFilterExpression` from a PubNub object")
-  public var filterExpression: String? {
+  // PSV2 feature to subscribe with a custom filter expression.
+  var filterExpression: String? {
     get {
       strategy.filterExpression
     } set {
       strategy.filterExpression = newValue
     }
   }
-  
-  /// `EventEmitter` conformance
-  public var onEvent: ((PubNubEvent) -> Void)?
-  public var onEvents: (([PubNubEvent]) -> Void)?
-  public var onMessage: ((PubNubMessage) -> Void)?
-  public var onSignal: ((PubNubMessage) -> Void)?
-  public var onPresence: ((PubNubPresenceChange) -> Void)?
-  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
-  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
-  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
-  
-  /// `StatusEmitter` conformance
-  public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
 
-  var previousTokenResponse: SubscribeCursor? {
-    strategy.previousTokenResponse
-  }
-  
-  var configuration: SubscriptionConfiguration {
+  var configuration: PubNubConfiguration {
     get {
       strategy.configuration
     } set {
       strategy.configuration = newValue
     }
   }
+  
+  var onEvent: ((PubNubEvent) -> Void)?
+  var onEvents: (([PubNubEvent]) -> Void)?
+  var onMessage: ((PubNubMessage) -> Void)?
+  var onSignal: ((PubNubMessage) -> Void)?
+  var onPresence: ((PubNubPresenceChange) -> Void)?
+  var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
+  var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  var onConnectionStateChange: ((ConnectionStatus) -> Void)?
   
   private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(
     receiver: self,
@@ -88,38 +78,31 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
     add(globalStatusListener)
   }
 
-  /// Names of all subscribed channels
-  ///
-  /// This list includes both regular and presence channel names
-  public var subscribedChannels: [String] {
+  // Names of all subscribed channels
+  //
+  // This list includes both regular and presence channel names
+  var subscribedChannels: [String] {
     strategy.subscribedChannels
   }
   
-  /// List of actively subscribed groups
-  public var subscribedChannelGroups: [String] {
+  // List of actively subscribed groups
+  var subscribedChannelGroups: [String] {
     strategy.subscribedChannelGroups
   }
 
-  /// Combined value of all subscribed channels and groups
-  public var subscriptionCount: Int {
+  // Combined value of all subscribed channels and groups
+  var subscriptionCount: Int {
     strategy.subscriptionCount
   }
   
-  /// Current connection status
-  public var connectionStatus: ConnectionStatus {
+  // Current connection status
+  var connectionStatus: ConnectionStatus {
     strategy.connectionStatus
   }
         
   // MARK: - Subscription Loop
 
-  /// Subscribe to channels and/or channel groups
-  ///
-  /// - Parameters:
-  ///   - to: List of channels to subscribe on
-  ///   - and: List of channel groups to subscribe on
-  ///   - at: The timetoken to subscribe with
-  ///   - withPresence: If true it also subscribes to presence events on the specified channels.
-  public func subscribe(
+  func subscribe(
     to channels: [String],
     and groups: [String] = [],
     at cursor: SubscribeCursor? = nil,
@@ -143,37 +126,32 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
       at: cursor?.timetoken
     )
     for subscription in channelSubscriptions {
-      subscription.subscriptionNames.flatMap { $0 }.forEach {
+      subscription.subscriptionNames.compactMap { $0 }.forEach {
         globalChannelSubscriptions[$0] = subscription
       }
     }
     for subscription in channelGroupSubscriptions {
-      subscription.subscriptionNames.flatMap { $0 }.forEach {
+      subscription.subscriptionNames.compactMap { $0 }.forEach {
         globalGroupSubscriptions[$0] = subscription
       }
     }
   }
 
-  /// Reconnect a disconnected subscription stream
-  /// - parameter timetoken: The timetoken to subscribe with
-  public func reconnect(at cursor: SubscribeCursor? = nil) {
+  // MARK: - Reconnect
+  
+  func reconnect(at cursor: SubscribeCursor? = nil) {
     strategy.reconnect(at: cursor)
   }
 
-  /// Disconnect the subscription stream
-  public func disconnect() {
+  // MARK: - Disconnect
+  
+  func disconnect() {
     strategy.disconnect()
   }
 
   // MARK: - Unsubscribe
 
-  /// Unsubscribe from channels and/or channel groups
-  ///
-  /// - Parameters:
-  ///   - from: List of channels to unsubscribe from
-  ///   - and: List of channel groups to unsubscribe from
-  ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
-  public func unsubscribe(
+  func unsubscribe(
     from channels: [String],
     and groups: [String] = [],
     presenceOnly: Bool = false
@@ -195,8 +173,7 @@ public class SubscriptionSession: EventEmitter, StatusEmitter {
     }
   }
 
-  /// Unsubscribe from all channels and channel groups
-  public func unsubscribeAll() {
+  func unsubscribeAll() {
     strategy.unsubscribeAll()
   }
 }
@@ -429,15 +406,15 @@ extension SubscriptionSession: EventStreamEmitter {
 // MARK: - Hashable & CustomStringConvertible
 
 extension SubscriptionSession: Hashable, CustomStringConvertible {
-  public static func == (lhs: SubscriptionSession, rhs: SubscriptionSession) -> Bool {
+  static func == (lhs: SubscriptionSession, rhs: SubscriptionSession) -> Bool {
     lhs.uuid == rhs.uuid
   }
 
-  public func hash(into hasher: inout Hasher) {
+  func hash(into hasher: inout Hasher) {
     hasher.combine(uuid)
   }
 
-  public var description: String {
+  var description: String {
     uuid.uuidString
   }
 }

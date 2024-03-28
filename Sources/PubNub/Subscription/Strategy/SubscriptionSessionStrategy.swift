@@ -12,7 +12,7 @@ import Foundation
 
 protocol SubscriptionSessionStrategy: AnyObject {
   var uuid: UUID { get }
-  var configuration: SubscriptionConfiguration { get set }
+  var configuration: PubNubConfiguration { get set }
   var subscribedChannels: [String] { get }
   var subscribedChannelGroups: [String] { get }
   var subscriptionCount: Int { get }
@@ -32,8 +32,7 @@ protocol SubscriptionSessionStrategy: AnyObject {
     mainGroups: [PubNubChannel],
     presenceGroupsOnly: [PubNubChannel]
   )
-  
-  func onListenerAdded(_ listener: BaseSubscriptionListener)
+
   func reconnect(at cursor: SubscribeCursor?)
   func disconnect()
   func unsubscribeAll()

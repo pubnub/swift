@@ -85,7 +85,7 @@ struct PresenceRouter: HTTPRouter {
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
-  
+
   // Protocol Properties
   var service: PubNubService {
     return .presence
@@ -233,7 +233,7 @@ struct HereNowResponseDecoder: ResponseDecoder {
 
       // Single Channel w/o Groups
       if channels.count == 1, groups.isEmpty, let channel = channels.first {
-        hereNowPayload = [channel: try Constant.jsonDecoder.decode(HereNowChannelsPayload.self, from: response.payload)]
+        hereNowPayload = try [channel: Constant.jsonDecoder.decode(HereNowChannelsPayload.self, from: response.payload)]
       } else {
         // Multi-Channel HereNow
         hereNowPayload = try Constant.jsonDecoder.decode(
@@ -241,11 +241,13 @@ struct HereNowResponseDecoder: ResponseDecoder {
         ).payload.channels
       }
 
-      let decodedResponse = EndpointResponse<Payload>(router: response.router,
-                                                      request: response.request,
-                                                      response: response.response,
-                                                      data: response.data,
-                                                      payload: hereNowPayload)
+      let decodedResponse = EndpointResponse<Payload>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: hereNowPayload
+      )
 
       return .success(decodedResponse)
     } catch {

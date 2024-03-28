@@ -1,4 +1,5 @@
 line_length:
+  warning: 130
   ignores_comments: true
 disabled_rules:
   - identifier_name
@@ -11,6 +12,7 @@ excluded:
   - .bundle
   - fastlane
   - Tests
+  - Pods
 opt_in_rules:
   - force_unwrapping
   - overridden_super_call

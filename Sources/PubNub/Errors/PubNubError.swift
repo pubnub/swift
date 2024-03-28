@@ -10,7 +10,6 @@
 
 import Foundation
 
-// swiftlint:disable:next type_body_length
 public struct PubNubError: Error {
   // MARK: - Properties
 

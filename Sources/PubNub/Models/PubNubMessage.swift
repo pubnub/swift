@@ -40,7 +40,7 @@ public protocol PubNubMessage {
   var messageType: PubNubMessageType { get set }
   /// An error (if any) occured while getting this message
   var error: PubNubError? { get set }
-  
+
   /// Allows for transcoding between different MessageEvent types
   init(from other: PubNubMessage) throws
 }
@@ -77,11 +77,11 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var published: Timetoken
   public var messageType: PubNubMessageType
   public var error: PubNubError?
-  
+
   var concretePayload: AnyJSON
   var concreteMessageActions: [PubNubMessageActionBase]
   var concreteMetadata: AnyJSON?
-  
+
   public var payload: JSONCodable {
     get { return concretePayload }
     set {
@@ -172,10 +172,10 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.messageType = messageType
     self.error = error
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    
+
     try container.encode(self.concretePayload, forKey: .concretePayload)
     try container.encodeIfPresent(self.publisher, forKey: .publisher)
     try container.encode(self.concreteMessageActions, forKey: .concreteMessageActions)
@@ -185,7 +185,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     try container.encodeIfPresent(self.concreteMetadata, forKey: .concreteMetadata)
     try container.encode(self.messageType, forKey: .messageType)
   }
-  
+
   enum CodingKeys: CodingKey {
     case concretePayload
     case publisher
@@ -196,10 +196,10 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     case concreteMetadata
     case messageType
   }
-  
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    
+
     self.concretePayload = try container.decode(AnyJSON.self, forKey: .concretePayload)
     self.publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
     self.concreteMessageActions = try container.decode([PubNubMessageActionBase].self, forKey: .concreteMessageActions)

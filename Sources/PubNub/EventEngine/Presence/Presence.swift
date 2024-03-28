@@ -93,6 +93,7 @@ extension Presence {
     case delayedHeartbeat(channels: [String], groups: [String], retryAttempt: Int, error: PubNubError)
     case wait
 
+    // swiftlint:disable:next nesting
     enum Cancellable: AnyCancellableInvocation {
       case wait
       case delayedHeartbeat

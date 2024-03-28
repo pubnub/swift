@@ -22,17 +22,17 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
-  
+
   public let queue: DispatchQueue
   /// Additional subscription options
   public let options: SubscriptionOptions
   /// A unique identifier for the current `SubscriptionSet`
-  public let uuid: UUID = UUID()
+  public let uuid: UUID = .init()
   /// Whether current subscription is disposed or not
   public private(set) var isDisposed = false
   // Internally holds a collection of child subscriptions
   private(set) var currentSubscriptions: Set<Subscription>
-  
+
   // Internally intercepts messages from the Subscribe loop
   // and forwards them to the current `SubscriptionSet`
   lazy var adapter = BaseSubscriptionListenerAdapter(
@@ -40,7 +40,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
     uuid: uuid,
     queue: queue
   )
-  
+
   /// Initializes `SubscriptionSet` object with the specified parameters.
   ///
   /// - Parameters:
@@ -62,7 +62,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
       )
     })
   }
-  
+
   /// Initializes `SubscriptionSet` object with the specified parameters.
   ///
   /// - Parameters:
@@ -78,7 +78,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
     self.options = options
     self.currentSubscriptions = Set(subscriptions)
   }
-  
+
   /// Adds `Subscription` to the existing set of subscriptions.
   ///
   /// - Parameters:
@@ -86,17 +86,17 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public func add(subscription: Subscription) {
     currentSubscriptions.insert(subscription)
   }
-  
+
   /// Adds a collection of `Subscription` to the existing set of subscriptions.
   ///
   /// - Parameters:
   ///   - subscriptions: List of `Subscription` to add
   public func add(subscriptions: any Collection<Subscription>) {
-    subscriptions.forEach {
-      currentSubscriptions.insert($0)
+    for subscription in subscriptions {
+      currentSubscriptions.insert(subscription)
     }
   }
-  
+
   /// Removes `Subscription` from the existing set of subscriptions.
   ///
   /// - Parameters:
@@ -104,17 +104,17 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public func remove(subscription: Subscription) {
     currentSubscriptions.remove(subscription)
   }
-  
+
   /// Removes a collection of `Subscription` from the existing set of subscriptions.
   ///
   /// - Parameters:
   ///   - subscriptions: Collection of `Subscription` to remove
   public func remove(subscriptions: any Collection<Subscription>) {
-    subscriptions.forEach {
-      currentSubscriptions.remove($0)
+    for subscription in subscriptions {
+      currentSubscriptions.remove(subscription)
     }
   }
-  
+
   /// Creates a clone of the current instance of `SubscriptionSet`.
   ///
   /// Use this method to create a new instance with the same configuration as the current `SubscriptionSet`.
@@ -130,7 +130,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
     }
     return clonedSubscriptionSet
   }
-  
+
   /// Disposes of the current instance of `SubscriptionSet`, ending all associated subscriptions.
   ///
   /// Use this method to gracefully end the subscription and release associated resources.
@@ -140,7 +140,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
     currentSubscriptions.forEach { $0.dispose() }
     isDisposed = true
   }
-  
+
   deinit {
     dispose()
   }
@@ -160,22 +160,22 @@ extension SubscriptionSet: SubscribeCapable {
     }
     receiver.registerAdapter(adapter)
     currentSubscriptions.forEach { receiver.registerAdapter($0.adapter) }
-    
+
     let channels = currentSubscriptions.filter {
       $0.subscriptionType == .channel
     }.allObjects
-    
+
     let groups = currentSubscriptions.filter {
       $0.subscriptionType == .channelGroup
     }.allObjects
-    
+
     receiver.internalSubscribe(
       with: channels,
       and: groups,
       at: timetoken
     )
   }
-  
+
   /// Unsubscribes from all entities within the current `SubscriptionSet`. If there are no remaining
   /// subscriptions that match the associated entities, the unsubscribe action will be performed,
   /// and the entities will be deregistered from the Subscribe loop.
@@ -185,7 +185,7 @@ extension SubscriptionSet: SubscribeCapable {
   public func unsubscribe() {
     guard let receiver = currentSubscriptions.first?.receiver, !isDisposed else {
       return
-    }    
+    }
     receiver.internalUnsubscribe(
       from: currentSubscriptions.filter { $0.subscriptionType == .channel },
       and: currentSubscriptions.filter { $0.subscriptionType == .channelGroup },
@@ -197,18 +197,18 @@ extension SubscriptionSet: SubscribeCapable {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSet: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType : [String]] {
+  var subscriptionTopology: [SubscribableType: [String]] {
     var result: [SubscribableType: [String]] = [:]
     result[.channel] = []
     result[.channelGroup] = []
-    
-    return currentSubscriptions.reduce(into: result, { accumulatedRes, current in
+
+    return currentSubscriptions.reduce(into: result) { accumulatedRes, current in
       let currentRes = current.subscriptionTopology
       accumulatedRes[.channel]?.append(contentsOf: currentRes[.channel] ?? [])
       accumulatedRes[.channelGroup]?.append(contentsOf: currentRes[.channelGroup] ?? [])
-    })
+    }
   }
-  
+
   // Processes payloads according to the following rules:
   //
   // 1. Gets a subscription from the associated list of child subscriptions
@@ -232,8 +232,8 @@ extension SubscriptionSet: Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(uuid)
   }
-  
-  public static func ==(lhs: SubscriptionSet, rhs: SubscriptionSet) -> Bool {
+
+  public static func == (lhs: SubscriptionSet, rhs: SubscriptionSet) -> Bool {
     lhs.uuid == rhs.uuid
   }
 }

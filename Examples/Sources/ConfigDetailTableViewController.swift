@@ -13,12 +13,7 @@ import UIKit
 import PubNub
 
 class ConfigDetailTableViewController: UITableViewController {
-  override func viewDidLoad() {
-    super.viewDidLoad()
-  }
-
   let configCellID = "PubNubConfigDetailCell"
-
   var config: PubNubConfiguration!
 
   enum ConfigProperties: Int {

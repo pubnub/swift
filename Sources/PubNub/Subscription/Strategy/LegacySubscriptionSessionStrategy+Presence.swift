@@ -11,7 +11,7 @@
 import Foundation
 
 extension LegacySubscriptionSessionStrategy {
-  
+
   // MARK: - Heartbeat Loop
 
   func registerHeartbeatTimer() {
@@ -69,7 +69,11 @@ extension LegacySubscriptionSessionStrategy {
         switch result {
         case .success:
           // If the connection is active register a new heartbeat otherwise stop the timer
-          self?.connectionStatus.isActive ?? false ? self?.registerHeartbeatTimer() : self?.stopHeartbeatTimer()
+          if self?.connectionStatus.isActive ?? false {
+            self?.registerHeartbeatTimer()
+          } else {
+            self?.stopHeartbeatTimer()
+          }
         case .failure:
           self?.stopHeartbeatTimer()
         }

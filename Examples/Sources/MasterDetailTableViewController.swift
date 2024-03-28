@@ -25,7 +25,7 @@ class MasterDetailTableViewController: UITableViewController {
   var userListener: PubNubUserListener?
   var spaceListener: PubNubSpaceListener?
   var membershipListener: PubNubMembershipListener?
-
+  // swiftlint:disable:next inclusive_language
   let masterDetailCellID = "MasterDetailCell"
 
   enum SegueId: String {
@@ -364,10 +364,6 @@ class MasterDetailTableViewController: UITableViewController {
         }
       }
     }
-  }
-
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
   }
 
   override func numberOfSections(in tableView: UITableView) -> Int {
@@ -752,6 +748,4 @@ class MasterDetailTableViewController: UITableViewController {
       }
     }
   }
-
-  // swiftlint:endable file_length
 }

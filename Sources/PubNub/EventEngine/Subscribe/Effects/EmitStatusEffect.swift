@@ -12,7 +12,7 @@ import Foundation
 struct EmitStatusEffect: EffectHandler {
   let statusChange: Subscribe.ConnectionStatusChange
   let listeners: [BaseSubscriptionListener]
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     if let error = statusChange.error {
       listeners.forEach {

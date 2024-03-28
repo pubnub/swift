@@ -38,7 +38,7 @@ public class Subscribable: Subscriber {
   weak var receiver: SubscribeReceiver?
   /// An underlying subscription type
   let subscriptionType: SubscribableType
-  
+
   init(name: String, subscriptionType: SubscribableType, receiver: SubscribeReceiver) {
     self.name = name
     self.subscriptionType = subscriptionType
@@ -89,39 +89,39 @@ public extension Subscriber where Self: Subscribable {
 ///
 /// This alias combines the conformance of `EventEmitter` and `SubscribeCapable`.
 /// Thus, objects conforming to this type can both emit PubNub events and perform subscription-related actions.
-public typealias SubscriptionInterface = EventEmitter & SubscriptionDisposable & SubscribeCapable
+public typealias SubscriptionInterface = EventEmitter & SubscribeCapable & SubscriptionDisposable
 
 /// A class representing subscription options for PubNub subscriptions.
 ///
 /// Use this class to define various subscription options that can be applied.
 public class SubscriptionOptions {
   let allOptions: [SubscriptionOptions]
-  
+
   init(allOptions: [SubscriptionOptions] = []) {
     self.allOptions = allOptions
   }
-  
+
   convenience init() {
     self.init(allOptions: [])
   }
-    
+
   func filterCriteriaSatisfied(event: PubNubEvent) -> Bool {
     allOptions.compactMap {
       $0 as? FilterOption
-    }.reduce(into: true, { filteringResult, filter in
-      filteringResult = filteringResult && filter.predicate(event)
-    })
+    }.allSatisfy { filter in
+      filter.predicate(event)
+    }
   }
-  
+
   func hasPresenceOption() -> Bool {
     !(allOptions.filter { $0 is ReceivePresenceEvents }.isEmpty)
   }
-    
+
   /// Provides an instance of `PubNubSubscriptionOptions` with no additional options.
   public static func empty() -> SubscriptionOptions {
     SubscriptionOptions(allOptions: [])
   }
-  
+
   /// Combines two instances of `PubNubSubscriptionOptions` using the `+` operator.
   ///
   /// - Parameters:
@@ -129,13 +129,13 @@ public class SubscriptionOptions {
   ///   - rhs: The right-hand side instance.
   ///
   /// - Returns: A new `SubscriptionOptions` instance combining the options from both instances.
-  public static func +(
+  public static func + (
     lhs: SubscriptionOptions,
     rhs: SubscriptionOptions
   ) -> SubscriptionOptions {
     var lhsOptions: [SubscriptionOptions] = lhs.allOptions
     var rhsOptions: [SubscriptionOptions] = rhs.allOptions
-    
+
     if lhs.allOptions.isEmpty {
       lhsOptions = [lhs]
     }
@@ -155,7 +155,7 @@ public class ReceivePresenceEvents: SubscriptionOptions {
 
 /// A class representing a filter with a predicate for subscription options.
 public class FilterOption: SubscriptionOptions {
-  public let predicate: ((PubNubEvent) -> Bool)
+  public let predicate: (PubNubEvent) -> Bool
 
   public init(predicate: @escaping ((PubNubEvent) -> Bool)) {
     self.predicate = predicate

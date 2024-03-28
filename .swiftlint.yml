@@ -27,4 +27,3 @@ opt_in_rules:
   - empty_parentheses_with_trailing_closure
   - empty_string
   - sorted_first_last
-  - anyobject_protocol

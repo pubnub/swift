@@ -110,8 +110,7 @@ struct HistoryRouter: HTTPRouter {
       query.appendIfPresent(key: .end, value: endTimetoken?.description)
     case let .messageCounts(_, timetoken, channelsTimetoken):
       query.appendIfPresent(key: .timetoken, value: timetoken?.description)
-      query.appendIfPresent(key: .channelsTimetoken,
-                            value: channelsTimetoken?.map { $0.description }.csvString)
+      query.appendIfPresent(key: .channelsTimetoken, value: channelsTimetoken?.map { $0.description }.csvString)
     }
 
     return .success(query)
@@ -139,8 +138,7 @@ struct HistoryRouter: HTTPRouter {
       return isInvalidForReason(
         (channels.isEmpty, ErrorDescription.emptyChannelArray),
         (timetoken == nil && timetokens == nil, ErrorDescription.missingTimetoken),
-        (channels.count != timetokens?.count && timetokens != nil,
-         ErrorDescription.invalidHistoryTimetokens)
+        (channels.count != timetokens?.count && timetokens != nil, ErrorDescription.invalidHistoryTimetokens)
       )
     }
   }
@@ -153,11 +151,13 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
     do {
       // Version3
       let payload = try Constant.jsonDecoder.decode(MessageHistoryResponse.self, from: response.payload)
-      let decodedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
-                                                                     request: response.request,
-                                                                     response: response.response,
-                                                                     data: response.data,
-                                                                     payload: payload)
+      let decodedResponse = EndpointResponse<MessageHistoryResponse>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: payload
+      )
 
       // Attempt to decode message response
 
@@ -218,21 +218,23 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
           )
         }
       }
-      
-      
       return messages
     }
-    
+
     // Replace previous payload with decrypted one
-    let decryptedPayload = MessageHistoryResponse(status: response.payload.status,
-                                                  error: response.payload.error,
-                                                  errorMessage: response.payload.errorMessage,
-                                                  channels: channels)
-    let decryptedResponse = EndpointResponse<MessageHistoryResponse>(router: response.router,
-                                                                     request: response.request,
-                                                                     response: response.response,
-                                                                     data: response.data,
-                                                                     payload: decryptedPayload)
+    let decryptedPayload = MessageHistoryResponse(
+      status: response.payload.status,
+      error: response.payload.error,
+      errorMessage: response.payload.errorMessage,
+      channels: channels
+    )
+    let decryptedResponse = EndpointResponse<MessageHistoryResponse>(
+      router: response.router,
+      request: response.request,
+      response: response.response,
+      data: response.data,
+      payload: decryptedPayload
+    )
     return .success(decryptedResponse)
   }
 }
@@ -244,9 +246,8 @@ struct MessageHistoryResponse: Codable {
   let error: Bool
   let errorMessage: String
   let channels: [String: [MessageHistoryMessagePayload]]
-  
   let start: Timetoken?
-  
+
   enum CodingKeys: String, CodingKey {
     case errorMessage = "error_message"
     case error
@@ -254,11 +255,11 @@ struct MessageHistoryResponse: Codable {
     case channels
     case more
   }
-  
+
   enum MoreCodingKeys: String, CodingKey {
     case start
   }
-  
+
   init(
     status: Int = 200,
     error: Bool = false,
@@ -272,25 +273,25 @@ struct MessageHistoryResponse: Codable {
     self.channels = channels
     self.start = start
   }
-  
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     status = try container.decode(Int.self, forKey: .status)
     error = try container.decode(Bool.self, forKey: .error)
     errorMessage = try container.decode(String.self, forKey: .errorMessage)
     channels = try container.decodeIfPresent([String: [MessageHistoryMessagePayload]].self, forKey: .channels) ?? [:]
-    
+
     let moreContainer = try? container.nestedContainer(keyedBy: MoreCodingKeys.self, forKey: .more)
     start = Timetoken(try moreContainer?.decodeIfPresent(String.self, forKey: .start) ?? "")
   }
-  
+
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(status, forKey: .status)
     try container.encode(error, forKey: .error)
     try container.encode(errorMessage, forKey: .errorMessage)
     try container.encode(channels, forKey: .channels)
-    
+
     var moreContainer = container.nestedContainer(keyedBy: MoreCodingKeys.self, forKey: .more)
     try moreContainer.encodeIfPresent(start?.description, forKey: .start)
   }
@@ -300,7 +301,7 @@ struct MessageHistoryMessagePayload: Codable {
   typealias ActionType = String
   typealias ActionValue = String
   typealias RawMessageAction = [ActionType: [ActionValue: [MessageHistoryMessageAction]]]
-  
+
   let message: AnyJSON
   let timetoken: Timetoken
   let meta: AnyJSON?
@@ -308,7 +309,7 @@ struct MessageHistoryMessagePayload: Codable {
   let messageType: PubNubMessageType?
   let actions: RawMessageAction
   let error: PubNubError?
-  
+
   init(
     message: JSONCodable,
     timetoken: Timetoken = 0,
@@ -326,7 +327,7 @@ struct MessageHistoryMessagePayload: Codable {
     self.actions = actions
     self.error = error
   }
-  
+
   enum CodingKeys: String, CodingKey {
     case message
     case timetoken
@@ -335,10 +336,10 @@ struct MessageHistoryMessagePayload: Codable {
     case messageType = "message_type"
     case actions
   }
-  
+
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    
+
     message = try container.decode(AnyJSON.self, forKey: .message)
     meta = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
     uuid = try container.decodeIfPresent(String.self, forKey: .uuid)
@@ -347,10 +348,10 @@ struct MessageHistoryMessagePayload: Codable {
     actions = try container.decodeIfPresent(RawMessageAction.self, forKey: .actions) ?? [:]
     error = nil
   }
-  
+
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    
+
     try container.encode(message, forKey: .message)
     try container.encode(timetoken.description, forKey: .timetoken)
     try container.encodeIfPresent(meta, forKey: .meta)
@@ -363,26 +364,26 @@ struct MessageHistoryMessagePayload: Codable {
 struct MessageHistoryMessageAction: Codable, Hashable {
   let uuid: String
   let actionTimetoken: Timetoken
-  
+
   init(uuid: String, actionTimetoken: Timetoken) {
     self.uuid = uuid
     self.actionTimetoken = actionTimetoken
   }
-  
+
   enum CodingKeys: String, CodingKey {
     case uuid
     case actionTimetoken
   }
-  
+
   init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     uuid = try container.decode(String.self, forKey: .uuid)
     actionTimetoken = Timetoken(try container.decode(String.self, forKey: .actionTimetoken)) ?? 0
   }
-  
+
   func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
-    
+
     try container.encode(uuid, forKey: .uuid)
     try container.encode(actionTimetoken.description, forKey: .actionTimetoken)
   }
@@ -399,13 +400,13 @@ struct MessageCountsResponsePayload: Codable, Hashable {
   let error: Bool
   let errorMessage: String
   let channels: [String: Int]
-  
+
   enum CodingKeys: String, CodingKey {
     case status
     case error
     case errorMessage = "error_message"
     case channels
   }
-  
+
   // swiftlint:disable:next file_length
 }

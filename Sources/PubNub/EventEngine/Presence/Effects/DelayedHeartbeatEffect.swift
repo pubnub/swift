@@ -14,7 +14,7 @@ class DelayedHeartbeatEffect: EffectHandler {
   private let request: PresenceHeartbeatRequest
   private let reason: PubNubError
   private let timerEffect: TimerEffect?
-  
+
   init(
     request: PresenceHeartbeatRequest,
     retryAttempt: Int,
@@ -24,15 +24,15 @@ class DelayedHeartbeatEffect: EffectHandler {
     self.reason = reason
     self.timerEffect = TimerEffect(interval: request.reconnectionDelay(dueTo: reason, retryAttempt: retryAttempt))
   }
-  
+
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
     guard let timerEffect = timerEffect else {
       completionBlock([.heartbeatGiveUp(error: reason)]); return
     }
     timerEffect.performTask { [weak self] _ in
-      self?.request.execute() { result in
+      self?.request.execute { result in
         switch result {
-        case .success(_):
+        case .success:
           completionBlock([.heartbeatSuccess])
         case .failure(let error):
           completionBlock([.heartbeatFailed(error: error)])
@@ -40,12 +40,12 @@ class DelayedHeartbeatEffect: EffectHandler {
       }
     }
   }
-  
+
   func cancelTask() {
     timerEffect?.cancelTask()
     request.cancel()
   }
-  
+
   deinit {
     cancelTask()
   }

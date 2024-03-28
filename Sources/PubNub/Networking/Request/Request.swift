@@ -313,17 +313,12 @@ final class Request {
     }
 
     processResponseCompletion(atomicState.lockedRead { state -> Result<EndpointResponse<Data>, Error> in
-
       if let error = state.error {
         return .failure(error)
       }
-      
-      if let request = state.urlRequests.last,
-         let response = state.tasks.last?.httpResponse,
-         let data = state.responesData {
+      if let request = state.urlRequests.last, let response = state.tasks.last?.httpResponse, let data = state.responesData {
         return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
       }
-
       return .failure(PubNubError(.missingCriticalResponseData, router: router))
     })
 

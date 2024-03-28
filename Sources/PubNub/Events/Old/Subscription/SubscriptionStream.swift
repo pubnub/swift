@@ -196,6 +196,7 @@ public final class CoreListener: BaseSubscriptionListener {
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   override public func emit(batch: [SubscribeMessagePayload]) {
     emitDidReceive(subscription: batch.map { message in
       switch message.messageType {
@@ -312,7 +313,7 @@ open class BaseSubscriptionListener: EventStreamReceiver, Hashable {
     self.queue = queue
     self.uuid = UUID()
   }
-  
+
   init(queue: DispatchQueue = .main, uuid: UUID = UUID()) {
     self.queue = queue
     self.uuid = uuid
@@ -328,7 +329,7 @@ open class BaseSubscriptionListener: EventStreamReceiver, Hashable {
   public func hash(into hasher: inout Hasher) {
     hasher.combine(uuid)
   }
-  
+
   public static func == (lhs: BaseSubscriptionListener, rhs: BaseSubscriptionListener) -> Bool {
     return lhs.uuid == rhs.uuid
   }

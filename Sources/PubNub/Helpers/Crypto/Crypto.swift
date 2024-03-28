@@ -19,7 +19,7 @@ public struct Crypto: Hashable {
   let key: String
   /// Whether random initialization vector should be used
   let randomizeIV: Bool
-  
+
   public init(key: String, withRandomIV: Bool = true) {
     self.key = key
     self.randomizeIV = withRandomIV

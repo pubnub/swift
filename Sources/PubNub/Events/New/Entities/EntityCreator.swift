@@ -22,14 +22,14 @@ public protocol EntityCreator {
   ///   - name: The unique identifier for the channel.
   /// - Returns: A `ChannelRepresentation` object representing the channel.
   func channel(_ name: String) -> ChannelRepresentation
-  
+
   /// Creates a new channel group entity the user can subscribe to.
   ///
   /// - Parameters:
   ///   - name: The unique identifier for the channel group.
   /// - Returns: A `ChannelGroupRepresentation` object representing the channel group.
   func channelGroup(_ name: String) -> ChannelGroupRepresentation
-  
+
   /// Creates user metadata entity the user can subscribe to.
   ///
   /// This method does not create any entity, either locally or remotely; it merely provides
@@ -39,7 +39,7 @@ public protocol EntityCreator {
   ///   - name: The unique identifier for the user metadata.
   /// - Returns: A `UserMetadataRepresentation` object representing the user metadata.
   func userMetadata(_ name: String) -> UserMetadataRepresentation
-  
+
   /// Creates channel metadata entity the user can subscribe to.
   ///
   /// This method does not create any entity, either locally or remotely; it merely provides
@@ -80,7 +80,7 @@ public extension EntityCreator {
 protocol SubscribeReceiver: AnyObject {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter)
   func hasRegisteredAdapter(with uuid: UUID) -> Bool
-  
+
   func internalSubscribe(
     with channels: [Subscription],
     and groups: [Subscription],

@@ -11,6 +11,7 @@
 import Foundation
 
 extension SubscribeMessagePayload {
+  // swiftlint:disable:next cyclomatic_complexity
   func asPubNubEvent() -> PubNubEvent {
     switch messageType {
     case .message:

@@ -15,7 +15,7 @@ protocol AnyIdentifiableInvocation {
 }
 
 protocol AnyCancellableInvocation: AnyIdentifiableInvocation {
-  
+
 }
 
 protocol AnyEffectInvocation: AnyIdentifiableInvocation {
@@ -25,7 +25,7 @@ protocol AnyEffectInvocation: AnyIdentifiableInvocation {
 struct TransitionResult<State, Invocation: AnyEffectInvocation> {
   let state: State
   let invocations: [EffectInvocation<Invocation>]
-  
+
   init(state: State, invocations: [EffectInvocation<Invocation>] = []) {
     self.state = state
     self.invocations = invocations
@@ -42,7 +42,7 @@ protocol TransitionProtocol<State, Event, Invocation> {
   associatedtype State
   associatedtype Event
   associatedtype Invocation: AnyEffectInvocation
-  
+
   func canTransition(from state: State, dueTo event: Event) -> Bool
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation>
 }

@@ -14,11 +14,11 @@ class PresenceLeaveRequest {
   let channels: [String]
   let groups: [String]
   let configuration: PubNubConfiguration
-  
+
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private var request: RequestReplaceable?
-  
+
   init(
     channels: [String],
     groups: [String],
@@ -32,7 +32,7 @@ class PresenceLeaveRequest {
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
   }
-  
+
   func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
     let endpoint = PresenceRouter.Endpoint.leave(
       channels: channels,
@@ -44,14 +44,14 @@ class PresenceLeaveRequest {
     )
     request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
       switch result {
-      case .success(_):
+      case .success:
         completionBlock(.success(()))
       case .failure(let error):
         completionBlock(.failure(error as? PubNubError ?? PubNubError(.unknown, underlying: error)))
       }
     }
   }
-  
+
   func cancel() {
     request?.cancel(PubNubError(.clientCancelled))
   }

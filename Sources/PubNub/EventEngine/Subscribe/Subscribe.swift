@@ -160,6 +160,7 @@ extension Subscribe {
     case emitStatus(change: Subscribe.ConnectionStatusChange)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
 
+    // swiftlint:disable:next nesting
     enum Cancellable: AnyCancellableInvocation {
       case handshakeRequest
       case handshakeReconnect

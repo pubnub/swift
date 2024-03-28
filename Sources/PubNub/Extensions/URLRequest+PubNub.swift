@@ -51,10 +51,10 @@ public extension URLRequest {
     guard let contentStream = content.inputStream else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [content.debugDescription])
     }
-    
+
     let finalStream: InputStream
     let contentLength: Int
-    
+
     // If we were given a Crypto module we should convert the stream to a secure stream
     if let cryptoModule = cryptoModule {
       switch cryptoModule.encrypt(stream: contentStream, contentLength: content.contentLength) {
@@ -63,7 +63,7 @@ public extension URLRequest {
         contentLength = prefixData.count + ((encryptingResult as? MultipartInputStream)?.length ?? 0) + postfixData.count
       case .failure(let encryptionError):
         throw encryptionError
-      }      
+      }
     } else {
       finalStream = contentStream
       contentLength = prefixData.count + content.contentLength + postfixData.count
@@ -71,7 +71,7 @@ public extension URLRequest {
 
     setValue("\(contentLength)", forHTTPHeaderField: "Content-Length")
     setValue("multipart/form-data; boundary=\(response.fileId)", forHTTPHeaderField: "Content-Type")
-    
+
     httpBodyStream = MultipartInputStream(
       inputStreams: [InputStream(data: prefixData), finalStream, InputStream(data: postfixData)]
     )

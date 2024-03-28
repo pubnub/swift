@@ -15,6 +15,7 @@ class SubscribeTransition: TransitionProtocol {
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
 
+  // swiftlint:disable:next cyclomatic_complexity
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
     case .handshakeSuccess:
@@ -121,6 +122,7 @@ class SubscribeTransition: TransitionProtocol {
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     var results: TransitionResult<State, Invocation>
 

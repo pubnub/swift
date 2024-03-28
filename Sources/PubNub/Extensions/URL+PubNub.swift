@@ -53,7 +53,6 @@ public extension URL {
   var contentType: String {
     #if canImport(UniformTypeIdentifiers)
       if #available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *) {
-        // swiftlint:disable:next line_length
         guard let contentType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType else {
           return "application/octet-stream"
         }

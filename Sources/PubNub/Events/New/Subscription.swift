@@ -145,7 +145,7 @@ extension Subscription: SubscribeCapable {
 }
 
 extension Subscription: Hashable {
-  public static func ==(lhs: Subscription, rhs: Subscription) -> Bool {
+  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
     lhs.uuid == rhs.uuid
   }
 

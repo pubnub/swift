@@ -131,7 +131,10 @@ public class CryptoInputStream: InputStream {
         if includeInitializationVectorInContent {
           rawDataLength = contentLength - crypto.cipher.blockSize
           // The estimated content length is the IV length plus the crypted length
-          estimatedCryptoCount = crypto.cipher.blockSize + decryptStream.getOutputLength(inputLength: rawDataLength, isFinal: true)
+          estimatedCryptoCount = crypto.cipher.blockSize + decryptStream.getOutputLength(
+            inputLength: rawDataLength,
+            isFinal: true
+          )
         } else {
           rawDataLength = contentLength
           estimatedCryptoCount = decryptStream.getOutputLength(inputLength: rawDataLength, isFinal: true)

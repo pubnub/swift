@@ -385,6 +385,4 @@ extension FileAPIViewController: UIDocumentPickerDelegate {
       }
     }
   }
-
-  // swiftlint:disable:next file_length
 }

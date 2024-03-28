@@ -281,7 +281,7 @@ public extension CryptoModule {
 }
 
 extension CryptoModule: Equatable {
-  public static func ==(lhs: CryptoModule, rhs: CryptoModule) -> Bool {
+  public static func == (lhs: CryptoModule, rhs: CryptoModule) -> Bool {
     lhs.cryptors.map { $0.id } == rhs.cryptors.map { $0.id }
   }
 }

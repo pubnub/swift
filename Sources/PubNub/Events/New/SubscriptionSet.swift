@@ -233,7 +233,7 @@ extension SubscriptionSet: Hashable {
     hasher.combine(uuid)
   }
 
-  public static func ==(lhs: SubscriptionSet, rhs: SubscriptionSet) -> Bool {
+  public static func == (lhs: SubscriptionSet, rhs: SubscriptionSet) -> Bool {
     lhs.uuid == rhs.uuid
   }
 }

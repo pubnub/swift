@@ -749,5 +749,5 @@ class MasterDetailTableViewController: UITableViewController {
     }
   }
 
-  // swiftlint:endable file_length
+  // swiftlint:disable:next file_length
 }

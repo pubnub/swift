@@ -263,6 +263,7 @@ extension PubNubChannelMetadataChangeset: Codable {
     self.changes = changes
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(metadataId, forKey: .metadataId)

@@ -196,6 +196,7 @@ public final class CoreListener: BaseSubscriptionListener {
     }
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   override public func emit(batch: [SubscribeMessagePayload]) {
     emitDidReceive(subscription: batch.map { message in
       switch message.messageType {

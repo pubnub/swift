@@ -129,7 +129,7 @@ public class SubscriptionOptions {
   ///   - rhs: The right-hand side instance.
   ///
   /// - Returns: A new `SubscriptionOptions` instance combining the options from both instances.
-  public static func +(
+  public static func + (
     lhs: SubscriptionOptions,
     rhs: SubscriptionOptions
   ) -> SubscriptionOptions {

@@ -407,4 +407,5 @@ public struct SubscribeMessagePayload: Codable, Hashable {
       try container.encode(messageType, forKey: .messageType)
     }
   }
+  // swiftlint:disable:next file_length
 }

@@ -14,11 +14,13 @@ struct SubscribeInput: Equatable {
   private let channelEntries: [String: PubNubChannel]
   private let groupEntries: [String: PubNubChannel]
 
+  // swiftlint:disable:next large_tuple
   typealias InsertingResult = (
     newInput: SubscribeInput,
     insertedChannels: [PubNubChannel],
     insertedGroups: [PubNubChannel]
   )
+  // swiftlint:disable:next large_tuple
   typealias RemovingResult = (
     newInput: SubscribeInput,
     removedChannels: [PubNubChannel],
@@ -146,7 +148,7 @@ struct SubscribeInput: Equatable {
     )
   }
 
-  static func ==(lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
+  static func == (lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
     let equalChannels = lhs.allSubscribedChannelNames.sorted(by: <) == rhs.allSubscribedChannelNames.sorted(by: <)
     let equalGroups = lhs.allSubscribedGroupNames.sorted(by: <) == rhs.allSubscribedGroupNames.sorted(by: <)
 

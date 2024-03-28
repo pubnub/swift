@@ -15,6 +15,7 @@ struct CryptorHeaderWithinStreamFinder {
 
   // Attempts to find CryptorHeader in the given InputStream.
   // Returns InputStream that immediately follows CryptorHeader
+  // swiftlint:disable:next large_tuple
   func findHeader() throws -> (header: CryptorHeader, cryptorDefinedData: Data, continuationStream: InputStream) {
     let buffer = read(maxLength: 1024)
     let header = try CryptorHeaderParser(data: buffer).parse()

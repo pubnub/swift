@@ -431,4 +431,6 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
     emit(events: events)
     return events
   }
+
+  // swiftlint:disable:next file_length
 }

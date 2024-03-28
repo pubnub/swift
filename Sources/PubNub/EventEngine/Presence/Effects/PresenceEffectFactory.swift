@@ -30,7 +30,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
     with dependencies: EventEngineDependencies<Presence.Dependencies>
   ) -> any EffectHandler<Presence.Event> {
     switch invocation {
-    case .heartbeat(let channels, let groups):
+    case let .heartbeat(channels, groups):
       return HeartbeatEffect(
         request: PresenceHeartbeatRequest(
           channels: channels,
@@ -41,7 +41,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case .delayedHeartbeat(let channels, let groups, let retryAttempt, let reason):
+    case let .delayedHeartbeat(channels, groups, retryAttempt, reason):
       return DelayedHeartbeatEffect(
         request: PresenceHeartbeatRequest(
           channels: channels,
@@ -54,7 +54,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
         retryAttempt: retryAttempt,
         reason: reason
       )
-    case .leave(let channels, let groups):
+    case let .leave(channels, groups):
       return LeaveEffect(
         request: PresenceLeaveRequest(
           channels: channels,

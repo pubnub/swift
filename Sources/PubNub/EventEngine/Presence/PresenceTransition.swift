@@ -78,15 +78,15 @@ class PresenceTransition: TransitionProtocol {
     var results: TransitionResult<State, Invocation>
 
     switch event {
-    case .joined(let channels, let groups):
+    case let .joined(channels, groups):
       results = heartbeatingTransition(from: state, joining: (channels: channels, groups: groups))
-    case .left(let channels, let groups):
+    case let .left(channels, groups):
       results = heartbeatingTransition(from: state, leaving: (channels: channels, groups: groups))
     case .heartbeatSuccess:
       results = heartbeatSuccessTransition(from: state)
-    case .heartbeatFailed(let error):
+    case let .heartbeatFailed(error):
       results = heartbeatReconnectingTransition(from: state, dueTo: error)
-    case .heartbeatGiveUp(let error):
+    case let .heartbeatGiveUp(error):
       results = heartbeatReconnectingGiveUpTransition(from: state, dueTo: error)
     case .timesUp:
       results = heartbeatingTransition(from: state)

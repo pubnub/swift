@@ -127,35 +127,35 @@ class SubscribeTransition: TransitionProtocol {
     var results: TransitionResult<State, Invocation>
 
     switch event {
-    case .handshakeSuccess(let cursor):
+    case let .handshakeSuccess(cursor):
       results = setReceivingState(from: state, cursor: resolveCursor(for: state, new: cursor))
-    case .handshakeFailure(let error):
+    case let .handshakeFailure(error):
       results = setHandshakeReconnectingState(from: state, error: error)
-    case .handshakeReconnectSuccess(let cursor):
+    case let .handshakeReconnectSuccess(cursor):
       results = setReceivingState(from: state, cursor: resolveCursor(for: state, new: cursor))
-    case .handshakeReconnectFailure(let error):
+    case let .handshakeReconnectFailure(error):
       results = setHandshakeReconnectingState(from: state, error: error)
-    case .handshakeReconnectGiveUp(let error):
+    case let .handshakeReconnectGiveUp(error):
       results = setHandshakeFailedState(from: state, error: error)
-    case .receiveSuccess(let cursor, let messages):
+    case let .receiveSuccess(cursor, messages):
       results = setReceivingState(from: state, cursor: cursor, messages: messages)
     case .receiveFailure(let error):
       results = setReceiveReconnectingState(from: state, error: error)
-    case .receiveReconnectSuccess(let cursor, let messages):
+    case let .receiveReconnectSuccess(cursor, messages):
       results = setReceivingState(from: state, cursor: cursor, messages: messages)
-    case .receiveReconnectFailure(let error):
+    case let .receiveReconnectFailure(error):
       results = setReceiveReconnectingState(from: state, error: error)
-    case .receiveReconnectGiveUp(let error):
+    case let .receiveReconnectGiveUp(error):
       results = setReceiveFailedState(from: state, error: error)
-    case .subscriptionChanged(let channels, let groups):
+    case let .subscriptionChanged(channels, groups):
       results = onSubscriptionAltered(from: state, channels: channels, groups: groups, cursor: state.cursor)
-    case .subscriptionRestored(let channels, let groups, let cursor):
+    case let .subscriptionRestored(channels, groups, cursor):
       results = onSubscriptionAltered(from: state, channels: channels, groups: groups, cursor: cursor)
     case .disconnect:
       results = setStoppedState(from: state)
     case .unsubscribeAll:
       results = setUnsubscribedState(from: state)
-    case .reconnect(let cursor):
+    case let .reconnect(cursor):
       results = setHandshakingState(from: state, cursor: cursor)
     }
 

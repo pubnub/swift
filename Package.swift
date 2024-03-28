@@ -1,4 +1,4 @@
-// swift-tools-version:5.0
+// swift-tools-version:5.3
 //
 //  Package.swift
 //
@@ -15,7 +15,7 @@ let package = Package(
   name: "PubNub",
   platforms: [
     .iOS(.v12),
-    .macOS(.v10_13),
+    .macOS(.v10_15),
     .tvOS(.v12),
     .watchOS(.v4)
   ],

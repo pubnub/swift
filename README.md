@@ -23,7 +23,7 @@ PubNub takes care of the infrastructure and APIs needed for the realtime communi
 
 ## Requirements
 
-* iOS 12.0+ / macOS 10.13+ / Mac Catalyst 13.0+ / tvOS 12.0+ / watchOS 4.0+
+* iOS 12.0+ / macOS 10.15+ / Mac Catalyst 13.0+ / tvOS 12.0+ / watchOS 4.0+
 * Xcode 15+
 * Swift 5+
 

@@ -17,7 +17,7 @@ import PubNubSpace
 import PubNubUser
 
 // swiftlint:disable:next type_body_length
-class MasterDetailTableViewController: UITableViewController {
+class DetailTableViewController: UITableViewController {
   var pubnub: PubNub!
 
   var listener: SubscriptionListener?
@@ -25,7 +25,7 @@ class MasterDetailTableViewController: UITableViewController {
   var spaceListener: PubNubSpaceListener?
   var membershipListener: PubNubMembershipListener?
 
-  let masterDetailCellID = "MasterDetailCell"
+  let detailCellID = "MasterDetailCell"
 
   enum SegueId: String {
     case config = "MasterDetailToConfigDetail"
@@ -386,7 +386,7 @@ class MasterDetailTableViewController: UITableViewController {
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     super.tableView(tableView, cellForRowAt: indexPath)
 
-    let cell = tableView.dequeueReusableCell(withIdentifier: masterDetailCellID, for: indexPath)
+    let cell = tableView.dequeueReusableCell(withIdentifier: detailCellID, for: indexPath)
 
     switch Section(rawValue: indexPath.section) {
     case .some(.pubnub):

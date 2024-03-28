@@ -180,6 +180,7 @@ class SubscribeTransition: TransitionProtocol {
 }
 
 fileprivate extension SubscribeTransition {
+  // swiftlint:disable:next cyclomatic_complexity
   func onSubscriptionAltered(
     from state: State,
     channels: [String],

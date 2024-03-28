@@ -3,11 +3,10 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */; };
 		357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4EB252D067800099EB7 /* FileAPIViewController.swift */; };
 		357AD4EE252D087800099EB7 /* FileAPI.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 357AD4ED252D087800099EB7 /* FileAPI.storyboard */; };
 		357AD4F2252E2FFF00099EB7 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 357AD4F1252E2FFF00099EB7 /* FileTableViewCell.swift */; };
@@ -17,6 +16,7 @@
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
+		3D34160D2BB5CE20008558A0 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */; };
 		792CF27228C4FBB300C83408 /* PubNub in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27128C4FBB300C83408 /* PubNub */; };
 		792CF27428C4FBB300C83408 /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27328C4FBB300C83408 /* PubNubMembership */; };
 		792CF27628C4FBB300C83408 /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27528C4FBB300C83408 /* PubNubSpace */; };
@@ -54,13 +54,13 @@
 		357AD4F3252E302900099EB7 /* LocalFileExample.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalFileExample.swift; sourceTree = "<group>"; };
 		359F779422B7FEF600B6B46F /* iOS Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "iOS Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		359F779722B7FEF600B6B46F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterDetailTableViewController.swift; sourceTree = "<group>"; };
 		359F779C22B7FEF700B6B46F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		359F779E22B7FEF700B6B46F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		359F77A122B7FEF700B6B46F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		359F77A322B7FEF700B6B46F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		359F77AA22B7FF5700B6B46F /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigDetailTableViewController.swift; sourceTree = "<group>"; };
+		3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
 		792CF27A28C4FCB800C83408 /* PubNub SDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "PubNub SDK"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -142,7 +142,7 @@
 			isa = PBXGroup;
 			children = (
 				359F779722B7FEF600B6B46F /* AppDelegate.swift */,
-				359F779922B7FEF600B6B46F /* MasterDetailTableViewController.swift */,
+				3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */,
 				35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */,
 				357AD4F0252E2FD600099EB7 /* File */,
 			);
@@ -242,9 +242,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D34160D2BB5CE20008558A0 /* DetailTableViewController.swift in Sources */,
 				357AD4F4252E302900099EB7 /* LocalFileExample.swift in Sources */,
 				35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */,
-				3567432822DF974600BF2639 /* MasterDetailTableViewController.swift in Sources */,
 				357AD4F2252E2FFF00099EB7 /* FileTableViewCell.swift in Sources */,
 				359F779822B7FEF600B6B46F /* AppDelegate.swift in Sources */,
 				357AD4EC252D067800099EB7 /* FileAPIViewController.swift in Sources */,

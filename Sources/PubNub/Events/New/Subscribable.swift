@@ -108,9 +108,9 @@ public class SubscriptionOptions {
   func filterCriteriaSatisfied(event: PubNubEvent) -> Bool {
     allOptions.compactMap {
       $0 as? FilterOption
-    }.reduce(into: true, { filteringResult, filter in
-      filteringResult = filteringResult && filter.predicate(event)
-    })
+    }.allSatisfy { filter in
+      filter.predicate(event)
+    }
   }
 
   func hasPresenceOption() -> Bool {

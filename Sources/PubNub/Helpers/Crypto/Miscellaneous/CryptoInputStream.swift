@@ -390,23 +390,29 @@ public class CryptoInputStream: InputStream {
   // MARK: - Encrypt
 
   func encrypt(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
+    guard let cryptoStream = cryptoStream else {
+      return 0
+    }
     return crypt(
       outputBuffer: buffer,
       maxLength: maxLength,
       inputStream: cipherStream,
       readByteOffset: 0,
-      cryptoStream: self.cryptoStream!
+      cryptoStream: cryptoStream
     )
   }
 
   // MARK: - Decrypt
 
   func decrypt(_ buffer: UnsafeMutablePointer<UInt8>, maxLength: Int) -> Int {
+    guard let cryptoStream = cryptoStream else {
+      return 0
+    }
     return crypt(
       outputBuffer: buffer,
       maxLength: maxLength,
       inputStream: cipherStream,
-      cryptoStream: self.cryptoStream!
+      cryptoStream: cryptoStream
     )
   }
 

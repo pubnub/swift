@@ -98,14 +98,12 @@ public struct PubNubConfiguration: Hashable {
     guard userId.trimmingCharacters(in: .whitespacesAndNewlines).count > 0 else {
       preconditionFailure("UserId should not be empty.")
     }
-    if let cryptoModule = cryptoModule {
+    if let cryptoModule {
       self.cryptoModule = cryptoModule
+    } else if let cipherKey {
+      self.cryptoModule = CryptoModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
     } else {
-      if let cipherKey = cipherKey {
-        self.cryptoModule = CryptoModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
-        // Preserves cipherKey for backward compatibility if anyone has already accessed it before
-        self.cipherKey = cipherKey
-      }
+      self.cryptoModule = nil
     }
 
     self.publishKey = publishKey
@@ -189,9 +187,6 @@ public struct PubNubConfiguration: Hashable {
   public var subscribeKey: String
   /// If set, all communication will be encrypted with this key
   public var cryptoModule: CryptoModule?
-  /// If set, all communication will be encrypted with this key
-  @available(*, deprecated, message: "Use 'cryptoModule' instead")
-  public var cipherKey: Crypto?
   /// If Access Manager (PAM) is enabled, client will use `authKey` on all requests
   public var authKey: String?
   /// If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests

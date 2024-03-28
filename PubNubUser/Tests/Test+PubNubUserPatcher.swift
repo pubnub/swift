@@ -27,6 +27,7 @@ class PubNubUserPatcherTests: XCTestCase {
     eTag: "OldETag"
   )
 
+  // swiftlint:disable next force_unwrapping
   var patcher = PubNubUser.Patcher(
     id: "TestUserId",
     updated: .distantFuture,
@@ -53,6 +54,7 @@ class PubNubUserPatcherTests: XCTestCase {
     eTag: "TestETag"
   )
 
+  // swiftlint:disable next force_unwrapping
   func testPatcher_Init() {
     XCTAssertEqual(patcher.id, "TestUserId")
     XCTAssertEqual(patcher.updated, .distantFuture)

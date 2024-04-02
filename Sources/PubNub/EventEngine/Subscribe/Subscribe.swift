@@ -101,6 +101,7 @@ extension Subscribe {
   }
 
   struct UnsubscribedState: SubscribeState {
+    // swiftlint:disable:next force_unwrapping
     let cursor: SubscribeCursor = .init(timetoken: 0)!
     let input: SubscribeInput = .init()
     let connectionStatus = ConnectionStatus.disconnected

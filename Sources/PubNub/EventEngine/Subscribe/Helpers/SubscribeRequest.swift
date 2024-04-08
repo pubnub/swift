@@ -20,7 +20,6 @@ class SubscribeRequest {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let channelStates: [String: JSONCodable]
-
   private var request: RequestReplaceable?
 
   var retryLimit: UInt { configuration.automaticRetry?.retryLimit ?? 0 }
@@ -52,29 +51,6 @@ class SubscribeRequest {
     }
   }
 
-  func reconnectionDelay(dueTo error: PubNubError, retryAttempt: Int) -> TimeInterval? {
-    guard let automaticRetry = configuration.automaticRetry else {
-      return nil
-    }
-    guard automaticRetry.retryOperator(for: .subscribe) != nil else {
-      return nil
-    }
-    guard automaticRetry.retryLimit > retryAttempt else {
-      return nil
-    }
-    guard let underlyingError = error.underlying else {
-      return automaticRetry.policy.delay(for: retryAttempt)
-    }
-    guard let urlResponse = error.affected.findFirst(by: PubNubError.AffectedValue.response) else {
-      return nil
-    }
-    let shouldRetry = automaticRetry.shouldRetry(
-      response: urlResponse,
-      error: underlyingError
-    )
-    return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
-  }
-
   func execute(onCompletion: @escaping (Result<SubscribeResponse, PubNubError>) -> Void) {
     let router = SubscribeRouter(
       .subscribe(
@@ -90,7 +66,7 @@ class SubscribeRequest {
     )
     request = session.request(
       with: router,
-      requestOperator: nil
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .subscribe)
     )
     request?.validate().response(
       on: sessionResponseQueue,

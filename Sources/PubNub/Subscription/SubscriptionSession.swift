@@ -156,19 +156,21 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     and groups: [String] = [],
     presenceOnly: Bool = false
   ) {
+    let channelNamesToUnsubscribe = channels.flatMap {
+      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
+    }
+    let groupNamesToUnsubscribe = groups.flatMap {
+      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
+    }
     internalUnsubscribe(
-      from: channels.map { Subscription(queue: queue, entity: channel($0)) },
-      and: groups.map { Subscription(queue: queue, entity: channelGroup($0)) },
+      from: globalChannelSubscriptions.compactMap { channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
+      and: globalGroupSubscriptions.compactMap { groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
       presenceOnly: presenceOnly
     )
-    channels.flatMap {
-      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
-    }.forEach {
+    channelNamesToUnsubscribe.forEach {
       globalChannelSubscriptions.removeValue(forKey: $0)
     }
-    groups.flatMap {
-      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
-    }.forEach {
+    groupNamesToUnsubscribe.forEach {
       globalGroupSubscriptions.removeValue(forKey: $0)
     }
   }

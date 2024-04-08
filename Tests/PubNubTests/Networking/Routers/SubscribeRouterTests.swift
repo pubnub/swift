@@ -469,7 +469,7 @@ extension SubscribeRouterTests {
           case let .channelMetadataSet(changeset):
             XCTAssertEqual(try? changeset.apply(to: baseChannel).transcode(), patchedChannel)
             objectExpect.fulfill()
-          case let .subscriptionChanged(change):
+          case .subscriptionChanged:
             break
           default:
             XCTFail("Incorrect Event Received")

@@ -41,19 +41,6 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case let .delayedHeartbeat(channels, groups, retryAttempt, reason):
-      return DelayedHeartbeatEffect(
-        request: PresenceHeartbeatRequest(
-          channels: channels,
-          groups: groups,
-          channelStates: presenceStateContainer.getStates(forChannels: channels),
-          configuration: dependencies.value.configuration,
-          session: session,
-          sessionResponseQueue: sessionResponseQueue
-        ),
-        retryAttempt: retryAttempt,
-        reason: reason
-      )
     case let .leave(channels, groups):
       return LeaveEffect(
         request: PresenceLeaveRequest(

@@ -20,8 +20,6 @@ extension Presence.Invocation: ContractTestIdentifiable {
       return "HEARTBEAT"
     case .leave:
       return "LEAVE"
-    case .delayedHeartbeat:
-      return "DELAYED_HEARTBEAT"
     case .wait:
       return "WAIT"
     }
@@ -33,8 +31,6 @@ extension Presence.Invocation.Cancellable: ContractTestIdentifiable {
     switch self {
     case .wait:
       return "CANCEL_WAIT"
-    case .delayedHeartbeat:
-      return "CANCEL_DELAYED_HEARTBEAT"
     }
   }
 }
@@ -58,8 +54,6 @@ extension Presence.Event: ContractTestIdentifiable {
       return "HEARTBEAT_SUCCESS"
     case .heartbeatFailed:
       return "HEARTBEAT_FAILURE"
-    case .heartbeatGiveUp:
-      return "HEARTBEAT_GIVEUP"
     }
   }
 }
@@ -86,7 +80,6 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
     
   override func createPubNubClient() -> PubNub {
     let container = DependencyContainer(configuration: self.configuration)
-    let key = PresenceEventEngineDependencyKey.self
     
     self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: PresenceEffectFactory(

@@ -15,29 +15,16 @@ class SubscribeTransition: TransitionProtocol {
   typealias Event = Subscribe.Event
   typealias Invocation = Subscribe.Invocation
 
-  // swiftlint:disable:next cyclomatic_complexity
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
     case .handshakeSuccess:
       return state is Subscribe.HandshakingState
     case .handshakeFailure:
       return state is Subscribe.HandshakingState
-    case .handshakeReconnectSuccess:
-      return state is Subscribe.HandshakeReconnectingState
-    case .handshakeReconnectFailure:
-      return state is Subscribe.HandshakeReconnectingState
-    case .handshakeReconnectGiveUp:
-      return state is Subscribe.HandshakeReconnectingState
     case .receiveSuccess:
       return state is Subscribe.ReceivingState
     case .receiveFailure:
       return state is Subscribe.ReceivingState
-    case .receiveReconnectSuccess:
-      return state is Subscribe.ReceiveReconnectingState
-    case .receiveReconnectFailure:
-      return state is Subscribe.ReceiveReconnectingState
-    case .receiveReconnectGiveUp:
-      return state is Subscribe.ReceiveReconnectingState
     case .subscriptionChanged:
       return true
     case .subscriptionRestored:
@@ -62,12 +49,8 @@ class SubscribeTransition: TransitionProtocol {
     switch state {
     case is Subscribe.HandshakingState:
       return [.cancel(.handshakeRequest)]
-    case is Subscribe.HandshakeReconnectingState:
-      return [.cancel(.handshakeReconnect)]
     case is Subscribe.ReceivingState:
       return [.cancel(.receiveMessages)]
-    case is Subscribe.ReceiveReconnectingState:
-      return [.cancel(.receiveReconnect)]
     default:
       return []
     }
@@ -84,17 +67,6 @@ class SubscribeTransition: TransitionProtocol {
           )
         )
       ]
-    case let state as Subscribe.HandshakeReconnectingState:
-      return [
-        .managed(
-          .handshakeReconnect(
-            channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedGroupNames,
-            retryAttempt: state.retryAttempt,
-            reason: state.reason
-          )
-        )
-      ]
     case let state as Subscribe.ReceivingState:
       return [
         .managed(
@@ -105,24 +77,11 @@ class SubscribeTransition: TransitionProtocol {
           )
         )
       ]
-    case let state as Subscribe.ReceiveReconnectingState:
-      return [
-        .managed(
-          .receiveReconnect(
-            channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedGroupNames,
-            cursor: state.cursor,
-            retryAttempt: state.retryAttempt,
-            reason: state.reason
-          )
-        )
-      ]
     default:
       return []
     }
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   func transition(from state: State, event: Event) -> TransitionResult<State, Invocation> {
     var results: TransitionResult<State, Invocation>
 
@@ -130,22 +89,10 @@ class SubscribeTransition: TransitionProtocol {
     case let .handshakeSuccess(cursor):
       results = setReceivingState(from: state, cursor: resolveCursor(for: state, new: cursor))
     case let .handshakeFailure(error):
-      results = setHandshakeReconnectingState(from: state, error: error)
-    case let .handshakeReconnectSuccess(cursor):
-      results = setReceivingState(from: state, cursor: resolveCursor(for: state, new: cursor))
-    case let .handshakeReconnectFailure(error):
-      results = setHandshakeReconnectingState(from: state, error: error)
-    case let .handshakeReconnectGiveUp(error):
       results = setHandshakeFailedState(from: state, error: error)
     case let .receiveSuccess(cursor, messages):
       results = setReceivingState(from: state, cursor: cursor, messages: messages)
     case .receiveFailure(let error):
-      results = setReceiveReconnectingState(from: state, error: error)
-    case let .receiveReconnectSuccess(cursor, messages):
-      results = setReceivingState(from: state, cursor: cursor, messages: messages)
-    case let .receiveReconnectFailure(error):
-      results = setReceiveReconnectingState(from: state, error: error)
-    case let .receiveReconnectGiveUp(error):
       results = setReceiveFailedState(from: state, error: error)
     case let .subscriptionChanged(channels, groups):
       results = onSubscriptionAltered(from: state, channels: channels, groups: groups, cursor: state.cursor)
@@ -180,7 +127,6 @@ class SubscribeTransition: TransitionProtocol {
 }
 
 fileprivate extension SubscribeTransition {
-  // swiftlint:disable:next cyclomatic_complexity
   func onSubscriptionAltered(
     from state: State,
     channels: [String],
@@ -198,15 +144,11 @@ fileprivate extension SubscribeTransition {
       switch state {
       case is Subscribe.HandshakingState:
         return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
-      case is Subscribe.HandshakeReconnectingState:
-        return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
       case is Subscribe.HandshakeStoppedState:
         return TransitionResult(state: Subscribe.HandshakeStoppedState(input: newInput, cursor: cursor))
       case is Subscribe.HandshakeFailedState:
         return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
       case is Subscribe.ReceivingState:
-        return TransitionResult(state: Subscribe.ReceivingState(input: newInput, cursor: cursor))
-      case is Subscribe.ReceiveReconnectingState:
         return TransitionResult(state: Subscribe.ReceivingState(input: newInput, cursor: cursor))
       case is Subscribe.ReceiveStoppedState:
         return TransitionResult(state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor))
@@ -227,22 +169,6 @@ fileprivate extension SubscribeTransition {
       state: Subscribe.HandshakingState(
         input: state.input,
         cursor: cursor ?? state.cursor
-      )
-    )
-  }
-}
-
-fileprivate extension SubscribeTransition {
-  func setHandshakeReconnectingState(
-    from state: State,
-    error: PubNubError
-  ) -> TransitionResult<State, Invocation> {
-    return TransitionResult<State, Invocation>(
-      state: Subscribe.HandshakeReconnectingState(
-        input: state.input,
-        cursor: state.cursor,
-        retryAttempt: ((state as? Subscribe.HandshakeReconnectingState)?.retryAttempt ?? -1) + 1,
-        reason: error
       )
     )
   }
@@ -286,7 +212,7 @@ fileprivate extension SubscribeTransition {
       ))
     )
 
-    if state is Subscribe.HandshakingState || state is Subscribe.HandshakeReconnectingState {
+    if state is Subscribe.HandshakingState {
       return TransitionResult(
         state: Subscribe.ReceivingState(input: state.input, cursor: cursor),
         invocations: [messages.isEmpty ? nil : emitMessagesInvocation, emitStatusInvocation].compactMap { $0 }
@@ -301,29 +227,10 @@ fileprivate extension SubscribeTransition {
 }
 
 fileprivate extension SubscribeTransition {
-  func setReceiveReconnectingState(
-    from state: State,
-    error: PubNubError
-  ) -> TransitionResult<State, Invocation> {
-    return TransitionResult(
-      state: Subscribe.ReceiveReconnectingState(
-        input: state.input,
-        cursor: state.cursor,
-        retryAttempt: ((state as? Subscribe.ReceiveReconnectingState)?.retryAttempt ?? -1) + 1,
-        reason: error
-      )
-    )
-  }
-}
-
-fileprivate extension SubscribeTransition {
   func setReceiveFailedState(
     from state: State,
     error: PubNubError
   ) -> TransitionResult<State, Invocation> {
-    guard let state = state as? Subscribe.ReceiveReconnectingState else {
-      return TransitionResult(state: state)
-    }
     return TransitionResult(
       state: Subscribe.ReceiveFailedState(
         input: state.input,
@@ -361,11 +268,7 @@ fileprivate extension SubscribeTransition {
     switch state {
     case is Subscribe.HandshakingState:
       return handshakeStoppedTransition
-    case is Subscribe.HandshakeReconnectingState:
-      return handshakeStoppedTransition
     case is Subscribe.ReceivingState:
-      return receiveStoppedTransition
-    case is Subscribe.ReceiveReconnectingState:
       return receiveStoppedTransition
     default:
       return TransitionResult(state: state)

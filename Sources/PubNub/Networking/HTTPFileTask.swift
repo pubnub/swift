@@ -73,7 +73,7 @@ public class HTTPFileTask: Hashable {
 
   func updateProgress(bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
     // Progress is handled automatically on iOS 11+
-    if #available(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0, *) { } else {
+    if #unavailable(iOS 11.0, macOS 10.13, macCatalyst 13.0, tvOS 11.0, watchOS 4.0) {
       progress.completedUnitCount = totalBytesWritten
     }
 
@@ -242,11 +242,11 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
   func decrypt(_ encryptedURL: URL, to outpuURL: URL, using cryptoModule: CryptoModule) throws {
     // If we were provided a Crypto object we should try and decrypt the file
-    
+
     guard let inputStream = InputStream(url: encryptedURL) else {
       throw PubNubError(.streamCouldNotBeInitialized, additional: [encryptedURL.absoluteString])
     }
-    
+
     cryptoModule.decrypt(
       stream: inputStream,
       contentLength: encryptedURL.sizeOf,
@@ -310,11 +310,11 @@ public class HTTPFileDownloadTask: HTTPFileTask {
       if let cryptoModule = cryptoModule {
         // Set the encrypted in case something goes wrong
         encryptedURL = url
-        
+
         guard let stream = InputStream(url: url) else {
           throw PubNubError(.streamCouldNotBeInitialized, additional: [url.absoluteString])
         }
-                
+
         cryptoModule.decrypt(
           stream: stream,
           contentLength: url.sizeOf,

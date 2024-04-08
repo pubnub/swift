@@ -1399,7 +1399,6 @@ public extension PubNub {
   func setConsumer(identifier: String, value: String) {
     configuration.consumerIdentifiers[identifier] = value
   }
-  // swiftlint:disable:next file_length
 }
 
 // MARK: - Global EventEmitter

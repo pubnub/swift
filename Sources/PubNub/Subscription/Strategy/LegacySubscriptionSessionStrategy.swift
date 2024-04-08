@@ -16,7 +16,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let longPollingSession: SessionReplaceable
   let sessionStream: SessionListener
   let responseQueue: DispatchQueue
-  
+
   var configuration: PubNubConfiguration
   var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
   var filterExpression: String?
@@ -84,7 +84,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     // Add listener to session
     mutableSession.sessionStream = sessionStream
     longPollingSession = mutableSession
-    
+
     sessionStream.didRetryRequest = { [weak self] _ in
       self?.connectionStatus = .reconnecting
     }
@@ -125,7 +125,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       reconnect(at: cursor)
     }
   }
-  
+
   /// Reconnect a disconnected subscription stream
   /// - parameter timetoken: The timetoken to subscribe with
   func reconnect(at cursor: SubscribeCursor? = nil) {
@@ -169,19 +169,19 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
         channels: channels, groups: groups, channelStates: [:],
         timetoken: cursor?.timetoken, region: cursor?.region.description,
         heartbeat: configuration.durationUntilTimeout, filter: filterExpression
-      ),configuration: configuration
+      ), configuration: configuration
     )
-    
+
     // Cancel previous request before starting new one
     stopSubscribeLoop(.longPollingRestart)
-    
+
     // Will compare this in the error response to see if we need to restart
     let nextSubscribe = longPollingSession.request(
       with: router,
       requestOperator: configuration.automaticRetry?.retryOperator(for: .subscribe)
     )
     let currentSubscribeID = nextSubscribe.requestID
-    
+
     request = nextSubscribe
     request?
       .validate()
@@ -217,7 +217,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
                 pubnubGroups[$0] = PubNubChannel(channel: $0)
               }
             }
-            
+
             listener.emit(subscribe: .responseReceived(
               SubscribeResponseHeader(
                 channels: pubnubChannels.values.map { $0 },
@@ -286,7 +286,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
 
   // MARK: - Unsubscribe
-  
+
   func unsubscribeFrom(
     mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
@@ -378,7 +378,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       reconnect(at: previousTokenResponse)
     }
   }
-  
+
   private func notify(listeners closure: (BaseSubscriptionListener) -> Void) {
     listeners.allObjects.forEach { closure($0) }
   }

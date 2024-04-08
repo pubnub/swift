@@ -14,7 +14,7 @@ import Foundation
 
 class HandshakeEffect: EffectHandler {
   private let subscribeEffect: SubscribeEffect
-  
+
   init(request: SubscribeRequest, listeners: [BaseSubscriptionListener]) {
     self.subscribeEffect = SubscribeEffect(
       request: request,
@@ -23,16 +23,16 @@ class HandshakeEffect: EffectHandler {
       onErrorReceived: { .handshakeFailure(error: $0) }
     )
   }
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     subscribeEffect.listeners.forEach { $0.emit(subscribe: .connectionChanged(.connecting)) }
     subscribeEffect.performTask(completionBlock: completionBlock)
   }
-  
+
   func cancelTask() {
     subscribeEffect.cancelTask()
   }
-  
+
   deinit {
     cancelTask()
   }
@@ -51,15 +51,15 @@ class ReceivingEffect: EffectHandler {
       onErrorReceived: { .receiveFailure(error: $0) }
     )
   }
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     subscribeEffect.performTask(completionBlock: completionBlock)
   }
-  
+
   func cancelTask() {
     subscribeEffect.cancelTask()
   }
-  
+
   deinit {
     cancelTask()
   }
@@ -71,7 +71,7 @@ class HandshakeReconnectEffect: EffectHandler {
   private let subscribeEffect: SubscribeEffect
   private let timerEffect: TimerEffect?
   private let error: PubNubError
-  
+
   init(
     request: SubscribeRequest,
     listeners: [BaseSubscriptionListener],
@@ -90,7 +90,7 @@ class HandshakeReconnectEffect: EffectHandler {
     )
     self.error = error
   }
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     guard let timerEffect = timerEffect else {
       completionBlock([.handshakeReconnectGiveUp(error: error)]); return
@@ -99,12 +99,12 @@ class HandshakeReconnectEffect: EffectHandler {
       self?.subscribeEffect.performTask(completionBlock: completionBlock)
     }
   }
-  
+
   func cancelTask() {
     timerEffect?.cancelTask()
     subscribeEffect.cancelTask()
   }
-  
+
   deinit {
     cancelTask()
   }
@@ -116,7 +116,7 @@ class ReceiveReconnectEffect: EffectHandler {
   private let subscribeEffect: SubscribeEffect
   private let timerEffect: TimerEffect?
   private let error: PubNubError
-  
+
   init(
     request: SubscribeRequest,
     listeners: [BaseSubscriptionListener],
@@ -135,7 +135,7 @@ class ReceiveReconnectEffect: EffectHandler {
     )
     self.error = error
   }
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     subscribeEffect.listeners.forEach {
       $0.emit(subscribe: .connectionChanged(.reconnecting))
@@ -153,12 +153,12 @@ class ReceiveReconnectEffect: EffectHandler {
       self?.subscribeEffect.performTask(completionBlock: completionBlock)
     }
   }
-  
+
   func cancelTask() {
     timerEffect?.cancelTask()
     subscribeEffect.cancelTask()
   }
-  
+
   deinit {
     cancelTask()
   }
@@ -166,7 +166,7 @@ class ReceiveReconnectEffect: EffectHandler {
 
 // MARK: - SubscribeEffect
 
-fileprivate class SubscribeEffect: EffectHandler {
+private class SubscribeEffect: EffectHandler {
   let request: SubscribeRequest
   let listeners: [BaseSubscriptionListener]
   let onResponseReceived: (SubscribeResponse) -> Subscribe.Event
@@ -183,7 +183,7 @@ fileprivate class SubscribeEffect: EffectHandler {
     self.onResponseReceived = onResponseReceived
     self.onErrorReceived = onErrorReceived
   }
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     request.execute(onCompletion: { [weak self] in
       guard let selfRef = self else { return }
@@ -192,8 +192,8 @@ fileprivate class SubscribeEffect: EffectHandler {
         selfRef.listeners.forEach {
           $0.emit(subscribe: .responseReceived(
             SubscribeResponseHeader(
-              channels: selfRef.request.channels.map { PubNubChannel(channel: $0)},
-              groups: selfRef.request.groups.map { PubNubChannel(channel: $0)},
+              channels: selfRef.request.channels.map { PubNubChannel(channel: $0) },
+              groups: selfRef.request.groups.map { PubNubChannel(channel: $0) },
               previous: SubscribeCursor(timetoken: selfRef.request.timetoken, region: selfRef.request.region),
               next: response.cursor
             ))
@@ -205,11 +205,11 @@ fileprivate class SubscribeEffect: EffectHandler {
       }
     })
   }
-  
+
   func cancelTask() {
     request.cancel()
   }
-  
+
   deinit {
     cancelTask()
   }

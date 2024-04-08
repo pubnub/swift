@@ -16,10 +16,6 @@ public struct RequestIdOperator: RequestOperator {
   /// The requestID that will be attached to the request
   public let requestID: String
 
-  init(requestID: String) {
-    self.requestID = requestID
-  }
-
   public func mutate(
     _ urlRequest: URLRequest,
     for _: SessionReplaceable,

@@ -12,10 +12,10 @@ import Foundation
 
 class PubNubPresenceStateContainer {
   static let shared: PubNubPresenceStateContainer = PubNubPresenceStateContainer()
-  
+
   private var channelStates: Atomic<[String: JSONCodable]> = Atomic([:])
   private init() {}
-  
+
   func registerState(_ state: JSONCodable, forChannels channels: [String]) {
     channelStates.lockedWrite { channelStates in
       channels.forEach {
@@ -23,7 +23,7 @@ class PubNubPresenceStateContainer {
       }
     }
   }
-  
+
   func removeState(forChannels channels: [String]) {
     channelStates.lockedWrite { channelStates in
       channels.map {
@@ -31,7 +31,7 @@ class PubNubPresenceStateContainer {
       }
     }
   }
-  
+
   func getStates(forChannels channels: [String]) -> [String: JSONCodable] {
     channelStates.lockedRead {
       $0.filter {
@@ -39,7 +39,7 @@ class PubNubPresenceStateContainer {
       }
     }
   }
-  
+
   func removeAll() {
     channelStates.lockedWrite {
       $0.removeAll()

@@ -12,22 +12,22 @@ import Foundation
 
 class LeaveEffect: EffectHandler {
   private let request: PresenceLeaveRequest
-  
+
   init(request: PresenceLeaveRequest) {
     self.request = request
   }
-    
+
   func performTask(completionBlock: @escaping ([Presence.Event]) -> Void) {
-    request.execute() { result in
+    request.execute { result in
       switch result {
-      case .success(_):
+      case .success:
         completionBlock([])
-      case .failure(_):
+      case .failure:
         completionBlock([])
       }
     }
   }
-  
+
   deinit {
     request.cancel()
   }

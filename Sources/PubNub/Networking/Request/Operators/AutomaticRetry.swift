@@ -28,7 +28,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   )
   // The minimum value allowed between retries
   static let minDelay: UInt = 2
-  
+
   /// Provides the action taken when a retry is to be performed
   public enum ReconnectionPolicy: Hashable, Equatable {
     /// Exponential backoff with base/scale factor of 2, and a 150s max delay
@@ -36,9 +36,6 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     /// Linear reconnect every 3 seconds
     public static let defaultLinear: ReconnectionPolicy = .linear(delay: Double(3))
 
-    /// Reconnect with an exponential backoff
-    @available(*, unavailable, renamed: "legacyExponential(base:scale:maxDelay:)")
-    case exponential(base: UInt, scale: Double, maxDelay: UInt)
     /// Reconnect with an exponential backoff
     case exponential(minDelay: UInt, maxDelay: UInt)
     /// Attempt to reconnect every X seconds
@@ -51,7 +48,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       /// Generates a random interval that's added to the final value
       /// Mitigates receiving 429 status code that's the result of too many requests in a given amount of time
       let randomDelay = Double.random(in: 0...1)
-      
+
       switch self {
       case let .legacyExponential(base, scale, maxDelay):
         return legacyExponentialBackoffDelay(for: base, scale: scale, maxDelay: maxDelay, current: retryAttempt) + randomDelay
@@ -66,7 +63,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       max(min(pow(Double(base), Double(retryCount)) * scale, Double(maxDelay)), Double(AutomaticRetry.minDelay))
     }
   }
-  
+
   /// List of known endpoint groups (by context) possible to retry
   public enum Endpoint {
     /// Sending a message
@@ -140,7 +137,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       replaceOnFailure: UInt(10),
       warningMessage: "The `retryLimit` must be less than or equal 10"
     )
-    
+
     switch policy {
     case let .exponential(minDelay, maxDelay):
       let validatedMinDelay = Self.validate(
@@ -183,7 +180,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
         maxDelay: maxDelay
       )
     }
-    
+
     self.retryableHTTPStatusCodes = retryableHTTPStatusCodes
     self.retryableURLErrorCodes = retryableURLErrorCodes
     self.excluded = endpoints
@@ -199,17 +196,17 @@ public struct AutomaticRetry: RequestOperator, Hashable {
       completion(.failure(error))
       return
     }
-    
+
     let urlResponse = request.urlResponse
     let retryAfterValue = urlResponse?.allHeaderFields[Constant.retryAfterHeaderKey]
-    
+
     if let retryAfterValue = retryAfterValue as? TimeInterval {
       return completion(.success(retryAfterValue + Double.random(in: 0...1)))
     } else {
       return completion(.success(policy.delay(for: request.retryCount)))
     }
   }
-  
+
   public func retryOperator(for endpoint: AutomaticRetry.Endpoint) -> RequestOperator? {
     excluded.contains(endpoint) ? nil : self
   }

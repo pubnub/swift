@@ -13,18 +13,20 @@ import Foundation
 struct SubscribeInput: Equatable {
   private let channelEntries: [String: PubNubChannel]
   private let groupEntries: [String: PubNubChannel]
-  
+
+  // swiftlint:disable:next large_tuple
   typealias InsertingResult = (
     newInput: SubscribeInput,
     insertedChannels: [PubNubChannel],
     insertedGroups: [PubNubChannel]
   )
+  // swiftlint:disable:next large_tuple
   typealias RemovingResult = (
     newInput: SubscribeInput,
     removedChannels: [PubNubChannel],
     removedGroups: [PubNubChannel]
   )
-  
+
   init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
     self.channelEntries = channels.reduce(into: [String: PubNubChannel]()) { r, channel in
       _ = r.insert(channel)
@@ -33,32 +35,32 @@ struct SubscribeInput: Equatable {
       _ = r.insert(channel)
     }
   }
-  
+
   private init(channels: [String: PubNubChannel], groups: [String: PubNubChannel]) {
     self.channelEntries = channels
     self.groupEntries = groups
   }
-  
+
   var isEmpty: Bool {
     channelEntries.isEmpty && groupEntries.isEmpty
   }
-  
+
   var channels: [PubNubChannel] {
     Array(channelEntries.values)
   }
-  
+
   var groups: [PubNubChannel] {
     Array(groupEntries.values)
   }
-  
+
   var subscribedChannelNames: [String] {
     channelEntries.map { $0.key }
   }
-  
+
   var subscribedGroupNames: [String] {
     groupEntries.map { $0.key }
   }
-  
+
   var allSubscribedChannelNames: [String] {
     channelEntries.reduce(into: [String]()) { result, entry in
       result.append(entry.value.id)
@@ -67,7 +69,7 @@ struct SubscribeInput: Equatable {
       }
     }
   }
-  
+
   var allSubscribedGroupNames: [String] {
     groupEntries.reduce(into: [String]()) { result, entry in
       result.append(entry.value.id)
@@ -76,7 +78,7 @@ struct SubscribeInput: Equatable {
       }
     }
   }
-  
+
   var presenceSubscribedChannelNames: [String] {
     channelEntries.compactMap {
       if $0.value.isPresenceSubscribed {
@@ -86,7 +88,7 @@ struct SubscribeInput: Equatable {
       }
     }
   }
-  
+
   var presenceSubscribedGroupNames: [String] {
     groupEntries.compactMap {
       if $0.value.isPresenceSubscribed {
@@ -96,11 +98,11 @@ struct SubscribeInput: Equatable {
       }
     }
   }
-  
+
   var totalSubscribedCount: Int {
     channelEntries.count + groupEntries.count
   }
-    
+
   func adding(
     channels: [PubNubChannel],
     and groups: [PubNubChannel]
@@ -108,17 +110,17 @@ struct SubscribeInput: Equatable {
     // Gets a copy of current channels and channel groups
     var currentChannels = channelEntries
     var currentGroups = groupEntries
-    
+
     let insertedChannels = channels.filter { currentChannels.insert($0) }
     let insertedGroups = groups.filter { currentGroups.insert($0) }
-    
+
     return InsertingResult(
       newInput: SubscribeInput(channels: currentChannels, groups: currentGroups),
       insertedChannels: insertedChannels,
       insertedGroups: insertedGroups
     )
   }
-  
+
   func removing(
     mainChannels: [PubNubChannel],
     presenceChannelsOnly: [PubNubChannel],
@@ -128,7 +130,7 @@ struct SubscribeInput: Equatable {
     // Gets a copy of current channels and channel groups
     var currentChannels = channelEntries
     var currentGroups = groupEntries
-    
+
     let removedChannels = mainChannels.compactMap {
       currentChannels.removeValue(forKey: $0.id)
     } + presenceChannelsOnly.compactMap {
@@ -145,11 +147,11 @@ struct SubscribeInput: Equatable {
       removedGroups: removedGroups
     )
   }
-  
-  static func ==(lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
+
+  static func == (lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
     let equalChannels = lhs.allSubscribedChannelNames.sorted(by: <) == rhs.allSubscribedChannelNames.sorted(by: <)
     let equalGroups = lhs.allSubscribedGroupNames.sorted(by: <) == rhs.allSubscribedGroupNames.sorted(by: <)
-    
+
     return equalChannels && equalGroups
   }
 }

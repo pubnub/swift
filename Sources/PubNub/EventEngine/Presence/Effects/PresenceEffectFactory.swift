@@ -14,7 +14,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let presenceStateContainer: PubNubPresenceStateContainer
-  
+
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .main,
@@ -24,13 +24,13 @@ class PresenceEffectFactory: EffectHandlerFactory {
     self.sessionResponseQueue = sessionResponseQueue
     self.presenceStateContainer = presenceStateContainer
   }
-  
+
   func effect(
     for invocation: Presence.Invocation,
     with dependencies: EventEngineDependencies<Presence.Dependencies>
   ) -> any EffectHandler<Presence.Event> {
     switch invocation {
-    case .heartbeat(let channels, let groups):
+    case let .heartbeat(channels, groups):
       return HeartbeatEffect(
         request: PresenceHeartbeatRequest(
           channels: channels,
@@ -41,7 +41,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         )
       )
-    case .delayedHeartbeat(let channels, let groups, let retryAttempt, let reason):
+    case let .delayedHeartbeat(channels, groups, retryAttempt, reason):
       return DelayedHeartbeatEffect(
         request: PresenceHeartbeatRequest(
           channels: channels,
@@ -54,7 +54,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
         retryAttempt: retryAttempt,
         reason: reason
       )
-    case .leave(let channels, let groups):
+    case let .leave(channels, groups):
       return LeaveEffect(
         request: PresenceLeaveRequest(
           channels: channels,
@@ -68,7 +68,7 @@ class PresenceEffectFactory: EffectHandlerFactory {
       return WaitEffect(configuration: dependencies.value.configuration)
     }
   }
-  
+
   deinit {
     session.invalidateAndCancel()
   }

@@ -38,7 +38,7 @@ public class Subscribable: Subscriber {
   weak var receiver: SubscribeReceiver?
   /// An underlying subscription type
   let subscriptionType: SubscribableType
-  
+
   init(name: String, subscriptionType: SubscribableType, receiver: SubscribeReceiver) {
     self.name = name
     self.subscriptionType = subscriptionType
@@ -96,32 +96,32 @@ public typealias SubscriptionInterface = EventEmitter & SubscriptionDisposable &
 /// Use this class to define various subscription options that can be applied.
 public class SubscriptionOptions {
   let allOptions: [SubscriptionOptions]
-  
+
   init(allOptions: [SubscriptionOptions] = []) {
     self.allOptions = allOptions
   }
-  
+
   convenience init() {
     self.init(allOptions: [])
   }
-    
+
   func filterCriteriaSatisfied(event: PubNubEvent) -> Bool {
     allOptions.compactMap {
       $0 as? FilterOption
-    }.reduce(into: true, { filteringResult, filter in
-      filteringResult = filteringResult && filter.predicate(event)
-    })
+    }.allSatisfy { filter in
+      filter.predicate(event)
+    }
   }
-  
+
   func hasPresenceOption() -> Bool {
     !(allOptions.filter { $0 is ReceivePresenceEvents }.isEmpty)
   }
-    
+
   /// Provides an instance of `PubNubSubscriptionOptions` with no additional options.
   public static func empty() -> SubscriptionOptions {
     SubscriptionOptions(allOptions: [])
   }
-  
+
   /// Combines two instances of `PubNubSubscriptionOptions` using the `+` operator.
   ///
   /// - Parameters:
@@ -129,13 +129,13 @@ public class SubscriptionOptions {
   ///   - rhs: The right-hand side instance.
   ///
   /// - Returns: A new `SubscriptionOptions` instance combining the options from both instances.
-  public static func +(
+  public static func + (
     lhs: SubscriptionOptions,
     rhs: SubscriptionOptions
   ) -> SubscriptionOptions {
     var lhsOptions: [SubscriptionOptions] = lhs.allOptions
     var rhsOptions: [SubscriptionOptions] = rhs.allOptions
-    
+
     if lhs.allOptions.isEmpty {
       lhsOptions = [lhs]
     }

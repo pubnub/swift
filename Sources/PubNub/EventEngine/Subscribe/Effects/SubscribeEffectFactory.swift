@@ -15,7 +15,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
   private let sessionResponseQueue: DispatchQueue
   private let messageCache: MessageCache
   private let presenceStateContainer: PubNubPresenceStateContainer
-  
+
   init(
     session: SessionReplaceable,
     sessionResponseQueue: DispatchQueue = .main,
@@ -27,13 +27,13 @@ class SubscribeEffectFactory: EffectHandlerFactory {
     self.messageCache = messageCache
     self.presenceStateContainer = presenceStateContainer
   }
-  
+
   func effect(
     for invocation: Subscribe.Invocation,
     with dependencies: EventEngineDependencies<Subscribe.Dependencies>
   ) -> any EffectHandler<Subscribe.Event> {
     switch invocation {
-    case .handshakeRequest(let channels, let groups):
+    case let .handshakeRequest(channels, groups):
       return HandshakeEffect(
         request: SubscribeRequest(
           configuration: dependencies.value.configuration,
@@ -45,7 +45,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ), listeners: dependencies.value.listeners
       )
-    case .handshakeReconnect(let channels, let groups, let retryAttempt, let reason):
+    case let .handshakeReconnect(channels, groups, retryAttempt, reason):
       return HandshakeReconnectEffect(
         request: SubscribeRequest(
           configuration: dependencies.value.configuration,
@@ -59,7 +59,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
         error: reason,
         retryAttempt: retryAttempt
       )
-    case .receiveMessages(let channels, let groups, let cursor):
+    case let .receiveMessages(channels, groups, cursor):
       return ReceivingEffect(
         request: SubscribeRequest(
           configuration: dependencies.value.configuration,
@@ -72,7 +72,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ), listeners: dependencies.value.listeners
       )
-    case .receiveReconnect(let channels, let groups, let cursor, let retryAttempt, let reason):
+    case let .receiveReconnect(channels, groups, cursor, retryAttempt, reason):
       return ReceiveReconnectEffect(
         request: SubscribeRequest(
           configuration: dependencies.value.configuration,
@@ -87,21 +87,21 @@ class SubscribeEffectFactory: EffectHandlerFactory {
         error: reason,
         retryAttempt: retryAttempt
       )
-    case .emitMessages(let messages, let cursor):
+    case let .emitMessages(messages, cursor):
       return EmitMessagesEffect(
         messages: messages,
         cursor: cursor,
         listeners: dependencies.value.listeners,
         messageCache: messageCache
       )
-    case .emitStatus(let statusChange):
+    case let .emitStatus(statusChange):
       return EmitStatusEffect(
         statusChange: statusChange,
         listeners: dependencies.value.listeners
       )
     }
   }
-  
+
   deinit {
     session.invalidateAndCancel()
   }

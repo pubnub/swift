@@ -23,7 +23,7 @@ enum CryptorUtils {
       }
       return Data(hash)
     }
-  }  
+  }
   static func hexFrom(_ data: Data) -> String {
     let midpoint = data.count / 2
     return data[..<midpoint].map { String(format: "%02lX", UInt($0)) }.joined()

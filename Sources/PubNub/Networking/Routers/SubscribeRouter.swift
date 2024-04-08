@@ -37,7 +37,7 @@ struct SubscribeRouter: HTTPRouter {
 
   var endpoint: Endpoint
   var configuration: RouterConfiguration
-  
+
   // Protocol Properties
   var service: PubNubService {
     return .subscribe
@@ -407,4 +407,5 @@ public struct SubscribeMessagePayload: Codable, Hashable {
       try container.encode(messageType, forKey: .messageType)
     }
   }
+  // swiftlint:disable:next file_length
 }

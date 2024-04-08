@@ -12,23 +12,23 @@ import Foundation
 
 class MessageCache {
   private(set) var messagesArray = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
-  
+
   init(messagesArray: [SubscribeMessagePayload?] = .init(repeating: nil, count: 100)) {
     self.messagesArray = messagesArray
   }
-  
+
   var isOverflowed: Bool {
     return messagesArray.count >= 100
   }
-  
+
   func contains(_ message: SubscribeMessagePayload) -> Bool {
     messagesArray.contains(message)
   }
-  
+
   func append(_ message: SubscribeMessagePayload) {
     messagesArray.append(message)
   }
-  
+
   func dropTheOldest() {
     messagesArray.remove(at: 0)
   }
@@ -39,7 +39,7 @@ struct EmitMessagesEffect: EffectHandler {
   let cursor: SubscribeCursor
   let listeners: [BaseSubscriptionListener]
   let messageCache: MessageCache
-  
+
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     // Attempt to detect missed messages due to queue overflow
     if messages.count >= 100 {
@@ -53,7 +53,7 @@ struct EmitMessagesEffect: EffectHandler {
         )
       }
     }
-    
+
     let filteredMessages = messages.filter { message in // Dedupe the message
       // Update cache and notify if not a duplicate message
       if !messageCache.contains(message) {
@@ -66,11 +66,11 @@ struct EmitMessagesEffect: EffectHandler {
       }
       return false
     }
-    
+
     listeners.forEach {
       $0.emit(batch: filteredMessages)
     }
-    
+
     completionBlock([])
   }
 }

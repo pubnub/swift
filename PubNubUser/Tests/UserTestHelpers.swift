@@ -100,6 +100,7 @@ extension EndpointResponse where Value == Data {
   init(data: Data?) {
     self.init(
       router: MockRouter(),
+      // swiftlint:disable:next force_unwrapping
       request: .init(url: URL(string: "example.com")!),
       response: .init(),
       payload: data ?? Data()

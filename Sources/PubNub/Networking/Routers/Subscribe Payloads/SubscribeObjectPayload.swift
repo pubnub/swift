@@ -27,20 +27,6 @@ struct SubscribeObjectMetadataPayload {
     case channel
     case membership
   }
-
-  init(
-    source: String,
-    version: String,
-    event: Action,
-    type: MetadataType,
-    subscribeEvent: SubscriptionEvent
-  ) {
-    self.source = source
-    self.version = version
-    self.event = event
-    self.type = type
-    self.subscribeEvent = subscribeEvent
-  }
 }
 
 extension SubscribeObjectMetadataPayload: Codable {
@@ -277,6 +263,7 @@ extension PubNubChannelMetadataChangeset: Codable {
     self.changes = changes
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(metadataId, forKey: .metadataId)

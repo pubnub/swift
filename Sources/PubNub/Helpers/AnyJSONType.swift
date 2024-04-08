@@ -369,10 +369,10 @@ extension AnyJSONType: Hashable {
       return true
     case let (.array(lhsArray), .array(rhsArray)):
       if lhsArray.count == rhsArray.count {
-        for (index, lhsValue) in lhsArray.enumerated() {
-          if AnyJSONType(rawValue: lhsValue) != AnyJSONType(rawValue: rhsArray[index]) {
-            return false
-          }
+        for (index, lhsValue) in lhsArray.enumerated() where AnyJSONType(
+          rawValue: lhsValue
+        ) != AnyJSONType(rawValue: rhsArray[index]) {
+          return false
         }
         return true
       }

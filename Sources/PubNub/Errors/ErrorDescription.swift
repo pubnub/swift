@@ -171,7 +171,6 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .invalidURL:
       return "A malformed/unsupported URL prevented an URL request from being initiated"
     case .connectionFailure:
-      // swiftlint:disable line_length
       return "A network resource was requested, but an internet connection hasn’t been established and can’t be established automatically"
     case .connectionOverDataFailure:
       return "The request couldn't be completed due to issues with the cellular network"

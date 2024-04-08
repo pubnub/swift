@@ -30,7 +30,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
     self.entity = entity
     self.options = SubscriptionOptions.empty() + options
   }
-  
+
   public let queue: DispatchQueue
   /// A unique identifier for `Subscription`
   public let uuid: UUID = UUID()
@@ -42,7 +42,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   public private(set) var isDisposed = false
   // Stores the timetoken the user subscribed with
   private(set) var timetoken: Timetoken?
-  
+
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
@@ -51,26 +51,26 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
-  
+
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(
     receiver: self,
     uuid: uuid,
     queue: queue
   )
-  
+
   internal var receiver: SubscribeReceiver? {
     entity.receiver
   }
-  
+
   internal var subscriptionType: SubscribableType {
     entity.subscriptionType
   }
-  
+
   internal var subscriptionNames: [String] {
     let hasPresenceOption = options.hasPresenceOption()
     let name = entity.name
-    
+
     switch entity {
     case is ChannelRepresentation:
       return hasPresenceOption ? [name, name.presenceChannelName] : [name]
@@ -80,7 +80,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
       return [entity.name]
     }
   }
-  
+
   /// Creates a clone of the current instance of `Subscription`.
   ///
   /// Use this method to create a new instance with the same configuration as the current `Subscription`.
@@ -96,7 +96,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
     }
     return clonedSubscription
   }
-  
+
   /// Disposes the current `Subscription`, ending the subscription.
   ///
   /// Use this method to gracefully end the subscription and release associated resources.
@@ -106,7 +106,7 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
     unsubscribe()
     isDisposed = true
   }
-  
+
   deinit {
     dispose()
   }
@@ -145,10 +145,10 @@ extension Subscription: SubscribeCapable {
 }
 
 extension Subscription: Hashable {
-  public static func ==(lhs: Subscription, rhs: Subscription) -> Bool {
+  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
     lhs.uuid == rhs.uuid
   }
-  
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(uuid)
   }
@@ -157,20 +157,20 @@ extension Subscription: Hashable {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType : [String]] {
+  var subscriptionTopology: [SubscribableType: [String]] {
     [subscriptionType: subscriptionNames]
   }
-  
+
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.compactMap { event(from: $0) }
     emit(events: events)
     return events
   }
-  
+
   func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
     let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
     let isMatchingEntity: Bool
-    
+
     if subscriptionType == .channel {
       isMatchingEntity = isMatchingEntityName(entity.name, string: payload.channel)
     } else if subscriptionType == .channelGroup {
@@ -178,7 +178,7 @@ extension Subscription: SubscribeMessagesReceiver {
     } else {
       isMatchingEntity = true
     }
-    
+
     if isMatchingEntity && isNewerOrEqualToTimetoken {
       let event = payload.asPubNubEvent()
       return options.filterCriteriaSatisfied(event: event) ? event : nil
@@ -186,7 +186,7 @@ extension Subscription: SubscribeMessagesReceiver {
       return nil
     }
   }
-  
+
   fileprivate func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
     guard entityName.hasSuffix(".*") else {
       return entityName == string

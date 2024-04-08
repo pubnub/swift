@@ -45,7 +45,8 @@ public enum ConnectionStatus: Equatable {
       return false
     }
   }
-  
+
+  // swiftlint:disable:next cyclomatic_complexity
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
     case (.connecting, .connected):

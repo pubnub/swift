@@ -17,7 +17,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   var uuid: UUID { strategy.uuid }
   // The `Timetoken` used for the last successful subscription request
   var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
-  
+
   // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {
@@ -34,7 +34,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       strategy.configuration = newValue
     }
   }
-  
+
   var onEvent: ((PubNubEvent) -> Void)?
   var onEvents: (([PubNubEvent]) -> Void)?
   var onMessage: ((PubNubMessage) -> Void)?
@@ -44,13 +44,13 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   var onAppContext: ((PubNubAppContextEvent) -> Void)?
   var onConnectionStateChange: ((ConnectionStatus) -> Void)?
-  
+
   private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(
     receiver: self,
     uuid: uuid,
     queue: queue
   )
-  
+
   private lazy var globalStatusListener: BaseSubscriptionListener = {
     // Creates legacy listener under the hood to capture status changes
     let statusListener = SubscriptionListener(queue: queue)
@@ -63,11 +63,11 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     }
     return statusListener
   }()
-  
+
   private var globalChannelSubscriptions: [String: Subscription] = [:]
   private var globalGroupSubscriptions: [String: Subscription] = [:]
   private let strategy: any SubscriptionSessionStrategy
-  
+
   init(
     strategy: any SubscriptionSessionStrategy,
     eventsQueue queue: DispatchQueue = .main
@@ -84,7 +84,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   var subscribedChannels: [String] {
     strategy.subscribedChannels
   }
-  
+
   // List of actively subscribed groups
   var subscribedChannelGroups: [String] {
     strategy.subscribedChannelGroups
@@ -94,12 +94,12 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   var subscriptionCount: Int {
     strategy.subscriptionCount
   }
-  
+
   // Current connection status
   var connectionStatus: ConnectionStatus {
     strategy.connectionStatus
   }
-        
+
   // MARK: - Subscription Loop
 
   func subscribe(
@@ -138,13 +138,13 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
   }
 
   // MARK: - Reconnect
-  
+
   func reconnect(at cursor: SubscribeCursor? = nil) {
     strategy.reconnect(at: cursor)
   }
 
   // MARK: - Disconnect
-  
+
   func disconnect() {
     strategy.disconnect()
   }
@@ -184,7 +184,7 @@ extension SubscriptionSession: SubscribeReceiver {
   func hasRegisteredAdapter(with uuid: UUID) -> Bool {
     strategy.listeners.contains { $0?.uuid == uuid }
   }
-  
+
   // Registers a subscription adapter to translate events from a legacy listener
   // into the new Listeners API.
   //
@@ -193,7 +193,7 @@ extension SubscriptionSession: SubscribeReceiver {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
     add(adapter)
   }
-  
+
   // Maps the raw channel/channel group array to collections of PubNubChannel that should be subscribed to
   // with and without Presence, respectively.
   private typealias SubscribeRetrievalRes = (
@@ -205,7 +205,7 @@ extension SubscriptionSession: SubscribeReceiver {
     presenceOnlyItems: [PubNubChannel],
     mainItems: [PubNubChannel]
   )
-  
+
   // Composes final PubNubChannel lists the user should subscribe to
   // according to provided raw input and forwards the result to the underlying Subscription strategy.
   func internalSubscribe(
@@ -216,10 +216,10 @@ extension SubscriptionSession: SubscribeReceiver {
     if channels.isEmpty, groups.isEmpty {
       return
     }
-    
+
     let extractingChannelsRes = retrieveItemsToSubscribe(from: channels)
     let extractingGroupsRes = retrieveItemsToSubscribe(from: groups)
-    
+
     for channelSubscription in channels {
       registerAdapter(channelSubscription.adapter)
     }
@@ -232,7 +232,7 @@ extension SubscriptionSession: SubscribeReceiver {
       at: SubscribeCursor(timetoken: timetoken)
     )
   }
-  
+
   private func retrieveItemsToSubscribe(from subscriptions: [Subscription]) -> SubscribeRetrievalRes {
     // Detects all Presence channels from provided String array and maps them into PubNubChannel
     // containing the main channel name and the flag indicating the resulting PubNubChannel is subscribed
@@ -245,7 +245,7 @@ extension SubscriptionSession: SubscribeReceiver {
     }).map {
       PubNubChannel(channel: $0)
     }
-    
+
     // Detects remaining main channel names without Presence enabled from provided input and ensuring
     // there are no duplicates with the result received from the previous step
     let channelsWithoutPresence = Set(subscriptions.flatMap {
@@ -257,13 +257,13 @@ extension SubscriptionSession: SubscribeReceiver {
     }).map {
       PubNubChannel(id: $0, withPresence: false)
     }
-    
+
     return SubscribeRetrievalRes(
       itemsWithPresenceIncluded: channelsWithPresenceIncluded,
       itemsWithoutPresence: channelsWithoutPresence
     )
   }
-  
+
   func internalUnsubscribe(
     from channels: [Subscription],
     and channelGroups: [Subscription],
@@ -290,7 +290,7 @@ extension SubscriptionSession: SubscribeReceiver {
       presenceGroupsOnly: extractingGroupsRes.presenceOnlyItems
     )
   }
-  
+
   // Returns an array of subscriptions that subscribe to at least one name in common with the given Subscription
   func matchingSubscriptions(for subscription: Subscription, presenceOnly: Bool) -> [SubscribeMessagesReceiver] {
     let allSubscriptions = strategy.listeners.compactMap {
@@ -299,7 +299,7 @@ extension SubscriptionSession: SubscribeReceiver {
     let namesToFind = subscription.subscriptionNames.filter {
       presenceOnly ? $0.isPresenceChannelName : true
     }
-    
+
     return allSubscriptions.filter {
       $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
     }.compactMap {
@@ -332,7 +332,7 @@ extension SubscriptionSession: SubscribeReceiver {
     }.map {
       PubNubChannel(channel: $0)
     }
-    
+
     let channels = presenceItemsOnly ? [] : Set(subscriptions.filter {
       matchingSubscriptions(
         for: $0,
@@ -349,7 +349,7 @@ extension SubscriptionSession: SubscribeReceiver {
     }).map {
       PubNubChannel(id: $0, withPresence: false)
     }
-    
+
     return UnsubscribeRetrievalRes(
       presenceOnlyItems: presenceItems,
       mainItems: channels
@@ -363,15 +363,15 @@ extension SubscriptionSession: EntityCreator {
   public func channel(_ name: String) -> ChannelRepresentation {
     ChannelRepresentation(name: name, receiver: self)
   }
-  
+
   public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
     ChannelGroupRepresentation(name: name, receiver: self)
   }
-  
+
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
     UserMetadataRepresentation(id: name, receiver: self)
   }
-  
+
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
     ChannelMetadataRepresentation(id: name, receiver: self)
   }
@@ -381,7 +381,7 @@ extension SubscriptionSession: EntityCreator {
 
 extension SubscriptionSession: EventStreamEmitter {
   public typealias ListenerType = BaseSubscriptionListener
-  
+
   public var listeners: [ListenerType] {
     strategy.listeners.allObjects
   }
@@ -389,7 +389,7 @@ extension SubscriptionSession: EventStreamEmitter {
   public func notify(listeners closure: (ListenerType) -> Void) {
     listeners.forEach { closure($0) }
   }
-  
+
   public func add(_ listener: ListenerType) {
     // Ensure that we cancel the previously attached token
     listener.token?.cancel()
@@ -425,10 +425,12 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
   var subscriptionTopology: [SubscribableType: [String]] {
     [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
   }
-  
+
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.map { $0.asPubNubEvent() }
     emit(events: events)
     return events
   }
+
+  // swiftlint:disable:next file_length
 }

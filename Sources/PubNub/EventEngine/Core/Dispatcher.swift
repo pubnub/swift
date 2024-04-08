@@ -22,7 +22,7 @@ protocol Dispatcher<Invocation, Event, Dependencies> {
   associatedtype Invocation: AnyEffectInvocation
   associatedtype Event
   associatedtype Dependencies
-      
+
   func dispatch(
     invocations: [EffectInvocation<Invocation>],
     with dependencies: EventEngineDependencies<Dependencies>,
@@ -35,15 +35,15 @@ protocol Dispatcher<Invocation, Event, Dependencies> {
 class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Dispatcher {
   private let factory: any EffectHandlerFactory<Invocation, Event, Dependencies>
   private let effectsCache = EffectsCache<Event>()
-    
+
   init(factory: some EffectHandlerFactory<Invocation, Event, Dependencies>) {
     self.factory = factory
   }
-  
+
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
     effectsCache.hasPendingEffect(with: invocation.id)
   }
-    
+
   func dispatch(
     invocations: [EffectInvocation<Invocation>],
     with dependencies: EventEngineDependencies<Dependencies>,
@@ -69,7 +69,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       }
     }
   }
-  
+
   private func executeEffect(
     effect: some EffectHandler<Event>,
     storageId id: String,
@@ -85,21 +85,21 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
 
 // MARK: - EffectsCache
 
-fileprivate class EffectsCache<Event> {
+private class EffectsCache<Event> {
   private var managedEffects: Atomic<[String: EffectWrapper<Event>]> = Atomic([:])
 
   func hasPendingEffect(with id: String) -> Bool {
     managedEffects.lockedRead { $0[id] } != nil
   }
-  
+
   func put(effect: some EffectHandler<Event>, with id: String) {
     managedEffects.lockedWrite { $0[id] = EffectWrapper<Event>(id: id, effect: effect) }
   }
-    
+
   func getEffect(with id: String) -> (any EffectHandler<Event>)? {
-    managedEffects.lockedRead() { $0[id] }?.effect
+    managedEffects.lockedRead { $0[id] }?.effect
   }
-  
+
   func removeEffect(id: String) {
     managedEffects.lockedWrite { $0[id] = nil }
   }
@@ -107,7 +107,7 @@ fileprivate class EffectsCache<Event> {
 
 // MARK: - EffectWrapper
 
-fileprivate struct EffectWrapper<Action> {
+private struct EffectWrapper<Action> {
   let id: String
   let effect: any EffectHandler<Action>
 }

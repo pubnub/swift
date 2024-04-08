@@ -14,12 +14,12 @@ class PresenceHeartbeatRequest {
   let channels: [String]
   let groups: [String]
   let configuration: PubNubConfiguration
-  
+
   private let session: SessionReplaceable
   private let sessionResponseQueue: DispatchQueue
   private let channelStates: [String: JSONCodable]
   private var request: RequestReplaceable?
-  
+
   init(
     channels: [String],
     groups: [String],
@@ -35,7 +35,7 @@ class PresenceHeartbeatRequest {
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
   }
-  
+
   func execute(completionBlock: @escaping (Result<Void, PubNubError>) -> Void) {
     let endpoint = PresenceRouter.Endpoint.heartbeat(
       channels: channels,
@@ -56,11 +56,11 @@ class PresenceHeartbeatRequest {
       }
     }
   }
-  
+
   func cancel() {
     request?.cancel(PubNubError(.clientCancelled))
   }
-  
+
   func reconnectionDelay(dueTo error: PubNubError, retryAttempt: Int) -> TimeInterval? {
     guard let automaticRetry = configuration.automaticRetry else {
       return nil
@@ -82,7 +82,7 @@ class PresenceHeartbeatRequest {
       response: urlResponse,
       error: underlyingError
     )
-    
+
     return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
   }
 }

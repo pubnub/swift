@@ -42,12 +42,6 @@ extension Presence {
     let input: PresenceInput
   }
 
-  struct HeartbeatReconnecting: PresenceState {
-    let input: PresenceInput
-    let retryAttempt: Int
-    let error: PubNubError
-  }
-
   struct HeartbeatFailed: PresenceState {
     let input: PresenceInput
     let error: PubNubError
@@ -74,7 +68,6 @@ extension Presence {
     case timesUp
     case heartbeatSuccess
     case heartbeatFailed(error: PubNubError)
-    case heartbeatGiveUp(error: PubNubError)
   }
 }
 
@@ -90,20 +83,16 @@ extension Presence {
   enum Invocation: AnyEffectInvocation {
     case heartbeat(channels: [String], groups: [String])
     case leave(channels: [String], groups: [String])
-    case delayedHeartbeat(channels: [String], groups: [String], retryAttempt: Int, error: PubNubError)
     case wait
 
     // swiftlint:disable:next nesting
     enum Cancellable: AnyCancellableInvocation {
       case wait
-      case delayedHeartbeat
 
       var id: String {
         switch self {
         case .wait:
           return "Presence.ScheduleNextHeartbeat"
-        case .delayedHeartbeat:
-          return "Presence.HeartbeatReconnect"
         }
       }
     }
@@ -114,8 +103,6 @@ extension Presence {
         return "Presence.Heartbeat"
       case .wait:
         return Cancellable.wait.id
-      case .delayedHeartbeat:
-        return Cancellable.delayedHeartbeat.id
       case .leave:
         return "Presence.Leave"
       }

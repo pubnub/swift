@@ -35,7 +35,7 @@ class SubscribeSessionFactoryTests: XCTestCase {
     )
     
     let dependencyContainer = DependencyContainer(configuration: config)
-    let nextDependencyContainer = DependencyContainer(configuration: config)
+    let nextDependencyContainer = DependencyContainer(configuration: newConfig)
     let first = dependencyContainer.subscriptionSession
     let third = nextDependencyContainer.subscriptionSession
 

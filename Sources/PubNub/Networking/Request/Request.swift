@@ -289,6 +289,7 @@ final class Request {
     delegate.retryResult(for: self, dueTo: error, andPrevious: previousError) { retryResult in
       switch retryResult {
       case let .success(retryAfter):
+        self.atomicState.lockedWrite { $0.responesData = nil }
         delegate.retryRequest(self, withDelay: retryAfter)
       case let .failure(error):
         self.finish(error: PubNubError.retry(error, router: self.router))

@@ -45,20 +45,6 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           sessionResponseQueue: sessionResponseQueue
         ), listeners: dependencies.value.listeners
       )
-    case let .handshakeReconnect(channels, groups, retryAttempt, reason):
-      return HandshakeReconnectEffect(
-        request: SubscribeRequest(
-          configuration: dependencies.value.configuration,
-          channels: channels,
-          groups: groups,
-          channelStates: presenceStateContainer.getStates(forChannels: channels),
-          timetoken: 0,
-          session: session,
-          sessionResponseQueue: sessionResponseQueue
-        ), listeners: dependencies.value.listeners,
-        error: reason,
-        retryAttempt: retryAttempt
-      )
     case let .receiveMessages(channels, groups, cursor):
       return ReceivingEffect(
         request: SubscribeRequest(
@@ -71,21 +57,6 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           session: session,
           sessionResponseQueue: sessionResponseQueue
         ), listeners: dependencies.value.listeners
-      )
-    case let .receiveReconnect(channels, groups, cursor, retryAttempt, reason):
-      return ReceiveReconnectEffect(
-        request: SubscribeRequest(
-          configuration: dependencies.value.configuration,
-          channels: channels,
-          groups: groups,
-          channelStates: [:],
-          timetoken: cursor.timetoken,
-          region: cursor.region,
-          session: session,
-          sessionResponseQueue: sessionResponseQueue
-        ), listeners: dependencies.value.listeners,
-        error: reason,
-        retryAttempt: retryAttempt
       )
     case let .emitMessages(messages, cursor):
       return EmitMessagesEffect(

@@ -45,7 +45,7 @@ class PresenceHeartbeatRequest {
     )
     request = session.request(
       with: PresenceRouter(endpoint, configuration: configuration),
-      requestOperator: nil
+      requestOperator: configuration.automaticRetry?.retryOperator(for: .presence)
     )
     request?.validate().response(on: sessionResponseQueue, decoder: GenericServiceResponseDecoder()) { result in
       switch result {
@@ -59,30 +59,5 @@ class PresenceHeartbeatRequest {
 
   func cancel() {
     request?.cancel(PubNubError(.clientCancelled))
-  }
-
-  func reconnectionDelay(dueTo error: PubNubError, retryAttempt: Int) -> TimeInterval? {
-    guard let automaticRetry = configuration.automaticRetry else {
-      return nil
-    }
-    guard automaticRetry.retryOperator(for: .presence) != nil else {
-      return nil
-    }
-    guard automaticRetry.retryLimit > retryAttempt else {
-      return nil
-    }
-    guard let underlyingError = error.underlying else {
-      return automaticRetry.policy.delay(for: retryAttempt)
-    }
-    guard let urlResponse = error.affected.findFirst(by: PubNubError.AffectedValue.response) else {
-      return nil
-    }
-
-    let shouldRetry = automaticRetry.shouldRetry(
-      response: urlResponse,
-      error: underlyingError
-    )
-
-    return shouldRetry ? automaticRetry.policy.delay(for: retryAttempt) : nil
   }
 }

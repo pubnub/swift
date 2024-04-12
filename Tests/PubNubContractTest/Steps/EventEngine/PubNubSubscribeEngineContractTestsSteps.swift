@@ -18,12 +18,8 @@ extension Subscribe.Invocation: ContractTestIdentifiable {
     switch self {
     case .handshakeRequest:
       return "HANDSHAKE"
-    case .handshakeReconnect:
-      return "HANDSHAKE_RECONNECT"
     case .receiveMessages:
       return "RECEIVE_MESSAGES"
-    case .receiveReconnect:
-      return "RECEIVE_RECONNECT"
     case .emitMessages:
       return "EMIT_MESSAGES"
     case .emitStatus:
@@ -37,12 +33,8 @@ extension Subscribe.Invocation.Cancellable: ContractTestIdentifiable {
     switch self {
     case .handshakeRequest:
       return "CANCEL_HANDSHAKE"
-    case .handshakeReconnect:
-      return "CANCEL_HANDSHAKE_RECONNECT"
     case .receiveMessages:
       return "CANCEL_RECEIVE_MESSAGES"
-    case .receiveReconnect:
-      return "CANCEL_RECEIVE_RECONNECT"
     }
   }
 }
@@ -54,22 +46,10 @@ extension Subscribe.Event: ContractTestIdentifiable {
       return "HANDSHAKE_SUCCESS"
     case .handshakeFailure:
       return "HANDSHAKE_FAILURE"
-    case .handshakeReconnectSuccess:
-      return "HANDSHAKE_RECONNECT_SUCCESS"
-    case .handshakeReconnectFailure:
-      return "HANDSHAKE_RECONNECT_FAILURE"
-    case .handshakeReconnectGiveUp:
-      return "HANDSHAKE_RECONNECT_GIVEUP"
     case .receiveSuccess:
       return "RECEIVE_SUCCESS"
     case .receiveFailure:
       return "RECEIVE_FAILURE"
-    case .receiveReconnectSuccess:
-      return "RECEIVE_RECONNECT_SUCCESS"
-    case .receiveReconnectFailure:
-      return "RECEIVE_RECONNECT_FAILURE"
-    case .receiveReconnectGiveUp:
-      return "RECEIVE_RECONNECT_GIVEUP"
     case .subscriptionChanged:
       return "SUBSCRIPTION_CHANGED"
     case .subscriptionRestored:
@@ -115,7 +95,6 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
   
   override func createPubNubClient() -> PubNub {
     let container = DependencyContainer(configuration: self.configuration)
-    let key = SubscribeEventEngineDependencyKey.self
     
     self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: SubscribeEffectFactory(
@@ -174,8 +153,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
       self.subscribeSynchronously(self.client, to: ["test"])
     }
     
-    When("I subscribe with timetoken 42") { _, _ in
-      self.subscribeSynchronously(self.client, to: ["test"], timetoken: 42)
+    When("I subscribe with timetoken 12345678901234567") { _, _ in
+      self.subscribeSynchronously(self.client, to: ["test"], timetoken: 12345678901234567)
     }
     
     Then("I receive an error in my subscribe response") { _, _ in

@@ -28,11 +28,9 @@ class PresenceTransition: TransitionProtocol {
     case .left:
       return !(state is Presence.HeartbeatInactive)
     case .heartbeatSuccess:
-      return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
+      return state is Presence.Heartbeating
     case .heartbeatFailed:
-      return state is Presence.Heartbeating || state is Presence.HeartbeatReconnecting
-    case .heartbeatGiveUp:
-      return state is Presence.HeartbeatReconnecting
+      return state is Presence.Heartbeating
     case .timesUp:
       return state is Presence.HeartbeatCooldown
     case .leftAll:
@@ -51,11 +49,6 @@ class PresenceTransition: TransitionProtocol {
         channels: state.channels,
         groups: state.input.groups
       ))]
-    case let state as Presence.HeartbeatReconnecting:
-      return [.managed(.delayedHeartbeat(
-        channels: state.channels, groups: state.groups,
-        retryAttempt: state.retryAttempt, error: state.error
-      ))]
     case is Presence.HeartbeatCooldown:
       return [.managed(.wait)]
     default:
@@ -67,8 +60,6 @@ class PresenceTransition: TransitionProtocol {
     switch state {
     case is Presence.HeartbeatCooldown:
       return [.cancel(.wait)]
-    case is Presence.HeartbeatReconnecting:
-      return [.cancel(.delayedHeartbeat)]
     default:
       return []
     }
@@ -85,9 +76,7 @@ class PresenceTransition: TransitionProtocol {
     case .heartbeatSuccess:
       results = heartbeatSuccessTransition(from: state)
     case let .heartbeatFailed(error):
-      results = heartbeatReconnectingTransition(from: state, dueTo: error)
-    case let .heartbeatGiveUp(error):
-      results = heartbeatReconnectingGiveUpTransition(from: state, dueTo: error)
+      results = heartbeatFailedTransition(from: state, dueTo: error)
     case .timesUp:
       results = heartbeatingTransition(from: state)
     case .leftAll:
@@ -156,22 +145,7 @@ fileprivate extension PresenceTransition {
 }
 
 fileprivate extension PresenceTransition {
-  func heartbeatReconnectingTransition(
-    from state: State,
-    dueTo error: PubNubError
-  ) -> TransitionResult<State, Invocation> {
-    return TransitionResult(
-      state: Presence.HeartbeatReconnecting(
-        input: state.input,
-        retryAttempt: ((state as? Presence.HeartbeatReconnecting)?.retryAttempt ?? -1) + 1,
-        error: error
-      )
-    )
-  }
-}
-
-fileprivate extension PresenceTransition {
-  func heartbeatReconnectingGiveUpTransition(
+  func heartbeatFailedTransition(
     from state: State,
     dueTo error: PubNubError
   ) -> TransitionResult<State, Invocation> {

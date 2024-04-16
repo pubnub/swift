@@ -413,6 +413,7 @@
 		3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */; };
 		3D38A0302B35B208006928E7 /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */; };
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
+		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
 		3D758DBF2AAA1C49005D2B36 /* CryptoModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */; };
 		3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DC62AB06A12005D2B36 /* CryptoInputStream.swift */; };
@@ -2782,6 +2783,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
+				3D5BE9AD2BCEA5AC0091ACA7 /* Resources */,
 				OBJ_30 /* Sources */,
 				OBJ_32 /* Frameworks */,
 			);
@@ -3106,6 +3108,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D5BE9AD2BCEA5AC0091ACA7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'PubNubSwift'
-  s.version  = '7.1.0'
+  s.version  = '7.2.0'
   s.homepage = 'https://github.com/pubnub/swift'
   s.documentation_url = 'https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk'
   s.authors = { 'PubNub, Inc.' => 'support@pubnub.com' }
@@ -23,6 +23,7 @@ The PubNub Real-Time Network. Build real-time apps quickly and scale them global
 
   s.module_name = 'PubNub'
   s.source_files = 'Sources/**/*.swift'
+  
   s.resource_bundles = { "PubNubSwift" => ["Sources/PubNub/PrivacyInfo.xcprivacy"]}
 
   if defined?($PubNubAsStaticFramework)

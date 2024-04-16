@@ -1,9 +1,20 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.1.0"
+version: "7.2.0"
 schema: 1
 changelog:
+  - date: 2024-04-16
+    version: 7.2.0
+    changes:
+      - type: feature
+        text: "Adding PrivacyInfo.xcprivacy."
+      - type: feature
+        text: "Moving retry logic away from EventEngine."
+      - type: improvement
+        text: "Removing SubscribeSessionFactory with SubscriptionConfiguration."
+      - type: improvement
+        text: "Making SubscriptionSession class an internal."
   - date: 2024-03-18
     version: 7.1.0
     changes:
@@ -531,7 +542,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.1.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.2.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

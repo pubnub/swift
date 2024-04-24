@@ -15,10 +15,15 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let subscribeEngine: SubscribeEngine
   let presenceEngine: PresenceEngine
   let presenceStateContainer: PubNubPresenceStateContainer
-
-  var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([])
   var configuration: PubNubConfiguration
   var previousTokenResponse: SubscribeCursor?
+
+  var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([]) {
+    didSet {
+      updateSubscribeEngineDependencies()
+      updatePresenceEngineDependencies()
+    }
+  }
   var filterExpression: String? {
     didSet {
       onFilterExpressionChanged()

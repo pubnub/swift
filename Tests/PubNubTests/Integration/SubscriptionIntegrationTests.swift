@@ -381,4 +381,69 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5.0)
   }
+  
+  func test_AddingNextLegacyListenerInTheMeantime() {
+    let expectation = XCTestExpectation(description: "Message expectation")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 2
+
+    let pubnub = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId
+    ))
+    
+    let listener = SubscriptionListener()
+    let secondListener = SubscriptionListener()
+
+    listener.didReceiveMessage = { message in
+      expectation.fulfill()
+    }
+    secondListener.didReceiveMessage = { message in
+      expectation.fulfill()
+    }
+    listener.didReceiveStatus = { [unowned pubnub, unowned self] statusChange in
+      if case .success(let status) = statusChange, status == .connected {
+        pubnub.add(secondListener)
+        pubnub.publish(channel: testChannel, message: "Message", completion: nil)
+      }
+    }
+    
+    pubnub.add(listener)
+    pubnub.subscribe(to: [testChannel])
+    
+    wait(for: [expectation], timeout: 5.0)
+  }
+  
+  func test_AddingNextListenerUsingSubscriptionObjects() {
+    let expectation = XCTestExpectation(description: "Message expectation")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 2
+
+    let pubnub = PubNub(configuration: PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(from: testsBundle).userId
+    ))
+    
+    let firstSubscription = pubnub.channel(testChannel).subscription()
+    let secondSubscription = pubnub.channel(testChannel).subscription()
+
+    firstSubscription.onMessage = { message in
+      expectation.fulfill()
+    }
+    secondSubscription.onMessage = { message in
+      expectation.fulfill()
+    }
+    pubnub.onConnectionStateChange = { [unowned pubnub, unowned self] newStatus in
+      if newStatus == .connected {
+        secondSubscription.subscribe()
+        pubnub.publish(channel: testChannel, message: "Message", completion: nil)
+      }
+    }
+    
+    firstSubscription.subscribe()
+    
+    wait(for: [expectation], timeout: 5.0)
+  }
 }

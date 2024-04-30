@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -408,6 +408,10 @@
 		A5115F29291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
 		A5115F2B291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */; };
 		A5115F2C291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */; };
+		A51B4A042BE0D024008C3370 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */; };
+		A51B4A062BE0D057008C3370 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */; };
+		A51B4A072BE0D062008C3370 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */; };
+		A51B4A082BE0D063008C3370 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */; };
 		A56445EF2906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */; };
 		A56445F02906AFF40085B310 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */; };
 		A56445F22907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
@@ -833,7 +837,6 @@
 		35D9734D2856C5BB001A44DC /* SpaceTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpaceTestHelpers.swift; sourceTree = "<group>"; };
 		35D973502856C5E5001A44DC /* UserTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTestHelpers.swift; sourceTree = "<group>"; };
 		35D973532857BBFE001A44DC /* FlatJSONCodable+Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FlatJSONCodable+Test.swift"; sourceTree = "<group>"; };
-		35DA9AAA2331674000867989 /* .travis.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		35DA9AAB2331674000867989 /* .swiftlint.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftlint.yml; sourceTree = "<group>"; };
 		35DA9AAC2331674000867989 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		35DA9AB02334479800867989 /* objects_uuid_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = objects_uuid_all_success.json; path = Tests/PubNubTests/Mocking/Responses/Objects/objects_uuid_all_success.json; sourceTree = SOURCE_ROOT; };
@@ -920,6 +923,7 @@
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
+		A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A56445EE2906AFF40085B310 /* PubNubObjectsTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsTestHelpers.swift; sourceTree = "<group>"; };
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
@@ -1730,7 +1734,6 @@
 				793079142667C63700F23B72 /* .github */,
 				35DA9AAC2331674000867989 /* .swiftformat */,
 				35DA9AAB2331674000867989 /* .swiftlint.yml */,
-				35DA9AAA2331674000867989 /* .travis.yml */,
 				359287D0232881AD0046F7A2 /* .pubnub.yml */,
 				35D42CE8232C0FCA008EB0F6 /* Fastfile */,
 				359F778A22B7FDDB00B6B46F /* Gemfile */,
@@ -2084,6 +2087,7 @@
 		OBJ_7 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				A51B4A022BE0CFBA008C3370 /* PrivacyInfo.xcprivacy */,
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
 				35B0ACE4252BE37C00537A18 /* APIs */,
@@ -2151,10 +2155,10 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 358B8920284D206B00DB0F3D /* Build configuration list for PBXNativeTarget "PubNubUser" */;
 			buildPhases = (
+				358B8909284D206B00DB0F3D /* Resources */,
 				358B8906284D206B00DB0F3D /* Headers */,
 				358B8907284D206B00DB0F3D /* Sources */,
 				358B8908284D206B00DB0F3D /* Frameworks */,
-				358B8909284D206B00DB0F3D /* Resources */,
 			);
 			buildRules = (
 			);
@@ -2354,6 +2358,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = OBJ_27 /* Build configuration list for PBXNativeTarget "PubNub" */;
 			buildPhases = (
+				A51B4A052BE0D03E008C3370 /* Resources */,
 				OBJ_30 /* Sources */,
 				OBJ_32 /* Frameworks */,
 			);
@@ -2619,6 +2624,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A51B4A042BE0D024008C3370 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2633,6 +2639,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A51B4A072BE0D062008C3370 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2647,6 +2654,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A51B4A082BE0D063008C3370 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2691,6 +2699,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				79407C01271D519F0032076C /* Features in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A51B4A052BE0D03E008C3370 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A51B4A062BE0D057008C3370 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3256,7 +3272,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUser;
@@ -3303,7 +3319,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubUser;
@@ -3403,7 +3419,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpace;
@@ -3452,7 +3468,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubSpace;
@@ -3565,7 +3581,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembership;
@@ -3613,7 +3629,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pubnub.swift.PubNubMembership;
@@ -4069,7 +4085,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";
@@ -4108,7 +4124,7 @@
 					"$(inherited)",
 					"$(TOOLCHAIN_DIR)/usr/lib/swift/macosx",
 				);
-				MARKETING_VERSION = 6.0.5;
+				MARKETING_VERSION = 6.0.6;
 				OTHER_CFLAGS = "$(inherited)";
 				OTHER_LDFLAGS = "$(inherited)";
 				OTHER_SWIFT_FLAGS = "$(inherited)";

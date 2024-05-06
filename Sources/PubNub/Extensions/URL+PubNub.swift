@@ -53,29 +53,26 @@ public extension URL {
   var contentType: String {
     #if canImport(UniformTypeIdentifiers)
       if #available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *) {
-        guard let contentType = try? self.resourceValues(forKeys: [.contentTypeKey]).contentType?.preferredMIMEType else {
+        if let mimeType = UTType(filenameExtension: self.pathExtension)?.preferredMIMEType {
+          return mimeType
+        } else {
           return "application/octet-stream"
         }
-
-        return contentType
+      } else {
+        return "application/octet-stream"
       }
-
-      return preferenceIdentifier()
     #else
-      return preferenceIdentifier()
+      let fileExtension = UTTypeCreatePreferredIdentifierForTag(
+        kUTTagClassFilenameExtension, pathExtension as CFString, nil
+      )
+      if let fileExt = fileExtension?.takeRetainedValue(), let mimeType = UTTypeCopyPreferredTagWithClass(
+        fileExt,
+        kUTTagClassMIMEType
+      )?.takeRetainedValue() {
+        return mimeType as String
+      }
+      return "application/octet-stream"
     #endif
-  }
-
-  private func preferenceIdentifier() -> String {
-    let fileExtension = UTTypeCreatePreferredIdentifierForTag(
-      kUTTagClassFilenameExtension, pathExtension as CFString, nil
-    )
-
-    if let fileExt = fileExtension?.takeRetainedValue(),
-       let mimeType = UTTypeCopyPreferredTagWithClass(fileExt, kUTTagClassMIMEType)?.takeRetainedValue() {
-      return mimeType as String
-    }
-    return "application/octet-stream"
   }
 
   internal func filenameWithoutExtension() -> String {

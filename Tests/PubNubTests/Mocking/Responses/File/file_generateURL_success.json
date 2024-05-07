@@ -25,7 +25,7 @@
         },
         {
           "key": "X-Amz-Credential",
-          "value": "AKIAY7AU6GQD5KWBS3FG/20200902/us-west-1/s3/aws4_request"
+          "value": ""
         },
         {
           "key": "X-Amz-Security-Token",

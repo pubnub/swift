@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.2.0"
+version: "7.2.1"
 schema: 1
 changelog:
+  - date: 2024-05-09
+    version: 7.2.1
+    changes:
+      - type: feature
+        text: "Adding support for visionOS."
+      - type: bug
+        text: "Updating EventEngine dependencies after adding a new listener."
   - date: 2024-04-16
     version: 7.2.0
     changes:
@@ -542,7 +549,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.2.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.2.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

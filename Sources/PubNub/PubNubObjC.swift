@@ -24,15 +24,16 @@ public class PubNubObjC : NSObject {
   public func publish(
     channel: String,
     message: Any,
-    completion: @escaping ((Timetoken) -> Void)
+    onResponse: @escaping ((Timetoken) -> Void),
+    onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.publish(channel: channel, message: AnyJSON(message), completion: { (result: Result<Timetoken, Error>) -> Void in
       print(result)
       switch result {
       case .success(let timetoken):
-        completion(timetoken)
+        onResponse(timetoken)
       case .failure(let error):
-        print(error.localizedDescription)
+        onFailure(error)
       }
     })
   }

@@ -14,27 +14,47 @@ import Foundation
 public class PubNubObjC : NSObject {
   private let pubnub: PubNub
 
+  // MARK: - Init
+  
   @objc
   public init(user: String, subKey: String, pubKey: String) {
     self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
     super.init()
   }
   
+  // MARK: - Publish
+  
   @objc
   public func publish(
     channel: String,
     message: Any,
+    meta: Any?,
+    shouldStore: NSNumber?,
+    ttl: NSNumber?,
     onResponse: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.publish(channel: channel, message: AnyJSON(message), completion: { (result: Result<Timetoken, Error>) -> Void in
-      print(result)
-      switch result {
-      case .success(let timetoken):
-        onResponse(timetoken)
-      case .failure(let error):
-        onFailure(error)
-      }
+    pubnub.publish(
+      channel: channel,
+      message: AnyJSON(message),
+      shouldStore: shouldStore?.boolValue ?? nil,
+      storeTTL: ttl?.intValue ?? nil,
+      meta: resolveJSONObject(meta),
+      completion: { (result: Result<Timetoken, Error>) -> Void in
+        switch result {
+        case .success(let timetoken):
+          onResponse(timetoken)
+        case .failure(let error):
+          onFailure(error)
+        }
     })
+  }
+  
+  private func resolveJSONObject(_ object: Any?) -> AnyJSON? {
+    if let object = object {
+      return AnyJSON(object)
+    } else {
+      return nil
+    }
   }
 }

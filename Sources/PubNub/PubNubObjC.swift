@@ -37,8 +37,8 @@ public class PubNubObjC : NSObject {
     pubnub.publish(
       channel: channel,
       message: AnyJSON(message),
-      shouldStore: shouldStore?.boolValue ?? nil,
-      storeTTL: ttl?.intValue ?? nil,
+      shouldStore: shouldStore?.boolValue,
+      storeTTL: shouldStore?.intValue,
       meta: resolveJSONObject(meta),
       completion: { (result: Result<Timetoken, Error>) -> Void in
         switch result {

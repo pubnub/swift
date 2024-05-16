@@ -39,15 +39,15 @@ public class PubNubObjC : NSObject {
       message: AnyJSON(message),
       shouldStore: shouldStore?.boolValue,
       storeTTL: shouldStore?.intValue,
-      meta: resolveJSONObject(meta),
-      completion: { (result: Result<Timetoken, Error>) -> Void in
-        switch result {
-        case .success(let timetoken):
-          onResponse(timetoken)
-        case .failure(let error):
-          onFailure(error)
-        }
-      })
+      meta: resolveJSONObject(meta)
+    ) {
+      switch $0 {
+      case .success(let timetoken):
+        onResponse(timetoken)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
   }
   
   private func resolveJSONObject(_ object: Any?) -> AnyJSON? {
@@ -67,18 +67,14 @@ public class PubNubObjC : NSObject {
     onResponse: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.signal(
-      channel: channel,
-      message: AnyJSON(message),
-      completion: { result in
-        switch result {
-        case .success(let timetoken):
-          onResponse(timetoken)
-        case .failure(let error):
-          onFailure(error)
-        }
+    pubnub.signal(channel: channel, message: AnyJSON(message)) {
+      switch $0 {
+      case .success(let timetoken):
+        onResponse(timetoken)
+      case .failure(let error):
+        onFailure(error)
       }
-    )
+    }
   }
   
   // MARK: Subscribed channels & channel groups
@@ -91,5 +87,24 @@ public class PubNubObjC : NSObject {
   @objc
   public var subscribedChannelGroups: [String] {
     pubnub.subscribedChannelGroups
+  }
+  
+  // MARK: Push
+  
+  @objc
+  public func addChannelsToPushNotifications(
+    channels: [String],
+    deviceId: Data,
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.addPushChannelRegistrations(channels, for: deviceId) {
+      switch $0 {
+      case .success(let channels):
+        onSuccess(channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
   }
 }

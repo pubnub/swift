@@ -11,13 +11,13 @@
 import Foundation
 
 @objc
-public class PubNubObjC : NSObject {
+class PubNubObjC : NSObject {
   private let pubnub: PubNub
 
   // MARK: - Init
   
   @objc
-  public init(user: String, subKey: String, pubKey: String) {
+  init(user: String, subKey: String, pubKey: String) {
     self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
     super.init()
   }
@@ -25,7 +25,7 @@ public class PubNubObjC : NSObject {
   // MARK: - Publish
   
   @objc
-  public func publish(
+  func publish(
     channel: String,
     message: Any,
     meta: Any?,
@@ -56,5 +56,28 @@ public class PubNubObjC : NSObject {
     } else {
       return nil
     }
+  }
+  
+  // MARK: Signal
+  
+  @objc
+  func signal(
+    channel: String,
+    message: Any,
+    onResponse: @escaping ((Timetoken) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.signal(
+      channel: channel,
+      message: AnyJSON(message),
+      completion: { result in
+        switch result {
+        case .success(let timetoken):
+          onResponse(timetoken)
+        case .failure(let error):
+          onFailure(error)
+        }
+      }
+    )
   }
 }

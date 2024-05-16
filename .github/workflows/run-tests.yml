@@ -13,7 +13,9 @@ defaults:
 jobs:
   tests:
     name: Integration and Unit tests
-    runs-on: macos-12
+    runs-on:
+      group: Default
+      labels: macos-latest
     strategy:
       matrix:
         environment: [iOS, tvOS, macOS]
@@ -53,7 +55,9 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   acceptance-tests:
     name: Acceptance tests
-    runs-on: macos-12
+    runs-on:
+      group: Default
+      labels: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

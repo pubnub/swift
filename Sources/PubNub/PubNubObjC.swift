@@ -13,7 +13,7 @@ import Foundation
 @objc
 public class PubNubObjC : NSObject {
   private let pubnub: PubNub
-
+  
   // MARK: - Init
   
   @objc
@@ -47,7 +47,7 @@ public class PubNubObjC : NSObject {
         case .failure(let error):
           onFailure(error)
         }
-    })
+      })
   }
   
   private func resolveJSONObject(_ object: Any?) -> AnyJSON? {
@@ -79,5 +79,17 @@ public class PubNubObjC : NSObject {
         }
       }
     )
+  }
+  
+  // MARK: Subscribed channels & channel groups
+  
+  @objc
+  public var subscribedChannels: [String] {
+    pubnub.subscribedChannels
+  }
+  
+  @objc
+  public var subscribedChannelGroups: [String] {
+    pubnub.subscribedChannelGroups
   }
 }

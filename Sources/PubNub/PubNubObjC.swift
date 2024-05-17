@@ -31,7 +31,7 @@ public class PubNubObjC : NSObject {
     meta: Any?,
     shouldStore: NSNumber?,
     ttl: NSNumber?,
-    onResponse: @escaping ((Timetoken) -> Void),
+    onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.publish(
@@ -43,7 +43,7 @@ public class PubNubObjC : NSObject {
     ) {
       switch $0 {
       case .success(let timetoken):
-        onResponse(timetoken)
+        onSuccess(timetoken)
       case .failure(let error):
         onFailure(error)
       }
@@ -64,13 +64,13 @@ public class PubNubObjC : NSObject {
   public func signal(
     channel: String,
     message: Any,
-    onResponse: @escaping ((Timetoken) -> Void),
+    onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.signal(channel: channel, message: AnyJSON(message)) {
       switch $0 {
       case .success(let timetoken):
-        onResponse(timetoken)
+        onSuccess(timetoken)
       case .failure(let error):
         onFailure(error)
       }
@@ -133,13 +133,13 @@ public class PubNubObjC : NSObject {
     channels: [String],
     deviceId: Data,
     pushType: String,
-    onResult: @escaping (([String]) -> Void),
+    onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removePushChannelRegistrations(channels, for: deviceId) {
       switch $0 {
       case .success(let channels):
-        onResult(channels)
+        onSuccess(channels)
       case .failure(let error):
         onFailure(error)
       }

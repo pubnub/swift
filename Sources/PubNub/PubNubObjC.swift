@@ -89,7 +89,7 @@ public class PubNubObjC : NSObject {
     pubnub.subscribedChannelGroups
   }
   
-  // MARK: Push
+  // MARK: Push registration
   
   @objc
   public func addChannelsToPushNotifications(
@@ -116,7 +116,7 @@ public class PubNubObjC : NSObject {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushType = PubNub.PushService(rawValue: pushType) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType"])); return
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
     pubnub.listPushChannelRegistrations(for: deviceId, of: pushType) {
       switch $0 {
@@ -136,10 +136,33 @@ public class PubNubObjC : NSObject {
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.removePushChannelRegistrations(channels, for: deviceId) {
+    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+    }
+    pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushType) {
       switch $0 {
       case .success(let channels):
         onSuccess(channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  public func removeAllChannelsFromPush(
+    pushType: String,
+    deviceId: Data,
+    onSuccess: @escaping (() -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+    }
+    pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushType) {
+      switch $0 {
+      case .success:
+        onSuccess()
       case .failure(let error):
         onFailure(error)
       }

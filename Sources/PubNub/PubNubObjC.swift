@@ -127,4 +127,22 @@ public class PubNubObjC : NSObject {
       }
     }
   }
+  
+  @objc
+  public func removeChannelsFromPush(
+    channels: [String],
+    deviceId: Data,
+    pushType: String,
+    onResult: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.removePushChannelRegistrations(channels, for: deviceId) {
+      switch $0 {
+      case .success(let channels):
+        onResult(channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
 }

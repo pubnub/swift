@@ -57,7 +57,8 @@ jobs:
         run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')
       - name: Cancel workflow runs for commit on error
         if: failure()
-        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
+        uses: "andymckay/cancel-action@0.3"
+        #uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   acceptance-tests:
     name: Acceptance tests
     runs-on:

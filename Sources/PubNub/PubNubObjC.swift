@@ -107,4 +107,24 @@ public class PubNubObjC : NSObject {
       }
     }
   }
+  
+  @objc
+  public func listPushChannels(
+    deviceId: Data,
+    pushType: String,
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType"])); return
+    }
+    pubnub.listPushChannelRegistrations(for: deviceId, of: pushType) {
+      switch $0 {
+      case .success(let channels):
+        onSuccess(channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
 }

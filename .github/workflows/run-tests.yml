@@ -40,7 +40,7 @@ jobs:
           path: Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
-              ${{ runner.os }}-pods-
+            ${{ runner.os }}-pods-
       - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:
@@ -49,7 +49,7 @@ jobs:
             ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-              ${{ runner.os }}-spm-
+            ${{ runner.os }}-spm-
       - name: Pre-load simulators list
         if: ${{ matrix.environment != 'macOS' }}
         run: xcrun simctl list -j
@@ -57,7 +57,7 @@ jobs:
         run: bundle exec fastlane test --env $(echo ${{ matrix.environment }} | tr '[:upper:]' '[:lower:]')
       - name: Cancel workflow runs for commit on error
         if: failure()
-        uses: andymckay/cancel-action@0.4
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   acceptance-tests:
     name: Acceptance tests
     runs-on:
@@ -74,14 +74,14 @@ jobs:
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
       - name: Cache installed Pods
         uses: actions/cache@v4
         with:
           path: Pods
           key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
-              ${{ runner.os }}-pods-
+            ${{ runner.os }}-pods-
       - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:
@@ -90,7 +90,7 @@ jobs:
             ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
-              ${{ runner.os }}-spm-
+            ${{ runner.os }}-spm-
       - name: Checkout mock-server action
         uses: actions/checkout@v4
         with:

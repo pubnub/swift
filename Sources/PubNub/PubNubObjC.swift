@@ -179,7 +179,7 @@ public class PubNubObjC : NSObject {
     includeMessageActions: Bool,
     includeMessageType: Bool,
     page: PubNubBoundedPageObjC?,
-    onSuccess: @escaping (([String: [PubNubMessageObjC]]) -> Void),
+    onSuccess: @escaping ((PubNubFetchMessagesResultObjC)) -> Void,
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMessageHistory(
@@ -196,36 +196,25 @@ public class PubNubObjC : NSObject {
     ) {
       switch $0 {
       case .success(let response):
-        onSuccess(response.messagesByChannel.mapValues {
-          $0.map {
-            PubNubMessageObjC(
-              payload: $0.payload.codableValue,
-              actions: $0.actions.map {
-                PubNubMessageActionObjC(
-                  actionType: $0.actionType,
-                  actionValue: $0.actionValue,
-                  actionTimetoken: $0.actionTimetoken,
-                  messageTimetoken: $0.messageTimetoken,
-                  publisher: $0.publisher,
-                  channel: $0.channel,
-                  subscription: $0.subscription,
-                  published: $0.published != nil ? NSNumber(value: $0.published!) : nil
-                )
-              },
-              publisher: $0.publisher,
-              channel: $0.channel,
-              subscription: $0.subscription,
-              published: $0.published,
-              metadata: $0.metadata?.codableValue,
-              messageType: $0.messageType.rawValue,
-              error: $0.error
-            )
-          }
-        })
+        onSuccess(PubNubFetchMessagesResultObjC(
+          messages: response.messagesByChannel.mapValues { $0.map { PubNubMessageObjC(message: $0) }},
+          page: PubNubBoundedPageObjC(page: response.next)
+        ))
       case .failure(let error):
         onFailure(error)
       }
     }
+  }
+}
+
+@objc
+public class PubNubFetchMessagesResultObjC: NSObject {
+  @objc public let messages: [String: [PubNubMessageObjC]]
+  @objc public let page: PubNubBoundedPageObjC?
+  
+  init(messages: [String: [PubNubMessageObjC]], page: PubNubBoundedPageObjC?) {
+    self.messages = messages
+    self.page = page
   }
 }
 
@@ -235,35 +224,43 @@ public class PubNubBoundedPageObjC: NSObject {
   @objc public let end: NSNumber?
   @objc public let limit: NSNumber?
 
-  public init(start: NSNumber?, end: NSNumber?, limit: NSNumber?) {
+  @objc public init(start: NSNumber?, end: NSNumber?, limit: NSNumber?) {
     self.start = start
     self.end = end
     self.limit = limit
+  }
+  
+  init(page: PubNubBoundedPage?) {
+    if let start = page?.start {
+      self.start = NSNumber(value: start)
+    } else {
+      self.start = nil
+    }
+    if let end = page?.end {
+      self.end = NSNumber(value: end)
+    } else {
+      self.end = nil
+    }
+    if let limit = page?.limit {
+      self.limit = NSNumber(value: limit)
+    } else {
+      self.limit = nil
+    }
   }
 }
 
 @objc
 public class PubNubMessageObjC: NSObject {
-  init(
-    payload: Any,
-    actions: [PubNubMessageActionObjC],
-    publisher: String?,
-    channel: String,
-    subscription: String?,
-    published: Timetoken,
-    metadata: Any?,
-    messageType: Int,
-    error: Error?
-  ) {
-    self.payload = payload
-    self.actions = actions
-    self.publisher = publisher
-    self.channel = channel
-    self.subscription = subscription
-    self.published = published
-    self.metadata = metadata
-    self.messageType = messageType
-    self.error = error
+  init(message: PubNubMessage) {
+    self.payload = message.payload
+    self.actions = message.actions.map { PubNubMessageActionObjC(action: $0) }
+    self.publisher = message.publisher
+    self.channel = message.channel
+    self.subscription = message.subscription
+    self.published = message.published
+    self.metadata = message.metadata
+    self.messageType = message.messageType.rawValue
+    self.error = message.error
   }
   
   @objc public let payload: Any
@@ -288,23 +285,14 @@ public class PubNubMessageActionObjC: NSObject {
   @objc public let subscription: String?
   @objc public let published: NSNumber?
   
-  init(
-    actionType: String,
-    actionValue: String,
-    actionTimetoken: Timetoken,
-    messageTimetoken: Timetoken,
-    publisher: String,
-    channel: String,
-    subscription: String?,
-    published: NSNumber?
-  ) {
-    self.actionType = actionType
-    self.actionValue = actionValue
-    self.actionTimetoken = actionTimetoken
-    self.messageTimetoken = messageTimetoken
-    self.publisher = publisher
-    self.channel = channel
-    self.subscription = subscription
-    self.published = published
+  init(action: PubNubMessageAction) {
+    self.actionType = action.actionType
+    self.actionValue = action.actionValue
+    self.actionTimetoken = action.actionTimetoken
+    self.messageTimetoken = action.messageTimetoken
+    self.publisher = action.publisher
+    self.channel = action.channel
+    self.subscription = action.subscription
+    self.published = action.published != nil ? NSNumber(value: action.published!) : nil
   }
 }

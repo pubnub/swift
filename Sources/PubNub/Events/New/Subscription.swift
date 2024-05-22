@@ -13,8 +13,8 @@ import Foundation
 /// A final class representing a PubNub subscription.
 ///
 /// Use this class to create and manage subscriptions for a specific `Subscribable` entity.
-/// It conforms to `EventEmitter`, allowing the handling of subscription-related events.
-public final class Subscription: EventEmitter, SubscriptionDisposable {
+/// It conforms to `EventListenerInterface`, allowing the handling of subscription-related events.
+public final class Subscription: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   /// Initializes a `Subscription` object.
   ///
   /// - Parameters:
@@ -42,6 +42,8 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
   public private(set) var isDisposed = false
   // Stores the timetoken the user subscribed with
   private(set) var timetoken: Timetoken?
+  // Stores additional listeners
+  private var listeners: [UUID: WeakEventListenerBox] = [:]
 
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
@@ -106,6 +108,17 @@ public final class Subscription: EventEmitter, SubscriptionDisposable {
     unsubscribe()
     isDisposed = true
   }
+  
+  /// Adds additional subscription listener
+  public func addEventListener(_ listener: EventListenerInterface) {
+    listeners.removeValue(forKey: listener.uuid)
+    listeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  }
+  
+  /// Removes subscription listener
+  public func removeEventListener(_ listener: EventListenerInterface) {
+    listeners.removeValue(forKey: listener.uuid)
+  }
 
   deinit {
     dispose()
@@ -164,6 +177,7 @@ extension Subscription: SubscribeMessagesReceiver {
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.compactMap { event(from: $0) }
     emit(events: events)
+    listeners.values.forEach { $0.listener?.emit(events: events) }
     return events
   }
 

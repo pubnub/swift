@@ -13,17 +13,38 @@ import Foundation
 // MARK: - StatusEmitter
 
 /// A protocol for types that emit PubNub status events from the Subscribe loop.
-public protocol StatusEmitter: AnyObject {
+public protocol StatusListenerInterface: AnyObject {
+  /// An underlying queue to dispatch events
+  var queue: DispatchQueue { get }
+  /// A unique emitter's identifier
+  var uuid: UUID { get }
   /// A closure to be called when the connection status changes.
   var onConnectionStateChange: ((ConnectionStatus) -> Void)? { get set }
 }
 
-// MARK: - EventEmitter
+/// Concrete implementation of `StatusListenerInterface`
+public class StatusListener: StatusListenerInterface {
+  public let uuid: UUID
+  public let queue: DispatchQueue
+  public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
+
+  init(
+    uuid: UUID = UUID(),
+    queue: DispatchQueue = .main,
+    onConnectionStateChange: @escaping ((ConnectionStatus) -> Void)
+  ) {
+    self.uuid = uuid
+    self.queue = queue
+    self.onConnectionStateChange = onConnectionStateChange
+  }
+}
+
+// MARK: - EventListenerInterface
 
 /// A protocol for types that emit PubNub events.
 ///
 /// Utilize closures to receive notifications when specific types of PubNub events occur.
-public protocol EventEmitter: AnyObject {
+public protocol EventListenerInterface: AnyObject {
   /// An underlying queue to dispatch events
   var queue: DispatchQueue { get }
   /// A unique emitter's identifier
@@ -54,7 +75,51 @@ public protocol SubscriptionDisposable {
   func dispose()
 }
 
-extension EventEmitter {
+/// A protocol representing an additional listener that can be added or removed
+public protocol EventListenerHandler {
+  func addEventListener(_ listener: EventListenerInterface)
+  func removeEventListener(_ listener: EventListenerInterface)
+}
+
+/// A concrete implementation for `EventListenerInterface`
+public class EventListener: EventListenerInterface {
+  public let queue: DispatchQueue
+  public let uuid: UUID
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  
+  init(
+    queue: DispatchQueue = .main,
+    uuid: UUID = UUID(),
+    onEvent: ((PubNubEvent) -> Void)? = nil,
+    onEvents: (([PubNubEvent]) -> Void)? = nil,
+    onMessage: ((PubNubMessage) -> Void)? = nil,
+    onSignal: ((PubNubMessage) -> Void)? = nil,
+    onPresence: ((PubNubPresenceChange) -> Void)? = nil,
+    onMessageAction: ((PubNubMessageActionEvent) -> Void)? = nil,
+    onFileEvent: ((PubNubFileChangeEvent) -> Void)? = nil,
+    onAppContext: ((PubNubAppContextEvent) -> Void)? = nil
+  ) {
+    self.queue = queue
+    self.uuid = uuid
+    self.onEvent = onEvent
+    self.onEvents = onEvents
+    self.onMessage = onMessage
+    self.onSignal = onSignal
+    self.onPresence = onPresence
+    self.onMessageAction = onMessageAction
+    self.onFileEvent = onFileEvent
+    self.onAppContext = onAppContext
+  }
+}
+
+extension EventListenerInterface {
   func emit(events: [PubNubEvent]) {
     queue.async { [weak self] in
       if !events.isEmpty {
@@ -84,7 +149,7 @@ extension EventEmitter {
   }
 }
 
-extension EventEmitter {
+extension EventListenerInterface {
   func clearCallbacks() {
     onEvent = nil
     onEvents = nil

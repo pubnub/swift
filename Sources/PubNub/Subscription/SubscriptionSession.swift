@@ -10,14 +10,18 @@
 
 import Foundation
 
-class SubscriptionSession: EventEmitter, StatusEmitter {
+class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   // An underlying queue to dispatch events
   let queue: DispatchQueue
   // A unique identifier for subscription session
   var uuid: UUID { strategy.uuid }
   // The `Timetoken` used for the last successful subscription request
   var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
-
+  // Additional listeners for global subscription
+  private var additionalListeners: [UUID: WeakEventListenerBox] = [:]
+  // Additional status listeners
+  private var additionalStatusListeners: [UUID: WeakStatusListenerBox] = [:]
+  
   // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {
@@ -59,6 +63,11 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     statusListener.didReceiveStatus = { [weak self] statusChange in
       if case .success(let newStatus) = statusChange {
         self?.onConnectionStateChange?(newStatus)
+        self?.additionalStatusListeners.values.compactMap { $0.listener }.forEach { listener in
+          listener.queue.async { [unowned listener] in
+            listener.onConnectionStateChange?(newStatus)
+          }
+        }
       }
     }
     return statusListener
@@ -431,8 +440,31 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.map { $0.asPubNubEvent() }
     emit(events: events)
+    additionalListeners.values.forEach { $0.listener?.emit(events: events) }
     return events
   }
+}
 
+extension SubscriptionSession: EventListenerHandler {
+  func addEventListener(_ listener: EventListenerInterface) {
+    additionalListeners.removeValue(forKey: listener.uuid)
+    additionalListeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  }
+  
+  func removeEventListener(_ listener: EventListenerInterface) {
+    additionalListeners.removeValue(forKey: listener.uuid)
+  }
+}
+
+extension SubscriptionSession {
+  func addStatusListener(_ listener: StatusListenerInterface) {
+    additionalStatusListeners.removeValue(forKey: listener.uuid)
+    additionalStatusListeners[listener.uuid] = WeakStatusListenerBox(listener: listener)
+  }
+
+  func removeStatusListener(_ listener: StatusListenerInterface) {
+    additionalStatusListeners.removeValue(forKey: listener.uuid)
+  }
+  
   // swiftlint:disable:next file_length
 }

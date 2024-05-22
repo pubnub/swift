@@ -13,7 +13,7 @@ import Foundation
 /// A final class representing a set of `Subscription`.
 ///
 /// Use this class to manage multiple `Subscription` concurrently.
-public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
+public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
@@ -32,6 +32,8 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public private(set) var isDisposed = false
   // Internally holds a collection of child subscriptions
   private(set) var currentSubscriptions: Set<Subscription>
+  // Stores additional listeners
+  private var listeners: [UUID: WeakEventListenerBox] = [:]
 
   // Internally intercepts messages from the Subscribe loop
   // and forwards them to the current `SubscriptionSet`
@@ -140,6 +142,17 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
     currentSubscriptions.forEach { $0.dispose() }
     isDisposed = true
   }
+  
+  /// Adds additional subscription listener
+  public func addEventListener(_ listener: EventListenerInterface) {
+    listeners.removeValue(forKey: listener.uuid)
+    listeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  }
+  
+  /// Removes subscription listener
+  public func removeEventListener(_ listener: EventListenerInterface) {
+    listeners.removeValue(forKey: listener.uuid)
+  }
 
   deinit {
     dispose()
@@ -224,6 +237,7 @@ extension SubscriptionSet: SubscribeMessagesReceiver {
       }
       accumulatedRes.append(contentsOf: events)
       emit(events: events)
+      listeners.values.forEach { $0.listener?.emit(events: events) }
     }
   }
 }

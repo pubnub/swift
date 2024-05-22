@@ -14,8 +14,8 @@ import Foundation
 
 /// Represents a channel that can be subscribed to and unsubscribed from using the PubNub service.
 public class ChannelRepresentation: Subscribable {
-  init(name: String, receiver: SubscribeReceiver) {
-    super.init(name: name, subscriptionType: .channel, receiver: receiver)
+  init(name: String, pubnub: PubNub) {
+    super.init(name: name, subscriptionType: .channel, pubnub: pubnub)
   }
 }
 
@@ -23,8 +23,8 @@ public class ChannelRepresentation: Subscribable {
 
 /// Represents a channel group that can be subscribed to and unsubscribed from using the PubNub service.
 public class ChannelGroupRepresentation: Subscribable {
-  init(name: String, receiver: SubscribeReceiver) {
-    super.init(name: name, subscriptionType: .channelGroup, receiver: receiver)
+  init(name: String, pubnub: PubNub) {
+    super.init(name: name, subscriptionType: .channelGroup, pubnub: pubnub)
   }
 }
 
@@ -32,8 +32,8 @@ public class ChannelGroupRepresentation: Subscribable {
 
 /// Represents user metadata that can be subscribed to and unsubscribed from using the PubNub service.
 public class UserMetadataRepresentation: Subscribable {
-  init(id: String, receiver: SubscribeReceiver) {
-    super.init(name: id, subscriptionType: .channel, receiver: receiver)
+  init(id: String, pubnub: PubNub) {
+    super.init(name: id, subscriptionType: .channel, pubnub: pubnub)
   }
 }
 
@@ -41,7 +41,7 @@ public class UserMetadataRepresentation: Subscribable {
 
 /// Represents channel metadata that can be subscribed to and unsubscribed from using the PubNub service.
 public class ChannelMetadataRepresentation: Subscribable {
-  init(id: String, receiver: SubscribeReceiver) {
-    super.init(name: id, subscriptionType: .channel, receiver: receiver)
+  init(id: String, pubnub: PubNub) {
+    super.init(name: id, subscriptionType: .channel, pubnub: pubnub)
   }
 }

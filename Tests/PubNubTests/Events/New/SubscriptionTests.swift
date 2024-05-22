@@ -236,4 +236,68 @@ class SubscriptionTests: XCTestCase {
     XCTAssertEqual(subscription.subscriptionType, .channelGroup)
     XCTAssertEqual(subscription.subscriptionTopology, [.channelGroup: ["g", "g-pnpres"]])
   }
+  
+  func testSubscription_WithListeners() {
+    let messagesExpectation = XCTestExpectation(description: "Message")
+    messagesExpectation.assertForOverFulfill = true
+    messagesExpectation.expectedFulfillmentCount = 1
+    
+    let signalExpectation = XCTestExpectation(description: "Signal")
+    signalExpectation.assertForOverFulfill = true
+    signalExpectation.expectedFulfillmentCount = 1
+    
+    let messageAction = XCTestExpectation(description: "Message Action")
+    messageAction.assertForOverFulfill = true
+    messageAction.expectedFulfillmentCount = 1
+    
+    let presenceChangeExpectation = XCTestExpectation(description: "Presence")
+    presenceChangeExpectation.assertForOverFulfill = true
+    presenceChangeExpectation.expectedFulfillmentCount = 1
+    
+    let appContextExpectation = XCTestExpectation(description: "App Context")
+    appContextExpectation.assertForOverFulfill = true
+    appContextExpectation.expectedFulfillmentCount = 1
+    
+    let fileExpectation = XCTestExpectation(description: "File")
+    fileExpectation.assertForOverFulfill = true
+    fileExpectation.expectedFulfillmentCount = 1
+        
+    let channel = pubnub.channel("test-channel")
+    let subscription = channel.subscription()
+    
+    let listener = EventListener(
+      onMessage: { _ in
+        messagesExpectation.fulfill()
+      },
+      onSignal: { _ in
+        signalExpectation.fulfill()
+      },
+      onPresence: { _ in
+        presenceChangeExpectation.fulfill()
+      },
+      onMessageAction: { _ in
+        messageAction.fulfill()
+      },
+      onFileEvent: { _ in
+        fileExpectation.fulfill()
+      },
+      onAppContext: { _ in
+        appContextExpectation.fulfill()
+      }
+    )
+    
+    subscription.addEventListener(listener)
+    subscription.onPayloadsReceived(payloads: [
+      mockMessagePayload(channel: channel.name), mockSignalPayload(channel: channel.name),
+      mockPresenceChangePayload(channel: channel.name), mockAppContextPayload(channel: channel.name),
+      mockFilePayload(channel: channel.name), mockMessageActionPayload(channel: channel.name)
+    ])
+    
+    let allExpectations = [
+      messagesExpectation, signalExpectation, presenceChangeExpectation,
+      messageAction, fileExpectation, appContextExpectation
+    ]
+    
+    wait(for: allExpectations, timeout: 1.0)
+  }
 }

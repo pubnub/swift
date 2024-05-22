@@ -230,6 +230,7 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         let mockResponses = ["subscription_handshake_success", "subscription_message_success", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
+        let pubnub = PubNub(configuration: configuration)
         
         mockResult.listener.didReceiveMessage = { [weak self, mockResult] message in
           XCTAssertEqual(message.channel, self?.testChannel)
@@ -242,7 +243,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -262,7 +263,8 @@ extension SubscribeRouterTests {
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
         let presenceExpect = XCTestExpectation(description: "Presence Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceivePresence = { [weak self, mockResult] presence in
           XCTAssertEqual(presence.channel, self?.testChannel)
           XCTAssertEqual(presence.actions, [
@@ -277,7 +279,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -297,7 +299,8 @@ extension SubscribeRouterTests {
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
         let signalExpect = XCTestExpectation(description: "Signal Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceiveSignal = { [weak self, mockResult] signal in
           XCTAssertEqual(signal.channel, self?.testChannel)
           XCTAssertEqual(signal.publisher, "TestUser")
@@ -310,7 +313,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -332,7 +335,8 @@ extension SubscribeRouterTests {
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         let baseUser = PubNubUUIDMetadataBase(
           metadataId: "TestUserID",
           name: "Not Real Name"
@@ -376,7 +380,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -394,7 +398,8 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let mockResponses = ["subscription_handshake_success", "subscription_uuidRemove_success", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceiveSubscription = { event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -427,7 +432,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -446,7 +451,8 @@ extension SubscribeRouterTests {
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         let baseChannel = PubNubChannelMetadataBase(
           metadataId: "TestSpaceID",
           name: "Not Real Name",
@@ -485,7 +491,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -503,7 +509,8 @@ extension SubscribeRouterTests {
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceiveSubscription = { event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -536,7 +543,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -557,7 +564,8 @@ extension SubscribeRouterTests {
         
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
         let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         let testMembership = PubNubMembershipMetadataBase(
           uuidMetadataId: "TestUserID",
           channelMetadataId: "TestSpaceID",
@@ -598,7 +606,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -618,7 +626,8 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
         let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         let testMembership = PubNubMembershipMetadataBase(
           uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
           uuid: uuid, channel: channel,
@@ -657,7 +666,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -679,7 +688,8 @@ extension SubscribeRouterTests {
         let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
         let mockResponses = ["subscription_handshake_success", "subscription_addMessageAction_success", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceiveSubscription = { [weak self] event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -712,7 +722,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -730,7 +740,8 @@ extension SubscribeRouterTests {
         let actionExpect = XCTestExpectation(description: "Message Action Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let actionListenerExpect = XCTestExpectation(description: "Action Listener Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
         mockResult.listener.didReceiveSubscription = { [weak self] event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -763,7 +774,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -785,6 +796,7 @@ extension SubscribeRouterTests {
         let presenceExpect = XCTestExpectation(description: "Presence Event")
         let signalExpect = XCTestExpectation(description: "Signal Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
+        let pubnub = PubNub(configuration: configuration)
         var payloadCount = 0
         
         mockResult.listener.didReceiveSubscription = { [mockResult] _ in
@@ -813,7 +825,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -839,15 +851,21 @@ extension SubscribeRouterTests {
         let mockResponses = ["subscription_handshake_success", "subscription_invalid_json", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, raw: [corruptedData], and: configuration)
         let errorExpect = XCTestExpectation(description: "Error Event")
-        let statusExpect = XCTestExpectation(description: "Status Event")
-        
+        let pubnub = PubNub(configuration: configuration)
+
+        let statusExpect: XCTestExpectation? = if (configuration.enableEventEngine) {
+          XCTestExpectation(description: "Status Event")
+        } else {
+          nil
+        }
+
         mockResult.listener.didReceiveSubscription = { [mockResult] event in
           switch event {
           case .subscriptionChanged:
             break
           case let .connectionStatusChanged(connection):
-            if connection == .disconnected {
-              statusExpect.fulfill()
+            if case .connectionError = connection {
+              statusExpect?.fulfill()
             }
           case let .subscribeError(error):
             XCTAssertEqual(error.reason, .jsonDataDecodingFailure)
@@ -857,11 +875,11 @@ extension SubscribeRouterTests {
             XCTFail("Unexpected event received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
-        wait(for: [errorExpect, statusExpect], timeout: 1.0, enforceOrder: true)
+        wait(for: [errorExpect, statusExpect].compactMap { $0 }, timeout: 1.0, enforceOrder: true)
       }
     }
   }
@@ -873,6 +891,7 @@ extension SubscribeRouterTests {
   func testUnsubscribe() {
     for configuration in [config, eeEnabledConfig] {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
+        let pubnub = PubNub(configuration: configuration)
         let mockResponses = ["subscription_handshake_success", "subscription_mixed_success", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
         let statusExpect = XCTestExpectation(description: "Status Event")
@@ -905,7 +924,7 @@ extension SubscribeRouterTests {
             break
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -921,8 +940,10 @@ extension SubscribeRouterTests {
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
         let statusExpect = XCTestExpectation(description: "Status Event")
         let otherChannel = "OtherChannel"
-        
-        mockResult.listener.didReceiveSubscription = { [weak self, mockResult] event in
+        let pubnub = PubNub(configuration: configuration)
+        let subscriptionSession = mockResult.subscriptionSession
+
+        mockResult.listener.didReceiveSubscription = { [weak self, weak subscriptionSession] event in
           switch event {
           case let .subscriptionChanged(change):
             switch change {
@@ -938,8 +959,8 @@ extension SubscribeRouterTests {
           case let .connectionStatusChanged(status):
             switch status {
             case .connected:
-              mockResult.subscriptionSession.unsubscribeAll()
-              XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [])
+              subscriptionSession?.unsubscribeAll()
+              XCTAssertEqual(subscriptionSession?.subscribedChannels, [])
               statusExpect.fulfill()
             case .disconnected:
               statusExpect.fulfill()
@@ -951,11 +972,9 @@ extension SubscribeRouterTests {
           }
         }
         
-        mockResult.subscriptionSession.subscribe(to: [testChannel, otherChannel])
+        mockResult.subscriptionSession.subscribe(to: [testChannel, otherChannel], using: pubnub)
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(testChannel))
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(otherChannel))
-        mockResult.subscriptionSession.unsubscribeAll()
-        XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [])
         
         defer { mockResult.listener.cancel() }
         wait(for: [statusExpect], timeout: 1.0)

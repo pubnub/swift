@@ -54,7 +54,7 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: messages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: listeners,
+      listeners: WeakSet(listeners),
       messageCache: MessageCache()
     )
     
@@ -77,15 +77,16 @@ class EmitMessagesTests: XCTestCase {
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = listeners.count
     
+    let generatedMessages = (1...100).map {
+      generateMessage(
+        with: .message,
+        payload: AnyJSON("Hello, it's message number \($0)")
+      )
+    }
     let effect = EmitMessagesEffect(
-      messages: (1...100).map {
-        generateMessage(
-          with: .message,
-          payload: AnyJSON("Hello, it's message number \($0)")
-        )
-      },
+      messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: listeners,
+      listeners: WeakSet(listeners),
       messageCache: MessageCache()
     )
     
@@ -110,15 +111,16 @@ class EmitMessagesTests: XCTestCase {
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = listeners.count
     
+    let generatedMessages = (1...50).map { _ in
+      generateMessage(
+        with: .message,
+        payload: AnyJSON("Hello, it's a message")
+      )
+    }
     let effect = EmitMessagesEffect(
-      messages: (1...50).map { _ in
-        generateMessage(
-          with: .message,
-          payload: AnyJSON("Hello, it's a message")
-        )
-      },
+      messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: listeners,
+      listeners: WeakSet(listeners),
       messageCache: MessageCache()
     )
     
@@ -156,7 +158,7 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: newMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: listeners,
+      listeners: WeakSet(listeners),
       messageCache: cache
     )
     

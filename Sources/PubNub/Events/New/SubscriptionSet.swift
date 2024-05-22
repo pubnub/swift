@@ -13,7 +13,9 @@ import Foundation
 /// A final class representing a set of `Subscription`.
 ///
 /// Use this class to manage multiple `Subscription` concurrently.
-public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
+/// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
+/// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
+public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
@@ -32,6 +34,8 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public private(set) var isDisposed = false
   // Internally holds a collection of child subscriptions
   private(set) var currentSubscriptions: Set<Subscription>
+  // Stores additional listeners
+  private var listenersContainer: SubscriptionListenersContainer = .init()
 
   // Internally intercepts messages from the Subscribe loop
   // and forwards them to the current `SubscriptionSet`
@@ -54,13 +58,7 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   ) {
     self.queue = queue
     self.options = SubscriptionOptions.empty() + options
-    self.currentSubscriptions = Set(entities.map {
-      Subscription(
-        queue: queue,
-        entity: $0,
-        options: options
-      )
-    })
+    self.currentSubscriptions = Set(entities.map { Subscription(queue: queue, entity: $0, options: options) })
   }
 
   /// Initializes `SubscriptionSet` object with the specified parameters.
@@ -125,8 +123,8 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
       subscriptions: currentSubscriptions.map { $0.clone() },
       options: options
     )
-    if let receiver = currentSubscriptions.first?.receiver, receiver.hasRegisteredAdapter(with: uuid) {
-      receiver.registerAdapter(clonedSubscriptionSet.adapter)
+    if let pubnub = currentSubscriptions.first?.pubnub, pubnub.hasRegisteredAdapter(with: uuid) {
+      pubnub.registerAdapter(clonedSubscriptionSet.adapter)
     }
     return clonedSubscriptionSet
   }
@@ -138,7 +136,23 @@ public final class SubscriptionSet: EventEmitter, SubscriptionDisposable {
   public func dispose() {
     clearCallbacks()
     currentSubscriptions.forEach { $0.dispose() }
+    removeAllListeners()
     isDisposed = true
+  }
+
+  /// Adds additional subscription listener
+  public func addEventListener(_ listener: EventListener) {
+    listenersContainer.storeEventListener(listener)
+  }
+
+  /// Removes subscription listener
+  public func removeEventListener(with uuid: UUID) {
+    listenersContainer.removeEventListener(with: uuid)
+  }
+
+  /// Removes all event listeners
+  public func removeAllListeners() {
+    listenersContainer.removeAllEventListeners()
   }
 
   deinit {
@@ -155,11 +169,10 @@ extension SubscriptionSet: SubscribeCapable {
   ///
   /// - Parameter timetoken: The timetoken to use for the subscriptions
   public func subscribe(with timetoken: Timetoken?) {
-    guard let receiver = currentSubscriptions.first?.receiver, !isDisposed else {
+    guard let pubnub = currentSubscriptions.first?.pubnub, !isDisposed else {
       return
     }
-    receiver.registerAdapter(adapter)
-    currentSubscriptions.forEach { receiver.registerAdapter($0.adapter) }
+    pubnub.registerAdapter(adapter)
 
     let channels = currentSubscriptions.filter {
       $0.subscriptionType == .channel
@@ -169,7 +182,7 @@ extension SubscriptionSet: SubscribeCapable {
       $0.subscriptionType == .channelGroup
     }.allObjects
 
-    receiver.internalSubscribe(
+    pubnub.internalSubscribe(
       with: channels,
       and: groups,
       at: timetoken
@@ -183,10 +196,11 @@ extension SubscriptionSet: SubscribeCapable {
   /// Use this method to gracefully end all subscriptions and stop receiving messages for all
   /// associated entities. After unsubscribing, the subscription set can be restarted if needed.
   public func unsubscribe() {
-    guard let receiver = currentSubscriptions.first?.receiver, !isDisposed else {
+    guard let pubnub = currentSubscriptions.first?.pubnub, !isDisposed else {
       return
     }
-    receiver.internalUnsubscribe(
+    pubnub.subscription.remove(adapter)
+    pubnub.internalUnsubscribe(
       from: currentSubscriptions.filter { $0.subscriptionType == .channel },
       and: currentSubscriptions.filter { $0.subscriptionType == .channelGroup },
       presenceOnly: false
@@ -214,7 +228,7 @@ extension SubscriptionSet: SubscribeMessagesReceiver {
   // 1. Gets a subscription from the associated list of child subscriptions
   // 2. Checks which payloads the currently iterated child subscription can map to events
   // 3. Checks the events result received in the previous step against SubscriptionSet's options
-  // 4. Emits filtered events from SubscriptionSet
+  // 4. Emits filtered events from SubscriptionSet and to additional listeners attached
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     currentSubscriptions.reduce(into: [PubNubEvent]()) { accumulatedRes, childSubscription in
       let events = payloads.compactMap { payload in
@@ -223,7 +237,10 @@ extension SubscriptionSet: SubscribeMessagesReceiver {
         options.filterCriteriaSatisfied(event: $0)
       }
       accumulatedRes.append(contentsOf: events)
+      // Emits events to the current SubscriptionSet's closures
       emit(events: events)
+      // Emits events to the underlying attached listeners
+      listenersContainer.eventListeners.forEach { $0.emit(events: events) }
     }
   }
 }

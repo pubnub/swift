@@ -13,6 +13,7 @@ import Foundation
 @objc
 public class PubNubObjC : NSObject {
   private let pubnub: PubNub
+  private var listeners: [UUID: EventListener] = [:]
   
   // MARK: - Init
   
@@ -39,7 +40,7 @@ public class PubNubObjC : NSObject {
       message: AnyJSON(message),
       shouldStore: shouldStore?.boolValue,
       storeTTL: shouldStore?.intValue,
-      meta: resolveJSONObject(meta)
+      meta: meta != nil ? AnyJSON(meta as Any) : nil
     ) {
       switch $0 {
       case .success(let timetoken):
@@ -47,14 +48,6 @@ public class PubNubObjC : NSObject {
       case .failure(let error):
         onFailure(error)
       }
-    }
-  }
-  
-  private func resolveJSONObject(_ object: Any?) -> AnyJSON? {
-    if let object = object {
-      return AnyJSON(object)
-    } else {
-      return nil
     }
   }
   
@@ -205,10 +198,54 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-}
-
-@objc public extension PubNubObjC {
-  @objc func extensionMthd() {
+  
+  // MARK: Event Listeners
+  
+  @objc
+  public func addEventListener(listener: EventListenerObjC) {
+    let underlyingListener = EventListener(
+      onMessage: {
+        listener.onMessage?(PubNubMessageObjC(message: $0))
+      },
+      onSignal: {
+        listener.onSignal?(PubNubMessageObjC(message: $0))
+      },
+      onPresence: {
+        listener.onPresence?($0)
+      },
+      onMessageAction: {
+        switch $0 {
+        case .added(let messageAction):
+          listener.onMessageActionAdded?(PubNubMessageActionObjC(action: messageAction))
+        case .removed(let messageAction):
+          listener.onMessageActionRemoved?(PubNubMessageActionObjC(action: messageAction))
+        }
+      },
+      onFileEvent: {
+        switch $0 {
+        case .uploaded(let fileEvent):
+          listener.onFile?(fileEvent)
+        }
+      },
+      onAppContext: {
+        switch $0 {
+        case .channelMetadataRemoved(let metadataId):
+          listener.onAppContext?(metadataId)
+        case .channelMetadataSet(let changes):
+          listener.onAppContext?(changes)
+        case .userMetadataSet(let changes):
+          listener.onAppContext?(changes)
+        case .userMetadataRemoved(let metadataId):
+          listener.onAppContext?(metadataId)
+        case .membershipMetadataSet(let metadata):
+          listener.onAppContext?(metadata)
+        case .membershipMetadataRemoved(let metadata):
+          listener.onAppContext?(metadata)
+        }
+      }
+    )
     
+    listeners[underlyingListener.uuid] = underlyingListener
+    pubnub.addEventListener(underlyingListener)
   }
 }

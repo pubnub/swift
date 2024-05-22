@@ -429,6 +429,8 @@
 		3DA0C7CE2BFE328B000FFE6C /* WeakEventListenerBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CD2BFE328B000FFE6C /* WeakEventListenerBox.swift */; };
 		3DA0C7D02BFE59AC000FFE6C /* WeakStatusListenerBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* WeakStatusListenerBox.swift */; };
 		3DA17C2D2BEE40E1005CF91C /* PubNubObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA17C2C2BEE40E1005CF91C /* PubNubObjC.swift */; };
+		3DA0C7C92BFDF538000FFE6C /* PubNubObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */; };
+		3DA0C7CC2BFDF58D000FFE6C /* PubNubFetchMessagesResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CB2BFDF58D000FFE6C /* PubNubFetchMessagesResultObjC.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DB9255C2B7A2B89001B7E90 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */; };
 		3DB9255D2B7A2B89001B7E90 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9255A2B7A2B89001B7E90 /* EventStreamTests.swift */; };
@@ -1022,6 +1024,8 @@
 		3DA0C7CD2BFE328B000FFE6C /* WeakEventListenerBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakEventListenerBox.swift; sourceTree = "<group>"; };
 		3DA0C7CF2BFE59AC000FFE6C /* WeakStatusListenerBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakStatusListenerBox.swift; sourceTree = "<group>"; };
 		3DA17C2C2BEE40E1005CF91C /* PubNubObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjC.swift; sourceTree = "<group>"; };
+		3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjC.swift; sourceTree = "<group>"; };
+		3DA0C7CB2BFDF58D000FFE6C /* PubNubFetchMessagesResultObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFetchMessagesResultObjC.swift; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
 		3DB9255A2B7A2B89001B7E90 /* EventStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
@@ -2210,6 +2214,23 @@
 			path = Push;
 			sourceTree = "<group>";
 		};
+		3DA0C7C52BFDF508000FFE6C /* KMM */ = {
+			isa = PBXGroup;
+			children = (
+				3DA0C7CA2BFDF550000FFE6C /* History */,
+				3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */,
+			);
+			path = KMM;
+			sourceTree = "<group>";
+		};
+		3DA0C7CA2BFDF550000FFE6C /* History */ = {
+			isa = PBXGroup;
+			children = (
+				3DA0C7CB2BFDF58D000FFE6C /* PubNubFetchMessagesResultObjC.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
 		3DB925572B7A2B89001B7E90 /* Old */ = {
 			isa = PBXGroup;
 			children = (
@@ -2516,8 +2537,8 @@
 			children = (
 				3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */,
 				OBJ_11 /* PubNub.swift */,
-				3DA17C2C2BEE40E1005CF91C /* PubNubObjC.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
+				3DA0C7C52BFDF508000FFE6C /* KMM */,
 				3D8BAC0E2B8C96A40059A5C3 /* DependencyContainer */,
 				3D389FC12B35AF4A006928E7 /* EventEngine */,
 				35B0ACE4252BE37C00537A18 /* APIs */,
@@ -3493,6 +3514,7 @@
 				354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */,
 				3DB9257F2B7AA75F001B7E90 /* SubscriptionSet.swift in Sources */,
 				3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */,
+				3DA0C7CC2BFDF58D000FFE6C /* PubNubFetchMessagesResultObjC.swift in Sources */,
 				357CA28E251D3D0C00BC40D3 /* HTTPFileTask.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* HTTPRouter.swift in Sources */,
 				35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */,
@@ -3577,7 +3599,7 @@
 				358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */,
 				3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */,
 				3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */,
-				3DA17C2D2BEE40E1005CF91C /* PubNubObjC.swift in Sources */,
+				3DA0C7C92BFDF538000FFE6C /* PubNubObjC.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,

@@ -1416,12 +1416,12 @@ public extension PubNub {
 
 // MARK: - Global EventEmitter
 
-/// An extension to the PubNub class, making it conform to the `EventEmitter` protocol and serving
+/// An extension to the PubNub class, making it conform to the `EventListenerInterface` protocol and serving
 /// as a global emitter for all entities.
 ///
 /// This extension enables `PubNub` instances to act as event emitters, allowing them to dispatch
 /// various types of events for all registered entities in the Subscribe loop.
-extension PubNub: EventEmitter {
+extension PubNub: EventListenerInterface {
   public var queue: DispatchQueue {
     subscription.queue
   }
@@ -1471,12 +1471,32 @@ extension PubNub: EventEmitter {
   }
 }
 
-/// An extension to the `PubNub` class, making it conform to the `StatusEmitter` protocol and serving
+/// An extension to the `PubNub` class, making it conform to the `StatusListenerInterface` protocol and serving
 /// as a global listener for connection changes and possible errors along the way.
-extension PubNub: StatusEmitter {
+extension PubNub: StatusListenerInterface {
   public var onConnectionStateChange: ((ConnectionStatus) -> Void)? {
     get { subscription.onConnectionStateChange }
     set { subscription.onConnectionStateChange = newValue }
+  }
+
+  /// Adds additional status listeners
+  public func addStatusListener(_ listener: StatusListenerInterface) {
+    subscription.addStatusListener(listener)
+  }
+
+  /// Removes status listener
+  public func removeStatusListener(_ listener: StatusListenerInterface) {
+    subscription.removeStatusListener(listener)
+  }
+}
+
+extension PubNub: EventListenerHandler {
+  public func addEventListener(_ listener: EventListenerInterface) {
+    subscription.addEventListener(listener)
+  }
+
+  public func removeEventListener(_ listener: EventListenerInterface) {
+    subscription.removeEventListener(listener)
   }
 }
 

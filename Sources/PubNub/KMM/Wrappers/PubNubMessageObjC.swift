@@ -1,0 +1,36 @@
+//
+//  PubNubMessageObjC.swift
+//
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
+//
+
+import Foundation
+
+@objc
+public class PubNubMessageObjC: NSObject {
+  init(message: PubNubMessage) {
+    self.payload = message.payload
+    self.actions = message.actions.map { PubNubMessageActionObjC(action: $0) }
+    self.publisher = message.publisher
+    self.channel = message.channel
+    self.subscription = message.subscription
+    self.published = message.published
+    self.metadata = message.metadata
+    self.messageType = message.messageType.rawValue
+    self.error = message.error
+  }
+
+  @objc public let payload: Any
+  @objc public let actions: [PubNubMessageActionObjC]
+  @objc public let publisher: String?
+  @objc public let channel: String
+  @objc public let subscription: String?
+  @objc public let published: Timetoken
+  @objc public let metadata: Any?
+  @objc public let messageType: Int
+  @objc public let error: Error?
+}

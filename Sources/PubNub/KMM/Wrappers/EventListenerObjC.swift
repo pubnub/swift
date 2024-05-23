@@ -13,27 +13,24 @@ import Foundation
 @objc
 public class EventListenerObjC: NSObject {
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
-  @objc public var onPresence: ((Any) -> Void)?
+  @objc public var onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
-  @objc public var onMessageActionAdded: ((PubNubMessageActionObjC) -> Void)?
-  @objc public var onMessageActionRemoved: ((PubNubMessageActionObjC) -> Void)?
+  @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
   @objc public var onAppContext: ((Any) -> Void)?
-  @objc public var onFile: ((Any) -> Void)?
-  
+  @objc public var onFile: ((PubNubFileEventResultObjC) -> Void)?
+
   @objc public init(
     onMessage: ((PubNubMessageObjC) -> Void)?,
-    onPresence: ((Any) -> Void)?,
+    onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?,
     onSignal: ((PubNubMessageObjC) -> Void)?,
-    onMessageActionAdded: ((PubNubMessageActionObjC) -> Void)?,
-    onMessageActionRemoved: ((PubNubMessageActionObjC) -> Void)?,
+    onMessageAction: ((PubNubMessageActionObjC) -> Void)?,
     onAppContext: ((Any) -> Void)?,
-    onFile: ((Any) -> Void)?
+    onFile: ((PubNubFileEventResultObjC) -> Void)?
   ) {
     self.onMessage = onMessage
     self.onPresence = onPresence
     self.onSignal = onSignal
-    self.onMessageActionAdded = onMessageActionAdded
-    self.onMessageActionRemoved = onMessageActionRemoved
+    self.onMessageAction = onMessageAction
     self.onAppContext = onAppContext
     self.onFile = onFile
   }

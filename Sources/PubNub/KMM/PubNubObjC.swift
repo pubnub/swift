@@ -11,20 +11,20 @@
 import Foundation
 
 @objc
-public class PubNubObjC : NSObject {
+public class PubNubObjC: NSObject {
   private let pubnub: PubNub
   private var listeners: [UUID: EventListener] = [:]
-  
+
   // MARK: - Init
-  
+
   @objc
   public init(user: String, subKey: String, pubKey: String) {
     self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
     super.init()
   }
-  
+
   // MARK: - Publish
-  
+
   @objc
   public func publish(
     channel: String,
@@ -50,9 +50,9 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   // MARK: Signal
-  
+
   @objc
   public func signal(
     channel: String,
@@ -69,21 +69,21 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   // MARK: Subscribed channels & channel groups
-  
+
   @objc
   public var subscribedChannels: [String] {
     pubnub.subscribedChannels
   }
-  
+
   @objc
   public var subscribedChannelGroups: [String] {
     pubnub.subscribedChannelGroups
   }
-  
+
   // MARK: Push registration
-  
+
   @objc
   public func addChannelsToPushNotifications(
     channels: [String],
@@ -100,7 +100,7 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   @objc
   public func listPushChannels(
     deviceId: Data,
@@ -120,7 +120,7 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   @objc
   public func removeChannelsFromPush(
     channels: [String],
@@ -141,7 +141,7 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   @objc
   public func removeAllChannelsFromPush(
     pushType: String,
@@ -161,9 +161,9 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   // MARK: History
-  
+
   @objc
   public func fetchMessages(
     from channels: [String],
@@ -182,15 +182,15 @@ public class PubNubObjC : NSObject {
       includeUUID: includeUUID,
       includeMessageType: includeMessageType,
       page: PubNubBoundedPageBase(
-        start: page?.start?.uint64Value ?? nil,
-        end: page?.end?.uint64Value ?? nil,
-        limit: page?.limit?.intValue ?? nil
+        start: page?.start?.uint64Value,
+        end: page?.end?.uint64Value,
+        limit: page?.limit?.intValue
       )
     ) {
       switch $0 {
       case .success(let response):
         onSuccess(PubNubFetchMessagesResultObjC(
-          messages: response.messagesByChannel.mapValues { $0.map { PubNubMessageObjC(message: $0) }},
+          messages: response.messagesByChannel.mapValues { $0.map { PubNubMessageObjC(message: $0) } },
           page: PubNubBoundedPageObjC(page: response.next)
         ))
       case .failure(let error):
@@ -198,35 +198,17 @@ public class PubNubObjC : NSObject {
       }
     }
   }
-  
+
   // MARK: Event Listeners
-  
+
   @objc
   public func addEventListener(listener: EventListenerObjC) {
     let underlyingListener = EventListener(
-      onMessage: {
-        listener.onMessage?(PubNubMessageObjC(message: $0))
-      },
-      onSignal: {
-        listener.onSignal?(PubNubMessageObjC(message: $0))
-      },
-      onPresence: {
-        listener.onPresence?($0)
-      },
-      onMessageAction: {
-        switch $0 {
-        case .added(let messageAction):
-          listener.onMessageActionAdded?(PubNubMessageActionObjC(action: messageAction))
-        case .removed(let messageAction):
-          listener.onMessageActionRemoved?(PubNubMessageActionObjC(action: messageAction))
-        }
-      },
-      onFileEvent: {
-        switch $0 {
-        case .uploaded(let fileEvent):
-          listener.onFile?(fileEvent)
-        }
-      },
+      onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
+      onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
+      onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
+      onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
+      onFileEvent: { [unowned pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
       onAppContext: {
         switch $0 {
         case .channelMetadataRemoved(let metadataId):
@@ -244,7 +226,7 @@ public class PubNubObjC : NSObject {
         }
       }
     )
-    
+
     listeners[underlyingListener.uuid] = underlyingListener
     pubnub.addEventListener(underlyingListener)
   }

@@ -13,12 +13,14 @@ defaults:
 jobs:
   pubnub-yml:
     name: "Validate .pubnub.yml"
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Default Larger Runners
+      labels: ubuntu-latest-m
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Checkout validator action
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
@@ -33,17 +35,19 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   package-managers-validation:
     name: Validate package managers
-    runs-on: macos-12
+    runs-on:
+      group: Default
+      labels: macos-latest
     strategy:
       matrix:
         managers: [CocoaPods, Swift Package Manager]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
       - name: Checkout actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
@@ -55,7 +59,7 @@ jobs:
           ruby-version: 2.6.6
           bundler-cache: true
       - name: Cache Swift Package Manager
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             .build
@@ -70,14 +74,16 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   demo-app-validation:
     name: Validate demo application
-    runs-on: macos-12
+    runs-on:
+      group: Default
+      labels: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
       - name: Checkout actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
@@ -89,7 +95,7 @@ jobs:
           ruby-version: 2.6.6
           bundler-cache: true
       - name: Cache Swift Package Manager
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             .build
@@ -104,7 +110,9 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   all-validations:
     name: Validations
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Default Larger Runners
+      labels: ubuntu-latest-m
     needs: [pubnub-yml, package-managers-validation, demo-app-validation]
     steps:
       - name: Validations summary

@@ -208,23 +208,8 @@ public class PubNubObjC: NSObject {
       onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
       onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
       onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
-      onFileEvent: { [unowned pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
-      onAppContext: {
-        switch $0 {
-        case .channelMetadataRemoved(let metadataId):
-          listener.onAppContext?(metadataId)
-        case .channelMetadataSet(let changes):
-          listener.onAppContext?(changes)
-        case .userMetadataSet(let changes):
-          listener.onAppContext?(changes)
-        case .userMetadataRemoved(let metadataId):
-          listener.onAppContext?(metadataId)
-        case .membershipMetadataSet(let metadata):
-          listener.onAppContext?(metadata)
-        case .membershipMetadataRemoved(let metadata):
-          listener.onAppContext?(metadata)
-        }
-      }
+      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
+      onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
     )
 
     listeners[underlyingListener.uuid] = underlyingListener

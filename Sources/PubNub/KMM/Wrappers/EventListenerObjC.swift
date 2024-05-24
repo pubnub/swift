@@ -16,7 +16,7 @@ public class EventListenerObjC: NSObject {
   @objc public var onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
   @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
-  @objc public var onAppContext: ((Any) -> Void)?
+  @objc public var onAppContext: ((PubNubObjectEventResultObjC) -> Void)?
   @objc public var onFile: ((PubNubFileEventResultObjC) -> Void)?
 
   @objc public init(
@@ -24,7 +24,7 @@ public class EventListenerObjC: NSObject {
     onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?,
     onSignal: ((PubNubMessageObjC) -> Void)?,
     onMessageAction: ((PubNubMessageActionObjC) -> Void)?,
-    onAppContext: ((Any) -> Void)?,
+    onAppContext: ((PubNubObjectEventResultObjC) -> Void)?,
     onFile: ((PubNubFileEventResultObjC) -> Void)?
   ) {
     self.onMessage = onMessage

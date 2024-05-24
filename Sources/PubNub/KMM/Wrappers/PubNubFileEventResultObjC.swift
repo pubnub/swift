@@ -19,7 +19,7 @@ public class PubNubFileEventResultObjC: NSObject {
   @objc public var subscription: String?
   @objc public var file: PubNubFileObjC
 
-  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub) -> PubNubFileEventResultObjC {
+  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> PubNubFileEventResultObjC {
     switch event {
     case .uploaded(let fileEvent):
       return PubNubFileEventResultObjC(
@@ -31,7 +31,7 @@ public class PubNubFileEventResultObjC: NSObject {
         file: PubNubFileObjC(
           id: fileEvent.file.fileId,
           name: fileEvent.file.filename,
-          url: (try? pubnub.generateFileDownloadURL(
+          url: (try? pubnub?.generateFileDownloadURL(
             channel: fileEvent.file.channel,
             fileId: fileEvent.file.fileId,
             filename: fileEvent.file.filename

@@ -13,7 +13,7 @@ import Foundation
 @objc
 public class PubNubObjC: NSObject {
   private let pubnub: PubNub
-  private var listeners: [UUID: EventListener] = [:]
+  private var listeners: [UUID: EventListenerInterface] = [:]
 
   // MARK: - Init
 
@@ -22,11 +22,89 @@ public class PubNubObjC: NSObject {
     self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
     super.init()
   }
+}
 
-  // MARK: - Publish
+// MARK: - Event Listeners
 
+@objc
+public extension PubNubObjC {
   @objc
-  public func publish(
+  func addEventListener(listener: EventListenerObjC) {
+    let underlyingListener = EventListener(
+      uuid: UUID(uuidString: listener.uuid)!,
+      onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
+      onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
+      onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
+      onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
+      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
+      onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
+    )
+
+    listeners[underlyingListener.uuid] = underlyingListener
+    pubnub.addEventListener(underlyingListener)
+  }
+  
+  @objc
+  func removeEventListener(listener: EventListenerObjC) {
+    if let uuid = UUID(uuidString: listener.uuid), let underlyingListener = listeners[uuid] {
+      pubnub.removeEventListener(underlyingListener)
+      listeners[uuid] = nil
+    }
+  }
+}
+
+// MARK: - Subscribed channels & channel groups
+
+@objc
+public extension PubNubObjC {
+  @objc
+  var subscribedChannels: [String] {
+    pubnub.subscribedChannels
+  }
+  
+  @objc
+  var subscribedChannelGroups: [String] {
+    pubnub.subscribedChannelGroups
+  }
+}
+
+// MARK: - Subscribe & Unsubscribe
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func subscribe(
+    channels: [String],
+    channelGroups: [String],
+    withPresence: Bool,
+    timetoken: Timetoken
+  ) {
+    pubnub.subscribe(
+      to: channels,
+      and: channelGroups,
+      at: timetoken,
+      withPresence: withPresence
+    )
+  }
+    
+  @objc
+  func unsubscribe(
+    from channels: [String],
+    channelGroups: [String]
+  ) {
+    pubnub.unsubscribe(
+      from: channels,
+      and: channelGroups
+    )
+  }
+}
+
+// MARK: - Publish
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func publish(
     channel: String,
     message: Any,
     meta: Any?,
@@ -50,11 +128,14 @@ public class PubNubObjC: NSObject {
       }
     }
   }
+}
 
-  // MARK: - Signal
+// MARK: - Signal
 
+@objc
+public extension PubNubObjC {
   @objc
-  public func signal(
+  func signal(
     channel: String,
     message: Any,
     onSuccess: @escaping ((Timetoken) -> Void),
@@ -69,23 +150,14 @@ public class PubNubObjC: NSObject {
       }
     }
   }
+}
 
-  // MARK: - Subscribed channels & channel groups
+// MARK: - Push registration
 
+@objc
+public extension PubNubObjC {
   @objc
-  public var subscribedChannels: [String] {
-    pubnub.subscribedChannels
-  }
-
-  @objc
-  public var subscribedChannelGroups: [String] {
-    pubnub.subscribedChannelGroups
-  }
-
-  // MARK: - Push registration
-
-  @objc
-  public func addChannelsToPushNotifications(
+  func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
     onSuccess: @escaping (([String]) -> Void),
@@ -102,7 +174,7 @@ public class PubNubObjC: NSObject {
   }
 
   @objc
-  public func listPushChannels(
+  func listPushChannels(
     deviceId: Data,
     pushType: String,
     onSuccess: @escaping (([String]) -> Void),
@@ -122,7 +194,7 @@ public class PubNubObjC: NSObject {
   }
 
   @objc
-  public func removeChannelsFromPush(
+  func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
     pushType: String,
@@ -143,7 +215,7 @@ public class PubNubObjC: NSObject {
   }
 
   @objc
-  public func removeAllChannelsFromPush(
+  func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
     onSuccess: @escaping (() -> Void),
@@ -161,11 +233,14 @@ public class PubNubObjC: NSObject {
       }
     }
   }
+}
 
-  // MARK: - History
+// MARK: - History
 
+@objc
+public extension PubNubObjC {
   @objc
-  public func fetchMessages(
+  func fetchMessages(
     from channels: [String],
     includeUUID: Bool,
     includeMeta: Bool,
@@ -197,52 +272,5 @@ public class PubNubObjC: NSObject {
         onFailure(error)
       }
     }
-  }
-
-  // MARK: - Event Listeners
-
-  @objc
-  public func addEventListener(listener: EventListenerObjC) {
-    let underlyingListener = EventListener(
-      onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
-      onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
-      onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
-      onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
-      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
-      onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
-    )
-
-    listeners[underlyingListener.uuid] = underlyingListener
-    pubnub.addEventListener(underlyingListener)
-  }
-  
-  // MARK: - Subscribe
-  
-  @objc
-  public func subscribe(
-    channels: [String],
-    channelGroups: [String],
-    withPresence: Bool,
-    timetoken: Timetoken
-  ) {
-    pubnub.subscribe(
-      to: channels,
-      and: channelGroups,
-      at: timetoken,
-      withPresence: withPresence
-    )
-  }
-  
-  // MARK: - Unsubscribe
-  
-  @objc
-  public func unsubscribe(
-    from channels: [String],
-    channelGroups: [String]
-  ) {
-    pubnub.unsubscribe(
-      from: channels,
-      and: channelGroups
-    )
   }
 }

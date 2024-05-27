@@ -51,7 +51,7 @@ public class PubNubObjC: NSObject {
     }
   }
 
-  // MARK: Signal
+  // MARK: - Signal
 
   @objc
   public func signal(
@@ -70,7 +70,7 @@ public class PubNubObjC: NSObject {
     }
   }
 
-  // MARK: Subscribed channels & channel groups
+  // MARK: - Subscribed channels & channel groups
 
   @objc
   public var subscribedChannels: [String] {
@@ -82,7 +82,7 @@ public class PubNubObjC: NSObject {
     pubnub.subscribedChannelGroups
   }
 
-  // MARK: Push registration
+  // MARK: - Push registration
 
   @objc
   public func addChannelsToPushNotifications(
@@ -162,7 +162,7 @@ public class PubNubObjC: NSObject {
     }
   }
 
-  // MARK: History
+  // MARK: - History
 
   @objc
   public func fetchMessages(
@@ -199,7 +199,7 @@ public class PubNubObjC: NSObject {
     }
   }
 
-  // MARK: Event Listeners
+  // MARK: - Event Listeners
 
   @objc
   public func addEventListener(listener: EventListenerObjC) {
@@ -214,5 +214,22 @@ public class PubNubObjC: NSObject {
 
     listeners[underlyingListener.uuid] = underlyingListener
     pubnub.addEventListener(underlyingListener)
+  }
+  
+  // MARK: - Subscribe
+  
+  @objc
+  public func subscribe(
+    channels: [String],
+    channelGroups: [String],
+    withPresence: Bool,
+    timetoken: Timetoken
+  ) {
+    pubnub.subscribe(
+      to: channels,
+      and: channelGroups,
+      at: timetoken,
+      withPresence: withPresence
+    )
   }
 }

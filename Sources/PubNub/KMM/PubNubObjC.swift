@@ -232,4 +232,17 @@ public class PubNubObjC: NSObject {
       withPresence: withPresence
     )
   }
+  
+  // MARK: - Unsubscribe
+  
+  @objc
+  public func unsubscribe(
+    from channels: [String],
+    channelGroups: [String]
+  ) {
+    pubnub.unsubscribe(
+      from: channels,
+      and: channelGroups
+    )
+  }
 }

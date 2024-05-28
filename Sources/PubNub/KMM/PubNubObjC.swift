@@ -327,6 +327,7 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
+  @objc
   func hereNow(
     channels: [String],
     channelGroups: [String],
@@ -367,6 +368,7 @@ public extension PubNubObjC {
     }
   }
 
+  @objc
   func whereNow(
     uuid: String,
     onSuccess: @escaping (([String]) -> Void),
@@ -376,6 +378,28 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let map):
         onSuccess(map[uuid] ?? [])
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getPresenceState(
+    channels: [String],
+    channelGroups: [String],
+    uuid: String,
+    onSuccess: @escaping (([String: Any]) -> Void),
+    onFailure: @escaping (Error) -> Void
+  ) {
+    pubnub.getPresenceState(
+      for: uuid,
+      on: channels,
+      and: channelGroups
+    ) {
+      switch $0 {
+      case .success(let response):
+        onSuccess(response.stateByChannel.mapValues { $0.rawValue })
       case .failure(let error):
         onFailure(error)
       }

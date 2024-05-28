@@ -10,12 +10,16 @@ defaults:
   run:
     shell: bash
 
+env:
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+
 jobs:
   pubnub-yml:
     name: "Validate .pubnub.yml"
     runs-on:
-      group: Default Larger Runners
-      labels: ubuntu-latest-m
+      group: ubuntu-gh
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -36,8 +40,7 @@ jobs:
   package-managers-validation:
     name: Validate package managers
     runs-on:
-      group: Default
-      labels: macos-latest
+      group: macos-gh
     strategy:
       matrix:
         managers: [CocoaPods, Swift Package Manager]
@@ -75,8 +78,7 @@ jobs:
   demo-app-validation:
     name: Validate demo application
     runs-on:
-      group: Default
-      labels: macos-latest
+      group: macos-gh
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -111,8 +113,7 @@ jobs:
   all-validations:
     name: Validations
     runs-on:
-      group: Default Larger Runners
-      labels: ubuntu-latest-m
+      group: ubuntu-gh
     needs: [pubnub-yml, package-managers-validation, demo-app-validation]
     steps:
       - name: Validations summary

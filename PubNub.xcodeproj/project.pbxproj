@@ -418,6 +418,7 @@
 		3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */; };
 		3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */; };
 		3D38A0302B35B208006928E7 /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */; };
+		3D452B232C05BD7A008987D4 /* PubNubMessageCountResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D452B222C05BD7A008987D4 /* PubNubMessageCountResultObjC.swift */; };
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
@@ -1019,6 +1020,7 @@
 		3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacySubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
+		3D452B222C05BD7A008987D4 /* PubNubMessageCountResultObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageCountResultObjC.swift; sourceTree = "<group>"; };
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
 		3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoModule.swift; sourceTree = "<group>"; };
@@ -2029,6 +2031,7 @@
 				3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */,
 				3D339C7F2BFF890700197342 /* PubNubFileEventResultObjC.swift */,
 				3D8102A92C009AA5005E3607 /* PubNubObjectEventResultObjC.swift */,
+				3D452B222C05BD7A008987D4 /* PubNubMessageCountResultObjC.swift */,
 			);
 			path = Wrappers;
 			sourceTree = "<group>";
@@ -3564,6 +3567,7 @@
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,
 				350EFBE422C95FED00FA33AA /* Atomic.swift in Sources */,
+				3D452B232C05BD7A008987D4 /* PubNubMessageCountResultObjC.swift in Sources */,
 				35293A7A2368F9680049A71F /* MessageActionsRouter.swift in Sources */,
 				35AC162B2485B1DA00A66030 /* SubscribeMessageActionPayload.swift in Sources */,
 				35599796230B6FFA000BCFD1 /* FileManager+PubNub.swift in Sources */,

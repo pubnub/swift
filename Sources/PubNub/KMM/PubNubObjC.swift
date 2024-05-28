@@ -273,4 +273,48 @@ public extension PubNubObjC {
       }
     }
   }
+  
+  @objc
+  func deleteMessages(
+    from channels: [String],
+    start: NSNumber?,
+    end: NSNumber?,
+    onSuccess: @escaping (() -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    // TODO: Channel list is not supported
+    pubnub.deleteMessageHistory(
+      from: channels.first!,
+      start: start?.uint64Value,
+      end: end?.uint64Value
+    ) {
+      switch $0 {
+      case .success:
+        onSuccess()
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func messageCounts(
+    for channels: [String],
+    channelsTimetokens: [Timetoken],
+    onSuccess: @escaping ((PubNubMessageCountResultObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    let keys = Set(channels)
+    let count = min(keys.count, channelsTimetokens.count)
+    let dictionary = Dictionary(uniqueKeysWithValues: zip(keys.prefix(count), channelsTimetokens.prefix(count)))
+    
+    pubnub.messageCounts(channels: dictionary) {
+      switch $0 {
+      case .success(let response):
+        onSuccess(PubNubMessageCountResultObjC(channels: response.mapValues { UInt64($0) }))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
 }

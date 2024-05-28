@@ -322,3 +322,63 @@ public extension PubNubObjC {
     }
   }
 }
+
+// MARK: - Presence
+
+@objc
+public extension PubNubObjC {
+  func hereNow(
+    channels: [String],
+    channelGroups: [String],
+    includeState: Bool,
+    includeUUIDs: Bool,
+    onSuccess: @escaping ((PubNubHereNowResultObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.hereNow(
+      on: channels,
+      and: channelGroups,
+      includeUUIDs: includeUUIDs,
+      includeState: includeState
+    ) {
+      switch $0 {
+      case let .success(map):
+        onSuccess(
+          PubNubHereNowResultObjC(
+            totalChannels: map.count,
+            totalOccupancy: map.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
+            channels: map.mapValues { value in
+              PubNubHereNowChannelDataObjC(
+                channelName: value.channel,
+                occupancy: value.occupancy,
+                occupants: value.occupants.map {
+                  PubNubHereNowOccupantDataObjC(
+                    uuid: $0,
+                    state: value.occupantsState[$0]?.rawValue
+                  )
+                }
+              )
+            }
+          )
+        )
+      case let .failure(error):
+        onFailure(error)
+      }
+    }
+  }
+
+  func whereNow(
+    uuid: String,
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping (Error) -> Void
+  ) {
+    pubnub.whereNow(for: uuid) {
+      switch $0 {
+      case .success(let map):
+        onSuccess(map[uuid] ?? [])
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}

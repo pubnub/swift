@@ -13,14 +13,14 @@ import Foundation
 // MARK: - PubNubObjectEventResultObjC
 
 @objc
-public class PubNubObjectEventResultObjC : NSObject {
+public class PubNubObjectEventResultObjC: NSObject {
   @objc public var channel: String
   @objc public var subscription: String?
   @objc public var timetoken: NSNumber?
   @objc public var userMetadata: Any?
   @objc public var publisher: String?
   @objc public var message: PubNubObjectEventMessageObjC
-  
+
   private init(
     channel: String,
     subscription: String? = nil,
@@ -36,7 +36,7 @@ public class PubNubObjectEventResultObjC : NSObject {
     self.publisher = publisher
     self.message = message
   }
-  
+
   static func from(event: PubNubAppContextEvent) -> PubNubObjectEventResultObjC {
     switch event {
     case .userMetadataSet(let metadata):
@@ -145,7 +145,7 @@ public class PubNubObjectEventMessageObjC: NSObject {
   @objc public var version: String
   @objc public var event: String
   @objc public var type: String
-  
+
   // TODO: Missing source, version, event, type
   init(
     source: String,
@@ -165,7 +165,7 @@ public class PubNubObjectEventMessageObjC: NSObject {
 @objc
 public class PubNubSetChannelMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var data: PubNubChannelMetadataObjC
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -193,7 +193,7 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
-  
+
   init(
     id: String,
     name: String? = nil,
@@ -218,9 +218,9 @@ public class PubNubChannelMetadataObjC: NSObject {
 // MARK: - SetUUIDMetadata
 
 @objc
-public class PubNubSetUUIDMetadataEventMessageObjC : PubNubObjectEventMessageObjC {
+public class PubNubSetUUIDMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var data: PubNubUUIDMetadataObjC
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -245,7 +245,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
-  
+
   init(
     id: String,
     name: String? = nil,
@@ -276,7 +276,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
 @objc
 public class PubNubDeleteChannelMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var channel: String
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -294,7 +294,7 @@ public class PubNubDeleteChannelMetadataEventMessageObjC: PubNubObjectEventMessa
 @objc
 public class PubNubDeleteUUIDMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var uuid: String
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -312,7 +312,7 @@ public class PubNubDeleteUUIDMetadataEventMessageObjC: PubNubObjectEventMessageO
 @objc
 public class PubNubSetMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var data: PubNubSetMembershipEventObjC
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -331,14 +331,14 @@ public class PubNubSetMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
 }
 
 @objc
-public class PubNubSetMembershipEventObjC : NSObject {
+public class PubNubSetMembershipEventObjC: NSObject {
   @objc public var channel: String
   @objc public var uuid: String
   @objc public var custom: Any?
   @objc public var eTag: String
   @objc public var updated: String
   @objc public var status: String?
-  
+
   init(
     channel: String,
     uuid: String,
@@ -361,7 +361,7 @@ public class PubNubSetMembershipEventObjC : NSObject {
 @objc
 public class PubNubDeleteMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
   @objc public var data: PubNubDeleteMembershipEventObjC
-  
+
   init(
     source: String = "",
     version: String = "",
@@ -375,10 +375,10 @@ public class PubNubDeleteMembershipEventMessageObjC: PubNubObjectEventMessageObj
 }
 
 @objc
-public class PubNubDeleteMembershipEventObjC : NSObject {
+public class PubNubDeleteMembershipEventObjC: NSObject {
   @objc public var channelId: String
   @objc public var uuid: String
-  
+
   init(channelId: String, uuid: String) {
     self.channelId = channelId
     self.uuid = uuid

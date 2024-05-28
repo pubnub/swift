@@ -28,7 +28,6 @@ public class PubNubObjC: NSObject {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func addEventListener(listener: EventListenerObjC) {
     let underlyingListener = EventListener(
       uuid: UUID(uuidString: listener.uuid)!,
@@ -43,8 +42,7 @@ public extension PubNubObjC {
     listeners[underlyingListener.uuid] = underlyingListener
     pubnub.addEventListener(underlyingListener)
   }
-  
-  @objc
+
   func removeEventListener(listener: EventListenerObjC) {
     if let uuid = UUID(uuidString: listener.uuid), let underlyingListener = listeners[uuid] {
       pubnub.removeEventListener(underlyingListener)
@@ -57,12 +55,10 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   var subscribedChannels: [String] {
     pubnub.subscribedChannels
   }
-  
-  @objc
+
   var subscribedChannelGroups: [String] {
     pubnub.subscribedChannelGroups
   }
@@ -72,7 +68,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func subscribe(
     channels: [String],
     channelGroups: [String],
@@ -86,8 +81,7 @@ public extension PubNubObjC {
       withPresence: withPresence
     )
   }
-    
-  @objc
+
   func unsubscribe(
     from channels: [String],
     channelGroups: [String]
@@ -103,7 +97,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func publish(
     channel: String,
     message: Any,
@@ -134,7 +127,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func signal(
     channel: String,
     message: Any,
@@ -156,7 +148,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
@@ -173,7 +164,6 @@ public extension PubNubObjC {
     }
   }
 
-  @objc
   func listPushChannels(
     deviceId: Data,
     pushType: String,
@@ -193,7 +183,6 @@ public extension PubNubObjC {
     }
   }
 
-  @objc
   func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
@@ -214,7 +203,6 @@ public extension PubNubObjC {
     }
   }
 
-  @objc
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
@@ -239,7 +227,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func fetchMessages(
     from channels: [String],
     includeUUID: Bool,
@@ -273,8 +260,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func deleteMessages(
     from channels: [String],
     start: NSNumber?,
@@ -296,8 +282,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func messageCounts(
     for channels: [String],
     channelsTimetokens: [Timetoken],
@@ -307,11 +292,30 @@ public extension PubNubObjC {
     let keys = Set(channels)
     let count = min(keys.count, channelsTimetokens.count)
     let dictionary = Dictionary(uniqueKeysWithValues: zip(keys.prefix(count), channelsTimetokens.prefix(count)))
-    
+
     pubnub.messageCounts(channels: dictionary) {
       switch $0 {
       case .success(let response):
         onSuccess(PubNubMessageCountResultObjC(channels: response.mapValues { UInt64($0) }))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}
+
+// MARK: - Time
+
+@objc
+public extension PubNubObjC {
+  func time(
+    onSuccess: @escaping ((Timetoken) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.time {
+      switch $0 {
+      case .success(let timetoken):
+        onSuccess(timetoken)
       case .failure(let error):
         onFailure(error)
       }

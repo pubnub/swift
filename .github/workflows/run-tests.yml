@@ -29,8 +29,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
-      - name: Install fastlane
-        run: bundle install --jobs 4
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
       - name: Cache installed Pods
         uses: actions/cache@v4
         with:
@@ -62,8 +65,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install fastlane
-        run: bundle install --jobs 4
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
       - name: Setup Node.js 20.x
         uses: actions/setup-node@v4
         with:

@@ -56,8 +56,11 @@ jobs:
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Install fastlane
-        run: bundle install --jobs 4
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
       - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:
@@ -88,8 +91,11 @@ jobs:
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Install fastlane
-        run: bundle install --jobs 4
+      - name: Setup Ruby 2.6.6
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.6.6
+          bundler-cache: true
       - name: Cache Swift Package Manager
         uses: actions/cache@v4
         with:

@@ -131,9 +131,9 @@ jobs:
           retention-days: 7
   all-tests:
     name: Tests
-    runs-on:
-      group: ubuntu-gh
     needs: [tests, acceptance-tests]
+    runs-on:
+      group: Default
     steps:
       - name: Tests summary
         run: echo -e "\033[38;2;95;215;0m\033[1mAll tests successfully passed"

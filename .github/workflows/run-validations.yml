@@ -19,7 +19,7 @@ jobs:
   pubnub-yml:
     name: "Validate .pubnub.yml"
     runs-on:
-      group: ubuntu-gh
+      group: Default
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
@@ -112,9 +112,9 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   all-validations:
     name: Validations
-    runs-on:
-      group: ubuntu-gh
     needs: [pubnub-yml, package-managers-validation, demo-app-validation]
+    runs-on:
+      group: Default
     steps:
       - name: Validations summary
         run: echo -e "\033[38;2;95;215;0m\033[1mAll validations passed"

@@ -406,3 +406,59 @@ public extension PubNubObjC {
     }
   }
 }
+
+// MARK: - Message Action
+
+@objc
+public extension PubNubObjC {
+  func addMessageAction(
+    channel: String,
+    actionType: String,
+    actionValue: String,
+    messageTimetoken: Timetoken,
+    onSuccess: @escaping ((PubNubAddMessageActionResultObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.addMessageAction(
+      channel: channel,
+      type: actionType,
+      value: actionValue,
+      messageTimetoken: messageTimetoken
+    ) {
+      switch $0 {
+      case .success(let action):
+        onSuccess(
+          PubNubAddMessageActionResultObjC(
+            type: action.actionType,
+            value: action.actionValue,
+            messageTimetoken: action.actionTimetoken
+          )
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func removeMessageAction(
+    channel: String,
+    messageTimetoken: Timetoken,
+    actionTimetoken: Timetoken,
+    onSuccess: @escaping (() -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.removeMessageActions(
+      channel: channel,
+      message: messageTimetoken,
+      action: actionTimetoken
+    ) {
+      switch $0 {
+      case .success(_):
+        onSuccess()
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}

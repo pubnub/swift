@@ -578,3 +578,13 @@ public extension PubNubObjC {
     }
   }
 }
+
+// MARK: - Token
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func set(token: String) {
+    pubnub.set(token: token)
+  }
+}

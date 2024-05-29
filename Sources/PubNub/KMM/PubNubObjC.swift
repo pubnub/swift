@@ -489,3 +489,92 @@ public extension PubNubObjC {
     }
   }
 }
+
+// MARK: - Channel group management
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func addChannels(
+    to channelGroup: String,
+    channels: [String],
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error)) -> Void
+  ) {
+    pubnub.add(
+      channels: channels,
+      to: channelGroup
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(res.channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func listChannels(
+    for channelGroup: String,
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.listChannels(for: channelGroup) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(res.channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func remove(
+    channels: [String],
+    from channelGroup: String,
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error)) -> Void
+  ) {
+    pubnub.remove(channels: channels, from: channelGroup) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(res.channels)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func listChannelGroups(
+    onSuccess: @escaping (([String]) -> Void),
+    onFailure: @escaping ((Error)) -> Void
+  ) {
+    pubnub.listChannelGroups {
+      switch $0 {
+      case .success(let channelGroups):
+        onSuccess(channelGroups)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func delete(
+    channelGroup: String,
+    onSuccess: @escaping ((String) -> Void),
+    onFailure: @escaping ((Error)) -> Void
+  ) {
+    pubnub.remove(channelGroup: channelGroup) {
+      switch $0 {
+      case .success(let channelGroup):
+        onSuccess(channelGroup)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}

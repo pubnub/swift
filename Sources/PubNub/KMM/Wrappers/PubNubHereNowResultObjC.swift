@@ -12,9 +12,9 @@ import Foundation
 
 @objc
 public class PubNubHereNowResultObjC: NSObject {
-  @objc public var totalChannels: Int
-  @objc public var totalOccupancy: Int
-  @objc public var channels: [String: PubNubHereNowChannelDataObjC]
+  @objc public let totalChannels: Int
+  @objc public let totalOccupancy: Int
+  @objc public let channels: [String: PubNubHereNowChannelDataObjC]
 
   init(totalChannels: Int, totalOccupancy: Int, channels: [String: PubNubHereNowChannelDataObjC]) {
     self.totalChannels = totalChannels
@@ -25,9 +25,9 @@ public class PubNubHereNowResultObjC: NSObject {
 
 @objc
 public class PubNubHereNowChannelDataObjC: NSObject {
-  @objc public var channelName: String
-  @objc public var occupancy: Int
-  @objc public var occupants: [PubNubHereNowOccupantDataObjC]
+  @objc public let channelName: String
+  @objc public let occupancy: Int
+  @objc public let occupants: [PubNubHereNowOccupantDataObjC]
 
   init(channelName: String, occupancy: Int, occupants: [PubNubHereNowOccupantDataObjC]) {
     self.channelName = channelName
@@ -37,8 +37,8 @@ public class PubNubHereNowChannelDataObjC: NSObject {
 }
 
 @objc public class PubNubHereNowOccupantDataObjC: NSObject {
-  @objc public var uuid: String
-  @objc public var state: Any?
+  @objc public let uuid: String
+  @objc public let state: Any?
 
   init(uuid: String, state: Any?) {
     self.uuid = uuid

@@ -14,12 +14,12 @@ import Foundation
 
 @objc
 public class PubNubObjectEventResultObjC: NSObject {
-  @objc public var channel: String
-  @objc public var subscription: String?
-  @objc public var timetoken: NSNumber?
-  @objc public var userMetadata: Any?
-  @objc public var publisher: String?
-  @objc public var message: PubNubObjectEventMessageObjC
+  @objc public let channel: String
+  @objc public let subscription: String?
+  @objc public let timetoken: NSNumber?
+  @objc public let userMetadata: Any?
+  @objc public let publisher: String?
+  @objc public let message: PubNubObjectEventMessageObjC
 
   private init(
     channel: String,
@@ -141,10 +141,10 @@ public class PubNubObjectEventResultObjC: NSObject {
 
 @objc
 public class PubNubObjectEventMessageObjC: NSObject {
-  @objc public var source: String
-  @objc public var version: String
-  @objc public var event: String
-  @objc public var type: String
+  @objc public let source: String
+  @objc public let version: String
+  @objc public let event: String
+  @objc public let type: String
 
   // TODO: Missing source, version, event, type
   init(
@@ -164,7 +164,7 @@ public class PubNubObjectEventMessageObjC: NSObject {
 
 @objc
 public class PubNubSetChannelMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var data: PubNubChannelMetadataObjC
+  @objc public let data: PubNubChannelMetadataObjC
 
   init(
     source: String = "",
@@ -219,7 +219,7 @@ public class PubNubChannelMetadataObjC: NSObject {
 
 @objc
 public class PubNubSetUUIDMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var data: PubNubUUIDMetadataObjC
+  @objc public let data: PubNubUUIDMetadataObjC
 
   init(
     source: String = "",
@@ -275,7 +275,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
 
 @objc
 public class PubNubDeleteChannelMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var channel: String
+  @objc public let channel: String
 
   init(
     source: String = "",
@@ -293,7 +293,7 @@ public class PubNubDeleteChannelMetadataEventMessageObjC: PubNubObjectEventMessa
 
 @objc
 public class PubNubDeleteUUIDMetadataEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var uuid: String
+  @objc public let uuid: String
 
   init(
     source: String = "",
@@ -311,7 +311,7 @@ public class PubNubDeleteUUIDMetadataEventMessageObjC: PubNubObjectEventMessageO
 
 @objc
 public class PubNubSetMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var data: PubNubSetMembershipEventObjC
+  @objc public let data: PubNubSetMembershipEventObjC
 
   init(
     source: String = "",
@@ -332,12 +332,12 @@ public class PubNubSetMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
 
 @objc
 public class PubNubSetMembershipEventObjC: NSObject {
-  @objc public var channel: String
-  @objc public var uuid: String
-  @objc public var custom: Any?
-  @objc public var eTag: String
-  @objc public var updated: String
-  @objc public var status: String?
+  @objc public let channel: String
+  @objc public let uuid: String
+  @objc public let custom: Any?
+  @objc public let eTag: String
+  @objc public let updated: String
+  @objc public let status: String?
 
   init(
     channel: String,
@@ -360,7 +360,7 @@ public class PubNubSetMembershipEventObjC: NSObject {
 
 @objc
 public class PubNubDeleteMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
-  @objc public var data: PubNubDeleteMembershipEventObjC
+  @objc public let data: PubNubDeleteMembershipEventObjC
 
   init(
     source: String = "",
@@ -376,8 +376,8 @@ public class PubNubDeleteMembershipEventMessageObjC: PubNubObjectEventMessageObj
 
 @objc
 public class PubNubDeleteMembershipEventObjC: NSObject {
-  @objc public var channelId: String
-  @objc public var uuid: String
+  @objc public let channelId: String
+  @objc public let uuid: String
 
   init(channelId: String, uuid: String) {
     self.channelId = channelId

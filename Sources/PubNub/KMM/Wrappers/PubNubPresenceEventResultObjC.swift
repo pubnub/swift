@@ -12,18 +12,18 @@ import Foundation
 
 @objc
 public class PubNubPresenceEventResultObjC: NSObject {
-  @objc public var event: String?
-  @objc public var uuid: String?
-  @objc public var occupancy: NSNumber?
-  @objc public var state: Any?
-  @objc public var channel: String?
-  @objc public var subscription: String?
-  @objc public var timetoken: NSNumber?
-  @objc public var join: [String]?
-  @objc public var leave: [String]?
-  @objc public var timeout: [String]?
-  @objc public var refreshHereNow: NSNumber?
-  @objc public var userMetadata: Any?
+  @objc public let event: String?
+  @objc public let uuid: String?
+  @objc public let occupancy: NSNumber?
+  @objc public let state: Any?
+  @objc public let channel: String?
+  @objc public let subscription: String?
+  @objc public let timetoken: NSNumber?
+  @objc public let join: [String]?
+  @objc public let leave: [String]?
+  @objc public let timeout: [String]?
+  @objc public let refreshHereNow: NSNumber?
+  @objc public let userMetadata: Any?
 
   static func from(change: PubNubPresenceChange) -> [PubNubPresenceEventResultObjC] {
     change.actions.map { PubNubPresenceEventResultObjC(change: change, action: $0) }
@@ -41,16 +41,31 @@ public class PubNubPresenceEventResultObjC: NSObject {
     case .join(let uuids):
       event = "join"
       join = uuids
+      uuid = nil
+      state = nil
+      leave = nil
+      timeout = nil
     case .leave(let uuids):
       event = "leave"
       leave = uuids
+      uuid = nil
+      state = nil
+      join = nil
+      timeout = nil
     case .stateChange(let affectedUUID, let newState):
       event = "state-change"
       state = newState.rawValue
       uuid = affectedUUID
+      join = nil
+      leave = nil
+      timeout = nil
     case .timeout(let uuids):
       event = "interval"
       timeout = uuids
+      uuid = nil
+      state = nil
+      join = nil
+      leave = nil
     }
   }
 }

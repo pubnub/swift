@@ -12,12 +12,12 @@ import Foundation
 
 @objc
 public class PubNubFileEventResultObjC: NSObject {
-  @objc public var channel: String
-  @objc public var timetoken: NSNumber?
-  @objc public var publisher: String?
-  @objc public var message: Any?
-  @objc public var subscription: String?
-  @objc public var file: PubNubFileObjC
+  @objc public let channel: String
+  @objc public let timetoken: NSNumber?
+  @objc public let publisher: String?
+  @objc public let message: Any?
+  @objc public let subscription: String?
+  @objc public let file: PubNubFileObjC
 
   static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> PubNubFileEventResultObjC {
     switch event {
@@ -60,9 +60,9 @@ public class PubNubFileEventResultObjC: NSObject {
 
 @objc
 public class PubNubFileObjC: NSObject {
-  @objc public var id: String
-  @objc public var name: String
-  @objc public var url: String
+  @objc public let id: String
+  @objc public let name: String
+  @objc public let url: String
 
   init(id: String, name: String, url: String) {
     self.id = id

@@ -407,7 +407,7 @@ public extension PubNubObjC {
   }
 }
 
-// MARK: - Message Action
+// MARK: - Message Actions
 
 @objc
 public extension PubNubObjC {
@@ -456,6 +456,33 @@ public extension PubNubObjC {
       switch $0 {
       case .success(_):
         onSuccess()
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getMessageActions(
+    from channel: String,
+    page: PubNubBoundedPageObjC,
+    onSuccess: @escaping ((PubNubGetMessageActionResultObjC) -> Void),
+    onFailure: @escaping ((Error)) -> Void
+  ) {
+    pubnub.fetchMessageActions(
+      channel: channel,
+      page: PubNubBoundedPageBase(
+        start: page.start?.uint64Value,
+        end: page.end?.uint64Value,
+        limit: page.limit?.intValue
+      )
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(PubNubGetMessageActionResultObjC(
+          actions: res.actions.map { PubNubMessageActionObjC(action: $0) },
+          next: PubNubBoundedPageObjC(page: res.next)
+        ))
       case .failure(let error):
         onFailure(error)
       }

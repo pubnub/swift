@@ -1,5 +1,5 @@
 //
-//  PubNubAddMessageActionResultObjC.swift
+//  PubNubMessageActionsObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -20,5 +20,16 @@ public class PubNubAddMessageActionResultObjC : NSObject {
     self.type = type
     self.value = value
     self.messageTimetoken = messageTimetoken
+  }
+}
+
+@objc
+public class PubNubGetMessageActionResultObjC: NSObject {
+  @objc public let actions: [PubNubMessageActionObjC]
+  @objc public let next: PubNubBoundedPageObjC?
+  
+  init(actions: [PubNubMessageActionObjC], next: PubNubBoundedPageObjC?) {
+    self.actions = actions
+    self.next = next
   }
 }

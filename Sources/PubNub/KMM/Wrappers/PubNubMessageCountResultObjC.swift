@@ -12,9 +12,9 @@ import Foundation
 
 @objc
 public class PubNubMessageCountResultObjC: NSObject {
-  @objc public var channels: [String: UInt64]
+  @objc public let channels: [String: Timetoken]
 
-  init(channels: [String: UInt64]) {
+  init(channels: [String: Timetoken]) {
     self.channels = channels
   }
 }

@@ -588,3 +588,40 @@ public extension PubNubObjC {
     pubnub.set(token: token)
   }
 }
+
+// MARK: - App Context
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func getAllChannelMetadata(
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?, 
+    sort: [PubNubSortPropertyObjC],
+    includeCount: Bool,
+    includeCustom: Bool,
+    onSuccess: @escaping ((PubNubGetChannelMetadataResultObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.allChannelMetadata(
+      include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
+      filter: filter,
+      sort: sort.map { .init(property: .init(rawValue: $0.key)!, ascending: $0.direction == "asc") },
+      limit: limit?.intValue,
+      page: PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(PubNubGetChannelMetadataResultObjC(
+          status: 200, // TODO: What's status for?
+          data: res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
+          totalCount: NSNumber(integerLiteral: res.channels.count), // TODO: What's totalCount for?
+          next: PubNubHashedPageObjC(page: res.next)
+        ))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}

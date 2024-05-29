@@ -39,72 +39,20 @@ public class PubNubObjectEventResultObjC: NSObject {
 
   static func from(event: PubNubAppContextEvent) -> PubNubObjectEventResultObjC {
     switch event {
-    case .userMetadataSet(let metadata):
-      let object = PubNubUUIDMetadataObjC(
-        id: metadata.metadataId,
-        updated: metadata.updated.stringOptional, // TODO: Convert date object to correct String format
-        eTag: metadata.eTag
-      )
-      for change in metadata.changes {
-        switch change {
-        case .stringOptional(let keyPath, let value):
-          switch keyPath {
-          case \.name:
-            object.name = value
-          case \.type:
-            object.type = value
-          case \.status:
-            object.status = value
-          case \.externalId:
-            object.externalId = value
-          case \.profileURL:
-            object.profileUrl = value
-          case \.email:
-            object.email = value
-          default:
-            break
-          }
-        case .customOptional(_, let value):
-          object.custom = value?.mapValues { $0.codableValue.rawValue }
-        }
-      }
+    case .userMetadataSet(let changeset):
       return PubNubObjectEventResultObjC(
         channel: "", // TODO: Missing channel name
-        message: PubNubSetUUIDMetadataEventMessageObjC(data: object)
+        message: PubNubSetUUIDMetadataEventMessageObjC(data: PubNubUUIDMetadataObjC(changeset: changeset))
       )
     case .userMetadataRemoved(let metadataId):
       return PubNubObjectEventResultObjC(
         channel: "", // TODO: Missing channel name
         message: PubNubDeleteUUIDMetadataEventMessageObjC(uuid: metadataId)
       )
-    case .channelMetadataSet(let metadata):
-      let object = PubNubChannelMetadataObjC(
-        id: metadata.metadataId,
-        updated: metadata.updated.stringOptional, // TODO: Convert date object to correct String format
-        eTag: metadata.eTag
-      )
-      for change in metadata.changes {
-        switch change {
-        case .stringOptional(let keyPath, let value):
-          switch keyPath {
-          case \.name:
-            object.name = value
-          case \.type:
-            object.type = value
-          case \.status:
-            object.status = value
-          case \.channelDescription:
-            object.descr = value
-          default:
-            break
-          }
-        case .customOptional(_, let value):
-          object.custom = value?.mapValues { $0.codableValue.rawValue }
-        }
-      }
+    case .channelMetadataSet(let changeset):
       return PubNubObjectEventResultObjC(
         channel: "", // TODO: Missing channel name
-        message: PubNubSetChannelMetadataEventMessageObjC(data: object)
+        message: PubNubSetChannelMetadataEventMessageObjC(data: PubNubChannelMetadataObjC(changeset: changeset))
       )
     case .channelMetadataRemoved(let metadataId):
       return PubNubObjectEventResultObjC(
@@ -114,26 +62,15 @@ public class PubNubObjectEventResultObjC: NSObject {
     case .membershipMetadataSet(let metadata):
       return PubNubObjectEventResultObjC(
         channel: "", // TODO: Missing channel name
-        message: PubNubSetMembershipEventMessageObjC(
-          data: PubNubSetMembershipEventObjC(
-            channel: "", // TODO: Missing channel name
-            uuid: metadata.uuidMetadataId,
-            custom: metadata.custom,
-            eTag: metadata.eTag?.stringOptional ?? "",
-            updated: metadata.updated?.stringOptional ?? "", // TODO: Convert date object to correct String format
-            status: metadata.status
-          )
-        )
+        message: PubNubSetMembershipEventMessageObjC(data: PubNubSetMembershipEventObjC(metadata: metadata))
       )
     case .membershipMetadataRemoved(let metadata):
       return PubNubObjectEventResultObjC(
         channel: "", // TODO: Missing channel name
-        message: PubNubDeleteMembershipEventMessageObjC(
-          data: PubNubDeleteMembershipEventObjC(
-            channelId: metadata.channelMetadataId,
-            uuid: metadata.uuidMetadataId
-          )
-        )
+        message: PubNubDeleteMembershipEventMessageObjC(data: PubNubDeleteMembershipEventObjC(
+          channelId: metadata.channelMetadataId,
+          uuid: metadata.uuidMetadataId
+        ))
       )
     }
   }
@@ -194,24 +131,41 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var type: String?
   @objc public var status: String?
 
-  init(
-    id: String,
-    name: String? = nil,
-    descr: String? = nil,
-    custom: Any? = nil,
-    updated: String? = nil,
-    eTag: String? = nil,
-    type: String? = nil,
-    status: String? = nil
-  ) {
-    self.id = id
-    self.name = name
-    self.descr = descr
-    self.custom = custom
-    self.updated = updated
-    self.eTag = eTag
-    self.type = type
-    self.status = status
+  init(changeset: PubNubChannelMetadataChangeset) {
+    self.id = changeset.metadataId
+    self.updated = changeset.updated.stringOptional // TODO: Date format
+    self.eTag = changeset.eTag
+    
+    for change in changeset.changes {
+      switch change {
+      case .stringOptional(let keyPath, let value):
+        switch keyPath {
+        case \.name:
+          self.name = value
+        case \.type:
+          self.type = value
+        case \.status:
+          self.status = value
+        case \.channelDescription:
+          self.descr = value
+        default:
+          break
+        }
+      case .customOptional(_, let value):
+        self.custom = value?.mapValues { $0.codableValue.rawValue }
+      }
+    }
+  }
+  
+  init(metadata: PubNubChannelMetadata) {
+    self.id = metadata.metadataId
+    self.name = metadata.name
+    self.descr = metadata.channelDescription
+    self.custom = metadata.custom
+    self.updated = metadata.updated?.stringOptional // TODO: Date format
+    self.eTag = metadata.eTag
+    self.type = metadata.type
+    self.status = metadata.status
   }
 }
 
@@ -246,28 +200,34 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var type: String?
   @objc public var status: String?
 
-  init(
-    id: String,
-    name: String? = nil,
-    externalId: String? = nil,
-    profileUrl: String? = nil,
-    email: String? = nil,
-    custom: Any? = nil,
-    updated: String? = nil,
-    eTag: String? = nil,
-    type: String? = nil,
-    status: String? = nil
-  ) {
-    self.id = id
-    self.name = name
-    self.externalId = externalId
-    self.profileUrl = profileUrl
-    self.email = email
-    self.custom = custom
-    self.updated = updated
-    self.eTag = eTag
-    self.type = type
-    self.status = status
+  init(changeset: PubNubUUIDMetadataChangeset) {
+    self.id = changeset.metadataId
+    self.updated = changeset.updated.stringOptional // TODO: Date format
+    self.eTag = changeset.eTag
+    
+    for change in changeset.changes {
+      switch change {
+      case .stringOptional(let keyPath, let value):
+        switch keyPath {
+        case \.name:
+          self.name = value
+        case \.type:
+          self.type = value
+        case \.status:
+          self.status = value
+        case \.externalId:
+          self.externalId = value
+        case \.profileURL:
+          self.profileUrl = value
+        case \.email:
+          self.email = value
+        default:
+          break
+        }
+      case .customOptional(_, let value):
+        self.custom = value?.mapValues { $0.codableValue.rawValue }
+      }
+    }
   }
 }
 
@@ -339,20 +299,13 @@ public class PubNubSetMembershipEventObjC: NSObject {
   @objc public let updated: String
   @objc public let status: String?
 
-  init(
-    channel: String,
-    uuid: String,
-    custom: Any?,
-    eTag: String,
-    updated: String,
-    status: String?
-  ) {
-    self.channel = channel
-    self.uuid = uuid
-    self.custom = custom
-    self.eTag = eTag
-    self.updated = updated
-    self.status = status
+  init(metadata: PubNubMembershipMetadata) {
+    self.channel = metadata.channelMetadataId
+    self.uuid = metadata.uuidMetadataId
+    self.custom = metadata.custom
+    self.eTag = metadata.eTag ?? ""
+    self.updated = metadata.updated?.stringOptional ?? "" // TODO: Date format
+    self.status = metadata.status
   }
 }
 

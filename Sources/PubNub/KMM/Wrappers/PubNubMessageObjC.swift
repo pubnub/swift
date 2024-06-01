@@ -13,24 +13,28 @@ import Foundation
 @objc
 public class PubNubMessageObjC: NSObject {
   init(message: PubNubMessage) {
-    self.payload = message.payload
+    self.payload = AnyJSONObjC(message.payload as! AnyJSON)
     self.actions = message.actions.map { PubNubMessageActionObjC(action: $0) }
     self.publisher = message.publisher
     self.channel = message.channel
     self.subscription = message.subscription
     self.published = message.published
-    self.metadata = message.metadata
+    self.metadata = if let metadata = message.metadata {
+        AnyJSONObjC(metadata as! AnyJSON)
+    } else {
+        nil
+    }
     self.messageType = message.messageType.rawValue
     self.error = message.error
   }
 
-  @objc public let payload: Any
+  @objc public let payload: AnyJSONObjC
   @objc public let actions: [PubNubMessageActionObjC]
   @objc public let publisher: String?
   @objc public let channel: String
   @objc public let subscription: String?
   @objc public let published: Timetoken
-  @objc public let metadata: Any?
+  @objc public let metadata: AnyJSONObjC?
   @objc public let messageType: Int
   @objc public let error: Error?
 }

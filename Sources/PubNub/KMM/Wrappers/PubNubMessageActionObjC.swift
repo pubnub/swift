@@ -44,6 +44,6 @@ public class PubNubMessageActionObjC: NSObject {
     self.publisher = action.publisher
     self.channel = action.channel
     self.subscription = action.subscription
-    self.published = action.published != nil ? NSNumber(value: action.published!) : nil
+    self.published = if let tt = action.published { NSNumber(value: tt) } else { nil }
   }
 }

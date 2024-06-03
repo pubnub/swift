@@ -30,7 +30,7 @@ public class PubNubObjC: NSObject {
 public extension PubNubObjC {
   func addEventListener(listener: EventListenerObjC) {
     let underlyingListener = EventListener(
-      uuid: UUID(uuidString: listener.uuid)!,
+      uuid: listener.uuid,
       onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
       onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
       onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
@@ -44,9 +44,9 @@ public extension PubNubObjC {
   }
 
   func removeEventListener(listener: EventListenerObjC) {
-    if let uuid = UUID(uuidString: listener.uuid), let underlyingListener = listeners[uuid] {
+    if let underlyingListener = listeners[listener.uuid] {
       pubnub.removeEventListener(underlyingListener)
-      listeners[uuid] = nil
+      listeners[listener.uuid] = nil
     }
   }
 }
@@ -261,6 +261,8 @@ public extension PubNubObjC {
     }
   }
 
+  // TODO: Allow deleting messages from more than one channel
+  
   func deleteMessages(
     from channels: [String],
     start: NSNumber?,
@@ -268,7 +270,13 @@ public extension PubNubObjC {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    // TODO: Channel list is not supported
+    guard let channel = channels.first else {
+      onFailure(PubNubError(
+        .invalidArguments,
+        additional: ["Empty channel list for deleteMessages"]
+      ))
+      return
+    }
     pubnub.deleteMessageHistory(
       from: channels.first!,
       start: start?.uint64Value,
@@ -607,7 +615,13 @@ public extension PubNubObjC {
     pubnub.allChannelMetadata(
       include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
-      sort: sort.map { .init(property: .init(rawValue: $0.key)!, ascending: $0.direction == "asc") },
+      sort: sort.compactMap {
+        if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
+          return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
+        } else {
+          return nil
+        }
+      },
       limit: limit?.intValue,
       page: PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
     ) {

@@ -26,7 +26,11 @@ public class PubNubHashedPageObjC: NSObject {
   init(page: PubNubHashedPage?) {
     self.start = page?.prev
     self.end = page?.end
-    self.totalCount = page?.totalCount != nil ? NSNumber(value: page!.totalCount!) : nil
+    self.totalCount = if let totalCount = page?.totalCount {
+      NSNumber(value: totalCount)
+    } else {
+      nil
+    }
   }
 }
 

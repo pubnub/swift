@@ -12,7 +12,7 @@ import Foundation
 
 @objc
 public class EventListenerObjC: NSObject {
-  @objc public let uuid: String
+  @objc public let uuid: UUID
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
   @objc public var onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
@@ -28,7 +28,7 @@ public class EventListenerObjC: NSObject {
     onAppContext: ((PubNubObjectEventResultObjC) -> Void)?,
     onFile: ((PubNubFileEventResultObjC) -> Void)?
   ) {
-    self.uuid = UUID().uuidString
+    self.uuid = UUID()
     self.onMessage = onMessage
     self.onPresence = onPresence
     self.onSignal = onSignal

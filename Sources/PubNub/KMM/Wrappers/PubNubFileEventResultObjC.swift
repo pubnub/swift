@@ -15,7 +15,7 @@ public class PubNubFileEventResultObjC: NSObject {
   @objc public let channel: String
   @objc public let timetoken: NSNumber?
   @objc public let publisher: String?
-  @objc public let message: Any?
+  @objc public let message: AnyJSONObjC?
   @objc public let subscription: String?
   @objc public let file: PubNubFileObjC
 
@@ -26,7 +26,7 @@ public class PubNubFileEventResultObjC: NSObject {
         channel: fileEvent.file.channel,
         timetoken: NSNumber(value: fileEvent.timetoken),
         publisher: fileEvent.publisher,
-        message: fileEvent.additionalMessage,
+        message: fileEvent.additionalMessage?.codableValue,
         subscription: fileEvent.channelGroup,
         file: PubNubFileObjC(
           id: fileEvent.file.fileId,
@@ -45,14 +45,14 @@ public class PubNubFileEventResultObjC: NSObject {
     channel: String,
     timetoken: NSNumber?,
     publisher: String?,
-    message: Any?,
+    message: AnyJSON?,
     subscription: String?,
     file: PubNubFileObjC
   ) {
     self.channel = channel
     self.timetoken = timetoken
     self.publisher = publisher
-    self.message = message
+    self.message = if let message = message { AnyJSONObjC(message) } else { nil }
     self.subscription = subscription
     self.file = file
   }

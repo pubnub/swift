@@ -17,7 +17,7 @@ public class PubNubObjectEventResultObjC: NSObject {
   @objc public let channel: String
   @objc public let subscription: String?
   @objc public let timetoken: NSNumber?
-  @objc public let userMetadata: Any?
+  @objc public let userMetadata: AnyJSONObjC?
   @objc public let publisher: String?
   @objc public let message: PubNubObjectEventMessageObjC
 
@@ -25,14 +25,14 @@ public class PubNubObjectEventResultObjC: NSObject {
     channel: String,
     subscription: String? = nil,
     timetoken: NSNumber? = nil,
-    userMetadata: Any? = nil,
+    userMetadata: AnyJSON? = nil,
     publisher: String? = nil,
     message: PubNubObjectEventMessageObjC
   ) {
     self.channel = channel
     self.subscription = subscription
     self.timetoken = timetoken
-    self.userMetadata = userMetadata
+    self.userMetadata = if let metadata = userMetadata { AnyJSONObjC(metadata.codableValue) } else { nil }
     self.publisher = publisher
     self.message = message
   }
@@ -125,7 +125,7 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var id: String
   @objc public var name: String?
   @objc public var descr: String?
-  @objc public var custom: Any?
+  @objc public var custom: AnyJSONObjC?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var type: String?
@@ -152,7 +152,11 @@ public class PubNubChannelMetadataObjC: NSObject {
           break
         }
       case .customOptional(_, let value):
-        self.custom = value?.mapValues { $0.codableValue.rawValue }
+        if let value {
+          self.custom = AnyJSONObjC(AnyJSON(value.mapValues { $0.codableValue }))
+        } else {
+          self.custom = nil
+        }
       }
     }
   }
@@ -161,7 +165,7 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.id = metadata.metadataId
     self.name = metadata.name
     self.descr = metadata.channelDescription
-    self.custom = metadata.custom
+    self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
     self.updated = metadata.updated?.stringOptional // TODO: Date format
     self.eTag = metadata.eTag
     self.type = metadata.type
@@ -194,7 +198,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var externalId: String?
   @objc public var profileUrl: String?
   @objc public var email: String?
-  @objc public var custom: Any?
+  @objc public var custom: AnyJSONObjC?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var type: String?
@@ -225,7 +229,11 @@ public class PubNubUUIDMetadataObjC: NSObject {
           break
         }
       case .customOptional(_, let value):
-        self.custom = value?.mapValues { $0.codableValue.rawValue }
+        if let value {
+          self.custom = AnyJSONObjC(AnyJSON(value.mapValues { $0.codableValue.rawValue }))
+        } else {
+          self.custom = nil
+        }
       }
     }
   }
@@ -294,7 +302,7 @@ public class PubNubSetMembershipEventMessageObjC: PubNubObjectEventMessageObjC {
 public class PubNubSetMembershipEventObjC: NSObject {
   @objc public let channel: String
   @objc public let uuid: String
-  @objc public let custom: Any?
+  @objc public let custom: AnyJSONObjC?
   @objc public let eTag: String
   @objc public let updated: String
   @objc public let status: String?
@@ -302,7 +310,7 @@ public class PubNubSetMembershipEventObjC: NSObject {
   init(metadata: PubNubMembershipMetadata) {
     self.channel = metadata.channelMetadataId
     self.uuid = metadata.uuidMetadataId
-    self.custom = metadata.custom
+    self.custom = if let custom = metadata.custom { AnyJSONObjC(AnyJSON(custom)) } else { nil }
     self.eTag = metadata.eTag ?? ""
     self.updated = metadata.updated?.stringOptional ?? "" // TODO: Date format
     self.status = metadata.status

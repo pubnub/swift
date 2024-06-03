@@ -12,67 +12,67 @@ import Foundation
 
 @objc
 public class AnyJSONObjC : NSObject {
-    let value: AnyJSON
-    public init(_ value: AnyJSON) {
-        self.value = value
+  let value: AnyJSON
+  
+  public init(_ value: AnyJSON) {
+    self.value = value
+  }
+  
+  @objc
+  public func asString() -> String? {
+    value.stringOptional
+  }
+  
+  @objc
+  public func asMap() -> [String: Any]? {
+    value.dictionaryOptional
+  }
+  
+  @objc
+  public func asList() -> [Any]? {
+    value.arrayOptional
+  }
+  
+  @objc
+  public func isNull() -> Bool {
+    value.isNil
+  }
+  
+  @objc
+  public func asInt() -> NSNumber? {
+    if let intValue = value.intOptional {
+      NSNumber(value: intValue)
+    } else {
+      nil
     }
-    
-    @objc
-    public func asString() -> String? {
-        value.stringOptional
+  }
+  
+  @objc
+  public func asDouble() -> NSNumber? {
+    if let doubleValue = value.doubleOptional {
+      NSNumber(value: doubleValue)
+    } else {
+      nil
     }
-    
-    @objc
-    public func asMap() -> [String: Any]? {
-        value.dictionaryOptional
+  }
+  
+  @objc
+  public func asBool() -> NSNumber? {
+    if let boolValue = value.boolOptional {
+      NSNumber(value: boolValue)
+    } else {
+      nil
     }
-    
-    @objc
-    public func asList() -> [Any]? {
-        value.arrayOptional
+  }
+  
+  @objc
+  public func asNumber() -> NSNumber? {
+    if let doubleValue = value.doubleOptional {
+      NSNumber(value: doubleValue)
+    } else if let intValue = value.intOptional{
+      NSNumber(value: intValue)
+    } else {
+      nil
     }
-    
-    @objc
-    public func isNull() -> Bool {
-        value.isNil
-    }
-    
-    @objc
-    public func asInt() -> NSNumber? {
-        if let intValue = value.intOptional {
-            NSNumber(value: intValue)
-        } else {
-            nil
-        }
-    }
-    
-    @objc
-    public func asDouble() -> NSNumber? {
-        if let doubleValue = value.doubleOptional {
-            NSNumber(value: doubleValue)
-        } else {
-            nil
-        }
-    }
-    
-    @objc
-    public func asBool() -> NSNumber? {
-        if let boolValue = value.boolOptional {
-            NSNumber(value: boolValue)
-        } else {
-            nil
-        }
-    }
-    
-    @objc
-    public func asNumber() -> NSNumber? {
-        if let doubleValue = value.doubleOptional {
-            NSNumber(value: doubleValue)
-        } else if let intValue = value.intOptional{
-            NSNumber(value: intValue)
-        } else {
-            nil
-        }
-    }
-    
+  }  
 }

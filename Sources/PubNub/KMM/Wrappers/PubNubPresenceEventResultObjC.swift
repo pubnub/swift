@@ -15,7 +15,7 @@ public class PubNubPresenceEventResultObjC: NSObject {
   @objc public let event: String?
   @objc public let uuid: String?
   @objc public let occupancy: NSNumber?
-  @objc public let state: Any?
+  @objc public let state: AnyJSONObjC?
   @objc public let channel: String?
   @objc public let subscription: String?
   @objc public let timetoken: NSNumber?
@@ -54,7 +54,7 @@ public class PubNubPresenceEventResultObjC: NSObject {
       timeout = nil
     case .stateChange(let affectedUUID, let newState):
       event = "state-change"
-      state = newState.rawValue
+      state = AnyJSONObjC(newState.codableValue)
       uuid = affectedUUID
       join = nil
       leave = nil

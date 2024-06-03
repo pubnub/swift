@@ -278,7 +278,7 @@ public extension PubNubObjC {
       return
     }
     pubnub.deleteMessageHistory(
-      from: channels.first!,
+      from: channel,
       start: start?.uint64Value,
       end: end?.uint64Value
     ) {

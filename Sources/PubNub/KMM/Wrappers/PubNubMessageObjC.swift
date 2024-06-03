@@ -13,16 +13,16 @@ import Foundation
 @objc
 public class PubNubMessageObjC: NSObject {
   init(message: PubNubMessage) {
-      self.payload = AnyJSONObjC(message.payload.codableValue)
+    self.payload = AnyJSONObjC(message.payload.codableValue)
     self.actions = message.actions.map { PubNubMessageActionObjC(action: $0) }
     self.publisher = message.publisher
     self.channel = message.channel
     self.subscription = message.subscription
     self.published = message.published
     self.metadata = if let metadata = message.metadata {
-        AnyJSONObjC(metadata.codableValue)
+      AnyJSONObjC(metadata.codableValue)
     } else {
-        nil
+      nil
     }
     self.messageType = message.messageType.rawValue
     self.error = message.error

@@ -19,27 +19,27 @@ public class AnyJSONObjC : NSObject {
     
     @objc
     public func asString() -> String? {
-        return value.stringOptional
+        value.stringOptional
     }
     
     @objc
     public func asMap() -> [String: Any]? {
-        return value.dictionaryOptional
+        value.dictionaryOptional
     }
     
     @objc
     public func asList() -> [Any]? {
-        return value.arrayOptional
+        value.arrayOptional
     }
     
     @objc
     public func isNull() -> Bool {
-        return value.isNil
+        value.isNil
     }
     
     @objc
     public func asInt() -> NSNumber? {
-        return if let intValue = value.intOptional {
+        if let intValue = value.intOptional {
             NSNumber(value: intValue)
         } else {
             nil
@@ -48,7 +48,7 @@ public class AnyJSONObjC : NSObject {
     
     @objc
     public func asDouble() -> NSNumber? {
-        return if let doubleValue = value.doubleOptional {
+        if let doubleValue = value.doubleOptional {
             NSNumber(value: doubleValue)
         } else {
             nil
@@ -57,7 +57,7 @@ public class AnyJSONObjC : NSObject {
     
     @objc
     public func asBool() -> NSNumber? {
-        return if let boolValue = value.boolOptional {
+        if let boolValue = value.boolOptional {
             NSNumber(value: boolValue)
         } else {
             nil
@@ -66,7 +66,7 @@ public class AnyJSONObjC : NSObject {
     
     @objc
     public func asNumber() -> NSNumber? {
-        return if let doubleValue = value.doubleOptional {
+        if let doubleValue = value.doubleOptional {
             NSNumber(value: doubleValue)
         } else if let intValue = value.intOptional{
             NSNumber(value: intValue)

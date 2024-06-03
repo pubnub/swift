@@ -489,6 +489,7 @@
 		7941EEA9270E433F0054D9EF /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
+		84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -1086,6 +1087,7 @@
 		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONObjC.swift; sourceTree = "<group>"; };
 		979DD162B86D78BE9B72DEEF /* Pods-PubNubContractTestsBeta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.debug.xcconfig"; sourceTree = "<group>"; };
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
@@ -2041,6 +2043,7 @@
 				3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */,
 				3D1C4FF32C072BB40030B3D6 /* PubNubMessageActionsObjC.swift */,
 				3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */,
+				84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */,
 			);
 			path = Wrappers;
 			sourceTree = "<group>";
@@ -3598,6 +3601,7 @@
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
 				353F78C42527934500FFB72C /* InputStream+PubNub.swift in Sources */,
 				3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */,
+				84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */,
 				353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */,
 				352DBFE9237C937F00A0106E /* HTTPSessionDelegate.swift in Sources */,
 				35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */,

@@ -14,9 +14,10 @@ import Foundation
 public class PubNubObjC: NSObject {
   private let pubnub: PubNub
   private var listeners: [UUID: EventListenerInterface] = [:]
-
+  private var statusListeners: [UUID: StatusListenerInterface] = [:]
+  
   // MARK: - Init
-
+  
   @objc
   public init(user: String, subKey: String, pubKey: String) {
     self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
@@ -38,15 +39,84 @@ public extension PubNubObjC {
       onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
       onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
     )
-
+    
     listeners[underlyingListener.uuid] = underlyingListener
     pubnub.addEventListener(underlyingListener)
   }
-
+  
   func removeEventListener(listener: EventListenerObjC) {
     if let underlyingListener = listeners[listener.uuid] {
       pubnub.removeEventListener(underlyingListener)
       listeners[listener.uuid] = nil
+    }
+  }
+}
+
+// MARK: - Status Listeners
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func addStatusListener(listener: StatusListenerObjC) {
+    let underlyingListener = StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
+      guard let pubnub = pubnub else {
+        return
+      }
+      switch newStatus {
+      case .connected:
+        listener.onStatusChange?(
+          PubNubConnectionStatusObjC(
+            category: .connected,
+            error: nil,
+            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+            affectedChannels: Set(pubnub.subscribedChannels),
+            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          )
+        )
+      case .disconnected:
+        listener.onStatusChange?(
+          PubNubConnectionStatusObjC(
+            category: .disconnected,
+            error: nil,
+            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+            affectedChannels: Set(pubnub.subscribedChannels),
+            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          )
+        )
+      case .disconnectedUnexpectedly(let error):
+        listener.onStatusChange?(
+          PubNubConnectionStatusObjC(
+            category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .disconnectedUnexpectedly,
+            error: error,
+            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+            affectedChannels: Set(pubnub.subscribedChannels),
+            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          )
+        )
+      case .connectionError(let error):
+        listener.onStatusChange?(
+          PubNubConnectionStatusObjC(
+            category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .connectionError,
+            error: error,
+            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+            affectedChannels: Set(pubnub.subscribedChannels),
+            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          )
+        )
+      default:
+        break
+      }
+    })
+    
+    statusListeners[underlyingListener.uuid] = underlyingListener
+    pubnub.addStatusListener(underlyingListener)
+  }
+  
+  @objc
+  func removeStatusListener(listener: StatusListenerObjC) {
+    if let underlyingListener = statusListeners[listener.uuid] {
+      pubnub.removeStatusListener(underlyingListener)
+      statusListeners[listener.uuid] = nil
     }
   }
 }
@@ -58,7 +128,7 @@ public extension PubNubObjC {
   var subscribedChannels: [String] {
     pubnub.subscribedChannels
   }
-
+  
   var subscribedChannelGroups: [String] {
     pubnub.subscribedChannelGroups
   }
@@ -81,7 +151,7 @@ public extension PubNubObjC {
       withPresence: withPresence
     )
   }
-
+  
   func unsubscribe(
     from channels: [String],
     channelGroups: [String]
@@ -163,7 +233,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   func listPushChannels(
     deviceId: Data,
     pushType: String,
@@ -182,7 +252,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
@@ -202,7 +272,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
@@ -260,7 +330,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   // TODO: Allow deleting messages from more than one channel
   
   func deleteMessages(
@@ -290,7 +360,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   func messageCounts(
     for channels: [String],
     channelsTimetokens: [Timetoken],
@@ -300,7 +370,7 @@ public extension PubNubObjC {
     let keys = Set(channels)
     let count = min(keys.count, channelsTimetokens.count)
     let dictionary = Dictionary(uniqueKeysWithValues: zip(keys.prefix(count), channelsTimetokens.prefix(count)))
-
+    
     pubnub.messageCounts(channels: dictionary) {
       switch $0 {
       case .success(let response):
@@ -375,7 +445,7 @@ public extension PubNubObjC {
       }
     }
   }
-
+  
   @objc
   func whereNow(
     uuid: String,
@@ -605,7 +675,7 @@ public extension PubNubObjC {
   func getAllChannelMetadata(
     limit: NSNumber?,
     page: PubNubHashedPageObjC?,
-    filter: String?, 
+    filter: String?,
     sort: [PubNubSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,

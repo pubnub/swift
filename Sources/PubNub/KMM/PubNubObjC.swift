@@ -805,7 +805,7 @@ public extension PubNubObjC {
   
   @objc
   func getUUIDMetadata(
-    uuid: String,
+    uuid: String?,
     includeCustom: Bool,
     onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)

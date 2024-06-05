@@ -669,8 +669,27 @@ public extension PubNubObjC {
 
 // MARK: - App Context
 
+extension PubNubObjC {
+  private func sortProperties(
+    from properties: [PubNubSortPropertyObjC]
+  ) -> [PubNub.ObjectSortField] {
+    properties.compactMap {
+      if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
+        return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
+      } else {
+        return nil
+      }
+    }
+  }
+  
+  private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage {
+    PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
+  }
+}
+
 @objc
 public extension PubNubObjC {
+  // TODO: Resolve status and totalCount for response (PubNubGetChannelMetadataResultObjC)
   @objc
   func getAllChannelMetadata(
     limit: NSNumber?,
@@ -685,24 +704,116 @@ public extension PubNubObjC {
     pubnub.allChannelMetadata(
       include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
-      sort: sort.compactMap {
-        if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
-          return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
-        } else {
-          return nil
-        }
-      },
+      sort: sortProperties(from: sort),
       limit: limit?.intValue,
-      page: PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
+      page: convertPage(from: page)
     ) {
       switch $0 {
       case .success(let res):
         onSuccess(PubNubGetChannelMetadataResultObjC(
-          status: 200, // TODO: What's status for?
+          status: 200,
           data: res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
-          totalCount: NSNumber(integerLiteral: res.channels.count), // TODO: What's totalCount for?
+          totalCount: NSNumber(integerLiteral: res.channels.count),
           next: PubNubHashedPageObjC(page: res.next)
         ))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getChannelMetadata(
+    channel: String,
+    includeCustom: Bool,
+    onSuccess: @escaping ((PubNubChannelMetadataObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.fetch(channel: channel, include: includeCustom) {
+      switch $0 {
+      case .success(let metadata):
+        onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func removeChannelMetadata(
+    channel: String,
+    onSuccess: @escaping ((String) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.remove(channel: channel) {
+      switch $0 {
+      case .success(let channel):
+        onSuccess(channel)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  // TODO: Resolve status and totalCount for response (PubNubGetUUIDMetadaResultObjC)
+  @objc
+  func getAllUUIDMetadata(
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [PubNubSortPropertyObjC],
+    includeCount: Bool,
+    includeCustom: Bool,
+    onSuccess: @escaping ((PubNubGetUUIDMetadaResultObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.allUUIDMetadata(
+      include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
+      filter: filter,
+      sort: sortProperties(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(PubNubGetUUIDMetadaResultObjC(
+          status: 200,
+          data: res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
+          totalCount: NSNumber(integerLiteral: res.uuids.count),
+          next: PubNubHashedPageObjC(page: res.next)
+        ))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc func removeUUIDMetadata(
+    uuid: String?,
+    onSuccess: @escaping ((String) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.remove(uuid: uuid) {
+      switch $0 {
+      case .success(let result):
+        onSuccess(result)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getUUIDMetadata(
+    uuid: String,
+    includeCustom: Bool,
+    onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.fetch(uuid: uuid, include: includeCustom) {
+      switch $0 {
+      case .success(let metadata):
+        onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
       case .failure(let error):
         onFailure(error)
       }

@@ -237,6 +237,16 @@ public class PubNubUUIDMetadataObjC: NSObject {
       }
     }
   }
+  
+  init(metadata: PubNubUUIDMetadata) {
+    self.id = metadata.metadataId
+    self.name = metadata.name
+    self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
+    self.updated = metadata.updated?.stringOptional // TODO: Date format
+    self.eTag = metadata.eTag
+    self.type = metadata.type
+    self.status = metadata.status
+  }
 }
 
 // MARK: - DeleteChannelMetadata

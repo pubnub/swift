@@ -65,3 +65,23 @@ public class PubNubGetChannelMetadataResultObjC : NSObject {
     self.next = next
   }
 }
+
+@objc
+public class PubNubGetUUIDMetadaResultObjC: NSObject {
+  @objc public var status: Int
+  @objc public var data: [PubNubUUIDMetadataObjC]
+  @objc public var totalCount: NSNumber?
+  @objc public var next: PubNubHashedPageObjC?
+  
+  init(
+    status: Int,
+    data: [PubNubUUIDMetadataObjC],
+    totalCount: NSNumber? = nil,
+    next: PubNubHashedPageObjC? = nil
+  ) {
+    self.status = status
+    self.data = data
+    self.totalCount = totalCount
+    self.next = next
+  }
+}

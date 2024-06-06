@@ -670,7 +670,7 @@ public extension PubNubObjC {
 // MARK: - App Context
 
 extension PubNubObjC {
-  private func sortProperties(
+  private func objectSortProperties(
     from properties: [PubNubSortPropertyObjC]
   ) -> [PubNub.ObjectSortField] {
     properties.compactMap {
@@ -689,7 +689,9 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
+  
   // TODO: Resolve status and totalCount for response (PubNubGetChannelMetadataResultObjC)
+  
   @objc
   func getAllChannelMetadata(
     limit: NSNumber?,
@@ -704,7 +706,7 @@ public extension PubNubObjC {
     pubnub.allChannelMetadata(
       include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
-      sort: sortProperties(from: sort),
+      sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
       page: convertPage(from: page)
     ) {
@@ -756,6 +758,7 @@ public extension PubNubObjC {
   }
   
   // TODO: Resolve status and totalCount for response (PubNubGetUUIDMetadaResultObjC)
+  
   @objc
   func getAllUUIDMetadata(
     limit: NSNumber?,
@@ -770,7 +773,7 @@ public extension PubNubObjC {
     pubnub.allUUIDMetadata(
       include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
-      sort: sortProperties(from: sort),
+      sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
       page: convertPage(from: page)
     ) {

@@ -741,6 +741,40 @@ public extension PubNubObjC {
     }
   }
   
+  // TODO: Verify mapping for custom field
+  
+  @objc
+  func setChannelMetadata(
+    channel: String,
+    name: String?,
+    description: String?,
+    custom: AnyJSONObjC?,
+    includeCustom: Bool,
+    type: String?,
+    status: String?,
+    onSuccess: @escaping ((PubNubChannelMetadataObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.set(
+      channel: PubNubChannelMetadataBase(
+        metadataId: channel,
+        name: name,
+        type: type,
+        status: status,
+        channelDescription: description,
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+      ),
+      include: includeCustom
+    ) {
+      switch $0 {
+      case .success(let metadata):
+        onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
   @objc
   func removeChannelMetadata(
     channel: String,
@@ -791,21 +825,6 @@ public extension PubNubObjC {
     }
   }
   
-  @objc func removeUUIDMetadata(
-    uuid: String?,
-    onSuccess: @escaping ((String) -> Void),
-    onFailure: @escaping ((Error) -> Void)
-  ) {
-    pubnub.remove(uuid: uuid) {
-      switch $0 {
-      case .success(let result):
-        onSuccess(result)
-      case .failure(let error):
-        onFailure(error)
-      }
-    }
-  }
-  
   @objc
   func getUUIDMetadata(
     uuid: String?,
@@ -817,6 +836,59 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let metadata):
         onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  // TODO: Verify mapping for custom field
+  
+  @objc
+  func setUUIDMetadata(
+    uuid: String?,
+    name: String?,
+    externalId: String?,
+    profileUrl: String?,
+    email: String?,
+    custom: AnyJSONObjC?,
+    includeCustom: Bool,
+    type: String?,
+    status: String?,
+    onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.set(
+      uuid: PubNubUUIDMetadataBase(
+        metadataId: uuid ?? "",
+        name: name,
+        type: type,
+        status: status,
+        externalId: externalId,
+        profileURL: profileUrl,
+        email: email,
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+      ),
+      include: includeCustom
+    ) {
+      switch $0 {
+      case .success(let metadata):
+        onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc func removeUUIDMetadata(
+    uuid: String?,
+    onSuccess: @escaping ((String) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.remove(uuid: uuid) {
+      switch $0 {
+      case .success(let result):
+        onSuccess(result)
       case .failure(let error):
         onFailure(error)
       }

@@ -689,9 +689,6 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  
-  // TODO: Resolve status and totalCount for response (PubNubGetChannelMetadataResultObjC)
-  
   @objc
   func getAllChannelMetadata(
     limit: NSNumber?,
@@ -700,7 +697,7 @@ public extension PubNubObjC {
     sort: [PubNubSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping ((PubNubGetChannelMetadataResultObjC) -> Void),
+    onSuccess: @escaping (([PubNubChannelMetadataObjC], NSNumber, PubNubHashedPageObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allChannelMetadata(
@@ -712,12 +709,11 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let res):
-        onSuccess(PubNubGetChannelMetadataResultObjC(
-          status: 200,
-          data: res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
-          totalCount: NSNumber(integerLiteral: res.channels.count),
-          next: PubNubHashedPageObjC(page: res.next)
-        ))
+        onSuccess(
+          res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
+          NSNumber(integerLiteral: res.channels.count), // TODO: Resolve totalCount for KMP
+          PubNubHashedPageObjC(page: res.next)
+        )
       case .failure(let error):
         onFailure(error)
       }
@@ -790,9 +786,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  // TODO: Resolve status and totalCount for response (PubNubGetUUIDMetadaResultObjC)
-  
+    
   @objc
   func getAllUUIDMetadata(
     limit: NSNumber?,
@@ -801,7 +795,7 @@ public extension PubNubObjC {
     sort: [PubNubSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping ((PubNubGetUUIDMetadaResultObjC) -> Void),
+    onSuccess: @escaping (([PubNubUUIDMetadataObjC], NSNumber, PubNubHashedPageObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allUUIDMetadata(
@@ -813,12 +807,11 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let res):
-        onSuccess(PubNubGetUUIDMetadaResultObjC(
-          status: 200,
-          data: res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
-          totalCount: NSNumber(integerLiteral: res.uuids.count),
-          next: PubNubHashedPageObjC(page: res.next)
-        ))
+        onSuccess(
+          res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
+          NSNumber(integerLiteral: res.uuids.count), // TODO: Resolve totalCount for KMP
+          PubNubHashedPageObjC(page: res.next)
+        )
       case .failure(let error):
         onFailure(error)
       }
@@ -860,7 +853,7 @@ public extension PubNubObjC {
   ) {
     pubnub.set(
       uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid ?? "",
+        metadataId: uuid ?? "", // TODO: What if uuid is nil?
         name: name,
         type: type,
         status: status,
@@ -880,7 +873,8 @@ public extension PubNubObjC {
     }
   }
   
-  @objc func removeUUIDMetadata(
+  @objc
+  func removeUUIDMetadata(
     uuid: String?,
     onSuccess: @escaping ((String) -> Void),
     onFailure: @escaping ((Error) -> Void)

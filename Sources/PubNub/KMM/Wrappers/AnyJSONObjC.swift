@@ -14,8 +14,13 @@ import Foundation
 public class AnyJSONObjC : NSObject {
   let value: AnyJSON
   
-  public init(_ value: AnyJSON) {
-    self.value = value
+  @objc
+  public init(_ value: Any) {
+    if let anyJSON = value as? AnyJSON {
+      self.value = anyJSON
+    } else {
+      self.value = AnyJSON(value)
+    }
   }
   
   @objc

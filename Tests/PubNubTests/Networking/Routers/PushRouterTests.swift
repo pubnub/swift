@@ -25,7 +25,7 @@ final class PushRouterTests: XCTestCase {
 extension PushRouterTests {
   func testListFCMPushProvisions_Router() {
     let data = "A1b2".data(using: .utf8)!
-    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .gcm), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
     XCTAssertEqual(router.endpoint.pushToken, "A1b2")
@@ -37,7 +37,7 @@ extension PushRouterTests {
     guard let data = Data(hexEncodedString: "A1b2") else {
       return XCTFail("Could not encode Data from hex string")
     }
-    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .gcm), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
     XCTAssertEqual(router.category, "List Push Channels")

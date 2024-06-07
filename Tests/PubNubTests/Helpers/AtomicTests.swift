@@ -87,44 +87,30 @@ class AtomicTests: XCTestCase {
   }
 
   func testAppendSequence() {
-    let finalExpectation = XCTestExpectation(description: "Expectation")
-    let queue = DispatchQueue.global(qos: .default)
-    
-    queue.async {
-      let value = [Int]()
-      let newValue = 0
-      let sequence = [newValue].makeIterator()
-      let atomic = Atomic(value)
+    let value = [Int]()
+    let newValue = 0
+    let sequence = [newValue].makeIterator()
+    let atomic = Atomic(value)
 
-      XCTAssertTrue(atomic.isEmpty)
-      atomic.append(contentsOf: sequence)
+    XCTAssertTrue(atomic.isEmpty)
 
-      XCTAssertFalse(atomic.isEmpty)
-      XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
-      finalExpectation.fulfill()
-    }
-    
-    wait(for: [finalExpectation], timeout: 2.0)
+    atomic.append(contentsOf: sequence)
+
+    XCTAssertFalse(atomic.isEmpty)
+    XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
   func testAppendCollection() {
-    let finalExpectation = XCTestExpectation(description: "Expectation")
-    let queue = DispatchQueue.global(qos: .default)
+    let value = [Int]()
+    let newValue = 0
+    let atomic = Atomic(value)
 
-    queue.async {
-      let value = [Int]()
-      let newValue = 0
-      let atomic = Atomic(value)
-
-      XCTAssertTrue(atomic.isEmpty)
-      atomic.append(contentsOf: [newValue])
-
-      XCTAssertFalse(atomic.isEmpty)
-      XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
-      finalExpectation.fulfill()
-    }
+    XCTAssertTrue(atomic.isEmpty)
     
-    wait(for: [finalExpectation], timeout: 2.0)
+    atomic.append(contentsOf: [newValue])
+
+    XCTAssertFalse(atomic.isEmpty)
+    XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
   // MARK: - AtomicInt
@@ -156,7 +142,11 @@ class AtomicTests: XCTestCase {
   }
 
   func testConcurreny_FetchOr() {
-    let queue = DispatchQueue(label: "ConcurrenyQueue Fetch", qos: .userInteractive, attributes: .concurrent)
+    let queue = DispatchQueue(
+      label: "ConcurrenyQueue Fetch",
+      qos: .default,
+      attributes: .concurrent
+    )
     let repeatCount = 25
     let concurrencyCount = 8
     let fetchCount: Int32 = 1
@@ -189,7 +179,11 @@ class AtomicTests: XCTestCase {
   }
 
   func testConcurreny_Add() {
-    let queue = DispatchQueue(label: "ConcurrenyQueue Add", qos: .userInteractive, attributes: .concurrent)
+    let queue = DispatchQueue(
+      label: "ConcurrenyQueue Add",
+      qos: .default,
+      attributes: .concurrent
+    )
     let repeatCount = 25
     let concurrencyCount: Int32 = 8
 

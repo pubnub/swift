@@ -25,7 +25,7 @@ public struct PubNubPushMessage: JSONCodable {
 
   enum CodingKeys: String, CodingKey {
     case apns = "pn_apns"
-    case fcm = "pn_gcm"
+    case fcm = "pn_fcm"
     case mpns = "pn_mpns"
     case additionalMessage = "data"
   }

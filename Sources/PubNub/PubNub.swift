@@ -100,7 +100,7 @@ public extension PubNub {
     /// Apple Push Notification Service
     case apns
     /// Firebase Cloude Messaging
-    case gcm
+    case fcm = "gcm"
     /// Microsoft Push Notification Service
     case mpns
   }

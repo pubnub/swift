@@ -13,7 +13,8 @@ import Foundation
 /// A final class representing a PubNub subscription.
 ///
 /// Use this class to create and manage subscriptions for a specific `Subscribable` entity.
-/// It conforms to `EventListenerInterface`, allowing the handling of subscription-related events.
+/// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
+/// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
 public final class Subscription: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   /// Initializes a `Subscription` object.
   ///
@@ -43,7 +44,7 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   // Stores the timetoken the user subscribed with
   private(set) var timetoken: Timetoken?
   // Stores additional listeners
-  private var listeners: [UUID: WeakEventListenerBox] = [:]
+  private let listenersContainer: SubscriptionListenersContainer = .init()
 
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
@@ -110,14 +111,13 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   }
 
   /// Adds additional subscription listener
-  public func addEventListener(_ listener: EventListenerInterface) {
-    listeners.removeValue(forKey: listener.uuid)
-    listeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  public func addEventListener(_ listener: EventListener) {
+    listenersContainer.storeEventListener(listener)
   }
 
   /// Removes subscription listener
-  public func removeEventListener(_ listener: EventListenerInterface) {
-    listeners.removeValue(forKey: listener.uuid)
+  public func removeEventListener(_ listener: EventListener) {
+    listenersContainer.removeEventListener(with: listener.uuid)
   }
 
   deinit {
@@ -176,8 +176,11 @@ extension Subscription: SubscribeMessagesReceiver {
 
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.compactMap { event(from: $0) }
+    // Emit events to the current Subscription's closures
     emit(events: events)
-    listeners.values.forEach { $0.listener?.emit(events: events) }
+    // Emits events to the underlying attached listeners
+    listenersContainer.eventListeners.forEach { $0.emit(events: events) }
+    // Returns events that were emitted
     return events
   }
 

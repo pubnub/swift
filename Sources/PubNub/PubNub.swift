@@ -1480,22 +1480,22 @@ extension PubNub: StatusListenerInterface {
   }
 
   /// Adds additional status listeners
-  public func addStatusListener(_ listener: StatusListenerInterface) {
+  public func addStatusListener(_ listener: StatusListener) {
     subscription.addStatusListener(listener)
   }
 
   /// Removes status listener
-  public func removeStatusListener(_ listener: StatusListenerInterface) {
+  public func removeStatusListener(_ listener: StatusListener) {
     subscription.removeStatusListener(listener)
   }
 }
 
 extension PubNub: EventListenerHandler {
-  public func addEventListener(_ listener: EventListenerInterface) {
+  public func addEventListener(_ listener: EventListener) {
     subscription.addEventListener(listener)
   }
 
-  public func removeEventListener(_ listener: EventListenerInterface) {
+  public func removeEventListener(_ listener: EventListener) {
     subscription.removeEventListener(listener)
   }
 }

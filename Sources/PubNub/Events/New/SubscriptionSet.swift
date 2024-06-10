@@ -13,6 +13,8 @@ import Foundation
 /// A final class representing a set of `Subscription`.
 ///
 /// Use this class to manage multiple `Subscription` concurrently.
+/// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
+/// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
 public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
@@ -33,7 +35,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   // Internally holds a collection of child subscriptions
   private(set) var currentSubscriptions: Set<Subscription>
   // Stores additional listeners
-  private var listeners: [UUID: WeakEventListenerBox] = [:]
+  private var listenersContainer: SubscriptionListenersContainer = .init()
 
   // Internally intercepts messages from the Subscribe loop
   // and forwards them to the current `SubscriptionSet`
@@ -144,14 +146,13 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   }
 
   /// Adds additional subscription listener
-  public func addEventListener(_ listener: EventListenerInterface) {
-    listeners.removeValue(forKey: listener.uuid)
-    listeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  public func addEventListener(_ listener: EventListener) {
+    listenersContainer.storeEventListener(listener)
   }
 
   /// Removes subscription listener
-  public func removeEventListener(_ listener: EventListenerInterface) {
-    listeners.removeValue(forKey: listener.uuid)
+  public func removeEventListener(_ listener: EventListener) {
+    listenersContainer.removeEventListener(with: listener.uuid)
   }
 
   deinit {
@@ -227,7 +228,7 @@ extension SubscriptionSet: SubscribeMessagesReceiver {
   // 1. Gets a subscription from the associated list of child subscriptions
   // 2. Checks which payloads the currently iterated child subscription can map to events
   // 3. Checks the events result received in the previous step against SubscriptionSet's options
-  // 4. Emits filtered events from SubscriptionSet
+  // 4. Emits filtered events from SubscriptionSet and to additional listeners attached
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     currentSubscriptions.reduce(into: [PubNubEvent]()) { accumulatedRes, childSubscription in
       let events = payloads.compactMap { payload in
@@ -236,8 +237,10 @@ extension SubscriptionSet: SubscribeMessagesReceiver {
         options.filterCriteriaSatisfied(event: $0)
       }
       accumulatedRes.append(contentsOf: events)
+      // Emits events to the current SubscriptionSet's closures
       emit(events: events)
-      listeners.values.forEach { $0.listener?.emit(events: events) }
+      // Emits events to the underlying attached listeners
+      listenersContainer.eventListeners.forEach { $0.emit(events: events) }
     }
   }
 }

@@ -18,7 +18,7 @@ public struct PubNubFCMPayload: Codable {
   ///
   /// The payload of the FCM notification
   /// - Warning: The key should not be a reserved word (`"from"`, `"message_type"`,
-  /// or any word starting with `"google"` or `"fcm"`).
+  /// or any word starting with `"google"` or `"gcm"`).
   public let payload: JSONCodable?
   /// Basic notification template to use across all platforms.
   public let notification: FCMNotificationPayload?

@@ -9,11 +9,3 @@
 //
 
 import Foundation
-
-class WeakEventListenerBox {
-  weak var listener: EventListenerInterface?
-
-  init(listener: EventListenerInterface) {
-    self.listener = listener
-  }
-}

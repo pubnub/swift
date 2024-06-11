@@ -82,7 +82,11 @@ struct PushRouter: HTTPRouter {
         token = pushToken
       }
 
-      return service != .fcm ? token.hexEncodedString : String(data: token, encoding: .utf8)
+      if service == .fcm || service == .gcm {
+        return String(data: token, encoding: .utf8)
+      } else {
+        return token.hexEncodedString
+      }
     }
   }
 

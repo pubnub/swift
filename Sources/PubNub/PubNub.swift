@@ -105,7 +105,7 @@ public extension PubNub {
     case fcm
     /// Microsoft Push Notification Service
     case mpns
-    
+
     func stringValue() -> String {
       switch self {
       case .gcm, .fcm:

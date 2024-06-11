@@ -164,6 +164,6 @@ public class PubNubPushContractTestSteps: PubNubContractTestCase {
   }
 
   fileprivate func pushServiceFromWhen(match: String) -> PubNub.PushService {
-    ["GCM", "FMC"].contains(match) ? .fcm : .apns
+    ["GCM", "FCM"].contains(match) ? .fcm : .apns
   }
 }

@@ -135,13 +135,13 @@ struct PushRouter: HTTPRouter {
 
     switch endpoint {
     case let .listPushChannels(_, pushType):
-      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
+      query.append(URLQueryItem(key: .type, value: pushType.stringValue()))
     case let .managePushChannels(_, pushType, joining, removing):
-      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
+      query.append(URLQueryItem(key: .type, value: pushType.stringValue()))
       query.appendIfNotEmpty(key: .add, value: joining)
       query.appendIfNotEmpty(key: .remove, value: removing)
     case let .removeAllPushChannels(_, pushType):
-      query.append(URLQueryItem(key: .type, value: pushType.rawValue))
+      query.append(URLQueryItem(key: .type, value: pushType.stringValue()))
     case let .manageAPNS(_, environment, topic, adding, removing):
       query.append(URLQueryItem(key: .environment, value: environment.rawValue))
       query.append(URLQueryItem(key: .topic, value: topic))

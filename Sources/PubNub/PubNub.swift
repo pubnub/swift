@@ -96,13 +96,26 @@ public extension PubNub {
   }
 
   /// The identifier of the Push Service being used
-  enum PushService: String, Codable, Hashable {
+  enum PushService: Codable, Hashable {
+    @available(*, deprecated, renamed: "fcm")
+    case gcm
     /// Apple Push Notification Service
     case apns
-    /// Firebase Cloude Messaging
-    case gcm
+    /// Firebase Cloud Messaging
+    case fcm
     /// Microsoft Push Notification Service
     case mpns
+
+    func stringValue() -> String {
+      switch self {
+      case .gcm, .fcm:
+        return "gcm"
+      case .apns:
+        return "apns"
+      case .mpns:
+        return "mpns"
+      }
+    }
   }
 
   /// Configuration overrides for a single request

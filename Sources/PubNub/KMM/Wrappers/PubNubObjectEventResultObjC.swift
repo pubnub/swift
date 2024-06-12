@@ -171,6 +171,13 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.type = metadata.type
     self.status = metadata.status
   }
+  
+  @objc
+  public init(id: String, custom: AnyJSONObjC?, status: String?) {
+    self.id = id
+    self.custom = custom
+    self.status = status
+  }
 }
 
 // MARK: - SetUUIDMetadata

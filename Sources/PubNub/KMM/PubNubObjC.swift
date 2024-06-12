@@ -670,9 +670,7 @@ public extension PubNubObjC {
 // MARK: - App Context
 
 extension PubNubObjC {
-  private func objectSortProperties(
-    from properties: [PubNubSortPropertyObjC]
-  ) -> [PubNub.ObjectSortField] {
+  private func objectSortProperties(from properties: [PubNubSortPropertyObjC]) -> [PubNub.ObjectSortField] {
     properties.compactMap {
       if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
         return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
@@ -684,6 +682,24 @@ extension PubNubObjC {
   
   private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage {
     PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
+  }
+  
+  private func mapToMembershipSortFields(from array: [String]) -> [PubNub.MembershipSortField] {
+    // TODO: What about status field?
+    array.compactMap {
+      switch $0 {
+      case "channel.id", "uuid.id":
+        return PubNub.MembershipSortField(property: .object(.id))
+      case "channel.name", "uuid.name":
+        return PubNub.MembershipSortField(property: .object(.name))
+      case "channel.updated", "uuid.updated":
+        return PubNub.MembershipSortField(property: .object(.updated))
+      case "updated":
+        return PubNub.MembershipSortField(property: .updated)
+      default:
+        return nil
+      }
+    }
   }
 }
 
@@ -697,7 +713,7 @@ public extension PubNubObjC {
     sort: [PubNubSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping (([PubNubChannelMetadataObjC], NSNumber, PubNubHashedPageObjC) -> Void),
+    onSuccess: @escaping (([PubNubChannelMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allChannelMetadata(
@@ -711,8 +727,8 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(
           res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
-          NSNumber(integerLiteral: res.channels.count), // TODO: Resolve totalCount for KMP
-          PubNubHashedPageObjC(page: res.next)
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
         )
       case .failure(let error):
         onFailure(error)
@@ -736,9 +752,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  // TODO: Verify mapping for custom field
-  
+    
   @objc
   func setChannelMetadata(
     channel: String,
@@ -758,7 +772,7 @@ public extension PubNubObjC {
         type: type,
         status: status,
         channelDescription: description,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar } // TODO: Verify
       ),
       include: includeCustom
     ) {
@@ -795,7 +809,7 @@ public extension PubNubObjC {
     sort: [PubNubSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping (([PubNubUUIDMetadataObjC], NSNumber, PubNubHashedPageObjC) -> Void),
+    onSuccess: @escaping (([PubNubUUIDMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allUUIDMetadata(
@@ -809,8 +823,8 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(
           res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
-          NSNumber(integerLiteral: res.uuids.count), // TODO: Resolve totalCount for KMP
-          PubNubHashedPageObjC(page: res.next)
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
         )
       case .failure(let error):
         onFailure(error)
@@ -834,12 +848,10 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  // TODO: Verify mapping for custom field
-  
+    
   @objc
   func setUUIDMetadata(
-    uuid: String?,
+    uuid: String?, // TODO: Why KMP requires nil here?
     name: String?,
     externalId: String?,
     profileUrl: String?,
@@ -853,14 +865,14 @@ public extension PubNubObjC {
   ) {
     pubnub.set(
       uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid ?? "", // TODO: What if uuid is nil?
+        metadataId: uuid!,
         name: name,
         type: type,
         status: status,
         externalId: externalId,
         profileURL: profileUrl,
         email: email,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar } // TODO: Verify
       ),
       include: includeCustom
     ) {
@@ -883,6 +895,264 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let result):
         onSuccess(result)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getMemberships(
+    uuid: String?,
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeChannelFields: Bool,
+    includeChannelCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.fetchMemberships(
+      uuid: uuid,
+      include: .init(
+        customFields: includeCustom,
+        channelFields: includeChannelFields,
+        channelCustomFields: includeChannelCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func setMemberships(
+    channels: [PubNubChannelMetadataObjC],
+    uuid: String?,
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeChannelFields: Bool,
+    includeChannelCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.setMemberships(
+      uuid: uuid,
+      channels: channels.map {
+        PubNubMembershipMetadataBase(
+          uuidMetadataId: uuid!, // TODO: Verify it, perhaps this field will be ignored under the hood so we should put "" here
+          channelMetadataId: $0.id
+        )
+      },
+      include: .init(
+        customFields: includeCustom,
+        channelFields: includeChannelFields,
+        channelCustomFields: includeChannelCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func removeMemberships(
+    channels: [String],
+    uuid: String?,
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeChannelFields: Bool,
+    includeChannelCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.removeMemberships(
+      uuid: uuid,
+      channels: channels.map {
+        PubNubMembershipMetadataBase(
+          uuidMetadataId: uuid!, // TODO: Verify it, perhaps this field will be ignored under the hood so we should put "" here
+          channelMetadataId: $0
+        )
+      },
+      include: .init(
+        customFields: includeCustom,
+        channelFields: includeChannelFields,
+        channelCustomFields: includeChannelCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getChannelMembers(
+    channel: String,
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeUUIDFields: Bool,
+    includeUUIDCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.fetchMembers(
+      channel: channel,
+      include: .init(
+        customFields: includeCustom,
+        uuidFields: includeUUIDFields,
+        uuidCustomFields: includeUUIDCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort), 
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func setChannelMembers(
+    channel: String,
+    uuids: [PubNubUUIDMetadataObjC],
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeUUIDFields: Bool,
+    includeUUIDCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.setMembers(
+      channel: channel,
+      uuids: uuids.map { PubNubMembershipMetadataBase(uuidMetadataId: $0.id, channelMetadataId: channel) },
+      include: .init(
+        customFields: includeCustom,
+        uuidFields: includeUUIDFields,
+        uuidCustomFields: includeUUIDCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func removeChannelMembers(
+    channel: String,
+    uuids: [String],
+    limit: NSNumber?,
+    page: PubNubHashedPageObjC?,
+    filter: String?,
+    sort: [String],
+    includeCount: Bool,
+    includeCustom: Bool,
+    includeUUIDFields: Bool,
+    includeUUIDCustomFields: Bool,
+    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.removeMembers(
+      channel: channel,
+      uuids: uuids.map { PubNubMembershipMetadataBase(uuidMetadataId: $0, channelMetadataId: channel) },
+      include: .init(
+        customFields: includeCustom,
+        uuidFields: includeUUIDFields,
+        uuidCustomFields: includeUUIDCustomFields,
+        totalCount: includeCount
+      ),
+      filter: filter,
+      sort: mapToMembershipSortFields(from: sort),
+      limit: limit?.intValue,
+      page: convertPage(from: page)
+    ) {
+      switch $0 {
+      case .success(let res):
+        onSuccess(
+          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.next?.totalCount?.asNumber,
+          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+        )
       case .failure(let error):
         onFailure(error)
       }

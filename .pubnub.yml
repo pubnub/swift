@@ -1,14 +1,9 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.3.0"
+version: "7.2.1"
 schema: 1
 changelog:
-  - date: 2024-06-12
-    version: 7.3.0
-    changes:
-      - type: feature
-        text: "Adjusting to FCM HTTP v1 API."
   - date: 2024-05-09
     version: 7.2.1
     changes:

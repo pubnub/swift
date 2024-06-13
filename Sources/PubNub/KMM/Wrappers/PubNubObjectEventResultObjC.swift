@@ -210,6 +210,17 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
+  
+  @objc
+  public init(
+    id: String,
+    custom: Any?,
+    status: String?
+  ) {
+    self.id = id
+    self.custom = if let custom { AnyJSONObjC(custom) } else { nil }
+    self.status = status
+  }
 
   init(changeset: PubNubUUIDMetadataChangeset) {
     self.id = changeset.metadataId

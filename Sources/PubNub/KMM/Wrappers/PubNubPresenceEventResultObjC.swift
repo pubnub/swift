@@ -23,7 +23,7 @@ public class PubNubPresenceEventResultObjC: NSObject {
   @objc public let leave: [String]?
   @objc public let timeout: [String]?
   @objc public let refreshHereNow: NSNumber?
-  @objc public let userMetadata: Any?
+  @objc public let userMetadata: AnyJSONObjC?
 
   static func from(change: PubNubPresenceChange) -> [PubNubPresenceEventResultObjC] {
     change.actions.map { PubNubPresenceEventResultObjC(change: change, action: $0) }
@@ -35,7 +35,7 @@ public class PubNubPresenceEventResultObjC: NSObject {
     subscription = change.subscription
     timetoken = NSNumber(value: change.timetoken)
     refreshHereNow = NSNumber(booleanLiteral: change.refreshHereNow)
-    userMetadata = change.metadata?.rawValue
+    userMetadata = if let value = change.metadata?.rawValue { AnyJSONObjC(value) } else { nil }
 
     switch action {
     case .join(let uuids):

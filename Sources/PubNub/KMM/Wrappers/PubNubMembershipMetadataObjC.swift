@@ -17,7 +17,7 @@ public class PubNubMembershipMetadataObjC: NSObject {
   @objc public var status: String?
   @objc public var uuid: PubNubUUIDMetadataObjC?
   @objc public var channel: PubNubChannelMetadataObjC?
-  @objc public var updated: Date?
+  @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var custom: [String: Any]?
   
@@ -27,7 +27,7 @@ public class PubNubMembershipMetadataObjC: NSObject {
     self.status = from.status
     self.uuid = if let uuid = from.uuid { PubNubUUIDMetadataObjC(metadata: uuid) } else { nil }
     self.channel = if let channel = from.channel { PubNubChannelMetadataObjC(metadata: channel) } else { nil }
-    self.updated = from.updated
+    self.updated = from.updated?.stringOptional // TODO: Valid date format
     self.eTag = from.eTag
     self.custom = from.custom
   }

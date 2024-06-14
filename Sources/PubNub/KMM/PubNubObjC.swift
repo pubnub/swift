@@ -1200,7 +1200,7 @@ public extension PubNubObjC {
     channel: String,
     limit: NSNumber?,
     next: PubNubHashedPageObjC?,
-    onSuccess: @escaping (([PubNubFileObjC]) -> Void),
+    onSuccess: @escaping (([PubNubFileObjC], String?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.listFiles(
@@ -1215,7 +1215,7 @@ public extension PubNubObjC {
             from: $0,
             url: pubnub?.generateFileDownloadURL(for: $0)
           )
-        })
+        }, next?.end)
         debugPrint("")
       case .failure(let error):
         onFailure(error)

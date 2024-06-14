@@ -142,6 +142,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   public func dispose() {
     clearCallbacks()
     currentSubscriptions.forEach { $0.dispose() }
+    removeAllListeners()
     isDisposed = true
   }
 
@@ -154,7 +155,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   public func removeEventListener(_ listener: EventListener) {
     listenersContainer.removeEventListener(with: listener.uuid)
   }
-  
+
   /// Removes all event listeners
   public func removeAllListeners() {
     listenersContainer.removeAllEventListeners()

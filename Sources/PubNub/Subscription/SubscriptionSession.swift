@@ -455,7 +455,7 @@ extension SubscriptionSession: EventListenerHandler {
   func removeEventListener(_ listener: EventListener) {
     listenersContainer.removeEventListener(with: listener.uuid)
   }
-  
+
   func removeAllListeners() {
     listenersContainer.removeAllEventListeners()
   }
@@ -469,7 +469,7 @@ extension SubscriptionSession {
   func removeStatusListener(_ listener: StatusListener) {
     listenersContainer.removeStatusListener(with: listener.uuid)
   }
-  
+
   func removeAllStatusListeners() {
     listenersContainer.removeAllStatusListeners()
   }

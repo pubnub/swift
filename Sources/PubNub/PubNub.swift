@@ -1488,6 +1488,11 @@ extension PubNub: StatusListenerInterface {
   public func removeStatusListener(_ listener: StatusListener) {
     subscription.removeStatusListener(listener)
   }
+  
+  /// Removes all status listeners
+  public func removeAllStatusListeners() {
+    subscription.removeAllStatusListeners()
+  }
 }
 
 extension PubNub: EventListenerHandler {
@@ -1497,6 +1502,10 @@ extension PubNub: EventListenerHandler {
 
   public func removeEventListener(_ listener: EventListener) {
     subscription.removeEventListener(listener)
+  }
+  
+  public func removeAllListeners() {
+    subscription.removeAllListeners()
   }
 }
 

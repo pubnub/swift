@@ -154,6 +154,11 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   public func removeEventListener(_ listener: EventListener) {
     listenersContainer.removeEventListener(with: listener.uuid)
   }
+  
+  /// Removes all event listeners
+  public func removeAllListeners() {
+    listenersContainer.removeAllEventListeners()
+  }
 
   deinit {
     dispose()

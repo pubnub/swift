@@ -1311,6 +1311,14 @@ public extension PubNubObjC {
   }
 }
 
+@objc
+public extension PubNubObjC {
+  @objc
+  func disconnect() {
+    pubnub.disconnect()
+  }
+}
+
 extension PubNub {
   func generateFileDownloadURL(for file: PubNubFile) -> URL? {
     try? generateFileDownloadURL(

@@ -29,13 +29,8 @@ public class PubNubFileEventResultObjC: NSObject {
         message: fileEvent.additionalMessage?.codableValue,
         subscription: fileEvent.channelGroup,
         file: PubNubFileObjC(
-          id: fileEvent.file.fileId,
-          name: fileEvent.file.filename,
-          url: (try? pubnub?.generateFileDownloadURL(
-            channel: fileEvent.file.channel,
-            fileId: fileEvent.file.fileId,
-            filename: fileEvent.file.filename
-          ))?.absoluteString ?? ""
+          from: fileEvent.file,
+          url: pubnub?.generateFileDownloadURL(for: fileEvent.file)
         )
       )
     }
@@ -62,11 +57,17 @@ public class PubNubFileEventResultObjC: NSObject {
 public class PubNubFileObjC: NSObject {
   @objc public let id: String
   @objc public let name: String
-  @objc public let url: String
-
-  init(id: String, name: String, url: String) {
-    self.id = id
-    self.name = name
+  @objc public let url: URL?
+  @objc public let size: Int64
+  @objc public let contentType: String?
+  @objc public let createdDate: Date?
+  
+  init(from: PubNubFile, url: URL?) {
+    self.id = from.channel
+    self.name = from.filename
+    self.size = from.size
+    self.contentType = from.contentType
+    self.createdDate = from.createdDate
     self.url = url
   }
 }

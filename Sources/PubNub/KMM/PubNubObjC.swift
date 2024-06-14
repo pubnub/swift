@@ -138,6 +138,7 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
+  @objc
   func subscribe(
     channels: [String],
     channelGroups: [String],
@@ -152,6 +153,7 @@ public extension PubNubObjC {
     )
   }
   
+  @objc
   func unsubscribe(
     from channels: [String],
     channelGroups: [String]
@@ -160,6 +162,11 @@ public extension PubNubObjC {
       from: channels,
       and: channelGroups
     )
+  }
+  
+  @objc
+  func unsubscribeAll() {
+    pubnub.unsubscribeAll()
   }
 }
 
@@ -478,6 +485,30 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let response):
         onSuccess(response.stateByChannel.mapValues { $0.rawValue })
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  // TODO: Adjust setPresence method from Swift SDK to take JSONCodable
+  
+  @objc
+  func setPresenceState(
+    channels: [String],
+    channelGroups: [String],
+    state: AnyJSONObjC,
+    onSuccess: @escaping ((AnyJSONObjC) -> Void),
+    onFailure: @escaping (Error) -> Void
+  ) {
+    pubnub.setPresence(
+      state: [:],
+      on: channels,
+      and: channelGroups
+    ) {
+      switch $0 {
+      case .success(let codable):
+        onSuccess(AnyJSONObjC(codable.rawValue))
       case .failure(let error):
         onFailure(error)
       }
@@ -1157,5 +1188,135 @@ public extension PubNubObjC {
         onFailure(error)
       }
     }
+  }
+}
+
+// MARK: - Files
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func listFiles(
+    channel: String,
+    limit: NSNumber?,
+    next: PubNubHashedPageObjC?,
+    onSuccess: @escaping (([PubNubFileObjC]) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.listFiles(
+      channel: channel,
+      limit: limit?.uintValue ?? 100,
+      next: next?.end
+    ) { [weak pubnub] in
+      switch $0 {
+      case .success(let res):
+        onSuccess(res.files.map {
+          PubNubFileObjC(
+            from: $0,
+            url: pubnub?.generateFileDownloadURL(for: $0)
+          )
+        })
+        debugPrint("")
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  @objc
+  func getFileUrl(
+    channel: String,
+    fileName: String,
+    fileId: String,
+    onSuccess: @escaping ((String) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    do {
+      onSuccess(
+        try pubnub.generateFileDownloadURL(
+          channel: channel,
+          fileId: fileId,
+          filename: fileName
+        ).absoluteString
+      )
+    } catch {
+      onFailure(error)
+    }
+  }
+  
+  @objc
+  func deleteFile(
+    channel: String,
+    fileName: String,
+    fileId: String,
+    onSuccess: @escaping (() -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    pubnub.remove(fileId: fileId, filename: fileName, channel: channel) {
+      switch $0 {
+      case .success(_):
+        onSuccess()
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+  
+  // TODO: Missing contentType and fileSize
+  
+  @objc
+  func publishFileMessage(
+    channel: String,
+    fileName: String,
+    fileId: String,
+    message: Any?,
+    meta: Any?,
+    ttl: NSNumber?,
+    shouldStore: NSNumber?,
+    onSuccess: @escaping ((Timetoken) -> Void),
+    onFailure: @escaping ((Error) -> Void)
+  ) {
+    let messageCodable: AnyJSON? = if let message {
+      AnyJSON(message)
+    } else {
+      nil
+    }
+    let metaCodable: AnyJSON? = if let meta {
+      AnyJSON(meta)
+    } else {
+      nil
+    }
+    pubnub.publish(
+      file: PubNubFileBase(
+        channel: channel,
+        fileId: fileId,
+        filename: fileName,
+        size: 0,
+        contentType: nil
+      ),
+      request: PubNub.PublishFileRequest(
+        additionalMessage: messageCodable,
+        store: shouldStore?.boolValue,
+        ttl: ttl?.intValue,
+        meta: metaCodable
+      )
+    ) {
+      switch $0 {
+      case .success(let timetoken):
+        onSuccess(timetoken)
+      case .failure(let error):
+        onFailure(error)
+      }
+    }
+  }
+}
+
+extension PubNub {
+  func generateFileDownloadURL(for file: PubNubFile) -> URL? {
+    try? generateFileDownloadURL(
+      channel: file.channel,
+      fileId: file.fileId,
+      filename: file.filename
+    )
   }
 }

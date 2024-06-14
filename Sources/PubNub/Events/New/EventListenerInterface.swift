@@ -152,6 +152,7 @@ extension EventListenerInterface {
 public protocol EventListenerHandler {
   func addEventListener(_ listener: EventListener)
   func removeEventListener(_ listener: EventListener)
+  func removeAllListeners()
 }
 
 /// A protocol representing a type that can be utilized to dispose of a conforming object.

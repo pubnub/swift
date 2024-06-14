@@ -51,6 +51,14 @@ class SubscriptionListenersContainer {
   func removeStatusListener(with key: UUID) {
     statusListenersCache[key] = nil
   }
+  
+  func removeAllEventListeners() {
+    eventListenersCache.removeAll()
+  }
+  
+  func removeAllStatusListeners() {
+    statusListenersCache.removeAll()
+  }
 }
 
 private class WeakListenerBox<T: AnyObject> {

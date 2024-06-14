@@ -228,10 +228,14 @@ public extension PubNubObjC {
   func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
+    pushType: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.addPushChannelRegistrations(channels, for: deviceId) {
+    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+    }
+    pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushType) {
       switch $0 {
       case .success(let channels):
         onSuccess(channels)

@@ -26,7 +26,7 @@ class PresenceTransition: TransitionProtocol {
     case .joined:
       return configuration.heartbeatInterval > 0
     case .left:
-      return !(state is Presence.HeartbeatInactive)
+      return true
     case .heartbeatSuccess:
       return state is Presence.Heartbeating
     case .heartbeatFailed:
@@ -34,7 +34,7 @@ class PresenceTransition: TransitionProtocol {
     case .timesUp:
       return state is Presence.HeartbeatCooldown
     case .leftAll:
-      return !(state is Presence.HeartbeatInactive)
+      return true
     case .disconnect:
       return !(state is Presence.HeartbeatInactive)
     case .reconnect:
@@ -120,19 +120,22 @@ fileprivate extension PresenceTransition {
       channels: leaving.channels,
       groups: leaving.groups
     )
-    if state is Presence.HeartbeatStopped {
-      return TransitionResult(
-        state: Presence.HeartbeatStopped(input: newInput),
-        invocations: []
-      )
-    } else {
-      let leaveInvocation = EffectInvocation.regular(Presence.Invocation.leave(
+    let invocations = configuration.supressLeaveEvents ? [] : [
+      EffectInvocation.regular(Presence.Invocation.leave(
         channels: leaving.channels,
         groups: leaving.groups
       ))
+    ]
+    
+    if state is Presence.HeartbeatStopped {
+      return TransitionResult(
+        state: Presence.HeartbeatStopped(input: newInput),
+        invocations: invocations
+      )
+    } else {
       return TransitionResult(
         state: newInput.isEmpty ? Presence.HeartbeatInactive() : Presence.Heartbeating(input: newInput),
-        invocations: configuration.supressLeaveEvents ? [] : [leaveInvocation]
+        invocations: invocations
       )
     }
   }

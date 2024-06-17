@@ -126,7 +126,7 @@ fileprivate extension PresenceTransition {
         groups: leaving.groups
       ))
     ]
-    
+
     if state is Presence.HeartbeatStopped {
       return TransitionResult(
         state: Presence.HeartbeatStopped(input: newInput),

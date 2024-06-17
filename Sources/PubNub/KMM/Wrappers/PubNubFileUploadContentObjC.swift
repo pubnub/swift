@@ -21,7 +21,7 @@ public class PubNubDataUploadContentObjC: PubNubFileUploadContentObjC {
   @objc public let contentType: String?
   
   @objc
-  init(data: Data, contentType: String?) {
+  public init(data: Data, contentType: String?) {
     self.data = data
     self.contentType = contentType
   }
@@ -32,7 +32,7 @@ public class PubNubFileContentObjC: PubNubFileUploadContentObjC {
   @objc public let fileURL: URL
   
   @objc
-  init(fileURL: URL) {
+  public init(fileURL: URL) {
     self.fileURL = fileURL
   }
 }
@@ -44,7 +44,7 @@ public class PubNubInputStreamUploadContentObjC: PubNubFileUploadContentObjC {
   @objc public let contentLength: Int
   
   @objc
-  init(stream: InputStream, contentType: String?, contentLength: Int) {
+  public init(stream: InputStream, contentType: String?, contentLength: Int) {
     self.stream = stream
     self.contentType = contentType
     self.contentLength = contentLength

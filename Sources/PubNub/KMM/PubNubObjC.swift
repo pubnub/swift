@@ -1199,13 +1199,13 @@ public extension PubNubObjC {
 // MARK: - Files
 
 extension PubNubObjC {
-  func convertUploadContent(from content: PubNubFileUploadContentObjC) -> PubNub.FileUploadContent? {
+  func convertUploadContent(from content: PubNubUploadableObjC) -> PubNub.FileUploadContent? {
     switch content {
-    case let content as PubNubDataUploadContentObjC:
+    case let content as PubNubDataContentObjC:
       return .data(content.data, contentType: content.contentType)
     case let content as PubNubFileContentObjC:
       return .file(url: content.fileURL)
-    case let content as PubNubInputStreamUploadContentObjC:
+    case let content as PubNubInputStreamContentObjC:
       return .stream(content.stream, contentType: content.contentType, contentLength: content.contentLength)
     default:
       return nil
@@ -1357,7 +1357,7 @@ public extension PubNubObjC {
   func sendFile(
     channel: String,
     fileName: String,
-    content: PubNubFileUploadContentObjC,
+    content: PubNubUploadableObjC,
     message: Any?,
     meta: Any?,
     ttl: NSNumber?,

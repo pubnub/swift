@@ -11,12 +11,12 @@
 import Foundation
 
 @objc
-public class PubNubFileUploadContentObjC: NSObject {
+public class PubNubUploadableObjC: NSObject {
   
 }
 
 @objc
-public class PubNubDataUploadContentObjC: PubNubFileUploadContentObjC {
+public class PubNubDataContentObjC: PubNubUploadableObjC {
   @objc public let data: Data
   @objc public let contentType: String?
   
@@ -28,7 +28,7 @@ public class PubNubDataUploadContentObjC: PubNubFileUploadContentObjC {
 }
 
 @objc
-public class PubNubFileContentObjC: PubNubFileUploadContentObjC {
+public class PubNubFileContentObjC: PubNubUploadableObjC {
   @objc public let fileURL: URL
   
   @objc
@@ -38,7 +38,7 @@ public class PubNubFileContentObjC: PubNubFileUploadContentObjC {
 }
 
 @objc
-public class PubNubInputStreamUploadContentObjC: PubNubFileUploadContentObjC {
+public class PubNubInputStreamContentObjC: PubNubUploadableObjC {
   @objc public let stream: InputStream
   @objc public let contentType: String?
   @objc public let contentLength: Int

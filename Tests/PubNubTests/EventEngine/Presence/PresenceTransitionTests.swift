@@ -200,9 +200,12 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.HeartbeatStopped(
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     )
+    let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
+      .regular(.leave(channels: ["c3"], groups: ["g3"])),
+    ]
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.isEmpty)
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   
   func testPresence_LeftEventForCooldownState() {
@@ -291,6 +294,23 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.HeartbeatInactive()
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+  }
+  
+  func testPresence_LeftAllForHeartbeatStoppedState() {
+    let input = PresenceInput(
+      channels: ["c1", "c2"],
+      groups: ["g1", "g2"]
+    )
+    let results = transition.transition(
+      from: Presence.HeartbeatStopped(input: input),
+      event: .leftAll
+    )
+    let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
+      .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
+    ]
+    
+    XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatInactive()))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
   

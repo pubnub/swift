@@ -1485,8 +1485,8 @@ extension PubNub: StatusListenerInterface {
   }
 
   /// Removes status listener
-  public func removeStatusListener(_ listener: StatusListener) {
-    subscription.removeStatusListener(listener)
+  public func removeStatusListener(with uuid: UUID) {
+    subscription.removeStatusListener(with: uuid)
   }
 
   /// Removes all status listeners

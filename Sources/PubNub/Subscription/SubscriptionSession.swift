@@ -466,8 +466,8 @@ extension SubscriptionSession {
     listenersContainer.storeStatusListener(listener)
   }
 
-  func removeStatusListener(_ listener: StatusListener) {
-    listenersContainer.removeStatusListener(with: listener.uuid)
+  func removeStatusListener(with uuid: UUID) {
+    listenersContainer.removeStatusListener(with: uuid)
   }
 
   func removeAllStatusListeners() {

@@ -17,11 +17,9 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   var uuid: UUID { strategy.uuid }
   // The `Timetoken` used for the last successful subscription request
   var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
-  // Additional listeners for global subscription
-  private var additionalListeners: [UUID: WeakEventListenerBox] = [:]
-  // Additional status listeners
-  private var additionalStatusListeners: [UUID: WeakStatusListenerBox] = [:]
-  
+  // Additional listeners for global subscriptions
+  private let listenersContainer: SubscriptionListenersContainer = .init()
+
   // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {
@@ -63,9 +61,9 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     statusListener.didReceiveStatus = { [weak self] statusChange in
       if case .success(let newStatus) = statusChange {
         self?.onConnectionStateChange?(newStatus)
-        self?.additionalStatusListeners.values.compactMap { $0.listener }.forEach { listener in
-          listener.queue.async { [unowned listener] in
-            listener.onConnectionStateChange?(newStatus)
+        self?.listenersContainer.statusListeners.forEach { listener in
+          listener.queue.async { [weak listener] in
+            listener?.onConnectionStateChange?(newStatus)
           }
         }
       }
@@ -438,33 +436,43 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
   }
 
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
+    // Translates payloads into PubNub Subscibe Loop events
     let events = payloads.map { $0.asPubNubEvent() }
+    // Emits events from the SubscriptionSession
     emit(events: events)
-    additionalListeners.values.forEach { $0.listener?.emit(events: events) }
+    // Emits events to the underlying attached listeners
+    listenersContainer.eventListeners.forEach { $0.emit(events: events) }
+    // Returns events that were processed
     return events
   }
 }
 
 extension SubscriptionSession: EventListenerHandler {
-  func addEventListener(_ listener: EventListenerInterface) {
-    additionalListeners.removeValue(forKey: listener.uuid)
-    additionalListeners[listener.uuid] = WeakEventListenerBox(listener: listener)
+  func addEventListener(_ listener: EventListener) {
+    listenersContainer.storeEventListener(listener)
   }
-  
-  func removeEventListener(_ listener: EventListenerInterface) {
-    additionalListeners.removeValue(forKey: listener.uuid)
+
+  func removeEventListener(_ listener: EventListener) {
+    listenersContainer.removeEventListener(with: listener.uuid)
+  }
+
+  func removeAllListeners() {
+    listenersContainer.removeAllEventListeners()
   }
 }
 
 extension SubscriptionSession {
-  func addStatusListener(_ listener: StatusListenerInterface) {
-    additionalStatusListeners.removeValue(forKey: listener.uuid)
-    additionalStatusListeners[listener.uuid] = WeakStatusListenerBox(listener: listener)
-  }
-
-  func removeStatusListener(_ listener: StatusListenerInterface) {
-    additionalStatusListeners.removeValue(forKey: listener.uuid)
+  func addStatusListener(_ listener: StatusListener) {
+    listenersContainer.storeStatusListener(listener)
   }
   
+  func removeStatusListener(_ listener: StatusListener) {
+    listenersContainer.removeStatusListener(with: listener.uuid)
+  }
+  
+  func removeAllStatusListeners() {
+    listenersContainer.removeAllStatusListeners()
+  }
+
   // swiftlint:disable:next file_length
 }

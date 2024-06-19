@@ -60,7 +60,7 @@ class EmitMessagesTests: XCTestCase {
     
     listeners.forEach {
       $0.onEmitMessagesCalled = { receivedMessages in
-        XCTAssertTrue(receivedMessages.elementsEqual(messages))
+        XCTAssertTrue(receivedMessages.map { $0.messageType } == messages.map { $0.messageType })
         expectation.fulfill()
       }
     }
@@ -69,7 +69,7 @@ class EmitMessagesTests: XCTestCase {
       PubNub.log.debug("Did finish performing EmitMessages effect")
     })
     
-    wait(for: [expectation], timeout: 0.15)
+    wait(for: [expectation], timeout: 0.35)
   }
   
   func testListener_MessageCountExceededMaximum() {

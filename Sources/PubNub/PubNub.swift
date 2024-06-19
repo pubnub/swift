@@ -96,13 +96,26 @@ public extension PubNub {
   }
 
   /// The identifier of the Push Service being used
-  enum PushService: String, Codable, Hashable {
+  enum PushService: Codable, Hashable {
+    @available(*, deprecated, renamed: "fcm")
+    case gcm
     /// Apple Push Notification Service
     case apns
-    /// Firebase Cloude Messaging
-    case gcm
+    /// Firebase Cloud Messaging
+    case fcm
     /// Microsoft Push Notification Service
     case mpns
+
+    func stringValue() -> String {
+      switch self {
+      case .gcm, .fcm:
+        return "gcm"
+      case .apns:
+        return "apns"
+      case .mpns:
+        return "mpns"
+      }
+    }
   }
 
   /// Configuration overrides for a single request
@@ -1465,25 +1478,34 @@ extension PubNub: StatusListenerInterface {
     get { subscription.onConnectionStateChange }
     set { subscription.onConnectionStateChange = newValue }
   }
-  
+
   /// Adds additional status listeners
-  public func addStatusListener(_ listener: StatusListenerInterface) {
+  public func addStatusListener(_ listener: StatusListener) {
     subscription.addStatusListener(listener)
   }
-  
+
   /// Removes status listener
-  public func removeStatusListener(_ listener: StatusListenerInterface) {
+  public func removeStatusListener(_ listener: StatusListener) {
     subscription.removeStatusListener(listener)
+  }
+
+  /// Removes all status listeners
+  public func removeAllStatusListeners() {
+    subscription.removeAllStatusListeners()
   }
 }
 
 extension PubNub: EventListenerHandler {
-  public func addEventListener(_ listener: EventListenerInterface) {
+  public func addEventListener(_ listener: EventListener) {
     subscription.addEventListener(listener)
   }
-  
-  public func removeEventListener(_ listener: EventListenerInterface) {
+
+  public func removeEventListener(_ listener: EventListener) {
     subscription.removeEventListener(listener)
+  }
+
+  public func removeAllListeners() {
+    subscription.removeAllListeners()
   }
 }
 

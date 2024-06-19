@@ -10,15 +10,21 @@ defaults:
   run:
     shell: bash
 
+env:
+  LANG: en_US.UTF-8
+  LANGUAGE: en_US.UTF-8
+  LC_ALL: en_US.UTF-8
+
 jobs:
   pubnub-yml:
     name: "Validate .pubnub.yml"
-    runs-on: ubuntu-latest
+    runs-on:
+      group: Default
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Checkout validator action
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
@@ -33,29 +39,30 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   package-managers-validation:
     name: Validate package managers
-    runs-on: macos-12
+    runs-on:
+      group: macos-gh
     strategy:
       matrix:
         managers: [CocoaPods, Swift Package Manager]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
       - name: Checkout actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Setup Ruby 2.6.6
+      - name: Setup Ruby 3.2.2
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.6
+          ruby-version: 3.2.2
           bundler-cache: true
       - name: Cache Swift Package Manager
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             .build
@@ -70,26 +77,27 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   demo-app-validation:
     name: Validate demo application
-    runs-on: macos-12
+    runs-on:
+      group: macos-gh
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
       - name: Checkout actions
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: pubnub/client-engineering-deployment-tools
           ref: v1
           token: ${{ secrets.GH_TOKEN }}
           path: .github/.release/actions
-      - name: Setup Ruby 2.6.6
+      - name: Setup Ruby 3.2.2
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.6.6
+          ruby-version: 3.2.2
           bundler-cache: true
       - name: Cache Swift Package Manager
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             .build
@@ -104,8 +112,9 @@ jobs:
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   all-validations:
     name: Validations
-    runs-on: ubuntu-latest
     needs: [pubnub-yml, package-managers-validation, demo-app-validation]
+    runs-on:
+      group: Default
     steps:
       - name: Validations summary
         run: echo -e "\033[38;2;95;215;0m\033[1mAll validations passed"

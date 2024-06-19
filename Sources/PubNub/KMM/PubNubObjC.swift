@@ -14,8 +14,8 @@ import Foundation
 public class PubNubObjC: NSObject {
   private let pubnub: PubNub
   private let defaultFileDownloadPath = FileManager.default.temporaryDirectory.appendingPathComponent("pubnub-chat-sdk")
-  private var listeners: [UUID: EventListenerInterface] = [:]
-  private var statusListeners: [UUID: StatusListenerInterface] = [:]
+  private var listeners: [UUID: EventListener] = [:]
+  private var statusListeners: [UUID: StatusListener] = [:]
   
   // MARK: - Init
   
@@ -224,6 +224,21 @@ public extension PubNubObjC {
 
 // MARK: - Push registration
 
+extension PubNubObjC {
+  func pushService(from rawString: String) -> PubNub.PushService? {
+    switch rawString {
+    case "gcm":
+      return .fcm
+    case "apns":
+      return .apns
+    case "mpns":
+      return .mpns
+    default:
+      return nil
+    }
+  }
+}
+
 @objc
 public extension PubNubObjC {
   func addChannelsToPushNotifications(
@@ -233,10 +248,10 @@ public extension PubNubObjC {
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+    guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushType) {
+    pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushService) {
       switch $0 {
       case .success(let channels):
         onSuccess(channels)
@@ -252,10 +267,10 @@ public extension PubNubObjC {
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+    guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.listPushChannelRegistrations(for: deviceId, of: pushType) {
+    pubnub.listPushChannelRegistrations(for: deviceId, of: pushService) {
       switch $0 {
       case .success(let channels):
         onSuccess(channels)
@@ -272,10 +287,10 @@ public extension PubNubObjC {
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+    guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushType) {
+    pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushService) {
       switch $0 {
       case .success(let channels):
         onSuccess(channels)
@@ -291,10 +306,10 @@ public extension PubNubObjC {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    guard let pushType = PubNub.PushService(rawValue: pushType) else {
+    guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushType) {
+    pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushService) {
       switch $0 {
       case .success:
         onSuccess()

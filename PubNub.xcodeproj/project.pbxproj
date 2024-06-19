@@ -442,6 +442,7 @@
 		3DA0C7C92BFDF538000FFE6C /* PubNubObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */; };
 		3DA0C7CE2BFE328B000FFE6C /* WeakEventListenerBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CD2BFE328B000FFE6C /* WeakEventListenerBox.swift */; };
 		3DA0C7D02BFE59AC000FFE6C /* WeakStatusListenerBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* WeakStatusListenerBox.swift */; };
+		3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DB2C4872C0F4B250060B8CF /* StatusListenerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* StatusListenerObjC.swift */; };
 		3DB9255C2B7A2B89001B7E90 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */; };
@@ -1051,6 +1052,7 @@
 		3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjC.swift; sourceTree = "<group>"; };
 		3DA0C7CD2BFE328B000FFE6C /* WeakEventListenerBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakEventListenerBox.swift; sourceTree = "<group>"; };
 		3DA0C7CF2BFE59AC000FFE6C /* WeakStatusListenerBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakStatusListenerBox.swift; sourceTree = "<group>"; };
+		3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionListenersContainer.swift; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DB2C4862C0F4B250060B8CF /* StatusListenerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusListenerObjC.swift; sourceTree = "<group>"; };
 		3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
@@ -2336,8 +2338,7 @@
 				3DB925742B7AA75F001B7E90 /* Subscribable.swift */,
 				3DB925752B7AA75F001B7E90 /* Subscription.swift */,
 				3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */,
-				3DA0C7CD2BFE328B000FFE6C /* WeakEventListenerBox.swift */,
-				3DA0C7CF2BFE59AC000FFE6C /* WeakStatusListenerBox.swift */,
+				3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */,
 				3DB925772B7AA75F001B7E90 /* Entities */,
 				3DB925722B7AA75F001B7E90 /* Extensions */,
 			);
@@ -3525,7 +3526,7 @@
 				3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */,
 				35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */,
 				35AC16332487179400A66030 /* PubNubPage.swift in Sources */,
-				3DA0C7D02BFE59AC000FFE6C /* WeakStatusListenerBox.swift in Sources */,
+				3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */,
 				3DB925802B7AA75F001B7E90 /* PubNubEvent.swift in Sources */,
 				35AC162F2486C9A400A66030 /* PubNubMessageAction.swift in Sources */,
 				3585033B22CD545400A11D9A /* URLRequest+PubNub.swift in Sources */,
@@ -3546,7 +3547,6 @@
 				3D389FF22B35AF4A006928E7 /* LeaveEffect.swift in Sources */,
 				35A6C7A822FBCC8B00E97CC5 /* PushRouter.swift in Sources */,
 				3D389FF72B35AF4A006928E7 /* PresenceHeartbeatRequest.swift in Sources */,
-				3DA0C7CE2BFE328B000FFE6C /* WeakEventListenerBox.swift in Sources */,
 				3D758DCE2AB0A835005D2B36 /* LegacyCryptor.swift in Sources */,
 				3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */,
 				35A66A7E22F861BA00AC67A9 /* SubscriptionSession.swift in Sources */,

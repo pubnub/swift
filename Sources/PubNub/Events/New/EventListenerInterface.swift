@@ -151,7 +151,7 @@ extension EventListenerInterface {
 /// Provides functionalities to add and remove additional listeners.
 public protocol EventListenerHandler {
   func addEventListener(_ listener: EventListener)
-  func removeEventListener(_ listener: EventListener)
+  func removeEventListener(with uuid: UUID)
   func removeAllListeners()
 }
 

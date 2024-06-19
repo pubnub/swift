@@ -1500,8 +1500,8 @@ extension PubNub: EventListenerHandler {
     subscription.addEventListener(listener)
   }
 
-  public func removeEventListener(_ listener: EventListener) {
-    subscription.removeEventListener(listener)
+  public func removeEventListener(with uuid: UUID) {
+    subscription.removeEventListener(with: uuid)
   }
 
   public func removeAllListeners() {

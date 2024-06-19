@@ -11,37 +11,23 @@
 import Foundation
 
 class SubscriptionListenersContainer {
-  private var eventListenersCache: [UUID: WeakListenerBox<EventListener>] = [:]
-  private var statusListenersCache: [UUID: WeakListenerBox<StatusListener>] = [:]
+  private var eventListenersCache: [UUID: EventListener] = [:]
+  private var statusListenersCache: [UUID: StatusListener] = [:]
 
-  var eventListeners: [EventListenerInterface] {
-    eventListenersCache.values.compactMap { $0.listener }
+  var eventListeners: [EventListener] {
+    eventListenersCache.values.compactMap { $0 }
   }
 
-  var statusListeners: [StatusListenerInterface] {
-    statusListenersCache.values.compactMap { $0.listener }
+  var statusListeners: [StatusListener] {
+    statusListenersCache.values.compactMap { $0 }
   }
 
   func storeEventListener(_ eventListener: EventListener) {
-    eventListenersCache[eventListener.uuid] = WeakListenerBox<EventListener>(
-      listener: eventListener,
-      onCancellation: { [weak self, weak eventListener] in
-        if let eventListener {
-          self?.eventListenersCache.removeValue(forKey: eventListener.uuid)
-        }
-      }
-    )
+    eventListenersCache[eventListener.uuid] = eventListener
   }
 
   func storeStatusListener(_ statusListener: StatusListener) {
-    statusListenersCache[statusListener.uuid] = WeakListenerBox<StatusListener>(
-      listener: statusListener,
-      onCancellation: { [weak statusListener, weak self] in
-        if let statusListener {
-          self?.statusListenersCache.removeValue(forKey: statusListener.uuid)
-        }
-      }
-    )
+    statusListenersCache[statusListener.uuid] = statusListener
   }
 
   func removeEventListener(with key: UUID) {
@@ -58,26 +44,5 @@ class SubscriptionListenersContainer {
 
   func removeAllStatusListeners() {
     statusListenersCache.removeAll()
-  }
-}
-
-private class WeakListenerBox<T: AnyObject> {
-  private var onCancellation: (() -> Void)?
-
-  weak var listener: T? {
-    willSet {
-      if newValue == nil {
-        onCancellation?()
-      }
-    }
-  }
-
-  init(listener: T, onCancellation: @escaping () -> Void) {
-    self.listener = listener
-    self.onCancellation = onCancellation
-  }
-
-  deinit {
-    listener = nil
   }
 }

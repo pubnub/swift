@@ -62,8 +62,8 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     queue: queue
   )
 
-  internal var receiver: SubscribeReceiver? {
-    entity.receiver
+  internal var pubnub: PubNub? {
+    entity.pubnub
   }
 
   internal var subscriptionType: SubscribableType {
@@ -94,8 +94,8 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
       entity: entity,
       options: options
     )
-    if receiver?.hasRegisteredAdapter(with: uuid) ?? false {
-      receiver?.registerAdapter(clonedSubscription.adapter)
+    if pubnub?.hasRegisteredAdapter(with: uuid) ?? false {
+      pubnub?.registerAdapter(clonedSubscription.adapter)
     }
     return clonedSubscription
   }
@@ -136,14 +136,14 @@ extension Subscription: SubscribeCapable {
   ///
   /// - Parameter timetoken: The timetoken to use for subscribing. If `nil`, the `0` value is used.
   public func subscribe(with timetoken: Timetoken?) {
-    guard let receiver = receiver, !isDisposed else {
+    guard let pubnub = pubnub, !isDisposed else {
       return
     }
     let channels = subscriptionType == .channel ? [self] : []
     let channelGroups = subscriptionType == .channelGroup ? [self] : []
 
-    receiver.registerAdapter(adapter)
-    receiver.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
+    pubnub.registerAdapter(adapter)
+    pubnub.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
   }
 
   /// Unsubscribes from the associated entity, ending the PubNub subscription.
@@ -153,13 +153,13 @@ extension Subscription: SubscribeCapable {
   /// and the entity will be deregistered from the Subscribe loop. After unsubscribing, the subscription interface
   /// can be restarted if needed.
   public func unsubscribe() {
-    guard let receiver = receiver, !isDisposed else {
+    guard let pubnub = pubnub, !isDisposed else {
       return
     }
     let channels = subscriptionType == .channel ? [self] : []
     let groups = subscriptionType == .channelGroup ? [self] : []
 
-    receiver.internalUnsubscribe(from: channels, and: groups, presenceOnly: false)
+    pubnub.internalUnsubscribe(from: channels, and: groups, presenceOnly: false)
   }
 }
 
@@ -173,7 +173,7 @@ extension Subscription: Hashable {
   }
 }
 
-// MARK: - SubscribeMessagePayloadReceiver
+// MARK: - SubscribeMessagesReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
   var subscriptionTopology: [SubscribableType: [String]] {

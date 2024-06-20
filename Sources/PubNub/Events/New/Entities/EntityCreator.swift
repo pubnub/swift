@@ -12,7 +12,7 @@ import Foundation
 
 /// Protocol for types capable of creating references for entities to which the user can subscribe,
 /// receiving real-time updates.
-public protocol EntityCreator {
+public protocol EntityCreator: AnyObject {
   /// Creates a new channel entity the user can subscribe to.
   ///
   /// This method does not create any entity, either locally or remotely; it merely provides
@@ -72,23 +72,4 @@ public extension EntityCreator {
       options: options
     )
   }
-}
-
-// This internal protocol is designed for types capable of receiving an intent
-// to Subscribe or Unsubscribe and invoking the PubNub service with computed channels
-// and channel groups.
-protocol SubscribeReceiver: AnyObject {
-  func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter)
-  func hasRegisteredAdapter(with uuid: UUID) -> Bool
-
-  func internalSubscribe(
-    with channels: [Subscription],
-    and groups: [Subscription],
-    at timetoken: Timetoken?
-  )
-  func internalUnsubscribe(
-    from channels: [Subscription],
-    and groups: [Subscription],
-    presenceOnly: Bool
-  )
 }

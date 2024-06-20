@@ -35,14 +35,14 @@ public class Subscribable: Subscriber {
   /// An entity name
   public let name: String
   /// The PubNub client associated with this channel.
-  weak var receiver: SubscribeReceiver?
+  weak var pubnub: PubNub?
   /// An underlying subscription type
   let subscriptionType: SubscribableType
 
-  init(name: String, subscriptionType: SubscribableType, receiver: SubscribeReceiver) {
+  init(name: String, subscriptionType: SubscribableType, pubnub: PubNub) {
     self.name = name
     self.subscriptionType = subscriptionType
-    self.receiver = receiver
+    self.pubnub = pubnub
   }
 }
 

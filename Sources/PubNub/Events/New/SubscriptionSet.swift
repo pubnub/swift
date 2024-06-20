@@ -58,13 +58,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   ) {
     self.queue = queue
     self.options = SubscriptionOptions.empty() + options
-    self.currentSubscriptions = Set(entities.map {
-      Subscription(
-        queue: queue,
-        entity: $0,
-        options: options
-      )
-    })
+    self.currentSubscriptions = Set(entities.map { Subscription(queue: queue, entity: $0, options: options) })
   }
 
   /// Initializes `SubscriptionSet` object with the specified parameters.
@@ -129,8 +123,8 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
       subscriptions: currentSubscriptions.map { $0.clone() },
       options: options
     )
-    if let receiver = currentSubscriptions.first?.receiver, receiver.hasRegisteredAdapter(with: uuid) {
-      receiver.registerAdapter(clonedSubscriptionSet.adapter)
+    if let pubnub = currentSubscriptions.first?.pubnub, pubnub.hasRegisteredAdapter(with: uuid) {
+      pubnub.registerAdapter(clonedSubscriptionSet.adapter)
     }
     return clonedSubscriptionSet
   }
@@ -175,11 +169,11 @@ extension SubscriptionSet: SubscribeCapable {
   ///
   /// - Parameter timetoken: The timetoken to use for the subscriptions
   public func subscribe(with timetoken: Timetoken?) {
-    guard let receiver = currentSubscriptions.first?.receiver, !isDisposed else {
+    guard let pubnub = currentSubscriptions.first?.pubnub, !isDisposed else {
       return
     }
-    receiver.registerAdapter(adapter)
-    currentSubscriptions.forEach { receiver.registerAdapter($0.adapter) }
+    pubnub.registerAdapter(adapter)
+    currentSubscriptions.forEach { pubnub.registerAdapter($0.adapter) }
 
     let channels = currentSubscriptions.filter {
       $0.subscriptionType == .channel
@@ -189,7 +183,7 @@ extension SubscriptionSet: SubscribeCapable {
       $0.subscriptionType == .channelGroup
     }.allObjects
 
-    receiver.internalSubscribe(
+    pubnub.internalSubscribe(
       with: channels,
       and: groups,
       at: timetoken
@@ -203,10 +197,10 @@ extension SubscriptionSet: SubscribeCapable {
   /// Use this method to gracefully end all subscriptions and stop receiving messages for all
   /// associated entities. After unsubscribing, the subscription set can be restarted if needed.
   public func unsubscribe() {
-    guard let receiver = currentSubscriptions.first?.receiver, !isDisposed else {
+    guard let pubnub = currentSubscriptions.first?.pubnub, !isDisposed else {
       return
     }
-    receiver.internalUnsubscribe(
+    pubnub.internalUnsubscribe(
       from: currentSubscriptions.filter { $0.subscriptionType == .channel },
       and: currentSubscriptions.filter { $0.subscriptionType == .channelGroup },
       presenceOnly: false

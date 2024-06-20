@@ -113,16 +113,17 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     to channels: [String],
     and groups: [String] = [],
     at cursor: SubscribeCursor? = nil,
-    withPresence: Bool = false
+    withPresence: Bool = false,
+    using pubnub: PubNub
   ) {
     let channelSubscriptions = channels.compactMap {
-      channel($0).subscription(
+      pubnub.channel($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
       )
     }
     let channelGroupSubscriptions = groups.compactMap {
-      channelGroup($0).subscription(
+      pubnub.channelGroup($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
       )
@@ -187,9 +188,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   }
 }
 
-// MARK: - SubscribeIntentReceiver
-
-extension SubscriptionSession: SubscribeReceiver {
+extension SubscriptionSession {
   func hasRegisteredAdapter(with uuid: UUID) -> Bool {
     strategy.listeners.contains { $0?.uuid == uuid }
   }
@@ -363,26 +362,6 @@ extension SubscriptionSession: SubscribeReceiver {
       presenceOnlyItems: presenceItems,
       mainItems: channels
     )
-  }
-}
-
-// MARK: - EntityCreator
-
-extension SubscriptionSession: EntityCreator {
-  public func channel(_ name: String) -> ChannelRepresentation {
-    ChannelRepresentation(name: name, receiver: self)
-  }
-
-  public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
-    ChannelGroupRepresentation(name: name, receiver: self)
-  }
-
-  public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    UserMetadataRepresentation(id: name, receiver: self)
-  }
-
-  public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    ChannelMetadataRepresentation(id: name, receiver: self)
   }
 }
 

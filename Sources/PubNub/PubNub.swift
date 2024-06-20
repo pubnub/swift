@@ -48,8 +48,8 @@ public class PubNub {
     container.register(value: session, forKey: DefaultHTTPSessionDependencyKey.self)
     container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
     container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
-
     self.init(container: container)
+
   }
 
   init(container: DependencyContainer) {
@@ -349,7 +349,8 @@ public extension PubNub {
       to: channels,
       and: channelGroups,
       at: SubscribeCursor(timetoken: timetoken),
-      withPresence: withPresence
+      withPresence: withPresence,
+      using: self
     )
   }
 
@@ -422,7 +423,7 @@ public extension PubNub {
   }
 }
 
-extension PubNub: SubscribeReceiver {
+extension PubNub {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
     subscription.registerAdapter(adapter)
   }
@@ -460,19 +461,19 @@ extension PubNub: SubscribeReceiver {
 
 extension PubNub: EntityCreator {
   public func channel(_ name: String) -> ChannelRepresentation {
-    subscription.channel(name)
+    ChannelRepresentation(name: name, pubnub: self)
   }
 
   public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
-    subscription.channelGroup(name)
+    ChannelGroupRepresentation(name: name, pubnub: self)
   }
 
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    subscription.userMetadata(name)
+    UserMetadataRepresentation(id: name, pubnub: self)
   }
 
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    subscription.channelMetadata(name)
+    ChannelMetadataRepresentation(id: name, pubnub: self)
   }
 }
 

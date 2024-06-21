@@ -27,12 +27,12 @@ public class PubNubSubscriptionObjC: NSObject {
   }
   
   @objc
-  func dispose() {
+  public func dispose() {
     subscription.dispose()
   }
   
   @objc
-  func addListener(_ listener: EventListenerObjC) {
+  public func addListener(_ listener: EventListenerObjC) {
     let eventListener = EventListener(
       uuid: listener.uuid
     )
@@ -59,27 +59,27 @@ public class PubNubSubscriptionObjC: NSObject {
   }
   
   @objc
-  func removeListener(_ listener: EventListenerObjC) {
+  public func removeListener(_ listener: EventListenerObjC) {
     subscription.removeEventListener(with: listener.uuid)
   }
   
   @objc
-  func removeAllListeners() {
+  public func removeAllListeners() {
     subscription.removeAllListeners()
   }
   
   @objc 
-  func subscribe(with timetoken: Timetoken) {
+  public func subscribe(with timetoken: Timetoken) {
     subscription.subscribe(with: timetoken)
   }
   
   @objc
-  func unsubscribe() {
+  public func unsubscribe() {
     subscription.unsubscribe()
   }
   
   @objc
-  func append(subscription: PubNubSubscriptionObjC) -> PubNubSubscriptionSetObjC {
+  public func append(subscription: PubNubSubscriptionObjC) -> PubNubSubscriptionSetObjC {
     let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
         
     underlyingSubscription.onMessage = {
@@ -126,12 +126,12 @@ public class PubNubSubscriptionSetObjC: NSObject {
   }
   
   @objc
-  func dispose() {
+  public func dispose() {
     subscriptionSet.dispose()
   }
   
   @objc
-  func addListener(_ listener: EventListenerObjC) {
+  public func addListener(_ listener: EventListenerObjC) {
     let pubnub = subscriptionSet.currentSubscriptions.first?.entity.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
     
@@ -158,27 +158,27 @@ public class PubNubSubscriptionSetObjC: NSObject {
   }
   
   @objc
-  func removeListener(_ listener: EventListenerObjC) {
+  public func removeListener(_ listener: EventListenerObjC) {
     subscriptionSet.removeEventListener(with: listener.uuid)
   }
   
   @objc
-  func removeAllListeners() {
+  public func removeAllListeners() {
     subscriptionSet.removeAllListeners()
   }
   
   @objc
-  func subscribe(with timetoken: Timetoken) {
+  public func subscribe(with timetoken: Timetoken) {
     subscriptionSet.subscribe(with: timetoken)
   }
   
   @objc
-  func unsubscribe() {
+  public func unsubscribe() {
     subscriptionSet.unsubscribe()
   }
   
   @objc
-  func append(subscription: PubNubSubscriptionObjC) {
+  public func append(subscription: PubNubSubscriptionObjC) {
     let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
 
     underlyingSubscription.onMessage = {
@@ -204,7 +204,7 @@ public class PubNubSubscriptionSetObjC: NSObject {
   }
   
   @objc
-  func remove(subscription: PubNubSubscriptionObjC) {
+  public func remove(subscription: PubNubSubscriptionObjC) {
     subscriptionSet.remove(subscription: subscription.subscription)
   }
 }

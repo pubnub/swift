@@ -1,5 +1,5 @@
 //
-//  EventListenerObjC.swift
+//  PubNubEventListenerObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -11,22 +11,22 @@
 import Foundation
 
 @objc
-public class EventListenerObjC: NSObject {
+public class PubNubEventListenerObjC: NSObject {
   @objc public let uuid: UUID
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
-  @objc public var onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?
+  @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
   @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
-  @objc public var onAppContext: ((PubNubObjectEventResultObjC) -> Void)?
-  @objc public var onFile: ((PubNubFileEventResultObjC) -> Void)?
+  @objc public var onAppContext: ((PubNubAppContextEventObjC) -> Void)?
+  @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
 
   @objc public init(
     onMessage: ((PubNubMessageObjC) -> Void)?,
-    onPresence: (([PubNubPresenceEventResultObjC]) -> Void)?,
+    onPresence: (([PubNubPresenceChangeObjC]) -> Void)?,
     onSignal: ((PubNubMessageObjC) -> Void)?,
     onMessageAction: ((PubNubMessageActionObjC) -> Void)?,
-    onAppContext: ((PubNubObjectEventResultObjC) -> Void)?,
-    onFile: ((PubNubFileEventResultObjC) -> Void)?
+    onAppContext: ((PubNubAppContextEventObjC) -> Void)?,
+    onFile: ((PubNubFileChangeEventObjC) -> Void)?
   ) {
     self.uuid = UUID()
     self.onMessage = onMessage

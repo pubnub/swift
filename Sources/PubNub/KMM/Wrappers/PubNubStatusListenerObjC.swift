@@ -1,5 +1,5 @@
 //
-//  StatusListenerObjC.swift
+//  PubNubStatusListenerObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -11,7 +11,7 @@
 import Foundation
 
 @objc
-public class StatusListenerObjC: NSObject {
+public class PubNubStatusListenerObjC: NSObject {
   @objc public let uuid: UUID
   @objc public var onStatusChange: ((PubNubConnectionStatusObjC) -> Void)?
   

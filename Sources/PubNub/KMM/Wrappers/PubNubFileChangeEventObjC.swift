@@ -1,5 +1,5 @@
 //
-//  PubNubFileEventResultObjC.swift
+//  PubNubFileChangeEventObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -11,7 +11,7 @@
 import Foundation
 
 @objc
-public class PubNubFileEventResultObjC: NSObject {
+public class PubNubFileChangeEventObjC: NSObject {
   @objc public let channel: String
   @objc public let timetoken: NSNumber?
   @objc public let publisher: String?
@@ -20,10 +20,10 @@ public class PubNubFileEventResultObjC: NSObject {
   @objc public let subscription: String?
   @objc public let file: PubNubFileObjC
 
-  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> PubNubFileEventResultObjC {
+  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> PubNubFileChangeEventObjC {
     switch event {
     case .uploaded(let fileEvent):
-      return PubNubFileEventResultObjC(
+      return PubNubFileChangeEventObjC(
         channel: fileEvent.file.channel,
         timetoken: NSNumber(value: fileEvent.timetoken),
         publisher: fileEvent.publisher,

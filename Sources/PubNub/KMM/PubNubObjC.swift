@@ -33,19 +33,19 @@ public class PubNubObjC: NSObject {
 // MARK: - Event Listeners & Status Listeners
 
 extension PubNubObjC {
-  func createEventListener(from listener: EventListenerObjC) -> EventListener {
+  func createEventListener(from listener: PubNubEventListenerObjC) -> EventListener {
     EventListener(
       uuid: listener.uuid,
       onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
       onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
-      onPresence: { listener.onPresence?(PubNubPresenceEventResultObjC.from(change: $0)) },
+      onPresence: { listener.onPresence?(PubNubPresenceChangeObjC.from(change: $0)) },
       onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
-      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
-      onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
+      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: pubnub)) },
+      onAppContext: { listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0)) }
     )
   }
   
-  func createStatusListener(from listener: StatusListenerObjC) -> StatusListener {
+  func createStatusListener(from listener: PubNubStatusListenerObjC) -> StatusListener {
     StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
         return
@@ -101,22 +101,22 @@ extension PubNubObjC {
 @objc
 public extension PubNubObjC {
   @objc
-  func addStatusListener(listener: StatusListenerObjC) {
+  func addStatusListener(listener: PubNubStatusListenerObjC) {
     pubnub.addStatusListener(createStatusListener(from: listener))
   }
   
   @objc
-  func removeStatusListener(listener: StatusListenerObjC) {
+  func removeStatusListener(listener: PubNubStatusListenerObjC) {
     pubnub.removeStatusListener(with: listener.uuid)
   }
   
   @objc
-  func addEventListener(listener: EventListenerObjC) {
+  func addEventListener(listener: PubNubEventListenerObjC) {
     pubnub.addEventListener(createEventListener(from: listener))
   }
   
   @objc
-  func removeEventListener(listener: EventListenerObjC) {
+  func removeEventListener(listener: PubNubEventListenerObjC) {
     pubnub.removeEventListener(with: listener.uuid)
   }
 }
@@ -357,7 +357,7 @@ public extension PubNubObjC {
     }
   }
   
-  // TODO: Allow deleting messages from more than one channel
+  // TODO: Deleting history from more than one channel isn't supported in Swift SDK
   
   func deleteMessages(
     from channels: [String],
@@ -390,7 +390,7 @@ public extension PubNubObjC {
   func messageCounts(
     for channels: [String],
     channelsTimetokens: [Timetoken],
-    onSuccess: @escaping ((PubNubMessageCountResultObjC) -> Void),
+    onSuccess: @escaping (([String: Timetoken]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     let keys = Set(channels)
@@ -400,7 +400,7 @@ public extension PubNubObjC {
     pubnub.messageCounts(channels: dictionary) {
       switch $0 {
       case .success(let response):
-        onSuccess(PubNubMessageCountResultObjC(channels: response.mapValues { UInt64($0) }))
+        onSuccess(response.mapValues { UInt64($0) })
       case .failure(let error):
         onFailure(error)
       }
@@ -510,7 +510,7 @@ public extension PubNubObjC {
     }
   }
   
-  // TODO: Adjust setPresence method from Swift SDK to take JSONCodable
+  // TODO: It's not possible to set Presence state other than [String: JSONCodableScalar] in Swift SDK
   
   @objc
   func setPresenceState(
@@ -544,7 +544,7 @@ public extension PubNubObjC {
     actionType: String,
     actionValue: String,
     messageTimetoken: Timetoken,
-    onSuccess: @escaping ((PubNubAddMessageActionResultObjC) -> Void),
+    onSuccess: @escaping ((PubNubMessageActionObjC) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.addMessageAction(
@@ -555,13 +555,7 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let action):
-        onSuccess(
-          PubNubAddMessageActionResultObjC(
-            type: action.actionType,
-            value: action.actionValue,
-            messageTimetoken: action.actionTimetoken
-          )
-        )
+        onSuccess(PubNubMessageActionObjC(action: action))
       case .failure(let error):
         onFailure(error)
       }
@@ -594,7 +588,7 @@ public extension PubNubObjC {
   func getMessageActions(
     from channel: String,
     page: PubNubBoundedPageObjC,
-    onSuccess: @escaping ((PubNubGetMessageActionResultObjC) -> Void),
+    onSuccess: @escaping (([PubNubMessageActionObjC], PubNubBoundedPageObjC?) -> Void),
     onFailure: @escaping ((Error)) -> Void
   ) {
     pubnub.fetchMessageActions(
@@ -607,10 +601,7 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let res):
-        onSuccess(PubNubGetMessageActionResultObjC(
-          actions: res.actions.map { PubNubMessageActionObjC(action: $0) },
-          next: PubNubBoundedPageObjC(page: res.next)
-        ))
+        onSuccess(res.actions.map { PubNubMessageActionObjC(action: $0) }, PubNubBoundedPageObjC(page: res.next))
       case .failure(let error):
         onFailure(error)
       }
@@ -720,7 +711,7 @@ public extension PubNubObjC {
 // MARK: - App Context
 
 extension PubNubObjC {
-  private func objectSortProperties(from properties: [PubNubSortPropertyObjC]) -> [PubNub.ObjectSortField] {
+  private func objectSortProperties(from properties: [PubNubObjectSortPropertyObjC]) -> [PubNub.ObjectSortField] {
     properties.compactMap {
       if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
         return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
@@ -733,9 +724,10 @@ extension PubNubObjC {
   private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage {
     PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
   }
-  
+
+  // TODO: Swift SDK allows to sort by the status field, it's not present in KMP
+
   private func mapToMembershipSortFields(from array: [String]) -> [PubNub.MembershipSortField] {
-    // TODO: What about status field?
     array.compactMap {
       switch $0 {
       case "channel.id", "uuid.id":
@@ -760,7 +752,7 @@ public extension PubNubObjC {
     limit: NSNumber?,
     page: PubNubHashedPageObjC?,
     filter: String?,
-    sort: [PubNubSortPropertyObjC],
+    sort: [PubNubObjectSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
     onSuccess: @escaping (([PubNubChannelMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
@@ -856,7 +848,7 @@ public extension PubNubObjC {
     limit: NSNumber?,
     page: PubNubHashedPageObjC?,
     filter: String?,
-    sort: [PubNubSortPropertyObjC],
+    sort: [PubNubObjectSortPropertyObjC],
     includeCount: Bool,
     includeCustom: Bool,
     onSuccess: @escaping (([PubNubUUIDMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
@@ -901,7 +893,7 @@ public extension PubNubObjC {
     
   @objc
   func setUUIDMetadata(
-    uuid: String?, // TODO: Why KMP requires nil here?
+    uuid: String?,
     name: String?,
     externalId: String?,
     profileUrl: String?,
@@ -915,7 +907,7 @@ public extension PubNubObjC {
   ) {
     pubnub.set(
       uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid!,
+        metadataId: uuid ?? pubnub.configuration.uuid, // TODO: Verify
         name: name,
         type: type,
         status: status,
@@ -1244,13 +1236,7 @@ public extension PubNubObjC {
     ) { [weak pubnub] in
       switch $0 {
       case .success(let res):
-        onSuccess(res.files.map {
-          PubNubFileObjC(
-            from: $0,
-            url: pubnub?.generateFileDownloadURL(for: $0)
-          )
-        }, next?.end)
-        debugPrint("")
+        onSuccess(res.files.map { PubNubFileObjC(from: $0, url: pubnub?.generateFileDownloadURL(for: $0)) }, next?.end)
       case .failure(let error):
         onFailure(error)
       }
@@ -1266,13 +1252,7 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     do {
-      onSuccess(
-        try pubnub.generateFileDownloadURL(
-          channel: channel,
-          fileId: fileId,
-          filename: fileName
-        ).absoluteString
-      )
+      onSuccess(try pubnub.generateFileDownloadURL(channel: channel, fileId: fileId, filename: fileName).absoluteString)
     } catch {
       onFailure(error)
     }
@@ -1296,7 +1276,7 @@ public extension PubNubObjC {
     }
   }
   
-  // TODO: Missing contentType and fileSize
+  // TODO: Missing contentType and fileSize from KMP which are required in Swift SDK
   
   @objc
   func publishFileMessage(

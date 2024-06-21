@@ -1,5 +1,5 @@
 //
-//  PubNubEntitiesObjC.swift
+//  PubNubEntityRepresentableObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.

@@ -1,5 +1,5 @@
 //
-//  PubNubFileUploadContentObjC.swift
+//  PubNubUploadableObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.

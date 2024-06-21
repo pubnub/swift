@@ -1,5 +1,5 @@
 //
-//  PubNubHashedPageObjC.swift
+//  PubNubPageObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -31,7 +31,7 @@ public class PubNubHashedPageObjC: NSObject {
 }
 
 @objc
-public class PubNubSortPropertyObjC: NSObject {
+public class PubNubObjectSortPropertyObjC: NSObject {
   @objc public let key: String
   @objc public let direction: String
   

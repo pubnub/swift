@@ -1,5 +1,5 @@
 //
-//  PubNubPresenceEventResultObjC.swift
+//  PubNubPresenceChangeObjC.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -11,7 +11,7 @@
 import Foundation
 
 @objc
-public class PubNubPresenceEventResultObjC: NSObject {
+public class PubNubPresenceChangeObjC: NSObject {
   @objc public let event: String?
   @objc public let uuid: String?
   @objc public let occupancy: NSNumber?
@@ -25,8 +25,8 @@ public class PubNubPresenceEventResultObjC: NSObject {
   @objc public let refreshHereNow: NSNumber?
   @objc public let userMetadata: AnyJSONObjC?
 
-  static func from(change: PubNubPresenceChange) -> [PubNubPresenceEventResultObjC] {
-    change.actions.map { PubNubPresenceEventResultObjC(change: change, action: $0) }
+  static func from(change: PubNubPresenceChange) -> [PubNubPresenceChangeObjC] {
+    change.actions.map { PubNubPresenceChangeObjC(change: change, action: $0) }
   }
 
   private init(change: PubNubPresenceChange, action: PubNubPresenceChangeAction) {

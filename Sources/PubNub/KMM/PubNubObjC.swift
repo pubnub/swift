@@ -96,7 +96,10 @@ extension PubNubObjC {
       }
     })
   }
-  
+}
+
+@objc
+public extension PubNubObjC {
   @objc
   func addStatusListener(listener: StatusListenerObjC) {
     pubnub.addStatusListener(createStatusListener(from: listener))

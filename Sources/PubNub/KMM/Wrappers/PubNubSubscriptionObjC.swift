@@ -21,7 +21,8 @@ public class PubNubSubscriptionObjC: NSObject {
   @objc public var onAppContext: ((PubNubObjectEventResultObjC) -> Void)?
   @objc public var onFile: ((PubNubFileEventResultObjC) -> Void)?
   
-  init(entity: PubNubEntityRepresentableObjC) {
+  @objc
+  public init(entity: PubNubEntityRepresentableObjC) {
     self.subscription = Subscription(entity: entity.entity)
   }
   

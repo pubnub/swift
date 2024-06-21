@@ -13,24 +13,24 @@ import Foundation
 @objc
 public class PubNubSubscriptionObjC: NSObject {
   let subscription: Subscription
-  
+
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
   @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
   @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
   @objc public var onAppContext: ((PubNubAppContextEventObjC) -> Void)?
   @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
-  
+
   @objc
   public init(entity: PubNubEntityRepresentableObjC) {
     self.subscription = Subscription(entity: entity.entity)
   }
-  
+
   @objc
   public func dispose() {
     subscription.dispose()
   }
-  
+
   @objc
   public func addListener(_ listener: PubNubEventListenerObjC) {
     let eventListener = EventListener(
@@ -57,31 +57,31 @@ public class PubNubSubscriptionObjC: NSObject {
 
     subscription.addEventListener(eventListener)
   }
-  
+
   @objc
   public func removeListener(_ listener: PubNubEventListenerObjC) {
     subscription.removeEventListener(with: listener.uuid)
   }
-  
+
   @objc
   public func removeAllListeners() {
     subscription.removeAllListeners()
   }
-  
-  @objc 
+
+  @objc
   public func subscribe(with timetoken: Timetoken) {
     subscription.subscribe(with: timetoken)
   }
-  
+
   @objc
   public func unsubscribe() {
     subscription.unsubscribe()
   }
-  
+
   @objc
   public func append(subscription: PubNubSubscriptionObjC) -> PubNubSubscriptionSetObjC {
     let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
-        
+
     underlyingSubscription.onMessage = {
       subscription.onMessage?(PubNubMessageObjC(message: $0))
     }
@@ -100,7 +100,7 @@ public class PubNubSubscriptionObjC: NSObject {
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
     }
-    
+
     return PubNubSubscriptionSetObjC(
       subscriptionSet: SubscriptionSet(subscriptions: [
         self.subscription,
@@ -113,28 +113,28 @@ public class PubNubSubscriptionObjC: NSObject {
 @objc
 public class PubNubSubscriptionSetObjC: NSObject {
   private let subscriptionSet: SubscriptionSet
-  
+
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
   @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
   @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
   @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
   @objc public var onAppContext: ((PubNubAppContextEventObjC) -> Void)?
   @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
-  
+
   init(subscriptionSet: SubscriptionSet) {
     self.subscriptionSet = subscriptionSet
   }
-  
+
   @objc
   public func dispose() {
     subscriptionSet.dispose()
   }
-  
+
   @objc
   public func addListener(_ listener: PubNubEventListenerObjC) {
     let pubnub = subscriptionSet.currentSubscriptions.first?.entity.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
-    
+
     eventListener.onMessage = {
       listener.onMessage?(PubNubMessageObjC(message: $0))
     }
@@ -153,30 +153,30 @@ public class PubNubSubscriptionSetObjC: NSObject {
     eventListener.onAppContext = {
       listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
     }
-    
+
     subscriptionSet.addEventListener(eventListener)
   }
-  
+
   @objc
   public func removeListener(_ listener: PubNubEventListenerObjC) {
     subscriptionSet.removeEventListener(with: listener.uuid)
   }
-  
+
   @objc
   public func removeAllListeners() {
     subscriptionSet.removeAllListeners()
   }
-  
+
   @objc
   public func subscribe(with timetoken: Timetoken) {
     subscriptionSet.subscribe(with: timetoken)
   }
-  
+
   @objc
   public func unsubscribe() {
     subscriptionSet.unsubscribe()
   }
-  
+
   @objc
   public func append(subscription: PubNubSubscriptionObjC) {
     let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
@@ -199,10 +199,10 @@ public class PubNubSubscriptionSetObjC: NSObject {
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
     }
-    
+
     subscriptionSet.add(subscription: underlyingSubscription)
   }
-  
+
   @objc
   public func remove(subscription: PubNubSubscriptionObjC) {
     subscriptionSet.remove(subscription: subscription.subscription)

@@ -448,7 +448,7 @@ extension SubscriptionSession {
   func removeStatusListener(with uuid: UUID) {
     listenersContainer.removeStatusListener(with: uuid)
   }
-  
+
   func removeAllStatusListeners() {
     listenersContainer.removeAllStatusListeners()
   }

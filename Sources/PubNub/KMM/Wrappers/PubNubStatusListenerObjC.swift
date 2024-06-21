@@ -14,7 +14,7 @@ import Foundation
 public class PubNubStatusListenerObjC: NSObject {
   @objc public let uuid: UUID
   @objc public var onStatusChange: ((PubNubConnectionStatusObjC) -> Void)?
-  
+
   @objc
   public init(onStatusChange: ((PubNubConnectionStatusObjC) -> Void)? = nil) {
     self.uuid = UUID()
@@ -29,7 +29,7 @@ public class PubNubConnectionStatusObjC: NSObject {
   @objc public let currentTimetoken: NSNumber?
   @objc public let affectedChannels: Set<String>
   @objc public let affectedChannelGroups: Set<String>
-  
+
   init(
     category: PubNubConnectionStatusCategoryObjC,
     error: Error?,

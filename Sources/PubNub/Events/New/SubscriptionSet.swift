@@ -139,7 +139,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
     removeAllListeners()
     isDisposed = true
   }
-  
+
   /// Adds additional subscription listener
   public func addEventListener(_ listener: EventListener) {
     listenersContainer.storeEventListener(listener)

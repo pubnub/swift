@@ -12,11 +12,11 @@ import Foundation
 
 @objc public class PubNubEntityRepresentableObjC: NSObject {
   let entity: Subscribable
-  
+
   init(entity: Subscribable) {
     self.entity = entity
   }
-  
+
   @objc
   public var name: String {
     entity.name
@@ -26,7 +26,7 @@ import Foundation
 @objc
 public class PubNubChannelEntityObjC: PubNubEntityRepresentableObjC {
   let channel: ChannelRepresentation
-  
+
   init(channel: ChannelRepresentation) {
     self.channel = channel
     super.init(entity: channel)
@@ -46,7 +46,7 @@ public class PubNubChannelGroupEntityObjC: PubNubEntityRepresentableObjC {
 @objc
 public class PubNubUserMetadataEntityObjC: PubNubEntityRepresentableObjC {
   let userMetadata: UserMetadataRepresentation
-  
+
   init(userMetadata: UserMetadataRepresentation) {
     self.userMetadata = userMetadata
     super.init(entity: userMetadata)
@@ -56,7 +56,7 @@ public class PubNubUserMetadataEntityObjC: PubNubEntityRepresentableObjC {
 @objc
 public class PubNubChannelMetadataEntityObjC: PubNubEntityRepresentableObjC {
   let channelMetadata: ChannelMetadataRepresentation
-  
+
   init(channelMetadata: ChannelMetadataRepresentation) {
     self.channelMetadata = channelMetadata
     super.init(entity: channelMetadata)

@@ -14,9 +14,9 @@ import Foundation
 public class PubNubObjC: NSObject {
   private let pubnub: PubNub
   private let defaultFileDownloadPath = FileManager.default.temporaryDirectory.appendingPathComponent("pubnub-chat-sdk")
-  
+
   // MARK: - Init
-  
+
   @objc
   public init(user: String, subKey: String, pubKey: String) {
     self.pubnub = PubNub(
@@ -44,7 +44,7 @@ extension PubNubObjC {
       onAppContext: { listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0)) }
     )
   }
-  
+
   func createStatusListener(from listener: PubNubStatusListenerObjC) -> StatusListener {
     StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
@@ -100,22 +100,18 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func addStatusListener(listener: PubNubStatusListenerObjC) {
     pubnub.addStatusListener(createStatusListener(from: listener))
   }
-  
-  @objc
+
   func removeStatusListener(listener: PubNubStatusListenerObjC) {
     pubnub.removeStatusListener(with: listener.uuid)
   }
-  
-  @objc
+
   func addEventListener(listener: PubNubEventListenerObjC) {
     pubnub.addEventListener(createEventListener(from: listener))
   }
-  
-  @objc
+
   func removeEventListener(listener: PubNubEventListenerObjC) {
     pubnub.removeEventListener(with: listener.uuid)
   }
@@ -128,7 +124,7 @@ public extension PubNubObjC {
   var subscribedChannels: [String] {
     pubnub.subscribedChannels
   }
-  
+
   var subscribedChannelGroups: [String] {
     pubnub.subscribedChannelGroups
   }
@@ -138,7 +134,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func subscribe(
     channels: [String],
     channelGroups: [String],
@@ -152,8 +147,7 @@ public extension PubNubObjC {
       withPresence: withPresence
     )
   }
-  
-  @objc
+
   func unsubscribe(
     from channels: [String],
     channelGroups: [String]
@@ -163,8 +157,7 @@ public extension PubNubObjC {
       and: channelGroups
     )
   }
-  
-  @objc
+
   func unsubscribeAll() {
     pubnub.unsubscribeAll()
   }
@@ -259,7 +252,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   func listPushChannels(
     deviceId: Data,
     pushType: String,
@@ -278,7 +271,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
@@ -298,7 +291,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
@@ -356,9 +349,9 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   // TODO: Deleting history from more than one channel isn't supported in Swift SDK
-  
+
   func deleteMessages(
     from channels: [String],
     start: NSNumber?,
@@ -386,7 +379,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   func messageCounts(
     for channels: [String],
     channelsTimetokens: [Timetoken],
@@ -396,7 +389,7 @@ public extension PubNubObjC {
     let keys = Set(channels)
     let count = min(keys.count, channelsTimetokens.count)
     let dictionary = Dictionary(uniqueKeysWithValues: zip(keys.prefix(count), channelsTimetokens.prefix(count)))
-    
+
     pubnub.messageCounts(channels: dictionary) {
       switch $0 {
       case .success(let response):
@@ -431,7 +424,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func hereNow(
     channels: [String],
     channelGroups: [String],
@@ -471,8 +463,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func whereNow(
     uuid: String,
     onSuccess: @escaping (([String]) -> Void),
@@ -487,8 +478,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getPresenceState(
     channels: [String],
     channelGroups: [String],
@@ -509,10 +499,9 @@ public extension PubNubObjC {
       }
     }
   }
-  
+
   // TODO: It's not possible to set Presence state other than [String: JSONCodableScalar] in Swift SDK
-  
-  @objc
+
   func setPresenceState(
     channels: [String],
     channelGroups: [String],
@@ -561,8 +550,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func removeMessageAction(
     channel: String,
     messageTimetoken: Timetoken,
@@ -576,15 +564,14 @@ public extension PubNubObjC {
       action: actionTimetoken
     ) {
       switch $0 {
-      case .success(_):
+      case .success:
         onSuccess()
       case .failure(let error):
         onFailure(error)
       }
     }
   }
-  
-  @objc
+
   func getMessageActions(
     from channel: String,
     page: PubNubBoundedPageObjC,
@@ -613,7 +600,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func addChannels(
     to channelGroup: String,
     channels: [String],
@@ -632,8 +618,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func listChannels(
     for channelGroup: String,
     onSuccess: @escaping (([String]) -> Void),
@@ -648,8 +633,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func remove(
     channels: [String],
     from channelGroup: String,
@@ -665,8 +649,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func listChannelGroups(
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error)) -> Void
@@ -680,8 +663,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func delete(
     channelGroup: String,
     onSuccess: @escaping ((String) -> Void),
@@ -702,7 +684,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func set(token: String) {
     pubnub.set(token: token)
   }
@@ -720,7 +701,7 @@ extension PubNubObjC {
       }
     }
   }
-  
+
   private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage {
     PubNub.Page(start: page?.start, end: page?.end, totalCount: page?.totalCount?.intValue)
   }
@@ -747,7 +728,6 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func getAllChannelMetadata(
     limit: NSNumber?,
     page: PubNubHashedPageObjC?,
@@ -777,8 +757,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getChannelMetadata(
     channel: String,
     includeCustom: Bool,
@@ -794,8 +773,7 @@ public extension PubNubObjC {
       }
     }
   }
-    
-  @objc
+
   func setChannelMetadata(
     channel: String,
     name: String?,
@@ -826,8 +804,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func removeChannelMetadata(
     channel: String,
     onSuccess: @escaping ((String) -> Void),
@@ -842,8 +819,7 @@ public extension PubNubObjC {
       }
     }
   }
-    
-  @objc
+
   func getAllUUIDMetadata(
     limit: NSNumber?,
     page: PubNubHashedPageObjC?,
@@ -873,8 +849,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getUUIDMetadata(
     uuid: String?,
     includeCustom: Bool,
@@ -890,8 +865,7 @@ public extension PubNubObjC {
       }
     }
   }
-    
-  @objc
+
   func setUUIDMetadata(
     uuid: String?,
     name: String?,
@@ -926,8 +900,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func removeUUIDMetadata(
     uuid: String?,
     onSuccess: @escaping ((String) -> Void),
@@ -942,8 +915,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getMemberships(
     uuid: String?,
     limit: NSNumber?,
@@ -982,8 +954,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func setMemberships(
     channels: [PubNubChannelMetadataObjC],
     uuid: String?,
@@ -1029,8 +1000,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func removeMemberships(
     channels: [String],
     uuid: String?,
@@ -1076,8 +1046,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getChannelMembers(
     channel: String,
     limit: NSNumber?,
@@ -1100,7 +1069,7 @@ public extension PubNubObjC {
         totalCount: includeCount
       ),
       filter: filter,
-      sort: mapToMembershipSortFields(from: sort), 
+      sort: mapToMembershipSortFields(from: sort),
       limit: limit?.intValue,
       page: convertPage(from: page)
     ) {
@@ -1116,8 +1085,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func setChannelMembers(
     channel: String,
     uuids: [PubNubUUIDMetadataObjC],
@@ -1158,8 +1126,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func removeChannelMembers(
     channel: String,
     uuids: [String],
@@ -1221,7 +1188,6 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func listFiles(
     channel: String,
     limit: NSNumber?,
@@ -1242,8 +1208,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func getFileUrl(
     channel: String,
     fileName: String,
@@ -1257,8 +1222,7 @@ public extension PubNubObjC {
       onFailure(error)
     }
   }
-  
-  @objc
+
   func deleteFile(
     channel: String,
     fileName: String,
@@ -1268,17 +1232,16 @@ public extension PubNubObjC {
   ) {
     pubnub.remove(fileId: fileId, filename: fileName, channel: channel) {
       switch $0 {
-      case .success(_):
+      case .success:
         onSuccess()
       case .failure(let error):
         onFailure(error)
       }
     }
   }
-  
+
   // TODO: Missing contentType and fileSize from KMP which are required in Swift SDK
-  
-  @objc
+
   func publishFileMessage(
     channel: String,
     fileName: String,
@@ -1323,8 +1286,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func downloadFile(
     channel: String,
     fileName: String,
@@ -1346,8 +1308,7 @@ public extension PubNubObjC {
       }
     }
   }
-  
-  @objc
+
   func sendFile(
     channel: String,
     fileName: String,
@@ -1363,7 +1324,7 @@ public extension PubNubObjC {
       onFailure(PubNubError(.invalidArguments, additional: ["Cannot create expected PubNub.FileUploadContent"]))
       return
     }
-    
+
     let additionalMessage: AnyJSON? = if let message { AnyJSON(message) } else { nil }
     let meta: AnyJSON? = if let meta { AnyJSON(meta) } else { nil }
 
@@ -1393,7 +1354,6 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func disconnect() {
     pubnub.disconnect()
   }
@@ -1403,22 +1363,18 @@ public extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func channel(with name: String) -> PubNubChannelEntityObjC {
     PubNubChannelEntityObjC(channel: pubnub.channel(name))
   }
-  
-  @objc
+
   func channelGroup(with name: String) -> PubNubChannelGroupEntityObjC {
     PubNubChannelGroupEntityObjC(channelGroup: pubnub.channelGroup(name))
   }
-  
-  @objc
+
   func userMetadata(with id: String) -> PubNubUserMetadataEntityObjC {
     PubNubUserMetadataEntityObjC(userMetadata: pubnub.userMetadata(id))
   }
-  
-  @objc
+
   func channelMetadata(with id: String) -> PubNubChannelMetadataEntityObjC {
     PubNubChannelMetadataEntityObjC(channelMetadata: pubnub.channelMetadata(id))
   }

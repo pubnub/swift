@@ -11,9 +11,9 @@
 import Foundation
 
 @objc
-public class AnyJSONObjC : NSObject {
+public class AnyJSONObjC: NSObject {
   let value: AnyJSON
-  
+
   @objc
   public init(_ value: Any) {
     if let anyJSON = value as? AnyJSON {
@@ -22,27 +22,27 @@ public class AnyJSONObjC : NSObject {
       self.value = AnyJSON(value)
     }
   }
-  
+
   @objc
   public func asString() -> String? {
     value.stringOptional
   }
-  
+
   @objc
   public func asMap() -> [String: Any]? {
     value.dictionaryOptional
   }
-  
+
   @objc
   public func asList() -> [Any]? {
     value.arrayOptional
   }
-  
+
   @objc
   public func isNull() -> Bool {
     value.isNil
   }
-  
+
   @objc
   public func asInt() -> NSNumber? {
     if let intValue = value.intOptional {
@@ -51,7 +51,7 @@ public class AnyJSONObjC : NSObject {
       nil
     }
   }
-  
+
   @objc
   public func asDouble() -> NSNumber? {
     if let doubleValue = value.doubleOptional {
@@ -60,7 +60,7 @@ public class AnyJSONObjC : NSObject {
       nil
     }
   }
-  
+
   @objc
   public func asBool() -> NSNumber? {
     if let boolValue = value.boolOptional {
@@ -69,15 +69,15 @@ public class AnyJSONObjC : NSObject {
       nil
     }
   }
-  
+
   @objc
   public func asNumber() -> NSNumber? {
     if let doubleValue = value.doubleOptional {
       NSNumber(value: doubleValue)
-    } else if let intValue = value.intOptional{
+    } else if let intValue = value.intOptional {
       NSNumber(value: intValue)
     } else {
       nil
     }
-  }  
+  }
 }

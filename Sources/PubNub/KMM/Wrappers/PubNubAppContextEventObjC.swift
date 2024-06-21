@@ -23,9 +23,9 @@ public class PubNubAppContextEventObjC: NSObject {
   @objc public let version: String
   @objc public let event: String
   @objc public let type: String
-  
+
   // TODO: These parameters are not retrieved from Swift SDK
-  
+
   init(
     channel: String = "",
     subscription: String? = nil,
@@ -54,7 +54,7 @@ public class PubNubAppContextEventObjC: NSObject {
 @objc
 public class PubNubSetUUIDMetadataResultObjC: PubNubAppContextEventObjC {
   @objc public let metadata: PubNubUUIDMetadataObjC
-  
+
   init(metadata: PubNubUUIDMetadataObjC) {
     self.metadata = metadata
   }
@@ -77,7 +77,7 @@ public class PubNubRemoveUUIDMetadataResultObjC: PubNubAppContextEventObjC {
 @objc
 public class PubNubSetChannelMetadataResultObjC: PubNubAppContextEventObjC {
   @objc public let metadata: PubNubChannelMetadataObjC
-  
+
   init(metadata: PubNubChannelMetadataObjC) {
     self.metadata = metadata
     super.init()
@@ -89,7 +89,7 @@ public class PubNubSetChannelMetadataResultObjC: PubNubAppContextEventObjC {
 @objc
 public class PubNubRemoveChannelMetadataResultObjC: PubNubAppContextEventObjC {
   @objc public let channelMetadataId: String
-  
+
   init(channelMetadataId: String) {
     self.channelMetadataId = channelMetadataId
     super.init()
@@ -101,7 +101,7 @@ public class PubNubRemoveChannelMetadataResultObjC: PubNubAppContextEventObjC {
 @objc
 public class PubNubSetMembershipResultObjC: PubNubAppContextEventObjC {
   @objc public let metadata: PubNubMembershipMetadataObjC
-  
+
   init(metadata: PubNubMembershipMetadataObjC) {
     self.metadata = metadata
   }
@@ -113,7 +113,7 @@ public class PubNubSetMembershipResultObjC: PubNubAppContextEventObjC {
 public class PubNubRemoveMembershipResultObjC: PubNubAppContextEventObjC {
   @objc public let channelId: String
   @objc public let uuid: String
-  
+
   init(channelId: String, uuid: String) {
     self.channelId = channelId
     self.uuid = uuid
@@ -158,7 +158,7 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.id = changeset.metadataId
     self.updated = changeset.updated.stringOptional // TODO: Date format
     self.eTag = changeset.eTag
-    
+
     for change in changeset.changes {
       switch change {
       case .stringOptional(let keyPath, let value):
@@ -183,7 +183,7 @@ public class PubNubChannelMetadataObjC: NSObject {
       }
     }
   }
-  
+
   init(metadata: PubNubChannelMetadata) {
     self.id = metadata.metadataId
     self.name = metadata.name
@@ -194,7 +194,7 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.type = metadata.type
     self.status = metadata.status
   }
-  
+
   @objc
   public init(id: String, custom: AnyJSONObjC?, status: String?) {
     self.id = id
@@ -217,7 +217,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
-  
+
   @objc
   public init(
     id: String,
@@ -233,7 +233,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
     self.id = changeset.metadataId
     self.updated = changeset.updated.stringOptional // TODO: Date format
     self.eTag = changeset.eTag
-    
+
     for change in changeset.changes {
       switch change {
       case .stringOptional(let keyPath, let value):
@@ -262,7 +262,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
       }
     }
   }
-  
+
   init(metadata: PubNubUUIDMetadata) {
     self.id = metadata.metadataId
     self.name = metadata.name
@@ -286,7 +286,7 @@ public class PubNubMembershipMetadataObjC: NSObject {
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var custom: [String: Any]?
-  
+
   init(from: PubNubMembershipMetadata) {
     self.uuidMetadataId = from.uuidMetadataId
     self.channelMetadataId = from.channelMetadataId

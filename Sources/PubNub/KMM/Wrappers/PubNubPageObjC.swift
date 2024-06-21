@@ -15,14 +15,14 @@ public class PubNubHashedPageObjC: NSObject {
   @objc public let start: String?
   @objc public let end: String?
   @objc public let totalCount: NSNumber?
-  
+
   @objc
   public init(start: String?, end: String?, totalCount: NSNumber?) {
     self.start = start
     self.end = end
     self.totalCount = totalCount
   }
-  
+
   init(page: PubNubHashedPage?) {
     self.start = page?.prev
     self.end = page?.end
@@ -34,7 +34,7 @@ public class PubNubHashedPageObjC: NSObject {
 public class PubNubObjectSortPropertyObjC: NSObject {
   @objc public let key: String
   @objc public let direction: String
-  
+
   @objc
   public init(key: String, direction: String) {
     self.key = key

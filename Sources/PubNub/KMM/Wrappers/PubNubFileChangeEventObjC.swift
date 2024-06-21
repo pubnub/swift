@@ -65,7 +65,7 @@ public class PubNubFileObjC: NSObject {
   @objc public let size: Int64
   @objc public let contentType: String?
   @objc public let createdDate: Date?
-  
+
   init(from: PubNubFile, url: URL?) {
     self.id = from.channel
     self.name = from.filename

@@ -25,9 +25,9 @@ public class PubNubMessageActionObjC: NSObject {
   convenience init(action: PubNubMessageActionEvent) {
     switch action {
     case .added(let action):
-      self.init(event: "", action: action)
+      self.init(event: "added", action: action)
     case .removed(let action):
-      self.init(event: "", action: action)
+      self.init(event: "removed", action: action)
     }
   }
 

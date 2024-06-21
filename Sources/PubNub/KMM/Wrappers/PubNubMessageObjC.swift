@@ -19,11 +19,7 @@ public class PubNubMessageObjC: NSObject {
     self.channel = message.channel
     self.subscription = message.subscription
     self.published = message.published
-    self.metadata = if let metadata = message.metadata {
-      AnyJSONObjC(metadata.codableValue)
-    } else {
-      nil
-    }
+    self.metadata = if let value = message.metadata { AnyJSONObjC(value.codableValue) } else { nil }
     self.messageType = message.messageType.rawValue
     self.error = message.error
   }

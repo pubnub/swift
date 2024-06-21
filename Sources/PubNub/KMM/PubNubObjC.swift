@@ -14,24 +14,27 @@ import Foundation
 public class PubNubObjC: NSObject {
   private let pubnub: PubNub
   private let defaultFileDownloadPath = FileManager.default.temporaryDirectory.appendingPathComponent("pubnub-chat-sdk")
-  private var listeners: [UUID: EventListener] = [:]
-  private var statusListeners: [UUID: StatusListener] = [:]
   
   // MARK: - Init
   
   @objc
   public init(user: String, subKey: String, pubKey: String) {
-    self.pubnub = PubNub(configuration: PubNubConfiguration(publishKey: pubKey, subscribeKey: subKey, userId: user))
+    self.pubnub = PubNub(
+      configuration: PubNubConfiguration(
+        publishKey: pubKey,
+        subscribeKey: subKey,
+        userId: user
+      )
+    )
     super.init()
   }
 }
 
-// MARK: - Event Listeners
+// MARK: - Event Listeners & Status Listeners
 
-@objc
-public extension PubNubObjC {
-  func addEventListener(listener: EventListenerObjC) {
-    let underlyingListener = EventListener(
+extension PubNubObjC {
+  func createEventListener(from listener: EventListenerObjC) -> EventListener {
+    EventListener(
       uuid: listener.uuid,
       onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
       onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
@@ -40,26 +43,10 @@ public extension PubNubObjC {
       onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileEventResultObjC.from(event: $0, with: pubnub)) },
       onAppContext: { listener.onAppContext?(PubNubObjectEventResultObjC.from(event: $0)) }
     )
-    
-    listeners[underlyingListener.uuid] = underlyingListener
-    pubnub.addEventListener(underlyingListener)
   }
   
-  func removeEventListener(listener: EventListenerObjC) {
-    if let underlyingListener = listeners[listener.uuid] {
-      pubnub.removeEventListener(underlyingListener)
-      listeners[listener.uuid] = nil
-    }
-  }
-}
-
-// MARK: - Status Listeners
-
-@objc
-public extension PubNubObjC {
-  @objc
-  func addStatusListener(listener: StatusListenerObjC) {
-    let underlyingListener = StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
+  func createStatusListener(from listener: StatusListenerObjC) -> StatusListener {
+    StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
         return
       }
@@ -108,17 +95,26 @@ public extension PubNubObjC {
         break
       }
     })
-    
-    statusListeners[underlyingListener.uuid] = underlyingListener
-    pubnub.addStatusListener(underlyingListener)
+  }
+  
+  @objc
+  func addStatusListener(listener: StatusListenerObjC) {
+    pubnub.addStatusListener(createStatusListener(from: listener))
   }
   
   @objc
   func removeStatusListener(listener: StatusListenerObjC) {
-    if let underlyingListener = statusListeners[listener.uuid] {
-      pubnub.removeStatusListener(underlyingListener)
-      statusListeners[listener.uuid] = nil
-    }
+    pubnub.removeStatusListener(with: listener.uuid)
+  }
+  
+  @objc
+  func addEventListener(listener: EventListenerObjC) {
+    pubnub.addEventListener(createEventListener(from: listener))
+  }
+  
+  @objc
+  func removeEventListener(listener: EventListenerObjC) {
+    pubnub.removeEventListener(with: listener.uuid)
   }
 }
 
@@ -1420,12 +1416,27 @@ public extension PubNubObjC {
   }
 }
 
-extension PubNub {
-  func generateFileDownloadURL(for file: PubNubFile) -> URL? {
-    try? generateFileDownloadURL(
-      channel: file.channel,
-      fileId: file.fileId,
-      filename: file.filename
-    )
+// MARK: - Entities
+
+@objc
+public extension PubNubObjC {
+  @objc
+  func channel(with name: String) -> PubNubChannelEntityObjC {
+    PubNubChannelEntityObjC(channel: pubnub.channel(name))
+  }
+  
+  @objc
+  func channelGroup(with name: String) -> PubNubChannelGroupEntityObjC {
+    PubNubChannelGroupEntityObjC(channelGroup: pubnub.channelGroup(name))
+  }
+  
+  @objc
+  func userMetadata(with id: String) -> PubNubUserMetadataEntityObjC {
+    PubNubUserMetadataEntityObjC(userMetadata: pubnub.userMetadata(id))
+  }
+  
+  @objc
+  func channelMetadata(with id: String) -> PubNubChannelMetadataEntityObjC {
+    PubNubChannelMetadataEntityObjC(channelMetadata: pubnub.channelMetadata(id))
   }
 }

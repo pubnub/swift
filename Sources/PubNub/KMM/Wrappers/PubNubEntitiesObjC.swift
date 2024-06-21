@@ -10,79 +10,55 @@
 
 import Foundation
 
-protocol PubNubEntityObjC {
-  var entity: Subscribable { get }
-}
-
-@objc
-public class PubNubChannelEntityObjC: NSObject, PubNubEntityObjC {
-  let channel: ChannelRepresentation
-   
-  var entity: Subscribable {
-    channel
+@objc public class PubNubEntityRepresentableObjC: NSObject {
+  let entity: Subscribable
+  
+  init(entity: Subscribable) {
+    self.entity = entity
   }
   
   @objc
   public var name: String {
-    channel.name
+    entity.name
   }
+}
+
+@objc
+public class PubNubChannelEntityObjC: PubNubEntityRepresentableObjC {
+  let channel: ChannelRepresentation
   
   init(channel: ChannelRepresentation) {
     self.channel = channel
+    super.init(entity: channel)
   }
 }
 
 @objc
-public class PubNubChannelGroupEntityObjC: NSObject, PubNubEntityObjC {
+public class PubNubChannelGroupEntityObjC: PubNubEntityRepresentableObjC {
   let channelGroup: ChannelGroupRepresentation
 
-  var entity: Subscribable {
-    channelGroup
-  }
-  
-  @objc
-  public var name: String {
-    channelGroup.name
-  }
-  
   init(channelGroup: ChannelGroupRepresentation) {
     self.channelGroup = channelGroup
+    super.init(entity: channelGroup)
   }
 }
 
 @objc
-public class PubNubUserMetadataEntityObjC: NSObject, PubNubEntityObjC {
+public class PubNubUserMetadataEntityObjC: PubNubEntityRepresentableObjC {
   let userMetadata: UserMetadataRepresentation
-  
-  var entity: Subscribable {
-    userMetadata
-  }
-  
-  @objc
-  public var name: String {
-    userMetadata.name
-  }
   
   init(userMetadata: UserMetadataRepresentation) {
     self.userMetadata = userMetadata
+    super.init(entity: userMetadata)
   }
-
 }
 
 @objc
-public class PubNubChannelMetadataEntityObjC: NSObject, PubNubEntityObjC {
+public class PubNubChannelMetadataEntityObjC: PubNubEntityRepresentableObjC {
   let channelMetadata: ChannelMetadataRepresentation
-  
-  var entity: Subscribable {
-    channelMetadata
-  }
-  
-  @objc
-  public var name: String {
-    channelMetadata.name
-  }
   
   init(channelMetadata: ChannelMetadataRepresentation) {
     self.channelMetadata = channelMetadata
+    super.init(entity: channelMetadata)
   }
 }

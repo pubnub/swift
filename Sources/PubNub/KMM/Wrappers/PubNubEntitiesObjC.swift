@@ -21,7 +21,9 @@ public class PubNubChannelEntityObjC: NSObject, PubNubEntityObjC {
   var entity: Subscribable {
     channel
   }
-  var name: String {
+  
+  @objc
+  public var name: String {
     channel.name
   }
   
@@ -37,7 +39,9 @@ public class PubNubChannelGroupEntityObjC: NSObject, PubNubEntityObjC {
   var entity: Subscribable {
     channelGroup
   }
-  var name: String {
+  
+  @objc
+  public var name: String {
     channelGroup.name
   }
   
@@ -53,7 +57,9 @@ public class PubNubUserMetadataEntityObjC: NSObject, PubNubEntityObjC {
   var entity: Subscribable {
     userMetadata
   }
-  var name: String {
+  
+  @objc
+  public var name: String {
     userMetadata.name
   }
   
@@ -70,7 +76,9 @@ public class PubNubChannelMetadataEntityObjC: NSObject, PubNubEntityObjC {
   var entity: Subscribable {
     channelMetadata
   }
-  var name: String {
+  
+  @objc
+  public var name: String {
     channelMetadata.name
   }
   

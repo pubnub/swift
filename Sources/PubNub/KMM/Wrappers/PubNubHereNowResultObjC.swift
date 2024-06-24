@@ -38,9 +38,9 @@ public class PubNubHereNowChannelDataObjC: NSObject {
 
 @objc public class PubNubHereNowOccupantDataObjC: NSObject {
   @objc public let uuid: String
-  @objc public let state: Any?
+  @objc public let state: AnyJSONObjC?
 
-  init(uuid: String, state: Any?) {
+  init(uuid: String, state: AnyJSONObjC?) {
     self.uuid = uuid
     self.state = state
   }

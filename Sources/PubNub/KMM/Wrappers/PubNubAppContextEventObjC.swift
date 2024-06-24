@@ -156,7 +156,7 @@ public class PubNubChannelMetadataObjC: NSObject {
 
   init(changeset: PubNubChannelMetadataChangeset) {
     self.id = changeset.metadataId
-    self.updated = changeset.updated.stringOptional // TODO: Date format
+    self.updated = DateFormatter.iso8601.string(from: changeset.updated )
     self.eTag = changeset.eTag
 
     for change in changeset.changes {
@@ -189,7 +189,7 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.name = metadata.name
     self.descr = metadata.channelDescription
     self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
-    self.updated = metadata.updated?.stringOptional // TODO: Date format
+    self.updated = if let date = metadata.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = metadata.eTag
     self.type = metadata.type
     self.status = metadata.status
@@ -231,7 +231,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
 
   init(changeset: PubNubUUIDMetadataChangeset) {
     self.id = changeset.metadataId
-    self.updated = changeset.updated.stringOptional // TODO: Date format
+    self.updated = DateFormatter.iso8601.string(from: changeset.updated)
     self.eTag = changeset.eTag
 
     for change in changeset.changes {
@@ -266,8 +266,11 @@ public class PubNubUUIDMetadataObjC: NSObject {
   init(metadata: PubNubUUIDMetadata) {
     self.id = metadata.metadataId
     self.name = metadata.name
+    self.externalId = metadata.externalId
+    self.profileUrl = metadata.profileURL
+    self.email = metadata.email
     self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
-    self.updated = metadata.updated?.stringOptional // TODO: Date format
+    self.updated = if let date = metadata.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = metadata.eTag
     self.type = metadata.type
     self.status = metadata.status
@@ -293,7 +296,7 @@ public class PubNubMembershipMetadataObjC: NSObject {
     self.status = from.status
     self.uuid = if let uuid = from.uuid { PubNubUUIDMetadataObjC(metadata: uuid) } else { nil }
     self.channel = if let channel = from.channel { PubNubChannelMetadataObjC(metadata: channel) } else { nil }
-    self.updated = from.updated?.stringOptional // TODO: Valid date format
+    self.updated =  if let date = from.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = from.eTag
     self.custom = from.custom
   }

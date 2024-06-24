@@ -66,6 +66,15 @@ public class PubNubFileObjC: NSObject {
   @objc public let contentType: String?
   @objc public let createdDate: Date?
 
+  @objc
+  public var createdDateStringValue: String? {
+    if let createdDate {
+      return DateFormatter.iso8601.string(from: createdDate)
+    } else {
+      return nil
+    }
+  }
+  
   init(from: PubNubFile, url: URL?) {
     self.id = from.channel
     self.name = from.filename

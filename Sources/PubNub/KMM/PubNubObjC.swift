@@ -449,9 +449,14 @@ public extension PubNubObjC {
                 channelName: value.channel,
                 occupancy: value.occupancy,
                 occupants: value.occupants.map {
-                  PubNubHereNowOccupantDataObjC(
+                  let stateValue: AnyJSONObjC? = if let state = value.occupantsState[$0]?.rawValue {
+                    AnyJSONObjC(state)
+                  } else {
+                    nil
+                  }
+                  return PubNubHereNowOccupantDataObjC(
                     uuid: $0,
-                    state: value.occupantsState[$0]?.rawValue
+                    state: stateValue
                   )
                 }
               )
@@ -750,7 +755,7 @@ public extension PubNubObjC {
         onSuccess(
           res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -792,7 +797,7 @@ public extension PubNubObjC {
         type: type,
         status: status,
         channelDescription: description,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar } // TODO: Verify
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
       ),
       include: includeCustom
     ) {
@@ -842,7 +847,7 @@ public extension PubNubObjC {
         onSuccess(
           res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -881,14 +886,14 @@ public extension PubNubObjC {
   ) {
     pubnub.set(
       uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid ?? pubnub.configuration.uuid, // TODO: Verify
+        metadataId: uuid ?? pubnub.configuration.userId,
         name: name,
         type: type,
         status: status,
         externalId: externalId,
         profileURL: profileUrl,
         email: email,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar } // TODO: Verify
+        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
       ),
       include: includeCustom
     ) {
@@ -947,7 +952,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -973,7 +978,7 @@ public extension PubNubObjC {
       uuid: uuid,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid!, // TODO: Verify it, perhaps this field will be ignored under the hood so we should put "" here
+          uuidMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0.id
         )
       },
@@ -993,7 +998,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -1019,7 +1024,7 @@ public extension PubNubObjC {
       uuid: uuid,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid!, // TODO: Verify it, perhaps this field will be ignored under the hood so we should put "" here
+          uuidMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0
         )
       },
@@ -1039,7 +1044,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -1078,7 +1083,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -1119,7 +1124,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)
@@ -1160,7 +1165,7 @@ public extension PubNubObjC {
         onSuccess(
           res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next) // TODO: Verify if it's ok for KMP
+          PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
         onFailure(error)

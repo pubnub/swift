@@ -115,6 +115,10 @@ public extension PubNubObjC {
   func removeEventListener(listener: PubNubEventListenerObjC) {
     pubnub.removeEventListener(with: listener.uuid)
   }
+  
+  func removeAllListeners() {
+    pubnub.removeAllListeners()
+  }
 }
 
 // MARK: - Subscribed channels & channel groups

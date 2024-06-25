@@ -34,7 +34,7 @@ public class PubNubPresenceChangeObjC: NSObject {
     channel = change.channel
     subscription = change.subscription
     timetoken = NSNumber(value: change.timetoken)
-    refreshHereNow = NSNumber(booleanLiteral: change.refreshHereNow)
+    refreshHereNow = NSNumber(value: change.refreshHereNow)
     userMetadata = if let value = change.metadata?.rawValue { AnyJSONObjC(value) } else { nil }
 
     switch action {
@@ -52,7 +52,7 @@ public class PubNubPresenceChangeObjC: NSObject {
       state = nil
       join = nil
       timeout = nil
-    case .stateChange(let affectedUUID, let newState):
+    case let .stateChange(affectedUUID, newState):
       event = "state-change"
       state = AnyJSONObjC(newState.codableValue)
       uuid = affectedUUID

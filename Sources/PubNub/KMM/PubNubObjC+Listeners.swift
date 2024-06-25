@@ -24,7 +24,7 @@ extension PubNubObjC {
   }
 
   // TODO: Missing case for .subscriptionChanged
-  
+
   func createStatusListener(from listener: PubNubStatusListenerObjC) -> StatusListener {
     StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
@@ -95,7 +95,7 @@ public extension PubNubObjC {
   func removeEventListener(listener: PubNubEventListenerObjC) {
     pubnub.removeEventListener(with: listener.uuid)
   }
-  
+
   func removeAllListeners() {
     pubnub.removeAllListeners()
   }

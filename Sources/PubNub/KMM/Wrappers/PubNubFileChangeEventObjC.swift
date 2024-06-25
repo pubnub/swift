@@ -74,7 +74,7 @@ public class PubNubFileObjC: NSObject {
       return nil
     }
   }
-  
+
   init(from: PubNubFile, url: URL?) {
     self.id = from.channel
     self.name = from.filename

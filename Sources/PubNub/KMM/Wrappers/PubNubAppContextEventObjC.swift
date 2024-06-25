@@ -236,7 +236,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
 
     for change in changeset.changes {
       switch change {
-      case .stringOptional(let keyPath, let value):
+      case let .stringOptional(keyPath, value):
         switch keyPath {
         case \.name:
           self.name = value

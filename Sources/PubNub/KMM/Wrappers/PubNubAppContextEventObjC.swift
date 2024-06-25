@@ -161,7 +161,7 @@ public class PubNubChannelMetadataObjC: NSObject {
 
     for change in changeset.changes {
       switch change {
-      case .stringOptional(let keyPath, let value):
+      case let .stringOptional(keyPath, value):
         switch keyPath {
         case \.name:
           self.name = value
@@ -229,6 +229,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
     self.status = status
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   init(changeset: PubNubUUIDMetadataChangeset) {
     self.id = changeset.metadataId
     self.updated = DateFormatter.iso8601.string(from: changeset.updated)

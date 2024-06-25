@@ -490,4 +490,5 @@ public extension PubNubObjC {
       }
     }
   }
+  // swiftlint:disable:next file_length
 }

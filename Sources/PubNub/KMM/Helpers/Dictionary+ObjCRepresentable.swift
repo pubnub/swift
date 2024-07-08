@@ -20,7 +20,7 @@ extension AnyJSONType {
     case .double(let number):
       return number
     case .boolean(let booleanLiteral):
-      return NSNumber(booleanLiteral: booleanLiteral)
+      return booleanLiteral
     case .array(let array):
       return array.map { $0.objCRepresentable }
     case .dictionary(let dictionary):

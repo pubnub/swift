@@ -27,7 +27,6 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
-  @objc
   func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
@@ -43,7 +42,7 @@ public extension PubNubObjC {
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
-    
+
     if !topic.isEmpty {
       pubnub.addAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
         switch $0 {
@@ -65,7 +64,6 @@ public extension PubNubObjC {
     }
   }
 
-  @objc
   func listPushChannels(
     deviceId: Data,
     pushType: String,
@@ -80,7 +78,7 @@ public extension PubNubObjC {
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
-    
+
     if !topic.isEmpty {
       pubnub.listAPNSPushChannelRegistrations(for: deviceId, on: topic, environment: environment) {
         switch $0 {
@@ -102,7 +100,6 @@ public extension PubNubObjC {
     }
   }
 
-  @objc
   func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
@@ -118,7 +115,7 @@ public extension PubNubObjC {
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
-    
+
     if !topic.isEmpty {
       pubnub.removeAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
         switch $0 {
@@ -141,7 +138,6 @@ public extension PubNubObjC {
 
   }
 
-  @objc
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
@@ -156,7 +152,7 @@ public extension PubNubObjC {
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
-    
+
     if !topic.isEmpty {
       pubnub.removeAllAPNSPushDevice(for: deviceId, on: topic, environment: environment) {
         switch $0 {

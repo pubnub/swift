@@ -12,7 +12,7 @@ import Foundation
 
 extension AnyJSONType {
   var objCRepresentable: Any? {
-    switch (self) {
+    switch self {
     case .string(let string):
       return string
     case .integer(let number):

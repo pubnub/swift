@@ -15,7 +15,7 @@ extension PubNubObjC {
     switch rawString {
     case "gcm":
       return .fcm
-    case "apns":
+    case "apns", "apns2":
       return .apns
     case "mpns":
       return .mpns
@@ -31,18 +31,35 @@ public extension PubNubObjC {
     channels: [String],
     deviceId: Data,
     pushType: String,
+    topic: String?,
+    environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushService) {
-      switch $0 {
-      case .success(let channels):
-        onSuccess(channels)
-      case .failure(let error):
-        onFailure(error)
+    guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+    }
+    
+    if let topic {
+      pubnub.addAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
+      }
+    } else {
+      pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushService) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
       }
     }
   }
@@ -50,18 +67,35 @@ public extension PubNubObjC {
   func listPushChannels(
     deviceId: Data,
     pushType: String,
+    topic: String?,
+    environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.listPushChannelRegistrations(for: deviceId, of: pushService) {
-      switch $0 {
-      case .success(let channels):
-        onSuccess(channels)
-      case .failure(let error):
-        onFailure(error)
+    guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+    }
+    
+    if let topic {
+      pubnub.listAPNSPushChannelRegistrations(for: deviceId, on: topic, environment: environment) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
+      }
+    } else {
+      pubnub.listPushChannelRegistrations(for: deviceId, of: pushService) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
       }
     }
   }
@@ -70,37 +104,72 @@ public extension PubNubObjC {
     channels: [String],
     deviceId: Data,
     pushType: String,
+    topic: String?,
+    environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushService) {
-      switch $0 {
-      case .success(let channels):
-        onSuccess(channels)
-      case .failure(let error):
-        onFailure(error)
+    guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+    }
+    
+    if let topic {
+      pubnub.removeAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
+      }
+    } else {
+      pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushService) {
+        switch $0 {
+        case .success(let channels):
+          onSuccess(channels)
+        case .failure(let error):
+          onFailure(error)
+        }
       }
     }
+
   }
 
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
+    topic: String?,
+    environment: String,
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
     }
-    pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushService) {
-      switch $0 {
-      case .success:
-        onSuccess()
-      case .failure(let error):
-        onFailure(error)
+    guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
+      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+    }
+    
+    if let topic {
+      pubnub.removeAllAPNSPushDevice(for: deviceId, on: topic, environment: environment) {
+        switch $0 {
+        case .success:
+          onSuccess()
+        case .failure(let error):
+          onFailure(error)
+        }
+      }
+    } else {
+      pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushService) {
+        switch $0 {
+        case .success:
+          onSuccess()
+        case .failure(let error):
+          onFailure(error)
+        }
       }
     }
   }

@@ -196,9 +196,9 @@ public class PubNubChannelMetadataObjC: NSObject {
   }
 
   @objc
-  public init(id: String, custom: [String: Any], status: String?) {
+  public init(id: String, custom: AnyJSONObjC, status: String?) {
     self.id = id
-    self.custom = custom
+    self.custom = custom.asMap()
     self.status = status
   }
 }
@@ -221,11 +221,11 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc
   public init(
     id: String,
-    custom: [String: Any],
+    custom: AnyJSONObjC?,
     status: String?
   ) {
     self.id = id
-    self.custom = custom
+    self.custom = custom?.asMap()
     self.status = status
   }
 

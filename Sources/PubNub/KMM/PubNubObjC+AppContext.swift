@@ -297,7 +297,8 @@ public extension PubNubObjC {
       channels: channels.map {
         PubNubMembershipMetadataBase(
           uuidMetadataId: uuid ?? pubnub.configuration.userId,
-          channelMetadataId: $0.id
+          channelMetadataId: $0.id,
+          custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
         )
       },
       include: .init(
@@ -425,7 +426,13 @@ public extension PubNubObjC {
   ) {
     pubnub.setMembers(
       channel: channel,
-      uuids: uuids.map { PubNubMembershipMetadataBase(uuidMetadataId: $0.id, channelMetadataId: channel) },
+      uuids: uuids.map {
+        PubNubMembershipMetadataBase(
+          uuidMetadataId: $0.id,
+          channelMetadataId: channel,
+          custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
+        )
+      },
       include: .init(
         customFields: includeCustom,
         uuidFields: includeUUIDFields,
@@ -466,7 +473,12 @@ public extension PubNubObjC {
   ) {
     pubnub.removeMembers(
       channel: channel,
-      uuids: uuids.map { PubNubMembershipMetadataBase(uuidMetadataId: $0, channelMetadataId: channel) },
+      uuids: uuids.map { 
+        PubNubMembershipMetadataBase(
+          uuidMetadataId: $0,
+          channelMetadataId: channel
+        )
+      },
       include: .init(
         customFields: includeCustom,
         uuidFields: includeUUIDFields,

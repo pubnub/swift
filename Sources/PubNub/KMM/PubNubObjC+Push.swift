@@ -27,11 +27,12 @@ extension PubNubObjC {
 
 @objc
 public extension PubNubObjC {
+  @objc
   func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
     pushType: String,
-    topic: String?,
+    topic: String,
     environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -43,7 +44,7 @@ public extension PubNubObjC {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
     
-    if let topic {
+    if !topic.isEmpty {
       pubnub.addAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
@@ -64,10 +65,11 @@ public extension PubNubObjC {
     }
   }
 
+  @objc
   func listPushChannels(
     deviceId: Data,
     pushType: String,
-    topic: String?,
+    topic: String,
     environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -79,7 +81,7 @@ public extension PubNubObjC {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
     
-    if let topic {
+    if !topic.isEmpty {
       pubnub.listAPNSPushChannelRegistrations(for: deviceId, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
@@ -100,11 +102,12 @@ public extension PubNubObjC {
     }
   }
 
+  @objc
   func removeChannelsFromPush(
     channels: [String],
     deviceId: Data,
     pushType: String,
-    topic: String?,
+    topic: String,
     environment: String,
     onSuccess: @escaping (([String]) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -116,7 +119,7 @@ public extension PubNubObjC {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
     
-    if let topic {
+    if !topic.isEmpty {
       pubnub.removeAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
@@ -138,10 +141,11 @@ public extension PubNubObjC {
 
   }
 
+  @objc
   func removeAllChannelsFromPush(
     pushType: String,
     deviceId: Data,
-    topic: String?,
+    topic: String,
     environment: String,
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -153,7 +157,7 @@ public extension PubNubObjC {
       onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
     }
     
-    if let topic {
+    if !topic.isEmpty {
       pubnub.removeAllAPNSPushDevice(for: deviceId, on: topic, environment: environment) {
         switch $0 {
         case .success:

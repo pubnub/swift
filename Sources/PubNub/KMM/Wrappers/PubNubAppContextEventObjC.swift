@@ -156,7 +156,7 @@ public class PubNubChannelMetadataObjC: NSObject {
 
   init(changeset: PubNubChannelMetadataChangeset) {
     self.id = changeset.metadataId
-    self.updated = DateFormatter.iso8601.string(from: changeset.updated )
+    self.updated = DateFormatter.iso8601.string(from: changeset.updated)
     self.eTag = changeset.eTag
 
     for change in changeset.changes {

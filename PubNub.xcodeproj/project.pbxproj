@@ -366,6 +366,7 @@
 		35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941322EFB7C10051C455 /* unknownEndpointError.json */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
 		3D1C4FF62C074BDB0030B3D6 /* PubNubHashedPageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */; };
+		3D2642942C3BE835000154EC /* Dictionary+ObjCRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */; };
 		3D339C782BFF826500197342 /* PubNubEventListenerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */; };
 		3D339C792BFF826500197342 /* PubNubFetchMessagesResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */; };
 		3D339C7A2BFF826500197342 /* PubNubPresenceChangeObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C762BFF826500197342 /* PubNubPresenceChangeObjC.swift */; };
@@ -989,6 +990,7 @@
 		35FE941322EFB7C10051C455 /* unknownEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknownEndpointError.json; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
 		3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHashedPageObjC.swift; sourceTree = "<group>"; };
+		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
 		3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEventListenerObjC.swift; sourceTree = "<group>"; };
 		3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubFetchMessagesResultObjC.swift; sourceTree = "<group>"; };
 		3D339C762BFF826500197342 /* PubNubPresenceChangeObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceChangeObjC.swift; sourceTree = "<group>"; };
@@ -2241,6 +2243,7 @@
 			children = (
 				3D7411A22C171F2B002267B8 /* Int+NSNumber.swift */,
 				3DBFF2C02C22F27300142985 /* PubNub+URL.swift */,
+				3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -3564,6 +3567,7 @@
 				35C6B6E622F51A060054F242 /* AnyJSONType.swift in Sources */,
 				3585033422CD139400A11D9A /* String+PubNub.swift in Sources */,
 				3D389FE12B35AF4A006928E7 /* TransitionProtocol.swift in Sources */,
+				3D2642942C3BE835000154EC /* Dictionary+ObjCRepresentable.swift in Sources */,
 				354ADA8C22D923F20093EFFB /* Replaceables+PubNub.swift in Sources */,
 				3D389FF62B35AF4A006928E7 /* PresenceLeaveRequest.swift in Sources */,
 				35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */,

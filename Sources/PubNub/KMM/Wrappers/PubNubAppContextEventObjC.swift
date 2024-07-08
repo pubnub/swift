@@ -212,7 +212,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var externalId: String?
   @objc public var profileUrl: String?
   @objc public var email: String?
-  @objc public var custom: AnyJSONObjC?
+  @objc public var custom: [String: Any]?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var type: String?
@@ -221,11 +221,11 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc
   public init(
     id: String,
-    custom: Any?,
+    custom: [String: Any],
     status: String?
   ) {
     self.id = id
-    self.custom = if let custom { AnyJSONObjC(custom) } else { nil }
+    self.custom = custom
     self.status = status
   }
 
@@ -256,7 +256,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
         }
       case .customOptional(_, let value):
         if let value {
-          self.custom = AnyJSONObjC(AnyJSON(value.mapValues { $0.codableValue.rawValue }))
+          self.custom = value.asObjCRepresentable()
         } else {
           self.custom = nil
         }
@@ -270,7 +270,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
     self.externalId = metadata.externalId
     self.profileUrl = metadata.profileURL
     self.email = metadata.email
-    self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
+    self.custom = metadata.custom?.asObjCRepresentable()
     self.updated = if let date = metadata.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = metadata.eTag
     self.type = metadata.type

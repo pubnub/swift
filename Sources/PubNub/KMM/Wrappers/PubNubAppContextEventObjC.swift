@@ -194,6 +194,13 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.type = metadata.type
     self.status = metadata.status
   }
+
+  @objc
+  public init(id: String, custom: [String: Any], status: String?) {
+    self.id = id
+    self.custom = custom
+    self.status = status
+  }
 }
 
 // MARK: - PubNubUUIDMetadataObjC
@@ -210,6 +217,17 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
+
+  @objc
+  public init(
+    id: String,
+    custom: [String: Any],
+    status: String?
+  ) {
+    self.id = id
+    self.custom = custom
+    self.status = status
+  }
 
   // swiftlint:disable:next cyclomatic_complexity
   init(changeset: PubNubUUIDMetadataChangeset) {

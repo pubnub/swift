@@ -148,7 +148,7 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var id: String
   @objc public var name: String?
   @objc public var descr: String?
-  @objc public var custom: AnyJSONObjC?
+  @objc public var custom: [String: Any]?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var type: String?
@@ -176,7 +176,7 @@ public class PubNubChannelMetadataObjC: NSObject {
         }
       case .customOptional(_, let value):
         if let value {
-          self.custom = AnyJSONObjC(AnyJSON(value.mapValues { $0.codableValue }))
+          self.custom = value.asObjCRepresentable()
         } else {
           self.custom = nil
         }
@@ -188,7 +188,7 @@ public class PubNubChannelMetadataObjC: NSObject {
     self.id = metadata.metadataId
     self.name = metadata.name
     self.descr = metadata.channelDescription
-    self.custom = AnyJSONObjC(AnyJSON(metadata.custom as Any))
+    self.custom = metadata.custom?.asObjCRepresentable()
     self.updated = if let date = metadata.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = metadata.eTag
     self.type = metadata.type
@@ -196,7 +196,7 @@ public class PubNubChannelMetadataObjC: NSObject {
   }
 
   @objc
-  public init(id: String, custom: AnyJSONObjC?, status: String?) {
+  public init(id: String, custom: [String: Any], status: String?) {
     self.id = id
     self.custom = custom
     self.status = status

@@ -26,11 +26,14 @@ public enum ConnectionStatus: Equatable {
   case disconnectedUnexpectedly(PubNubError)
   /// Unable to establish initial connection. Applies if `enableEventEngine` in `PubNubConfiguration` is true.
   case connectionError(PubNubError)
+  /// SDK subscribed with a new mix of channels (fired every time the channel/channel group mix changed)
+  /// since the initial connection
+  case subscriptionChanged(channels: [String], groups: [String])
 
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
     switch self {
-    case .connecting, .connected, .reconnecting:
+    case .connecting, .connected, .reconnecting, .subscriptionChanged:
       return true
     default:
       return false
@@ -42,6 +45,27 @@ public enum ConnectionStatus: Equatable {
     if case .connected = self {
       return true
     } else {
+      return false
+    }
+  }
+
+  public static func == (lhs: ConnectionStatus, rhs: ConnectionStatus) -> Bool {
+    switch (lhs, rhs) {
+    case (.connecting, .connecting):
+      return true
+    case (.reconnecting, .reconnecting):
+      return true
+    case (.connected, .connected):
+      return true
+    case (.disconnected, .disconnected):
+      return true
+    case let (.disconnectedUnexpectedly(lhsError), .disconnectedUnexpectedly(rhsError)):
+      return lhsError == rhsError
+    case let (.connectionError(lhsError), .connectionError(rhsError)):
+      return lhsError == rhsError
+    case let (.subscriptionChanged(lhsChannels, lhsGroups), .subscriptionChanged(rhsChannels, rhsGroups)):
+      return Set(lhsChannels) == Set(rhsChannels) && Set(lhsGroups) == Set(rhsGroups)
+    default:
       return false
     }
   }
@@ -58,6 +82,8 @@ public enum ConnectionStatus: Equatable {
     case (.connecting, .connectionError):
       return true
     case (.connected, .disconnected):
+      return true
+    case (.connected, .subscriptionChanged):
       return true
     case (.reconnecting, .connected):
       return true

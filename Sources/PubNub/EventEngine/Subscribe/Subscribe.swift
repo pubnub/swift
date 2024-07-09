@@ -61,7 +61,7 @@ extension Subscribe {
   struct ReceivingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let connectionStatus = ConnectionStatus.connected
+    let connectionStatus: ConnectionStatus
   }
 
   struct ReceiveStoppedState: SubscribeState {

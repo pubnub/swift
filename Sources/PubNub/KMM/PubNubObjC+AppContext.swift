@@ -21,11 +21,14 @@ extension PubNubObjC {
     }
   }
 
-  private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage {
-    PubNub.Page(
-      start: page?.start,
-      end: page?.end,
-      totalCount: page?.totalCount?.intValue
+  private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage? {
+    guard let page = page else {
+      return nil
+    }
+    return PubNub.Page(
+      start: page.start,
+      end: page.end,
+      totalCount: page.totalCount?.intValue
     )
   }
 

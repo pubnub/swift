@@ -420,6 +420,7 @@
 		3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */; };
 		3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */; };
 		3D38A0302B35B208006928E7 /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */; };
+		3D3C38832C47D62700E782E7 /* PubNubErrorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */; };
 		3D452B252C05DF6D008987D4 /* PubNubHereNowResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */; };
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
@@ -1041,6 +1042,7 @@
 		3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacySubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
+		3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubErrorObjC.swift; sourceTree = "<group>"; };
 		3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHereNowResultObjC.swift; sourceTree = "<group>"; };
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
@@ -2062,6 +2064,7 @@
 		3D339C772BFF826500197342 /* Wrappers */ = {
 			isa = PBXGroup;
 			children = (
+				84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */,
 				3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */,
 				3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */,
 				3D339C7B2BFF828B00197342 /* PubNubMessageObjC.swift */,
@@ -2072,10 +2075,10 @@
 				3D8102A92C009AA5005E3607 /* PubNubAppContextEventObjC.swift */,
 				3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */,
 				3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */,
-				84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */,
 				3DBFF2BA2C203EDC00142985 /* PubNubUploadableObjC.swift */,
 				3DBFF2BE2C22F21200142985 /* PubNubEntityRepresentableObjC.swift */,
 				3DBFF2C22C2300F500142985 /* PubNubSubscriptionObjC.swift */,
+				3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */,
 			);
 			path = Wrappers;
 			sourceTree = "<group>";
@@ -3672,6 +3675,7 @@
 				35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */,
 				35A6C7BE22FCCBF900E97CC5 /* HistoryRouter.swift in Sources */,
 				35A66A9022F913B200AC67A9 /* ConnectionStatus.swift in Sources */,
+				3D3C38832C47D62700E782E7 /* PubNubErrorObjC.swift in Sources */,
 				3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */,
 				354ADA8822D909A30093EFFB /* Convertibles+PubNub.swift in Sources */,
 				3DA24A432C2AAB54005B959B /* PubNubObjC+AppContext.swift in Sources */,

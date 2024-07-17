@@ -92,7 +92,7 @@ public extension PubNubObjC {
       case .success(let metadata):
         onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -177,14 +177,14 @@ public extension PubNubObjC {
     uuid: String?,
     includeCustom: Bool,
     onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
-    onFailure: @escaping ((Error) -> Void)
+    onFailure: @escaping ((PubNubErrorObjC) -> Void)
   ) {
     pubnub.fetch(uuid: uuid, include: includeCustom) {
       switch $0 {
       case .success(let metadata):
         onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

@@ -177,14 +177,14 @@ public extension PubNubObjC {
     uuid: String?,
     includeCustom: Bool,
     onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
-    onFailure: @escaping ((PubNubErrorObjC) -> Void)
+    onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetch(uuid: uuid, include: includeCustom) {
       switch $0 {
       case .success(let metadata):
         onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(error)
       }
     }
   }

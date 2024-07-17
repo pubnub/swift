@@ -11,15 +11,20 @@
 import Foundation
 
 @objc
-public class PubNubErrorObjC: NSObject, Error {
+public class PubNubErrorObjC: NSError {
   let underlying: Error
   
   init(underlying: Error) {
     self.underlying = underlying
+    super.init(domain: "pubnub", code: (underlying as? PubNubError)?.reason.rawValue ?? 0)
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
   }
   
   @objc
-  public var localizedDescription: String {
+  public override var localizedDescription: String {
     underlying.localizedDescription
   }
   

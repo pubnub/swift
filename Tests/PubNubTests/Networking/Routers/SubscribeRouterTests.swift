@@ -851,16 +851,21 @@ extension SubscribeRouterTests {
         let mockResponses = ["subscription_handshake_success", "subscription_invalid_json", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, raw: [corruptedData], and: configuration)
         let errorExpect = XCTestExpectation(description: "Error Event")
-        let statusExpect = XCTestExpectation(description: "Status Event")
         let pubnub = PubNub(configuration: configuration)
+
+        let statusExpect: XCTestExpectation? = if (configuration.enableEventEngine) {
+          XCTestExpectation(description: "Status Event")
+        } else {
+          nil
+        }
 
         mockResult.listener.didReceiveSubscription = { [mockResult] event in
           switch event {
           case .subscriptionChanged:
             break
           case let .connectionStatusChanged(connection):
-            if connection == .disconnected {
-              statusExpect.fulfill()
+            if case .connectionError = connection {
+              statusExpect?.fulfill()
             }
           case let .subscribeError(error):
             XCTAssertEqual(error.reason, .jsonDataDecodingFailure)
@@ -874,7 +879,7 @@ extension SubscribeRouterTests {
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
-        wait(for: [errorExpect, statusExpect], timeout: 1.0, enforceOrder: true)
+        wait(for: [errorExpect, statusExpect].compactMap { $0 }, timeout: 1.0, enforceOrder: true)
       }
     }
   }
@@ -936,8 +941,9 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         let otherChannel = "OtherChannel"
         let pubnub = PubNub(configuration: configuration)
+        let subscriptionSession = mockResult.subscriptionSession
 
-        mockResult.listener.didReceiveSubscription = { [weak self, mockResult] event in
+        mockResult.listener.didReceiveSubscription = { [weak self, weak subscriptionSession] event in
           switch event {
           case let .subscriptionChanged(change):
             switch change {
@@ -953,8 +959,8 @@ extension SubscribeRouterTests {
           case let .connectionStatusChanged(status):
             switch status {
             case .connected:
-              mockResult.subscriptionSession.unsubscribeAll()
-              XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [])
+              subscriptionSession?.unsubscribeAll()
+              XCTAssertEqual(subscriptionSession?.subscribedChannels, [])
               statusExpect.fulfill()
             case .disconnected:
               statusExpect.fulfill()
@@ -969,8 +975,6 @@ extension SubscribeRouterTests {
         mockResult.subscriptionSession.subscribe(to: [testChannel, otherChannel], using: pubnub)
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(testChannel))
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(otherChannel))
-        mockResult.subscriptionSession.unsubscribeAll()
-        XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [])
         
         defer { mockResult.listener.cancel() }
         wait(for: [statusExpect], timeout: 1.0)

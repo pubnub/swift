@@ -87,11 +87,6 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: false)
     ]
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .subscriptionChanged(channels: expChannels.map { $0.id }, groups: expGroups.map { $0.id }),
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
@@ -128,11 +123,6 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: false)
     ]
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connectionError(PubNubError(.unknown)),
-        newStatus: .subscriptionChanged(channels: expChannels.map { $0.id }, groups: expGroups.map { $0.id }),
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
@@ -165,13 +155,6 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g2", withPresence: true),
       PubNubChannel(id: "g3", withPresence: false)
     ]
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .subscriptionChanged(channels: expectedChannels.map { $0.id }, groups: expectedGroups.map { $0.id }),
-        error: nil
-      )))
-    ]
 
     let expectedState = Subscribe.HandshakeStoppedState(
       input: SubscribeInput(channels: expectedChannels,groups: expectedGroups),
@@ -179,7 +162,7 @@ class SubscribeTransitionTests: XCTestCase {
     )
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.isEmpty)
   }
   
   func test_SubscriptionChangedForHandshakingState() throws {
@@ -205,11 +188,6 @@ class SubscribeTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
-        newStatus: expectedNewStatus,
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
@@ -299,16 +277,7 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g2", withPresence: true),
       PubNubChannel(id: "g3", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnectedUnexpectedly(PubNubError(.unknown)),
-        newStatus: expectedNewStatus,
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
@@ -340,24 +309,13 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g2", withPresence: true),
       PubNubChannel(id: "g3", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: expectedNewStatus,
-        error: nil
-      )))
-    ]
     let expectedState = Subscribe.ReceiveStoppedState(
       input: SubscribeInput(channels: expChannels, groups: expGroups),
       cursor: SubscribeCursor(timetoken: 500100900, region: 11)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.isEmpty)
   }
 
   // MARK: - Subscription Restored
@@ -447,16 +405,7 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g4", withPresence: false)
     ]
     
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnectedUnexpectedly(PubNubError(.unknown)),
-        newStatus: expectedNewStatus,
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
@@ -495,24 +444,13 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: true),
       PubNubChannel(id: "g4", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: expectedNewStatus,
-        error: nil
-      )))
-    ]
     let expectedState = Subscribe.ReceiveStoppedState(
       input: SubscribeInput(channels: expChannels, groups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.isEmpty)
   }
 
   func test_SubscriptionRestoredForHandshakingState() {
@@ -536,17 +474,8 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: true),
       PubNubChannel(id: "g4", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
-        newStatus: expectedNewStatus,
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
@@ -586,16 +515,7 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: true),
       PubNubChannel(id: "g4", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connectionError(PubNubError(.unknown)),
-        newStatus: expectedNewStatus,
-        error: nil
-      ))),
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
         groups: ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
@@ -632,24 +552,13 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g3", withPresence: true),
       PubNubChannel(id: "g4", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
-    )
-    let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
-      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: expectedNewStatus,
-        error: nil
-      )))
-    ]
     let expectedState = Subscribe.HandshakeStoppedState(
       input: SubscribeInput(channels: expChannels, groups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.isEmpty)
   }
   
   // MARK: - Handshake Success
@@ -666,7 +575,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
+        oldStatus: .disconnected,
         newStatus: .connected,
         error: nil
       ))),
@@ -695,7 +604,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
+        oldStatus: .disconnected,
         newStatus: .connectionError(PubNubError(.unknown)),
         error: PubNubError(.unknown))
       ))
@@ -739,10 +648,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedState = Subscribe.ReceivingState(
       input: input,
       cursor: SubscribeCursor(timetoken: 18002000, region: 123),
-      connectionStatus: .subscriptionChanged(
-        channels: input.subscribedChannelNames,
-        groups: input.subscribedGroupNames
-      )
+      connectionStatus: .connected
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -880,7 +786,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
+        oldStatus: .disconnected,
         newStatus: .disconnected,
         error: nil
       )))
@@ -930,7 +836,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: .connecting,
+        oldStatus: .disconnected,
         newStatus: .disconnected,
         error: nil
       )))

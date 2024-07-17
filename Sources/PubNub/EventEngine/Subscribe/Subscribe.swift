@@ -35,7 +35,7 @@ extension Subscribe {
   struct HandshakingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let connectionStatus = ConnectionStatus.connecting
+    let connectionStatus = ConnectionStatus.disconnected
   }
 
   struct HandshakeStoppedState: SubscribeState {

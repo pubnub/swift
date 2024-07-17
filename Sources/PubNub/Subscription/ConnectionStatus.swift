@@ -12,16 +12,10 @@ import Foundation
 
 /// Status of a connection to a remote system
 public enum ConnectionStatus: Equatable {
-  /// Attempting to connect to a remote system
-  @available(*, deprecated, message: "This case will be removed in future versions")
-   case connecting
   /// Successfully connected to a remote system
   case connected
   /// Explicit disconnect from a remote system
   case disconnected
-  /// Attempting to reconnect to a remote system
-  @available(*, deprecated, message: "This case will be removed in future versions")
-  case reconnecting
   /// Unexpected disconnect from a remote system
   case disconnectedUnexpectedly(PubNubError)
   /// Unable to establish initial connection. Applies if `enableEventEngine` in `PubNubConfiguration` is true.
@@ -33,7 +27,7 @@ public enum ConnectionStatus: Equatable {
   /// If the connection is connected or attempting to connect
   public var isActive: Bool {
     switch self {
-    case .connecting, .connected, .reconnecting, .subscriptionChanged:
+    case .connected, .subscriptionChanged:
       return true
     default:
       return false
@@ -44,6 +38,8 @@ public enum ConnectionStatus: Equatable {
   public var isConnected: Bool {
     if case .connected = self {
       return true
+    } else if case .subscriptionChanged = self {
+      return true
     } else {
       return false
     }
@@ -51,10 +47,6 @@ public enum ConnectionStatus: Equatable {
 
   public static func == (lhs: ConnectionStatus, rhs: ConnectionStatus) -> Bool {
     switch (lhs, rhs) {
-    case (.connecting, .connecting):
-      return true
-    case (.reconnecting, .reconnecting):
-      return true
     case (.connected, .connected):
       return true
     case (.disconnected, .disconnected):
@@ -73,31 +65,25 @@ public enum ConnectionStatus: Equatable {
   // swiftlint:disable:next cyclomatic_complexity
   func canTransition(to state: ConnectionStatus) -> Bool {
     switch (self, state) {
-    case (.connecting, .connected):
+    case (.disconnected, .connected):
       return true
-    case (.connecting, .disconnected):
+    case (.disconnected, .connectionError):
       return true
-    case (.connecting, .disconnectedUnexpectedly):
+    case (.disconnected, .disconnectedUnexpectedly):
       return true
-    case (.connecting, .connectionError):
+    case (.disconnectedUnexpectedly, .connected):
       return true
-    case (.connected, .disconnected):
+    case (.disconnectedUnexpectedly, .disconnected):
       return true
     case (.connected, .subscriptionChanged):
       return true
-    case (.reconnecting, .connected):
+    case (.connected, .disconnected):
       return true
-    case (.reconnecting, .disconnected):
+    case (.connected, .disconnectedUnexpectedly):
       return true
-    case (.reconnecting, .disconnectedUnexpectedly):
+    case (.subscriptionChanged, .disconnectedUnexpectedly):
       return true
-    case (.reconnecting, .connectionError):
-      return true
-    case (.disconnected, .connecting):
-      return true
-    case (.disconnectedUnexpectedly, .connecting):
-      return true
-    case (.connectionError, .connecting):
+    case (.subscriptionChanged, .disconnected):
       return true
     default:
       return false

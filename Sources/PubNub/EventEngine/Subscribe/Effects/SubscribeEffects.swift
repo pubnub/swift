@@ -25,7 +25,6 @@ class HandshakeEffect: EffectHandler {
   }
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    subscribeEffect.listeners.forEach { $0.emit(subscribe: .connectionChanged(.connecting)) }
     subscribeEffect.performTask(completionBlock: completionBlock)
   }
 

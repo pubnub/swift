@@ -13,6 +13,15 @@ import Foundation
 @objc
 public class PubNubObjC: NSObject {
   let pubnub: PubNub
+  
+  @objc
+  public let configObjC: PubNubConfigurationObjC
+    
+  public init(pubnub: PubNub) {
+    self.pubnub = pubnub
+    self.configObjC = PubNubConfigurationObjC(configuration: pubnub.configuration)
+    super.init()
+  }
 
   @objc
   public init(user: String, subKey: String, pubKey: String) {
@@ -23,8 +32,10 @@ public class PubNubObjC: NSObject {
         userId: user
       )
     )
+    self.configObjC = PubNubConfigurationObjC(configuration: self.pubnub.configuration)
     super.init()
   }
+
 }
 
 // MARK: - Token
@@ -64,4 +75,26 @@ public extension PubNubObjC {
   func channelMetadata(with id: String) -> PubNubChannelMetadataEntityObjC {
     PubNubChannelMetadataEntityObjC(channelMetadata: pubnub.channelMetadata(id))
   }
+}
+
+// MARK: - Configuration
+
+@objc
+public class PubNubConfigurationObjC: NSObject {
+    let configuration: PubNubConfiguration
+      
+    public init(configuration: PubNubConfiguration) {
+      self.configuration = configuration
+    }
+    
+    @objc
+    public var userId: String {
+        configuration.userId
+    }
+    
+    @objc
+    public var authKey: String? {
+        configuration.authKey
+    }
+        
 }

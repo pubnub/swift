@@ -301,6 +301,7 @@ public extension PubNubObjC {
         PubNubMembershipMetadataBase(
           uuidMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0.id,
+          status: $0.status,
           custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
         )
       },
@@ -433,6 +434,7 @@ public extension PubNubObjC {
         PubNubMembershipMetadataBase(
           uuidMetadataId: $0.id,
           channelMetadataId: channel,
+          status: $0.status,
           custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
         )
       },

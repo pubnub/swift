@@ -89,12 +89,12 @@ public class PubNubConfigurationObjC: NSObject {
     
     @objc
     public var userId: String {
-        @objc get { return configuration.userId }
+        configuration.userId
     }
     
     @objc
     public var authKey: String? {
-        @objc get { return configuration.authKey }
+        configuration.authKey
     }
         
 }

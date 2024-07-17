@@ -57,6 +57,7 @@ public class PubNubSetUUIDMetadataResultObjC: PubNubAppContextEventObjC {
 
   init(metadata: PubNubUUIDMetadataObjC) {
     self.metadata = metadata
+    super.init()
   }
 }
 
@@ -80,7 +81,7 @@ public class PubNubSetChannelMetadataResultObjC: PubNubAppContextEventObjC {
 
   init(metadata: PubNubChannelMetadataObjC) {
     self.metadata = metadata
-    super.init()
+    super.init(channel: metadata.id)
   }
 }
 
@@ -92,7 +93,7 @@ public class PubNubRemoveChannelMetadataResultObjC: PubNubAppContextEventObjC {
 
   init(channelMetadataId: String) {
     self.channelMetadataId = channelMetadataId
-    super.init()
+    super.init(channel: channelMetadataId)
   }
 }
 
@@ -104,6 +105,7 @@ public class PubNubSetMembershipResultObjC: PubNubAppContextEventObjC {
 
   init(metadata: PubNubMembershipMetadataObjC) {
     self.metadata = metadata
+    super.init(channel: metadata.channelMetadataId)
   }
 }
 
@@ -117,6 +119,7 @@ public class PubNubRemoveMembershipResultObjC: PubNubAppContextEventObjC {
   init(channelId: String, uuid: String) {
     self.channelId = channelId
     self.uuid = uuid
+    super.init(channel: channelId)
   }
 }
 

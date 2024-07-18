@@ -23,12 +23,17 @@ public extension PubNubObjC {
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
+    let metadata: AnyJSON? = if let meta = meta {
+      AnyJSON(meta)
+    } else {
+      nil
+    }
     pubnub.publish(
       channel: channel,
       message: AnyJSON(message),
       shouldStore: shouldStore?.boolValue,
       storeTTL: shouldStore?.intValue,
-      meta: meta != nil ? AnyJSON(meta as Any) : nil
+      meta: metadata
     ) {
       switch $0 {
       case .success(let timetoken):

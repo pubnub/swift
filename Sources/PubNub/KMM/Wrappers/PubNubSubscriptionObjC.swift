@@ -124,7 +124,7 @@ public class PubNubSubscriptionSetObjC: NSObject {
   init(subscriptionSet: SubscriptionSet) {
     self.subscriptionSet = subscriptionSet
   }
-  
+
   @objc
   public init(subscriptions: [PubNubSubscriptionObjC]) {
     self.subscriptionSet = SubscriptionSet(subscriptions: subscriptions.map { $0.subscription })

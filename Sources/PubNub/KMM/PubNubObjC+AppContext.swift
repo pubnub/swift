@@ -478,7 +478,7 @@ public extension PubNubObjC {
   ) {
     pubnub.removeMembers(
       channel: channel,
-      uuids: uuids.map { 
+      uuids: uuids.map {
         PubNubMembershipMetadataBase(
           uuidMetadataId: $0,
           channelMetadataId: channel

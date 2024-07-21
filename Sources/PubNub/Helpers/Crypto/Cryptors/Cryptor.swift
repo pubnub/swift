@@ -17,6 +17,11 @@ public struct EncryptedData {
   let metadata: Data
   /// Resulting encrypted `Data`
   let data: Data
+
+  public init(metadata: Data, data: Data) {
+    self.metadata = metadata
+    self.data = data
+  }
 }
 
 /// Represents the result of encrypted `InputStream`
@@ -27,6 +32,12 @@ public struct EncryptedStreamData {
   let contentLength: Int
   /// Metadata (if any) used while encrypting
   let metadata: Data
+
+  public init(stream: InputStream, contentLength: Int, metadata: Data) {
+    self.stream = stream
+    self.contentLength = contentLength
+    self.metadata = metadata
+  }
 }
 
 /// Typealias for uniquely identifying applied encryption

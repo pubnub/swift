@@ -14,19 +14,30 @@ import Foundation
 /// Represents the result of encrypted `Data`
 public struct EncryptedData {
   /// Metadata (if any) used while encrypting
-  let metadata: Data
+  public let metadata: Data
   /// Resulting encrypted `Data`
-  let data: Data
+  public let data: Data
+
+  public init(metadata: Data, data: Data) {
+    self.metadata = metadata
+    self.data = data
+  }
 }
 
 /// Represents the result of encrypted `InputStream`
 public struct EncryptedStreamData {
   /// Encrypted stream you can read from
-  let stream: InputStream
+  public let stream: InputStream
   /// Content length of encrypted stream
-  let contentLength: Int
+  public let contentLength: Int
   /// Metadata (if any) used while encrypting
-  let metadata: Data
+  public let metadata: Data
+
+  public init(stream: InputStream, contentLength: Int, metadata: Data) {
+    self.stream = stream
+    self.contentLength = contentLength
+    self.metadata = metadata
+  }
 }
 
 /// Typealias for uniquely identifying applied encryption

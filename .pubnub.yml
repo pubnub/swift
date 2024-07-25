@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.3.1"
+version: "7.3.2"
 schema: 1
 changelog:
+  - date: 2024-07-22
+    version: 7.3.2
+    changes:
+      - type: bug
+        text: "Add missing public initializers for `EncryptedData` and `EncryptedStreamData`."
   - date: 2024-06-18
     version: 7.3.1
     changes:
@@ -559,7 +564,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.3.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.3.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

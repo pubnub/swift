@@ -47,7 +47,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(res.files.map { PubNubFileObjC(from: $0, url: pubnub?.generateFileDownloadURL(for: $0)) }, next?.end)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -68,7 +68,7 @@ public extension PubNubObjC {
         ).absoluteString
       )
     } catch {
-      onFailure(error)
+      onFailure(PubNubErrorObjC(underlying: error))
     }
   }
 
@@ -84,7 +84,7 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -131,7 +131,7 @@ public extension PubNubObjC {
       case .success(let timetoken):
         onSuccess(timetoken)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -153,7 +153,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(PubNubFileObjC(from: res.file, url: res.file.fileURL))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -170,12 +170,12 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let fileContent = convertUploadContent(from: content) else {
-      onFailure(
-        PubNubError(
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
           .invalidArguments,
           additional: ["Cannot create expected PubNub.FileUploadContent"]
         )
-      )
+      ))
       return
     }
 
@@ -200,7 +200,7 @@ public extension PubNubObjC {
           res.publishedAt
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

@@ -79,7 +79,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -126,7 +126,7 @@ public extension PubNubObjC {
       case .success(let metadata):
         onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -141,7 +141,7 @@ public extension PubNubObjC {
       case .success(let channel):
         onSuccess(channel)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -171,7 +171,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -187,7 +187,7 @@ public extension PubNubObjC {
       case .success(let metadata):
         onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -222,7 +222,7 @@ public extension PubNubObjC {
       case .success(let metadata):
         onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -237,7 +237,7 @@ public extension PubNubObjC {
       case .success(let result):
         onSuccess(result)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -276,7 +276,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -324,7 +324,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -370,7 +370,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -409,7 +409,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -457,7 +457,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -503,7 +503,7 @@ public extension PubNubObjC {
           PubNubHashedPageObjC(page: res.next)
         )
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

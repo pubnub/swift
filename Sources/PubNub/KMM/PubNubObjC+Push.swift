@@ -37,10 +37,22 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid pushType parameter"]
+        )
+      ))
+      return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid environment parameter"]
+        )
+      ))
+      return
     }
 
     if !topic.isEmpty {
@@ -49,7 +61,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     } else {
@@ -58,7 +70,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     }
@@ -73,10 +85,22 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid pushType parameter"]
+        )
+      ))
+      return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid environment parameter"]
+        )
+      ))
+      return
     }
 
     if !topic.isEmpty {
@@ -85,7 +109,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     } else {
@@ -94,7 +118,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     }
@@ -110,10 +134,22 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid pushType parameter"]
+        )
+      ))
+      return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid environment parameter"]
+        )
+      ))
+      return
     }
 
     if !topic.isEmpty {
@@ -122,7 +158,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     } else {
@@ -131,7 +167,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     }
@@ -147,10 +183,22 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid pushType parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid pushType parameter"]
+        )
+      ))
+      return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubError(.invalidArguments, additional: ["Invalid environment parameter"])); return
+      onFailure(PubNubErrorObjC(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid environment parameter"]
+        )
+      ))
+      return
     }
 
     if !topic.isEmpty {
@@ -159,7 +207,7 @@ public extension PubNubObjC {
         case .success:
           onSuccess()
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     } else {
@@ -168,7 +216,7 @@ public extension PubNubObjC {
         case .success:
           onSuccess()
         case .failure(let error):
-          onFailure(error)
+          onFailure(PubNubErrorObjC(underlying: error))
         }
       }
     }

@@ -32,7 +32,7 @@ public extension PubNubObjC {
       case .success(let action):
         onSuccess(PubNubMessageActionObjC(action: action))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -53,7 +53,7 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -76,7 +76,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(res.actions.map { PubNubMessageActionObjC(action: $0) }, PubNubBoundedPageObjC(page: res.next))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

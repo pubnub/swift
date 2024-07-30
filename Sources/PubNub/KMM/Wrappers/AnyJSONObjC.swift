@@ -18,10 +18,10 @@ public class AnyJSONObjC: NSObject {
   public init(_ value: Any?) {
     if let anyJSON = value as? AnyJSON {
       self.value = anyJSON
-    } else if (value == nil) {
-        self.value = AnyJSON(AnyJSONType.null)
+    } else if value == nil {
+      self.value = AnyJSON(AnyJSONType.null)
     } else {
-      self.value = AnyJSON(value)
+      self.value = AnyJSON(value as Any)
     }
   }
 

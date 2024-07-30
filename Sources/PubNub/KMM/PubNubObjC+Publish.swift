@@ -39,7 +39,7 @@ public extension PubNubObjC {
       case .success(let timetoken):
         onSuccess(timetoken)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -60,7 +60,7 @@ public extension PubNubObjC {
       case .success(let timetoken):
         onSuccess(timetoken)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

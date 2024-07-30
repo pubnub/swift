@@ -28,7 +28,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(res.channels)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -43,7 +43,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(res.channels)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -59,7 +59,7 @@ public extension PubNubObjC {
       case .success(let res):
         onSuccess(res.channels)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -73,7 +73,7 @@ public extension PubNubObjC {
       case .success(let channelGroups):
         onSuccess(channelGroups)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -88,7 +88,7 @@ public extension PubNubObjC {
       case .success(let channelGroup):
         onSuccess(channelGroup)
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

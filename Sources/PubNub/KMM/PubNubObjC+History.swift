@@ -41,7 +41,7 @@ public extension PubNubObjC {
           page: PubNubBoundedPageObjC(page: response.next)
         ))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -71,7 +71,7 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -91,7 +91,7 @@ public extension PubNubObjC {
       case .success(let response):
         onSuccess(response.mapValues { UInt64($0) })
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

@@ -54,7 +54,7 @@ public extension PubNubObjC {
           )
         )
       case let .failure(error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -69,7 +69,7 @@ public extension PubNubObjC {
       case .success(let map):
         onSuccess(map[uuid] ?? [])
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -90,7 +90,7 @@ public extension PubNubObjC {
       case .success(let response):
         onSuccess(response.stateByChannel.mapValues { $0.rawValue })
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }
@@ -113,7 +113,7 @@ public extension PubNubObjC {
       case .success(let codable):
         onSuccess(AnyJSONObjC(codable.rawValue))
       case .failure(let error):
-        onFailure(error)
+        onFailure(PubNubErrorObjC(underlying: error))
       }
     }
   }

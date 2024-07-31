@@ -81,20 +81,19 @@ public extension PubNubObjC {
 
 @objc
 public class PubNubConfigurationObjC: NSObject {
-    let configuration: PubNubConfiguration
+  let configuration: PubNubConfiguration
 
-    public init(configuration: PubNubConfiguration) {
-      self.configuration = configuration
-    }
+  public init(configuration: PubNubConfiguration) {
+    self.configuration = configuration
+  }
 
-    @objc
-    public var userId: String {
-        configuration.userId
-    }
+  @objc
+  public var userId: String {
+    configuration.userId
+  }
 
-    @objc
-    public var authKey: String? {
-        configuration.authKey
-    }
-
+  @objc
+  public var authKey: String? {
+    configuration.authKey
+  }
 }

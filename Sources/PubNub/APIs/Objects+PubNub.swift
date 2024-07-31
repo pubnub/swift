@@ -136,7 +136,7 @@ public extension PubNub {
       if uuidFields { includes.append(.uuid) }
       if uuidCustomFields { includes.append(.uuidCustom) }
       if uuidTypeField { includes.append(.uuidType) }
-      
+
       return includes.isEmpty ? nil : includes
     }
   }

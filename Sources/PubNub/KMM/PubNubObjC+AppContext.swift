@@ -32,6 +32,24 @@ extension PubNubObjC {
     )
   }
 
+  private func convertDictionaryToScalars(_ dictionary: [String: Any]?) -> [String: JSONCodableScalar]? {
+    dictionary?.compactMapValues { item -> JSONCodableScalar? in
+      if let number = item as? NSNumber {
+        if let intValue = number as? Int {
+          return intValue
+        } else if let doubleValue = number as? Double {
+          return doubleValue
+        } else if let boolValue = number as? Bool {
+          return boolValue
+        } else {
+          return nil
+        }
+      } else {
+        return item as? JSONCodableScalar
+      }
+    }
+  }
+
   // TODO: Swift SDK allows to sort by the status field, it's not present in KMP
 
   private func mapToMembershipSortFields(from array: [String]) -> [PubNub.MembershipSortField] {
@@ -118,7 +136,7 @@ public extension PubNubObjC {
         type: type,
         status: status,
         channelDescription: description,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+        custom: convertDictionaryToScalars(custom?.asMap())
       ),
       include: includeCustom
     ) {
@@ -214,7 +232,7 @@ public extension PubNubObjC {
         externalId: externalId,
         profileURL: profileUrl,
         email: email,
-        custom: (custom?.asMap())?.compactMapValues { $0 as? JSONCodableScalar }
+        custom: convertDictionaryToScalars(custom?.asMap())
       ),
       include: includeCustom
     ) {
@@ -305,7 +323,7 @@ public extension PubNubObjC {
           uuidMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0.id,
           status: $0.status,
-          custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
+          custom: convertDictionaryToScalars($0.custom)
         )
       },
       include: .init(
@@ -444,7 +462,7 @@ public extension PubNubObjC {
           uuidMetadataId: $0.id,
           channelMetadataId: channel,
           status: $0.status,
-          custom: $0.custom?.compactMapValues { $0 as? JSONCodableScalar }
+          custom: convertDictionaryToScalars($0.custom)
         )
       },
       include: .init(

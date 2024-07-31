@@ -58,6 +58,8 @@ public extension PubNub {
     public var customFields: Bool
     /// The `PubNubChannelMetadata` instance of the Membership
     public var channelFields: Bool
+    /// The `type` field of the `PubNubChannelMetadata` instance in Membership
+    public var channelTypeField: Bool
     /// The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
     public var channelCustomFields: Bool
     /// The `totalCount` of how many Objects are available
@@ -73,11 +75,13 @@ public extension PubNub {
       customFields: Bool = true,
       channelFields: Bool = false,
       channelCustomFields: Bool = false,
+      channelTypeField: Bool = false,
       totalCount: Bool = false
     ) {
       self.customFields = customFields
       self.channelFields = channelFields
       self.channelCustomFields = channelCustomFields
+      self.channelTypeField = channelTypeField
       self.totalCount = totalCount
     }
 
@@ -87,6 +91,7 @@ public extension PubNub {
       if customFields { includes.append(.custom) }
       if channelFields { includes.append(.channel) }
       if channelCustomFields { includes.append(.channelCustom) }
+      if channelTypeField { includes.append(.channelType) }
 
       return includes.isEmpty ? nil : includes
     }
@@ -97,6 +102,8 @@ public extension PubNub {
     public var customFields: Bool
     /// The `PubNubUUIDMetadata` instance of the Membership
     public var uuidFields: Bool
+    /// The `type` field of the `PubNubUUIDMetadata` instance in Membership
+    public var uuidTypeField: Bool
     /// The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
     public var uuidCustomFields: Bool
     /// The `totalCount` of how many Objects are available
@@ -112,12 +119,14 @@ public extension PubNub {
       customFields: Bool = true,
       uuidFields: Bool = false,
       uuidCustomFields: Bool = false,
+      uuidTypeField: Bool = false,
       totalCount: Bool = false
     ) {
       self.customFields = customFields
       self.uuidFields = uuidFields
       self.uuidCustomFields = uuidCustomFields
       self.totalCount = totalCount
+      self.uuidTypeField = uuidTypeField
     }
 
     var customIncludes: [ObjectsMembershipsRouter.Include]? {
@@ -126,7 +135,8 @@ public extension PubNub {
       if customFields { includes.append(.custom) }
       if uuidFields { includes.append(.uuid) }
       if uuidCustomFields { includes.append(.uuidCustom) }
-
+      if uuidTypeField { includes.append(.uuidType) }
+      
       return includes.isEmpty ? nil : includes
     }
   }

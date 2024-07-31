@@ -252,6 +252,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
+    includeChannelType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -261,6 +262,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         channelFields: includeChannelFields,
         channelCustomFields: includeChannelCustomFields,
+        channelTypeField: includeChannelType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -292,6 +294,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
+    includeChannelType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -309,6 +312,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         channelFields: includeChannelFields,
         channelCustomFields: includeChannelCustomFields,
+        channelTypeField: includeChannelType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -340,6 +344,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
+    includeChannelType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -355,6 +360,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         channelFields: includeChannelFields,
         channelCustomFields: includeChannelCustomFields,
+        channelTypeField: includeChannelType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -385,6 +391,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
+    includeUUIDType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -394,6 +401,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         uuidFields: includeUUIDFields,
         uuidCustomFields: includeUUIDCustomFields,
+        uuidTypeField: includeUUIDType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -425,6 +433,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
+    includeUUIDType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -442,6 +451,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         uuidFields: includeUUIDFields,
         uuidCustomFields: includeUUIDCustomFields,
+        uuidTypeField: includeUUIDType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -473,6 +483,7 @@ public extension PubNubObjC {
     includeCustom: Bool,
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
+    includeUUIDType: Bool,
     onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -488,6 +499,7 @@ public extension PubNubObjC {
         customFields: includeCustom,
         uuidFields: includeUUIDFields,
         uuidCustomFields: includeUUIDCustomFields,
+        uuidTypeField: includeUUIDType,
         totalCount: includeCount
       ),
       filter: filter,

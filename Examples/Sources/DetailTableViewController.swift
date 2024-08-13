@@ -11,7 +11,7 @@
 import Foundation
 import UIKit
 
-import PubNub
+import PubNubSDK
 import PubNubMembership
 import PubNubSpace
 import PubNubUser

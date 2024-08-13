@@ -10,7 +10,7 @@
 
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 final class SubscribeRouterTests: XCTestCase {
   let config = PubNubConfiguration(

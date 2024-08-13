@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 public extension PubNubUser {
   /// Object that can be used to apply an update to another User

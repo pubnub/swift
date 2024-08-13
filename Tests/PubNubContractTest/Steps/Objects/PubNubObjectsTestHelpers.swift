@@ -9,7 +9,7 @@
 //
 
 import Foundation
-import PubNub
+import PubNubSDK
 
 extension PubNubContractTestCase {
   /// Use entity name to compose path on JSON with it's representation.

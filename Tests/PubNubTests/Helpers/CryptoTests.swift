@@ -9,8 +9,9 @@
 //
 
 import CommonCrypto
-@testable import PubNub
 import XCTest
+
+@testable import PubNubSDK
 
 class CryptoTests: XCTestCase {
   func testEncryptDecrypt_Data() {

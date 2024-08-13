@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 /// A concrete representation of  a Space entity in PubNub
 public struct PubNubSpace {

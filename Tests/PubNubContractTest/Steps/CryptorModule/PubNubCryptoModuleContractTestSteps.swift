@@ -13,7 +13,7 @@ import Foundation
 import XCTest
 import CommonCrypto
 
-@testable import PubNub
+@testable import PubNubSDK
 
 public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   var cryptorKind: String!

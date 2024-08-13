@@ -10,7 +10,7 @@
 
 import Foundation
 
-@testable import PubNub
+@testable import PubNubSDK
 
 protocol ContractTestIdentifiable {
   var contractTestIdentifier: String { get }

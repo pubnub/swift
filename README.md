@@ -87,7 +87,7 @@ carthage update --use-xcframeworks
 
     ```swift
     import UIKit
-    import PubNub // <- Here is our PubNub module import.
+    import PubNubSDK // <- Here is our PubNub module import.
     ```
 
 1. Create and configure a PubNub object:

@@ -246,7 +246,7 @@ fileprivate extension SubscribeTransition {
         forCursor: cursor
       )
     )
-    
+
     if state is Subscribe.HandshakingState {
       let emitStatusInvocation = EffectInvocation.regular(
         Subscribe.Invocation.emitStatus(change: Subscribe.ConnectionStatusChange(
@@ -260,7 +260,7 @@ fileprivate extension SubscribeTransition {
         invocations: [messages.isEmpty ? nil : emitMessagesInvocation, emitStatusInvocation].compactMap { $0 }
       )
     }
-    
+
     return TransitionResult(
       state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: state.connectionStatus),
       invocations: [messages.isEmpty ? nil : emitMessagesInvocation].compactMap { $0 }

@@ -9,8 +9,7 @@
 //
 
 import UIKit
-
-import PubNub
+import PubNubSDK
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

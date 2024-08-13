@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 /// A concrete representation of  a User entity in PubNub
 public struct PubNubUser {

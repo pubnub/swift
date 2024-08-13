@@ -9,8 +9,7 @@
 //
 
 import UIKit
-
-import PubNub
+import PubNubSDK
 
 enum AlertMessageDirection: String {
   case upload = "Uploading"

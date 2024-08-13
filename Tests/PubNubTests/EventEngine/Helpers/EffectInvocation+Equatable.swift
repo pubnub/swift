@@ -10,7 +10,7 @@
 
 import Foundation
 
-@testable import PubNub
+@testable import PubNubSDK
 
 extension EffectInvocation: Equatable where Invocation: Equatable {
   public static func ==(lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {

@@ -27,7 +27,7 @@
 
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class SubscriptionSessionTests: XCTestCase {
   let config = PubNubConfiguration(

@@ -8,12 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import PubNub
-@testable import PubNubMembership
+import PubNubSDK
 import PubNubSpace
 import PubNubUser
-
 import XCTest
+
+@testable import PubNubMembership
 
 class PubNubMembershipModelTests: XCTestCase {
   let testMembership = PubNubMembership(

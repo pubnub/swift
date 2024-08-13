@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 fileprivate class MockListener: BaseSubscriptionListener {
   var onEmitMessagesCalled: ([SubscribeMessagePayload]) -> Void = { _ in }

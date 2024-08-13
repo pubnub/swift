@@ -9,7 +9,7 @@
 //
 
 import Foundation
-import PubNub
+import PubNubSDK
 
 /// Anything that needs to be executed once can be placed inside the init
 class TestSetup: NSObject {

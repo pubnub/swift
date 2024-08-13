@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 extension SubscribeState {
   func isEqual(to otherState: some SubscribeState) -> Bool {

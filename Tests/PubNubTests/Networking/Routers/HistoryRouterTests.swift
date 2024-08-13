@@ -9,7 +9,7 @@
 //
 // swiftlint:disable file_length
 
-@testable import PubNub
+@testable import PubNubSDK
 import XCTest
 
 final class HistoryRouterTests: XCTestCase {

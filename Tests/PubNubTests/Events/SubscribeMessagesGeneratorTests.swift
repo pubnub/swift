@@ -9,7 +9,7 @@
 //
 
 import Foundation
-@testable import PubNub
+@testable import PubNubSDK
 
 func mockMessagePayload(
   channel: String = "channel",

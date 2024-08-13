@@ -10,7 +10,7 @@
 
 import Cucumberish
 import Foundation
-import PubNub
+import PubNubSDK
 
 // Origin which should be used to reach mock server for contract testing.
 let mockServerAddress = "localhost:8090"

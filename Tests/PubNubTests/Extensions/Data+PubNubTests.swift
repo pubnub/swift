@@ -10,7 +10,7 @@
 
 import Foundation
 
-@testable import PubNub
+@testable import PubNubSDK
 import XCTest
 
 final class DataPubNubTests: XCTestCase {

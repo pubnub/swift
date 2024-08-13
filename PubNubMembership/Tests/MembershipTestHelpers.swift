@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 struct MembershipCustom: FlatJSONCodable, Hashable {
   var value: String?

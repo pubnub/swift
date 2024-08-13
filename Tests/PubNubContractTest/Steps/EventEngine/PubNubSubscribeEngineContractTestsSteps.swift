@@ -11,7 +11,7 @@
 import Cucumberish
 import Foundation
 
-@testable import PubNub
+@testable import PubNubSDK
 
 extension Subscribe.Invocation: ContractTestIdentifiable {
   var contractTestIdentifier: String {

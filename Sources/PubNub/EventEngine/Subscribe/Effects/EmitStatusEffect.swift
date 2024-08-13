@@ -11,16 +11,16 @@ import Foundation
 
 struct EmitStatusEffect: EffectHandler {
   let statusChange: Subscribe.ConnectionStatusChange
-  let listeners: [BaseSubscriptionListener]
+  let listeners: WeakSet<BaseSubscriptionListener>
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     if let error = statusChange.error {
       listeners.forEach {
-        $0.emit(subscribe: .errorReceived(error))
+        $0?.emit(subscribe: .errorReceived(error))
       }
     }
     listeners.forEach {
-      $0.emit(subscribe: .connectionChanged(statusChange.newStatus))
+      $0?.emit(subscribe: .connectionChanged(statusChange.newStatus))
     }
     completionBlock([])
   }

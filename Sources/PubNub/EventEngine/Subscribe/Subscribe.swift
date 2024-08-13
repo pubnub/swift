@@ -119,9 +119,12 @@ extension Subscribe {
 extension Subscribe {
   struct Dependencies {
     let configuration: PubNubConfiguration
-    let listeners: [BaseSubscriptionListener]
+    let listeners: WeakSet<BaseSubscriptionListener>
 
-    init(configuration: PubNubConfiguration, listeners: [BaseSubscriptionListener] = []) {
+    init(
+      configuration: PubNubConfiguration,
+      listeners: WeakSet<BaseSubscriptionListener> = WeakSet<BaseSubscriptionListener>([])
+    ) {
       self.configuration = configuration
       self.listeners = listeners
     }

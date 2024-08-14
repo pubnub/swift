@@ -206,7 +206,6 @@ class SubscriptionIntegrationTests: XCTestCase {
               firstSubscription = nil
               secondSubscription = nil
               pubnub.unsubscribe(from: [self.testChannel])
-              subscriptionSet?.unsubscribe()
               subscriptionSet = nil
             default:
               break

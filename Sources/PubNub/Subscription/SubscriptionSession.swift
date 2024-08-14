@@ -116,13 +116,13 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     withPresence: Bool = false,
     using pubnub: PubNub
   ) {
-    let channelSubscriptions = channels.compactMap {
+    let channelSubscriptions = Set(channels).compactMap {
       pubnub.channel($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
       )
     }
-    let channelGroupSubscriptions = groups.compactMap {
+    let channelGroupSubscriptions = Set(groups).compactMap {
       pubnub.channelGroup($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
@@ -299,7 +299,8 @@ extension SubscriptionSession {
     )
   }
 
-  // Returns an array of subscriptions that subscribe to at least one name in common with the given Subscription
+  // Returns an array of subscriptions, excluding the given subscription and the global listener,
+  // that subscribe to at least one name in common with the given subscription
   func matchingSubscriptions(for subscription: Subscription, presenceOnly: Bool) -> [SubscribeMessagesReceiver] {
     let allSubscriptions = strategy.listeners.compactMap {
       $0 as? BaseSubscriptionListenerAdapter
@@ -307,15 +308,14 @@ extension SubscriptionSession {
     let namesToFind = subscription.subscriptionNames.filter {
       presenceOnly ? $0.isPresenceChannelName : true
     }
-
-    return allSubscriptions.filter {
-      $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
-    }.compactMap {
-      $0.receiver
-    }.filter {
-      ($0.subscriptionTopology[subscription.subscriptionType] ?? [String]()).contains {
-        namesToFind.contains($0)
+    return allSubscriptions.compactMap {
+      if $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid {
+        return $0.receiver
+      } else {
+        return nil
       }
+    }.filter {
+      !(Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).intersection(namesToFind).isEmpty)
     }
   }
 
@@ -342,14 +342,7 @@ extension SubscriptionSession {
     }
 
     let channels = presenceItemsOnly ? [] : Set(subscriptions.filter {
-      matchingSubscriptions(
-        for: $0,
-        presenceOnly: false
-      ).isEmpty &&
-        matchingSubscriptions(
-          for: $0,
-          presenceOnly: true
-        ).isEmpty
+      matchingSubscriptions(for: $0, presenceOnly: false).isEmpty && matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
     }.flatMap {
       $0.subscriptionNames
     }).symmetricDifference(presenceItems.map {

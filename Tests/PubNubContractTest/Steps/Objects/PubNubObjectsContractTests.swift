@@ -10,7 +10,7 @@
 
 import Cucumberish
 import Foundation
-import PubNub
+import PubNubSDK
 
 @objc public class PubNubObjectsContractTests: PubNubContractTestCase {
   public static var membershipMetadata: [String: PubNubTestMembershipForAction?] = [:]

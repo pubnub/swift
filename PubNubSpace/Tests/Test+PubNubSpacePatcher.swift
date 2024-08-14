@@ -8,10 +8,10 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import PubNub
-@testable import PubNubSpace
-
+import PubNubSDK
 import XCTest
+
+@testable import PubNubSpace
 
 class PubNubSpacePatcherTests: XCTestCase {
   var testSpace = PubNubSpace(

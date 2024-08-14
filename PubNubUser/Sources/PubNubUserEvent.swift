@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 /// All the changes that can be received for User entities
 public enum PubNubUserEvent {

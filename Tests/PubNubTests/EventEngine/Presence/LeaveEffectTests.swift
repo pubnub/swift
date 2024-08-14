@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class LeaveEffectTests: XCTestCase {
   private var mockUrlSession: MockURLSession!

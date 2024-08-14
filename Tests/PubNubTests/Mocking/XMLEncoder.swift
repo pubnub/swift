@@ -10,7 +10,7 @@
 
 import Foundation
 
-@testable import PubNub
+@testable import PubNubSDK
 
 /// `XMLEncoder` facilitates the encoding of `Encodable` values into XML.
 class XMLEncoder {

@@ -140,25 +140,64 @@ fileprivate extension SubscribeTransition {
 
     if newInput.isEmpty {
       return setUnsubscribedState(from: state)
-    } else {
-      switch state {
-      case is Subscribe.HandshakingState:
-        return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
-      case is Subscribe.HandshakeStoppedState:
-        return TransitionResult(state: Subscribe.HandshakeStoppedState(input: newInput, cursor: cursor))
-      case is Subscribe.HandshakeFailedState:
-        return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
-      case is Subscribe.ReceivingState:
-        return TransitionResult(state: Subscribe.ReceivingState(input: newInput, cursor: cursor))
-      case is Subscribe.ReceiveStoppedState:
-        return TransitionResult(state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor))
-      case is Subscribe.ReceiveFailedState:
-        return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
-      case is Subscribe.UnsubscribedState:
-        return TransitionResult(state: Subscribe.HandshakingState(input: newInput, cursor: cursor))
-      default:
-        return TransitionResult(state: state)
-      }
+    }
+
+    let invocations: [EffectInvocation<Invocation>] = state is Subscribe.ReceivingState ? [
+      .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
+        oldStatus: state.connectionStatus,
+        newStatus: .subscriptionChanged(
+          channels: newInput.subscribedChannelNames,
+          groups: newInput.subscribedGroupNames
+        ),
+        error: nil
+      )))
+    ] : []
+
+    switch state {
+    case is Subscribe.HandshakingState:
+      return TransitionResult(
+        state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    case is Subscribe.HandshakeStoppedState:
+      return TransitionResult(
+        state: Subscribe.HandshakeStoppedState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    case is Subscribe.HandshakeFailedState:
+      return TransitionResult(
+        state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    case is Subscribe.ReceivingState:
+      let newStatus: ConnectionStatus = .subscriptionChanged(
+        channels: newInput.subscribedChannelNames,
+        groups: newInput.subscribedGroupNames
+      )
+      return TransitionResult(
+        state: Subscribe.ReceivingState(input: newInput, cursor: cursor, connectionStatus: newStatus),
+        invocations: invocations
+      )
+    case is Subscribe.ReceiveStoppedState:
+      return TransitionResult(
+        state: Subscribe.ReceiveStoppedState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    case is Subscribe.ReceiveFailedState:
+      return TransitionResult(
+        state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    case is Subscribe.UnsubscribedState:
+      return TransitionResult(
+        state: Subscribe.HandshakingState(input: newInput, cursor: cursor),
+        invocations: invocations
+      )
+    default:
+      return TransitionResult(
+        state: state,
+        invocations: invocations
+      )
     }
   }
 }
@@ -202,27 +241,30 @@ fileprivate extension SubscribeTransition {
     messages: [SubscribeMessagePayload] = []
   ) -> TransitionResult<State, Invocation> {
     let emitMessagesInvocation = EffectInvocation.managed(
-      Subscribe.Invocation.emitMessages(events: messages, forCursor: cursor)
-    )
-    let emitStatusInvocation = EffectInvocation.regular(
-      Subscribe.Invocation.emitStatus(change: Subscribe.ConnectionStatusChange(
-        oldStatus: state.connectionStatus,
-        newStatus: .connected,
-        error: nil
-      ))
+      Subscribe.Invocation.emitMessages(
+        events: messages,
+        forCursor: cursor
+      )
     )
 
     if state is Subscribe.HandshakingState {
+      let emitStatusInvocation = EffectInvocation.regular(
+        Subscribe.Invocation.emitStatus(change: Subscribe.ConnectionStatusChange(
+          oldStatus: state.connectionStatus,
+          newStatus: .connected,
+          error: nil
+        ))
+      )
       return TransitionResult(
-        state: Subscribe.ReceivingState(input: state.input, cursor: cursor),
+        state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: .connected),
         invocations: [messages.isEmpty ? nil : emitMessagesInvocation, emitStatusInvocation].compactMap { $0 }
       )
-    } else {
-      return TransitionResult(
-        state: Subscribe.ReceivingState(input: state.input, cursor: cursor),
-        invocations: [messages.isEmpty ? nil : emitMessagesInvocation].compactMap { $0 }
-      )
     }
+
+    return TransitionResult(
+      state: Subscribe.ReceivingState(input: state.input, cursor: cursor, connectionStatus: state.connectionStatus),
+      invocations: [messages.isEmpty ? nil : emitMessagesInvocation].compactMap { $0 }
+    )
   }
 }
 

@@ -8,7 +8,7 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNub
+@testable import PubNubSDK
 import XCTest
 
 // swiftlint:disable:next type_body_length

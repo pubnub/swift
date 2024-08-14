@@ -9,8 +9,9 @@
 //
 
 import Foundation
-@testable import PubNub
 import XCTest
+
+@testable import PubNubSDK
 
 final class SessionExpector {
   public var expectations = [XCTestExpectation]()

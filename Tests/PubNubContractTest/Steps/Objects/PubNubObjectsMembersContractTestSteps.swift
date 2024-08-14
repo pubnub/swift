@@ -10,7 +10,7 @@
 
 import Cucumberish
 import Foundation
-import PubNub
+import PubNubSDK
 import XCTest
 
 public class PubNubObjectsMembersContractTestSteps: PubNubObjectsContractTests {

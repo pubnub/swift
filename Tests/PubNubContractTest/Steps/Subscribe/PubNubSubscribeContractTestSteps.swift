@@ -10,7 +10,7 @@
 
 import Cucumberish
 import Foundation
-import PubNub
+import PubNubSDK
 
 public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
   fileprivate var cryptoModule: CryptoModule?

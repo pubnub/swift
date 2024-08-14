@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class DispatcherTests: XCTestCase {
   func testDispatcher_FinishingAnyInvocationNotifiesListener() {

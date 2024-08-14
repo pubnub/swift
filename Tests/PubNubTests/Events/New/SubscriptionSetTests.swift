@@ -9,7 +9,7 @@
 //
 
 import XCTest
-@testable import PubNub
+@testable import PubNubSDK
 
 class SubscriptionSetTests: XCTestCase {
   private let pubnub = PubNub(

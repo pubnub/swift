@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 /// Protocol interface to manage `PubNubSpace` entities using closures
 public protocol PubNubSpaceInterface {

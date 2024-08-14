@@ -142,7 +142,6 @@ extension Subscription: SubscribeCapable {
     let channels = subscriptionType == .channel ? [self] : []
     let channelGroups = subscriptionType == .channelGroup ? [self] : []
 
-    pubnub.registerAdapter(adapter)
     pubnub.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
   }
 

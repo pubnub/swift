@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 fileprivate class MockListener: BaseSubscriptionListener {
   var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
@@ -39,14 +39,16 @@ class EmitStatusTests: XCTestCase {
     expectation.expectedFulfillmentCount = listeners.count
     expectation.assertForOverFulfill = true
     
-    let effect = EmitStatusEffect(
-      statusChange: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .connected,
-        error: nil
-      ),
-      listeners: listeners
+    let testedStatusChange = Subscribe.ConnectionStatusChange(
+      oldStatus: .disconnected,
+      newStatus: .connected,
+      error: nil
     )
+    let effect = EmitStatusEffect(
+      statusChange: testedStatusChange,
+      listeners: WeakSet(listeners)
+    )
+    
     listeners.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
@@ -74,14 +76,16 @@ class EmitStatusTests: XCTestCase {
     errorExpectation.expectedFulfillmentCount = listeners.count
     errorExpectation.assertForOverFulfill = true
     
-    let effect = EmitStatusEffect(
-      statusChange: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .connected,
-        error: PubNubError(.unknown)
-      ),
-      listeners: listeners
+    let testedStatusChange = Subscribe.ConnectionStatusChange(
+      oldStatus: .disconnected,
+      newStatus: .connected,
+      error: PubNubError(.unknown)
     )
+    let effect = EmitStatusEffect(
+      statusChange: testedStatusChange,
+      listeners: WeakSet(listeners)
+    )
+    
     listeners.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {

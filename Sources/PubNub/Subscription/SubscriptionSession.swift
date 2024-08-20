@@ -315,7 +315,7 @@ extension SubscriptionSession {
         return nil
       }
     }.filter {
-      !(Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).intersection(namesToFind).isEmpty)
+      !(Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: namesToFind))
     }
   }
 

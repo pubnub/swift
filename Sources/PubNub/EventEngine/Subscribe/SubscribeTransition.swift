@@ -30,7 +30,7 @@ class SubscribeTransition: TransitionProtocol {
     case .subscriptionRestored:
       return true
     case .unsubscribeAll:
-      return true
+      return !(state is Subscribe.UnsubscribedState)
     case .disconnect:
       return !(
         state is Subscribe.HandshakeStoppedState || state is Subscribe.ReceiveStoppedState ||

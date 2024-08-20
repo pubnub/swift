@@ -28,7 +28,7 @@ public class StatusListener: StatusListenerInterface {
   public let queue: DispatchQueue
   public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
 
-  init(
+  public init(
     uuid: UUID = UUID(),
     queue: DispatchQueue = .main,
     onConnectionStateChange: @escaping ((ConnectionStatus) -> Void)
@@ -80,7 +80,7 @@ public class EventListener: EventListenerInterface {
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
 
-  init(
+  public init(
     queue: DispatchQueue = .main,
     uuid: UUID = UUID(),
     onEvent: ((PubNubEvent) -> Void)? = nil,

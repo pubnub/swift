@@ -173,7 +173,6 @@ extension SubscriptionSet: SubscribeCapable {
       return
     }
     pubnub.registerAdapter(adapter)
-    currentSubscriptions.forEach { pubnub.registerAdapter($0.adapter) }
 
     let channels = currentSubscriptions.filter {
       $0.subscriptionType == .channel
@@ -200,6 +199,7 @@ extension SubscriptionSet: SubscribeCapable {
     guard let pubnub = currentSubscriptions.first?.pubnub, !isDisposed else {
       return
     }
+    pubnub.subscription.remove(adapter)
     pubnub.internalUnsubscribe(
       from: currentSubscriptions.filter { $0.subscriptionType == .channel },
       and: currentSubscriptions.filter { $0.subscriptionType == .channelGroup },

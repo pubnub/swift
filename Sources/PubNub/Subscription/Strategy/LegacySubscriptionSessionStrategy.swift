@@ -73,7 +73,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     presenceSession: SessionReplaceable
   ) {
     self.configuration = configuration
-    var mutableSession = subscribeSession
 
     filterExpression = configuration.filterExpression
     nonSubscribeSession = presenceSession
@@ -82,21 +81,9 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     sessionStream = SessionListener(queue: responseQueue)
 
     // Add listener to session
+    var mutableSession = subscribeSession
     mutableSession.sessionStream = sessionStream
     longPollingSession = mutableSession
-
-    sessionStream.didRetryRequest = { [weak self] _ in
-      self?.connectionStatus = .reconnecting
-    }
-
-    sessionStream.sessionDidReceiveChallenge = { [weak self] _, _ in
-      if self?.connectionStatus == .reconnecting {
-        // Delay time for server to process connection after TLS handshake
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.05) {
-          self?.connectionStatus = .connected
-        }
-      }
-    }
   }
 
   deinit {
@@ -130,7 +117,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   /// - parameter timetoken: The timetoken to subscribe with
   func reconnect(at cursor: SubscribeCursor? = nil) {
     if !connectionStatus.isActive {
-      connectionStatus = .connecting
       // Start subscribe loop
       performSubscribeLoop(at: cursor)
       // Start presence heartbeat

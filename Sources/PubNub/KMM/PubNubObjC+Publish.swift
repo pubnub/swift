@@ -12,6 +12,24 @@ import Foundation
 
 // MARK: - Publish
 
+extension PubNubObjC {
+  private func asOptionalCodable(_ object: Any?) -> JSONCodable? {
+    if let object {
+      return asCodable(object)
+    } else {
+      return nil
+    }
+  }
+
+  private func asCodable(_ object: Any) -> JSONCodable {
+    if let codableValue = object as? JSONCodable {
+      return codableValue
+    } else {
+      return AnyJSON(object)
+    }
+  }
+}
+
 @objc
 public extension PubNubObjC {
   func publish(
@@ -23,17 +41,12 @@ public extension PubNubObjC {
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    let metadata: AnyJSON? = if let meta = meta {
-      AnyJSON(meta)
-    } else {
-      nil
-    }
     pubnub.publish(
       channel: channel,
-      message: AnyJSON(message),
+      message: asCodable(message),
       shouldStore: shouldStore?.boolValue,
       storeTTL: shouldStore?.intValue,
-      meta: metadata
+      meta: asOptionalCodable(meta)
     ) {
       switch $0 {
       case .success(let timetoken):
@@ -55,7 +68,7 @@ public extension PubNubObjC {
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.signal(channel: channel, message: AnyJSON(message)) {
+    pubnub.signal(channel: channel, message: asCodable(message)) {
       switch $0 {
       case .success(let timetoken):
         onSuccess(timetoken)

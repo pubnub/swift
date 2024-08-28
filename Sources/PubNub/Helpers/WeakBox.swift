@@ -29,31 +29,37 @@ final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashab
 }
 
 struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
-  private var elements: Set<WeakBox<Element>> = []
+  private var elements: LockIsolated<Set<WeakBox<Element>>> = .init([])
 
-  init(_ elements: [Element]) {
-    elements.forEach { self.elements.update(with: WeakBox($0)) }
+  init(_ newElements: [Element]) {
+    self.elements.withValue({ [newElements] elements in
+      newElements.forEach { elements.update(with: WeakBox($0)) }
+    })
   }
 
   // NSSet Operations
   var allObjects: [Element] {
-    return elements.compactMap { $0.underlying }
+    return self.elements.value.compactMap { $0.underlying }
   }
 
   var count: Int {
-    return self.elements.count
+    return self.elements.value.count
   }
 
   mutating func update(_ element: Element) {
-    elements.update(with: WeakBox(element))
+    self.elements.withValue({ [element] in
+      $0.update(with: WeakBox(element))
+    })
   }
 
   mutating func remove(_ element: Element) {
-    elements.remove(WeakBox(element))
+    self.elements.withValue({ [element] in
+      $0.remove(WeakBox(element))
+    })
   }
 
   mutating func removeAll() {
-    elements.removeAll()
+    self.elements.setValue(Set<WeakBox<Element>>())
   }
 }
 
@@ -62,10 +68,10 @@ extension WeakSet: Collection {
   var endIndex: Set<WeakBox<Element>>.Index { return elements.endIndex }
 
   subscript(position: Set<WeakBox<Element>>.Index) -> Element? {
-    return elements[position].underlying
+    return elements.value[position].underlying
   }
 
   func index(after index: Set<WeakBox<Element>>.Index) -> Set<WeakBox<Element>>.Index {
-    return elements.index(after: index)
+    return elements.value.index(after: index)
   }
 }

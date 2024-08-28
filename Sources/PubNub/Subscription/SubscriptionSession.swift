@@ -64,7 +64,7 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     return statusListener
   }()
 
-  private var globalChannelSubscriptions: [String: Subscription] = [:]
+  private var globalChannelSubscriptions: LockIsolated<[String: Subscription]> = .init([:])
   private var globalGroupSubscriptions: [String: Subscription] = [:]
   private let strategy: any SubscriptionSessionStrategy
 
@@ -126,8 +126,10 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       at: cursor?.timetoken
     )
     for subscription in channelSubscriptions {
-      subscription.subscriptionNames.compactMap { $0 }.forEach {
-        globalChannelSubscriptions[$0] = subscription
+      subscription.subscriptionNames.compactMap { $0 }.forEach { sub in
+        globalChannelSubscriptions.withValue { [sub] globalSubs in
+          globalSubs[sub] = subscription
+        }
       }
     }
     for subscription in channelGroupSubscriptions {
@@ -163,12 +165,14 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
     }
     internalUnsubscribe(
-      from: globalChannelSubscriptions.compactMap { channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
+      from: globalChannelSubscriptions.value.compactMap { channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
       and: globalGroupSubscriptions.compactMap { groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
       presenceOnly: presenceOnly
     )
-    channelNamesToUnsubscribe.forEach {
-      globalChannelSubscriptions.removeValue(forKey: $0)
+    channelNamesToUnsubscribe.forEach { key in
+      globalChannelSubscriptions.withValue { globalSubs in
+        globalSubs.removeValue(forKey: key)
+      }
     }
     groupNamesToUnsubscribe.forEach {
       globalGroupSubscriptions.removeValue(forKey: $0)

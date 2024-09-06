@@ -27,6 +27,12 @@ public class PubNubSubscriptionObjC: NSObject {
     self.subscription = Subscription(entity: entity.entity)
     self.receivePresenceEvents = receivePresenceEvents
   }
+  
+  @objc
+  public init(entity: PubNubEntityRepresentableObjC) {
+    self.subscription = Subscription(entity: entity.entity)
+    self.receivePresenceEvents = false
+  }
 
   @objc
   public func dispose() {

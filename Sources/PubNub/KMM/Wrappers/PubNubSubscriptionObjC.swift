@@ -13,6 +13,7 @@ import Foundation
 @objc
 public class PubNubSubscriptionObjC: NSObject {
   let subscription: Subscription
+  let receivePresenceEvents: Bool
 
   @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
   @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
@@ -22,8 +23,9 @@ public class PubNubSubscriptionObjC: NSObject {
   @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
 
   @objc
-  public init(entity: PubNubEntityRepresentableObjC) {
+  public init(entity: PubNubEntityRepresentableObjC, receivePresenceEvents: Bool) {
     self.subscription = Subscription(entity: entity.entity)
+    self.receivePresenceEvents = receivePresenceEvents
   }
 
   @objc
@@ -80,7 +82,10 @@ public class PubNubSubscriptionObjC: NSObject {
 
   @objc
   public func append(subscription: PubNubSubscriptionObjC) -> PubNubSubscriptionSetObjC {
-    let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
+    let underlyingSubscription = Subscription(
+      entity: subscription.subscription.entity,
+      options: receivePresenceEvents ? ReceivePresenceEvents() : .empty()
+    )
 
     underlyingSubscription.onMessage = {
       subscription.onMessage?(PubNubMessageObjC(message: $0))

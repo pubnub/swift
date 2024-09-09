@@ -22,7 +22,7 @@ import Foundation
 
 @objc
 public class AnyJSONObjC: NSObject {
-  let value: AnyJSON
+  public let value: AnyJSON
 
   @objc
   public init(_ value: Any?) {

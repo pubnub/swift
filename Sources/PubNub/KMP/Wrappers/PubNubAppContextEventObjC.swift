@@ -166,7 +166,7 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
-  
+
   @objc public var hasName: Bool = false
   @objc public var hasDescr: Bool = false
   @objc public var hasCustom: Bool = false
@@ -242,7 +242,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
-  
+
   @objc public var hasName: Bool = false
   @objc public var hasExternalId: Bool = false
   @objc public var hasProfileUrl: Bool = false

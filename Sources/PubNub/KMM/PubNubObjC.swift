@@ -35,7 +35,6 @@ public class PubNubObjC: NSObject {
     self.configObjC = PubNubConfigurationObjC(configuration: self.pubnub.configuration)
     super.init()
   }
-
 }
 
 // MARK: - Token

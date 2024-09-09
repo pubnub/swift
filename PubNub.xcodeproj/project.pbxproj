@@ -2313,8 +2313,8 @@
 				3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */,
 				3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */,
 				3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */,
-				3D7411A12C171F20002267B8 /* Helpers */,
 				3D339C772BFF826500197342 /* Wrappers */,
+				3D7411A12C171F20002267B8 /* Helpers */,
 			);
 			path = KMP;
 			sourceTree = "<group>";
@@ -2625,7 +2625,6 @@
 				3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */,
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
-				3DA0C7C52BFDF508000FFE6C /* KMP */,
 				3D8BAC0E2B8C96A40059A5C3 /* DependencyContainer */,
 				3D389FC12B35AF4A006928E7 /* EventEngine */,
 				35B0ACE4252BE37C00537A18 /* APIs */,
@@ -2638,6 +2637,7 @@
 				35F0259222BBE68B007BD7D3 /* Extensions */,
 				3556E36E24802392004FDC25 /* Property Wrappers */,
 				355BE9F922C28C29000EC334 /* Helpers */,
+				3DA0C7C52BFDF508000FFE6C /* KMP */,
 				35EA73F722B199EA00D97BF0 /* Supporting Files */,
 			);
 			name = Sources;

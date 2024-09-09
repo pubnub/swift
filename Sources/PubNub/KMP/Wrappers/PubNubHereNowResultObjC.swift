@@ -10,6 +10,8 @@
 
 import Foundation
 
+/// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
+///
 /// All public symbols in this file that are annotated with @objc are intended to allow interoperation
 /// with Kotlin Multiplatform for other PubNub frameworks.
 ///

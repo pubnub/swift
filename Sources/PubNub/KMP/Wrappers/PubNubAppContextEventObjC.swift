@@ -166,6 +166,12 @@ public class PubNubChannelMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
+  
+  @objc public var hasName: Bool = false
+  @objc public var hasDescr: Bool = false
+  @objc public var hasCustom: Bool = false
+  @objc public var hasType: Bool = false
+  @objc public var hasStatus: Bool = false
 
   init(changeset: PubNubChannelMetadataChangeset) {
     self.id = changeset.metadataId
@@ -178,20 +184,26 @@ public class PubNubChannelMetadataObjC: NSObject {
         switch keyPath {
         case \.name:
           self.name = value
+          self.hasName = true
         case \.type:
           self.type = value
+          self.hasType = true
         case \.status:
           self.status = value
+          self.hasStatus = true
         case \.channelDescription:
           self.descr = value
+          self.hasDescr = true
         default:
           break
         }
       case .customOptional(_, let value):
         if let value {
           self.custom = value.asObjCRepresentable()
+          self.hasCustom = true
         } else {
           self.custom = nil
+          self.hasCustom = true
         }
       }
     }
@@ -230,6 +242,14 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc public var eTag: String?
   @objc public var type: String?
   @objc public var status: String?
+  
+  @objc public var hasName: Bool = false
+  @objc public var hasExternalId: Bool = false
+  @objc public var hasProfileUrl: Bool = false
+  @objc public var hasEmail: Bool = false
+  @objc public var hasCustom: Bool = false
+  @objc public var hasType: Bool = false
+  @objc public var hasStatus: Bool = false
 
   @objc
   public init(
@@ -254,24 +274,32 @@ public class PubNubUUIDMetadataObjC: NSObject {
         switch keyPath {
         case \.name:
           self.name = value
+          self.hasName = true
         case \.type:
           self.type = value
+          self.hasType = true
         case \.status:
           self.status = value
+          self.hasStatus = true
         case \.externalId:
           self.externalId = value
+          self.hasExternalId = true
         case \.profileURL:
           self.profileUrl = value
+          self.hasProfileUrl = true
         case \.email:
           self.email = value
+          self.hasEmail = true
         default:
           break
         }
       case .customOptional(_, let value):
         if let value {
           self.custom = value.asObjCRepresentable()
+          self.hasCustom = true
         } else {
           self.custom = nil
+          self.hasCustom = true
         }
       }
     }

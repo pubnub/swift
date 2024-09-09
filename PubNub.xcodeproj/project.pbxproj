@@ -451,7 +451,6 @@
 		3DA24A412C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */; };
 		3DA24A432C2AAB54005B959B /* PubNubObjC+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */; };
 		3DA24A452C2AABC0005B959B /* PubNubObjC+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */; };
-		3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DB2C4872C0F4B250060B8CF /* PubNubStatusListenerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */; };
 		3DB9255C2B7A2B89001B7E90 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */; };
@@ -505,9 +504,8 @@
 		79407C01271D519F0032076C /* Features in Resources */ = {isa = PBXBuildFile; fileRef = 79407BFF271D519F0032076C /* Features */; };
 		7941EEA9270E433F0054D9EF /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
-		79657AA3271A13F700BACEC5 /* PubNub.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNub.framework */; platformFilter = ios; };
-		84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
+		84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -1074,7 +1072,6 @@
 		3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+ChannelGroups.swift"; sourceTree = "<group>"; };
 		3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+AppContext.swift"; sourceTree = "<group>"; };
 		3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Files.swift"; sourceTree = "<group>"; };
-		3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionListenersContainer.swift; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubStatusListenerObjC.swift; sourceTree = "<group>"; };
 		3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
@@ -2301,7 +2298,7 @@
 			path = Push;
 			sourceTree = "<group>";
 		};
-		3DA0C7C52BFDF508000FFE6C /* KMM */ = {
+		3DA0C7C52BFDF508000FFE6C /* KMP */ = {
 			isa = PBXGroup;
 			children = (
 				3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */,
@@ -2319,7 +2316,7 @@
 				3D7411A12C171F20002267B8 /* Helpers */,
 				3D339C772BFF826500197342 /* Wrappers */,
 			);
-			path = KMM;
+			path = KMP;
 			sourceTree = "<group>";
 		};
 		3DB925572B7A2B89001B7E90 /* Old */ = {
@@ -2628,7 +2625,7 @@
 				3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */,
 				OBJ_11 /* PubNub.swift */,
 				359152A022BA9AA30048842D /* PubNubConfiguration.swift */,
-				3DA0C7C52BFDF508000FFE6C /* KMM */,
+				3DA0C7C52BFDF508000FFE6C /* KMP */,
 				3D8BAC0E2B8C96A40059A5C3 /* DependencyContainer */,
 				3D389FC12B35AF4A006928E7 /* EventEngine */,
 				35B0ACE4252BE37C00537A18 /* APIs */,

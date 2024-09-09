@@ -10,6 +10,14 @@
 
 import Foundation
 
+/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
+/// with Kotlin Multiplatform for other PubNub frameworks.
+///
+/// While these symbols are public, they are intended strictly for internal usage.
+  
+/// External developers should refrain from directly using these symbols in their code, as their implementation details
+/// may change in future versions of the framework, potentially leading to breaking changes.
+
 @objc
 public class PubNubFileChangeEventObjC: NSObject {
   @objc public let channel: String

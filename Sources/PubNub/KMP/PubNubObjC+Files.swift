@@ -14,7 +14,7 @@ import Foundation
 /// with Kotlin Multiplatform for other PubNub frameworks.
 ///
 /// While these symbols are public, they are intended strictly for internal usage.
-  
+
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 

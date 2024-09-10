@@ -7,16 +7,15 @@
 //  This source code is licensed under the license found in the
 //  LICENSE file in the root directory of this source tree.
 //
+// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
+//
+// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
+// While these symbols are public, they are intended strictly for internal usage.
+//
+// External developers should refrain from directly using these symbols in their code, as their implementation details
+// may change in future versions of the framework, potentially leading to breaking changes.
 
 import Foundation
-
-/// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
-///
-/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
-/// While these symbols are public, they are intended strictly for internal usage.
-///
-/// External developers should refrain from directly using these symbols in their code, as their implementation details
-/// may change in future versions of the framework, potentially leading to breaking changes.
 
 // MARK: - KMPAppContextEventResult
 
@@ -32,6 +31,7 @@ public class KMPAppContextEventResult: NSObject {
   @objc public let event: String
   @objc public let type: String
 
+  // swiftlint:disable todo
   // TODO: These parameters are not retrieved from Swift SDK
 
   init(
@@ -55,6 +55,8 @@ public class KMPAppContextEventResult: NSObject {
     self.userMetadata = if let metadata = userMetadata { KMPAnyJSON(metadata.codableValue) } else { nil }
     self.publisher = publisher
   }
+
+  // swiftlint:enable todo
 }
 
 // MARK: - KMPSetUUIDMetadataResult

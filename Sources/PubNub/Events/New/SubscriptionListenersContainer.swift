@@ -13,7 +13,7 @@ import Foundation
 class SubscriptionListenersContainer {
   private let eventListenersCache: Atomic<[UUID: EventListener]> = Atomic([:])
   private let statusListenersCache: Atomic<[UUID: StatusListener]> = Atomic([:])
-  
+
   var eventListeners: [EventListener] {
     eventListenersCache.lockedRead { $0.values.compactMap { $0 } }
   }

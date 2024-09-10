@@ -7,16 +7,15 @@
 //  This source code is licensed under the license found in the
 //  LICENSE file in the root directory of this source tree.
 //
+// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
+//
+// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
+// While these symbols are public, they are intended strictly for internal usage.
+//
+// External developers should refrain from directly using these symbols in their code, as their implementation details
+// may change in future versions of the framework, potentially leading to breaking changes.
 
 import Foundation
-
-/// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
-///
-/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
-/// While these symbols are public, they are intended strictly for internal usage.
-///
-/// External developers should refrain from directly using these symbols in their code, as their implementation details
-/// may change in future versions of the framework, potentially leading to breaking changes.
 
 extension KMPPubNub {
   var defaultFileDownloadPath: URL {
@@ -97,6 +96,7 @@ public extension KMPPubNub {
     }
   }
 
+  // swiftlint:disable todo
   // TODO: Missing contentType and fileSize from KMP which are required in Swift SDK
 
   func publishFileMessage(
@@ -143,6 +143,8 @@ public extension KMPPubNub {
       }
     }
   }
+
+  // swiftlint:enable todo
 
   func downloadFile(
     channel: String,

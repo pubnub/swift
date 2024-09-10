@@ -68,7 +68,7 @@ class ReceivingEffect: EffectHandler {
 
 private class SubscribeEffect: EffectHandler {
   let request: SubscribeRequest
-  let listeners: WeakSet<BaseSubscriptionListener>
+  let subscriptions: WeakSet<BaseSubscriptionListener>
   let onResponseReceived: (SubscribeResponse) -> Subscribe.Event
   let onErrorReceived: (PubNubError) -> Subscribe.Event
 
@@ -79,7 +79,7 @@ private class SubscribeEffect: EffectHandler {
     onErrorReceived: @escaping ((PubNubError) -> Subscribe.Event)
   ) {
     self.request = request
-    self.listeners = listeners
+    self.subscriptions = listeners
     self.onResponseReceived = onResponseReceived
     self.onErrorReceived = onErrorReceived
   }
@@ -89,7 +89,7 @@ private class SubscribeEffect: EffectHandler {
       guard let selfRef = self else { return }
       switch $0 {
       case .success(let response):
-        selfRef.listeners.forEach {
+        selfRef.subscriptions.forEach {
           $0?.emit(subscribe: .responseReceived(
             SubscribeResponseHeader(
               channels: selfRef.request.channels.map { PubNubChannel(channel: $0) },

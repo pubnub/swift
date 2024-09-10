@@ -43,7 +43,7 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           timetoken: 0,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        ), listeners: dependencies.value.listeners
+        ), listeners: dependencies.value.subscriptions
       )
     case let .receiveMessages(channels, groups, cursor):
       return ReceivingEffect(
@@ -56,19 +56,19 @@ class SubscribeEffectFactory: EffectHandlerFactory {
           region: cursor.region,
           session: session,
           sessionResponseQueue: sessionResponseQueue
-        ), listeners: dependencies.value.listeners
+        ), listeners: dependencies.value.subscriptions
       )
     case let .emitMessages(messages, cursor):
       return EmitMessagesEffect(
         messages: messages,
         cursor: cursor,
-        listeners: dependencies.value.listeners,
+        subscriptions: dependencies.value.subscriptions,
         messageCache: messageCache
       )
     case let .emitStatus(statusChange):
       return EmitStatusEffect(
         statusChange: statusChange,
-        listeners: dependencies.value.listeners
+        subscriptions: dependencies.value.subscriptions
       )
     }
   }

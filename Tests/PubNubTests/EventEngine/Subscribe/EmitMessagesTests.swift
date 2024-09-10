@@ -26,22 +26,22 @@ fileprivate class MockListener: BaseSubscriptionListener {
 }
 
 class EmitMessagesTests: XCTestCase {
-  private var listeners: [MockListener] = []
+  private var subscriptions: [MockListener] = []
   
   override func setUp() {
-    listeners = (0...2).map { _ in MockListener() }
+    subscriptions = (0...2).map { _ in MockListener() }
     super.setUp()
   }
   
   override func tearDown() {
-    listeners = []
+    subscriptions = []
     super.tearDown()
   }
   
   func testListener_WithMessage() {
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
-    expectation.expectedFulfillmentCount = listeners.count
+    expectation.expectedFulfillmentCount = subscriptions.count
     
     let messages = [
       testMessage,
@@ -54,11 +54,11 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: messages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: WeakSet(listeners),
+      subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
     
-    listeners.forEach {
+    subscriptions.forEach {
       $0.onEmitMessagesCalled = { receivedMessages in
         XCTAssertTrue(receivedMessages.map { $0.messageType } == messages.map { $0.messageType })
         expectation.fulfill()
@@ -75,7 +75,7 @@ class EmitMessagesTests: XCTestCase {
   func testListener_MessageCountExceededMaximum() {
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
-    expectation.expectedFulfillmentCount = listeners.count
+    expectation.expectedFulfillmentCount = subscriptions.count
     
     let generatedMessages = (1...100).map {
       generateMessage(
@@ -86,11 +86,11 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: WeakSet(listeners),
+      subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
     
-    listeners.forEach() {
+    subscriptions.forEach() {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .errorReceived(error) = event {
           XCTAssertTrue(error.reason == .messageCountExceededMaximum)
@@ -109,7 +109,7 @@ class EmitMessagesTests: XCTestCase {
   func testEffect_SkipsDuplicatedMessages() {
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
-    expectation.expectedFulfillmentCount = listeners.count
+    expectation.expectedFulfillmentCount = subscriptions.count
     
     let generatedMessages = (1...50).map { _ in
       generateMessage(
@@ -120,11 +120,11 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: WeakSet(listeners),
+      subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
     
-    listeners.forEach {
+    subscriptions.forEach {
       $0.onEmitMessagesCalled = { messages in
         XCTAssertTrue(messages.count == 1)
         XCTAssertTrue(messages[0].payload == "Hello, it's a message")
@@ -158,7 +158,7 @@ class EmitMessagesTests: XCTestCase {
     let effect = EmitMessagesEffect(
       messages: newMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
-      listeners: WeakSet(listeners),
+      subscriptions: WeakSet(subscriptions),
       messageCache: cache
     )
     

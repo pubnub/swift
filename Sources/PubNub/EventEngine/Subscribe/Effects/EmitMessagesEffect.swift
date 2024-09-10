@@ -37,13 +37,13 @@ class MessageCache {
 struct EmitMessagesEffect: EffectHandler {
   let messages: [SubscribeMessagePayload]
   let cursor: SubscribeCursor
-  let listeners: WeakSet<BaseSubscriptionListener>
+  let subscriptions: WeakSet<BaseSubscriptionListener>
   let messageCache: MessageCache
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     // Attempt to detect missed messages due to queue overflow
     if messages.count >= 100 {
-      listeners.forEach {
+      subscriptions.forEach {
         $0?.emit(subscribe: .errorReceived(
           PubNubError(
             .messageCountExceededMaximum,
@@ -67,7 +67,7 @@ struct EmitMessagesEffect: EffectHandler {
       return false
     }
 
-    listeners.forEach {
+    subscriptions.forEach {
       $0?.emit(batch: filteredMessages)
     }
 

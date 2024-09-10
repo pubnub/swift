@@ -31,8 +31,6 @@ extension KMPPubNub {
     )
   }
 
-  // TODO: Missing case for .subscriptionChanged
-
   func createStatusListener(from listener: KMPStatusListener) -> StatusListener {
     StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
@@ -79,8 +77,16 @@ extension KMPPubNub {
             affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
           )
         )
-      default:
-        break
+      case let .subscriptionChanged(channels, groups):
+        listener.onStatusChange?(
+          KMPConnectionStatus(
+            category: .subscriptionChanged,
+            error: nil,
+            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+            affectedChannels: Set(pubnub.subscribedChannels),
+            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          )
+        )
       }
     })
   }

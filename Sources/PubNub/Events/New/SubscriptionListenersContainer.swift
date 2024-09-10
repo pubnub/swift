@@ -11,38 +11,38 @@
 import Foundation
 
 class SubscriptionListenersContainer {
-  private var eventListenersCache: [UUID: EventListener] = [:]
-  private var statusListenersCache: [UUID: StatusListener] = [:]
-
+  private let eventListenersCache: Atomic<[UUID: EventListener]> = Atomic([:])
+  private let statusListenersCache: Atomic<[UUID: StatusListener]> = Atomic([:])
+  
   var eventListeners: [EventListener] {
-    eventListenersCache.values.compactMap { $0 }
+    eventListenersCache.lockedRead { $0.values.compactMap { $0 } }
   }
 
   var statusListeners: [StatusListener] {
-    statusListenersCache.values.compactMap { $0 }
+    statusListenersCache.lockedRead { $0.values.compactMap { $0 } }
   }
 
   func storeEventListener(_ eventListener: EventListener) {
-    eventListenersCache[eventListener.uuid] = eventListener
+    eventListenersCache.lockedWrite { $0[eventListener.uuid] = eventListener }
   }
 
   func storeStatusListener(_ statusListener: StatusListener) {
-    statusListenersCache[statusListener.uuid] = statusListener
+    statusListenersCache.lockedWrite { $0[statusListener.uuid] = statusListener }
   }
 
   func removeEventListener(with key: UUID) {
-    eventListenersCache[key] = nil
+    eventListenersCache.lockedWrite { $0[key] = nil }
   }
 
   func removeStatusListener(with key: UUID) {
-    statusListenersCache[key] = nil
+    statusListenersCache.lockedWrite { $0[key] = nil }
   }
 
   func removeAllEventListeners() {
-    eventListenersCache.removeAll()
+    eventListenersCache.lockedWrite { $0.removeAll() }
   }
 
   func removeAllStatusListeners() {
-    statusListenersCache.removeAll()
+    statusListenersCache.lockedWrite { $0.removeAll() }
   }
 }

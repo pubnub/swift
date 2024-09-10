@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+Subscribe.swift
+//  KMPPubNub+Subscribe.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,18 +12,16 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 // MARK: - Subscribed channels & channel groups
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   var subscribedChannels: [String] {
     pubnub.subscribedChannels
   }
@@ -36,7 +34,7 @@ public extension PubNubObjC {
 // MARK: - Subscribe & Unsubscribe
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func subscribe(
     channels: [String],
     channelGroups: [String],

@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+History.swift
+//  KMPPubNub+History.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,24 +12,22 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func fetchMessages(
     from channels: [String],
     includeUUID: Bool,
     includeMeta: Bool,
     includeMessageActions: Bool,
     includeMessageType: Bool,
-    page: PubNubBoundedPageObjC?,
-    onSuccess: @escaping ((PubNubFetchMessagesResultObjC)) -> Void,
+    page: KMPBoundedPage?,
+    onSuccess: @escaping ((KMPFetchMessagesResult)) -> Void,
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMessageHistory(
@@ -46,12 +44,12 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let response):
-        onSuccess(PubNubFetchMessagesResultObjC(
-          messages: response.messagesByChannel.mapValues { $0.map { PubNubMessageObjC(message: $0) } },
-          page: PubNubBoundedPageObjC(page: response.next)
+        onSuccess(KMPFetchMessagesResult(
+          messages: response.messagesByChannel.mapValues { $0.map { KMPMessage(message: $0) } },
+          page: KMPBoundedPage(page: response.next)
         ))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -81,7 +79,7 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -101,7 +99,7 @@ public extension PubNubObjC {
       case .success(let response):
         onSuccess(response.mapValues { UInt64($0) })
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }

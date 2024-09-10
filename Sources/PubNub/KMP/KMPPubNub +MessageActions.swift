@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+MessageActions.swift
+//  KMPPubNub+MessageActions.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,24 +12,22 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 // MARK: - Message Actions
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func addMessageAction(
     channel: String,
     actionType: String,
     actionValue: String,
     messageTimetoken: Timetoken,
-    onSuccess: @escaping ((PubNubMessageActionObjC) -> Void),
+    onSuccess: @escaping ((KMPMessageAction) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.addMessageAction(
@@ -40,9 +38,9 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let action):
-        onSuccess(PubNubMessageActionObjC(action: action))
+        onSuccess(KMPMessageAction(action: action))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -63,15 +61,15 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
 
   func getMessageActions(
     from channel: String,
-    page: PubNubBoundedPageObjC,
-    onSuccess: @escaping (([PubNubMessageActionObjC], PubNubBoundedPageObjC?) -> Void),
+    page: KMPBoundedPage,
+    onSuccess: @escaping (([KMPMessageAction], KMPBoundedPage?) -> Void),
     onFailure: @escaping ((Error)) -> Void
   ) {
     pubnub.fetchMessageActions(
@@ -84,9 +82,9 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let res):
-        onSuccess(res.actions.map { PubNubMessageActionObjC(action: $0) }, PubNubBoundedPageObjC(page: res.next))
+        onSuccess(res.actions.map { KMPMessageAction(action: $0) }, KMPBoundedPage(page: res.next))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }

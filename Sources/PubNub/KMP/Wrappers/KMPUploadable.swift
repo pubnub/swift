@@ -12,21 +12,19 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public class PubNubUploadableObjC: NSObject {
+public class KMPUploadable: NSObject {
 
 }
 
 @objc
-public class PubNubDataContentObjC: PubNubUploadableObjC {
+public class KMPDataUploadContent: KMPUploadable {
   @objc public let data: Data
   @objc public let contentType: String?
 
@@ -38,7 +36,7 @@ public class PubNubDataContentObjC: PubNubUploadableObjC {
 }
 
 @objc
-public class PubNubFileContentObjC: PubNubUploadableObjC {
+public class KMPFileUploadContent: KMPUploadable {
   @objc public let fileURL: URL
 
   @objc
@@ -48,7 +46,7 @@ public class PubNubFileContentObjC: PubNubUploadableObjC {
 }
 
 @objc
-public class PubNubInputStreamContentObjC: PubNubUploadableObjC {
+public class KMPInputStreamUploadContent: KMPUploadable {
   @objc public let stream: InputStream
   @objc public let contentType: String?
   @objc public let contentLength: Int

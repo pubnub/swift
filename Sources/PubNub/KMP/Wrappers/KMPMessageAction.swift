@@ -12,16 +12,14 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public class PubNubMessageActionObjC: NSObject {
+public class KMPMessageAction: NSObject {
   @objc public let event: String
   @objc public let actionType: String
   @objc public let actionValue: String

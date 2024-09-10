@@ -1,5 +1,5 @@
 //
-//  PubNubObjC.swift
+//  KMPPubNub.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,24 +12,22 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
-/// may change in future versions of the framework, potentially leading to breaking changes.
+/// may change in future versions of the framework, potentially leading to breaking changes..
 
 @objc
-public class PubNubObjC: NSObject {
+public class KMPPubNub: NSObject {
   let pubnub: PubNub
 
   @objc
-  public let configObjC: PubNubConfigurationObjC
+  public let configObjC: KMPPubNubConfiguration
 
   public init(pubnub: PubNub) {
     self.pubnub = pubnub
-    self.configObjC = PubNubConfigurationObjC(configuration: pubnub.configuration)
+    self.configObjC = KMPPubNubConfiguration(configuration: pubnub.configuration)
     super.init()
   }
 
@@ -42,7 +40,7 @@ public class PubNubObjC: NSObject {
         userId: user
       )
     )
-    self.configObjC = PubNubConfigurationObjC(configuration: self.pubnub.configuration)
+    self.configObjC = KMPPubNubConfiguration(configuration: self.pubnub.configuration)
     super.init()
   }
 }
@@ -50,7 +48,7 @@ public class PubNubObjC: NSObject {
 // MARK: - Token
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func set(token: String) {
     pubnub.set(token: token)
   }
@@ -59,7 +57,7 @@ public extension PubNubObjC {
 // MARK: - Disconnect
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func disconnect() {
     pubnub.disconnect()
   }
@@ -68,28 +66,28 @@ public extension PubNubObjC {
 // MARK: - Entities
 
 @objc
-public extension PubNubObjC {
-  func channel(with name: String) -> PubNubChannelEntityObjC {
-    PubNubChannelEntityObjC(channel: pubnub.channel(name))
+public extension KMPPubNub {
+  func channel(with name: String) -> KMPChannelEntity {
+    KMPChannelEntity(channel: pubnub.channel(name))
   }
 
-  func channelGroup(with name: String) -> PubNubChannelGroupEntityObjC {
-    PubNubChannelGroupEntityObjC(channelGroup: pubnub.channelGroup(name))
+  func channelGroup(with name: String) -> KMPChannelGroupEntity {
+    KMPChannelGroupEntity(channelGroup: pubnub.channelGroup(name))
   }
 
-  func userMetadata(with id: String) -> PubNubUserMetadataEntityObjC {
-    PubNubUserMetadataEntityObjC(userMetadata: pubnub.userMetadata(id))
+  func userMetadata(with id: String) -> KMPUserMetadataEntity {
+    KMPUserMetadataEntity(userMetadata: pubnub.userMetadata(id))
   }
 
-  func channelMetadata(with id: String) -> PubNubChannelMetadataEntityObjC {
-    PubNubChannelMetadataEntityObjC(channelMetadata: pubnub.channelMetadata(id))
+  func channelMetadata(with id: String) -> KMPChannelMetadataEntity {
+    KMPChannelMetadataEntity(channelMetadata: pubnub.channelMetadata(id))
   }
 }
 
 // MARK: - Configuration
 
 @objc
-public class PubNubConfigurationObjC: NSObject {
+public class KMPPubNubConfiguration: NSObject {
   let configuration: PubNubConfiguration
 
   public init(configuration: PubNubConfiguration) {

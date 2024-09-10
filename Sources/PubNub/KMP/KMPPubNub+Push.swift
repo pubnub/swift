@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+Push.swift
+//  KMPPubNub+Push.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,15 +12,13 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-extension PubNubObjC {
+extension KMPPubNub {
   func pushService(from rawString: String) -> PubNub.PushService? {
     switch rawString {
     case "gcm":
@@ -36,7 +34,7 @@ extension PubNubObjC {
 }
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func addChannelsToPushNotifications(
     channels: [String],
     deviceId: Data,
@@ -47,7 +45,7 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid pushType parameter"]
@@ -56,7 +54,7 @@ public extension PubNubObjC {
       return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid environment parameter"]
@@ -71,7 +69,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     } else {
@@ -80,7 +78,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     }
@@ -95,7 +93,7 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid pushType parameter"]
@@ -104,7 +102,7 @@ public extension PubNubObjC {
       return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid environment parameter"]
@@ -119,7 +117,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     } else {
@@ -128,7 +126,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     }
@@ -144,7 +142,7 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid pushType parameter"]
@@ -153,7 +151,7 @@ public extension PubNubObjC {
       return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid environment parameter"]
@@ -168,7 +166,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     } else {
@@ -177,7 +175,7 @@ public extension PubNubObjC {
         case .success(let channels):
           onSuccess(channels)
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     }
@@ -193,7 +191,7 @@ public extension PubNubObjC {
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let pushService = pushService(from: pushType) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid pushType parameter"]
@@ -202,7 +200,7 @@ public extension PubNubObjC {
       return
     }
     guard let environment = PubNub.PushEnvironment(rawValue: environment) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Invalid environment parameter"]
@@ -217,7 +215,7 @@ public extension PubNubObjC {
         case .success:
           onSuccess()
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     } else {
@@ -226,7 +224,7 @@ public extension PubNubObjC {
         case .success:
           onSuccess()
         case .failure(let error):
-          onFailure(PubNubErrorObjC(underlying: error))
+          onFailure(KMPError(underlying: error))
         }
       }
     }

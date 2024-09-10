@@ -12,27 +12,25 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public class PubNubFetchMessagesResultObjC: NSObject {
-  @objc public let messages: [String: [PubNubMessageObjC]]
-  @objc public let page: PubNubBoundedPageObjC?
+public class KMPFetchMessagesResult: NSObject {
+  @objc public let messages: [String: [KMPMessage]]
+  @objc public let page: KMPBoundedPage?
 
-  init(messages: [String: [PubNubMessageObjC]], page: PubNubBoundedPageObjC?) {
+  init(messages: [String: [KMPMessage]], page: KMPBoundedPage?) {
     self.messages = messages
     self.page = page
   }
 }
 
 @objc
-public class PubNubBoundedPageObjC: NSObject {
+public class KMPBoundedPage: NSObject {
   @objc public let start: NSNumber?
   @objc public let end: NSNumber?
   @objc public let limit: NSNumber?

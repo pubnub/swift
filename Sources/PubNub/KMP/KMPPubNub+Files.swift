@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+Files.swift
+//  KMPPubNub+Files.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,26 +12,24 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-extension PubNubObjC {
+extension KMPPubNub {
   var defaultFileDownloadPath: URL {
     FileManager.default.temporaryDirectory.appendingPathComponent("pubnub-chat-sdk")
   }
 
-  func convertUploadContent(from content: PubNubUploadableObjC) -> PubNub.FileUploadContent? {
+  func convertUploadContent(from content: KMPUploadable) -> PubNub.FileUploadContent? {
     switch content {
-    case let content as PubNubDataContentObjC:
+    case let content as KMPDataUploadContent:
       return .data(content.data, contentType: content.contentType)
-    case let content as PubNubFileContentObjC:
+    case let content as KMPFileUploadContent:
       return .file(url: content.fileURL)
-    case let content as PubNubInputStreamContentObjC:
+    case let content as KMPInputStreamUploadContent:
       return .stream(content.stream, contentType: content.contentType, contentLength: content.contentLength)
     default:
       return nil
@@ -40,12 +38,12 @@ extension PubNubObjC {
 }
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func listFiles(
     channel: String,
     limit: NSNumber?,
-    next: PubNubHashedPageObjC?,
-    onSuccess: @escaping (([PubNubFileObjC], String?) -> Void),
+    next: KMPHashedPage?,
+    onSuccess: @escaping (([KMPFile], String?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.listFiles(
@@ -55,9 +53,9 @@ public extension PubNubObjC {
     ) { [weak pubnub] in
       switch $0 {
       case .success(let res):
-        onSuccess(res.files.map { PubNubFileObjC(from: $0, url: pubnub?.generateFileDownloadURL(for: $0)) }, next?.end)
+        onSuccess(res.files.map { KMPFile(from: $0, url: pubnub?.generateFileDownloadURL(for: $0)) }, next?.end)
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -78,7 +76,7 @@ public extension PubNubObjC {
         ).absoluteString
       )
     } catch {
-      onFailure(PubNubErrorObjC(underlying: error))
+      onFailure(KMPError(underlying: error))
     }
   }
 
@@ -94,7 +92,7 @@ public extension PubNubObjC {
       case .success:
         onSuccess()
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -141,7 +139,7 @@ public extension PubNubObjC {
       case .success(let timetoken):
         onSuccess(timetoken)
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -150,7 +148,7 @@ public extension PubNubObjC {
     channel: String,
     fileName: String,
     fileId: String,
-    onSuccess: @escaping ((PubNubFileObjC) -> Void),
+    onSuccess: @escaping ((KMPFile) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     let fileBase = PubNubLocalFileBase(
@@ -161,9 +159,9 @@ public extension PubNubObjC {
     pubnub.download(file: fileBase, toFileURL: fileBase.fileURL) {
       switch $0 {
       case .success(let res):
-        onSuccess(PubNubFileObjC(from: res.file, url: res.file.fileURL))
+        onSuccess(KMPFile(from: res.file, url: res.file.fileURL))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -171,16 +169,16 @@ public extension PubNubObjC {
   func sendFile(
     channel: String,
     fileName: String,
-    content: PubNubUploadableObjC,
+    content: KMPUploadable,
     message: Any?,
     meta: Any?,
     ttl: NSNumber?,
     shouldStore: NSNumber?,
-    onSuccess: @escaping ((PubNubFileObjC, Timetoken) -> Void),
+    onSuccess: @escaping ((KMPFile, Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     guard let fileContent = convertUploadContent(from: content) else {
-      onFailure(PubNubErrorObjC(
+      onFailure(KMPError(
         underlying: PubNubError(
           .invalidArguments,
           additional: ["Cannot create expected PubNub.FileUploadContent"]
@@ -206,11 +204,11 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          PubNubFileObjC(from: res.file, url: pubnub?.generateFileDownloadURL(for: res.file)),
+          KMPFile(from: res.file, url: pubnub?.generateFileDownloadURL(for: res.file)),
           res.publishedAt
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }

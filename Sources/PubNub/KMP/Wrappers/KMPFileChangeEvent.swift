@@ -12,35 +12,33 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public class PubNubFileChangeEventObjC: NSObject {
+public class KMPFileChangeEvent: NSObject {
   @objc public let channel: String
   @objc public let timetoken: NSNumber?
   @objc public let publisher: String?
-  @objc public let message: AnyJSONObjC?
-  @objc public let metadata: AnyJSONObjC?
+  @objc public let message: KMPAnyJSON?
+  @objc public let metadata: KMPAnyJSON?
   @objc public let subscription: String?
-  @objc public let file: PubNubFileObjC
+  @objc public let file: KMPFile
 
-  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> PubNubFileChangeEventObjC {
+  static func from(event: PubNubFileChangeEvent, with pubnub: PubNub?) -> KMPFileChangeEvent {
     switch event {
     case .uploaded(let fileEvent):
-      return PubNubFileChangeEventObjC(
+      return KMPFileChangeEvent(
         channel: fileEvent.file.channel,
         timetoken: NSNumber(value: fileEvent.timetoken),
         publisher: fileEvent.publisher,
         message: fileEvent.additionalMessage?.codableValue,
         metadata: fileEvent.metadata?.codableValue,
         subscription: fileEvent.channelGroup,
-        file: PubNubFileObjC(
+        file: KMPFile(
           from: fileEvent.file,
           url: pubnub?.generateFileDownloadURL(for: fileEvent.file)
         )
@@ -55,20 +53,20 @@ public class PubNubFileChangeEventObjC: NSObject {
     message: AnyJSON?,
     metadata: AnyJSON?,
     subscription: String?,
-    file: PubNubFileObjC
+    file: KMPFile
   ) {
     self.channel = channel
     self.timetoken = timetoken
     self.publisher = publisher
-    self.message = if let message = message { AnyJSONObjC(message) } else { nil }
-    self.metadata = if let metadata = metadata { AnyJSONObjC(metadata) } else { nil }
+    self.message = if let message = message { KMPAnyJSON(message) } else { nil }
+    self.metadata = if let metadata = metadata { KMPAnyJSON(metadata) } else { nil }
     self.subscription = subscription
     self.file = file
   }
 }
 
 @objc
-public class PubNubFileObjC: NSObject {
+public class KMPFile: NSObject {
   @objc public let id: String
   @objc public let name: String
   @objc public let url: URL?

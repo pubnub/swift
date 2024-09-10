@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+AppContext.swift
+//  KMPPubNub+AppContext.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,16 +12,14 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-extension PubNubObjC {
-  private func objectSortProperties(from properties: [PubNubObjectSortPropertyObjC]) -> [PubNub.ObjectSortField] {
+extension KMPPubNub {
+  private func objectSortProperties(from properties: [KMPObjectSortProperty]) -> [PubNub.ObjectSortField] {
     properties.compactMap {
       if let property = PubNub.ObjectSortProperty(rawValue: $0.key) {
         return PubNub.ObjectSortField(property: property, ascending: $0.direction == "asc")
@@ -31,7 +29,7 @@ extension PubNubObjC {
     }
   }
 
-  private func convertPage(from page: PubNubHashedPageObjC?) -> PubNubHashedPage? {
+  private func convertPage(from page: KMPHashedPage?) -> PubNubHashedPage? {
     guard let page = page else {
       return nil
     }
@@ -81,15 +79,15 @@ extension PubNubObjC {
 }
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func getAllChannelMetadata(
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
-    sort: [PubNubObjectSortPropertyObjC],
+    sort: [KMPObjectSortProperty],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping (([PubNubChannelMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
+    onSuccess: @escaping (([KMPChannelMetadata], NSNumber?, KMPHashedPage) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allChannelMetadata(
@@ -102,12 +100,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.channels.map { PubNubChannelMetadataObjC(metadata: $0) },
+          res.channels.map { KMPChannelMetadata(metadata: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -115,15 +113,15 @@ public extension PubNubObjC {
   func getChannelMetadata(
     channel: String,
     includeCustom: Bool,
-    onSuccess: @escaping ((PubNubChannelMetadataObjC) -> Void),
+    onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetch(channel: channel, include: includeCustom) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
+        onSuccess(KMPChannelMetadata(metadata: metadata))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -132,11 +130,11 @@ public extension PubNubObjC {
     channel: String,
     name: String?,
     description: String?,
-    custom: AnyJSONObjC?,
+    custom: KMPAnyJSON?,
     includeCustom: Bool,
     type: String?,
     status: String?,
-    onSuccess: @escaping ((PubNubChannelMetadataObjC) -> Void),
+    onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.set(
@@ -152,9 +150,9 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(PubNubChannelMetadataObjC(metadata: metadata))
+        onSuccess(KMPChannelMetadata(metadata: metadata))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -169,19 +167,19 @@ public extension PubNubObjC {
       case .success(let channel):
         onSuccess(channel)
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
 
   func getAllUUIDMetadata(
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
-    sort: [PubNubObjectSortPropertyObjC],
+    sort: [KMPObjectSortProperty],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping (([PubNubUUIDMetadataObjC], NSNumber?, PubNubHashedPageObjC) -> Void),
+    onSuccess: @escaping (([KMPUUIDMetadata], NSNumber?, KMPHashedPage) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allUUIDMetadata(
@@ -194,12 +192,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.uuids.map { PubNubUUIDMetadataObjC(metadata: $0) },
+          res.uuids.map { KMPUUIDMetadata(metadata: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -207,15 +205,15 @@ public extension PubNubObjC {
   func getUUIDMetadata(
     uuid: String?,
     includeCustom: Bool,
-    onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
+    onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetch(uuid: uuid, include: includeCustom) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
+        onSuccess(KMPUUIDMetadata(metadata: metadata))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -226,11 +224,11 @@ public extension PubNubObjC {
     externalId: String?,
     profileUrl: String?,
     email: String?,
-    custom: AnyJSONObjC?,
+    custom: KMPAnyJSON?,
     includeCustom: Bool,
     type: String?,
     status: String?,
-    onSuccess: @escaping ((PubNubUUIDMetadataObjC) -> Void),
+    onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.set(
@@ -248,9 +246,9 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(PubNubUUIDMetadataObjC(metadata: metadata))
+        onSuccess(KMPUUIDMetadata(metadata: metadata))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -265,7 +263,7 @@ public extension PubNubObjC {
       case .success(let result):
         onSuccess(result)
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -273,7 +271,7 @@ public extension PubNubObjC {
   func getMemberships(
     uuid: String?,
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -281,7 +279,7 @@ public extension PubNubObjC {
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
     includeChannelType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMemberships(
@@ -301,21 +299,21 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
 
   func setMemberships(
-    channels: [PubNubChannelMetadataObjC],
+    channels: [KMPChannelMetadata],
     uuid: String?,
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -323,7 +321,7 @@ public extension PubNubObjC {
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
     includeChannelType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.setMemberships(
@@ -351,12 +349,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -365,7 +363,7 @@ public extension PubNubObjC {
     channels: [String],
     uuid: String?,
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -373,7 +371,7 @@ public extension PubNubObjC {
     includeChannelFields: Bool,
     includeChannelCustomFields: Bool,
     includeChannelType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removeMemberships(
@@ -399,12 +397,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -412,7 +410,7 @@ public extension PubNubObjC {
   func getChannelMembers(
     channel: String,
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -420,7 +418,7 @@ public extension PubNubObjC {
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
     includeUUIDType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMembers(
@@ -440,21 +438,21 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
 
   func setChannelMembers(
     channel: String,
-    uuids: [PubNubUUIDMetadataObjC],
+    uuids: [KMPUUIDMetadata],
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -462,7 +460,7 @@ public extension PubNubObjC {
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
     includeUUIDType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.setMembers(
@@ -490,12 +488,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -504,7 +502,7 @@ public extension PubNubObjC {
     channel: String,
     uuids: [String],
     limit: NSNumber?,
-    page: PubNubHashedPageObjC?,
+    page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
@@ -512,7 +510,7 @@ public extension PubNubObjC {
     includeUUIDFields: Bool,
     includeUUIDCustomFields: Bool,
     includeUUIDType: Bool,
-    onSuccess: @escaping (([PubNubMembershipMetadataObjC], NSNumber?, PubNubHashedPageObjC?) -> Void),
+    onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removeMembers(
@@ -538,12 +536,12 @@ public extension PubNubObjC {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.memberships.map { PubNubMembershipMetadataObjC(from: $0) },
+          res.memberships.map { KMPMembershipMetadata(from: $0) },
           res.next?.totalCount?.asNumber,
-          PubNubHashedPageObjC(page: res.next)
+          KMPHashedPage(page: res.next)
         )
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }

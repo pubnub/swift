@@ -12,15 +12,13 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-@objc public class PubNubEntityRepresentableObjC: NSObject {
+@objc public class KMPEntity: NSObject {
   let entity: Subscribable
 
   init(entity: Subscribable) {
@@ -34,7 +32,7 @@ import Foundation
 }
 
 @objc
-public class PubNubChannelEntityObjC: PubNubEntityRepresentableObjC {
+public class KMPChannelEntity: KMPEntity {
   let channel: ChannelRepresentation
 
   init(channel: ChannelRepresentation) {
@@ -44,7 +42,7 @@ public class PubNubChannelEntityObjC: PubNubEntityRepresentableObjC {
 }
 
 @objc
-public class PubNubChannelGroupEntityObjC: PubNubEntityRepresentableObjC {
+public class KMPChannelGroupEntity: KMPEntity {
   let channelGroup: ChannelGroupRepresentation
 
   init(channelGroup: ChannelGroupRepresentation) {
@@ -54,7 +52,7 @@ public class PubNubChannelGroupEntityObjC: PubNubEntityRepresentableObjC {
 }
 
 @objc
-public class PubNubUserMetadataEntityObjC: PubNubEntityRepresentableObjC {
+public class KMPUserMetadataEntity: KMPEntity {
   let userMetadata: UserMetadataRepresentation
 
   init(userMetadata: UserMetadataRepresentation) {
@@ -64,7 +62,7 @@ public class PubNubUserMetadataEntityObjC: PubNubEntityRepresentableObjC {
 }
 
 @objc
-public class PubNubChannelMetadataEntityObjC: PubNubEntityRepresentableObjC {
+public class KMPChannelMetadataEntity: KMPEntity {
   let channelMetadata: ChannelMetadataRepresentation
 
   init(channelMetadata: ChannelMetadataRepresentation) {

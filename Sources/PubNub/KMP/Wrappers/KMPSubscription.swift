@@ -12,27 +12,25 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 @objc
-public class PubNubSubscriptionObjC: NSObject {
+public class KMPSubscription: NSObject {
   let subscription: Subscription
 
-  @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
-  @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
-  @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
-  @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
-  @objc public var onAppContext: ((PubNubAppContextEventObjC) -> Void)?
-  @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
+  @objc public var onMessage: ((KMPMessage) -> Void)?
+  @objc public var onPresence: (([KMPPresenceChange]) -> Void)?
+  @objc public var onSignal: ((KMPMessage) -> Void)?
+  @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
+  @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
+  @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
 
   @objc
-  public init(entity: PubNubEntityRepresentableObjC, receivePresenceEvents: Bool) {
+  public init(entity: KMPEntity, receivePresenceEvents: Bool) {
     self.subscription = Subscription(
       entity: entity.entity,
       options: receivePresenceEvents ? ReceivePresenceEvents() : .empty()
@@ -40,7 +38,7 @@ public class PubNubSubscriptionObjC: NSObject {
   }
 
   @objc
-  public init(entity: PubNubEntityRepresentableObjC) {
+  public init(entity: KMPEntity) {
     self.subscription = Subscription(entity: entity.entity)
   }
 
@@ -50,34 +48,34 @@ public class PubNubSubscriptionObjC: NSObject {
   }
 
   @objc
-  public func addListener(_ listener: PubNubEventListenerObjC) {
+  public func addListener(_ listener: KMPEventListener) {
     let eventListener = EventListener(
       uuid: listener.uuid
     )
     eventListener.onMessage = {
-      listener.onMessage?(PubNubMessageObjC(message: $0))
+      listener.onMessage?(KMPMessage(message: $0))
     }
     eventListener.onSignal = {
-      listener.onSignal?(PubNubMessageObjC(message: $0))
+      listener.onSignal?(KMPMessage(message: $0))
     }
     eventListener.onPresence = {
-      listener.onPresence?(PubNubPresenceChangeObjC.from(change: $0))
+      listener.onPresence?(KMPPresenceChange.from(change: $0))
     }
     eventListener.onMessageAction = {
-      listener.onMessageAction?(PubNubMessageActionObjC(action: $0))
+      listener.onMessageAction?(KMPMessageAction(action: $0))
     }
     eventListener.onFileEvent = { [weak self] in
-      listener.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: self?.subscription.entity.pubnub))
+      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.entity.pubnub))
     }
     eventListener.onAppContext = {
-      listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
+      listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
     }
 
     subscription.addEventListener(eventListener)
   }
 
   @objc
-  public func removeListener(_ listener: PubNubEventListenerObjC) {
+  public func removeListener(_ listener: KMPEventListener) {
     subscription.removeEventListener(with: listener.uuid)
   }
 
@@ -97,31 +95,31 @@ public class PubNubSubscriptionObjC: NSObject {
   }
 
   @objc
-  public func append(subscription: PubNubSubscriptionObjC) -> PubNubSubscriptionSetObjC {
+  public func append(subscription: KMPSubscription) -> KMPSubscriptionSet {
     let underlyingSubscription = Subscription(
       entity: subscription.subscription.entity
     )
 
     underlyingSubscription.onMessage = {
-      subscription.onMessage?(PubNubMessageObjC(message: $0))
+      subscription.onMessage?(KMPMessage(message: $0))
     }
     underlyingSubscription.onSignal = {
-      subscription.onSignal?(PubNubMessageObjC(message: $0))
+      subscription.onSignal?(KMPMessage(message: $0))
     }
     underlyingSubscription.onPresence = {
-      subscription.onPresence?(PubNubPresenceChangeObjC.from(change: $0))
+      subscription.onPresence?(KMPPresenceChange.from(change: $0))
     }
     underlyingSubscription.onMessageAction = {
-      subscription.onMessageAction?(PubNubMessageActionObjC(action: $0))
+      subscription.onMessageAction?(KMPMessageAction(action: $0))
     }
     underlyingSubscription.onFileEvent = { [weak underlyingSubscription] in
-      subscription.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: underlyingSubscription?.pubnub))
+      subscription.onFile?(KMPFileChangeEvent.from(event: $0, with: underlyingSubscription?.pubnub))
     }
     underlyingSubscription.onAppContext = {
-      subscription.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
+      subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
     }
 
-    return PubNubSubscriptionSetObjC(
+    return KMPSubscriptionSet(
       subscriptionSet: SubscriptionSet(subscriptions: [
         self.subscription,
         underlyingSubscription
@@ -131,22 +129,22 @@ public class PubNubSubscriptionObjC: NSObject {
 }
 
 @objc
-public class PubNubSubscriptionSetObjC: NSObject {
+public class KMPSubscriptionSet: NSObject {
   private let subscriptionSet: SubscriptionSet
 
-  @objc public var onMessage: ((PubNubMessageObjC) -> Void)?
-  @objc public var onPresence: (([PubNubPresenceChangeObjC]) -> Void)?
-  @objc public var onSignal: ((PubNubMessageObjC) -> Void)?
-  @objc public var onMessageAction: ((PubNubMessageActionObjC) -> Void)?
-  @objc public var onAppContext: ((PubNubAppContextEventObjC) -> Void)?
-  @objc public var onFile: ((PubNubFileChangeEventObjC) -> Void)?
+  @objc public var onMessage: ((KMPMessage) -> Void)?
+  @objc public var onPresence: (([KMPPresenceChange]) -> Void)?
+  @objc public var onSignal: ((KMPMessage) -> Void)?
+  @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
+  @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
+  @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
 
   init(subscriptionSet: SubscriptionSet) {
     self.subscriptionSet = subscriptionSet
   }
 
   @objc
-  public init(subscriptions: [PubNubSubscriptionObjC]) {
+  public init(subscriptions: [KMPSubscription]) {
     self.subscriptionSet = SubscriptionSet(subscriptions: subscriptions.map { $0.subscription })
   }
 
@@ -156,34 +154,34 @@ public class PubNubSubscriptionSetObjC: NSObject {
   }
 
   @objc
-  public func addListener(_ listener: PubNubEventListenerObjC) {
+  public func addListener(_ listener: KMPEventListener) {
     let pubnub = subscriptionSet.currentSubscriptions.first?.entity.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
 
     eventListener.onMessage = {
-      listener.onMessage?(PubNubMessageObjC(message: $0))
+      listener.onMessage?(KMPMessage(message: $0))
     }
     eventListener.onSignal = {
-      listener.onSignal?(PubNubMessageObjC(message: $0))
+      listener.onSignal?(KMPMessage(message: $0))
     }
     eventListener.onPresence = {
-      listener.onPresence?(PubNubPresenceChangeObjC.from(change: $0))
+      listener.onPresence?(KMPPresenceChange.from(change: $0))
     }
     eventListener.onMessageAction = {
-      listener.onMessageAction?(PubNubMessageActionObjC(action: $0))
+      listener.onMessageAction?(KMPMessageAction(action: $0))
     }
     eventListener.onFileEvent = {
-      listener.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: pubnub))
+      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: pubnub))
     }
     eventListener.onAppContext = {
-      listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
+      listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
     }
 
     subscriptionSet.addEventListener(eventListener)
   }
 
   @objc
-  public func removeListener(_ listener: PubNubEventListenerObjC) {
+  public func removeListener(_ listener: KMPEventListener) {
     subscriptionSet.removeEventListener(with: listener.uuid)
   }
 
@@ -203,33 +201,33 @@ public class PubNubSubscriptionSetObjC: NSObject {
   }
 
   @objc
-  public func append(subscription: PubNubSubscriptionObjC) {
+  public func append(subscription: KMPSubscription) {
     let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
 
     underlyingSubscription.onMessage = {
-      subscription.onMessage?(PubNubMessageObjC(message: $0))
+      subscription.onMessage?(KMPMessage(message: $0))
     }
     underlyingSubscription.onSignal = {
-      subscription.onSignal?(PubNubMessageObjC(message: $0))
+      subscription.onSignal?(KMPMessage(message: $0))
     }
     underlyingSubscription.onPresence = {
-      subscription.onPresence?(PubNubPresenceChangeObjC.from(change: $0))
+      subscription.onPresence?(KMPPresenceChange.from(change: $0))
     }
     underlyingSubscription.onMessageAction = {
-      subscription.onMessageAction?(PubNubMessageActionObjC(action: $0))
+      subscription.onMessageAction?(KMPMessageAction(action: $0))
     }
     underlyingSubscription.onFileEvent = { [weak underlyingSubscription] in
-      subscription.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: underlyingSubscription?.pubnub))
+      subscription.onFile?(KMPFileChangeEvent.from(event: $0, with: underlyingSubscription?.pubnub))
     }
     underlyingSubscription.onAppContext = {
-      subscription.onAppContext?(PubNubAppContextEventObjC.from(event: $0))
+      subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
     }
 
     subscriptionSet.add(subscription: underlyingSubscription)
   }
 
   @objc
-  public func remove(subscription: PubNubSubscriptionObjC) {
+  public func remove(subscription: KMPSubscription) {
     subscriptionSet.remove(subscription: subscription.subscription)
   }
 }

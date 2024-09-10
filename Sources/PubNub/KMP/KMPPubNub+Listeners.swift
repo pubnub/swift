@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+Listeners.swift
+//  KMPPubNub+Listeners.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,30 +12,28 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-extension PubNubObjC {
-  func createEventListener(from listener: PubNubEventListenerObjC) -> EventListener {
+extension KMPPubNub {
+  func createEventListener(from listener: KMPEventListener) -> EventListener {
     EventListener(
       uuid: listener.uuid,
-      onMessage: { listener.onMessage?(PubNubMessageObjC(message: $0)) },
-      onSignal: { listener.onSignal?(PubNubMessageObjC(message: $0)) },
-      onPresence: { listener.onPresence?(PubNubPresenceChangeObjC.from(change: $0)) },
-      onMessageAction: { listener.onMessageAction?(PubNubMessageActionObjC(action: $0)) },
-      onFileEvent: { [weak pubnub] in listener.onFile?(PubNubFileChangeEventObjC.from(event: $0, with: pubnub)) },
-      onAppContext: { listener.onAppContext?(PubNubAppContextEventObjC.from(event: $0)) }
+      onMessage: { listener.onMessage?(KMPMessage(message: $0)) },
+      onSignal: { listener.onSignal?(KMPMessage(message: $0)) },
+      onPresence: { listener.onPresence?(KMPPresenceChange.from(change: $0)) },
+      onMessageAction: { listener.onMessageAction?(KMPMessageAction(action: $0)) },
+      onFileEvent: { [weak pubnub] in listener.onFile?(KMPFileChangeEvent.from(event: $0, with: pubnub)) },
+      onAppContext: { listener.onAppContext?(KMPAppContextEventResult.from(event: $0)) }
     )
   }
 
   // TODO: Missing case for .subscriptionChanged
 
-  func createStatusListener(from listener: PubNubStatusListenerObjC) -> StatusListener {
+  func createStatusListener(from listener: KMPStatusListener) -> StatusListener {
     StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
         return
@@ -43,7 +41,7 @@ extension PubNubObjC {
       switch newStatus {
       case .connected:
         listener.onStatusChange?(
-          PubNubConnectionStatusObjC(
+          KMPConnectionStatus(
             category: .connected,
             error: nil,
             currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
@@ -53,7 +51,7 @@ extension PubNubObjC {
         )
       case .disconnected:
         listener.onStatusChange?(
-          PubNubConnectionStatusObjC(
+          KMPConnectionStatus(
             category: .disconnected,
             error: nil,
             currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
@@ -63,7 +61,7 @@ extension PubNubObjC {
         )
       case .disconnectedUnexpectedly(let error):
         listener.onStatusChange?(
-          PubNubConnectionStatusObjC(
+          KMPConnectionStatus(
             category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .disconnectedUnexpectedly,
             error: error,
             currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
@@ -73,7 +71,7 @@ extension PubNubObjC {
         )
       case .connectionError(let error):
         listener.onStatusChange?(
-          PubNubConnectionStatusObjC(
+          KMPConnectionStatus(
             category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .connectionError,
             error: error,
             currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
@@ -89,20 +87,20 @@ extension PubNubObjC {
 }
 
 @objc
-public extension PubNubObjC {
-  func addStatusListener(listener: PubNubStatusListenerObjC) {
+public extension KMPPubNub {
+  func addStatusListener(listener: KMPStatusListener) {
     pubnub.addStatusListener(createStatusListener(from: listener))
   }
 
-  func removeStatusListener(listener: PubNubStatusListenerObjC) {
+  func removeStatusListener(listener: KMPStatusListener) {
     pubnub.removeStatusListener(with: listener.uuid)
   }
 
-  func addEventListener(listener: PubNubEventListenerObjC) {
+  func addEventListener(listener: KMPEventListener) {
     pubnub.addEventListener(createEventListener(from: listener))
   }
 
-  func removeEventListener(listener: PubNubEventListenerObjC) {
+  func removeEventListener(listener: KMPEventListener) {
     pubnub.removeEventListener(with: listener.uuid)
   }
 

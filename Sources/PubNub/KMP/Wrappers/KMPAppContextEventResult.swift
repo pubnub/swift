@@ -12,22 +12,20 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
-// MARK: - PubNubAppContextEventObjC
+// MARK: - KMPAppContextEventResult
 
 @objc
-public class PubNubAppContextEventObjC: NSObject {
+public class KMPAppContextEventResult: NSObject {
   @objc public let channel: String
   @objc public let subscription: String?
   @objc public let timetoken: NSNumber?
-  @objc public let userMetadata: AnyJSONObjC?
+  @objc public let userMetadata: KMPAnyJSON?
   @objc public let publisher: String?
   @objc public let source: String
   @objc public let version: String
@@ -54,27 +52,27 @@ public class PubNubAppContextEventObjC: NSObject {
     self.type = type
     self.subscription = subscription
     self.timetoken = timetoken
-    self.userMetadata = if let metadata = userMetadata { AnyJSONObjC(metadata.codableValue) } else { nil }
+    self.userMetadata = if let metadata = userMetadata { KMPAnyJSON(metadata.codableValue) } else { nil }
     self.publisher = publisher
   }
 }
 
-// MARK: - PubNubSetUUIDMetadataResultObjC
+// MARK: - KMPSetUUIDMetadataResult
 
 @objc
-public class PubNubSetUUIDMetadataResultObjC: PubNubAppContextEventObjC {
-  @objc public let metadata: PubNubUUIDMetadataObjC
+public class KMPSetUUIDMetadataResult: KMPAppContextEventResult {
+  @objc public let metadata: KMPUUIDMetadata
 
-  init(metadata: PubNubUUIDMetadataObjC) {
+  init(metadata: KMPUUIDMetadata) {
     self.metadata = metadata
     super.init()
   }
 }
 
-// MARK: - PubNubRemoveUUIDMetadataResultObjC
+// MARK: - KMPRemoveUUIDMetadataResult
 
 @objc
-public class PubNubRemoveUUIDMetadataResultObjC: PubNubAppContextEventObjC {
+public class KMPRemoveUUIDMetadataResult: KMPAppContextEventResult {
   @objc public let uuid: String
 
   init(uuid: String) {
@@ -83,13 +81,13 @@ public class PubNubRemoveUUIDMetadataResultObjC: PubNubAppContextEventObjC {
   }
 }
 
-// MARK: - PubNubSetChannelMetadataResultObjC
+// MARK: - KMPSetChannelMetadataResult
 
 @objc
-public class PubNubSetChannelMetadataResultObjC: PubNubAppContextEventObjC {
-  @objc public let metadata: PubNubChannelMetadataObjC
+public class KMPSetChannelMetadataResult: KMPAppContextEventResult {
+  @objc public let metadata: KMPChannelMetadata
 
-  init(metadata: PubNubChannelMetadataObjC) {
+  init(metadata: KMPChannelMetadata) {
     self.metadata = metadata
     super.init(channel: metadata.id)
   }
@@ -98,7 +96,7 @@ public class PubNubSetChannelMetadataResultObjC: PubNubAppContextEventObjC {
 // MARK: - PubNubRemoveChannelMetadataResultObjC
 
 @objc
-public class PubNubRemoveChannelMetadataResultObjC: PubNubAppContextEventObjC {
+public class KMPRemoveChannelMetadataResult: KMPAppContextEventResult {
   @objc public let channelMetadataId: String
 
   init(channelMetadataId: String) {
@@ -107,22 +105,22 @@ public class PubNubRemoveChannelMetadataResultObjC: PubNubAppContextEventObjC {
   }
 }
 
-// MARK: - PubNubSetMembershipResultObjC
+// MARK: - KMPSetMembershipResult
 
 @objc
-public class PubNubSetMembershipResultObjC: PubNubAppContextEventObjC {
-  @objc public let metadata: PubNubMembershipMetadataObjC
+public class KMPSetMembershipResult: KMPAppContextEventResult {
+  @objc public let metadata: KMPMembershipMetadata
 
-  init(metadata: PubNubMembershipMetadataObjC) {
+  init(metadata: KMPMembershipMetadata) {
     self.metadata = metadata
     super.init(channel: metadata.channelMetadataId)
   }
 }
 
-// MARK: - PubNubRemoveMembershipResultObjC
+// MARK: - KMPRemoveMembershipResult
 
 @objc
-public class PubNubRemoveMembershipResultObjC: PubNubAppContextEventObjC {
+public class KMPRemoveMembershipResult: KMPAppContextEventResult {
   @objc public let channelId: String
   @objc public let uuid: String
 
@@ -133,31 +131,31 @@ public class PubNubRemoveMembershipResultObjC: PubNubAppContextEventObjC {
   }
 }
 
-// MARK: - PubNubAppContextEventObjC (Factory Method)
+// MARK: - KMPAppContextEventResult (Factory Method)
 
-extension PubNubAppContextEventObjC {
-  static func from(event: PubNubAppContextEvent) -> PubNubAppContextEventObjC {
+extension KMPAppContextEventResult {
+  static func from(event: PubNubAppContextEvent) -> KMPAppContextEventResult {
     switch event {
     case .userMetadataSet(let changeset):
-      return PubNubSetUUIDMetadataResultObjC(metadata: PubNubUUIDMetadataObjC(changeset: changeset))
+      return KMPSetUUIDMetadataResult(metadata: KMPUUIDMetadata(changeset: changeset))
     case .userMetadataRemoved(let metadataId):
-      return PubNubRemoveUUIDMetadataResultObjC(uuid: metadataId)
+      return KMPRemoveUUIDMetadataResult(uuid: metadataId)
     case .channelMetadataSet(let changeset):
-      return PubNubSetChannelMetadataResultObjC(metadata: PubNubChannelMetadataObjC(changeset: changeset))
+      return KMPSetChannelMetadataResult(metadata: KMPChannelMetadata(changeset: changeset))
     case .channelMetadataRemoved(let metadataId):
-      return PubNubRemoveChannelMetadataResultObjC(channelMetadataId: metadataId)
+      return KMPRemoveChannelMetadataResult(channelMetadataId: metadataId)
     case .membershipMetadataSet(let metadata):
-      return PubNubSetMembershipResultObjC(metadata: PubNubMembershipMetadataObjC(from: metadata))
+      return KMPSetMembershipResult(metadata: KMPMembershipMetadata(from: metadata))
     case .membershipMetadataRemoved(let metadata):
-      return PubNubRemoveMembershipResultObjC(channelId: metadata.channelMetadataId, uuid: metadata.uuidMetadataId)
+      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.uuidMetadataId)
     }
   }
 }
 
-// MARK: - PubNubChannelMetadataObjC
+// MARK: - KMPChannelMetadata
 
 @objc
-public class PubNubChannelMetadataObjC: NSObject {
+public class KMPChannelMetadata: NSObject {
   @objc public var id: String
   @objc public var name: String?
   @objc public var descr: String?
@@ -221,17 +219,17 @@ public class PubNubChannelMetadataObjC: NSObject {
   }
 
   @objc
-  public init(id: String, custom: AnyJSONObjC, status: String?) {
+  public init(id: String, custom: KMPAnyJSON, status: String?) {
     self.id = id
     self.custom = custom.asMap()
     self.status = status
   }
 }
 
-// MARK: - PubNubUUIDMetadataObjC
+// MARK: - KMPUUIDMetadata
 
 @objc
-public class PubNubUUIDMetadataObjC: NSObject {
+public class KMPUUIDMetadata: NSObject {
   @objc public var id: String
   @objc public var name: String?
   @objc public var externalId: String?
@@ -254,7 +252,7 @@ public class PubNubUUIDMetadataObjC: NSObject {
   @objc
   public init(
     id: String,
-    custom: AnyJSONObjC?,
+    custom: KMPAnyJSON?,
     status: String?
   ) {
     self.id = id
@@ -319,15 +317,15 @@ public class PubNubUUIDMetadataObjC: NSObject {
   }
 }
 
-// MARK: - PubNubMembershipMetadataObjC
+// MARK: - KMPMembershipMetadata
 
 @objc
-public class PubNubMembershipMetadataObjC: NSObject {
+public class KMPMembershipMetadata: NSObject {
   @objc public var uuidMetadataId: String
   @objc public var channelMetadataId: String
   @objc public var status: String?
-  @objc public var uuid: PubNubUUIDMetadataObjC?
-  @objc public var channel: PubNubChannelMetadataObjC?
+  @objc public var uuid: KMPUUIDMetadata?
+  @objc public var channel: KMPChannelMetadata?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var custom: [String: Any]?
@@ -336,8 +334,8 @@ public class PubNubMembershipMetadataObjC: NSObject {
     self.uuidMetadataId = from.uuidMetadataId
     self.channelMetadataId = from.channelMetadataId
     self.status = from.status
-    self.uuid = if let uuid = from.uuid { PubNubUUIDMetadataObjC(metadata: uuid) } else { nil }
-    self.channel = if let channel = from.channel { PubNubChannelMetadataObjC(metadata: channel) } else { nil }
+    self.uuid = if let uuid = from.uuid { KMPUUIDMetadata(metadata: uuid) } else { nil }
+    self.channel = if let channel = from.channel { KMPChannelMetadata(metadata: channel) } else { nil }
     self.updated =  if let date = from.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = from.eTag
     self.custom = from.custom?.asObjCRepresentable()

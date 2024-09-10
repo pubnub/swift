@@ -1,5 +1,5 @@
 //
-//  PubNubObjC+MessageActions.swift
+//  KMPPubNub+MessageActions.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,24 +12,22 @@ import Foundation
 
 /// IMPORTANT NOTE FOR DEVELOPERS USING THIS SDK
 ///
-/// All public symbols in this file that are annotated with @objc are intended to allow interoperation
-/// with Kotlin Multiplatform for other PubNub frameworks.
-///
+/// All public symbols in this file are intended to allow interoperation with Kotlin Multiplatform for other PubNub frameworks.
 /// While these symbols are public, they are intended strictly for internal usage.
-
+///
 /// External developers should refrain from directly using these symbols in their code, as their implementation details
 /// may change in future versions of the framework, potentially leading to breaking changes.
 
 // MARK: - Presence
 
 @objc
-public extension PubNubObjC {
+public extension KMPPubNub {
   func hereNow(
     channels: [String],
     channelGroups: [String],
     includeState: Bool,
     includeUUIDs: Bool,
-    onSuccess: @escaping ((PubNubHereNowResultObjC) -> Void),
+    onSuccess: @escaping ((KMPHereNowResult) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.hereNow(
@@ -41,20 +39,20 @@ public extension PubNubObjC {
       switch $0 {
       case let .success(map):
         onSuccess(
-          PubNubHereNowResultObjC(
+          KMPHereNowResult(
             totalChannels: map.count,
             totalOccupancy: map.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
             channels: map.mapValues { value in
-              PubNubHereNowChannelDataObjC(
+              KMPHereNowChannelData(
                 channelName: value.channel,
                 occupancy: value.occupancy,
                 occupants: value.occupants.map {
-                  let stateValue: AnyJSONObjC? = if let state = value.occupantsState[$0]?.rawValue {
-                    AnyJSONObjC(state)
+                  let stateValue: KMPAnyJSON? = if let state = value.occupantsState[$0]?.rawValue {
+                    KMPAnyJSON(state)
                   } else {
                     nil
                   }
-                  return PubNubHereNowOccupantDataObjC(
+                  return KMPHereNowOccupantData(
                     uuid: $0,
                     state: stateValue
                   )
@@ -64,7 +62,7 @@ public extension PubNubObjC {
           )
         )
       case let .failure(error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -79,7 +77,7 @@ public extension PubNubObjC {
       case .success(let map):
         onSuccess(map[uuid] ?? [])
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -100,7 +98,7 @@ public extension PubNubObjC {
       case .success(let response):
         onSuccess(response.stateByChannel.mapValues { $0.rawValue })
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }
@@ -110,8 +108,8 @@ public extension PubNubObjC {
   func setPresenceState(
     channels: [String],
     channelGroups: [String],
-    state: AnyJSONObjC,
-    onSuccess: @escaping ((AnyJSONObjC) -> Void),
+    state: KMPAnyJSON,
+    onSuccess: @escaping ((KMPAnyJSON) -> Void),
     onFailure: @escaping (Error) -> Void
   ) {
     pubnub.setPresence(
@@ -121,9 +119,9 @@ public extension PubNubObjC {
     ) {
       switch $0 {
       case .success(let codable):
-        onSuccess(AnyJSONObjC(codable.rawValue))
+        onSuccess(KMPAnyJSON(codable.rawValue))
       case .failure(let error):
-        onFailure(PubNubErrorObjC(underlying: error))
+        onFailure(KMPError(underlying: error))
       }
     }
   }

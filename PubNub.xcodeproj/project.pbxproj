@@ -365,14 +365,14 @@
 		35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */; };
 		35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941322EFB7C10051C455 /* unknownEndpointError.json */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
-		3D1C4FF62C074BDB0030B3D6 /* PubNubHashedPageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */; };
+		3D1C4FF62C074BDB0030B3D6 /* KMPHashedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */; };
 		3D2642942C3BE835000154EC /* Dictionary+ObjCRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */; };
-		3D339C782BFF826500197342 /* PubNubEventListenerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */; };
-		3D339C792BFF826500197342 /* PubNubFetchMessagesResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */; };
-		3D339C7A2BFF826500197342 /* PubNubPresenceChangeObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C762BFF826500197342 /* PubNubPresenceChangeObjC.swift */; };
-		3D339C7C2BFF828B00197342 /* PubNubMessageObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7B2BFF828B00197342 /* PubNubMessageObjC.swift */; };
-		3D339C7E2BFF82BD00197342 /* PubNubMessageActionObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7D2BFF82BD00197342 /* PubNubMessageActionObjC.swift */; };
-		3D339C802BFF890700197342 /* PubNubFileChangeEventObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7F2BFF890700197342 /* PubNubFileChangeEventObjC.swift */; };
+		3D339C782BFF826500197342 /* KMPEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C742BFF826500197342 /* KMPEventListener.swift */; };
+		3D339C792BFF826500197342 /* KMPFetchMessagesResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C752BFF826500197342 /* KMPFetchMessagesResult.swift */; };
+		3D339C7A2BFF826500197342 /* KMPPresenceChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C762BFF826500197342 /* KMPPresenceChange.swift */; };
+		3D339C7C2BFF828B00197342 /* KMPMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7B2BFF828B00197342 /* KMPMessage.swift */; };
+		3D339C7E2BFF82BD00197342 /* KMPMessageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7D2BFF82BD00197342 /* KMPMessageAction.swift */; };
+		3D339C802BFF890700197342 /* KMPFileChangeEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C7F2BFF890700197342 /* KMPFileChangeEvent.swift */; };
 		3D34D1C42B989B440055A7FA /* subscription_invalid_json.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D34D1C32B989B440055A7FA /* subscription_invalid_json.json */; };
 		3D389FE12B35AF4A006928E7 /* TransitionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC32B35AF4A006928E7 /* TransitionProtocol.swift */; };
 		3D389FE22B35AF4A006928E7 /* Dispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D389FC42B35AF4A006928E7 /* Dispatcher.swift */; };
@@ -420,8 +420,8 @@
 		3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */; };
 		3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */; };
 		3D38A0302B35B208006928E7 /* subscription_handshake_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */; };
-		3D3C38832C47D62700E782E7 /* PubNubErrorObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */; };
-		3D452B252C05DF6D008987D4 /* PubNubHereNowResultObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */; };
+		3D3C38832C47D62700E782E7 /* KMPError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3C38822C47D62700E782E7 /* KMPError.swift */; };
+		3D452B252C05DF6D008987D4 /* KMPHereNowResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D452B242C05DF6D008987D4 /* KMPHereNowResult.swift */; };
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
@@ -435,24 +435,24 @@
 		3D758DD22AB0A91C005D2B36 /* AESCBCCryptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DD12AB0A91C005D2B36 /* AESCBCCryptor.swift */; };
 		3D758DD52AB48A6A005D2B36 /* CryptorHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DD32AB48A6A005D2B36 /* CryptorHeader.swift */; };
 		3D758DD62AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DD42AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift */; };
-		3D8102AA2C009AA5005E3607 /* PubNubAppContextEventObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8102A92C009AA5005E3607 /* PubNubAppContextEventObjC.swift */; };
+		3D8102AA2C009AA5005E3607 /* KMPAppContextEventResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8102A92C009AA5005E3607 /* KMPAppContextEventResult.swift */; };
 		3D8BAC102B8C96D70059A5C3 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
-		3DA0C7C92BFDF538000FFE6C /* PubNubObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */; };
+		3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */; };
 		3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */; };
-		3DA24A312C2AA972005B959B /* PubNubObjC+Listeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A302C2AA972005B959B /* PubNubObjC+Listeners.swift */; };
-		3DA24A332C2AA9BD005B959B /* PubNubObjC+Subscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A322C2AA9BD005B959B /* PubNubObjC+Subscribe.swift */; };
-		3DA24A352C2AA9F5005B959B /* PubNubObjC+Publish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A342C2AA9F5005B959B /* PubNubObjC+Publish.swift */; };
-		3DA24A372C2AAA1C005B959B /* PubNubObjC+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A362C2AAA1C005B959B /* PubNubObjC+Push.swift */; };
-		3DA24A392C2AAA3D005B959B /* PubNubObjC+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A382C2AAA3D005B959B /* PubNubObjC+History.swift */; };
-		3DA24A3B2C2AAA59005B959B /* PubNubObjC+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3A2C2AAA59005B959B /* PubNubObjC+Time.swift */; };
-		3DA24A3D2C2AAA8C005B959B /* PubNubObjC+Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3C2C2AAA8C005B959B /* PubNubObjC+Presence.swift */; };
-		3DA24A3F2C2AAAC0005B959B /* PubNubObjC+MessageActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3E2C2AAAC0005B959B /* PubNubObjC+MessageActions.swift */; };
-		3DA24A412C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */; };
-		3DA24A432C2AAB54005B959B /* PubNubObjC+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */; };
-		3DA24A452C2AABC0005B959B /* PubNubObjC+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */; };
+		3DA24A312C2AA972005B959B /* KMPPubNub+Listeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A302C2AA972005B959B /* KMPPubNub+Listeners.swift */; };
+		3DA24A332C2AA9BD005B959B /* KMPPubNub+Subscribe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A322C2AA9BD005B959B /* KMPPubNub+Subscribe.swift */; };
+		3DA24A352C2AA9F5005B959B /* KMPPubNub+Publish.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A342C2AA9F5005B959B /* KMPPubNub+Publish.swift */; };
+		3DA24A372C2AAA1C005B959B /* KMPPubNub+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */; };
+		3DA24A392C2AAA3D005B959B /* KMPPubNub+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */; };
+		3DA24A3B2C2AAA59005B959B /* KMPPubNub+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */; };
+		3DA24A3D2C2AAA8C005B959B /* KMPPubNub +Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */; };
+		3DA24A3F2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */; };
+		3DA24A412C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */; };
+		3DA24A432C2AAB54005B959B /* KMPPubNub+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */; };
+		3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
-		3DB2C4872C0F4B250060B8CF /* PubNubStatusListenerObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */; };
+		3DB2C4872C0F4B250060B8CF /* KMPStatusListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */; };
 		3DB9255C2B7A2B89001B7E90 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */; };
 		3DB9255D2B7A2B89001B7E90 /* EventStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9255A2B7A2B89001B7E90 /* EventStreamTests.swift */; };
 		3DB925602B7A2B9B001B7E90 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */; };
@@ -473,10 +473,10 @@
 		3DB925872B7AA75F001B7E90 /* SessionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9257B2B7AA75F001B7E90 /* SessionStream.swift */; };
 		3DBB2C212ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
 		3DBB2C222ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
-		3DBFF2BB2C203EDC00142985 /* PubNubUploadableObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2BA2C203EDC00142985 /* PubNubUploadableObjC.swift */; };
-		3DBFF2BF2C22F21200142985 /* PubNubEntityRepresentableObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2BE2C22F21200142985 /* PubNubEntityRepresentableObjC.swift */; };
+		3DBFF2BB2C203EDC00142985 /* KMPUploadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2BA2C203EDC00142985 /* KMPUploadable.swift */; };
+		3DBFF2BF2C22F21200142985 /* KMPEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2BE2C22F21200142985 /* KMPEntity.swift */; };
 		3DBFF2C12C22F27300142985 /* PubNub+URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C02C22F27300142985 /* PubNub+URL.swift */; };
-		3DBFF2C32C2300F500142985 /* PubNubSubscriptionObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C22C2300F500142985 /* PubNubSubscriptionObjC.swift */; };
+		3DBFF2C32C2300F500142985 /* KMPSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C22C2300F500142985 /* KMPSubscription.swift */; };
 		3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */; };
 		3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
@@ -505,7 +505,7 @@
 		7941EEA9270E433F0054D9EF /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
-		84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */; };
+		84AE887E2C0D9CFA009FB148 /* KMPAnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -990,14 +990,14 @@
 		35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unrecognizedEndpointError.json; sourceTree = "<group>"; };
 		35FE941322EFB7C10051C455 /* unknownEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknownEndpointError.json; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
-		3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHashedPageObjC.swift; sourceTree = "<group>"; };
+		3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHashedPage.swift; sourceTree = "<group>"; };
 		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
-		3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEventListenerObjC.swift; sourceTree = "<group>"; };
-		3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubFetchMessagesResultObjC.swift; sourceTree = "<group>"; };
-		3D339C762BFF826500197342 /* PubNubPresenceChangeObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceChangeObjC.swift; sourceTree = "<group>"; };
-		3D339C7B2BFF828B00197342 /* PubNubMessageObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageObjC.swift; sourceTree = "<group>"; };
-		3D339C7D2BFF82BD00197342 /* PubNubMessageActionObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageActionObjC.swift; sourceTree = "<group>"; };
-		3D339C7F2BFF890700197342 /* PubNubFileChangeEventObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFileChangeEventObjC.swift; sourceTree = "<group>"; };
+		3D339C742BFF826500197342 /* KMPEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPEventListener.swift; sourceTree = "<group>"; };
+		3D339C752BFF826500197342 /* KMPFetchMessagesResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPFetchMessagesResult.swift; sourceTree = "<group>"; };
+		3D339C762BFF826500197342 /* KMPPresenceChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPresenceChange.swift; sourceTree = "<group>"; };
+		3D339C7B2BFF828B00197342 /* KMPMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPMessage.swift; sourceTree = "<group>"; };
+		3D339C7D2BFF82BD00197342 /* KMPMessageAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPMessageAction.swift; sourceTree = "<group>"; };
+		3D339C7F2BFF890700197342 /* KMPFileChangeEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPFileChangeEvent.swift; sourceTree = "<group>"; };
 		3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		3D34D1C32B989B440055A7FA /* subscription_invalid_json.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_invalid_json.json; sourceTree = "<group>"; };
 		3D389FC32B35AF4A006928E7 /* TransitionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransitionProtocol.swift; sourceTree = "<group>"; };
@@ -1042,8 +1042,8 @@
 		3D38A0292B35B087006928E7 /* SubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02A2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacySubscriptionSessionStrategy.swift; sourceTree = "<group>"; };
 		3D38A02F2B35B208006928E7 /* subscription_handshake_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_handshake_success.json; sourceTree = "<group>"; };
-		3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubErrorObjC.swift; sourceTree = "<group>"; };
-		3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHereNowResultObjC.swift; sourceTree = "<group>"; };
+		3D3C38822C47D62700E782E7 /* KMPError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPError.swift; sourceTree = "<group>"; };
+		3D452B242C05DF6D008987D4 /* KMPHereNowResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHereNowResult.swift; sourceTree = "<group>"; };
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
 		3D7411A22C171F2B002267B8 /* Int+NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+NSNumber.swift"; sourceTree = "<group>"; };
@@ -1056,24 +1056,24 @@
 		3D758DD12AB0A91C005D2B36 /* AESCBCCryptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AESCBCCryptor.swift; sourceTree = "<group>"; };
 		3D758DD32AB48A6A005D2B36 /* CryptorHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorHeader.swift; sourceTree = "<group>"; };
 		3D758DD42AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorHeaderWithinStreamFinder.swift; sourceTree = "<group>"; };
-		3D8102A92C009AA5005E3607 /* PubNubAppContextEventObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubAppContextEventObjC.swift; sourceTree = "<group>"; };
+		3D8102A92C009AA5005E3607 /* KMPAppContextEventResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAppContextEventResult.swift; sourceTree = "<group>"; };
 		3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
-		3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjC.swift; sourceTree = "<group>"; };
+		3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPubNub.swift; sourceTree = "<group>"; };
 		3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionListenersContainer.swift; sourceTree = "<group>"; };
-		3DA24A302C2AA972005B959B /* PubNubObjC+Listeners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Listeners.swift"; sourceTree = "<group>"; };
-		3DA24A322C2AA9BD005B959B /* PubNubObjC+Subscribe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Subscribe.swift"; sourceTree = "<group>"; };
-		3DA24A342C2AA9F5005B959B /* PubNubObjC+Publish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Publish.swift"; sourceTree = "<group>"; };
-		3DA24A362C2AAA1C005B959B /* PubNubObjC+Push.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Push.swift"; sourceTree = "<group>"; };
-		3DA24A382C2AAA3D005B959B /* PubNubObjC+History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+History.swift"; sourceTree = "<group>"; };
-		3DA24A3A2C2AAA59005B959B /* PubNubObjC+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Time.swift"; sourceTree = "<group>"; };
-		3DA24A3C2C2AAA8C005B959B /* PubNubObjC+Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Presence.swift"; sourceTree = "<group>"; };
-		3DA24A3E2C2AAAC0005B959B /* PubNubObjC+MessageActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+MessageActions.swift"; sourceTree = "<group>"; };
-		3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+ChannelGroups.swift"; sourceTree = "<group>"; };
-		3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+AppContext.swift"; sourceTree = "<group>"; };
-		3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNubObjC+Files.swift"; sourceTree = "<group>"; };
+		3DA24A302C2AA972005B959B /* KMPPubNub+Listeners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Listeners.swift"; sourceTree = "<group>"; };
+		3DA24A322C2AA9BD005B959B /* KMPPubNub+Subscribe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Subscribe.swift"; sourceTree = "<group>"; };
+		3DA24A342C2AA9F5005B959B /* KMPPubNub+Publish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Publish.swift"; sourceTree = "<group>"; };
+		3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Push.swift"; sourceTree = "<group>"; };
+		3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+History.swift"; sourceTree = "<group>"; };
+		3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Time.swift"; sourceTree = "<group>"; };
+		3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +Presence.swift"; sourceTree = "<group>"; };
+		3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +MessageActions.swift"; sourceTree = "<group>"; };
+		3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +ChannelGroups.swift"; sourceTree = "<group>"; };
+		3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+AppContext.swift"; sourceTree = "<group>"; };
+		3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Files.swift"; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
-		3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubStatusListenerObjC.swift; sourceTree = "<group>"; };
+		3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPStatusListener.swift; sourceTree = "<group>"; };
 		3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
 		3DB9255A2B7A2B89001B7E90 /* EventStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStreamTests.swift; sourceTree = "<group>"; };
 		3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionTests.swift; sourceTree = "<group>"; };
@@ -1093,10 +1093,10 @@
 		3DB925792B7AA75F001B7E90 /* EntitySubscribable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntitySubscribable.swift; sourceTree = "<group>"; };
 		3DB9257B2B7AA75F001B7E90 /* SessionStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStream.swift; sourceTree = "<group>"; };
 		3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubCryptoModuleContractTestSteps.swift; sourceTree = "<group>"; };
-		3DBFF2BA2C203EDC00142985 /* PubNubUploadableObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUploadableObjC.swift; sourceTree = "<group>"; };
-		3DBFF2BE2C22F21200142985 /* PubNubEntityRepresentableObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubEntityRepresentableObjC.swift; sourceTree = "<group>"; };
+		3DBFF2BA2C203EDC00142985 /* KMPUploadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPUploadable.swift; sourceTree = "<group>"; };
+		3DBFF2BE2C22F21200142985 /* KMPEntity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPEntity.swift; sourceTree = "<group>"; };
 		3DBFF2C02C22F27300142985 /* PubNub+URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNub+URL.swift"; sourceTree = "<group>"; };
-		3DBFF2C22C2300F500142985 /* PubNubSubscriptionObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSubscriptionObjC.swift; sourceTree = "<group>"; };
+		3DBFF2C22C2300F500142985 /* KMPSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPSubscription.swift; sourceTree = "<group>"; };
 		3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceStateContainer.swift; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
@@ -1119,7 +1119,7 @@
 		7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; name = PubNubContractTests_Info.plist; path = PubNub.xcodeproj/PubNubContractTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		7951954D26C955CE001E308C /* PAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PAMToken.swift; sourceTree = "<group>"; };
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONObjC.swift; sourceTree = "<group>"; };
+		84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAnyJSON.swift; sourceTree = "<group>"; };
 		979DD162B86D78BE9B72DEEF /* Pods-PubNubContractTestsBeta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.debug.xcconfig"; sourceTree = "<group>"; };
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
@@ -2064,21 +2064,21 @@
 		3D339C772BFF826500197342 /* Wrappers */ = {
 			isa = PBXGroup;
 			children = (
-				84AE887D2C0D9CFA009FB148 /* AnyJSONObjC.swift */,
-				3D339C742BFF826500197342 /* PubNubEventListenerObjC.swift */,
-				3DB2C4862C0F4B250060B8CF /* PubNubStatusListenerObjC.swift */,
-				3D339C7B2BFF828B00197342 /* PubNubMessageObjC.swift */,
-				3D339C7D2BFF82BD00197342 /* PubNubMessageActionObjC.swift */,
-				3D339C762BFF826500197342 /* PubNubPresenceChangeObjC.swift */,
-				3D339C752BFF826500197342 /* PubNubFetchMessagesResultObjC.swift */,
-				3D339C7F2BFF890700197342 /* PubNubFileChangeEventObjC.swift */,
-				3D8102A92C009AA5005E3607 /* PubNubAppContextEventObjC.swift */,
-				3D452B242C05DF6D008987D4 /* PubNubHereNowResultObjC.swift */,
-				3D1C4FF52C074BDB0030B3D6 /* PubNubHashedPageObjC.swift */,
-				3DBFF2BA2C203EDC00142985 /* PubNubUploadableObjC.swift */,
-				3DBFF2BE2C22F21200142985 /* PubNubEntityRepresentableObjC.swift */,
-				3DBFF2C22C2300F500142985 /* PubNubSubscriptionObjC.swift */,
-				3D3C38822C47D62700E782E7 /* PubNubErrorObjC.swift */,
+				84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */,
+				3D339C742BFF826500197342 /* KMPEventListener.swift */,
+				3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */,
+				3D339C7B2BFF828B00197342 /* KMPMessage.swift */,
+				3D339C7D2BFF82BD00197342 /* KMPMessageAction.swift */,
+				3D339C762BFF826500197342 /* KMPPresenceChange.swift */,
+				3D339C752BFF826500197342 /* KMPFetchMessagesResult.swift */,
+				3D339C7F2BFF890700197342 /* KMPFileChangeEvent.swift */,
+				3D8102A92C009AA5005E3607 /* KMPAppContextEventResult.swift */,
+				3D452B242C05DF6D008987D4 /* KMPHereNowResult.swift */,
+				3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */,
+				3DBFF2BA2C203EDC00142985 /* KMPUploadable.swift */,
+				3DBFF2BE2C22F21200142985 /* KMPEntity.swift */,
+				3DBFF2C22C2300F500142985 /* KMPSubscription.swift */,
+				3D3C38822C47D62700E782E7 /* KMPError.swift */,
 			);
 			path = Wrappers;
 			sourceTree = "<group>";
@@ -2301,18 +2301,18 @@
 		3DA0C7C52BFDF508000FFE6C /* KMP */ = {
 			isa = PBXGroup;
 			children = (
-				3DA0C7C82BFDF538000FFE6C /* PubNubObjC.swift */,
-				3DA24A302C2AA972005B959B /* PubNubObjC+Listeners.swift */,
-				3DA24A322C2AA9BD005B959B /* PubNubObjC+Subscribe.swift */,
-				3DA24A342C2AA9F5005B959B /* PubNubObjC+Publish.swift */,
-				3DA24A362C2AAA1C005B959B /* PubNubObjC+Push.swift */,
-				3DA24A382C2AAA3D005B959B /* PubNubObjC+History.swift */,
-				3DA24A3A2C2AAA59005B959B /* PubNubObjC+Time.swift */,
-				3DA24A3C2C2AAA8C005B959B /* PubNubObjC+Presence.swift */,
-				3DA24A3E2C2AAAC0005B959B /* PubNubObjC+MessageActions.swift */,
-				3DA24A402C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift */,
-				3DA24A422C2AAB54005B959B /* PubNubObjC+AppContext.swift */,
-				3DA24A442C2AABC0005B959B /* PubNubObjC+Files.swift */,
+				3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */,
+				3DA24A302C2AA972005B959B /* KMPPubNub+Listeners.swift */,
+				3DA24A322C2AA9BD005B959B /* KMPPubNub+Subscribe.swift */,
+				3DA24A342C2AA9F5005B959B /* KMPPubNub+Publish.swift */,
+				3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */,
+				3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */,
+				3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */,
+				3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */,
+				3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */,
+				3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */,
+				3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */,
+				3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */,
 				3D339C772BFF826500197342 /* Wrappers */,
 				3D7411A12C171F20002267B8 /* Helpers */,
 			);
@@ -3553,14 +3553,14 @@
 				35D0615F2304830600FDB2F9 /* GenericServicePayloadResponse.swift in Sources */,
 				3D758DD62AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift in Sources */,
 				3D758DBF2AAA1C49005D2B36 /* CryptoModule.swift in Sources */,
-				3D339C792BFF826500197342 /* PubNubFetchMessagesResultObjC.swift in Sources */,
+				3D339C792BFF826500197342 /* KMPFetchMessagesResult.swift in Sources */,
 				3D389FEC2B35AF4A006928E7 /* SubscribeRequest.swift in Sources */,
-				3DBFF2BF2C22F21200142985 /* PubNubEntityRepresentableObjC.swift in Sources */,
+				3DBFF2BF2C22F21200142985 /* KMPEntity.swift in Sources */,
 				3D389FE72B35AF4A006928E7 /* EmitStatusEffect.swift in Sources */,
 				3D758DD02AB0A8C6005D2B36 /* CryptorVector.swift in Sources */,
 				3DBFF2C12C22F27300142985 /* PubNub+URL.swift in Sources */,
 				3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */,
-				3DA24A332C2AA9BD005B959B /* PubNubObjC+Subscribe.swift in Sources */,
+				3DA24A332C2AA9BD005B959B /* KMPPubNub+Subscribe.swift in Sources */,
 				35D8D4C522EB4600001B07D9 /* AnyJSON.swift in Sources */,
 				35AC16332487179400A66030 /* PubNubPage.swift in Sources */,
 				3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */,
@@ -3580,8 +3580,8 @@
 				35CDFEAF22E7664D00F3B9F2 /* URLQueryItem+PubNub.swift in Sources */,
 				3D389FF12B35AF4A006928E7 /* HeartbeatEffect.swift in Sources */,
 				35304F8A22FE5425006A02CA /* Validated.swift in Sources */,
-				3DA24A452C2AABC0005B959B /* PubNubObjC+Files.swift in Sources */,
-				3DA24A3F2C2AAAC0005B959B /* PubNubObjC+MessageActions.swift in Sources */,
+				3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */,
+				3DA24A3F2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift in Sources */,
 				35EE358822E247B200E3F081 /* URLSessionConfiguration+PubNub.swift in Sources */,
 				3D389FF22B35AF4A006928E7 /* LeaveEffect.swift in Sources */,
 				35A6C7A822FBCC8B00E97CC5 /* PushRouter.swift in Sources */,
@@ -3591,17 +3591,17 @@
 				35A66A7E22F861BA00AC67A9 /* SubscriptionSession.swift in Sources */,
 				3DB925872B7AA75F001B7E90 /* SessionStream.swift in Sources */,
 				3D7411A32C171F2B002267B8 /* Int+NSNumber.swift in Sources */,
-				3D339C7C2BFF828B00197342 /* PubNubMessageObjC.swift in Sources */,
+				3D339C7C2BFF828B00197342 /* KMPMessage.swift in Sources */,
 				3D389FE42B35AF4A006928E7 /* EventEngine.swift in Sources */,
 				35C6B6E322F515760054F242 /* SubscribeRouter.swift in Sources */,
 				3DB9257C2B7AA75F001B7E90 /* EventStream.swift in Sources */,
 				3DB925832B7AA75F001B7E90 /* Subscription.swift in Sources */,
-				3D8102AA2C009AA5005E3607 /* PubNubAppContextEventObjC.swift in Sources */,
-				3D452B252C05DF6D008987D4 /* PubNubHereNowResultObjC.swift in Sources */,
+				3D8102AA2C009AA5005E3607 /* KMPAppContextEventResult.swift in Sources */,
+				3D452B252C05DF6D008987D4 /* KMPHereNowResult.swift in Sources */,
 				35C6B6DD22F501780054F242 /* Encodable+PubNub.swift in Sources */,
 				35580682230F3A34005CDD92 /* RequestIdOperator.swift in Sources */,
 				35A66A8322F861BA00AC67A9 /* PubNubMessage.swift in Sources */,
-				3DBFF2BB2C203EDC00142985 /* PubNubUploadableObjC.swift in Sources */,
+				3DBFF2BB2C203EDC00142985 /* KMPUploadable.swift in Sources */,
 				35A66A8022F861BA00AC67A9 /* AutomaticRetry.swift in Sources */,
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
 				35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */,
@@ -3618,23 +3618,23 @@
 				35CF54922489912F0099FE81 /* PubNubUUIDMetadata.swift in Sources */,
 				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
 				3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */,
-				3DA24A352C2AA9F5005B959B /* PubNubObjC+Publish.swift in Sources */,
+				3DA24A352C2AA9F5005B959B /* KMPPubNub+Publish.swift in Sources */,
 				357024BF283C07C900567EE8 /* Objects+PubNub.swift in Sources */,
 				35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */,
 				3D758DD52AB48A6A005D2B36 /* CryptorHeader.swift in Sources */,
 				35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */,
-				3DA24A412C2AAB23005B959B /* PubNubObjC+ChannelGroups.swift in Sources */,
+				3DA24A412C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift in Sources */,
 				35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */,
 				35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */,
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
-				3DB2C4872C0F4B250060B8CF /* PubNubStatusListenerObjC.swift in Sources */,
+				3DB2C4872C0F4B250060B8CF /* KMPStatusListener.swift in Sources */,
 				3D389FEF2B35AF4A006928E7 /* Presence.swift in Sources */,
 				3DB925862B7AA75F001B7E90 /* EntitySubscribable.swift in Sources */,
 				3D389FF82B35AF4A006928E7 /* PresenceInput.swift in Sources */,
 				3DB9257D2B7AA75F001B7E90 /* SubscriptionStream.swift in Sources */,
-				3DA24A392C2AAA3D005B959B /* PubNubObjC+History.swift in Sources */,
+				3DA24A392C2AAA3D005B959B /* KMPPubNub+History.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
@@ -3642,9 +3642,9 @@
 				3585A02423C63EE900FDA860 /* CBORSerialization.swift in Sources */,
 				359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */,
 				3D389FE62B35AF4A006928E7 /* EmitMessagesEffect.swift in Sources */,
-				3DA24A312C2AA972005B959B /* PubNubObjC+Listeners.swift in Sources */,
+				3DA24A312C2AA972005B959B /* KMPPubNub+Listeners.swift in Sources */,
 				3D38A02C2B35B087006928E7 /* LegacySubscriptionSessionStrategy+Presence.swift in Sources */,
-				3DA24A3D2C2AAA8C005B959B /* PubNubObjC+Presence.swift in Sources */,
+				3DA24A3D2C2AAA8C005B959B /* KMPPubNub +Presence.swift in Sources */,
 				3DB925852B7AA75F001B7E90 /* EntityCreator.swift in Sources */,
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,
@@ -3655,7 +3655,7 @@
 				3D389FE92B35AF4A006928E7 /* SubscribeEffectFactory.swift in Sources */,
 				355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */,
 				3585A02623C63F3900FDA860 /* DecodingError+PubNub.swift in Sources */,
-				3D339C802BFF890700197342 /* PubNubFileChangeEventObjC.swift in Sources */,
+				3D339C802BFF890700197342 /* KMPFileChangeEvent.swift in Sources */,
 				3DB925842B7AA75F001B7E90 /* EventListenerInterface.swift in Sources */,
 				3557CE0723886434004BBACC /* PubNubAPNSPayload.swift in Sources */,
 				3D389FED2B35AF4A006928E7 /* Subscribe.swift in Sources */,
@@ -3668,26 +3668,26 @@
 				35F0259922BBFA85007BD7D3 /* HTTPSession.swift in Sources */,
 				353F78C42527934500FFB72C /* InputStream+PubNub.swift in Sources */,
 				3D38A02D2B35B087006928E7 /* SubscriptionSessionStrategy.swift in Sources */,
-				84AE887E2C0D9CFA009FB148 /* AnyJSONObjC.swift in Sources */,
-				3DBFF2C32C2300F500142985 /* PubNubSubscriptionObjC.swift in Sources */,
+				84AE887E2C0D9CFA009FB148 /* KMPAnyJSON.swift in Sources */,
+				3DBFF2C32C2300F500142985 /* KMPSubscription.swift in Sources */,
 				353E8CE423C68F01003FBFF5 /* Float32+PubNub.swift in Sources */,
 				352DBFE9237C937F00A0106E /* HTTPSessionDelegate.swift in Sources */,
 				35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */,
 				35A6C7BE22FCCBF900E97CC5 /* HistoryRouter.swift in Sources */,
 				35A66A9022F913B200AC67A9 /* ConnectionStatus.swift in Sources */,
-				3D3C38832C47D62700E782E7 /* PubNubErrorObjC.swift in Sources */,
+				3D3C38832C47D62700E782E7 /* KMPError.swift in Sources */,
 				3585033722CD4A1A00A11D9A /* RequestOperator.swift in Sources */,
 				354ADA8822D909A30093EFFB /* Convertibles+PubNub.swift in Sources */,
-				3DA24A432C2AAB54005B959B /* PubNubObjC+AppContext.swift in Sources */,
+				3DA24A432C2AAB54005B959B /* KMPPubNub+AppContext.swift in Sources */,
 				3556E3762485936B004FDC25 /* SubscribePresencePayload.swift in Sources */,
 				3D389FF42B35AF4A006928E7 /* PresenceEffectFactory.swift in Sources */,
-				3D339C7E2BFF82BD00197342 /* PubNubMessageActionObjC.swift in Sources */,
+				3D339C7E2BFF82BD00197342 /* KMPMessageAction.swift in Sources */,
 				3D38A02B2B35B087006928E7 /* EventEngineSubscriptionSessionStrategy.swift in Sources */,
 				350EFBDC22C951F700FA33AA /* Request.swift in Sources */,
 				3D758DD22AB0A91C005D2B36 /* AESCBCCryptor.swift in Sources */,
 				35A66A7F22F861BA00AC67A9 /* WeakBox.swift in Sources */,
 				357CA288251D3C9100BC40D3 /* MultipartInputStream.swift in Sources */,
-				3DA24A372C2AAA1C005B959B /* PubNubObjC+Push.swift in Sources */,
+				3DA24A372C2AAA1C005B959B /* KMPPubNub+Push.swift in Sources */,
 				35CF54942489918E0099FE81 /* PubNubChannelMetadata.swift in Sources */,
 				OBJ_31 /* PubNub.swift in Sources */,
 				358C641A2388BF76009CE354 /* PubNubFCMPayload.swift in Sources */,
@@ -3697,23 +3697,23 @@
 				35A6C78F22FB4F0500E97CC5 /* ChannelGroupsRouter.swift in Sources */,
 				354ADA9022DA81650093EFFB /* DateFormatter+PubNub.swift in Sources */,
 				35DB0C4B2874768C001E1F76 /* FlatJSONCodable.swift in Sources */,
-				3DA24A3B2C2AAA59005B959B /* PubNubObjC+Time.swift in Sources */,
+				3DA24A3B2C2AAA59005B959B /* KMPPubNub+Time.swift in Sources */,
 				35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */,
 				3556E370248023B2004FDC25 /* BoundedValue.swift in Sources */,
-				3D1C4FF62C074BDB0030B3D6 /* PubNubHashedPageObjC.swift in Sources */,
+				3D1C4FF62C074BDB0030B3D6 /* KMPHashedPage.swift in Sources */,
 				35270C0323AC124800501388 /* CBORDecoder.swift in Sources */,
 				3D389FE82B35AF4A006928E7 /* SubscribeEffects.swift in Sources */,
 				3559978C230A02B7000BCFD1 /* PubNubLogger.swift in Sources */,
 				35AE6A3224FD6CEE00BBFA37 /* FileManagementRouter.swift in Sources */,
-				3D339C782BFF826500197342 /* PubNubEventListenerObjC.swift in Sources */,
+				3D339C782BFF826500197342 /* KMPEventListener.swift in Sources */,
 				3D389FF32B35AF4A006928E7 /* WaitEffect.swift in Sources */,
-				3D339C7A2BFF826500197342 /* PubNubPresenceChangeObjC.swift in Sources */,
+				3D339C7A2BFF826500197342 /* KMPPresenceChange.swift in Sources */,
 				3D8BAC102B8C96D70059A5C3 /* DependencyContainer.swift in Sources */,
 				35089A0B22E56F1F002BCC94 /* Constants.swift in Sources */,
 				358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */,
 				3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */,
 				3D758DC82AB06A12005D2B36 /* CryptoInputStream.swift in Sources */,
-				3DA0C7C92BFDF538000FFE6C /* PubNubObjC.swift in Sources */,
+				3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,

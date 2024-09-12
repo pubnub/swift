@@ -41,7 +41,7 @@ struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
 
   // NSSet Operations
   var allObjects: [Element] {
-    return elements.lockedRead { $0 }.compactMap { $0.underlying }
+    return elements.lockedRead { $0.compactMap { $0.underlying } }
   }
 
   var count: Int {

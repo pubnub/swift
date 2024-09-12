@@ -176,8 +176,12 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
     }
     internalUnsubscribe(
-      from: globalChannelSubscriptions.lockedRead { $0 }.compactMap { channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
-      and: globalGroupSubscriptions.lockedRead { $0 }.compactMap { groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
+      from: globalChannelSubscriptions.lockedRead { $0 }.compactMap {
+        channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil
+      },
+      and: globalGroupSubscriptions.lockedRead { $0 }.compactMap {
+        groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil
+      },
       presenceOnly: presenceOnly
     )
 

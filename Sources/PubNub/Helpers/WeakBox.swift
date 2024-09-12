@@ -70,7 +70,7 @@ extension WeakSet: Collection {
   var endIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0.endIndex } }
 
   subscript(position: Set<WeakBox<Element>>.Index) -> Element? {
-    elements.lockedRead { $0[position] }.underlying
+    elements.lockedRead { $0[position].underlying }
   }
 
   func index(after index: Set<WeakBox<Element>>.Index) -> Set<WeakBox<Element>>.Index {

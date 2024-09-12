@@ -45,7 +45,7 @@ struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
   }
 
   var count: Int {
-    elements.lockedRead { $0 }.count
+    elements.lockedRead { $0.count }
   }
 
   mutating func update(_ element: Element) {

@@ -74,6 +74,6 @@ extension WeakSet: Collection {
   }
 
   func index(after index: Set<WeakBox<Element>>.Index) -> Set<WeakBox<Element>>.Index {
-    elements.lockedRead { $0 }.index(after: index)
+    elements.lockedRead { $0.index(after: index) }
   }
 }

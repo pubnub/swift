@@ -66,8 +66,8 @@ struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
 }
 
 extension WeakSet: Collection {
-  var startIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0 }.startIndex }
-  var endIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0 }.endIndex }
+  var startIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0.startIndex } }
+  var endIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0.endIndex } }
 
   subscript(position: Set<WeakBox<Element>>.Index) -> Element? {
     elements.lockedRead { $0[position] }.underlying

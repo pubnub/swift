@@ -64,8 +64,8 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
     return statusListener
   }()
 
-  private var globalChannelSubscriptions: [String: Subscription] = [:]
-  private var globalGroupSubscriptions: [String: Subscription] = [:]
+  private var globalChannelSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
+  private var globalGroupSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
   private let strategy: any SubscriptionSessionStrategy
 
   init(
@@ -125,15 +125,28 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       and: channelGroupSubscriptions,
       at: cursor?.timetoken
     )
-    for subscription in channelSubscriptions {
-      subscription.subscriptionNames.compactMap { $0 }.forEach {
-        globalChannelSubscriptions[$0] = subscription
+
+    let channelSubsToMerge = channelSubscriptions.reduce(
+      into: [String: Subscription]()
+    ) { accumulatedValue, subscription in
+      subscription.subscriptionNames.forEach {
+        accumulatedValue[$0] = subscription
       }
     }
-    for subscription in channelGroupSubscriptions {
-      subscription.subscriptionNames.compactMap { $0 }.forEach {
-        globalGroupSubscriptions[$0] = subscription
+
+    let channelGroupSubsToMerge = channelGroupSubscriptions.reduce(
+      into: [String: Subscription]()
+    ) { accumulatedValue, subscription in
+      subscription.subscriptionNames.forEach {
+        accumulatedValue[$0] = subscription
       }
+    }
+
+    globalChannelSubscriptions.lockedWrite {
+      $0.merge(channelSubsToMerge) { _, new in new }
+    }
+    globalGroupSubscriptions.lockedWrite {
+      $0.merge(channelGroupSubsToMerge) { _, new in new }
     }
   }
 
@@ -163,15 +176,25 @@ class SubscriptionSession: EventEmitter, StatusEmitter {
       presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
     }
     internalUnsubscribe(
-      from: globalChannelSubscriptions.compactMap { channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
-      and: globalGroupSubscriptions.compactMap { groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil },
+      from: globalChannelSubscriptions.lockedRead { $0.compactMap {
+        channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil
+      } },
+      and: globalGroupSubscriptions.lockedRead { $0.compactMap {
+        groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil
+      } },
       presenceOnly: presenceOnly
     )
-    channelNamesToUnsubscribe.forEach {
-      globalChannelSubscriptions.removeValue(forKey: $0)
+
+    globalChannelSubscriptions.lockedWrite { currentContainer in
+      channelNamesToUnsubscribe.forEach {
+        currentContainer.removeValue(forKey: $0)
+      }
     }
-    groupNamesToUnsubscribe.forEach {
-      globalGroupSubscriptions.removeValue(forKey: $0)
+
+    globalGroupSubscriptions.lockedWrite { currentContainer in
+      groupNamesToUnsubscribe.forEach {
+        currentContainer.removeValue(forKey: $0)
+      }
     }
   }
 

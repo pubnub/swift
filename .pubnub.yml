@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.3.2"
+version: "7.3.3"
 schema: 1
 changelog:
+  - date: 2024-09-13
+    version: 7.3.3
+    changes:
+      - type: bug
+        text: "Added synchronized access inside `WeakSet` and for global subscriptions."
   - date: 2024-07-22
     version: 7.3.2
     changes:
@@ -564,7 +569,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.3.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/7.3.3.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

@@ -182,10 +182,6 @@ class SubscribeTransitionTests: XCTestCase {
       PubNubChannel(id: "g2", withPresence: true),
       PubNubChannel(id: "g3", withPresence: false)
     ]
-    let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expectedChannels.map { $0.id },
-      groups: expectedGroups.map { $0.id }
-    )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .managed(.handshakeRequest(

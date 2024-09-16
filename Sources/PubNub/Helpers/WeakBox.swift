@@ -29,43 +29,51 @@ final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashab
 }
 
 struct WeakSet<Element> where Element: AnyObject, Element: Hashable {
-  private var elements: Set<WeakBox<Element>> = []
+  private var elements: Atomic<Set<WeakBox<Element>>> = Atomic([])
 
   init(_ elements: [Element]) {
-    elements.forEach { self.elements.update(with: WeakBox($0)) }
+    self.elements.lockedWrite { [elements] currentValue in
+      elements.forEach { element in
+        currentValue.update(with: WeakBox(element))
+      }
+    }
   }
 
   // NSSet Operations
   var allObjects: [Element] {
-    return elements.compactMap { $0.underlying }
+    return elements.lockedRead { $0.compactMap { $0.underlying } }
   }
 
   var count: Int {
-    return self.elements.count
+    elements.lockedRead { $0.count }
   }
 
   mutating func update(_ element: Element) {
-    elements.update(with: WeakBox(element))
+    elements.lockedWrite { [element] in
+      $0.update(with: WeakBox(element))
+    }
   }
 
   mutating func remove(_ element: Element) {
-    elements.remove(WeakBox(element))
+    elements.lockedWrite { [element] in
+      $0.remove(WeakBox(element))
+    }
   }
 
   mutating func removeAll() {
-    elements.removeAll()
+    elements.lockedWrite { $0 = Set<WeakBox<Element>>() }
   }
 }
 
 extension WeakSet: Collection {
-  var startIndex: Set<WeakBox<Element>>.Index { return elements.startIndex }
-  var endIndex: Set<WeakBox<Element>>.Index { return elements.endIndex }
+  var startIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0.startIndex } }
+  var endIndex: Set<WeakBox<Element>>.Index { return elements.lockedRead { $0.endIndex } }
 
   subscript(position: Set<WeakBox<Element>>.Index) -> Element? {
-    return elements[position].underlying
+    elements.lockedRead { $0[position].underlying }
   }
 
   func index(after index: Set<WeakBox<Element>>.Index) -> Set<WeakBox<Element>>.Index {
-    return elements.index(after: index)
+    elements.lockedRead { $0.index(after: index) }
   }
 }

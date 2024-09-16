@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.9
 //
 //  Package.swift
 //
@@ -12,12 +12,13 @@
 import PackageDescription
 
 let package = Package(
-  name: "PubNub",
+  name: "PubNubSDK",
   platforms: [
     .iOS(.v12),
     .macOS(.v10_15),
     .tvOS(.v12),
-    .watchOS(.v4)
+    .watchOS(.v4),
+    .visionOS(.v1)
   ],
   products: [
     // Products define the executables and libraries produced by a package, and make them visible to other packages.

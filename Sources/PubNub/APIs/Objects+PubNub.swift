@@ -58,8 +58,12 @@ public extension PubNub {
     public var customFields: Bool
     /// The `PubNubChannelMetadata` instance of the Membership
     public var channelFields: Bool
+    /// The `status` field of the `Membership` object
+    public var statusField: Bool
     /// The `type` field of the `PubNubChannelMetadata` instance in Membership
     public var channelTypeField: Bool
+    /// The `status` field of the `PubNubChannelMetadata` instance in Membership
+    public var channelStatusField: Bool
     /// The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
     public var channelCustomFields: Bool
     /// The `totalCount` of how many Objects are available
@@ -69,19 +73,26 @@ public extension PubNub {
     /// - Parameters:
     ///   - customFields: The `custom` dictionary for the Object
     ///   - channelFields: The `PubNubChannelMetadata` instance of the Membership
+    ///   - statusField: The `status` field of the Membership
     ///   - channelCustomFields: The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
+    ///   - channelTypeField: The `type` field of the `PubNubChannelMetadata` for the Membership object
+    ///   - channelStatusField: The `status` field of the `PubNubChannelMetadata` for the Membership object
     ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       channelFields: Bool = false,
+      statusField: Bool = false,
       channelCustomFields: Bool = false,
       channelTypeField: Bool = false,
+      channelStatusField: Bool = false,
       totalCount: Bool = false
     ) {
       self.customFields = customFields
       self.channelFields = channelFields
+      self.statusField = statusField
       self.channelCustomFields = channelCustomFields
       self.channelTypeField = channelTypeField
+      self.channelStatusField = channelStatusField
       self.totalCount = totalCount
     }
 
@@ -90,8 +101,10 @@ public extension PubNub {
 
       if customFields { includes.append(.custom) }
       if channelFields { includes.append(.channel) }
+      if statusField { includes.append(.status) }
       if channelCustomFields { includes.append(.channelCustom) }
       if channelTypeField { includes.append(.channelType) }
+      if channelStatusField { includes.append(.channelStatus) }
 
       return includes.isEmpty ? nil : includes
     }
@@ -102,8 +115,12 @@ public extension PubNub {
     public var customFields: Bool
     /// The `PubNubUUIDMetadata` instance of the Membership
     public var uuidFields: Bool
+    /// The `status` field of the `Membership` object
+    public var statusField: Bool
     /// The `type` field of the `PubNubUUIDMetadata` instance in Membership
     public var uuidTypeField: Bool
+    /// The `status` field of the `PubNubUUIDMetadata` instance in Membership
+    public var uuidStatusField: Bool
     /// The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
     public var uuidCustomFields: Bool
     /// The `totalCount` of how many Objects are available
@@ -113,20 +130,27 @@ public extension PubNub {
     /// - Parameters:
     ///   - customFields: The `custom` dictionary for the Object
     ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
+    ///   - statusField: The `status` field of the Membership
     ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
+    ///   - uuidTypeField: The `type` field of the `PubNubUUIDMetadata` for the Membership object
+    ///   - uuidStatusField: The `status` field of the `PubNubUUIDMetadata` for the Membership object
     ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
       uuidFields: Bool = false,
+      statusField: Bool = false,
       uuidCustomFields: Bool = false,
       uuidTypeField: Bool = false,
+      uuidStatusField: Bool = false,
       totalCount: Bool = false
     ) {
       self.customFields = customFields
       self.uuidFields = uuidFields
+      self.statusField = statusField
       self.uuidCustomFields = uuidCustomFields
-      self.totalCount = totalCount
       self.uuidTypeField = uuidTypeField
+      self.uuidStatusField = uuidStatusField
+      self.totalCount = totalCount
     }
 
     var customIncludes: [ObjectsMembershipsRouter.Include]? {
@@ -134,8 +158,10 @@ public extension PubNub {
 
       if customFields { includes.append(.custom) }
       if uuidFields { includes.append(.uuid) }
+      if statusField { includes.append(.status) }
       if uuidCustomFields { includes.append(.uuidCustom) }
       if uuidTypeField { includes.append(.uuidType) }
+      if uuidStatusField { includes.append(.uuidStatus) }
 
       return includes.isEmpty ? nil : includes
     }

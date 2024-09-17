@@ -1514,7 +1514,7 @@ extension PubNub {
   func removeEventListener(with uuid: UUID) {
     subscription.removeEventListener(with: uuid)
   }
-  
+
   func removeStatusListener(with uuid: UUID) {
     subscription.removeStatusListener(with: uuid)
   }

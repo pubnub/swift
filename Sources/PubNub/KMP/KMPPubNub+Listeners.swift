@@ -38,23 +38,35 @@ extension KMPPubNub {
 
       let category: KMPConnectionStatusCategory
       let errorIfAny: Error?
+      let affectedChannels: [String]
+      let affectedGroups: [String]
 
       switch newStatus {
       case .connected:
         category = .connected
         errorIfAny = nil
+        affectedChannels = pubnub.subscribedChannels
+        affectedGroups = pubnub.subscribedChannelGroups
       case .disconnected:
         category = .disconnected
         errorIfAny = nil
+        affectedChannels = pubnub.subscribedChannels
+        affectedGroups = pubnub.subscribedChannelGroups
       case let .disconnectedUnexpectedly(error):
         category = .disconnectedUnexpectedly
         errorIfAny = error
-      case .subscriptionChanged:
+        affectedChannels = pubnub.subscribedChannels
+        affectedGroups = pubnub.subscribedChannelGroups
+      case let .subscriptionChanged(channels, groups):
         category = .subscriptionChanged
         errorIfAny = nil
+        affectedChannels = channels
+        affectedGroups = groups
       case let .connectionError(error):
         category = .connectionError
         errorIfAny = error
+        affectedChannels = pubnub.subscribedChannels
+        affectedGroups = pubnub.subscribedChannelGroups
       }
 
       listener.onStatusChange?(
@@ -62,8 +74,8 @@ extension KMPPubNub {
           category: category,
           error: errorIfAny,
           currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-          affectedChannels: Set(pubnub.subscribedChannels),
-          affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+          affectedChannels: Set(affectedChannels),
+          affectedChannelGroups: Set(affectedGroups)
         )
       )
     })

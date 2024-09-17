@@ -446,9 +446,9 @@
 		3DA24A372C2AAA1C005B959B /* KMPPubNub+Push.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */; };
 		3DA24A392C2AAA3D005B959B /* KMPPubNub+History.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */; };
 		3DA24A3B2C2AAA59005B959B /* KMPPubNub+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */; };
-		3DA24A3D2C2AAA8C005B959B /* KMPPubNub +Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */; };
-		3DA24A3F2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */; };
-		3DA24A412C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */; };
+		3DA24A3D2C2AAA8C005B959B /* KMPPubNub+Presence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3C2C2AAA8C005B959B /* KMPPubNub+Presence.swift */; };
+		3DA24A3F2C2AAAC0005B959B /* KMPPubNub+MessageActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A3E2C2AAAC0005B959B /* KMPPubNub+MessageActions.swift */; };
+		3DA24A412C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift */; };
 		3DA24A432C2AAB54005B959B /* KMPPubNub+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */; };
 		3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
@@ -1067,9 +1067,9 @@
 		3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Push.swift"; sourceTree = "<group>"; };
 		3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+History.swift"; sourceTree = "<group>"; };
 		3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Time.swift"; sourceTree = "<group>"; };
-		3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +Presence.swift"; sourceTree = "<group>"; };
-		3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +MessageActions.swift"; sourceTree = "<group>"; };
-		3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub +ChannelGroups.swift"; sourceTree = "<group>"; };
+		3DA24A3C2C2AAA8C005B959B /* KMPPubNub+Presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Presence.swift"; sourceTree = "<group>"; };
+		3DA24A3E2C2AAAC0005B959B /* KMPPubNub+MessageActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+MessageActions.swift"; sourceTree = "<group>"; };
+		3DA24A402C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+ChannelGroups.swift"; sourceTree = "<group>"; };
 		3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+AppContext.swift"; sourceTree = "<group>"; };
 		3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Files.swift"; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
@@ -2308,9 +2308,9 @@
 				3DA24A362C2AAA1C005B959B /* KMPPubNub+Push.swift */,
 				3DA24A382C2AAA3D005B959B /* KMPPubNub+History.swift */,
 				3DA24A3A2C2AAA59005B959B /* KMPPubNub+Time.swift */,
-				3DA24A3C2C2AAA8C005B959B /* KMPPubNub +Presence.swift */,
-				3DA24A3E2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift */,
-				3DA24A402C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift */,
+				3DA24A3C2C2AAA8C005B959B /* KMPPubNub+Presence.swift */,
+				3DA24A3E2C2AAAC0005B959B /* KMPPubNub+MessageActions.swift */,
+				3DA24A402C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift */,
 				3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */,
 				3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */,
 				3D339C772BFF826500197342 /* Wrappers */,
@@ -3581,7 +3581,7 @@
 				3D389FF12B35AF4A006928E7 /* HeartbeatEffect.swift in Sources */,
 				35304F8A22FE5425006A02CA /* Validated.swift in Sources */,
 				3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */,
-				3DA24A3F2C2AAAC0005B959B /* KMPPubNub +MessageActions.swift in Sources */,
+				3DA24A3F2C2AAAC0005B959B /* KMPPubNub+MessageActions.swift in Sources */,
 				35EE358822E247B200E3F081 /* URLSessionConfiguration+PubNub.swift in Sources */,
 				3D389FF22B35AF4A006928E7 /* LeaveEffect.swift in Sources */,
 				35A6C7A822FBCC8B00E97CC5 /* PushRouter.swift in Sources */,
@@ -3623,7 +3623,7 @@
 				35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */,
 				3D758DD52AB48A6A005D2B36 /* CryptorHeader.swift in Sources */,
 				35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */,
-				3DA24A412C2AAB23005B959B /* KMPPubNub +ChannelGroups.swift in Sources */,
+				3DA24A412C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift in Sources */,
 				35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */,
 				35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
@@ -3644,7 +3644,7 @@
 				3D389FE62B35AF4A006928E7 /* EmitMessagesEffect.swift in Sources */,
 				3DA24A312C2AA972005B959B /* KMPPubNub+Listeners.swift in Sources */,
 				3D38A02C2B35B087006928E7 /* LegacySubscriptionSessionStrategy+Presence.swift in Sources */,
-				3DA24A3D2C2AAA8C005B959B /* KMPPubNub +Presence.swift in Sources */,
+				3DA24A3D2C2AAA8C005B959B /* KMPPubNub+Presence.swift in Sources */,
 				3DB925852B7AA75F001B7E90 /* EntityCreator.swift in Sources */,
 				358C641F238C5FCA009CE354 /* FCMWebpushPayload.swift in Sources */,
 				352DBFEA237CCB9D00A0106E /* EndpointResponse.swift in Sources */,

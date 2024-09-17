@@ -117,8 +117,8 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   }
 
   /// Removes subscription listener
-  public func removeEventListener(with uuid: UUID) {
-    listenersContainer.removeEventListener(with: uuid)
+  public func removeEventListener(_ listener: EventListener) {
+    listenersContainer.removeEventListener(listener)
   }
 
   /// Removes all event listeners
@@ -128,6 +128,12 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
 
   deinit {
     dispose()
+  }
+}
+
+extension Subscription {
+  func removeEventListener(with uuid: UUID) {
+    listenersContainer.removeEventListener(with: uuid)
   }
 }
 

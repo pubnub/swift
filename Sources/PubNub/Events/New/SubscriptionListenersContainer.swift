@@ -30,10 +30,18 @@ class SubscriptionListenersContainer {
     statusListenersCache.lockedWrite { $0[statusListener.uuid] = statusListener }
   }
 
+  func removeEventListener(_ listener: EventListener) {
+    eventListenersCache.lockedWrite { $0[listener.uuid] = nil }
+  }
+  
   func removeEventListener(with key: UUID) {
     eventListenersCache.lockedWrite { $0[key] = nil }
   }
 
+  func removeStatusListener(_ listener: StatusListener) {
+    statusListenersCache.lockedWrite { $0[listener.uuid] = nil }
+  }
+  
   func removeStatusListener(with key: UUID) {
     statusListenersCache.lockedWrite { $0[key] = nil }
   }

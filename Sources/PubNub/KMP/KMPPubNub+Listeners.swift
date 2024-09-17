@@ -82,8 +82,8 @@ extension KMPPubNub {
             category: .subscriptionChanged,
             error: nil,
             currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(pubnub.subscribedChannels),
-            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+            affectedChannels: Set(channels),
+            affectedChannelGroups: Set(groups)
           )
         )
       }
@@ -113,3 +113,4 @@ public extension KMPPubNub {
     pubnub.removeAllListeners()
   }
 }
+

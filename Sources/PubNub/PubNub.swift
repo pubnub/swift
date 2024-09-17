@@ -1486,7 +1486,7 @@ extension PubNub: StatusListenerInterface {
   }
 
   /// Removes status listener
-  public func removeStatusListener(with uuid: UUID) {
+  public func removeStatusListener(_ listener: StatusListener) {
     subscription.removeStatusListener(with: uuid)
   }
 
@@ -1501,12 +1501,22 @@ extension PubNub: EventListenerHandler {
     subscription.addEventListener(listener)
   }
 
-  public func removeEventListener(with uuid: UUID) {
-    subscription.removeEventListener(with: uuid)
+  public func removeEventListener(_ listener: EventListener) {
+    subscription.removeEventListener(listener)
   }
 
   public func removeAllListeners() {
     subscription.removeAllListeners()
+  }
+}
+
+extension PubNub {
+  func removeEventListener(with uuid: UUID) {
+    subscription.removeEventListener(with: uuid)
+  }
+  
+  func removeStatusListener(with uuid: UUID) {
+    subscription.removeStatusListener(with: uuid)
   }
 }
 

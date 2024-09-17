@@ -48,14 +48,14 @@ public class KMPPresenceChange: NSObject {
     case .join(let uuids):
       event = "join"
       join = uuids
-      uuid = nil
+      uuid = uuids.first
       state = nil
       leave = nil
       timeout = nil
     case .leave(let uuids):
       event = "leave"
       leave = uuids
-      uuid = nil
+      uuid = uuids.first
       state = nil
       join = nil
       timeout = nil
@@ -67,9 +67,9 @@ public class KMPPresenceChange: NSObject {
       leave = nil
       timeout = nil
     case .timeout(let uuids):
-      event = "interval"
+      event = "timeout"
       timeout = uuids
-      uuid = nil
+      uuid = uuids.first
       state = nil
       join = nil
       leave = nil

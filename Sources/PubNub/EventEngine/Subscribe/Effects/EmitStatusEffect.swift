@@ -16,11 +16,11 @@ struct EmitStatusEffect: EffectHandler {
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     if let error = statusChange.error {
       subscriptions.forEach {
-        $0?.emit(subscribe: .errorReceived(error))
+        $0.emit(subscribe: .errorReceived(error))
       }
     }
     subscriptions.forEach {
-      $0?.emit(subscribe: .connectionChanged(statusChange.newStatus))
+      $0.emit(subscribe: .connectionChanged(statusChange.newStatus))
     }
     completionBlock([])
   }

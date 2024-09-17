@@ -35,10 +35,10 @@ extension KMPPubNub {
       guard let pubnub = pubnub else {
         return
       }
-      
+
       let category: KMPConnectionStatusCategory
       let errorIfAny: Error?
-      
+
       switch newStatus {
       case .connected:
         category = .connected
@@ -56,7 +56,7 @@ extension KMPPubNub {
         category = .connectionError
         errorIfAny = error
       }
-      
+
       listener.onStatusChange?(
         KMPConnectionStatus(
           category: category,

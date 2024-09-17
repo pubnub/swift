@@ -90,7 +90,7 @@ private class SubscribeEffect: EffectHandler {
       switch $0 {
       case .success(let response):
         selfRef.subscriptions.forEach {
-          $0?.emit(subscribe: .responseReceived(
+          $0.emit(subscribe: .responseReceived(
             SubscribeResponseHeader(
               channels: selfRef.request.channels.map { PubNubChannel(channel: $0) },
               groups: selfRef.request.groups.map { PubNubChannel(channel: $0) },

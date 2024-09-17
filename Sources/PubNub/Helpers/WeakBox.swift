@@ -77,3 +77,15 @@ extension WeakSet: Collection {
     elements.lockedRead { $0.index(after: index) }
   }
 }
+
+extension WeakSet where Element == BaseSubscriptionListener {
+  func forEach(_ body: (BaseSubscriptionListener) throws -> Void) rethrows {
+    try elements.lockedTry {
+      try $0.compactMap {
+        $0.underlying
+      }.forEach {
+        try body($0)
+      }
+    }
+  }
+}

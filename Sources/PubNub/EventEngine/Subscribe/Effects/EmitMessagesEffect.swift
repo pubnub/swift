@@ -44,7 +44,7 @@ struct EmitMessagesEffect: EffectHandler {
     // Attempt to detect missed messages due to queue overflow
     if messages.count >= 100 {
       subscriptions.forEach {
-        $0?.emit(subscribe: .errorReceived(
+        $0.emit(subscribe: .errorReceived(
           PubNubError(
             .messageCountExceededMaximum,
             router: nil,
@@ -68,7 +68,7 @@ struct EmitMessagesEffect: EffectHandler {
     }
 
     subscriptions.forEach {
-      $0?.emit(batch: filteredMessages)
+      $0.emit(batch: filteredMessages)
     }
 
     completionBlock([])

@@ -28,7 +28,7 @@ extension NSLocking {
 
   @discardableResult
   @inline(__always)
-  func synchronize<T>(_ closure: () throws -> T) throws -> T {
+  func synchronize<T>(_ closure: () throws -> T) rethrows -> T {
     lock()
     defer { unlock() }
     let result = try closure()

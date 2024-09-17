@@ -75,7 +75,9 @@ public class KMPSubscription: NSObject {
 
   @objc
   public func removeListener(_ listener: KMPEventListener) {
-    subscription.removeEventListener(with: listener.uuid)
+    if let underlying = listener.underlying {
+      subscription.removeEventListener(underlying)
+    }
   }
 
   @objc
@@ -181,7 +183,9 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func removeListener(_ listener: KMPEventListener) {
-    subscriptionSet.removeEventListener(with: listener.uuid)
+    if let underlying = listener.underlying {
+      subscriptionSet.removeEventListener(underlying)
+    }
   }
 
   @objc

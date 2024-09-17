@@ -27,6 +27,10 @@ public class KMPEventListener: NSObject {
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
 
+  // Stores a reference to the Swift listener that acts as a proxy
+  // and forwards all calls to this (KMPEventListener) instance
+  weak var underlying: EventListener?
+  
   @objc public init(
     onMessage: ((KMPMessage) -> Void)?,
     onPresence: (([KMPPresenceChange]) -> Void)?,

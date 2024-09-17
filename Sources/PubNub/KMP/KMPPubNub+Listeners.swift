@@ -19,7 +19,7 @@ import Foundation
 
 extension KMPPubNub {
   func createEventListener(from listener: KMPEventListener) -> EventListener {
-    EventListener(
+    let swiftListener = EventListener(
       uuid: listener.uuid,
       onMessage: { listener.onMessage?(KMPMessage(message: $0)) },
       onSignal: { listener.onSignal?(KMPMessage(message: $0)) },
@@ -28,10 +28,16 @@ extension KMPPubNub {
       onFileEvent: { [weak pubnub] in listener.onFile?(KMPFileChangeEvent.from(event: $0, with: pubnub)) },
       onAppContext: { listener.onAppContext?(KMPAppContextEventResult.from(event: $0)) }
     )
+    
+    // Establishes an association to infer which Swift listener
+    // corresponds to which KMP listener
+    listener.underlying = swiftListener
+    
+    return swiftListener
   }
 
   func createStatusListener(from listener: KMPStatusListener) -> StatusListener {
-    StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
+    let swiftStatusListener = StatusListener(onConnectionStateChange: { [weak pubnub] newStatus in
       guard let pubnub = pubnub else {
         return
       }
@@ -79,6 +85,12 @@ extension KMPPubNub {
         )
       )
     })
+    
+    // Establishes an association to infer which Swift listener
+    // corresponds to which KMP listener
+    listener.underlying = swiftStatusListener
+    
+    return swiftStatusListener
   }
 }
 
@@ -89,7 +101,9 @@ public extension KMPPubNub {
   }
 
   func removeStatusListener(listener: KMPStatusListener) {
-    pubnub.removeStatusListener(with: listener.uuid)
+    if let underlying = listener.underlying {
+      pubnub.removeStatusListener(underlying)
+    }
   }
 
   func addEventListener(listener: KMPEventListener) {
@@ -97,7 +111,9 @@ public extension KMPPubNub {
   }
 
   func removeEventListener(listener: KMPEventListener) {
-    pubnub.removeEventListener(with: listener.uuid)
+    if let underlying = listener.underlying {
+      pubnub.removeEventListener(underlying)
+    }
   }
 
   func removeAllListeners() {

@@ -131,12 +131,6 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   }
 }
 
-extension Subscription {
-  func removeEventListener(with uuid: UUID) {
-    listenersContainer.removeEventListener(with: uuid)
-  }
-}
-
 extension Subscription: SubscribeCapable {
   /// Subscribes to the associated `entity` with the specified timetoken.
   ///

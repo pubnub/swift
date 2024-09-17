@@ -35,58 +35,37 @@ extension KMPPubNub {
       guard let pubnub = pubnub else {
         return
       }
+      
+      let category: KMPConnectionStatusCategory
+      let errorIfAny: Error?
+      
       switch newStatus {
       case .connected:
-        listener.onStatusChange?(
-          KMPConnectionStatus(
-            category: .connected,
-            error: nil,
-            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(pubnub.subscribedChannels),
-            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
-          )
-        )
+        category = .connected
+        errorIfAny = nil
       case .disconnected:
-        listener.onStatusChange?(
-          KMPConnectionStatus(
-            category: .disconnected,
-            error: nil,
-            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(pubnub.subscribedChannels),
-            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
-          )
-        )
-      case .disconnectedUnexpectedly(let error):
-        listener.onStatusChange?(
-          KMPConnectionStatus(
-            category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .disconnectedUnexpectedly,
-            error: error,
-            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(pubnub.subscribedChannels),
-            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
-          )
-        )
-      case .connectionError(let error):
-        listener.onStatusChange?(
-          KMPConnectionStatus(
-            category: error.reason == .malformedResponseBody ? .malformedResponseCategory : .connectionError,
-            error: error,
-            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(pubnub.subscribedChannels),
-            affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
-          )
-        )
-      case let .subscriptionChanged(channels, groups):
-        listener.onStatusChange?(
-          KMPConnectionStatus(
-            category: .subscriptionChanged,
-            error: nil,
-            currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
-            affectedChannels: Set(channels),
-            affectedChannelGroups: Set(groups)
-          )
-        )
+        category = .disconnected
+        errorIfAny = nil
+      case let .disconnectedUnexpectedly(error):
+        category = .disconnectedUnexpectedly
+        errorIfAny = error
+      case .subscriptionChanged:
+        category = .subscriptionChanged
+        errorIfAny = nil
+      case let .connectionError(error):
+        category = .connectionError
+        errorIfAny = error
       }
+      
+      listener.onStatusChange?(
+        KMPConnectionStatus(
+          category: category,
+          error: errorIfAny,
+          currentTimetoken: NSNumber(value: pubnub.previousTimetoken ?? 0),
+          affectedChannels: Set(pubnub.subscribedChannels),
+          affectedChannelGroups: Set(pubnub.subscribedChannelGroups)
+        )
+      )
     })
   }
 }

@@ -21,7 +21,7 @@ import Foundation
 public class KMPStatusListener: NSObject {
   @objc public let uuid: UUID
   @objc public var onStatusChange: ((KMPConnectionStatus) -> Void)?
-  
+
   // Stores a reference to the Swift listener that acts as a proxy
   // and forwards all calls to this (KMPStatusListener) instance
   weak var underlying: StatusListener?

@@ -20,8 +20,8 @@ public enum ConnectionStatus: Equatable {
   case disconnectedUnexpectedly(PubNubError)
   /// Unable to establish initial connection. Applies if `enableEventEngine` in `PubNubConfiguration` is true.
   case connectionError(PubNubError)
-  /// SDK subscribed with a new mix of channels (fired every time the channel/channel group mix changed)
-  /// since the initial connection
+  /// Indicates that the SDK has subscribed to new channels or channel groups.
+  /// This status is triggered each time the channel or channel group mix changes after the initial connection, and it provides all currently subscribed channels and channel groups
   case subscriptionChanged(channels: [String], groups: [String])
 
   /// If the connection is connected or attempting to connect

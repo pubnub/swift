@@ -37,7 +37,7 @@ class SubscriptionListenersContainer {
   func removeStatusListener(_ listener: StatusListener) {
     statusListenersCache.lockedWrite { $0[listener.uuid] = nil }
   }
-  
+
   func removeAllEventListeners() {
     eventListenersCache.lockedWrite { $0.removeAll() }
   }

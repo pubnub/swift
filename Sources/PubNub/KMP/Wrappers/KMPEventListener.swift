@@ -30,7 +30,7 @@ public class KMPEventListener: NSObject {
   // Stores a reference to the Swift listener that acts as a proxy
   // and forwards all calls to this (KMPEventListener) instance
   weak var underlying: EventListener?
-  
+
   @objc public init(
     onMessage: ((KMPMessage) -> Void)?,
     onPresence: (([KMPPresenceChange]) -> Void)?,

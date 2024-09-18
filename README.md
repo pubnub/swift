@@ -150,7 +150,7 @@ pubnub.subscribe(to: ["my_channel"])
 
 * [Build your first realtime Swift app with PubNub](https://www.pubnub.com/docs/platform/quickstarts/swift)
 * [API reference for Swift](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk)
-* [PubNub Swift SDK 3.x Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_3_0_Migration_Guide.md)
+* [PubNub Swift SDK 8.x Migration Guide](https://github.com/pubnub/swift/blob/master/Documentation/PubNub_8_0_Migration_Guide.md)
 
 ## Support
 

@@ -28,11 +28,11 @@ extension KMPPubNub {
       onFileEvent: { [weak pubnub] in listener.onFile?(KMPFileChangeEvent.from(event: $0, with: pubnub)) },
       onAppContext: { listener.onAppContext?(KMPAppContextEventResult.from(event: $0)) }
     )
-    
+
     // Establishes an association to infer which Swift listener
     // corresponds to which KMP listener
     listener.underlying = swiftListener
-    
+
     return swiftListener
   }
 
@@ -85,11 +85,11 @@ extension KMPPubNub {
         )
       )
     })
-    
+
     // Establishes an association to infer which Swift listener
     // corresponds to which KMP listener
     listener.underlying = swiftStatusListener
-    
+
     return swiftStatusListener
   }
 }

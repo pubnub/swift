@@ -44,25 +44,20 @@ extension KMPPubNub {
 
       let category: KMPConnectionStatusCategory
       let errorIfAny: Error?
-      let affectedChannels: [String]
-      let affectedGroups: [String]
+
+      var affectedChannels: [String] = pubnub.subscribedChannels
+      var affectedGroups: [String] = pubnub.subscribedChannelGroups
 
       switch newStatus {
       case .connected:
         category = .connected
         errorIfAny = nil
-        affectedChannels = pubnub.subscribedChannels
-        affectedGroups = pubnub.subscribedChannelGroups
       case .disconnected:
         category = .disconnected
         errorIfAny = nil
-        affectedChannels = pubnub.subscribedChannels
-        affectedGroups = pubnub.subscribedChannelGroups
       case let .disconnectedUnexpectedly(error):
         category = .disconnectedUnexpectedly
         errorIfAny = error
-        affectedChannels = pubnub.subscribedChannels
-        affectedGroups = pubnub.subscribedChannelGroups
       case let .subscriptionChanged(channels, groups):
         category = .subscriptionChanged
         errorIfAny = nil
@@ -71,8 +66,6 @@ extension KMPPubNub {
       case let .connectionError(error):
         category = .connectionError
         errorIfAny = error
-        affectedChannels = pubnub.subscribedChannels
-        affectedGroups = pubnub.subscribedChannelGroups
       }
 
       listener.onStatusChange?(

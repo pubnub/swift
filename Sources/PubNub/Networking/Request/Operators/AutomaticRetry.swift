@@ -138,7 +138,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     case let .exponential(minDelay, maxDelay):
       let validatedMinDelay = Self.validate(
         value: minDelay,
-        using: minDelay > Self.minDelay,
+        using: minDelay >= Self.minDelay,
         replaceOnFailure: Self.minDelay,
         warningMessage: "The `minDelay` must be a minimum of \(Self.minDelay)"
       )
@@ -163,7 +163,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
 
     self.retryLimit = Self.validate(
       value: UInt(retryLimit),
-      using: retryLimit < policy.maximumRetryLimit(),
+      using: retryLimit <= policy.maximumRetryLimit(),
       replaceOnFailure: UInt(policy.maximumRetryLimit()),
       warningMessage: "The `retryLimit` for \(policy) must be less than or equal \(policy.maximumRetryLimit())"
     )

@@ -8,7 +8,12 @@ ___
 
 ### Module name
 
-* The module name has been changed to `PubNubSDK` due to a compiler error that occurs when a public type shares the same name as a module. As a result, you will need to replace `import PubNub` with `import PubNubSDK` in your Swift code. Additionally, ensure that `PubNubSDK` is listed in the `Frameworks, Libraries, and Embedded Content` section under the `General` tab in Xcode.
+* The module name has been changed to `PubNubSDK` due to a compiler error that occurs when a public type shares the same name as a module. As a result, you will need to replace `import PubNub` with `import PubNubSDK` in your Swift code. Additionally, ensure that `PubNubSDK` is listed in the `Frameworks, Libraries, and Embedded Content` section under the `General` tab in Xcode
+
+### `ReconnectionPolicy`
+
+* The `.legacyExponential(base, scale, maxDelay)` enumeration case from `AutomaticRetry.ReconnectionPolicy` is no longer supported. Use `.exponential(minDelay, maxDelay)` instead
+* `PubNubConfiguration` uses default `AutomaticRetry` with an exponential reconnection policy to retry Subscribe requests in case of failure. If this behavior doesn’t suit your use case, you can pass custom `AutomaticRetry` object
 
 ### `ConnectionStatus`
 

@@ -85,7 +85,7 @@ public struct PubNubConfiguration: Hashable {
     origin: String = "ps.pndsn.com",
     useInstanceId: Bool = false,
     useRequestId: Bool = false,
-    automaticRetry: AutomaticRetry? = nil,
+    automaticRetry: AutomaticRetry? = .default,
     urlSessionConfiguration: URLSessionConfiguration = .pubnub,
     durationUntilTimeout: UInt = 300,
     heartbeatInterval: UInt = 0,

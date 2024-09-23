@@ -9,7 +9,7 @@
 //
 
 import Foundation
-@testable import PubNub
+@testable import PubNubSDK
 
 class MockURLSessionDataTask: URLSessionDataTask {
   weak var mockSession: MockURLSession?

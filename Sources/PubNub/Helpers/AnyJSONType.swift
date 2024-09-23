@@ -19,7 +19,6 @@ public enum AnyJSONType {
   case null
   case array([AnyJSONType])
   case dictionary([String: AnyJSONType])
-
   case codable(Codable)
   case unknown(Any)
 }

@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 extension Presence.Invocation: Equatable {
   public static func ==(lhs: Presence.Invocation, rhs: Presence.Invocation) -> Bool {

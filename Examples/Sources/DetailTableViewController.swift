@@ -11,7 +11,7 @@
 import Foundation
 import UIKit
 
-import PubNub
+import PubNubSDK
 import PubNubMembership
 import PubNubSpace
 import PubNubUser
@@ -249,12 +249,10 @@ class DetailTableViewController: UITableViewController {
           print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
         case let .connectionStatusChanged(connectionChange):
           switch connectionChange {
-          case .connecting:
-            print("Status connecting...")
           case .connected:
             print("Status connected!")
-          case .reconnecting:
-            print("Status reconnecting...")
+          case .subscriptionChanged:
+            print("Subscription changed")
           case .disconnected:
             print("Status disconnected")
           case .disconnectedUnexpectedly:

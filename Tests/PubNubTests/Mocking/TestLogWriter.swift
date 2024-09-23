@@ -9,7 +9,7 @@
 //
 
 import Foundation
-@testable import PubNub
+@testable import PubNubSDK
 
 class TestSyncLogWriter: LogWriter {
   var executor: LogExecutable = LogExecutionType.sync(lock: NSRecursiveLock())

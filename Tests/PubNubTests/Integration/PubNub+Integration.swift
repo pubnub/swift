@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 extension PubNub {
   func publishWithMessageAction(

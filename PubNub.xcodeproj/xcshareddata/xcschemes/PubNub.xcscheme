@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "PubNub::PubNub"
-               BuildableName = "PubNub.framework"
-               BlueprintName = "PubNub"
+               BuildableName = "PubNubSDK.framework"
+               BlueprintName = "PubNubSDK"
                ReferencedContainer = "container:PubNub.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,8 +34,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "PubNub::PubNub"
-            BuildableName = "PubNub.framework"
-            BlueprintName = "PubNub"
+            BuildableName = "PubNubSDK.framework"
+            BlueprintName = "PubNubSDK"
             ReferencedContainer = "container:PubNub.xcodeproj">
          </BuildableReference>
       </CodeCoverageTargets>
@@ -80,8 +80,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "PubNub::PubNub"
-            BuildableName = "PubNub.framework"
-            BlueprintName = "PubNub"
+            BuildableName = "PubNubSDK.framework"
+            BlueprintName = "PubNubSDK"
             ReferencedContainer = "container:PubNub.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -96,8 +96,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "PubNub::PubNub"
-            BuildableName = "PubNub.framework"
-            BlueprintName = "PubNub"
+            BuildableName = "PubNubSDK.framework"
+            BlueprintName = "PubNubSDK"
             ReferencedContainer = "container:PubNub.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

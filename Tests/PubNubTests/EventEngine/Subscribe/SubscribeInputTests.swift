@@ -10,7 +10,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class SubscribeInputTests: XCTestCase {
   func test_ChannelsWithoutPresence() {

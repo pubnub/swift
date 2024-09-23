@@ -27,7 +27,7 @@
 
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class SubscriptionSessionTests: XCTestCase {
   let config = PubNubConfiguration(
@@ -49,6 +49,7 @@ class SubscriptionSessionTests: XCTestCase {
         let messageExpect = XCTestExpectation(description: "Message Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let mockResponses = ["subscription_handshake_success", "subscription_message_success", "cancelled"]
+        let pubnub = PubNub(configuration: configuration)
         let subscriptionSession = mockSubscriptionSession(with: mockResponses, and: configuration)
         let listener = SubscriptionListener()
         
@@ -70,7 +71,7 @@ class SubscriptionSessionTests: XCTestCase {
           }
         }
         subscriptionSession.add(listener)
-        subscriptionSession.subscribe(to: [testChannel])
+        subscriptionSession.subscribe(to: [testChannel], using: pubnub)
         XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
@@ -89,6 +90,7 @@ class SubscriptionSessionTests: XCTestCase {
         let mockResponses = ["badURL", "cancelled"]
         let subscriptionSession = mockSubscriptionSession(with: mockResponses, and: configuration)
         let listener = SubscriptionListener()
+        let pubnub = PubNub(configuration: configuration)
 
         listener.didReceiveStatus = { [unowned subscriptionSession] status in
           if case .failure(_) = status {
@@ -103,7 +105,7 @@ class SubscriptionSessionTests: XCTestCase {
           }
         }
         subscriptionSession.add(listener)
-        subscriptionSession.subscribe(to: [testChannel], at: SubscribeCursor(timetoken: 123456, region: 1))
+        subscriptionSession.subscribe(to: [testChannel], at: SubscribeCursor(timetoken: 123456, region: 1), using: pubnub)
         XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }

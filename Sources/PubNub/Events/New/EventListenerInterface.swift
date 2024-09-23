@@ -13,17 +13,38 @@ import Foundation
 // MARK: - StatusEmitter
 
 /// A protocol for types that emit PubNub status events from the Subscribe loop.
-public protocol StatusEmitter: AnyObject {
+public protocol StatusListenerInterface: AnyObject {
+  /// An underlying queue to dispatch events
+  var queue: DispatchQueue { get }
+  /// A unique emitter's identifier
+  var uuid: UUID { get }
   /// A closure to be called when the connection status changes.
   var onConnectionStateChange: ((ConnectionStatus) -> Void)? { get set }
 }
 
-// MARK: - EventEmitter
+/// Defines additional status listener that can be attached to `Subscription` or `SubscriptionSet`
+public class StatusListener: StatusListenerInterface {
+  public let uuid: UUID
+  public let queue: DispatchQueue
+  public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
 
-/// A protocol for types that emit PubNub events.
+  public init(
+    uuid: UUID = UUID(),
+    queue: DispatchQueue = .main,
+    onConnectionStateChange: @escaping ((ConnectionStatus) -> Void)
+  ) {
+    self.uuid = uuid
+    self.queue = queue
+    self.onConnectionStateChange = onConnectionStateChange
+  }
+}
+
+// MARK: - EventListenerInterface
+
+/// A protocol for types that emit PubNub events from the Subscribe loop.
 ///
 /// Utilize closures to receive notifications when specific types of PubNub events occur.
-public protocol EventEmitter: AnyObject {
+public protocol EventListenerInterface: AnyObject {
   /// An underlying queue to dispatch events
   var queue: DispatchQueue { get }
   /// A unique emitter's identifier
@@ -46,15 +67,45 @@ public protocol EventEmitter: AnyObject {
   var onAppContext: ((PubNubAppContextEvent) -> Void)? { get set }
 }
 
-/// A protocol representing a type that can be utilized to dispose of a conforming object.
-public protocol SubscriptionDisposable {
-  /// Determines whether current emitter is disposed
-  var isDisposed: Bool { get }
-  /// Stops listening to incoming events and disposes current emitter
-  func dispose()
+/// Defines additional event listener that can be attached to `Subscription` or `SubscriptionSet`
+public class EventListener: EventListenerInterface {
+  public let queue: DispatchQueue
+  public let uuid: UUID
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+
+  public init(
+    queue: DispatchQueue = .main,
+    uuid: UUID = UUID(),
+    onEvent: ((PubNubEvent) -> Void)? = nil,
+    onEvents: (([PubNubEvent]) -> Void)? = nil,
+    onMessage: ((PubNubMessage) -> Void)? = nil,
+    onSignal: ((PubNubMessage) -> Void)? = nil,
+    onPresence: ((PubNubPresenceChange) -> Void)? = nil,
+    onMessageAction: ((PubNubMessageActionEvent) -> Void)? = nil,
+    onFileEvent: ((PubNubFileChangeEvent) -> Void)? = nil,
+    onAppContext: ((PubNubAppContextEvent) -> Void)? = nil
+  ) {
+    self.queue = queue
+    self.uuid = uuid
+    self.onEvent = onEvent
+    self.onEvents = onEvents
+    self.onMessage = onMessage
+    self.onSignal = onSignal
+    self.onPresence = onPresence
+    self.onMessageAction = onMessageAction
+    self.onFileEvent = onFileEvent
+    self.onAppContext = onAppContext
+  }
 }
 
-extension EventEmitter {
+extension EventListenerInterface {
   func emit(events: [PubNubEvent]) {
     queue.async { [weak self] in
       if !events.isEmpty {
@@ -84,7 +135,7 @@ extension EventEmitter {
   }
 }
 
-extension EventEmitter {
+extension EventListenerInterface {
   func clearCallbacks() {
     onEvent = nil
     onEvents = nil
@@ -95,6 +146,21 @@ extension EventEmitter {
     onFileEvent = nil
     onAppContext = nil
   }
+}
+
+/// Provides functionalities to add and remove additional listeners.
+public protocol EventListenerHandler {
+  func addEventListener(_ listener: EventListener)
+  func removeEventListener(_ listener: EventListener)
+  func removeAllListeners()
+}
+
+/// A protocol representing a type that can be utilized to dispose of a conforming object.
+public protocol SubscriptionDisposable {
+  /// Determines whether current emitter is disposed
+  var isDisposed: Bool { get }
+  /// Stops listening to incoming events and disposes current emitter
+  func dispose()
 }
 
 // `SubscribeMessagesReceiver` is an internal protocol defining a receiver for subscription messages.

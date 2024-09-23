@@ -8,10 +8,10 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import PubNub
-@testable import PubNubUser
-
+import PubNubSDK
 import XCTest
+
+@testable import PubNubUser
 
 class PubNubUserInterfaceTests: XCTestCase {
   let testUser = PubNubUser(

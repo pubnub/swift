@@ -1,9 +1,26 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "7.3.3"
+version: "8.0.0"
 schema: 1
 changelog:
+  - date: 2024-09-23
+    version: 8.0.0
+    changes:
+      - type: feature
+        text: "Replace module name with `PubNubSDK` due to compiler error when a public type shares the same name as the module."
+      - type: feature
+        text: " add new `subscriptionChanged(channels, groups)` connection status and remove previously deprecated `connecting` and `reconnecting` cases."
+      - type: feature
+        text: "Remove previously deprecated `.legacyExponential(base, scale, maxDelay)` reconnection policy."
+      - type: feature
+        text: "Added additional fields to fetch in `PubNub.MembershipInclude` and `PubNub.MemberInclude`."
+      - type: feature
+        text: "Set default `AutomaticRetry` for retrying subscribe requests with exponential reconnection policy."
+      - type: feature
+        text: "Add support for attaching additional listeners to `Subscription` and `SubscriptionSet`."
+      - type: bug
+        text: "Ensure that subscriptions are always internally stored as weak references."
   - date: 2024-09-13
     version: 7.3.3
     changes:
@@ -569,7 +586,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/7.3.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

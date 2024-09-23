@@ -35,7 +35,7 @@ extension Subscribe {
   struct HandshakingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let connectionStatus = ConnectionStatus.connecting
+    let connectionStatus = ConnectionStatus.disconnected
   }
 
   struct HandshakeStoppedState: SubscribeState {
@@ -61,7 +61,7 @@ extension Subscribe {
   struct ReceivingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
-    let connectionStatus = ConnectionStatus.connected
+    let connectionStatus: ConnectionStatus
   }
 
   struct ReceiveStoppedState: SubscribeState {
@@ -119,11 +119,14 @@ extension Subscribe {
 extension Subscribe {
   struct Dependencies {
     let configuration: PubNubConfiguration
-    let listeners: [BaseSubscriptionListener]
+    let subscriptions: WeakSet<BaseSubscriptionListener>
 
-    init(configuration: PubNubConfiguration, listeners: [BaseSubscriptionListener] = []) {
+    init(
+      configuration: PubNubConfiguration,
+      listeners: WeakSet<BaseSubscriptionListener> = WeakSet<BaseSubscriptionListener>([])
+    ) {
       self.configuration = configuration
-      self.listeners = listeners
+      self.subscriptions = listeners
     }
   }
 }

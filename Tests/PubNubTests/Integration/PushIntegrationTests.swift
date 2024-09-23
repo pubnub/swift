@@ -7,9 +7,9 @@
 //  This source code is licensed under the license found in the
 //  LICENSE file in the root directory of this source tree.
 //
-import XCTest
 
-import PubNub
+import XCTest
+import PubNubSDK
 
 class PushIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: PushIntegrationTests.self)

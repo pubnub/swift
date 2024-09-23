@@ -69,8 +69,12 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     case custom
     case channel
     case channelCustom = "channel.custom"
+    case channelType = "channel.type"
+    case channelStatus = "channel.status"
     case uuid
     case uuidCustom = "uuid.custom"
+    case uuidType = "uuid.type"
+    case uuidStatus = "uuid.status"
     case status
 
     static func merge(_ other: [Include]?) -> [String] {

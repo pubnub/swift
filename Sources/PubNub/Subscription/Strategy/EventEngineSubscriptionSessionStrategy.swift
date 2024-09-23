@@ -76,7 +76,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     subscribeEngine.dependencies = EventEngineDependencies(
       value: Subscribe.Dependencies(
         configuration: configuration,
-        listeners: listeners.allObjects
+        listeners: listeners
       )
     )
   }

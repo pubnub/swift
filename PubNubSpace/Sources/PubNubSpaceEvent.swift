@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 public enum PubNubSpaceEvent {
   /// The changeset for the Space entity that changed

@@ -349,7 +349,8 @@ public extension PubNub {
       to: channels,
       and: channelGroups,
       at: SubscribeCursor(timetoken: timetoken),
-      withPresence: withPresence
+      withPresence: withPresence,
+      using: self
     )
   }
 
@@ -422,7 +423,7 @@ public extension PubNub {
   }
 }
 
-extension PubNub: SubscribeReceiver {
+extension PubNub {
   func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
     subscription.registerAdapter(adapter)
   }
@@ -460,19 +461,19 @@ extension PubNub: SubscribeReceiver {
 
 extension PubNub: EntityCreator {
   public func channel(_ name: String) -> ChannelRepresentation {
-    subscription.channel(name)
+    ChannelRepresentation(name: name, pubnub: self)
   }
 
   public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
-    subscription.channelGroup(name)
+    ChannelGroupRepresentation(name: name, pubnub: self)
   }
 
   public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    subscription.userMetadata(name)
+    UserMetadataRepresentation(id: name, pubnub: self)
   }
 
   public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    subscription.channelMetadata(name)
+    ChannelMetadataRepresentation(id: name, pubnub: self)
   }
 }
 
@@ -1416,12 +1417,12 @@ public extension PubNub {
 
 // MARK: - Global EventEmitter
 
-/// An extension to the PubNub class, making it conform to the `EventEmitter` protocol and serving
+/// An extension to the PubNub class, making it conform to the `EventListenerInterface` protocol and serving
 /// as a global emitter for all entities.
 ///
 /// This extension enables `PubNub` instances to act as event emitters, allowing them to dispatch
 /// various types of events for all registered entities in the Subscribe loop.
-extension PubNub: EventEmitter {
+extension PubNub: EventListenerInterface {
   public var queue: DispatchQueue {
     subscription.queue
   }
@@ -1471,12 +1472,41 @@ extension PubNub: EventEmitter {
   }
 }
 
-/// An extension to the `PubNub` class, making it conform to the `StatusEmitter` protocol and serving
+/// An extension to the `PubNub` class, making it conform to the `StatusListenerInterface` protocol and serving
 /// as a global listener for connection changes and possible errors along the way.
-extension PubNub: StatusEmitter {
+extension PubNub: StatusListenerInterface {
   public var onConnectionStateChange: ((ConnectionStatus) -> Void)? {
     get { subscription.onConnectionStateChange }
     set { subscription.onConnectionStateChange = newValue }
+  }
+
+  /// Adds additional status listeners
+  public func addStatusListener(_ listener: StatusListener) {
+    subscription.addStatusListener(listener)
+  }
+
+  /// Removes status listener
+  public func removeStatusListener(_ listener: StatusListener) {
+    subscription.removeStatusListener(listener)
+  }
+
+  /// Removes all status listeners
+  public func removeAllStatusListeners() {
+    subscription.removeAllStatusListeners()
+  }
+}
+
+extension PubNub: EventListenerHandler {
+  public func addEventListener(_ listener: EventListener) {
+    subscription.addEventListener(listener)
+  }
+
+  public func removeEventListener(_ listener: EventListener) {
+    subscription.removeEventListener(listener)
+  }
+
+  public func removeAllListeners() {
+    subscription.removeAllListeners()
   }
 }
 

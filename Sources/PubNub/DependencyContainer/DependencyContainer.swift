@@ -19,6 +19,17 @@ protocol DependencyKey {
   // is found in the `DependencyContainer`. The `container` parameter is used in case of
   // nested dependencies, i.e., when the dependency being created depends on other objects in the `DependencyContainer`.
   static func value(from container: DependencyContainer) -> Value
+
+  // Called when a value is resolved in the dependency container.
+  //
+  // This method is invoked when a specific `Value` type is resolved within the
+  // dependency container. It can be used for custom logic or configuration
+  // after the dependency has been resolved.
+  static func onValueResolved(value: Value, in container: DependencyContainer)
+}
+
+extension DependencyKey {
+  static func onValueResolved(value: Value, in container: DependencyContainer) {}
 }
 
 // The class that serves as a registry for dependencies. Each dependency is associated with a unique key
@@ -60,6 +71,7 @@ class DependencyContainer {
     }
     if underlyingKey.scope == .transient {
       if let value = underlyingKey.key.value(from: self) as? K.Value {
+        key.onValueResolved(value: value, in: self)
         return value
       } else {
         preconditionFailure("Cannot create value for key \(key)")
@@ -72,9 +84,11 @@ class DependencyContainer {
     }
     if let value = underlyingKey.key.value(from: self) as? K.Value {
       if Mirror(reflecting: value).displayStyle == .class && underlyingKey.scope == .weak {
-        resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
+        self.resolvedValues[ObjectIdentifier(key)] = WeakWrapper(value as AnyObject)
+        key.onValueResolved(value: value, in: self)
       } else {
-        resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
+        self.resolvedValues[ObjectIdentifier(key)] = ValueWrapper(value)
+        key.onValueResolved(value: value, in: self)
       }
       return value
     }
@@ -127,24 +141,15 @@ extension DependencyContainer {
   }
 
   var defaultHTTPSession: SessionReplaceable {
-    resolveSession(
-      session: self[DefaultHTTPSessionDependencyKey.self],
-      with: [automaticRetry].compactMap { $0 }
-    )
+    self[DefaultHTTPSessionDependencyKey.self]
   }
 
-  fileprivate var httpSubscribeSession: SessionReplaceable {
-    resolveSession(
-      session: self[HTTPSubscribeSessionDependencyKey.self],
-      with: [instanceIDOperator].compactMap { $0 }
-    )
+  var httpSubscribeSession: SessionReplaceable {
+    self[HTTPSubscribeSessionDependencyKey.self]
   }
 
-  fileprivate var httpPresenceSession: SessionReplaceable {
-    resolveSession(
-      session: self[HTTPPresenceSessionDependencyKey.self],
-      with: [instanceIDOperator].compactMap { $0 }
-    )
+  var httpPresenceSession: SessionReplaceable {
+    self[HTTPPresenceSessionDependencyKey.self]
   }
 
   fileprivate var automaticRetry: RequestOperator? {
@@ -168,16 +173,6 @@ extension DependencyContainer {
   }
 }
 
-private extension DependencyContainer {
-  func resolveSession(session: SessionReplaceable, with operators: [RequestOperator]) -> SessionReplaceable {
-    session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
-      operators: operators
-    )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
-      operators: operators
-    ))
-  }
-}
-
 // - MARK: PubNubConfiguration
 
 struct PubNubConfigurationDependencyKey: DependencyKey {
@@ -194,9 +189,24 @@ struct PubNubInstanceIDDependencyKey: DependencyKey {
 
 // MARK: - HTTPSessions
 
+extension DependencyKey where Value == SessionReplaceable {
+  @discardableResult
+  static func updateSession(session: SessionReplaceable, with operators: [RequestOperator]) -> SessionReplaceable {
+    session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
+      operators: operators
+    )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
+      operators: operators
+    ))
+  }
+}
+
 struct DefaultHTTPSessionDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> SessionReplaceable {
     HTTPSession(configuration: .pubnub)
+  }
+
+  static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
+    updateSession(session: value, with: [container.automaticRetry].compactMap { $0 })
   }
 }
 
@@ -208,6 +218,10 @@ struct HTTPSubscribeSessionDependencyKey: DependencyKey {
       sessionStream: SessionListener(queue: container.httpSubscribeSessionQueue)
     )
   }
+
+  static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
+    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 })
+  }
 }
 
 struct HTTPSubscribeSessionQueueDependencyKey: DependencyKey {
@@ -217,12 +231,15 @@ struct HTTPSubscribeSessionQueueDependencyKey: DependencyKey {
 }
 
 struct HTTPPresenceSessionDependencyKey: DependencyKey {
-  static func value(from container: DependencyContainer) -> HTTPSession {
+  static func value(from container: DependencyContainer) -> SessionReplaceable {
     HTTPSession(
       configuration: .pubnub,
       sessionQueue: container.httpSubscribeSessionQueue,
       sessionStream: SessionListener(queue: container.httpSubscribeSessionQueue)
     )
+  }
+  static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
+    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 })
   }
 }
 
@@ -310,6 +327,7 @@ struct SubscriptionSessionDependencyKey: DependencyKey {
 // Provides a standard interface for objects that wrap or encapsulate other objects in a dependency container context.
 protocol Wrappable<T> {
   associatedtype T
+
   var value: T? { get }
 }
 

@@ -11,7 +11,7 @@
 import Foundation
 import Cucumberish
 
-@testable import PubNub
+@testable import PubNubSDK
 
 class PubNubEventEngineContractTestsSteps: PubNubContractTestCase {
   func extractExpectedResults(from: [AnyHashable: Any]?) -> (events: [String], invocations: [String]) {

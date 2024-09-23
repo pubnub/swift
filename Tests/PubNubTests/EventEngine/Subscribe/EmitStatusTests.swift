@@ -11,7 +11,7 @@
 import Foundation
 import XCTest
 
-@testable import PubNub
+@testable import PubNubSDK
 
 fileprivate class MockListener: BaseSubscriptionListener {
   var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
@@ -22,32 +22,34 @@ fileprivate class MockListener: BaseSubscriptionListener {
 }
 
 class EmitStatusTests: XCTestCase {
-  private var listeners: [MockListener] = []
+  private var subscriptions: [MockListener] = []
   
   override func setUp() {
-    listeners = (0...2).map { _ in MockListener() }
+    subscriptions = (0...2).map { _ in MockListener() }
     super.setUp()
   }
   
   override func tearDown() {
-    listeners = []
+    subscriptions = []
     super.tearDown()
   }
   
   func testEmitStatus_FromDisconnectedToConnected() {
     let expectation = XCTestExpectation(description: "Emit Status Effect")
-    expectation.expectedFulfillmentCount = listeners.count
+    expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
     
-    let effect = EmitStatusEffect(
-      statusChange: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .connected,
-        error: nil
-      ),
-      listeners: listeners
+    let testedStatusChange = Subscribe.ConnectionStatusChange(
+      oldStatus: .disconnected,
+      newStatus: .connected,
+      error: nil
     )
-    listeners.forEach {
+    let effect = EmitStatusEffect(
+      statusChange: testedStatusChange,
+      subscriptions: WeakSet(subscriptions)
+    )
+    
+    subscriptions.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
           XCTAssertEqual(status, .connected)
@@ -67,22 +69,24 @@ class EmitStatusTests: XCTestCase {
   
   func testEmitStatus_WithError() {
     let expectation = XCTestExpectation(description: "Emit Status Effect")
-    expectation.expectedFulfillmentCount = listeners.count
+    expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
     
     let errorExpectation = XCTestExpectation(description: "Emit Status Effect - Error Listener")
-    errorExpectation.expectedFulfillmentCount = listeners.count
+    errorExpectation.expectedFulfillmentCount = subscriptions.count
     errorExpectation.assertForOverFulfill = true
     
-    let effect = EmitStatusEffect(
-      statusChange: Subscribe.ConnectionStatusChange(
-        oldStatus: .disconnected,
-        newStatus: .connected,
-        error: PubNubError(.unknown)
-      ),
-      listeners: listeners
+    let testedStatusChange = Subscribe.ConnectionStatusChange(
+      oldStatus: .disconnected,
+      newStatus: .connected,
+      error: PubNubError(.unknown)
     )
-    listeners.forEach {
+    let effect = EmitStatusEffect(
+      statusChange: testedStatusChange,
+      subscriptions: WeakSet(subscriptions)
+    )
+    
+    subscriptions.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
           XCTAssertEqual(status, .connected)

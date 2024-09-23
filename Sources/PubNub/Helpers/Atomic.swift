@@ -70,7 +70,7 @@ final class Atomic<Locked> {
 
   /// Thread-safe execution of a closure that can throw exceptions
   @inline(__always)
-  func lockedTry<Value>(_ closure: (inout Locked) throws -> Value) throws -> Value {
+  func lockedTry<Value>(_ closure: (inout Locked) throws -> Value) rethrows -> Value {
     return try lock.synchronize { try closure(&self.value) }
   }
 }

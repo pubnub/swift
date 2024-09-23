@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNub
 import XCTest
+@testable import PubNubSDK
 
 struct DefaultOperator: RequestOperator, Equatable {
   let uuid = UUID()

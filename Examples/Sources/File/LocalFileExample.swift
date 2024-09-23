@@ -9,8 +9,7 @@
 //
 
 import Foundation
-
-import PubNub
+import PubNubSDK
 
 enum FileError: Error {
   case fileNameError

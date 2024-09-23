@@ -15,7 +15,7 @@ import Foundation
 class HandshakeEffect: EffectHandler {
   private let subscribeEffect: SubscribeEffect
 
-  init(request: SubscribeRequest, listeners: [BaseSubscriptionListener]) {
+  init(request: SubscribeRequest, listeners: WeakSet<BaseSubscriptionListener>) {
     self.subscribeEffect = SubscribeEffect(
       request: request,
       listeners: listeners,
@@ -25,7 +25,6 @@ class HandshakeEffect: EffectHandler {
   }
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
-    subscribeEffect.listeners.forEach { $0.emit(subscribe: .connectionChanged(.connecting)) }
     subscribeEffect.performTask(completionBlock: completionBlock)
   }
 
@@ -43,7 +42,7 @@ class HandshakeEffect: EffectHandler {
 class ReceivingEffect: EffectHandler {
   private let subscribeEffect: SubscribeEffect
 
-  init(request: SubscribeRequest, listeners: [BaseSubscriptionListener]) {
+  init(request: SubscribeRequest, listeners: WeakSet<BaseSubscriptionListener>) {
     self.subscribeEffect = SubscribeEffect(
       request: request,
       listeners: listeners,
@@ -69,18 +68,18 @@ class ReceivingEffect: EffectHandler {
 
 private class SubscribeEffect: EffectHandler {
   let request: SubscribeRequest
-  let listeners: [BaseSubscriptionListener]
+  let subscriptions: WeakSet<BaseSubscriptionListener>
   let onResponseReceived: (SubscribeResponse) -> Subscribe.Event
   let onErrorReceived: (PubNubError) -> Subscribe.Event
 
   init(
     request: SubscribeRequest,
-    listeners: [BaseSubscriptionListener],
+    listeners: WeakSet<BaseSubscriptionListener>,
     onResponseReceived: @escaping ((SubscribeResponse) -> Subscribe.Event),
     onErrorReceived: @escaping ((PubNubError) -> Subscribe.Event)
   ) {
     self.request = request
-    self.listeners = listeners
+    self.subscriptions = listeners
     self.onResponseReceived = onResponseReceived
     self.onErrorReceived = onErrorReceived
   }
@@ -90,7 +89,7 @@ private class SubscribeEffect: EffectHandler {
       guard let selfRef = self else { return }
       switch $0 {
       case .success(let response):
-        selfRef.listeners.forEach {
+        selfRef.subscriptions.forEach {
           $0.emit(subscribe: .responseReceived(
             SubscribeResponseHeader(
               channels: selfRef.request.channels.map { PubNubChannel(channel: $0) },

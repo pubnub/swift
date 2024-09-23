@@ -35,14 +35,14 @@ public class Subscribable: Subscriber {
   /// An entity name
   public let name: String
   /// The PubNub client associated with this channel.
-  weak var receiver: SubscribeReceiver?
+  weak var pubnub: PubNub?
   /// An underlying subscription type
   let subscriptionType: SubscribableType
 
-  init(name: String, subscriptionType: SubscribableType, receiver: SubscribeReceiver) {
+  init(name: String, subscriptionType: SubscribableType, pubnub: PubNub) {
     self.name = name
     self.subscriptionType = subscriptionType
-    self.receiver = receiver
+    self.pubnub = pubnub
   }
 }
 
@@ -87,9 +87,9 @@ public extension Subscriber where Self: Subscribable {
 
 /// A typealias representing an interface for PubNub subscriptions.
 ///
-/// This alias combines the conformance of `EventEmitter` and `SubscribeCapable`.
+/// This alias combines the conformance of `EventListenerInterface` and `SubscribeCapable`.
 /// Thus, objects conforming to this type can both emit PubNub events and perform subscription-related actions.
-public typealias SubscriptionInterface = EventEmitter & SubscriptionDisposable & SubscribeCapable
+public typealias SubscriptionInterface = EventListenerInterface & SubscriptionDisposable & SubscribeCapable
 
 /// A class representing subscription options for PubNub subscriptions.
 ///

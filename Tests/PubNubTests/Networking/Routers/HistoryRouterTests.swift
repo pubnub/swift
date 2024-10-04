@@ -33,7 +33,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false,
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )
@@ -54,7 +55,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetch(
         channels: [], max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false,
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )
@@ -67,7 +69,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false,
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )
@@ -264,7 +267,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetchWithActions(
         channel: testChannel, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false,
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )
@@ -278,7 +282,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetchWithActions(
         channel: "", max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false,
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )
@@ -291,7 +296,8 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetchWithActions(
         channel: testChannel, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, includeUUID: false
+        includeMeta: false, includeMessageType: false, 
+        includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
     )

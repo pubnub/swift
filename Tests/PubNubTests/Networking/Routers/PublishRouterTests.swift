@@ -294,7 +294,7 @@ extension PublishRouterTests {
     XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.type.rawValue }))
   }
   
-  func testFile_Router_notNilMessageTypeAndSpaceId() {
+  func testFile_Router_notNilMessageType() {
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
@@ -307,7 +307,7 @@ extension PublishRouterTests {
       return XCTAssert(false, "'queryItems' not set")
     }
     
-    XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.type.rawValue, value: "type")))
+    XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.customMessageType.rawValue, value: "type")))
   }
 
   func testFile_Router_Validate_Message() {

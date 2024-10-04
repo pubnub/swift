@@ -81,7 +81,7 @@ public extension PubNub {
     /// The optional message that will be include alongside the File information
     public var additionalMessage: JSONCodable?
     /// Custom message type
-    public var customMessageType: String? = nil
+    public var customMessageType: String?
     /// If true the published message is stored in history.
     public var store: Bool?
     /// Set a per message time to live in storage.

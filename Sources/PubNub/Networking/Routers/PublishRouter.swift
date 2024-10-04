@@ -15,11 +15,33 @@ import Foundation
 struct PublishRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case publish(message: AnyJSON, channel: String, customMessageType: String?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
-    case compressedPublish(message: AnyJSON, channel: String, customMessageType: String?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
-    case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
-    case signal(message: AnyJSON, channel: String, customMessageType: String?)
-    case file(message: FilePublishPayload, customMessageType: String?, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case publish(
+      message: AnyJSON, channel: String,
+      customMessageType: String?, shouldStore: Bool?,
+      ttl: Int?, meta: AnyJSON?
+    )
+    case compressedPublish(
+      message: AnyJSON, channel: String,
+      customMessageType: String?, shouldStore: Bool?,
+      ttl: Int?, meta: AnyJSON?
+    )
+    case fire(
+      message: AnyJSON,
+      channel: String,
+      meta: AnyJSON?
+    )
+    case signal(
+      message: AnyJSON,
+      channel: String,
+      customMessageType: String?
+    )
+    case file(
+      message: FilePublishPayload,
+      customMessageType: String?,
+      shouldStore: Bool?,
+      ttl: Int?,
+      meta: AnyJSON?
+    )
 
     var description: String {
       switch self {
@@ -66,7 +88,10 @@ struct PublishRouter: HTTPRouter {
     case let .signal(message, channel, _):
       return append(message: message, to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
     case let .file(message, _, _, _, _):
-      return append(message: message, to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/")
+      return append(
+        message: message,
+        to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/"
+      )
     }
   }
 

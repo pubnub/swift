@@ -221,7 +221,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
           )
         }
       }
-      
+
       return messages
     }
 

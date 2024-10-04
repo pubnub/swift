@@ -316,7 +316,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
-    
+
     var asPubNubMessageType: PubNubMessageType {
       switch self {
       case .message:
@@ -333,6 +333,36 @@ public struct SubscribeMessagePayload: Codable, Hashable {
         return .unknown
       }
     }
+  }
+
+  init(
+    shard: String,
+    subscription: String?,
+    channel: String,
+    messageType: Action,
+    customMessageType: String? = nil,
+    payload: AnyJSON,
+    flags: Int,
+    publisher: String?,
+    subscribeKey: String,
+    originTimetoken: SubscribeCursor?,
+    publishTimetoken: SubscribeCursor,
+    meta: AnyJSON?,
+    error: PubNubError?
+  ) {
+    self.shard = shard
+    self.subscription = subscription
+    self.channel = channel
+    self.messageType = messageType
+    self.customMessageType = customMessageType
+    self.payload = payload
+    self.flags = flags
+    self.publisher = publisher
+    self.subscribeKey = subscribeKey
+    self.originTimetoken = originTimetoken
+    self.publishTimetoken = publishTimetoken
+    self.metadata = meta
+    self.error = error
   }
 
   public init(from decoder: Decoder) throws {
@@ -385,7 +415,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     if messageType != .presence {
       try container.encode(messageType, forKey: .messageType)
     }
-    
+
     try container.encode(customMessageType, forKey: .customMessageType)
   }
   // swiftlint:disable:next file_length

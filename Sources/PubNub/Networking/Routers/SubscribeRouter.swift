@@ -139,8 +139,14 @@ struct SubscribeDecoder: ResponseDecoder {
         if let timetokenResponse = try? Constant.jsonDecoder.decode(
           Payload.self, from: truncatedData
         ).cursor {
-          return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error,
-                                      affected: [.subscribe(timetokenResponse)]))
+          return .failure(
+            PubNubError(
+              .jsonDataDecodingFailure,
+              response: response,
+              error: error,
+              affected: [.subscribe(timetokenResponse)]
+            )
+          )
         }
       }
 
@@ -276,6 +282,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
   public let subscription: String?
   public let channel: String
   public let messageType: Action
+  public var customMessageType: String?
   public var payload: AnyJSON
   public let flags: Int
   public let publisher: String?
@@ -291,6 +298,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     case channel = "c"
     case payload = "d"
     case messageType = "e"
+    case customMessageType = "cmt"
     case flags = "f"
     case publisher = "i"
     case subscribeKey = "k"
@@ -308,7 +316,7 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
-
+    
     var asPubNubMessageType: PubNubMessageType {
       switch self {
       case .message:
@@ -327,41 +335,11 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     }
   }
 
-  init(
-    shard: String,
-    subscription: String?,
-    channel: String,
-    messageType: Action,
-    payload: AnyJSON,
-    flags: Int,
-    publisher: String?,
-    subscribeKey: String,
-    originTimetoken: SubscribeCursor?,
-    publishTimetoken: SubscribeCursor,
-    meta: AnyJSON?,
-    error: PubNubError?
-  ) {
-    self.shard = shard
-    self.subscription = subscription
-    self.channel = channel
-    self.messageType = messageType
-    self.payload = payload
-    self.flags = flags
-    self.publisher = publisher
-    self.subscribeKey = subscribeKey
-    self.originTimetoken = originTimetoken
-    self.publishTimetoken = publishTimetoken
-    self.metadata = meta
-    self.error = error
-  }
-
   public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
 
     shard = try container.decode(String.self, forKey: .shard)
-    subscription = try container
-      .decodeIfPresent(String.self, forKey: .subscription)?
-      .trimmingPresenceChannelSuffix
+    subscription = try container.decodeIfPresent(String.self, forKey: .subscription)?.trimmingPresenceChannelSuffix
     payload = try container.decode(AnyJSON.self, forKey: .payload)
     flags = try container.decode(Int.self, forKey: .flags)
     publisher = try container.decodeIfPresent(String.self, forKey: .publisher)
@@ -369,11 +347,12 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     originTimetoken = try container.decodeIfPresent(SubscribeCursor.self, forKey: .originTimetoken)
     publishTimetoken = try container.decode(SubscribeCursor.self, forKey: .publishTimetoken)
     metadata = try container.decodeIfPresent(AnyJSON.self, forKey: .meta)
+    customMessageType = try container.decodeIfPresent(String.self, forKey: .customMessageType)
 
-    let messageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
+    let pubNubMessageType = try container.decodeIfPresent(Int.self, forKey: .messageType)
     let fullChannel = try container.decode(String.self, forKey: .channel)
 
-    if let messageType = messageType, let action = Action(rawValue: messageType) {
+    if let pubNubMessageType = pubNubMessageType, let action = Action(rawValue: pubNubMessageType) {
       self.messageType = action
     } else {
       // If channel endswith -pnpres we assume it's a presence event
@@ -406,6 +385,8 @@ public struct SubscribeMessagePayload: Codable, Hashable {
     if messageType != .presence {
       try container.encode(messageType, forKey: .messageType)
     }
+    
+    try container.encode(customMessageType, forKey: .customMessageType)
   }
   // swiftlint:disable:next file_length
 }

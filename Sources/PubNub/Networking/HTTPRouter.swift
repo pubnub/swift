@@ -104,6 +104,7 @@ enum QueryKey: String {
   case remove
   case add
   case type
+  case customMessageType = "custom_message_type"
   case start
   case end
   case channel
@@ -111,6 +112,7 @@ enum QueryKey: String {
   case max
   case includeMeta = "include_meta"
   case includeMessageType = "include_message_type"
+  case includeCustomMessageType = "include_custom_message_type"
   case includeUUID = "include_uuid"
   case timetoken
   case channelsTimetoken

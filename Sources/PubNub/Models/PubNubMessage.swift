@@ -16,7 +16,6 @@ public enum PubNubMessageType: Int, Codable, Hashable {
   case object = 2
   case messageAction = 3
   case file = 4
-
   case unknown = 999
 }
 
@@ -38,6 +37,8 @@ public protocol PubNubMessage {
   var metadata: JSONCodable? { get set }
   /// The type of message that was received
   var messageType: PubNubMessageType { get set }
+  /// A user-provided custom message type
+  var customMessageType: String? { get set }
   /// An error (if any) occured while getting this message
   var error: PubNubError? { get set }
 
@@ -76,6 +77,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
   public var subscription: String?
   public var published: Timetoken
   public var messageType: PubNubMessageType
+  public var customMessageType: String?
   public var error: PubNubError?
 
   var concretePayload: AnyJSON
@@ -112,6 +114,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
+      type: other.customMessageType,
       messageType: other.messageType,
       error: other.error
     )
@@ -126,6 +129,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
+      type: subscribe.customMessageType,
       messageType: subscribe.messageType.asPubNubMessageType,
       error: subscribe.error
     )
@@ -146,7 +150,8 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      messageType: history.messageType ?? .unknown,
+      type: history.customMessageType,
+      messageType: history.messageType?.asPubNubMessageType ?? .unknown,
       error: history.error
     )
   }
@@ -159,6 +164,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
+    type: String? = nil,
     messageType: PubNubMessageType = .unknown,
     error: PubNubError? = nil
   ) {
@@ -170,6 +176,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.published = published
     self.concreteMetadata = metadata
     self.messageType = messageType
+    self.customMessageType = type
     self.error = error
   }
 
@@ -184,6 +191,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     try container.encode(self.published, forKey: .published)
     try container.encodeIfPresent(self.concreteMetadata, forKey: .concreteMetadata)
     try container.encode(self.messageType, forKey: .messageType)
+    try container.encode(self.customMessageType, forKey: .customMessageType)
   }
 
   enum CodingKeys: CodingKey {
@@ -195,6 +203,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     case published
     case concreteMetadata
     case messageType
+    case customMessageType
   }
 
   public init(from decoder: Decoder) throws {
@@ -208,6 +217,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.published = try container.decode(Timetoken.self, forKey: .published)
     self.concreteMetadata = try container.decodeIfPresent(AnyJSON.self, forKey: .concreteMetadata)
     self.messageType = try container.decode(PubNubMessageType.self, forKey: .messageType)
+    self.customMessageType = try container.decodeIfPresent(String.self, forKey: .customMessageType)
   }
 }
 

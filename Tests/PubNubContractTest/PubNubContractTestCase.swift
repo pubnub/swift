@@ -18,10 +18,10 @@ let defaultSubscribeKey = "demo-36"
 let defaultPublishKey = "demo-36"
 
 @objc public class PubNubContractTestCase: XCTestCase {
-  
   fileprivate var listener: SubscriptionListener!
   
   public var messageReceivedHandler: ((PubNubMessage, [PubNubMessage]) -> Void)?
+  public var fileReceivedHandler: ((PubNubFileEvent, [PubNubFileEvent]) -> Void)?
   public var statusReceivedHandler: ((SubscriptionListener.StatusEvent, [SubscriptionListener.StatusEvent]) -> Void)?
   public var presenceChangeReceivedHandler: ((PubNubPresenceChange, [PubNubPresenceChange]) -> Void)?
 
@@ -29,11 +29,12 @@ let defaultPublishKey = "demo-36"
   fileprivate static var _receivedStatuses: [SubscriptionListener.StatusEvent] = []
   fileprivate static var _receivedMessages: [PubNubMessage] = []
   fileprivate static var _receivedPresenceChanges: [PubNubPresenceChange] = []
-
+  fileprivate static var _receivedFiles: [PubNubFileEvent] = []
   fileprivate static var _currentScenario: CCIScenarioDefinition?
   fileprivate static var _apiCallResults: [Any] = []
-  
   fileprivate static var _currentConfiguration = PubNubContractTestCase._defaultConfiguration
+  fileprivate static var currentClient: PubNub?
+
   fileprivate static var _defaultConfiguration: PubNubConfiguration {
     PubNubConfiguration(
       publishKey: defaultPublishKey,
@@ -44,8 +45,6 @@ let defaultPublishKey = "demo-36"
       supressLeaveEvents: true
     )
   }
-    
-  fileprivate static var currentClient: PubNub?
 
   public var configuration: PubNubConfiguration { PubNubContractTestCase._currentConfiguration }
 
@@ -74,6 +73,11 @@ let defaultPublishKey = "demo-36"
     set { PubNubContractTestCase._receivedMessages = newValue }
   }
   
+  public var receivedFiles: [PubNubFileEvent] {
+    get { PubNubContractTestCase._receivedFiles }
+    set { PubNubContractTestCase._receivedFiles = newValue }
+  }
+
   public var receivedPresenceChanges: [PubNubPresenceChange] {
     get { PubNubContractTestCase._receivedPresenceChanges }
     set { PubNubContractTestCase._receivedPresenceChanges = newValue }
@@ -97,9 +101,14 @@ let defaultPublishKey = "demo-36"
     }
     PubNubContractTestCase._currentConfiguration = configuration
   }
-  
+
   func createPubNubClient() -> PubNub {
-    PubNub(configuration: configuration)
+    // In the unit test target only, URLSession with a background configuration fails to create a URLSessionUploadTask.
+    // Therefore, it is replaced with a standard configuration: https://developer.apple.com/forums/thread/725625
+    PubNub(
+      configuration: configuration,
+      fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    )
   }
 
   public func startCucumberHookEventsListening() {
@@ -125,6 +134,8 @@ let defaultPublishKey = "demo-36"
     receivedMessages.removeAll()
     receivedPresenceChanges.removeAll()
     apiCallResults.removeAll()
+    receivedFiles.removeAll()
+    listener = nil
   }
 
   @objc public func setup() {
@@ -178,7 +189,7 @@ let defaultPublishKey = "demo-36"
       XCTAssertFalse(result is Error, "Last API call shouldn't fail.")
     }
 
-    Then("I receive error response") { _, _ in
+    Then("I receive (an )?error response") { _, _ in
       let lastResult = self.lastResult()
       XCTAssertNotNil(lastResult, "There is no API calls results.")
 
@@ -298,13 +309,31 @@ let defaultPublishKey = "demo-36"
         }
       }
     }
-
+    
     listener.didReceiveMessage = { [weak self] message in
       guard let strongSelf = self else { return }
-      strongSelf.receivedMessages.append(message)
+      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
 
       if let handler = strongSelf.messageReceivedHandler {
         handler(message, strongSelf.receivedMessages)
+      }
+    }
+    
+    listener.didReceiveSignal = { [weak self] message in
+      guard let strongSelf = self else { return }
+      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
+
+      if let handler = strongSelf.messageReceivedHandler {
+        handler(message, strongSelf.receivedMessages)
+      }
+    }
+    
+    listener.didReceiveFileUpload = { [weak self] file in
+      guard let strongSelf = self else { return }
+      strongSelf.receivedFiles.append(file)
+      
+      if let handler = strongSelf.fileReceivedHandler {
+        handler(file, strongSelf.receivedFiles)
       }
     }
     
@@ -319,7 +348,7 @@ let defaultPublishKey = "demo-36"
 
     client.add(listener)
     client.subscribe(to: channels, and: groups, at: timetoken, withPresence: presence)
-
+    
     wait(for: [subscribeStatusExpect], timeout: 10.0)
   }
 
@@ -343,8 +372,26 @@ let defaultPublishKey = "demo-36"
     }
   }
   
-  // MARK: - Presence
-  
+  public func waitForFiles(_: PubNub, count: Int) -> [PubNubFileEvent]? {
+    if receivedFiles.count < count {
+      let subscribeFileExpect = expectation(description: "Subscribe files")
+      subscribeFileExpect.assertForOverFulfill = false
+      fileReceivedHandler = { _, files in
+        if files.count >= count {
+          subscribeFileExpect.fulfill()
+        }
+      }
+      
+      wait(for: [subscribeFileExpect], timeout: 30.0)
+    }
+    
+    if receivedFiles.count > count {
+      return Array(receivedFiles[..<count])
+    } else {
+      return receivedFiles.count > 0 ? receivedFiles : nil
+    }
+  }
+    
   @discardableResult
   public func waitForPresenceChanges(_: PubNub, count: Int) -> [PubNubPresenceChange]? {
     if receivedPresenceChanges.count < count {

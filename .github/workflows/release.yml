@@ -31,7 +31,7 @@ jobs:
     needs: check-release
     if: needs.check-release.outputs.release == 'true'
     runs-on:
-      group: macos-gh
+      group: macos-arm-gh
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

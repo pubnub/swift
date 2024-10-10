@@ -20,7 +20,7 @@ jobs:
   tests:
     name: Integration and Unit tests
     runs-on:
-      group: macos-gh
+      group: macos-arm-gh
     strategy:
       matrix:
         environment: [iOS, tvOS, macOS]
@@ -69,7 +69,7 @@ jobs:
   acceptance-tests:
     name: Acceptance tests
     runs-on:
-      group: macos-gh
+      group: macos-arm-gh
     timeout-minutes: 10
     steps:
       - name: Checkout repository

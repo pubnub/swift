@@ -312,8 +312,8 @@ let defaultPublishKey = "demo-36"
     
     listener.didReceiveMessage = { [weak self] message in
       guard let strongSelf = self else { return }
-      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
-
+      strongSelf.receivedMessages.append(message)
+      
       if let handler = strongSelf.messageReceivedHandler {
         handler(message, strongSelf.receivedMessages)
       }
@@ -321,7 +321,7 @@ let defaultPublishKey = "demo-36"
     
     listener.didReceiveSignal = { [weak self] message in
       guard let strongSelf = self else { return }
-      strongSelf.receivedMessages.append(message as! PubNubMessageBase)
+      strongSelf.receivedMessages.append(message)
 
       if let handler = strongSelf.messageReceivedHandler {
         handler(message, strongSelf.receivedMessages)

@@ -80,7 +80,7 @@ public extension PubNub {
   struct PublishFileRequest {
     /// The optional message that will be include alongside the File information
     public var additionalMessage: JSONCodable?
-    /// Custom message type
+    /// A user-provided custom message type
     public var customMessageType: String?
     /// If true the published message is stored in history.
     public var store: Bool?
@@ -94,8 +94,9 @@ public extension PubNub {
     /// Default init
     /// - Parameters:
     ///   - additionalMessage: The optional message that will be include alongside the File information
-    ///   - store: If true the published message is stored in history.
-    ///   - ttl: Set a per message time to live in storage.
+    ///   - customMessageType: A user-provided custom message type
+    ///   - store: If true the published message is stored in history
+    ///   - ttl: Set a per message time to live in storage
     ///   - meta: Additional metadata to publish alongside the file
     ///   - customRequestConfig: Custom configuration overrides for this request
     public init(

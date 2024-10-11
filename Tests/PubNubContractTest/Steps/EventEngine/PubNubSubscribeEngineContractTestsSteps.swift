@@ -122,7 +122,7 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
   override public func setup() {
     startCucumberHookEventsListening()
     
-    Given("a linear reconnection policy with 3 retries") { _, _ in
+    Given("^a linear reconnection policy with 3 retries$") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -136,7 +136,7 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
       ))
     }
     
-    Given("the demo keyset with event engine enabled") { _, _ in
+    Given("^the demo keyset with event engine enabled$") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,
@@ -149,24 +149,24 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
       ))
     }
     
-    When("I subscribe") { _, _ in
+    When("^I subscribe$") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
     }
     
-    When("I subscribe with timetoken 12345678901234567") { _, _ in
+    When("^I subscribe with timetoken 12345678901234567$") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"], timetoken: 12345678901234567)
     }
     
-    Then("I receive an error in my subscribe response") { _, _ in
+    Then("^I receive an error in my subscribe response$") { _, _ in
       XCTAssertNotNil(self.receivedErrorStatuses.first)
     }
     
-    Then("I receive the message in my subscribe response") { _, _ in
+    Then("^I receive the message in my subscribe response$") { _, _ in
       let messages = self.waitForMessages(self.client, count: 1) ?? []
       XCTAssertNotNil(messages.first)
     }
     
-    Match(["And"], "I observe the following:") { _, value in
+    Match(["And"], "^I observe the following:$") { _, value in
       let recordedEvents = self.transitionDecorator.recordedEvents.map { $0.contractTestIdentifier }
       let recordedInvocations = self.dispatcherDecorator.recordedInvocations.map { $0.contractTestIdentifier }
       

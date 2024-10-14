@@ -598,9 +598,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - OS X 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -608,12 +608,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 12.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
-                    - armv7
                   target-devices:
                     - iPhone
                     - iPad
@@ -621,9 +620,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -632,10 +631,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
+                    - arm64
                     - armv7k
                     - arm64_32
                   target-devices:
@@ -659,9 +659,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - OS X 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -669,12 +669,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 12.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
-                    - armv7
                   target-devices:
                     - iPhone
                     - iPad
@@ -682,9 +681,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -693,12 +692,13 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
                     - armv7k
                     - arm64_32
+                    - arm64
                   target-devices:
                     - Apple Watch
           - distribution-type: package
@@ -711,9 +711,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - OS X 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -721,9 +721,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 14.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
                     - armv7
@@ -734,9 +734,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -745,18 +745,19 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
                     - armv7k
                     - arm64_32
+                    - arm64
                   target-devices:
                     - Apple Watch
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 9.0 or higher
-      - macOS 10.11 or higher
-      - tvOS 9.0 or higher
-      - watchOS 2.0 or higher
+      - iOS 14.0 or higher
+      - macOS 10.15 or higher
+      - tvOS 12.0 or higher
+      - watchOS 4.0 or higher

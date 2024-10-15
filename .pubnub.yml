@@ -593,7 +593,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.15
+                    - macOS 10.15
                   maximum-os-version:
                     - macOS 15.0.1
                   target-architecture:
@@ -654,7 +654,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.15
+                    - macOS 10.15
                   maximum-os-version:
                     - macOS 15.0.1
                   target-architecture:
@@ -706,7 +706,7 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.15
+                    - macOS 10.15
                   maximum-os-version:
                     - macOS 15.0.1
                   target-architecture:

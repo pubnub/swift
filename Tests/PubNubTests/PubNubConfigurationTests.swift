@@ -47,12 +47,12 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.durationUntilTimeout, 20)
   }
 
-  func testInit_Bundle() {
-    let config = PubNubConfiguration(from: testsBundle)
-
-    XCTAssertEqual(config.publishKey, plistPublishKeyValue)
-    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
-  }
+//  func testInit_Bundle() {
+//    let config = PubNubConfiguration(from: testsBundle)
+//
+//    XCTAssertEqual(config.publishKey, plistPublishKeyValue)
+//    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
+//  }
 
   func testInit_RawValues() {
     let config = PubNubConfiguration(

@@ -102,4 +102,9 @@ public class KMPPubNubConfiguration: NSObject {
   public var authKey: String? {
     configuration.authKey
   }
+  
+  @objc
+  public var authToken: String? {
+    configuration.authToken
+  }
 }

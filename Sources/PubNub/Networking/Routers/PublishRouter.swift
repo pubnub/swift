@@ -15,11 +15,33 @@ import Foundation
 struct PublishRouter: HTTPRouter {
   // Nested Endpoint
   enum Endpoint: CustomStringConvertible {
-    case publish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
-    case compressedPublish(message: AnyJSON, channel: String, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
-    case fire(message: AnyJSON, channel: String, meta: AnyJSON?)
-    case signal(message: AnyJSON, channel: String)
-    case file(message: FilePublishPayload, shouldStore: Bool?, ttl: Int?, meta: AnyJSON?)
+    case publish(
+      message: AnyJSON, channel: String,
+      customMessageType: String?, shouldStore: Bool?,
+      ttl: Int?, meta: AnyJSON?
+    )
+    case compressedPublish(
+      message: AnyJSON, channel: String,
+      customMessageType: String?, shouldStore: Bool?,
+      ttl: Int?, meta: AnyJSON?
+    )
+    case fire(
+      message: AnyJSON,
+      channel: String,
+      meta: AnyJSON?
+    )
+    case signal(
+      message: AnyJSON,
+      channel: String,
+      customMessageType: String?
+    )
+    case file(
+      message: FilePublishPayload,
+      customMessageType: String?,
+      shouldStore: Bool?,
+      ttl: Int?,
+      meta: AnyJSON?
+    )
 
     var description: String {
       switch self {
@@ -57,20 +79,19 @@ struct PublishRouter: HTTPRouter {
 
   var path: Result<String, Error> {
     switch endpoint {
-    case let .publish(message, channel, _, _, _):
-      return append(message: message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .publish(message, channel, _, _, _, _):
+      return append(message: message, to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
     case let .fire(message, channel, _):
-      return append(message: message,
-                    to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
-    case let .compressedPublish(_, channel, _, _, _):
+      return append(message: message, to: "/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .compressedPublish(_, channel, _, _, _, _):
       return .success("/publish/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0")
-    case let .signal(message, channel):
-      return append(message: message,
-                    to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
-    case let .file(message, _, _, _):
-      return append(message: message,
-                    to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/")
+    case let .signal(message, channel, _):
+      return append(message: message, to: "/signal/\(publishKey)/\(subscribeKey)/0/\(channel.urlEncodeSlash)/0/")
+    case let .file(message, _, _, _, _):
+      return append(
+        message: message,
+        to: "/v1/files/publish-file/\(publishKey)/\(subscribeKey)/0/\(message.channel.urlEncodeSlash)/0/"
+      )
     }
   }
 
@@ -88,24 +109,29 @@ struct PublishRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .publish(_, _, shouldStore, ttl, meta):
-      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
-    case let .compressedPublish(_, _, shouldStore, ttl, meta):
-      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
+    case let .publish(_, _, customMessageType, shouldStore, ttl, meta):
+      return parsePublish(query: &query, customMessageType: customMessageType, store: shouldStore, ttl: ttl, meta: meta)
+    case let .compressedPublish(_, _, customMessageType, shouldStore, ttl, meta):
+      return parsePublish(query: &query, customMessageType: customMessageType, store: shouldStore, ttl: ttl, meta: meta)
     case let .fire(_, _, meta):
-      return parsePublish(query: &query, store: false, ttl: 0, meta: meta)
-    case .signal:
-      break
-    case let .file(_, shouldStore, ttl, meta):
-      return parsePublish(query: &query, store: shouldStore, ttl: ttl, meta: meta)
+      return parsePublish(query: &query, customMessageType: nil, store: false, ttl: 0, meta: meta)
+    case let .signal(_, _, customMessageType):
+      return parsePublish(query: &query, customMessageType: customMessageType, store: nil, ttl: nil, meta: nil)
+    case let .file(_, customMessageType, shouldStore, ttl, meta):
+      return parsePublish(query: &query, customMessageType: customMessageType, store: shouldStore, ttl: ttl, meta: meta)
     }
-
-    return .success(query)
   }
 
-  func parsePublish(query: inout [URLQueryItem], store: Bool?, ttl: Int?, meta: AnyJSON?) -> QueryResult {
+  func parsePublish(
+    query: inout [URLQueryItem],
+    customMessageType: String?,
+    store: Bool?,
+    ttl: Int?,
+    meta: AnyJSON?
+  ) -> QueryResult {
     query.appendIfPresent(key: .store, value: store?.stringNumber)
     query.appendIfPresent(key: .ttl, value: ttl?.description)
+    query.appendIfPresent(key: .customMessageType, value: customMessageType)
 
     if let meta = meta, !meta.isEmpty {
       return meta.jsonStringifyResult.map { json -> [URLQueryItem] in
@@ -127,7 +153,7 @@ struct PublishRouter: HTTPRouter {
 
   var body: Result<Data?, Error> {
     switch endpoint {
-    case let .compressedPublish(message, _, _, _, _):
+    case let .compressedPublish(message, _, _, _, _, _):
       if let cryptoModule = configuration.cryptoModule {
         return message.jsonStringifyResult.flatMap {
           cryptoModule.encrypt(string: $0)
@@ -152,12 +178,12 @@ struct PublishRouter: HTTPRouter {
 
   var validationErrorDetail: String? {
     switch endpoint {
-    case let .publish(message, channel, _, _, _):
+    case let .publish(message, channel, _, _, _, _):
       return isInvalidForReason(
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
-    case let .compressedPublish(message, channel, _, _, _):
+    case let .compressedPublish(message, channel, _, _, _, _):
       return isInvalidForReason(
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
@@ -167,12 +193,12 @@ struct PublishRouter: HTTPRouter {
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
-    case let .signal(message, channel):
+    case let .signal(message, channel, _):
       return isInvalidForReason(
         (message.isEmpty, ErrorDescription.emptyMessagePayload),
         (channel.isEmpty, ErrorDescription.emptyChannelString)
       )
-    case let .file(message, _, _, _):
+    case let .file(message, _, _, _, _):
       return message.validationErrorDetail
     }
   }

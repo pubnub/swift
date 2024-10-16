@@ -114,7 +114,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: other.subscription,
       published: other.published,
       metadata: other.metadata?.codableValue,
-      type: other.customMessageType,
+      customMessageType: other.customMessageType,
       messageType: other.messageType,
       error: other.error
     )
@@ -129,7 +129,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: subscribe.subscription,
       published: subscribe.publishTimetoken.timetoken,
       metadata: subscribe.metadata,
-      type: subscribe.customMessageType,
+      customMessageType: subscribe.customMessageType,
       messageType: subscribe.messageType.asPubNubMessageType,
       error: subscribe.error
     )
@@ -150,7 +150,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
       subscription: nil,
       published: history.timetoken,
       metadata: history.meta,
-      type: history.customMessageType,
+      customMessageType: history.customMessageType,
       messageType: history.messageType?.asPubNubMessageType ?? .unknown,
       error: history.error
     )
@@ -164,7 +164,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     subscription: String?,
     published: Timetoken,
     metadata: AnyJSON?,
-    type: String? = nil,
+    customMessageType: String? = nil,
     messageType: PubNubMessageType = .unknown,
     error: PubNubError? = nil
   ) {
@@ -176,7 +176,7 @@ public struct PubNubMessageBase: PubNubMessage, Codable, Hashable {
     self.published = published
     self.concreteMetadata = metadata
     self.messageType = messageType
-    self.customMessageType = type
+    self.customMessageType = customMessageType
     self.error = error
   }
 

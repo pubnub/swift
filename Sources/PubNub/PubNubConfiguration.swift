@@ -82,7 +82,7 @@ public struct PubNubConfiguration: Hashable {
     authKey: String? = nil,
     authToken: String? = nil,
     useSecureConnections: Bool = true,
-    origin: String = "ps.pndsn.com",
+    origin: String = "h2.pubnubapi.com",
     useInstanceId: Bool = false,
     useRequestId: Bool = false,
     automaticRetry: AutomaticRetry? = .default,

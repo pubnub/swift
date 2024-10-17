@@ -51,6 +51,10 @@ public extension KMPPubNub {
   func set(token: String) {
     pubnub.set(token: token)
   }
+
+  func getToken() -> String? {
+    pubnub.configuration.authToken
+  }
 }
 
 // MARK: - Disconnect
@@ -101,10 +105,5 @@ public class KMPPubNubConfiguration: NSObject {
   @objc
   public var authKey: String? {
     configuration.authKey
-  }
-  
-  @objc
-  public var authToken: String? {
-    configuration.authToken
   }
 }

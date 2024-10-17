@@ -51,6 +51,10 @@ public extension KMPPubNub {
   func set(token: String) {
     pubnub.set(token: token)
   }
+
+  func getToken() -> String? {
+    pubnub.configuration.authToken
+  }
 }
 
 // MARK: - Disconnect

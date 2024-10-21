@@ -54,7 +54,7 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
       self.wait(for: [publishMessageExpect], timeout: 60.0)
     }
 
-    When("^I publish message with '(.*)' type$") { args, _ in
+    When("^I publish message with '(.*)' customMessageType$") { args, _ in
       guard let type = args?.first as? String? else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return
@@ -96,7 +96,7 @@ public class PubNubPublishContractTestSteps: PubNubContractTestCase {
     }
 
 
-    When("^I send a signal with '(.*)' type$") { args, _ in
+    When("^I send a signal with '(.*)' customMessageType$") { args, _ in
       guard let type = args?.last else {
         XCTAssertNotNil(args?.first, "Step match failed")
         return

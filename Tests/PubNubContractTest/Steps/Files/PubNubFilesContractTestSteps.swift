@@ -105,7 +105,7 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
       self.wait(for: [sendFileExpect], timeout: 60.0)
     }
         
-    When("^I send a file with '(.+)' type$") { args, _ in
+    When("^I send a file with '(.+)' customMessageType$") { args, _ in
       let type = args?.first ?? String()
       let sendFileExpect = self.expectation(description: "Send file Response")
 

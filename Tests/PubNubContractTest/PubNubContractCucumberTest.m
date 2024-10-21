@@ -49,26 +49,34 @@ void CucumberishInit(void) {
   
   // TODO: REMOVE AFTER ALL TESTS FOR OBJECTS WILL BE MERGED.
   NSArray *includedTags = @[
-      @"contract=sendFileWithType",
-      @"contract=sendFileWithTooShortType",
-      @"contract=sendFileWithTooLongType",
-      @"contract=fetchHistoryWithPubNubMessageTypes",
-      @"contract=fetchHistoryWithUserAndPubNubTypes",
-      @"contract=fetchHistoryWithoutTypes",
-      @"contract=publishWithType",
-      @"contract=publishWithTooShortType",
-      @"contract=publishWithTooLongType",
-      @"contract=publishWithTypeStartingWithReservedStrings",
-      @"contract=publishWithTypeStartingWithNotAllowedCharacter",
-      @"contract=publishWithTypeContainingNotAllowedCharacter",
-      @"contract=signalWithType",
-      @"contract=signalWithTooShortType",
-      @"contract=signalWithTooLongType",
-      @"contract=signalWithTypeStartingWithReservedStrings",
-      @"contract=signalWithTypeStartingWithNotAllowedCharacter",
-      @"contract=signalWithTypeContainingNotAllowedCharacter",
-      @"contract=subscribeReceiveMessagesWithTypes"
-    ];
+    @"contract=getChannelMetadataOfChat",
+    @"contract=getChannelMetadataOfDMWithCustom",
+    @"contract=setChannelMetadataForChat",
+    @"contract=removeChannelMetadataOfChat",
+    @"contract=getAllChannelMetadata",
+    @"contract=getAllChannelMetadataWithCustom",
+
+    @"contract=getUUIDMetadataOfAlice",
+    @"contract=getUUIDMetadataOfBobWithCustom",
+    @"contract=setUUIDMetadataForAlice",
+    @"contract=removeUUIDMetadataOfAlice",
+    @"contract=getAllUUIDMetadata",
+    @"contract=getAllUUIDMetadataWithCustom",
+    
+    @"contract=getMembersOfChatChannel",
+    @"contract=getMembersOfVipChatChannelWithCustomAndUuidWithCustom",
+    @"contract=setMembersForChatChannel",
+    @"contract=setMembersForChatChannelWithCustomAndUuidWithCustom",
+    @"contract=removeMembersForChatChannel",
+    @"contract=manageMembersForChatChannel",
+
+    @"contract=getAliceMemberships",
+    @"contract=getAliceMemberships",
+    @"contract=getBobMembershipWithCustomAndChannelCustom",
+    @"contract=setAliceMembership",
+    @"contract=removeAliceMembership",
+    @"contract=manageAliceMemberships"
+  ];
   
   NSBundle * bundle = [NSBundle bundleForClass:[PubNubContractTestCase class]];
   [Cucumberish executeFeaturesInDirectory:@"Features"

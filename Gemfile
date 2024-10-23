@@ -1,6 +1,5 @@
 source "https://rubygems.org"
 
-gem "cocoapods", "1.15.2"
-gem "fastlane", "2.225.0"
+gem "cocoapods"
+gem "fastlane"
 gem 'rexml', '3.3.8'
-gem "google-apis-core", "0.3.0"

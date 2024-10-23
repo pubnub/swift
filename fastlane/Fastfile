@@ -124,10 +124,3 @@ lane :build_example do
     build: true
   )
 end
-
-desc "Generate Documentation"
-lane :generate_docs do
-  jazzy(
-    config: ".jazzy.yaml"
-  )
-end

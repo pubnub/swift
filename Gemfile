@@ -1,7 +1,5 @@
 source "https://rubygems.org"
 
 gem "cocoapods"
-
 gem "fastlane"
-gem "slather"
-gem "jazzy"
+gem 'rexml', '3.3.8'

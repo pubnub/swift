@@ -333,6 +333,7 @@ PLATFORMS
 DEPENDENCIES
   cocoapods
   fastlane
+  rexml (>= 3.3.8)
   slather
 
 BUNDLED WITH

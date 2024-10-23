@@ -313,7 +313,7 @@ PLATFORMS
 DEPENDENCIES
   cocoapods (= 1.15.2)
   fastlane (= 2.225.0)
-  rexml (>= 3.3.8)
+  rexml (>= 3.3.6)
 
 BUNDLED WITH
    2.5.10

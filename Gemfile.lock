@@ -317,7 +317,7 @@ DEPENDENCIES
   cocoapods (= 1.15.2)
   fastlane (= 2.225.0)
   google-apis-core (= 0.3.0)
-  rexml (>= 3.3.6)
+  rexml (= 3.3.8)
 
 BUNDLED WITH
    2.5.10

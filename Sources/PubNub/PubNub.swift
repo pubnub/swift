@@ -1077,7 +1077,7 @@ public extension PubNub {
     includeMeta: Bool = false,
     includeUUID: Bool = true,
     includeMessageType: Bool = true,
-    includeCustomMessageType: Bool = true,
+    includeCustomMessageType: Bool = false,
     page: PubNubBoundedPage? = PubNubBoundedPageBase(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?

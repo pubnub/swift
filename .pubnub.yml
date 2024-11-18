@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.0.1"
+version: "8.1.0"
 schema: 1
 changelog:
+  - date: 2024-11-18
+    version: 8.1.0
+    changes:
+      - type: feature
+        text: "Add custom message type support for the following APIs: publish, signal, share file, subscribe, and history."
   - date: 2024-10-17
     version: 8.0.1
     changes:
@@ -591,7 +596,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

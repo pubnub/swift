@@ -104,5 +104,33 @@ public class PubNubFilesContractTestSteps: PubNubContractTestCase {
 
       self.wait(for: [sendFileExpect], timeout: 60.0)
     }
+        
+    When("^I send a file with '(.+)' customMessageType$") { args, _ in
+      let type = args?.first ?? String()
+      let sendFileExpect = self.expectation(description: "Send file Response")
+
+      guard let data = "test file data".data(using: .utf8) else {
+        XCTAssert(false, "Unable prepare file data")
+        return
+      }
+
+      let publishFileRequest = PubNub.PublishFileRequest(customMessageType: type)
+      
+      self.client.send(
+        .data(data, contentType: nil),
+        channel: "test", remoteFilename: "name.txt",
+        publishRequest: publishFileRequest
+      ) { result in
+        switch result {
+        case let .success(sendResults):
+          self.handleResult(result: sendResults)
+        case let .failure(error):
+          self.handleResult(result: error)
+        }
+        sendFileExpect.fulfill()
+      }
+
+      self.wait(for: [sendFileExpect], timeout: 60.0)
+    }
   }
 }

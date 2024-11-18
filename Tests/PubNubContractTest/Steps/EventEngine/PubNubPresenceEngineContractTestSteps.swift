@@ -118,7 +118,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       ))
     }
     
-    Given("a linear reconnection policy with 3 retries") { _, _ in
+    Given("^a linear reconnection policy with 3 retries$") { _, _ in
       self.replacePubNubConfiguration(with: PubNubConfiguration(
         publishKey: self.configuration.publishKey,
         subscribeKey: self.configuration.subscribeKey,

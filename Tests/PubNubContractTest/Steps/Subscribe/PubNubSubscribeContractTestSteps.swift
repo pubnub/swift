@@ -46,22 +46,38 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
   override public func setup() {
     startCucumberHookEventsListening()
 
-    Given("the crypto keyset") { _, _ in
+    Given("^the crypto keyset$") { _, _ in
       self.cryptoModule = CryptoModule.legacyCryptoModule(with: "enigma")
     }
 
-    Given("the invalid-crypto keyset") { _, _ in
+    Given("^the invalid-crypto keyset$") { _, _ in
       self.cryptoModule = CryptoModule.legacyCryptoModule(with: "secret")
     }
-
-    When("I subscribe") { _, _ in
+    
+    When("^I subscribe$") { _, _ in
       self.subscribeSynchronously(self.client, to: ["test"])
       // Give some time to rotate received timetokens.
       self.waitFor(delay: 0.25)
     }
+    
+    When("^I subscribe to '(.*)' channel$") { args, _ in
+      guard let matches = args, let channel = matches.first else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      self.subscribeSynchronously(self.client, to: [channel])
+      // Give some time to rotate received timetokens.
+      self.waitFor(delay: 0.25)
+    }
 
-    Then("I receive the message in my subscribe response") { _, userInfo in
-      let messages = self.waitForMessages(self.client, count: 1)
+    Then("^I receive (the|[0-9]+) message(s)? in my subscribe response$") { args, userInfo in
+      guard let match = args?.first else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+
+      let messages = self.waitForMessages(self.client, count: Int(match) ?? 1)
       XCTAssertNotNil(messages)
 
       if self.checkTestingFeature(feature: "MessageEncryption", userInfo: userInfo!) {
@@ -98,6 +114,19 @@ public class PubNubSubscribeContractTestSteps: PubNubContractTestCase {
 
       /// Give some more time for SDK to check that it won't retry after 0.1 seconds.
       self.waitFor(delay: 0.3)
+    }
+    
+    Match(["And"], "^response contains messages with '(.*)' and '(.*)' types$") { args, _ in
+      guard let matches = args else {
+        XCTAssertNotNil(args?.first, "Step match failed")
+        return
+      }
+      
+      let messages = self.waitForMessages(self.client, count: 2)!
+      XCTAssertNotNil(messages)
+      
+      let messagesWithTypes = messages.compactMap { $0.customMessageType }
+      XCTAssertTrue(messagesWithTypes.map { $0.description }.allSatisfy { matches.contains($0) })
     }
   }
 }

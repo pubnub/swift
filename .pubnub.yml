@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.0.1"
+version: "8.1.0"
 schema: 1
 changelog:
+  - date: 2024-11-18
+    version: 8.1.0
+    changes:
+      - type: feature
+        text: "Add custom message type support for the following APIs: publish, signal, share file, subscribe, and history."
   - date: 2024-10-17
     version: 8.0.1
     changes:
@@ -591,16 +596,16 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - macOS 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -608,12 +613,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 12.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
-                    - armv7
                   target-devices:
                     - iPhone
                     - iPad
@@ -621,9 +625,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -632,10 +636,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
+                    - arm64
                     - armv7k
                     - arm64_32
                   target-devices:
@@ -659,9 +664,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - macOS 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -669,12 +674,11 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 12.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
-                    - armv7
                   target-devices:
                     - iPhone
                     - iPad
@@ -682,9 +686,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -693,12 +697,13 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
                     - armv7k
                     - arm64_32
+                    - arm64
                   target-devices:
                     - Apple Watch
           - distribution-type: package
@@ -711,9 +716,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - OS X 10.11
+                    - macOS 10.15
                   maximum-os-version:
-                    - macOS 11.4
+                    - macOS 15.0.1
                   target-architecture:
                     - arm64
                     - x86_64
@@ -721,9 +726,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 9.0
+                    - iOS 14.0
                   maximum-os-version:
-                    - iOS 14.6
+                    - iOS 18.0.1
                   target-architecture:
                     - arm64
                     - armv7
@@ -734,9 +739,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - tvOS 10.0
+                    - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 14.6
+                    - tvOS 18.0
                   target-architecture:
                     - arm64
                   target-devices:
@@ -745,18 +750,19 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - watchOS 2.0
+                    - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 7.5
+                    - watchOS 12.0
                   target-architecture:
                     - armv7k
                     - arm64_32
+                    - arm64
                   target-devices:
                     - Apple Watch
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 9.0 or higher
-      - macOS 10.11 or higher
-      - tvOS 9.0 or higher
-      - watchOS 2.0 or higher
+      - iOS 14.0 or higher
+      - macOS 10.15 or higher
+      - tvOS 12.0 or higher
+      - watchOS 4.0 or higher

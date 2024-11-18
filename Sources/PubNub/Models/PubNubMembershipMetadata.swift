@@ -18,8 +18,10 @@ public protocol PubNubMembershipMetadata {
   var uuidMetadataId: String { get }
   /// The unique identifier of the associated Channel
   var channelMetadataId: String { get }
-  /// The current state of the MembershipMetadata
+  /// The current status of the MembershipMetadata
   var status: String? { get set }
+  /// The current type of the MembershipMetadata
+  var type: String? { get set }
   /// The associated UUID metadata
   var uuid: PubNubUUIDMetadata? { get set }
   /// The associated Channel metadata
@@ -63,23 +65,19 @@ public extension PubNubMembershipMetadata {
 public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public let uuidMetadataId: String
   public let channelMetadataId: String
-
   public var status: String?
+  public var type: String?
 
   var concreteUUID: PubNubUUIDMetadataBase?
   public var uuid: PubNubUUIDMetadata? {
     get { concreteUUID }
-    set {
-      concreteUUID = try? newValue?.transcode()
-    }
+    set { concreteUUID = try? newValue?.transcode() }
   }
 
   var concreteChannel: PubNubChannelMetadataBase?
   public var channel: PubNubChannelMetadata? {
     get { concreteChannel }
-    set {
-      concreteChannel = try? newValue?.transcode()
-    }
+    set { concreteChannel = try? newValue?.transcode() }
   }
 
   var concreteCustom: [String: JSONCodableScalarType]?
@@ -95,6 +93,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     uuidMetadataId: String,
     channelMetadataId: String,
     status: String? = nil,
+    type: String? = nil,
     uuid: PubNubUUIDMetadataBase? = nil,
     channel: PubNubChannelMetadataBase? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
@@ -107,6 +106,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     self.channel = channel
     self.concreteCustom = concreteCustom?.mapValues { $0.scalarValue }
     self.status = status
+    self.type = type
     self.updated = updated
     self.eTag = eTag
   }
@@ -116,6 +116,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
       uuidMetadataId: other.uuidMetadataId,
       channelMetadataId: other.channelMetadataId,
       status: other.status,
+      type: other.type,
       uuid: try other.uuid?.transcode(),
       channel: try other.channel?.transcode(),
       custom: other.custom,
@@ -130,6 +131,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
         uuidMetadataId: uuid.metadataId,
         channelMetadataId: identifier,
         status: partial.status,
+        type: partial.type,
         uuid: uuid.metadataObject,
         custom: partial.custom,
         updated: partial.updated,
@@ -140,6 +142,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
         uuidMetadataId: identifier,
         channelMetadataId: channel.metadataId,
         status: partial.status,
+        type: partial.type,
         channel: channel.metadataObject,
         custom: partial.custom,
         updated: partial.updated,
@@ -156,6 +159,7 @@ extension PubNubMembershipMetadataBase: Codable {
     case uuid
     case channel
     case status
+    case type
     case custom
     case updated
     case eTag
@@ -170,6 +174,9 @@ extension PubNubMembershipMetadataBase: Codable {
     updated = try container.decodeIfPresent(Date.self, forKey: .updated)
     eTag = try container.decodeIfPresent(String.self, forKey: .eTag)
     concreteCustom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
+    status = try container.decodeIfPresent(String.self, forKey: .status)
+    type = try container.decodeIfPresent(String.self, forKey: .type)
+    
     if let concreteChannel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.concreteChannel = concreteChannel
       channelMetadataId = concreteChannel.metadataId
@@ -194,7 +201,9 @@ extension PubNubMembershipMetadataBase: Codable {
     try container.encodeIfPresent(updated, forKey: .updated)
     try container.encodeIfPresent(eTag, forKey: .eTag)
     try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
-
+    try container.encodeIfPresent(status, forKey: .status)
+    try container.encodeIfPresent(type, forKey: .type)
+    
     if let channelObject = concreteChannel {
       try container.encode(channelObject, forKey: .channel)
     } else {

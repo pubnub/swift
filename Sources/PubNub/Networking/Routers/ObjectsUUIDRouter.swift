@@ -12,9 +12,7 @@ import Foundation
 
 public struct ObjectsUUIDRouter: HTTPRouter {
   public enum Endpoint: CustomStringConvertible {
-    case all(
-      customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?
-    )
+    case all(customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
     case fetch(metadataId: String, customFields: Bool)
     case set(metadata: PubNubUUIDMetadata, customFields: Bool)
     case remove(metadataId: String)

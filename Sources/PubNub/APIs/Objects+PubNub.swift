@@ -14,8 +14,10 @@ public extension PubNub {
   enum MembershipSortProperty: Hashable {
     /// Sort based on the nested object (UUID or Channel) belonging to the Membership
     case object(ObjectSortProperty)
-
+    /// Sort on the status property of the Membership
     case status
+    /// Sort on the type property of the Membership
+    case type
     /// Sort on the last updated property of the Membership
     case updated
 
@@ -25,6 +27,8 @@ public extension PubNub {
         return "\(objectType).\(property)"
       case .status:
         return "status"
+      case .type:
+        return "type"
       case .updated:
         return "updated"
       }
@@ -46,6 +50,12 @@ public extension PubNub {
     /// The direction of the sort
     public let ascending: Bool
 
+    
+    /// Creates a new `MembershipSortField` instance
+    ///
+    /// - Parameters:
+    ///   - property: The property to sort by
+    ///   - ascending: The direction of the sort
     public init(property: MembershipSortProperty, ascending: Bool = true) {
       self.property = property
       self.ascending = ascending
@@ -58,6 +68,8 @@ public extension PubNub {
     public var customFields: Bool
     /// The `PubNubChannelMetadata` instance of the Membership
     public var channelFields: Bool
+    /// The `type` field of the `Membership` object
+    public var typeField: Bool
     /// The `status` field of the `Membership` object
     public var statusField: Bool
     /// The `type` field of the `PubNubChannelMetadata` instance in Membership
@@ -70,10 +82,12 @@ public extension PubNub {
     public var totalCount: Bool
 
     /// Default init
+    ///
     /// - Parameters:
     ///   - customFields: The `custom` dictionary for the Object
     ///   - channelFields: The `PubNubChannelMetadata` instance of the Membership
     ///   - statusField: The `status` field of the Membership
+    ///   - typeField: The `type` field of the Membership
     ///   - channelCustomFields: The `custom` dictionary of the `PubNubChannelMetadata` for the Membership object
     ///   - channelTypeField: The `type` field of the `PubNubChannelMetadata` for the Membership object
     ///   - channelStatusField: The `status` field of the `PubNubChannelMetadata` for the Membership object
@@ -82,6 +96,7 @@ public extension PubNub {
       customFields: Bool = true,
       channelFields: Bool = false,
       statusField: Bool = false,
+      typeField: Bool = false,
       channelCustomFields: Bool = false,
       channelTypeField: Bool = false,
       channelStatusField: Bool = false,
@@ -90,6 +105,7 @@ public extension PubNub {
       self.customFields = customFields
       self.channelFields = channelFields
       self.statusField = statusField
+      self.typeField = typeField
       self.channelCustomFields = channelCustomFields
       self.channelTypeField = channelTypeField
       self.channelStatusField = channelStatusField
@@ -102,6 +118,7 @@ public extension PubNub {
       if customFields { includes.append(.custom) }
       if channelFields { includes.append(.channel) }
       if statusField { includes.append(.status) }
+      if typeField { includes.append(.type) }
       if channelCustomFields { includes.append(.channelCustom) }
       if channelTypeField { includes.append(.channelType) }
       if channelStatusField { includes.append(.channelStatus) }
@@ -117,6 +134,8 @@ public extension PubNub {
     public var uuidFields: Bool
     /// The `status` field of the `Membership` object
     public var statusField: Bool
+    /// The `type` field of the `Membership` object
+    public var typeField: Bool
     /// The `type` field of the `PubNubUUIDMetadata` instance in Membership
     public var uuidTypeField: Bool
     /// The `status` field of the `PubNubUUIDMetadata` instance in Membership
@@ -127,10 +146,12 @@ public extension PubNub {
     public var totalCount: Bool
 
     /// Default init
+    ///
     /// - Parameters:
     ///   - customFields: The `custom` dictionary for the Object
     ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
     ///   - statusField: The `status` field of the Membership
+    ///   - typeField: The `type` field of the Membership
     ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
     ///   - uuidTypeField: The `type` field of the `PubNubUUIDMetadata` for the Membership object
     ///   - uuidStatusField: The `status` field of the `PubNubUUIDMetadata` for the Membership object
@@ -139,6 +160,7 @@ public extension PubNub {
       customFields: Bool = true,
       uuidFields: Bool = false,
       statusField: Bool = false,
+      typeField: Bool = false,
       uuidCustomFields: Bool = false,
       uuidTypeField: Bool = false,
       uuidStatusField: Bool = false,
@@ -147,6 +169,7 @@ public extension PubNub {
       self.customFields = customFields
       self.uuidFields = uuidFields
       self.statusField = statusField
+      self.typeField = typeField
       self.uuidCustomFields = uuidCustomFields
       self.uuidTypeField = uuidTypeField
       self.uuidStatusField = uuidStatusField
@@ -159,6 +182,7 @@ public extension PubNub {
       if customFields { includes.append(.custom) }
       if uuidFields { includes.append(.uuid) }
       if statusField { includes.append(.status) }
+      if typeField { includes.append(.type) }
       if uuidCustomFields { includes.append(.uuidCustom) }
       if uuidTypeField { includes.append(.uuidType) }
       if uuidStatusField { includes.append(.uuidStatus) }
@@ -175,6 +199,7 @@ public extension PubNub {
     public var totalCount: Bool
 
     /// Default init
+    ///
     ///  - Parameters:
     ///   - custom: Whether to include `custom` data in the response
     ///   - totalCount: Whether to include `totalCount` in the response
@@ -231,9 +256,10 @@ extension Array where Element == PubNub.MembershipSortField {
 // MARK: - UUID Metadat Objects
 
 public extension PubNub {
-  /// Gets metadata for all UUIDs
+  /// Gets metadata for all UUIDs.
   ///
   /// Returns a paginated list of UUID Metadata objects, optionally including the custom data object for each.
+  ///
   /// - Parameters:
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -270,9 +296,10 @@ public extension PubNub {
     }
   }
 
-  /// Get Metadata for a UUID
+  /// Get Metadata for a UUID.
   ///
   /// Returns metadata for the specified UUID, optionally including the custom data object for each.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
@@ -299,7 +326,7 @@ public extension PubNub {
     }
   }
 
-  /// Set UUID Metadata
+  /// Set UUID Metadata.
   ///
   ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
   /// - Parameters:
@@ -327,9 +354,8 @@ public extension PubNub {
     }
   }
 
-  /// Remove UUID Metadata
-  ///
   /// Remove metadata for a specified UUID.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID Metadata identifier to remove. If not supplied, then it will use the request configuration and then the default configuration
   ///   - custom: Custom configuration overrides for this request
@@ -360,7 +386,7 @@ public extension PubNub {
 // MARK: - Channel Metadata Objects
 
 public extension PubNub {
-  /// Get Metadata for All Channels
+  /// Get Metadata for All Channels.
   ///
   ///  Returns a paginated list of metadata objects for channels, optionally including custom data objects.
   /// - Parameters:
@@ -399,9 +425,8 @@ public extension PubNub {
     }
   }
 
-  /// Get Metadata for a Channel
-  ///
   /// Returns metadata for the specified channel including the channel's custom data.
+  ///
   /// - Parameters:
   ///   - channel: Unique Channel Metadata identifier
   ///   - include: Include respective additional fields in the response.
@@ -427,9 +452,8 @@ public extension PubNub {
     }
   }
 
-  /// Set Channel Metadata
-  ///
   /// Set metadata for a channel in the database.
+  ///
   /// - Parameters:
   ///   - channel: The `PubNubChannelMetadata` to set
   ///   - include: Include respective additional fields in the response.
@@ -455,9 +479,8 @@ public extension PubNub {
     }
   }
 
-  /// Remove Channel Metadata
+  /// Remove metadata for a specified channel.
   ///
-  /// Remove metadata for a specified channel
   /// - Parameters:
   ///   - channel: Unique Channel Metadata identifier to remove.
   ///   - custom: Custom configuration overrides for this request
@@ -485,9 +508,10 @@ public extension PubNub {
 // MARK: - Memberships
 
 public extension PubNub {
-  /// Get Channel Memberships
+  /// Get Channel Memberships.
   ///
   /// The method returns a list of channel memberships for a user. It does not return a user's subscriptions.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
@@ -536,9 +560,10 @@ public extension PubNub {
     }
   }
 
-  /// Get Channel Members
+  /// Get Channel Members.
   ///
   /// The method returns a list of members in a channel. The list will include user metadata for members that have additional metadata stored in the database.
+  ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - include: Include respective additional fields in the response.
@@ -583,6 +608,7 @@ public extension PubNub {
   }
 
   /// Set Channel memberships for a UUID.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -614,6 +640,7 @@ public extension PubNub {
   }
 
   /// Remove Channel memberships for a UUID.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -644,7 +671,8 @@ public extension PubNub {
     )
   }
 
-  /// Modify the Channel membership list for a UUID
+  /// Modify the Channel membership list for a UUID.
+  ///
   /// - Parameters:
   ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
@@ -676,10 +704,10 @@ public extension PubNub {
       uuidMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
       changes: .init(
         set: channelMembershipSets.map {
-          .init(metadataId: $0.channelMetadataId, status: $0.status, custom: $0.custom)
+          .init(metadataId: $0.channelMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         },
         delete: channelMembershipDeletes.map {
-          .init(metadataId: $0.channelMetadataId, status: $0.status, custom: $0.custom)
+          .init(metadataId: $0.channelMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         }
       ),
       filter: filter, sort: sort.membershipURLValue,
@@ -701,6 +729,7 @@ public extension PubNub {
   }
 
   /// Get the specified user's space memberships.
+  ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
@@ -732,6 +761,7 @@ public extension PubNub {
   }
 
   /// Remove UUID members from a Channel.
+  ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
@@ -762,7 +792,8 @@ public extension PubNub {
     )
   }
 
-  /// Modify the UUID member list for a Channel
+  /// Modify the UUID member list for a Channel.
+  ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
@@ -791,8 +822,8 @@ public extension PubNub {
     let router = ObjectsMembershipsRouter(.setMembers(
       channelMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
       changes: .init(
-        set: uuidMembershipSets.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, custom: $0.custom) },
-        delete: uuidMembershipDeletes.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, custom: $0.custom) }
+        set: uuidMembershipSets.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom) },
+        delete: uuidMembershipDeletes.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom) }
       ),
       filter: filter, sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end

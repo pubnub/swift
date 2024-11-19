@@ -176,7 +176,7 @@ extension PubNubMembershipMetadataBase: Codable {
     concreteCustom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     status = try container.decodeIfPresent(String.self, forKey: .status)
     type = try container.decodeIfPresent(String.self, forKey: .type)
-    
+
     if let concreteChannel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.concreteChannel = concreteChannel
       channelMetadataId = concreteChannel.metadataId
@@ -203,7 +203,7 @@ extension PubNubMembershipMetadataBase: Codable {
     try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
     try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(type, forKey: .type)
-    
+
     if let channelObject = concreteChannel {
       try container.encode(channelObject, forKey: .channel)
     } else {

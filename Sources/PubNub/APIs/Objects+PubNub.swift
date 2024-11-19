@@ -50,7 +50,6 @@ public extension PubNub {
     /// The direction of the sort
     public let ascending: Bool
 
-    
     /// Creates a new `MembershipSortField` instance
     ///
     /// - Parameters:
@@ -95,8 +94,8 @@ public extension PubNub {
     public init(
       customFields: Bool = true,
       channelFields: Bool = false,
-      statusField: Bool = false,
-      typeField: Bool = false,
+      statusField: Bool = true,
+      typeField: Bool = true,
       channelCustomFields: Bool = false,
       channelTypeField: Bool = false,
       channelStatusField: Bool = false,
@@ -112,7 +111,7 @@ public extension PubNub {
       self.totalCount = totalCount
     }
 
-    var customIncludes: [ObjectsMembershipsRouter.Include]? {
+    var includeFields: [ObjectsMembershipsRouter.Include]? {
       var includes = [ObjectsMembershipsRouter.Include]()
 
       if customFields { includes.append(.custom) }
@@ -159,8 +158,8 @@ public extension PubNub {
     public init(
       customFields: Bool = true,
       uuidFields: Bool = false,
-      statusField: Bool = false,
-      typeField: Bool = false,
+      statusField: Bool = true,
+      typeField: Bool = true,
       uuidCustomFields: Bool = false,
       uuidTypeField: Bool = false,
       uuidStatusField: Bool = false,
@@ -176,7 +175,7 @@ public extension PubNub {
       self.totalCount = totalCount
     }
 
-    var customIncludes: [ObjectsMembershipsRouter.Include]? {
+    var includeFields: [ObjectsMembershipsRouter.Include]? {
       var includes = [ObjectsMembershipsRouter.Include]()
 
       if customFields { includes.append(.custom) }
@@ -191,10 +190,14 @@ public extension PubNub {
     }
   }
 
-  /// Fields that include additional data inside the response
+  /// Fields that include additional data inside the response for Channel or UUID metadata
   struct IncludeFields: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
+    /// The `type` field for the Object
+    public var typeField: Bool
+    /// The `status` field for the Object
+    public var statusField: Bool
     /// The `totalCount` of how many Objects are available
     public var totalCount: Bool
 
@@ -203,9 +206,38 @@ public extension PubNub {
     ///  - Parameters:
     ///   - custom: Whether to include `custom` data in the response
     ///   - totalCount: Whether to include `totalCount` in the response
-    public init(custom: Bool = true, totalCount: Bool = true) {
-      customFields = custom
+    ///   - typeField: Whether to include `type` in the response
+    ///   - statusField: Whether to include `status` field in the response
+    public init(
+      custom customFields: Bool = true,
+      typeField: Bool = true,
+      statusField: Bool = true,
+      totalCount: Bool = true
+    ) {
+      self.customFields = customFields
+      self.typeField = typeField
+      self.statusField = statusField
       self.totalCount = totalCount
+    }
+
+    public var uuidIncludeFields: [ObjectsUUIDRouter.Include]? {
+      var includes = [ObjectsUUIDRouter.Include]()
+
+      if customFields { includes.append(.custom) }
+      if statusField { includes.append(.status) }
+      if typeField { includes.append(.type) }
+
+      return includes.isEmpty ? nil : includes
+    }
+
+    public var channelIncludeFields: [ObjectsChannelRouter.Include]? {
+      var includes = [ObjectsChannelRouter.Include]()
+
+      if customFields { includes.append(.custom) }
+      if statusField { includes.append(.status) }
+      if typeField { includes.append(.type) }
+
+      return includes.isEmpty ? nil : includes
     }
   }
 
@@ -280,22 +312,34 @@ public extension PubNub {
     completion: ((Result<(uuids: [PubNubUUIDMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
-      .all(customFields: include.customFields, totalCount: include.totalCount,
-           filter: filter, sort: sort.urlValue,
-           limit: limit, start: page?.start, end: page?.end),
+      .all(
+        include: include.uuidIncludeFields,
+        totalCount: include.totalCount,
+        filter: filter,
+        sort: sort.urlValue,
+        limit: limit,
+        start: page?.start,
+        end: page?.end
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
-          custom: requestConfig) { result in
-      completion?(result.map { (
-        uuids: $0.payload.data,
-        next: try? PubNubHashedPageBase(from: $0.payload)
-      ) })
+    route(
+      router,
+      responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
+      completion?(
+        result.map { (
+          uuids: $0.payload.data,
+          next: try? PubNubHashedPageBase(from: $0.payload)
+        )
+      })
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, message: "Use fetch(uuid:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
   /// Get Metadata for a UUID.
   ///
   /// Returns metadata for the specified UUID, optionally including the custom data object for each.
@@ -313,19 +357,50 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
+    fetch(
+      uuid: metadata,
+      include: IncludeFields(custom: customFields),
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+
+  /// Get Metadata for a UUID.
+  ///
+  /// Returns metadata for the specified UUID, optionally including the custom data object for each.
+  ///
+  /// - Parameters:
+  ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubUUIDMetadata` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
+  func fetch(
+    uuid metadata: String?,
+    include: IncludeFields = IncludeFields(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+  ) {
     let router = ObjectsUUIDRouter(
-      .fetch(metadataId: metadata ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
-             customFields: customFields),
+      .fetch(
+        metadataId: metadata ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
+        include: include.uuidIncludeFields
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubUUIDMetadataResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.data })
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, message: "Use set(uuid:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
   /// Set UUID Metadata.
   ///
   ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
@@ -342,14 +417,42 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
+    set(
+      uuid: metadata,
+      include: IncludeFields(custom: customFields),
+      completion: completion
+    )
+  }
+
+  /// Set UUID Metadata.
+  ///
+  ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
+  /// - Parameters:
+  ///   - uuid: The `PubNubUUIDMetadata` to set
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubUUIDMetadata` containing the set changes
+  ///     - **Failure**: An `Error` describing the failure
+  func set(
+    uuid metadata: PubNubUUIDMetadata,
+    include: IncludeFields = IncludeFields(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+  ) {
     let router = ObjectsUUIDRouter(
-      .set(metadata: metadata, customFields: customFields),
+      .set(
+        metadata: metadata,
+        include: include.uuidIncludeFields
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubUUIDMetadataResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -375,9 +478,11 @@ public extension PubNub {
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: GenericServiceResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: GenericServiceResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { _ in metadataId })
     }
   }
@@ -409,22 +514,34 @@ public extension PubNub {
     completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
-      .all(customFields: include.customFields, totalCount: include.totalCount,
-           filter: filter, sort: sort.map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" },
-           limit: limit, start: page?.start, end: page?.end),
+      .all(
+        include: include.channelIncludeFields,
+        totalCount: include.totalCount,
+        filter: filter,
+        sort: sort.map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" },
+        limit: limit,
+        start: page?.start,
+        end: page?.end
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubChannelsMetadataResponseDecoder(),
-          custom: requestConfig) { result in
-      completion?(result.map { (
-        channels: $0.payload.data,
-        next: try? PubNubHashedPageBase(from: $0.payload)
-      ) })
+    route(
+      router,
+      responseDecoder: PubNubChannelsMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
+      completion?(
+        result.map { (
+          channels: $0.payload.data,
+          next: try? PubNubHashedPageBase(from: $0.payload)
+        )}
+      )
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, message: "Use fetch(channel:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
   /// Returns metadata for the specified channel including the channel's custom data.
   ///
   /// - Parameters:
@@ -440,18 +557,47 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
+    fetch(
+      channel: metadataId,
+      include: IncludeFields(custom: customFields),
+      completion: completion
+    )
+  }
+
+  /// Returns metadata for the specified channel including the channel's custom data.
+  ///
+  /// - Parameters:
+  ///   - channel: Unique Channel Metadata identifier
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubChannelMetadata` object belonging to the identifier
+  ///     - **Failure**: An `Error` describing the failure
+  func fetch(
+    channel metadataId: String,
+    include: IncludeFields = IncludeFields(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
+  ) {
     let router = ObjectsChannelRouter(
-      .fetch(metadataId: metadataId, customFields: customFields),
+      .fetch(
+        metadataId: metadataId,
+        include: include.channelIncludeFields
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubChannelMetadataResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubChannelMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.data })
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, message: "Use set(channel:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
   /// Set metadata for a channel in the database.
   ///
   /// - Parameters:
@@ -467,14 +613,41 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
+    set(
+      channel: metadata,
+      include: IncludeFields(custom: customFields),
+      completion: completion
+    )
+  }
+
+  /// Set metadata for a channel in the database.
+  ///
+  /// - Parameters:
+  ///   - channel: The `PubNubChannelMetadata` to set
+  ///   - include: Include respective additional fields in the response.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The `PubNubChannelMetadata` containing the set changes
+  ///     - **Failure**: An `Error` describing the failure
+  func set(
+    channel metadata: PubNubChannelMetadata,
+    include: IncludeFields = IncludeFields(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
+  ) {
     let router = ObjectsChannelRouter(
-      .set(metadata: metadata, customFields: customFields),
+      .set(
+        metadata: metadata,
+        include: include.channelIncludeFields
+      ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubChannelMetadataResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubChannelMetadataResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { $0.payload.data })
     }
   }
@@ -497,9 +670,11 @@ public extension PubNub {
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: GenericServiceResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: GenericServiceResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { _ in metadataId })
     }
   }
@@ -538,7 +713,7 @@ public extension PubNub {
     let router = ObjectsMembershipsRouter(
       .fetchMemberships(
         uuidMetadataId: metadataId,
-        customFields: include.customIncludes,
+        customFields: include.includeFields,
         totalCount: include.totalCount, filter: filter,
         sort: sort.membershipURLValue,
         limit: limit, start: page?.start, end: page?.end
@@ -546,14 +721,14 @@ public extension PubNub {
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
-    route(router,
-          responseDecoder: PubNubMembershipsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubMembershipsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { response in
         (
-          memberships: response.payload.data.compactMap {
-            PubNubMembershipMetadataBase(from: $0, other: metadataId)
-          },
+          memberships: response.payload.data.compactMap { PubNubMembershipMetadataBase(from: $0, other: metadataId) },
           next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
@@ -586,21 +761,21 @@ public extension PubNub {
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.fetchMembers(
-      channelMetadataId: metadataId, customFields: include.customIncludes,
+      channelMetadataId: metadataId, customFields: include.includeFields,
       totalCount: include.totalCount, filter: filter,
       sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ),
     configuration: requestConfig.customConfiguration ?? configuration)
 
-    route(router,
-          responseDecoder: PubNubMembershipsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubMembershipsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { response in
         (
-          memberships: response.payload.data.compactMap {
-            PubNubMembershipMetadataBase(from: $0, other: metadataId)
-          },
+          memberships: response.payload.data.compactMap { PubNubMembershipMetadataBase(from: $0, other: metadataId) },
           next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
@@ -701,7 +876,7 @@ public extension PubNub {
     let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsMembershipsRouter(.setMemberships(
-      uuidMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
+      uuidMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
       changes: .init(
         set: channelMembershipSets.map {
           .init(metadataId: $0.channelMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
@@ -714,14 +889,14 @@ public extension PubNub {
       limit: limit, start: page?.start, end: page?.end
     ), configuration: requestConfig.customConfiguration ?? configuration)
 
-    route(router,
-          responseDecoder: PubNubMembershipsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubMembershipsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { response in
         (
-          memberships: response.payload.data.compactMap {
-            PubNubMembershipMetadataBase(from: $0, other: metadataId)
-          },
+          memberships: response.payload.data.compactMap { PubNubMembershipMetadataBase(from: $0, other: metadataId) },
           next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
@@ -820,23 +995,27 @@ public extension PubNub {
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     let router = ObjectsMembershipsRouter(.setMembers(
-      channelMetadataId: metadataId, customFields: include.customIncludes, totalCount: include.totalCount,
+      channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
       changes: .init(
-        set: uuidMembershipSets.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom) },
-        delete: uuidMembershipDeletes.map { .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom) }
+        set: uuidMembershipSets.map {
+          .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+        },
+        delete: uuidMembershipDeletes.map {
+          .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+        }
       ),
       filter: filter, sort: sort.memberURLValue,
       limit: limit, start: page?.start, end: page?.end
     ), configuration: requestConfig.customConfiguration ?? configuration)
 
-    route(router,
-          responseDecoder: PubNubMembershipsResponseDecoder(),
-          custom: requestConfig) { result in
+    route(
+      router,
+      responseDecoder: PubNubMembershipsResponseDecoder(),
+      custom: requestConfig
+    ) { result in
       completion?(result.map { response in
         (
-          memberships: response.payload.data.compactMap {
-            PubNubMembershipMetadataBase(from: $0, other: metadataId)
-          },
+          memberships: response.payload.data.compactMap { PubNubMembershipMetadataBase(from: $0, other: metadataId) },
           next: try? PubNubHashedPageBase(from: response.payload)
         )
       })

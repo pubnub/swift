@@ -12,9 +12,9 @@ import Foundation
 
 public struct ObjectsUUIDRouter: HTTPRouter {
   public enum Endpoint: CustomStringConvertible {
-    case all(customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
-    case fetch(metadataId: String, customFields: Bool)
-    case set(metadata: PubNubUUIDMetadata, customFields: Bool)
+    case all(include: [Include]?, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
+    case fetch(metadataId: String, include: [Include]?)
+    case set(metadata: PubNubUUIDMetadata, include: [Include]?)
     case remove(metadataId: String)
 
     public var description: String {
@@ -53,19 +53,13 @@ public struct ObjectsUUIDRouter: HTTPRouter {
     }
   }
 
-  enum Include {
-    static let custom = "custom"
-    static let status = "status"
-    static let type = "type"
+  public enum Include: String {
+    case custom
+    case status
+    case type
 
-    static func includes(custom: Bool) -> [String] {
-      var includes = [Include.status, Include.type]
-
-      if custom {
-        includes.append(Include.custom)
-      }
-
-      return includes
+    static func includes(from array: [Include]?) -> String? {
+      array?.map { $0.rawValue }.csvString
     }
   }
 
@@ -111,14 +105,14 @@ public struct ObjectsUUIDRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
     case let .fetch(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
     case let .set(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
     case .remove:
       break
     }
@@ -176,12 +170,8 @@ extension ObjectsUUIDRouter.Endpoint: Equatable {
     lhs: ObjectsUUIDRouter.Endpoint, rhs: ObjectsUUIDRouter.Endpoint
   ) -> Bool {
     switch (lhs, rhs) {
-    case let (
-      .all(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7),
-      .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)
-    ):
-      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 &&
-        lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
+    case let (.all(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7), .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)):
+      return lhs1 == rhs1 && lhs2 == rhs2 && lhs3 == rhs3 && lhs4 == rhs4 && lhs5 == rhs5 && lhs6 == rhs6 && lhs7 == rhs7
     case let (.fetch(lhs1, lhs2), .fetch(rhs1, rhs2)):
       return lhs1 == rhs1 && lhs2 == rhs2
     case let (.set(lhs1, lhs2), .set(rhs1, rhs2)):

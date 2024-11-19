@@ -57,9 +57,6 @@ extension KMPPubNub {
     }
   }
 
-  // swiftlint:disable todo
-  // TODO: Swift SDK allows to sort by the status field, it's not present in KMP
-
   private func mapToMembershipSortFields(from array: [String]) -> [PubNub.MembershipSortField] {
     array.compactMap {
       switch $0 {
@@ -69,15 +66,21 @@ extension KMPPubNub {
         return PubNub.MembershipSortField(property: .object(.name))
       case "channel.updated", "uuid.updated":
         return PubNub.MembershipSortField(property: .object(.updated))
+      case "channel.type", "uuid.type":
+        return PubNub.MembershipSortField(property: .object(.type))
+      case "channel.status", "uuid.status":
+        return PubNub.MembershipSortField(property: .object(.status))
       case "updated":
         return PubNub.MembershipSortField(property: .updated)
+      case "status":
+        return PubNub.MembershipSortField(property: .status)
+      case "type":
+        return PubNub.MembershipSortField(property: .type)
       default:
         return nil
       }
     }
   }
-
-  // swiftlint:enable todo
 }
 
 @objc
@@ -118,7 +121,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetch(channel: channel, include: includeCustom) {
+    pubnub.fetch(channel: channel, include: PubNub.IncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -139,17 +142,15 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.set(
-      channel: PubNubChannelMetadataBase(
-        metadataId: channel,
-        name: name,
-        type: type,
-        status: status,
-        channelDescription: description,
-        custom: convertDictionaryToScalars(custom?.asMap())
-      ),
-      include: includeCustom
-    ) {
+    let channelMetadata = PubNubChannelMetadataBase(
+      metadataId: channel,
+      name: name,
+      type: type,
+      status: status,
+      channelDescription: description,
+      custom: convertDictionaryToScalars(custom?.asMap())
+    )
+    pubnub.set(channel: channelMetadata, include: PubNub.IncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -210,7 +211,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetch(uuid: uuid, include: includeCustom) {
+    pubnub.fetch(uuid: uuid, include: PubNub.IncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPUUIDMetadata(metadata: metadata))
@@ -233,18 +234,19 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
+    let uuidMetadata = PubNubUUIDMetadataBase(
+      metadataId: uuid ?? pubnub.configuration.userId,
+      name: name,
+      type: type,
+      status: status,
+      externalId: externalId,
+      profileURL: profileUrl,
+      email: email,
+      custom: convertDictionaryToScalars(custom?.asMap())
+    )
     pubnub.set(
-      uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid ?? pubnub.configuration.userId,
-        name: name,
-        type: type,
-        status: status,
-        externalId: externalId,
-        profileURL: profileUrl,
-        email: email,
-        custom: convertDictionaryToScalars(custom?.asMap())
-      ),
-      include: includeCustom
+      uuid: uuidMetadata,
+      include: PubNub.IncludeFields(custom: includeCustom)
     ) {
       switch $0 {
       case .success(let metadata):

@@ -10,13 +10,17 @@
 
 import Foundation
 
+extension Array where Element == ObjectsChannelRouter.Include {
+  func values() -> String {
+    return map { $0.rawValue }.csvString
+  }
+}
+
 public struct ObjectsChannelRouter: HTTPRouter {
   public enum Endpoint: CustomStringConvertible {
-    case all(
-      customFields: Bool, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?
-    )
-    case fetch(metadataId: String, customFields: Bool)
-    case set(metadata: PubNubChannelMetadata, customFields: Bool)
+    case all(include: [Include]?, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
+    case fetch(metadataId: String, include: [Include]?)
+    case set(metadata: PubNubChannelMetadata, include: [Include]?)
     case remove(metadataId: String)
 
     public var description: String {
@@ -42,19 +46,13 @@ public struct ObjectsChannelRouter: HTTPRouter {
     var custom: [String: JSONCodableScalarType]?
   }
 
-  enum Include {
-    static let custom = "custom"
-    static let status = "status"
-    static let type = "type"
+  public enum Include: String {
+    case custom
+    case status
+    case type
 
-    static func includes(custom: Bool) -> [String] {
-      var includes = [Include.status, Include.type]
-
-      if custom {
-        includes.append(Include.custom)
-      }
-
-      return includes
+    static func includes(from array: [Include]?) -> String? {
+      array?.map { $0.rawValue }.csvString
     }
   }
 
@@ -100,14 +98,14 @@ public struct ObjectsChannelRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
     case let .fetch(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
     case let .set(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(custom: customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
     case .remove:
       break
     }

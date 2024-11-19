@@ -326,6 +326,7 @@ public class KMPMembershipMetadata: NSObject {
   @objc public var uuidMetadataId: String
   @objc public var channelMetadataId: String
   @objc public var status: String?
+  @objc public var type: String?
   @objc public var uuid: KMPUUIDMetadata?
   @objc public var channel: KMPChannelMetadata?
   @objc public var updated: String?
@@ -336,6 +337,7 @@ public class KMPMembershipMetadata: NSObject {
     self.uuidMetadataId = from.uuidMetadataId
     self.channelMetadataId = from.channelMetadataId
     self.status = from.status
+    self.type = from.type
     self.uuid = if let uuid = from.uuid { KMPUUIDMetadata(metadata: uuid) } else { nil }
     self.channel = if let channel = from.channel { KMPChannelMetadata(metadata: channel) } else { nil }
     self.updated =  if let date = from.updated { DateFormatter.iso8601.string(from: date) } else { nil }

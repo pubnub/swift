@@ -569,9 +569,12 @@ extension SubscribeRouterTests {
         let testMembership = PubNubMembershipMetadataBase(
           uuidMetadataId: "TestUserID",
           channelMetadataId: "TestSpaceID",
-          uuid: uuid, channel: channel,
+          status: "Test Status",
+          uuid: uuid,
+          channel: channel,
           custom: ["something": true],
-          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
+          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), 
+          eTag: "TestETag"
         )
         
         mockResult.listener.didReceiveSubscription = { [unowned self] event in

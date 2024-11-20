@@ -15,7 +15,10 @@ import Foundation
 /// A object capable of representing PubNub Membership Metadata
 public protocol PubNubMembershipMetadata {
   /// The unique identifier of the associated UUID
+  @available(*, deprecated, renamed: "userMetadataId")
   var uuidMetadataId: String { get }
+  /// The unique identifier of the associated User
+  var userMetadataId: String { get }
   /// The unique identifier of the associated Channel
   var channelMetadataId: String { get }
   /// The current status of the MembershipMetadata
@@ -23,7 +26,10 @@ public protocol PubNubMembershipMetadata {
   /// The current type of the MembershipMetadata
   var type: String? { get set }
   /// The associated UUID metadata
+  @available(*, deprecated, renamed: "user")
   var uuid: PubNubUUIDMetadata? { get set }
+  /// The associated User metadata
+  var user: PubNubUserMetadata? { get set }
   /// The associated Channel metadata
   var channel: PubNubChannelMetadata? { get set }
   /// The last updated timestamp for the object
@@ -63,32 +69,59 @@ public extension PubNubMembershipMetadata {
 
 /// The default implementation of the `PubNubMembershipMetadata` protocol
 public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
-  public let uuidMetadataId: String
+  /// The unique identifier of the associated UUID
+  @available(*, deprecated, renamed: "userMetadataId")
+  public private(set) var uuidMetadataId: String
+  /// The unique identifier of the associated Channel
   public let channelMetadataId: String
+  /// The current status of the MembershipMetadata
   public var status: String?
+  /// The current type of the MembershipMetadata
   public var type: String?
+  /// The last updated timestamp for the object
+  public var updated: Date?
+  /// The caching identifier for the object
+  public var eTag: String?
 
   var concreteUUID: PubNubUUIDMetadataBase?
+  var concreteChannel: PubNubChannelMetadataBase?
+  var concreteCustom: [String: JSONCodableScalarType]?
+
+  /// The associated User metadata
+  public var user: (any PubNubUserMetadata)? {
+    get {
+      uuid
+    } set {
+      uuid = newValue
+    }
+  }
+
+  /// The unique identifier of the associated User
+  public var userMetadataId: String {
+    get {
+      uuidMetadataId
+    } set {
+      uuidMetadataId = newValue
+    }
+  }
+
+  @available(*, deprecated, renamed: "user")
   public var uuid: PubNubUUIDMetadata? {
     get { concreteUUID }
     set { concreteUUID = try? newValue?.transcode() }
   }
 
-  var concreteChannel: PubNubChannelMetadataBase?
   public var channel: PubNubChannelMetadata? {
     get { concreteChannel }
     set { concreteChannel = try? newValue?.transcode() }
   }
 
-  var concreteCustom: [String: JSONCodableScalarType]?
   public var custom: [String: JSONCodableScalar]? {
     get { return concreteCustom }
     set { concreteCustom = newValue?.mapValues { $0.scalarValue } }
   }
 
-  public var updated: Date?
-  public var eTag: String?
-
+  @available(*, deprecated, renamed: "init(userMetadataId:channelMetadataId:status:type:user:channel:custom:updated:eTag:)")
   public init(
     uuidMetadataId: String,
     channelMetadataId: String,
@@ -100,9 +133,33 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     updated: Date? = nil,
     eTag: String? = nil
   ) {
-    self.uuidMetadataId = uuidMetadataId
+    self.init(
+      userMetadataId: uuidMetadataId,
+      channelMetadataId: channelMetadataId,
+      status: status,
+      type: type,
+      user: uuid,
+      channel: channel,
+      custom: concreteCustom,
+      updated: updated,
+      eTag: eTag
+    )
+  }
+
+  public init(
+    userMetadataId: String,
+    channelMetadataId: String,
+    status: String? = nil,
+    type: String? = nil,
+    user: PubNubUUIDMetadataBase? = nil,
+    channel: PubNubChannelMetadataBase? = nil,
+    custom concreteCustom: [String: JSONCodableScalar]? = nil,
+    updated: Date? = nil,
+    eTag: String? = nil
+  ) {
+    self.uuidMetadataId = userMetadataId
     self.channelMetadataId = channelMetadataId
-    self.uuid = uuid
+    self.uuid = user
     self.channel = channel
     self.concreteCustom = concreteCustom?.mapValues { $0.scalarValue }
     self.status = status
@@ -113,11 +170,11 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
 
   public init(from other: PubNubMembershipMetadata) throws {
     self.init(
-      uuidMetadataId: other.uuidMetadataId,
+      userMetadataId: other.userMetadataId,
       channelMetadataId: other.channelMetadataId,
       status: other.status,
       type: other.type,
-      uuid: try other.uuid?.transcode(),
+      user: try other.user?.transcode(),
       channel: try other.channel?.transcode(),
       custom: other.custom,
       updated: other.updated,
@@ -128,18 +185,18 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   public init?(from partial: ObjectMetadataPartial, other identifier: String) {
     if let uuid = partial.uuid {
       self.init(
-        uuidMetadataId: uuid.metadataId,
+        userMetadataId: uuid.metadataId,
         channelMetadataId: identifier,
         status: partial.status,
         type: partial.type,
-        uuid: uuid.metadataObject,
+        user: uuid.metadataObject,
         custom: partial.custom,
         updated: partial.updated,
         eTag: partial.eTag
       )
     } else if let channel = partial.channel {
       self.init(
-        uuidMetadataId: identifier,
+        userMetadataId: identifier,
         channelMetadataId: channel.metadataId,
         status: partial.status,
         type: partial.type,
@@ -215,7 +272,7 @@ extension PubNubMembershipMetadataBase: Codable {
       try container.encode(uuidObject, forKey: .uuid)
     } else {
       var uuidContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .uuid)
-      try uuidContainer.encode(uuidMetadataId, forKey: .id)
+      try uuidContainer.encode(userMetadataId, forKey: .id)
     }
   }
 }

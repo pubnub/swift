@@ -287,7 +287,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMemberships(
-      uuid: uuid,
+      userId: uuid,
       include: .init(
         customFields: includeCustom,
         channelFields: includeChannelFields,
@@ -329,10 +329,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.setMemberships(
-      uuid: uuid,
+      userId: uuid,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid ?? pubnub.configuration.userId,
+          userMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0.id,
           status: $0.status,
           custom: convertDictionaryToScalars($0.custom)
@@ -379,10 +379,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removeMemberships(
-      uuid: uuid,
+      userId: uuid,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid ?? pubnub.configuration.userId,
+          userMetadataId: uuid ?? pubnub.configuration.userId,
           channelMetadataId: $0
         )
       },
@@ -471,7 +471,7 @@ public extension KMPPubNub {
       channel: channel,
       uuids: uuids.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: $0.id,
+          userMetadataId: $0.id,
           channelMetadataId: channel,
           status: $0.status,
           custom: convertDictionaryToScalars($0.custom)
@@ -519,9 +519,9 @@ public extension KMPPubNub {
   ) {
     pubnub.removeMembers(
       channel: channel,
-      uuids: uuids.map {
+      users: uuids.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: $0,
+          userMetadataId: $0,
           channelMetadataId: channel
         )
       },

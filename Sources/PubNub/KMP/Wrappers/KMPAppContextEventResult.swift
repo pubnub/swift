@@ -149,7 +149,7 @@ extension KMPAppContextEventResult {
     case .membershipMetadataSet(let metadata):
       return KMPSetMembershipResult(metadata: KMPMembershipMetadata(from: metadata))
     case .membershipMetadataRemoved(let metadata):
-      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.uuidMetadataId)
+      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.userMetadataId)
     }
   }
 }
@@ -334,11 +334,11 @@ public class KMPMembershipMetadata: NSObject {
   @objc public var custom: [String: Any]?
 
   init(from: PubNubMembershipMetadata) {
-    self.uuidMetadataId = from.uuidMetadataId
+    self.uuidMetadataId = from.userMetadataId
     self.channelMetadataId = from.channelMetadataId
     self.status = from.status
     self.type = from.type
-    self.user = if let user = from.uuid { KMPUserMetadata(metadata: user) } else { nil }
+    self.user = if let user = from.user { KMPUserMetadata(metadata: user) } else { nil }
     self.channel = if let channel = from.channel { KMPChannelMetadata(metadata: channel) } else { nil }
     self.updated =  if let date = from.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = from.eTag

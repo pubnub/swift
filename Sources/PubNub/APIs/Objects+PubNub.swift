@@ -601,7 +601,6 @@ public extension PubNub {
     }
   }
 
-  // swiftlint:disable:next line_length
   @available(*, deprecated, renamed: "fetchChannelMetadata(_:include:custom:completion:)")
   /// Returns metadata for the specified channel including the channel's custom data.
   ///
@@ -780,7 +779,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Get Channel Memberships.
   ///
   /// The method returns a list of channel memberships for a user. It does not return a user's subscriptions.
@@ -918,7 +917,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Set Channel memberships for a User ID.
   ///
   /// - Parameters:
@@ -945,7 +944,7 @@ public extension PubNub {
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMemberships(
-      uuid: metadataId, setting: memberships, removing: [],
+      userId: metadataId, setting: memberships, removing: [],
       include: include, filter: filter, sort: sort, limit: limit, page: page,
       custom: requestConfig, completion: completion
     )
@@ -989,7 +988,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Remove Channel memberships for a User ID.
   ///
   /// - Parameters:
@@ -1016,12 +1015,14 @@ public extension PubNub {
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     manageMemberships(
-      uuid: metadataId, setting: [], removing: memberships,
+      userId: metadataId, setting: [], removing: memberships,
       include: include, filter: filter, sort: sort, limit: limit, page: page,
       custom: requestConfig, completion: completion
     )
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
   /// Modify the Channel membership list for a UUID.
   ///
   /// - Parameters:
@@ -1037,7 +1038,6 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
-  @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
   func manageMemberships(
     uuid: String?,
     setting channelMembershipSets: [PubNubMembershipMetadata],
@@ -1063,7 +1063,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Modify the Channel membership list for a User ID.
   ///
   /// - Parameters:
@@ -1191,7 +1191,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Remove User members from a Channel.
   ///
   /// - Parameters:
@@ -1255,10 +1255,10 @@ public extension PubNub {
       channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
       changes: .init(
         set: userMembershipSets.map {
-          .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+          .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         },
         delete: userMembershipDeletes.map {
-          .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+          .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         }
       ),
       filter: filter, sort: sort.memberURLValue,

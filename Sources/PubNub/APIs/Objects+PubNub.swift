@@ -209,14 +209,14 @@ public extension PubNub {
     ///   - typeField: Whether to include `type` in the response
     ///   - statusField: Whether to include `status` field in the response
     public init(
-      custom customFields: Bool = true,
-      typeField: Bool = true,
-      statusField: Bool = true,
+      custom: Bool = true,
+      type: Bool = true,
+      status: Bool = true,
       totalCount: Bool = true
     ) {
-      self.customFields = customFields
-      self.typeField = typeField
-      self.statusField = statusField
+      customFields = custom
+      typeField = type
+      statusField = status
       self.totalCount = totalCount
     }
 
@@ -285,9 +285,10 @@ extension Array where Element == PubNub.MembershipSortField {
   }
 }
 
-// MARK: - UUID Metadat Objects
+// MARK: - User Metadata Objects
 
 public extension PubNub {
+  @available(*, deprecated, message: "Use allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
   /// Gets metadata for all UUIDs.
   ///
   /// Returns a paginated list of UUID Metadata objects, optionally including the custom data object for each.
@@ -311,6 +312,46 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(uuids: [PubNubUUIDMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    allUserMetadata(
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig
+    ) {
+      switch $0 {
+      case let .success((users, next)):
+        completion?(.success((uuids: users, next: next)))
+      case let .failure(error):
+        completion?(.failure(error))
+      }
+    }
+  }
+
+  /// Gets metadata for all Users.
+  ///
+  /// Returns a paginated list of User Metadata objects, optionally including the custom data object for each.
+  ///
+  /// - Parameters:
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUserMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func allUserMetadata(
+    include: IncludeFields = IncludeFields(),
+    filter: String? = nil,
+    sort: [ObjectSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(users: [PubNubUserMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
     let router = ObjectsUUIDRouter(
       .all(
         include: include.uuidIncludeFields,
@@ -331,15 +372,14 @@ public extension PubNub {
     ) { result in
       completion?(
         result.map { (
-          uuids: $0.payload.data,
+          users: $0.payload.data,
           next: try? PubNubHashedPageBase(from: $0.payload)
         )
       })
     }
   }
 
-  // swiftlint:disable:next line_length
-  @available(*, deprecated, message: "Use fetch(uuid:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
+  @available(*, deprecated, message: "Use fetchUserMetadata(_:include:custom:completion:)")
   /// Get Metadata for a UUID.
   ///
   /// Returns metadata for the specified UUID, optionally including the custom data object for each.
@@ -352,39 +392,39 @@ public extension PubNub {
   ///     - **Success**: The `PubNubUUIDMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func fetch(
-    uuid metadata: String?,
+    uuid metadataId: String?,
     include customFields: Bool = true,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
-    fetch(
-      uuid: metadata,
+    fetchUserMetadata(
+      metadataId,
       include: IncludeFields(custom: customFields),
       custom: requestConfig,
       completion: completion
     )
   }
 
-  /// Get Metadata for a UUID.
+  /// Get Metadata for a User.
   ///
-  /// Returns metadata for the specified UUID, optionally including the custom data object for each.
+  /// Returns metadata for the specified User, optionally including the custom data object for each.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - user: Unique User Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubUUIDMetadata` object belonging to the identifier
+  ///     - **Success**: The `PubNubUserMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
-  func fetch(
-    uuid metadata: String?,
+  func fetchUserMetadata(
+    _ metadataId: String?,
     include: IncludeFields = IncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+    completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
       .fetch(
-        metadataId: metadata ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
+        metadataId: metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
         include: include.uuidIncludeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -399,8 +439,7 @@ public extension PubNub {
     }
   }
 
-  // swiftlint:disable:next line_length
-  @available(*, deprecated, message: "Use set(uuid:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
+  @available(*, deprecated, message: "Use setUserMetadata(_:include:custom:completion:)")
   /// Set UUID Metadata.
   ///
   ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
@@ -417,28 +456,29 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
   ) {
-    set(
-      uuid: metadata,
+    setUserMetadata(
+      metadata,
       include: IncludeFields(custom: customFields),
+      custom: requestConfig,
       completion: completion
     )
   }
 
-  /// Set UUID Metadata.
+  /// Set User Metadata.
   ///
-  ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
+  ///  Set metadata for a User in the database, optionally including the custom data object for each.
   /// - Parameters:
-  ///   - uuid: The `PubNubUUIDMetadata` to set
+  ///   - user: The `PubNubUserMetadata` to set
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubUUIDMetadata` containing the set changes
+  ///     - **Success**: The `PubNubUserMetadata` containing the set changes
   ///     - **Failure**: An `Error` describing the failure
-  func set(
-    uuid metadata: PubNubUUIDMetadata,
+  func setUserMetadata(
+    _ metadata: PubNubUserMetadata,
     include: IncludeFields = IncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+    completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsUUIDRouter(
       .set(
@@ -457,6 +497,7 @@ public extension PubNub {
     }
   }
 
+  @available(*, deprecated, message: "Use remove(user:custom:completion:)")
   /// Remove metadata for a specified UUID.
   ///
   /// - Parameters:
@@ -467,6 +508,26 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func remove(
     uuid metadataId: String?,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<String, Error>) -> Void)?
+  ) {
+    removeUserMetadata(
+      metadataId,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+
+  /// Remove metadata for a specified User.
+  ///
+  /// - Parameters:
+  ///   - user: Unique User Metadata identifier to remove. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The identifier of the removed object
+  ///     - **Failure**: An `Error` describing the failure
+  func removeUserMetadata(
+    _ metadataId: String?,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
@@ -541,7 +602,7 @@ public extension PubNub {
   }
 
   // swiftlint:disable:next line_length
-  @available(*, deprecated, message: "Use fetch(channel:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
+  @available(*, deprecated, message: "Use fetchChannelMetadata(_:include:custom:completion:)")
   /// Returns metadata for the specified channel including the channel's custom data.
   ///
   /// - Parameters:
@@ -557,8 +618,8 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
-    fetch(
-      channel: metadataId,
+    fetchChannelMetadata(
+      metadataId,
       include: IncludeFields(custom: customFields),
       completion: completion
     )
@@ -573,8 +634,8 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubChannelMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
-  func fetch(
-    channel metadataId: String,
+  func fetchChannelMetadata(
+    _ metadataId: String,
     include: IncludeFields = IncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
@@ -596,8 +657,7 @@ public extension PubNub {
     }
   }
 
-  // swiftlint:disable:next line_length
-  @available(*, deprecated, message: "Use set(channel:include:custom:completion:) with the include parameter of PubNub.IncludeFields type")
+  @available(*, deprecated, message: "Use setChannelMetadata(_:include:custom:completion:)")
   /// Set metadata for a channel in the database.
   ///
   /// - Parameters:
@@ -613,8 +673,8 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
-    set(
-      channel: metadata,
+    setChannelMetadata(
+      metadata,
       include: IncludeFields(custom: customFields),
       completion: completion
     )
@@ -629,8 +689,8 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubChannelMetadata` containing the set changes
   ///     - **Failure**: An `Error` describing the failure
-  func set(
-    channel metadata: PubNubChannelMetadata,
+  func setChannelMetadata(
+    _ metadata: PubNubChannelMetadata,
     include: IncludeFields = IncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?

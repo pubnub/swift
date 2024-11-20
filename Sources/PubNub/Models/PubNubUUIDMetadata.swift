@@ -12,6 +12,10 @@ import Foundation
 
 // MARK: Outbound Protocol
 
+/// Alias for `PubNubUUIDMetadata`, providing a more intuitive and meaningful name in all contexts.
+/// This alias also supports a planned future renaming of `PubNubUUIDMetadata` to `PubNubUserMetadata`.
+public typealias PubNubUserMetadata = PubNubUUIDMetadata
+
 /// A object capable of representing PubNub UUID Metadata
 public protocol PubNubUUIDMetadata {
   /// The unique identifier of the UUID
@@ -44,14 +48,14 @@ public extension PubNubUUIDMetadata {
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  func transcode<T: PubNubUUIDMetadata>(into _: T.Type) throws -> T {
+  func transcode<T: PubNubUserMetadata>(into _: T.Type) throws -> T {
     return try transcode()
   }
 
   /// Converts this protocol into a custom type
   /// - Returns: The protocol intiailized as a custom type
   /// - Throws: An error why the custom type was unable to be created using this protocol instance
-  func transcode<T: PubNubUUIDMetadata>() throws -> T {
+  func transcode<T: PubNubUserMetadata>() throws -> T {
     // Check if we're already that object, and return
     if let custom = self as? T {
       return custom
@@ -63,8 +67,12 @@ public extension PubNubUUIDMetadata {
 
 // MARK: Concrete Base Class
 
+/// Alias for `PubNubUUIDMetadataBase`, providing a more intuitive and meaningful name in all contexts.
+/// This alias also supports a planned future renaming of `PubNubUUIDMetadataBase` to `PubNubUserMetadataBase`.
+public typealias PubNubUserMetadataBase = PubNubUUIDMetadataBase
+
 /// The default implementation of the `PubNubUUIDMetadata` protocol
-public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
+public struct PubNubUUIDMetadataBase: PubNubUserMetadata, Hashable {
   public let metadataId: String
   public var name: String?
   public var type: String?
@@ -105,7 +113,7 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
     self.eTag = eTag
   }
 
-  public init(from other: PubNubUUIDMetadata) throws {
+  public init(from other: PubNubUserMetadata) throws {
     self.init(
       metadataId: other.metadataId,
       name: other.name,
@@ -121,7 +129,7 @@ public struct PubNubUUIDMetadataBase: PubNubUUIDMetadata, Hashable {
   }
 }
 
-extension PubNubUUIDMetadataBase: Codable {
+extension PubNubUserMetadataBase: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name

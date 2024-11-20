@@ -288,7 +288,7 @@ extension Array where Element == PubNub.MembershipSortField {
 // MARK: - User Metadata Objects
 
 public extension PubNub {
-  @available(*, deprecated, message: "Use allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
+  @available(*, deprecated, renamed: "allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
   /// Gets metadata for all UUIDs.
   ///
   /// Returns a paginated list of UUID Metadata objects, optionally including the custom data object for each.
@@ -379,7 +379,7 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, message: "Use fetchUserMetadata(_:include:custom:completion:)")
+  @available(*, deprecated, renamed: "fetchUserMetadata(_:include:custom:completion:)")
   /// Get Metadata for a UUID.
   ///
   /// Returns metadata for the specified UUID, optionally including the custom data object for each.
@@ -439,7 +439,7 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, message: "Use setUserMetadata(_:include:custom:completion:)")
+  @available(*, deprecated, renamed: "setUserMetadata(_:include:custom:completion:)")
   /// Set UUID Metadata.
   ///
   ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
@@ -497,7 +497,7 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, message: "Use remove(user:custom:completion:)")
+  @available(*, deprecated, renamed: "remove(user:custom:completion:)")
   /// Remove metadata for a specified UUID.
   ///
   /// - Parameters:
@@ -602,7 +602,7 @@ public extension PubNub {
   }
 
   // swiftlint:disable:next line_length
-  @available(*, deprecated, message: "Use fetchChannelMetadata(_:include:custom:completion:)")
+  @available(*, deprecated, renamed: "fetchChannelMetadata(_:include:custom:completion:)")
   /// Returns metadata for the specified channel including the channel's custom data.
   ///
   /// - Parameters:
@@ -657,7 +657,7 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, message: "Use setChannelMetadata(_:include:custom:completion:)")
+  @available(*, deprecated, renamed: "setChannelMetadata(_:include:custom:completion:)")
   /// Set metadata for a channel in the database.
   ///
   /// - Parameters:
@@ -758,6 +758,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "fetchMemberships(userId:include:filter:sort:limit:page:custom:completion:)")
   func fetchMemberships(
     uuid: String?,
     include: MembershipInclude = MembershipInclude(),
@@ -768,7 +769,44 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
-    let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+    fetchMemberships(
+      userId: uuid,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Get Channel Memberships.
+  ///
+  /// The method returns a list of channel memberships for a user. It does not return a user's subscriptions.
+  ///
+  /// - Parameters:
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func fetchMemberships(
+    userId: String?,
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
+    let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsMembershipsRouter(
       .fetchMemberships(
@@ -856,8 +894,47 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "setMemberships(userId:channels:include:filter:sort:limit:page:custom:completion:)")
   func setMemberships(
     uuid metadataId: String?,
+    channels memberships: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
+    setMemberships(
+      userId: metadataId,
+      channels: memberships,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Set Channel memberships for a User ID.
+  ///
+  /// - Parameters:
+  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func setMemberships(
+    userId metadataId: String?,
     channels memberships: [PubNubMembershipMetadata],
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
@@ -888,8 +965,47 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "removeMemberships(userId:channels:include:filter:sort:limit:page:custom:completion:)")
   func removeMemberships(
     uuid metadataId: String?,
+    channels memberships: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = nil,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
+    removeMemberships(
+      userId: metadataId,
+      channels: memberships,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Remove Channel memberships for a User ID.
+  ///
+  /// - Parameters:
+  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func removeMemberships(
+    userId metadataId: String?,
     channels memberships: [PubNubMembershipMetadata],
     include: MembershipInclude = MembershipInclude(),
     filter: String? = nil,
@@ -921,6 +1037,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
   func manageMemberships(
     uuid: String?,
     setting channelMembershipSets: [PubNubMembershipMetadata],
@@ -933,7 +1050,48 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
-    let metadataId = uuid ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+    manageMemberships(
+      userId: uuid,
+      setting: channelMembershipSets,
+      removing: channelMembershipDeletes,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Modify the Channel membership list for a User ID.
+  ///
+  /// - Parameters:
+  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func manageMemberships(
+    userId: String?,
+    setting channelMembershipSets: [PubNubMembershipMetadata],
+    removing channelMembershipDeletes: [PubNubMembershipMetadata],
+    include: MembershipInclude = MembershipInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
+    let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsMembershipsRouter(.setMemberships(
       uuidMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
@@ -963,7 +1121,7 @@ public extension PubNub {
     }
   }
 
-  /// Get the specified user's space memberships.
+  /// Set the specified user's space memberships.
   ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
@@ -1009,9 +1167,48 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "removeMembers(channel:users:include:filter:sort:limit:page:custom:completion:)")
   func removeMembers(
     channel metadataId: String,
     uuids members: [PubNubMembershipMetadata],
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
+    removeMembers(
+      channel: metadataId,
+      users: members,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Remove User members from a Channel.
+  ///
+  /// - Parameters:
+  ///   - channel: Unique Channel identifier.
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `uuidMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func removeMembers(
+    channel metadataId: String,
+    users members: [PubNubMembershipMetadata],
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
     sort: [MembershipSortField] = [],
@@ -1027,12 +1224,12 @@ public extension PubNub {
     )
   }
 
-  /// Modify the UUID member list for a Channel.
+  /// Modify the User member list for a Channel.
   ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
-  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
-  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `uuidMetadataId` provided
+  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `uuidMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects
@@ -1044,8 +1241,8 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func manageMembers(
     channel metadataId: String,
-    setting uuidMembershipSets: [PubNubMembershipMetadata],
-    removing uuidMembershipDeletes: [PubNubMembershipMetadata],
+    setting userMembershipSets: [PubNubMembershipMetadata],
+    removing userMembershipDeletes: [PubNubMembershipMetadata],
     include: MemberInclude = MemberInclude(),
     filter: String? = nil,
     sort: [MembershipSortField] = [],
@@ -1057,10 +1254,10 @@ public extension PubNub {
     let router = ObjectsMembershipsRouter(.setMembers(
       channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
       changes: .init(
-        set: uuidMembershipSets.map {
+        set: userMembershipSets.map {
           .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         },
-        delete: uuidMembershipDeletes.map {
+        delete: userMembershipDeletes.map {
           .init(metadataId: $0.uuidMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
         }
       ),

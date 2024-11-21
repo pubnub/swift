@@ -18,12 +18,17 @@ public enum PubNubMetadataChange<MetadataType> {
   case customOptional(WritableKeyPath<MetadataType, [String: JSONCodableScalar]?>, [String: JSONCodableScalar]?)
 }
 
+/// Alias for `PubNubUserMetadataChangeset`, maintained for backward compatibility with existing code using `PubNubUUIDMetadataChangeset`.
+/// Please update your code to use `PubNubUserMetadataChangeset` directly, as `PubNubUUIDMetadataChangeset` is deprecated and will be removed in a future version.
+@available(*, deprecated, message: "Use `PubNubUserMetadataChangeset` instead.")
+public typealias PubNubUUIDMetadataChangeset = PubNubUserMetadataChangeset
+
 /// A UUID Metadata changeset that can be used to update existing objects
-public struct PubNubUUIDMetadataChangeset {
+public struct PubNubUserMetadataChangeset {
   /// The unique identifier of the object that was changed
   public let metadataId: String
   /// The changes that will be made to the object
-  public let changes: [PubNubMetadataChange<PubNubUUIDMetadata>]
+  public let changes: [PubNubMetadataChange<PubNubUserMetadata>]
   /// The timestamp of the change
   public let updated: Date
   /// The cache identifier of the change
@@ -32,7 +37,7 @@ public struct PubNubUUIDMetadataChangeset {
   /// Default init for the object
   public init(
     metadataId: String,
-    changes: [PubNubMetadataChange<PubNubUUIDMetadata>],
+    changes: [PubNubMetadataChange<PubNubUserMetadata>],
     updated: Date,
     eTag: String
   ) {
@@ -47,7 +52,7 @@ public struct PubNubUUIDMetadataChangeset {
   /// The changes will be applied only if the ids of the object matches
   /// - Parameter to: The Object that will be patched
   /// - Returns: A copy of the object with the patched chagnes, or the passed object if changes could not be applied
-  public func apply(to object: PubNubUUIDMetadata) -> PubNubUUIDMetadata {
+  public func apply(to object: PubNubUserMetadata) -> PubNubUserMetadata {
     guard metadataId == object.metadataId,
           eTag != object.eTag,
           updated.timeIntervalSince(object.updated ?? Date.distantPast) > 0

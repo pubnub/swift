@@ -13,8 +13,8 @@ import XCTest
 
 final class ObjectsUUIDRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
-  let testUser = PubNubUUIDMetadataBase(name: "TestUser")
-  let invalidUser = PubNubUUIDMetadataBase(name: "")
+  let testUser = PubNubUserMetadataBase(name: "TestUser")
+  let invalidUser = PubNubUserMetadataBase(name: "")
 }
 
 // MARK: - All Tests
@@ -60,11 +60,11 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let firstTest = PubNubUUIDMetadataBase(
+    let firstTest = PubNubUserMetadataBase(
       metadataId: "WGWPWPJBRJ", name: "HNNCTGRURF",
       updated: firstDate, eTag: "AY/Cz7edr46A3wE"
     )
-    let lastTest = PubNubUUIDMetadataBase(
+    let lastTest = PubNubUserMetadataBase(
       metadataId: "OSPULBRLGN", name: "VDUVIGRMWF",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: lastDate, eTag: "AeH55Y3T0a78Ew"
@@ -229,7 +229,7 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let testObject = PubNubUUIDMetadataBase(
+    let testObject = PubNubUserMetadataBase(
       metadataId: "TestUser", name: "Test User",
       type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
@@ -410,7 +410,7 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let testObject = PubNubUUIDMetadataBase(
+    let testObject = PubNubUserMetadataBase(
       metadataId: "TestUser", name: "Test User", type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"

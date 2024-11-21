@@ -78,12 +78,8 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     case status
     case type
 
-    static func merge(_ other: [Include]?) -> [String] {
-      var includes = [Include.status]
-
-      includes.append(contentsOf: other ?? [])
-
-      return includes.map { $0.rawValue }
+    static func csvString(from includes: [Include]?) -> String? {
+      return includes?.map { $0.rawValue }.csvString
     }
   }
 
@@ -270,7 +266,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.csvString(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -279,7 +275,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.csvString(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -421,7 +417,7 @@ public struct PubNubMembershipsResponsePayload: Codable {
 
 public struct ObjectMetadataPartial: Codable {
   let channel: PartialMetadata<PubNubChannelMetadataBase>?
-  let uuid: PartialMetadata<PubNubUUIDMetadataBase>?
+  let uuid: PartialMetadata<PubNubUserMetadataBase>?
   let status: String?
   let type: String?
   let custom: [String: JSONCodableScalarType]?
@@ -449,7 +445,7 @@ public struct ObjectMetadataPartial: Codable {
 
   init(
     channel: PartialMetadata<PubNubChannelMetadataBase>?,
-    uuid: PartialMetadata<PubNubUUIDMetadataBase>?,
+    uuid: PartialMetadata<PubNubUserMetadataBase>?,
     status: String?,
     type: String?,
     updated: Date,
@@ -476,7 +472,7 @@ public struct ObjectMetadataPartial: Codable {
     if let channel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.channel = .init(metadataId: channel.metadataId, metadataObject: channel)
       uuid = nil
-    } else if let uuid = try? container.decodeIfPresent(PubNubUUIDMetadataBase.self, forKey: .uuid) {
+    } else if let uuid = try? container.decodeIfPresent(PubNubUserMetadataBase.self, forKey: .uuid) {
       self.uuid = .init(metadataId: uuid.metadataId, metadataObject: uuid)
       channel = nil
     } else {

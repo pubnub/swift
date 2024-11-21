@@ -1,5 +1,5 @@
 //
-//  PubNubUUIDMetadata.swift
+//  PubNubUserMetadata.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -12,12 +12,13 @@ import Foundation
 
 // MARK: Outbound Protocol
 
-/// Alias for `PubNubUUIDMetadata`, providing a more intuitive and meaningful name in all contexts.
-/// This alias also supports a planned future renaming of `PubNubUUIDMetadata` to `PubNubUserMetadata`.
-public typealias PubNubUserMetadata = PubNubUUIDMetadata
+/// Alias for `PubNubUserMetadata`, maintained for backward compatibility with existing code using `PubNubUUIDMetadata`.
+/// Please update your code to use `PubNubUserMetadata` directly, as `PubNubUUIDMetadata` is deprecated and will be removed in a future version.
+@available(*, deprecated, message: "Use `PubNubUserMetadata` instead.")
+public typealias PubNubUUIDMetadata = PubNubUserMetadata
 
 /// A object capable of representing PubNub UUID Metadata
-public protocol PubNubUUIDMetadata {
+public protocol PubNubUserMetadata {
   /// The unique identifier of the UUID
   var metadataId: String { get }
   /// The name of the UUID
@@ -40,10 +41,10 @@ public protocol PubNubUUIDMetadata {
   var custom: [String: JSONCodableScalar]? { get set }
 
   /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
-  init(from other: PubNubUUIDMetadata) throws
+  init(from other: PubNubUserMetadata) throws
 }
 
-public extension PubNubUUIDMetadata {
+public extension PubNubUserMetadata {
   /// Converts this protocol into a custom type
   /// - Parameter into: The explicit type for the returned value
   /// - Returns: The protocol intiailized as a custom type
@@ -67,12 +68,13 @@ public extension PubNubUUIDMetadata {
 
 // MARK: Concrete Base Class
 
-/// Alias for `PubNubUUIDMetadataBase`, providing a more intuitive and meaningful name in all contexts.
-/// This alias also supports a planned future renaming of `PubNubUUIDMetadataBase` to `PubNubUserMetadataBase`.
-public typealias PubNubUserMetadataBase = PubNubUUIDMetadataBase
+/// Alias for `PubNubUserMetadataBase`, maintained for backward compatibility with existing code using `PubNubUUIDMetadataBase`.
+/// Please update your code to use `PubNubUserMetadataBase` directly, as `PubNubUUIDMetadataBase` is deprecated and will be removed in a future version.
+@available(*, deprecated, message: "Use `PubNubUserMetadataBase` instead.")
+public typealias PubNubUUIDMetadataBase = PubNubUserMetadataBase
 
-/// The default implementation of the `PubNubUUIDMetadata` protocol
-public struct PubNubUUIDMetadataBase: PubNubUserMetadata, Hashable {
+/// The default implementation of the `PubNubUserMetadata` protocol
+public struct PubNubUserMetadataBase: PubNubUserMetadata, Hashable {
   public let metadataId: String
   public var name: String?
   public var type: String?

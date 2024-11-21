@@ -129,17 +129,17 @@ public extension PubNub {
   struct MemberInclude: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
-    /// The `PubNubUUIDMetadata` instance of the Membership
+    /// The `PubNubUserMetadata` instance of the Membership
     public var uuidFields: Bool
     /// The `status` field of the `Membership` object
     public var statusField: Bool
     /// The `type` field of the `Membership` object
     public var typeField: Bool
-    /// The `type` field of the `PubNubUUIDMetadata` instance in Membership
+    /// The `type` field of the `PubNubUserMetadata` instance in Membership
     public var uuidTypeField: Bool
-    /// The `status` field of the `PubNubUUIDMetadata` instance in Membership
+    /// The `status` field of the `PubNubUserMetadata` instance in Membership
     public var uuidStatusField: Bool
-    /// The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
+    /// The `custom` dictionary of the `PubNubUserMetadata` for the Membership object
     public var uuidCustomFields: Bool
     /// The `totalCount` of how many Objects are available
     public var totalCount: Bool
@@ -148,12 +148,12 @@ public extension PubNub {
     ///
     /// - Parameters:
     ///   - customFields: The `custom` dictionary for the Object
-    ///   - uuidFields: The `PubNubUUIDMetadata` instance of the Membership
+    ///   - uuidFields: The `PubNubUserMetadata` instance of the Membership
     ///   - statusField: The `status` field of the Membership
     ///   - typeField: The `type` field of the Membership
-    ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUUIDMetadata` for the Membership object
-    ///   - uuidTypeField: The `type` field of the `PubNubUUIDMetadata` for the Membership object
-    ///   - uuidStatusField: The `status` field of the `PubNubUUIDMetadata` for the Membership object
+    ///   - uuidCustomFields: The `custom` dictionary of the `PubNubUserMetadata` for the Membership object
+    ///   - uuidTypeField: The `type` field of the `PubNubUserMetadata` for the Membership object
+    ///   - uuidStatusField: The `status` field of the `PubNubUserMetadata` for the Membership object
     ///   - totalCount: The `totalCount` of how many Objects are available
     public init(
       customFields: Bool = true,
@@ -190,7 +190,7 @@ public extension PubNub {
     }
   }
 
-  /// Fields that include additional data inside the response for Channel or UUID metadata
+  /// Fields that include additional data inside the response for Channel or User metadata
   struct IncludeFields: Hashable {
     /// The `custom` dictionary for the Object
     public var customFields: Bool
@@ -241,7 +241,7 @@ public extension PubNub {
     }
   }
 
-  /// The sort properties for UUID and Channel metadata objects
+  /// The sort properties for User and Channel metadata objects
   enum ObjectSortProperty: String, Hashable {
     /// Sort on the unique identifier property
     case id
@@ -289,9 +289,9 @@ extension Array where Element == PubNub.MembershipSortField {
 
 public extension PubNub {
   @available(*, deprecated, renamed: "allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
-  /// Gets metadata for all UUIDs.
+  /// Gets metadata for all Users.
   ///
-  /// Returns a paginated list of UUID Metadata objects, optionally including the custom data object for each.
+  /// Returns a paginated list of User Metadata objects, optionally including the custom data object for each.
   ///
   /// - Parameters:
   ///   - include: Include respective additional fields in the response.
@@ -301,7 +301,7 @@ public extension PubNub {
   ///   - page: The paging hash strings used for pagination
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUUIDMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUserMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func allUUIDMetadata(
     include: IncludeFields = IncludeFields(),
@@ -310,7 +310,7 @@ public extension PubNub {
     limit: Int? = 100,
     page: PubNubHashedPage? = Page(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(uuids: [PubNubUUIDMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+    completion: ((Result<(uuids: [PubNubUserMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     allUserMetadata(
       include: include,
@@ -367,7 +367,7 @@ public extension PubNub {
 
     route(
       router,
-      responseDecoder: PubNubUUIDsMetadataResponseDecoder(),
+      responseDecoder: PubNubUsersMetadataResponseDecoder(),
       custom: requestConfig
     ) { result in
       completion?(
@@ -380,22 +380,22 @@ public extension PubNub {
   }
 
   @available(*, deprecated, renamed: "fetchUserMetadata(_:include:custom:completion:)")
-  /// Get Metadata for a UUID.
+  /// Get Metadata for a User.
   ///
-  /// Returns metadata for the specified UUID, optionally including the custom data object for each.
+  /// Returns metadata for the specified User, optionally including the custom data object for each.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User Metadata identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubUUIDMetadata` object belonging to the identifier
+  ///     - **Success**: The `PubNubUserMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func fetch(
     uuid metadataId: String?,
     include customFields: Bool = true,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+    completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
     fetchUserMetadata(
       metadataId,
@@ -432,7 +432,7 @@ public extension PubNub {
 
     route(
       router,
-      responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+      responseDecoder: PubNubUserMetadataResponseDecoder(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -440,21 +440,21 @@ public extension PubNub {
   }
 
   @available(*, deprecated, renamed: "setUserMetadata(_:include:custom:completion:)")
-  /// Set UUID Metadata.
+  /// Set User Metadata.
   ///
-  ///  Set metadata for a UUID in the database, optionally including the custom data object for each.
+  ///  Set metadata for a User in the database, optionally including the custom data object for each.
   /// - Parameters:
-  ///   - uuid: The `PubNubUUIDMetadata` to set
+  ///   - uuid: The `PubNubUserMetadata` to set
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The `PubNubUUIDMetadata` containing the set changes
+  ///     - **Success**: The `PubNubUserMetadata` containing the set changes
   ///     - **Failure**: An `Error` describing the failure
   func set(
-    uuid metadata: PubNubUUIDMetadata,
+    uuid metadata: PubNubUserMetadata,
     include customFields: Bool = true,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<PubNubUUIDMetadata, Error>) -> Void)?
+    completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
     setUserMetadata(
       metadata,
@@ -490,7 +490,7 @@ public extension PubNub {
 
     route(
       router,
-      responseDecoder: PubNubUUIDMetadataResponseDecoder(),
+      responseDecoder: PubNubUserMetadataResponseDecoder(),
       custom: requestConfig
     ) { result in
       completion?(result.map { $0.payload.data })
@@ -498,13 +498,13 @@ public extension PubNub {
   }
 
   @available(*, deprecated, renamed: "remove(user:custom:completion:)")
-  /// Remove metadata for a specified UUID.
+  /// Remove metadata for a specified User.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID Metadata identifier to remove. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User Metadata identifier to remove. If not supplied, then it will use the request configuration and then the default configuration
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
-  ///     - **Success**: The UUID identifier of the removed object
+  ///     - **Success**: The User identifier of the removed object
   ///     - **Failure**: An `Error` describing the failure
   func remove(
     uuid metadataId: String?,
@@ -747,7 +747,7 @@ public extension PubNub {
   /// The method returns a list of channel memberships for a user. It does not return a user's subscriptions.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects
@@ -879,10 +879,10 @@ public extension PubNub {
     }
   }
 
-  /// Set Channel memberships for a UUID.
+  /// Set Channel memberships for a User.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -921,7 +921,7 @@ public extension PubNub {
   /// Set Channel memberships for a User ID.
   ///
   /// - Parameters:
-  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -950,10 +950,10 @@ public extension PubNub {
     )
   }
 
-  /// Remove Channel memberships for a UUID.
+  /// Remove Channel memberships for a User.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -992,7 +992,7 @@ public extension PubNub {
   /// Remove Channel memberships for a User ID.
   ///
   /// - Parameters:
-  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - channels: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
@@ -1023,10 +1023,10 @@ public extension PubNub {
 
   // swiftlint:disable:next line_length
   @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
-  /// Modify the Channel membership list for a UUID.
+  /// Modify the Channel membership list for a User.
   ///
   /// - Parameters:
-  ///   - uuid: Unique UUID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
@@ -1064,10 +1064,10 @@ public extension PubNub {
     )
   }
 
-  /// Modify the Channel membership list for a User ID.
+  /// Modify the Channel membership list for a User.
   ///
   /// - Parameters:
-  ///   - uuid: Unique User ID identifier. If not supplied, then it will use the request configuration and then the default configuration
+  ///   - uuid: Unique User identifier. If not supplied, then it will use the request configuration and then the default configuration
   ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubChannelMetadata` or `channelMetadataId` provided
   ///   - include: Include respective additional fields in the response.
@@ -1121,11 +1121,13 @@ public extension PubNub {
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, renamed: "setMembers(channels:users:include:filter:sort:limit:page:custom:completion:)")
   /// Set the specified user's space memberships.
   ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
-  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `userMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects
@@ -1146,6 +1148,44 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    setMembers(
+      channel: metadataId,
+      users: members,
+      include: include,
+      filter: filter,
+      sort: sort,
+      limit: limit,
+      page: page,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Set the specified user's space memberships.
+  ///
+  /// - Parameters:
+  ///   - channel: Unique Channel identifier.
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `userMetadataId` provided
+  ///   - include: Include respective additional fields in the response.
+  ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
+  ///   - sort: List of properties to sort response objects
+  ///   - limit: The number of objects to retrieve at a time
+  ///   - page: The paging hash strings used for pagination
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
+  ///     - **Failure**: An `Error` describing the failure
+  func setMembers(
+    channel metadataId: String,
+    users members: [PubNubMembershipMetadata],
+    include: MemberInclude = MemberInclude(),
+    filter: String? = nil,
+    sort: [MembershipSortField] = [],
+    limit: Int? = 100,
+    page: PubNubHashedPage? = Page(),
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
+  ) {
     manageMembers(
       channel: metadataId, setting: members, removing: [],
       include: include, filter: filter, sort: sort, limit: limit, page: page,
@@ -1153,11 +1193,11 @@ public extension PubNub {
     )
   }
 
-  /// Remove UUID members from a Channel.
+  /// Remove User members from a Channel.
   ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
-  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUUIDMetadata` or `uuidMetadataId` provided
+  ///   - uuids: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `userMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects
@@ -1228,8 +1268,8 @@ public extension PubNub {
   ///
   /// - Parameters:
   ///   - channel: Unique Channel identifier.
-  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `uuidMetadataId` provided
-  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `uuidMetadataId` provided
+  ///   - setting: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `userMetadataId` provided
+  ///   - removing: Array of `PubNubMembershipMetadata` with the `PubNubUserMetadata` or `userMetadataId` provided
   ///   - include: Include respective additional fields in the response.
   ///   - filter: Expression used to filter the results. Only objects whose properties satisfy the given expression are returned. The filter language is defined [here](https://www.pubnub.com/docs/swift/stream-filtering-tutorial#filtering-language-definition).
   ///   - sort: List of properties to sort response objects

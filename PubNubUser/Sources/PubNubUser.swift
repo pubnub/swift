@@ -139,7 +139,7 @@ extension PubNubUser: Codable {
 
 // MARK: Object v2 Migration
 
-public extension PubNubUUIDMetadata {
+public extension PubNubUserMetadata {
   /// Converts Object V2 UUID Metadata to a Space entity
   ///
   /// - returns: The `PubNubUser` built from the Object V2 data

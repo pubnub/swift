@@ -337,11 +337,11 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let pubnub = PubNub(configuration: configuration)
 
-        let baseUser = PubNubUUIDMetadataBase(
+        let baseUser = PubNubUserMetadataBase(
           metadataId: "TestUserID",
           name: "Not Real Name"
         )
-        let patchedObjectUser = PubNubUUIDMetadataBase(
+        let patchedObjectUser = PubNubUserMetadataBase(
           metadataId: "TestUserID",
           name: "Test Name", type: "Test Type", status: "Test Status",
           updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
@@ -563,7 +563,7 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
-        let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
+        let uuid = PubNubUserMetadataBase(metadataId: "TestUserID")
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(
@@ -628,7 +628,7 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
-        let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
+        let uuid = PubNubUserMetadataBase(metadataId: "TestUserID")
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(

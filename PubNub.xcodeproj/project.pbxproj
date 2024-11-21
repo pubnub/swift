@@ -283,7 +283,7 @@
 		35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548B248971BF0099FE81 /* ObjectsUUIDRouter.swift */; };
 		35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */; };
 		35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */; };
-		35CF54922489912F0099FE81 /* PubNubUUIDMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54912489912F0099FE81 /* PubNubUUIDMetadata.swift */; };
+		35CF54922489912F0099FE81 /* PubNubUserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */; };
 		35CF54942489918E0099FE81 /* PubNubChannelMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54932489918E0099FE81 /* PubNubChannelMetadata.swift */; };
 		35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54952489B3760099FE81 /* PubNubMembershipMetadata.swift */; };
 		35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF549B248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift */; };
@@ -912,7 +912,7 @@
 		35CF548B248971BF0099FE81 /* ObjectsUUIDRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUUIDRouter.swift; sourceTree = "<group>"; };
 		35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsChannelRouter.swift; sourceTree = "<group>"; };
 		35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsMembershipsRouter.swift; sourceTree = "<group>"; };
-		35CF54912489912F0099FE81 /* PubNubUUIDMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUUIDMetadata.swift; sourceTree = "<group>"; };
+		35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserMetadata.swift; sourceTree = "<group>"; };
 		35CF54932489918E0099FE81 /* PubNubChannelMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubChannelMetadata.swift; sourceTree = "<group>"; };
 		35CF54952489B3760099FE81 /* PubNubMembershipMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipMetadata.swift; sourceTree = "<group>"; };
 		35CF5499248AA5220099FE81 /* subscribe_uuidSet_nullUpdate.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = subscribe_uuidSet_nullUpdate.json; sourceTree = "<group>"; };
@@ -1807,7 +1807,7 @@
 				35AC162E2486C9A400A66030 /* PubNubMessageAction.swift */,
 				35AC16322487179400A66030 /* PubNubPage.swift */,
 				35E71C3B2490678D0032A991 /* PubNubPresence.swift */,
-				35CF54912489912F0099FE81 /* PubNubUUIDMetadata.swift */,
+				35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */,
 				35CF54932489918E0099FE81 /* PubNubChannelMetadata.swift */,
 				35CF54952489B3760099FE81 /* PubNubMembershipMetadata.swift */,
 				35CF549B248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift */,
@@ -3615,7 +3615,7 @@
 				357CA28E251D3D0C00BC40D3 /* HTTPFileTask.swift in Sources */,
 				3534D4E622C67CCA008E89FA /* HTTPRouter.swift in Sources */,
 				35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */,
-				35CF54922489912F0099FE81 /* PubNubUUIDMetadata.swift in Sources */,
+				35CF54922489912F0099FE81 /* PubNubUserMetadata.swift in Sources */,
 				35B6FBAF22F226F4005EE490 /* NSNumber+PubNub.swift in Sources */,
 				3D38A02E2B35B087006928E7 /* LegacySubscriptionSessionStrategy.swift in Sources */,
 				3DA24A352C2AA9F5005B959B /* KMPPubNub+Publish.swift in Sources */,

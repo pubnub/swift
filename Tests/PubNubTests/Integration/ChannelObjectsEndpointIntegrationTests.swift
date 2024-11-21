@@ -108,7 +108,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testFetchMembersUUID", name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(
@@ -151,7 +151,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testManageMembersUUID", name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(

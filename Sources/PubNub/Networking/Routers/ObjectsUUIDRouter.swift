@@ -14,7 +14,7 @@ public struct ObjectsUUIDRouter: HTTPRouter {
   public enum Endpoint: CustomStringConvertible {
     case all(include: [Include]?, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
     case fetch(metadataId: String, include: [Include]?)
-    case set(metadata: PubNubUUIDMetadata, include: [Include]?)
+    case set(metadata: PubNubUserMetadata, include: [Include]?)
     case remove(metadataId: String)
 
     public var description: String {
@@ -175,8 +175,8 @@ extension ObjectsUUIDRouter.Endpoint: Equatable {
     case let (.fetch(lhs1, lhs2), .fetch(rhs1, rhs2)):
       return lhs1 == rhs1 && lhs2 == rhs2
     case let (.set(lhs1, lhs2), .set(rhs1, rhs2)):
-      let lhsUser = try? PubNubUUIDMetadataBase(from: lhs1)
-      let rhsUser = try? PubNubUUIDMetadataBase(from: rhs1)
+      let lhsUser = try? PubNubUserMetadataBase(from: lhs1)
+      let rhsUser = try? PubNubUserMetadataBase(from: rhs1)
       return lhsUser == rhsUser && lhs2 == rhs2
     case let (.remove(lhsParam), .remove(rhsParam)):
       return lhsParam == rhsParam
@@ -188,14 +188,14 @@ extension ObjectsUUIDRouter.Endpoint: Equatable {
 
 // MARK: - Response Decoder
 
-public typealias PubNubUUIDsMetadataResponseDecoder = FetchMultipleValueResponseDecoder<PubNubUUIDMetadataBase>
+public typealias PubNubUsersMetadataResponseDecoder = FetchMultipleValueResponseDecoder<PubNubUserMetadataBase>
 
 public struct FetchMultipleValueResponseDecoder<Value: Codable>: ResponseDecoder {
   public typealias Payload = FetchMultipleResponse<Value>
   public init() {}
 }
 
-public typealias PubNubUUIDMetadataResponseDecoder = FetchSingleValueResponseDecoder<PubNubUUIDMetadataBase>
+public typealias PubNubUserMetadataResponseDecoder = FetchSingleValueResponseDecoder<PubNubUserMetadataBase>
 
 public struct FetchSingleValueResponseDecoder<Value: Codable>: ResponseDecoder {
   public typealias Payload = FetchSingleResponse<Value>

@@ -53,7 +53,7 @@ extension SubscribeObjectMetadataPayload: Codable {
     switch (type, event) {
     case (.uuid, .set):
       subscribeEvent = .uuidMetadataSet(
-        try container.decode(PubNubUUIDMetadataChangeset.self, forKey: .subscribeEvent)
+        try container.decode(PubNubUserMetadataChangeset.self, forKey: .subscribeEvent)
       )
     case (.uuid, .delete):
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .subscribeEvent)
@@ -103,9 +103,9 @@ extension SubscribeObjectMetadataPayload: Codable {
   }
 }
 
-// MARK: - PubNubUUIDMetadataChangeset Coders
+// MARK: - PubNubUserMetadataChangeset Coders
 
-extension PubNubUUIDMetadataChangeset: Codable {
+extension PubNubUserMetadataChangeset: Codable {
   enum CodingKeys: String, CodingKey {
     case metadataId = "id"
     case name
@@ -125,7 +125,7 @@ extension PubNubUUIDMetadataChangeset: Codable {
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
 
-    var changes = [PubNubMetadataChange<PubNubUUIDMetadata>]()
+    var changes = [PubNubMetadataChange<PubNubUserMetadata>]()
     if container.contains(.name) {
       changes.append(.stringOptional(\.name, try container.decodeIfPresent(String.self, forKey: .name)))
     }

@@ -270,7 +270,7 @@ public extension PubNubUserInterface {
   ) {
     let router = ObjectsUUIDRouter(
       .set(
-        metadata: PubNubUUIDMetadataBase(
+        metadata: PubNubUserMetadataBase(
           metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
           name: name,
           type: type,

@@ -263,7 +263,7 @@ public class KMPUserMetadata: NSObject {
   }
 
   // swiftlint:disable:next cyclomatic_complexity
-  init(changeset: PubNubUUIDMetadataChangeset) {
+  init(changeset: PubNubUserMetadataChangeset) {
     self.id = changeset.metadataId
     self.updated = DateFormatter.iso8601.string(from: changeset.updated)
     self.eTag = changeset.eTag

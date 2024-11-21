@@ -27,7 +27,7 @@ public protocol PubNubMembershipMetadata {
   var type: String? { get set }
   /// The associated UUID metadata
   @available(*, deprecated, renamed: "user")
-  var uuid: PubNubUUIDMetadata? { get set }
+  var uuid: PubNubUserMetadata? { get set }
   /// The associated User metadata
   var user: PubNubUserMetadata? { get set }
   /// The associated Channel metadata
@@ -39,7 +39,7 @@ public protocol PubNubMembershipMetadata {
   /// All custom fields set on the object
   var custom: [String: JSONCodableScalar]? { get set }
 
-  /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
+  /// Allows for other PubNubMembershipMetadata objects to transcode between themselves
   init(from other: PubNubMembershipMetadata) throws
 }
 
@@ -83,7 +83,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   /// The caching identifier for the object
   public var eTag: String?
 
-  var concreteUUID: PubNubUUIDMetadataBase?
+  var concreteUUID: PubNubUserMetadataBase?
   var concreteChannel: PubNubChannelMetadataBase?
   var concreteCustom: [String: JSONCodableScalarType]?
 
@@ -106,7 +106,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   }
 
   @available(*, deprecated, renamed: "user")
-  public var uuid: PubNubUUIDMetadata? {
+  public var uuid: PubNubUserMetadata? {
     get { concreteUUID }
     set { concreteUUID = try? newValue?.transcode() }
   }
@@ -127,7 +127,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     channelMetadataId: String,
     status: String? = nil,
     type: String? = nil,
-    uuid: PubNubUUIDMetadataBase? = nil,
+    uuid: PubNubUserMetadataBase? = nil,
     channel: PubNubChannelMetadataBase? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
     updated: Date? = nil,
@@ -151,7 +151,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
     channelMetadataId: String,
     status: String? = nil,
     type: String? = nil,
-    user: PubNubUUIDMetadataBase? = nil,
+    user: PubNubUserMetadataBase? = nil,
     channel: PubNubChannelMetadataBase? = nil,
     custom concreteCustom: [String: JSONCodableScalar]? = nil,
     updated: Date? = nil,
@@ -243,7 +243,7 @@ extension PubNubMembershipMetadataBase: Codable {
       concreteChannel = nil
     }
 
-    if let concreteUUID = try? container.decodeIfPresent(PubNubUUIDMetadataBase.self, forKey: .uuid) {
+    if let concreteUUID = try? container.decodeIfPresent(PubNubUserMetadataBase.self, forKey: .uuid) {
       self.concreteUUID = concreteUUID
       uuidMetadataId = concreteUUID.metadataId
     } else {

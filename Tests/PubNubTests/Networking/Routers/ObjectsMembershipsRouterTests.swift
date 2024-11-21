@@ -14,7 +14,7 @@ import XCTest
 final class ObjectsMembershipsRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testChannel = PubNubChannelMetadataBase(name: "TestChannel")
-  let testUser = PubNubUUIDMetadataBase(name: "TestUser")
+  let testUser = PubNubUserMetadataBase(name: "TestUser")
 }
 
 // MARK: - Fetch Memberships Tests
@@ -296,23 +296,23 @@ extension ObjectsMembershipsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let firstUUID = PubNubUUIDMetadataBase(
+    let firstUser = PubNubUserMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
-    let lastUUID = PubNubUUIDMetadataBase(
+    let lastUser = PubNubUserMetadataBase(
       metadataId: "LastUser"
     )
     
     let firstMembership = PubNubMembershipMetadataBase(
-      userMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      userMetadataId: firstUser.metadataId, channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: firstUUID,
+      user: firstUser,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       userMetadataId: "LastUser", channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: lastUUID,
+      user: lastUser,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )
@@ -407,22 +407,22 @@ extension ObjectsMembershipsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let firstUUID = PubNubUUIDMetadataBase(
+    let firstUser = PubNubUserMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
-    let lastUUID = PubNubUUIDMetadataBase(
+    let lastUser = PubNubUserMetadataBase(
       metadataId: "LastUser"
     )
     let firstMembership = PubNubMembershipMetadataBase(
-      userMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      userMetadataId: firstUser.metadataId, channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: firstUUID,
+      user: firstUser,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       userMetadataId: "LastUser", channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: lastUUID,
+      user: lastUser,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )
@@ -456,22 +456,22 @@ extension ObjectsMembershipsRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let firstUUID = PubNubUUIDMetadataBase(
+    let firstUser = PubNubUserMetadataBase(
       metadataId: "FirstUser", name: "First User", updated: uuidDate, eTag: "UserETag"
     )
-    let lastUUID = PubNubUUIDMetadataBase(
+    let lastUser = PubNubUserMetadataBase(
       metadataId: "LastUser"
     )
     let firstMembership = PubNubMembershipMetadataBase(
-      userMetadataId: firstUUID.metadataId, channelMetadataId: "TestChannel",
+      userMetadataId: firstUser.metadataId, channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: firstUUID,
+      user: firstUser,
       updated: firstDate, eTag: "FirstETag"
     )
     let lastMembership = PubNubMembershipMetadataBase(
       userMetadataId: "LastUser", channelMetadataId: "TestChannel",
       status: "Test Status",
-      user: lastUUID,
+      user: lastUser,
       custom: ["starred": true],
       updated: lastDate, eTag: "LastETag"
     )

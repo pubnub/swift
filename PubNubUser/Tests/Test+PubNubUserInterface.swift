@@ -174,7 +174,7 @@ class PubNubUserInterfaceTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
-      metadata: PubNubUUIDMetadataBase(
+      metadata: PubNubUserMetadataBase(
         metadataId: pubnub.configuration.userId,
         name: testUser.name,
         type: testUser.type,
@@ -228,7 +228,7 @@ class PubNubUserInterfaceTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
     let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
-      metadata: PubNubUUIDMetadataBase(
+      metadata: PubNubUserMetadataBase(
         metadataId: pubnub.configuration.userId,
         name: testUser.name,
         type: testUser.type,

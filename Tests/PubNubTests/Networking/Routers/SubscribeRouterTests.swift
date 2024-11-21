@@ -567,10 +567,10 @@ extension SubscribeRouterTests {
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(
-          uuidMetadataId: "TestUserID",
+          userMetadataId: "TestUserID",
           channelMetadataId: "TestSpaceID",
           status: "Test Status",
-          uuid: uuid,
+          user: uuid,
           channel: channel,
           custom: ["something": true],
           updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), 
@@ -632,8 +632,8 @@ extension SubscribeRouterTests {
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(
-          uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
-          uuid: uuid, channel: channel,
+          userMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
+          user: uuid, channel: channel,
           updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
         )
         

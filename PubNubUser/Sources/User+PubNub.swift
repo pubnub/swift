@@ -205,7 +205,7 @@ public extension PubNubUserInterface {
   ) {
     let router = ObjectsUUIDRouter(
       .all(
-        include: PubNub.IncludeFields(custom: includeCustom).uuidIncludeFields,
+        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields,
         totalCount: includeTotalCount,
         filter: filter,
         sort: sort.map { $0.routerParameter },
@@ -239,7 +239,7 @@ public extension PubNubUserInterface {
     let router = ObjectsUUIDRouter(
       .fetch(
         metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
-        include: PubNub.IncludeFields(custom: includeCustom).uuidIncludeFields
+        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -280,7 +280,7 @@ public extension PubNubUserInterface {
           email: email,
           custom: custom?.flatJSON
         ),
-        include: PubNub.IncludeFields(custom: includeCustom).uuidIncludeFields
+        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )

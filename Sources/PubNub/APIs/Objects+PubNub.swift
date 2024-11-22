@@ -1123,7 +1123,6 @@ public extension PubNub {
     }
   }
 
-  // swiftlint:disable:next line_length
   @available(*, deprecated, renamed: "setMembers(channels:users:include:filter:sort:limit:page:custom:completion:)")
   /// Set the specified user's space memberships.
   ///
@@ -1162,7 +1161,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Set the specified user's space memberships.
   ///
   /// - Parameters:

@@ -94,18 +94,18 @@ public struct ObjectsChannelRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .all(customFields, totalCount, filter, sort, limit, start, end):
+    case let .all(includeFields, totalCount, filter, sort, limit, start, end):
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
+      query.appendIfPresent(key: .include, value: Include.includes(from: includeFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
-    case let .fetch(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
-    case let .set(_, customFields):
-      query.appendIfPresent(key: .include, value: Include.includes(from: customFields))
+    case let .fetch(_, includeFields):
+      query.appendIfPresent(key: .include, value: Include.includes(from: includeFields))
+    case let .set(_, includeFields):
+      query.appendIfPresent(key: .include, value: Include.includes(from: includeFields))
     case .remove:
       break
     }

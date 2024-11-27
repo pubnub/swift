@@ -250,7 +250,7 @@ let defaultPublishKey = "demo-36"
     /// Objects acceptance testins.
     PubNubObjectsContractTests().setup()
     PubNubObjectsChannelMetadataContractTestSteps().setup()
-    PubNubObjectsUUIDMetadataContractTestSteps().setup()
+    PubNubObjectsUserMetadataContractTestSteps().setup()
     PubNubObjectsMembershipsContractTestSteps().setup()
     PubNubObjectsMembersContractTestSteps().setup()
   }

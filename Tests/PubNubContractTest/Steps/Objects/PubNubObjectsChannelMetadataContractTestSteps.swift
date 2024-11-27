@@ -85,7 +85,7 @@ public class PubNubObjectsChannelMetadataContractTestSteps: PubNubObjectsContrac
         return
       }
 
-      self.client.remove(channel: channelMetadataId) { result in
+      self.client.removeChannelMetadata(channelMetadataId) { result in
         switch result {
         case let .success(removedChannelMetadataId):
           self.handleResult(result: removedChannelMetadataId)

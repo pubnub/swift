@@ -121,7 +121,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetchChannelMetadata(metadataId, include: PubNub.IncludeFields(custom: includeCustom)) {
+    pubnub.fetchChannelMetadata(metadataId, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -150,7 +150,7 @@ public extension KMPPubNub {
       channelDescription: description,
       custom: convertDictionaryToScalars(custom?.asMap())
     )
-    pubnub.setChannelMetadata(channelMetadata, include: PubNub.IncludeFields(custom: includeCustom)) {
+    pubnub.setChannelMetadata(channelMetadata, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -161,11 +161,11 @@ public extension KMPPubNub {
   }
 
   func removeChannelMetadata(
-    channel: String,
+    metadataId: String,
     onSuccess: @escaping ((String) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.remove(channel: channel) {
+    pubnub.removeChannelMetadata(metadataId) {
       switch $0 {
       case .success(let channel):
         onSuccess(channel)
@@ -186,7 +186,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allUserMetadata(
-      include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
+      include: PubNub.UserIncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
       sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
@@ -211,7 +211,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetchUserMetadata(metadataId, include: PubNub.IncludeFields(custom: includeCustom)) {
+    pubnub.fetchUserMetadata(metadataId, include: PubNub.UserIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPUserMetadata(metadata: metadata))
@@ -246,7 +246,7 @@ public extension KMPPubNub {
     )
     pubnub.setUserMetadata(
       userMetadata,
-      include: PubNub.IncludeFields(custom: includeCustom)
+      include: PubNub.UserIncludeFields(custom: includeCustom)
     ) {
       switch $0 {
       case .success(let metadata):

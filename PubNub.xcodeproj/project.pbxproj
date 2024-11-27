@@ -280,7 +280,7 @@
 		35CDFEBA22E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEB922E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift */; };
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */; };
-		35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548B248971BF0099FE81 /* ObjectsUUIDRouter.swift */; };
+		35CF548C248971BF0099FE81 /* ObjectsUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */; };
 		35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */; };
 		35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */; };
 		35CF54922489912F0099FE81 /* PubNubUserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */; };
@@ -288,7 +288,7 @@
 		35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54952489B3760099FE81 /* PubNubMembershipMetadata.swift */; };
 		35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF549B248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift */; };
 		35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC162C2485E3C600A66030 /* SubscribeObjectPayload.swift */; };
-		35CF549E248D913A0099FE81 /* ObjectsUUIDRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DA9AB42335491F00867989 /* ObjectsUUIDRouterTests.swift */; };
+		35CF549E248D913A0099FE81 /* ObjectsUserRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */; };
 		35CF54A0248D96320099FE81 /* SubscribeRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359287BC23173D490046F7A2 /* SubscribeRouterTests.swift */; };
 		35CF54A1248DA6430099FE81 /* ObjectsChannelRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3562DBC22345066F006DFFBC /* ObjectsChannelRouterTests.swift */; };
 		35CF54A3248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54A2248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift */; };
@@ -909,7 +909,7 @@
 		35CDFEB922E77E2B00F3B9F2 /* URLSessionConfiguration+PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNubTests.swift"; sourceTree = "<group>"; };
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTestResource.swift; sourceTree = "<group>"; };
-		35CF548B248971BF0099FE81 /* ObjectsUUIDRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUUIDRouter.swift; sourceTree = "<group>"; };
+		35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouter.swift; sourceTree = "<group>"; };
 		35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsChannelRouter.swift; sourceTree = "<group>"; };
 		35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsMembershipsRouter.swift; sourceTree = "<group>"; };
 		35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserMetadata.swift; sourceTree = "<group>"; };
@@ -934,7 +934,7 @@
 		35DA9AAC2331674000867989 /* .swiftformat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .swiftformat; sourceTree = "<group>"; };
 		35DA9AB02334479800867989 /* objects_uuid_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = objects_uuid_all_success.json; path = Tests/PubNubTests/Mocking/Responses/Objects/objects_uuid_all_success.json; sourceTree = SOURCE_ROOT; };
 		35DA9AB2233447F200867989 /* objects_uuid_fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_uuid_fetch_success.json; sourceTree = "<group>"; };
-		35DA9AB42335491F00867989 /* ObjectsUUIDRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUUIDRouterTests.swift; sourceTree = "<group>"; };
+		35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouterTests.swift; sourceTree = "<group>"; };
 		35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatJSONCodable.swift; sourceTree = "<group>"; };
 		35DB0C4C287476BF001E1F76 /* OptionalChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalChange.swift; sourceTree = "<group>"; };
 		35E381FC23149BA900A17549 /* AutomaticRetryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutomaticRetryTests.swift; sourceTree = "<group>"; };
@@ -1306,7 +1306,7 @@
 				35293A792368F9680049A71F /* MessageActionsRouter.swift */,
 				35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */,
 				35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */,
-				35CF548B248971BF0099FE81 /* ObjectsUUIDRouter.swift */,
+				35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */,
 				35A6C77C22FB159F00E97CC5 /* PresenceRouter.swift */,
 				35A6C7A722FBCC8B00E97CC5 /* PushRouter.swift */,
 				3534D4E322C57659008E89FA /* PublishRouter.swift */,
@@ -1716,7 +1716,7 @@
 				359287B3231720C20046F7A2 /* PublishRouterTests.swift */,
 				359287BC23173D490046F7A2 /* SubscribeRouterTests.swift */,
 				3557CDFF237F6380004BBACC /* TimeRouterTests.swift */,
-				35DA9AB42335491F00867989 /* ObjectsUUIDRouterTests.swift */,
+				35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */,
 				3562DBC22345066F006DFFBC /* ObjectsChannelRouterTests.swift */,
 				35CF54A2248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift */,
 			);
@@ -3604,7 +3604,7 @@
 				3DBFF2BB2C203EDC00142985 /* KMPUploadable.swift in Sources */,
 				35A66A8022F861BA00AC67A9 /* AutomaticRetry.swift in Sources */,
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
-				35CF548C248971BF0099FE81 /* ObjectsUUIDRouter.swift in Sources */,
+				35CF548C248971BF0099FE81 /* ObjectsUserRouter.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
 				358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */,
 				35FAC1E72357C2AE0096E418 /* PubNubError.swift in Sources */,
@@ -3784,7 +3784,7 @@
 				3D38A0102B35AF6B006928E7 /* SubscribeEffectsTests.swift in Sources */,
 				3D38A0142B35AF6B006928E7 /* PresenceTransitionTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
-				35CF549E248D913A0099FE81 /* ObjectsUUIDRouterTests.swift in Sources */,
+				35CF549E248D913A0099FE81 /* ObjectsUserRouterTests.swift in Sources */,
 				3DB925642B7A2BF5001B7E90 /* SubscriptionSetTests.swift in Sources */,
 				35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */,
 				3580A5A222F13C6500B12E5E /* SessionStreamAwait.swift in Sources */,

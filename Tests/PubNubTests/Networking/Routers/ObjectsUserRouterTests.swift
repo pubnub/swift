@@ -11,7 +11,7 @@
 @testable import PubNubSDK
 import XCTest
 
-final class ObjectsUUIDRouterTests: XCTestCase {
+final class ObjectsUserRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testUser = PubNubUserMetadataBase(name: "TestUser")
   let invalidUser = PubNubUserMetadataBase(name: "")
@@ -19,9 +19,9 @@ final class ObjectsUUIDRouterTests: XCTestCase {
 
 // MARK: - All Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testAll_Router() {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .all(
         include: [.custom], totalCount: true, filter: "filter",
         sort: ["sort"], limit: 100, start: "start", end: "end"
@@ -35,7 +35,7 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testAll_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .all(
         include: [.custom], totalCount: true, filter: "filter",
         sort: ["sort"], limit: 100, start: "start", end: "end"
@@ -198,9 +198,9 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Fetch Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testFetch_Router() {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .fetch(metadataId: "OtherUser", include: [.custom]),
       configuration: config
     )
@@ -211,7 +211,7 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testFetch_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.fetch(metadataId: "", include: [.custom]), configuration: config)
+    let router = ObjectsUserRouter(.fetch(metadataId: "", include: [.custom]), configuration: config)
 
     XCTAssertNotEqual(
       router.validationError?.pubNubError,
@@ -382,9 +382,9 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Set Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testSet_Router() {
-    let router = ObjectsUUIDRouter(.set(metadata: testUser, include: [.custom]), configuration: config)
+    let router = ObjectsUserRouter(.set(metadata: testUser, include: [.custom]), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Set Metadata for a UUID")
     XCTAssertEqual(router.category, "Set Metadata for a UUID")
@@ -392,7 +392,7 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testSet_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.set(metadata: invalidUser, include: [.custom]), configuration: config)
+    let router = ObjectsUserRouter(.set(metadata: invalidUser, include: [.custom]), configuration: config)
 
     XCTAssertNotEqual(
       router.validationError?.pubNubError,
@@ -612,9 +612,9 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Remove Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testRemove_Router() {
-    let router = ObjectsUUIDRouter(.remove(metadataId: "TestUser"), configuration: config)
+    let router = ObjectsUserRouter(.remove(metadataId: "TestUser"), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove Metadata from a UUID")
     XCTAssertEqual(router.category, "Remove Metadata from a UUID")
@@ -622,7 +622,7 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testRemove_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.remove(metadataId: ""), configuration: config)
+    let router = ObjectsUserRouter(.remove(metadataId: ""), configuration: config)
 
     XCTAssertNotEqual(
       router.validationError?.pubNubError,

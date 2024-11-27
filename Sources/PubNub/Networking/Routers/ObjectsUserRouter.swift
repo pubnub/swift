@@ -10,7 +10,7 @@
 
 import Foundation
 
-public struct ObjectsUUIDRouter: HTTPRouter {
+public struct ObjectsUserRouter: HTTPRouter {
   public enum Endpoint: CustomStringConvertible {
     case all(include: [Include]?, totalCount: Bool, filter: String?, sort: [String], limit: Int?, start: String?, end: String?)
     case fetch(metadataId: String, include: [Include]?)
@@ -165,9 +165,9 @@ public struct ObjectsUUIDRouter: HTTPRouter {
   }
 }
 
-extension ObjectsUUIDRouter.Endpoint: Equatable {
+extension ObjectsUserRouter.Endpoint: Equatable {
   public static func == (
-    lhs: ObjectsUUIDRouter.Endpoint, rhs: ObjectsUUIDRouter.Endpoint
+    lhs: ObjectsUserRouter.Endpoint, rhs: ObjectsUserRouter.Endpoint
   ) -> Bool {
     switch (lhs, rhs) {
     case let (.all(lhs1, lhs2, lhs3, lhs4, lhs5, lhs6, lhs7), .all(rhs1, rhs2, rhs3, rhs4, rhs5, rhs6, rhs7)):

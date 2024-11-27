@@ -190,6 +190,8 @@ public extension PubNub {
     }
   }
 
+  // swiftlint:disable:next line_length
+  @available(*, deprecated, message: "Will be replaced with PubNub.UserIncludeFields and PubNub.ChannelIncludeFields for the User and Channel methods, respectively")
   /// Fields that include additional data inside the response for Channel or User metadata
   struct IncludeFields: Hashable {
     /// The `custom` dictionary for the Object
@@ -205,37 +207,99 @@ public extension PubNub {
     ///
     ///  - Parameters:
     ///   - custom: Whether to include `custom` data in the response
+    ///   - type: Whether to include `type` in the response
+    ///   - status: Whether to include `status` field in the response
     ///   - totalCount: Whether to include `totalCount` in the response
-    ///   - typeField: Whether to include `type` in the response
-    ///   - statusField: Whether to include `status` field in the response
     public init(
       custom: Bool = true,
       type: Bool = true,
       status: Bool = true,
       totalCount: Bool = true
     ) {
-      customFields = custom
-      typeField = type
-      statusField = status
+      self.customFields = custom
+      self.typeField = type
+      self.statusField = status
+      self.totalCount = totalCount
+    }
+  }
+
+  /// Fields that include additional data inside the response for User metadata
+  struct UserIncludeFields: Hashable {
+    /// The `custom` dictionary for the Object
+    public var custom: Bool
+    /// The `type` field for the Object
+    public var type: Bool
+    /// The `status` field for the Object
+    public var status: Bool
+    /// The `totalCount` of how many Objects are available
+    public var totalCount: Bool
+
+    /// Default init
+    ///
+    ///  - Parameters:
+    ///   - custom: Whether to include `custom` data in the response
+    ///   - status: Whether to include `status` field in the response
+    ///   - type: Whether to include `type` in the response
+    ///   - totalCount: Whether to include `totalCount` in the response
+    public init(
+      custom: Bool = true,
+      type: Bool = true,
+      status: Bool = true,
+      totalCount: Bool = true
+    ) {
+      self.custom = custom
+      self.type = type
+      self.status = status
       self.totalCount = totalCount
     }
 
-    public var userIncludeFields: [ObjectsUUIDRouter.Include]? {
-      var includes = [ObjectsUUIDRouter.Include]()
+    public var includeFields: [ObjectsUserRouter.Include]? {
+      var includes = [ObjectsUserRouter.Include]()
 
-      if customFields { includes.append(.custom) }
-      if statusField { includes.append(.status) }
-      if typeField { includes.append(.type) }
+      if custom { includes.append(.custom) }
+      if status { includes.append(.status) }
+      if type { includes.append(.type) }
 
       return includes.isEmpty ? nil : includes
     }
+  }
 
-    public var channelIncludeFields: [ObjectsChannelRouter.Include]? {
+  /// Fields that include additional data inside the response for Channel metadata
+  struct ChannelIncludeFields: Hashable {
+    /// The `custom` dictionary for the Object
+    public var custom: Bool
+    /// The `type` field for the Object
+    public var type: Bool
+    /// The `status` field for the Object
+    public var status: Bool
+    /// The `totalCount` of how many Objects are available
+    public var totalCount: Bool
+
+    /// Default init
+    ///
+    ///  - Parameters:
+    ///   - custom: Whether to include `custom` data in the response
+    ///   - status: Whether to include `status` field in the response
+    ///   - type: Whether to include `type` in the response
+    ///   - totalCount: Whether to include `totalCount` in the response
+    public init(
+      custom: Bool = true,
+      type: Bool = true,
+      status: Bool = true,
+      totalCount: Bool = true
+    ) {
+      self.custom = custom
+      self.type = type
+      self.status = status
+      self.totalCount = totalCount
+    }
+
+    public var includeFields: [ObjectsChannelRouter.Include]? {
       var includes = [ObjectsChannelRouter.Include]()
 
-      if customFields { includes.append(.custom) }
-      if statusField { includes.append(.status) }
-      if typeField { includes.append(.type) }
+      if custom { includes.append(.custom) }
+      if status { includes.append(.status) }
+      if type { includes.append(.type) }
 
       return includes.isEmpty ? nil : includes
     }
@@ -288,7 +352,6 @@ extension Array where Element == PubNub.MembershipSortField {
 // MARK: - User Metadata Objects
 
 public extension PubNub {
-  @available(*, deprecated, renamed: "allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
   /// Gets metadata for all Users.
   ///
   /// Returns a paginated list of User Metadata objects, optionally including the custom data object for each.
@@ -303,6 +366,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUserMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "allUserMetadata(include:filter:sort:limit:page:custom:completion:)")
   func allUUIDMetadata(
     include: IncludeFields = IncludeFields(),
     filter: String? = nil,
@@ -313,7 +377,12 @@ public extension PubNub {
     completion: ((Result<(uuids: [PubNubUserMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
     allUserMetadata(
-      include: include,
+      include: UserIncludeFields(
+        custom: include.customFields,
+        type: include.typeField,
+        status: include.statusField,
+        totalCount: include.totalCount
+      ),
       filter: filter,
       sort: sort,
       limit: limit,
@@ -344,7 +413,7 @@ public extension PubNub {
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubUserMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func allUserMetadata(
-    include: IncludeFields = IncludeFields(),
+    include: UserIncludeFields = UserIncludeFields(),
     filter: String? = nil,
     sort: [ObjectSortField] = [],
     limit: Int? = 100,
@@ -352,9 +421,9 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(users: [PubNubUserMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .all(
-        include: include.userIncludeFields,
+        include: include.includeFields,
         totalCount: include.totalCount,
         filter: filter,
         sort: sort.urlValue,
@@ -379,7 +448,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "fetchUserMetadata(_:include:custom:completion:)")
   /// Get Metadata for a User.
   ///
   /// Returns metadata for the specified User, optionally including the custom data object for each.
@@ -391,6 +459,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubUserMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "fetchUserMetadata(_:include:custom:completion:)")
   func fetch(
     uuid metadataId: String?,
     include customFields: Bool = true,
@@ -399,7 +468,7 @@ public extension PubNub {
   ) {
     fetchUserMetadata(
       metadataId,
-      include: IncludeFields(custom: customFields),
+      include: UserIncludeFields(custom: customFields),
       custom: requestConfig,
       completion: completion
     )
@@ -418,14 +487,14 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func fetchUserMetadata(
     _ metadataId: String?,
-    include: IncludeFields = IncludeFields(),
+    include: UserIncludeFields = UserIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .fetch(
         metadataId: metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
-        include: include.userIncludeFields
+        include: include.includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -439,7 +508,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "setUserMetadata(_:include:custom:completion:)")
   /// Set User Metadata.
   ///
   ///  Set metadata for a User in the database, optionally including the custom data object for each.
@@ -450,6 +518,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubUserMetadata` containing the set changes
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "setUserMetadata(_:include:custom:completion:)")
   func set(
     uuid metadata: PubNubUserMetadata,
     include customFields: Bool = true,
@@ -458,7 +527,7 @@ public extension PubNub {
   ) {
     setUserMetadata(
       metadata,
-      include: IncludeFields(custom: customFields),
+      include: UserIncludeFields(custom: customFields),
       custom: requestConfig,
       completion: completion
     )
@@ -476,14 +545,14 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func setUserMetadata(
     _ metadata: PubNubUserMetadata,
-    include: IncludeFields = IncludeFields(),
+    include: UserIncludeFields = UserIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .set(
         metadata: metadata,
-        include: include.userIncludeFields
+        include: include.includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -497,7 +566,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "remove(user:custom:completion:)")
   /// Remove metadata for a specified User.
   ///
   /// - Parameters:
@@ -506,6 +574,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The User identifier of the removed object
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "removeUserMetadata(_:custom:completion:)")
   func remove(
     uuid metadataId: String?,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
@@ -534,7 +603,7 @@ public extension PubNub {
     // Capture the response or current configuration uuid
     let metadataId = metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .remove(metadataId: metadataId),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -574,9 +643,15 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    let channelIncludeFields = ChannelIncludeFields(
+      custom: include.customFields,
+      type: include.typeField,
+      status: include.statusField,
+      totalCount: include.totalCount
+    )
     let router = ObjectsChannelRouter(
       .all(
-        include: include.channelIncludeFields,
+        include: channelIncludeFields.includeFields,
         totalCount: include.totalCount,
         filter: filter,
         sort: sort.map { "\($0.property.rawValue)\($0.ascending ? "" : ":desc")" },
@@ -601,7 +676,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "fetchChannelMetadata(_:include:custom:completion:)")
   /// Returns metadata for the specified channel including the channel's custom data.
   ///
   /// - Parameters:
@@ -611,6 +685,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubChannelMetadata` object belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "fetchChannelMetadata(_:include:custom:completion:)")
   func fetch(
     channel metadataId: String,
     include customFields: Bool = true,
@@ -619,7 +694,7 @@ public extension PubNub {
   ) {
     fetchChannelMetadata(
       metadataId,
-      include: IncludeFields(custom: customFields),
+      include: ChannelIncludeFields(custom: customFields),
       custom: requestConfig,
       completion: completion
     )
@@ -636,14 +711,14 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func fetchChannelMetadata(
     _ metadataId: String,
-    include: IncludeFields = IncludeFields(),
+    include: ChannelIncludeFields = ChannelIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
       .fetch(
         metadataId: metadataId,
-        include: include.channelIncludeFields
+        include: include.includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -657,7 +732,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "setChannelMetadata(_:include:custom:completion:)")
   /// Set metadata for a channel in the database.
   ///
   /// - Parameters:
@@ -667,6 +741,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The `PubNubChannelMetadata` containing the set changes
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "setChannelMetadata(_:include:custom:completion:)")
   func set(
     channel metadata: PubNubChannelMetadata,
     include customFields: Bool = true,
@@ -675,7 +750,7 @@ public extension PubNub {
   ) {
     setChannelMetadata(
       metadata,
-      include: IncludeFields(custom: customFields),
+      include: ChannelIncludeFields(custom: customFields),
       custom: requestConfig,
       completion: completion
     )
@@ -692,15 +767,12 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func setChannelMetadata(
     _ metadata: PubNubChannelMetadata,
-    include: IncludeFields = IncludeFields(),
+    include: ChannelIncludeFields = ChannelIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
     let router = ObjectsChannelRouter(
-      .set(
-        metadata: metadata,
-        include: include.channelIncludeFields
-      ),
+      .set(metadata: metadata, include: include.includeFields),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
@@ -721,8 +793,29 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The Channel identifier of the removed object
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "removeChannelMetadata(_:custom:completion:)")
   func remove(
     channel metadataId: String,
+    custom requestConfig: RequestConfiguration = RequestConfiguration(),
+    completion: ((Result<String, Error>) -> Void)?
+  ) {
+    removeChannelMetadata(
+      metadataId,
+      custom: requestConfig,
+      completion: completion
+    )
+  }
+  
+  /// Remove metadata for a specified channel.
+  ///
+  /// - Parameters:
+  ///   - metadataId: Unique Channel Metadata identifier to remove.
+  ///   - custom: Custom configuration overrides for this request
+  ///   - completion: The async `Result` of the method call
+  ///     - **Success**: The Channel identifier of the removed object
+  ///     - **Failure**: An `Error` describing the failure
+  func removeChannelMetadata(
+    _ metadataId: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
@@ -730,7 +823,7 @@ public extension PubNub {
       .remove(metadataId: metadataId),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-
+    
     route(
       router,
       responseDecoder: GenericServiceResponseDecoder(),
@@ -1023,8 +1116,6 @@ public extension PubNub {
     )
   }
 
-  // swiftlint:disable:next line_length
-  @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
   /// Modify the Channel membership list for a User.
   ///
   /// - Parameters:
@@ -1040,6 +1131,8 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "manageMemberships(userId:setting:removing:include:filter:sort:limit:page:custom:completion:)")
+  // swiftlint:disable:previous line_length
   func manageMemberships(
     uuid: String?,
     setting channelMembershipSets: [PubNubMembershipMetadata],
@@ -1123,7 +1216,6 @@ public extension PubNub {
     }
   }
 
-  @available(*, deprecated, renamed: "setMembers(channels:users:include:filter:sort:limit:page:custom:completion:)")
   /// Set the specified user's space memberships.
   ///
   /// - Parameters:
@@ -1138,6 +1230,7 @@ public extension PubNub {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of `PubNubMembershipMetadata`, and the next pagination `PubNubHashedPage` (if one exists)
   ///     - **Failure**: An `Error` describing the failure
+  @available(*, deprecated, renamed: "setMembers(channels:users:include:filter:sort:limit:page:custom:completion:)")
   func setMembers(
     channel metadataId: String,
     uuids members: [PubNubMembershipMetadata],

@@ -40,8 +40,8 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testCreateAndFetchEndpoint", name: "Swift ITest"
     )
 
-    client.set(channel: testChannel) { _ in
-      client.fetch(channel: testChannel.metadataId) { result in
+    client.setChannelMetadata(testChannel) { _ in
+      client.fetchChannelMetadata(testChannel.metadataId) { result in
         switch result {
         case let .success(channel):
           XCTAssertEqual(channel.metadataId, testChannel.metadataId)
@@ -64,8 +64,8 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testDeleteAndCreateEndpoint", name: "Swift ITest"
     )
 
-    client.remove(channel: testChannel.metadataId) { _ in
-      client.set(channel: testChannel) { result in
+    client.removeChannelMetadata(testChannel.metadataId) { _ in
+      client.setChannelMetadata(testChannel) { result in
         switch result {
         case let .success(channel):
           XCTAssertEqual(channel.metadataId, testChannel.metadataId)
@@ -88,8 +88,8 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testCreateAndDeleteEndpoint", name: "Swift ITest"
     )
 
-    client.set(channel: testChannel) { _ in
-      client.remove(channel: testChannel.metadataId) { result in
+    client.setChannelMetadata(testChannel) { _ in
+      client.removeChannelMetadata(testChannel.metadataId) { result in
         switch result {
         case let .success(metadataId):
           XCTAssertEqual(metadataId, testChannel.metadataId)
@@ -115,14 +115,15 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testFetchMembersChannel", name: "Swift ITest"
     )
     let membership = PubNubMembershipMetadataBase(
-      uuidMetadataId: testUser.metadataId,
+      userMetadataId: testUser.metadataId,
       channelMetadataId: testChannel.metadataId,
-      uuid: testUser, channel: testChannel
+      user: testUser,
+      channel: testChannel
     )
 
-    client.set(uuid: testUser) { _ in
-      client.set(channel: testChannel) { _ in
-        client.setMembers(channel: testChannel.metadataId, uuids: [membership]) { _ in
+    client.setUserMetadata(testUser) { _ in
+      client.setChannelMetadata(testChannel) { _ in
+        client.setMembers(channel: testChannel.metadataId, users: [membership]) { _ in
           client.fetchMembers(
             channel: testChannel.metadataId,
             include: .init(uuidFields: true, uuidCustomFields: true)
@@ -131,7 +132,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
             case let .success((memberships, _)):
               XCTAssertTrue(
                 memberships.contains(
-                  where: { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                  where: { $0.channelMetadataId == testChannel.metadataId && $0.userMetadataId == testUser.metadataId }
                 )
               )
             case let .failure(error):
@@ -158,13 +159,14 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       metadataId: "testManageMembersChannel", name: "Swift ITest"
     )
     let membership = PubNubMembershipMetadataBase(
-      uuidMetadataId: testUser.metadataId,
+      userMetadataId: testUser.metadataId,
       channelMetadataId: testChannel.metadataId,
-      uuid: testUser, channel: testChannel
+      user: testUser,
+      channel: testChannel
     )
 
-    client.set(uuid: testUser) { _ in
-      client.set(channel: testChannel) { _ in
+    client.setUserMetadata(testUser) { _ in
+      client.setChannelMetadata(testChannel) { _ in
         client.manageMembers(
           channel: testChannel.metadataId,
           setting: [membership],
@@ -176,7 +178,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
           case let .success((memberships, _)):
             XCTAssertTrue(
               memberships.contains(
-                where: { $0.channelMetadataId == testChannel.metadataId && $0.uuidMetadataId == testUser.metadataId }
+                where: { $0.channelMetadataId == testChannel.metadataId && $0.userMetadataId == testUser.metadataId }
               )
             )
           case let .failure(error):

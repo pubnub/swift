@@ -140,7 +140,7 @@ extension PubNubUser: Codable {
 // MARK: Object v2 Migration
 
 public extension PubNubUserMetadata {
-  /// Converts Object V2 UUID Metadata to a Space entity
+  /// Converts Object V2 User Metadata to a User entity
   ///
   /// - returns: The `PubNubUser` built from the Object V2 data
   func convert() -> PubNubUser {

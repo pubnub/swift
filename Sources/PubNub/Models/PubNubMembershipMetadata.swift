@@ -83,7 +83,7 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
   /// The caching identifier for the object
   public var eTag: String?
 
-  var concreteUUID: PubNubUserMetadataBase?
+  var concreteUser: PubNubUserMetadataBase?
   var concreteChannel: PubNubChannelMetadataBase?
   var concreteCustom: [String: JSONCodableScalarType]?
 
@@ -107,8 +107,8 @@ public struct PubNubMembershipMetadataBase: PubNubMembershipMetadata, Hashable {
 
   @available(*, deprecated, renamed: "user")
   public var uuid: PubNubUserMetadata? {
-    get { concreteUUID }
-    set { concreteUUID = try? newValue?.transcode() }
+    get { concreteUser }
+    set { concreteUser = try? newValue?.transcode() }
   }
 
   public var channel: PubNubChannelMetadata? {
@@ -244,12 +244,12 @@ extension PubNubMembershipMetadataBase: Codable {
     }
 
     if let concreteUUID = try? container.decodeIfPresent(PubNubUserMetadataBase.self, forKey: .uuid) {
-      self.concreteUUID = concreteUUID
+      self.concreteUser = concreteUUID
       uuidMetadataId = concreteUUID.metadataId
     } else {
       let uuidContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .uuid)
       uuidMetadataId = try uuidContainer.decode(String.self, forKey: .id)
-      concreteUUID = nil
+      concreteUser = nil
     }
   }
 
@@ -268,7 +268,7 @@ extension PubNubMembershipMetadataBase: Codable {
       try channelContainer.encode(channelMetadataId, forKey: .id)
     }
 
-    if let uuidObject = concreteUUID {
+    if let uuidObject = concreteUser {
       try container.encode(uuidObject, forKey: .uuid)
     } else {
       var uuidContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .uuid)

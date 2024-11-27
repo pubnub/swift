@@ -203,9 +203,9 @@ public extension PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping ((Result<(users: [PubNubUser], next: PubNubHashedPage?), Error>) -> Void)
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .all(
-        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields,
+        include: PubNub.UserIncludeFields(custom: includeCustom).includeFields,
         totalCount: includeTotalCount,
         filter: filter,
         sort: sort.map { $0.routerParameter },
@@ -226,7 +226,7 @@ public extension PubNubUserInterface {
         completion(result.map { (
           users: $0.payload.data,
           next: PubNub.Page(next: $0.payload.next, prev: $0.payload.prev, totalCount: $0.payload.totalCount)
-        ) })
+        )})
       }
   }
 
@@ -236,10 +236,10 @@ public extension PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: @escaping (Result<PubNubUser, Error>) -> Void
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .fetch(
         metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
-        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields
+        include: PubNub.UserIncludeFields(custom: includeCustom).includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -268,7 +268,7 @@ public extension PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<PubNubUser, Error>) -> Void)?
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .set(
         metadata: PubNubUserMetadataBase(
           metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
@@ -280,7 +280,7 @@ public extension PubNubUserInterface {
           email: email,
           custom: custom?.flatJSON
         ),
-        include: PubNub.IncludeFields(custom: includeCustom).userIncludeFields
+        include: PubNub.UserIncludeFields(custom: includeCustom).includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )
@@ -329,7 +329,7 @@ public extension PubNubUserInterface {
     requestConfig: PubNub.RequestConfiguration = .init(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
-    let router = ObjectsUUIDRouter(
+    let router = ObjectsUserRouter(
       .remove(metadataId: userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)),
       configuration: requestConfig.customConfiguration ?? configuration
     )

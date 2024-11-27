@@ -13,7 +13,7 @@ import Foundation
 import PubNubSDK
 import XCTest
 
-public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTests {
+public class PubNubObjectsUserMetadataContractTestSteps: PubNubObjectsContractTests {
   override public func setup() {
     startCucumberHookEventsListening()
 
@@ -33,7 +33,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
 
       self.client.fetchUserMetadata(
         self.setUserIdAsCurrentUser ? nil : uuidMetadataId,
-        include: PubNub.IncludeFields(custom: true)
+        include: PubNub.UserIncludeFields(custom: true)
       ) { result in
         switch result {
         case let .success(metadata):
@@ -111,7 +111,7 @@ public class PubNubObjectsUUIDMetadataContractTestSteps: PubNubObjectsContractTe
         includeCustom = PubNub.IncludeFields(custom: flags.contains("with custom"), totalCount: false)
       }
 
-      self.client.allUserMetadata(include: PubNub.IncludeFields(custom: true)) { result in
+      self.client.allUserMetadata(include: PubNub.UserIncludeFields(custom: true)) { result in
         switch result {
         case let .success(metadata):
           for uuidMetadata in metadata.users {

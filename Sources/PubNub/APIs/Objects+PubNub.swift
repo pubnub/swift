@@ -805,7 +805,7 @@ public extension PubNub {
       completion: completion
     )
   }
-  
+
   /// Remove metadata for a specified channel.
   ///
   /// - Parameters:
@@ -823,7 +823,7 @@ public extension PubNub {
       .remove(metadataId: metadataId),
       configuration: requestConfig.customConfiguration ?? configuration
     )
-    
+
     route(
       router,
       responseDecoder: GenericServiceResponseDecoder(),

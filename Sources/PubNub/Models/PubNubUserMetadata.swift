@@ -12,7 +12,7 @@ import Foundation
 
 // MARK: Outbound Protocol
 
-/// Alias for `PubNubUserMetadata`, maintained for backward compatibility with existing code using `PubNubUUIDMetadata`.
+/// Typealias for backward compatibility with existing code using `PubNubUUIDMetadata`.
 /// Please update your code to use `PubNubUserMetadata` directly, as `PubNubUUIDMetadata` is deprecated and will be removed in a future version.
 @available(*, deprecated, message: "Use `PubNubUserMetadata` instead.")
 public typealias PubNubUUIDMetadata = PubNubUserMetadata
@@ -68,7 +68,7 @@ public extension PubNubUserMetadata {
 
 // MARK: Concrete Base Class
 
-/// Alias for `PubNubUserMetadataBase`, maintained for backward compatibility with existing code using `PubNubUUIDMetadataBase`.
+/// Typealias for backward compatibility with existing code using `PubNubUUIDMetadataBase`.
 /// Please update your code to use `PubNubUserMetadataBase` directly, as `PubNubUUIDMetadataBase` is deprecated and will be removed in a future version.
 @available(*, deprecated, message: "Use `PubNubUserMetadataBase` instead.")
 public typealias PubNubUUIDMetadataBase = PubNubUserMetadataBase

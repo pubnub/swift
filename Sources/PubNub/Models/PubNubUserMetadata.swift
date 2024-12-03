@@ -17,15 +17,15 @@ import Foundation
 @available(*, deprecated, message: "Use `PubNubUserMetadata` instead.")
 public typealias PubNubUUIDMetadata = PubNubUserMetadata
 
-/// A object capable of representing PubNub UUID Metadata
+/// A object capable of representing PubNub User Metadata
 public protocol PubNubUserMetadata {
-  /// The unique identifier of the UUID
+  /// The unique identifier of the User
   var metadataId: String { get }
-  /// The name of the UUID
+  /// The name of the User
   var name: String? { get set }
-  /// The classification of UUIDMetadata
+  /// The classification of the User
   var type: String? { get set }
-  /// The current state of the UUIDMetadata
+  /// The current state of the User
   var status: String? { get set }
   /// The external identifier for the object
   var externalId: String? { get set }

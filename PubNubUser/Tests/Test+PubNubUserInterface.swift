@@ -101,7 +101,7 @@ class PubNubUserInterfaceTests: XCTestCase {
   func testUser_FetchUsers() {
     let expectation = XCTestExpectation(description: "Fetch Users API")
 
-    let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.all(
+    let testRouterEndpoint = ObjectsUserRouter.Endpoint.all(
       customFields: true,
       totalCount: true,
       filter: nil,
@@ -113,7 +113,7 @@ class PubNubUserInterfaceTests: XCTestCase {
 
     // Validate Inputs
     mockSession.validateRouter = { router in
-      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
+      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUserRouter)?.endpoint)
     }
 
     // Provide Output
@@ -141,14 +141,14 @@ class PubNubUserInterfaceTests: XCTestCase {
   func testUser_FetchUser_ConfigUserId() {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
-    let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.fetch(
+    let testRouterEndpoint = ObjectsUserRouter.Endpoint.fetch(
       metadataId: pubnub.configuration.userId,
       customFields: true
     )
 
     // Validate Inputs
     mockSession.validateRouter = { router in
-      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
+      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUserRouter)?.endpoint)
     }
 
     // Provide Output
@@ -173,8 +173,8 @@ class PubNubUserInterfaceTests: XCTestCase {
   func testUser_CreateUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
-    let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
-      metadata: PubNubUUIDMetadataBase(
+    let testRouterEndpoint = ObjectsUserRouter.Endpoint.set(
+      metadata: PubNubUserMetadataBase(
         metadataId: pubnub.configuration.userId,
         name: testUser.name,
         type: testUser.type,
@@ -191,7 +191,7 @@ class PubNubUserInterfaceTests: XCTestCase {
 
     // Validate Inputs
     mockSession.validateRouter = { router in
-      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
+      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUserRouter)?.endpoint)
     }
 
     // Provide Output
@@ -227,8 +227,8 @@ class PubNubUserInterfaceTests: XCTestCase {
   func testUser_UpdateUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
-    let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.set(
-      metadata: PubNubUUIDMetadataBase(
+    let testRouterEndpoint = ObjectsUserRouter.Endpoint.set(
+      metadata: PubNubUserMetadataBase(
         metadataId: pubnub.configuration.userId,
         name: testUser.name,
         type: testUser.type,
@@ -245,7 +245,7 @@ class PubNubUserInterfaceTests: XCTestCase {
 
     // Validate Inputs
     mockSession.validateRouter = { router in
-      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
+      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUserRouter)?.endpoint)
     }
 
     // Provide Output
@@ -281,13 +281,13 @@ class PubNubUserInterfaceTests: XCTestCase {
   func testUser_RemoveUser() {
     let expectation = XCTestExpectation(description: "Fetch User API")
 
-    let testRouterEndpoint = ObjectsUUIDRouter.Endpoint.remove(
+    let testRouterEndpoint = ObjectsUserRouter.Endpoint.remove(
       metadataId: pubnub.configuration.uuid
     )
 
     // Validate Inputs
     mockSession.validateRouter = { router in
-      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUUIDRouter)?.endpoint)
+      XCTAssertEqual(testRouterEndpoint, (router as? ObjectsUserRouter)?.endpoint)
     }
 
     // Provide Output

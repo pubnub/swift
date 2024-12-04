@@ -88,7 +88,7 @@ public enum PubNubCoreEvent {
   /// A presence change has been received
   case presenceChanged(PubNubPresenceChange)
   /// A User object has been updated
-  case uuidMetadataSet(PubNubUUIDMetadataChangeset)
+  case uuidMetadataSet(PubNubUserMetadataChangeset)
   /// A User object has been deleted
   case uuidMetadataRemoved(metadataId: String)
   /// A Space object has been updated
@@ -135,7 +135,7 @@ public final class CoreListener: BaseSubscriptionListener {
   /// All the changes that can be received for Metadata objects
   public enum ObjectMetadataChangeEvents {
     /// The changeset for the UUID object that changed
-    case setUUID(PubNubUUIDMetadataChangeset)
+    case setUUID(PubNubUserMetadataChangeset)
     /// The unique identifer of the UUID that was removed
     case removedUUID(metadataId: String)
     /// The changeset for the Channel object that changed

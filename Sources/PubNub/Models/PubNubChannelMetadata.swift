@@ -31,7 +31,7 @@ public protocol PubNubChannelMetadata {
   /// All custom fields set on the object
   var custom: [String: JSONCodableScalar]? { get set }
 
-  /// Allows for other PubNubUUIDMetadata objects to transcode between themselves
+  /// Allows for other PubNubChannelMetadata objects to transcode between themselves
   init(from other: PubNubChannelMetadata) throws
 }
 

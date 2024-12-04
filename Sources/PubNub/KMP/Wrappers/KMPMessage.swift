@@ -28,6 +28,7 @@ public class KMPMessage: NSObject {
     self.published = message.published
     self.metadata = if let value = message.metadata { KMPAnyJSON(value.codableValue) } else { nil }
     self.messageType = message.messageType.rawValue
+    self.customMessageType = message.customMessageType
     self.error = message.error
   }
 
@@ -39,5 +40,6 @@ public class KMPMessage: NSObject {
   @objc public let published: Timetoken
   @objc public let metadata: KMPAnyJSON?
   @objc public let messageType: Int
+  @objc public let customMessageType: String?
   @objc public let error: Error?
 }

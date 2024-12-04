@@ -197,7 +197,7 @@ public extension PubNubSpaceInterface {
   ) {
     let router = ObjectsChannelRouter(
       .all(
-        customFields: includeCustom,
+        include: PubNub.ChannelIncludeFields(custom: includeCustom).includeFields,
         totalCount: includeTotalCount,
         filter: filter,
         sort: sort.map { $0.routerParameter },
@@ -229,7 +229,7 @@ public extension PubNubSpaceInterface {
     completion: @escaping (Result<PubNubSpace, Error>) -> Void
   ) {
     let router = ObjectsChannelRouter(
-      .fetch(metadataId: spaceId, customFields: includeCustom),
+      .fetch(metadataId: spaceId, include: PubNub.ChannelIncludeFields(custom: includeCustom).includeFields),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
@@ -265,7 +265,7 @@ public extension PubNubSpaceInterface {
           channelDescription: description,
           custom: custom?.flatJSON
         ),
-        customFields: includeCustom
+        include: PubNub.ChannelIncludeFields(custom: includeCustom).includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
     )

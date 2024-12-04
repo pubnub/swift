@@ -63,9 +63,9 @@ public class KMPAppContextEventResult: NSObject {
 
 @objc
 public class KMPSetUUIDMetadataResult: KMPAppContextEventResult {
-  @objc public let metadata: KMPUUIDMetadata
+  @objc public let metadata: KMPUserMetadata
 
-  init(metadata: KMPUUIDMetadata) {
+  init(metadata: KMPUserMetadata) {
     self.metadata = metadata
     super.init()
   }
@@ -139,7 +139,7 @@ extension KMPAppContextEventResult {
   static func from(event: PubNubAppContextEvent) -> KMPAppContextEventResult {
     switch event {
     case .userMetadataSet(let changeset):
-      return KMPSetUUIDMetadataResult(metadata: KMPUUIDMetadata(changeset: changeset))
+      return KMPSetUUIDMetadataResult(metadata: KMPUserMetadata(changeset: changeset))
     case .userMetadataRemoved(let metadataId):
       return KMPRemoveUUIDMetadataResult(uuid: metadataId)
     case .channelMetadataSet(let changeset):
@@ -149,7 +149,7 @@ extension KMPAppContextEventResult {
     case .membershipMetadataSet(let metadata):
       return KMPSetMembershipResult(metadata: KMPMembershipMetadata(from: metadata))
     case .membershipMetadataRemoved(let metadata):
-      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.uuidMetadataId)
+      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.userMetadataId)
     }
   }
 }
@@ -228,10 +228,10 @@ public class KMPChannelMetadata: NSObject {
   }
 }
 
-// MARK: - KMPUUIDMetadata
+// MARK: - KMPUserMetadata
 
 @objc
-public class KMPUUIDMetadata: NSObject {
+public class KMPUserMetadata: NSObject {
   @objc public var id: String
   @objc public var name: String?
   @objc public var externalId: String?
@@ -263,7 +263,7 @@ public class KMPUUIDMetadata: NSObject {
   }
 
   // swiftlint:disable:next cyclomatic_complexity
-  init(changeset: PubNubUUIDMetadataChangeset) {
+  init(changeset: PubNubUserMetadataChangeset) {
     self.id = changeset.metadataId
     self.updated = DateFormatter.iso8601.string(from: changeset.updated)
     self.eTag = changeset.eTag
@@ -305,7 +305,7 @@ public class KMPUUIDMetadata: NSObject {
     }
   }
 
-  init(metadata: PubNubUUIDMetadata) {
+  init(metadata: PubNubUserMetadata) {
     self.id = metadata.metadataId
     self.name = metadata.name
     self.externalId = metadata.externalId
@@ -326,17 +326,19 @@ public class KMPMembershipMetadata: NSObject {
   @objc public var uuidMetadataId: String
   @objc public var channelMetadataId: String
   @objc public var status: String?
-  @objc public var uuid: KMPUUIDMetadata?
+  @objc public var type: String?
+  @objc public var user: KMPUserMetadata?
   @objc public var channel: KMPChannelMetadata?
   @objc public var updated: String?
   @objc public var eTag: String?
   @objc public var custom: [String: Any]?
 
   init(from: PubNubMembershipMetadata) {
-    self.uuidMetadataId = from.uuidMetadataId
+    self.uuidMetadataId = from.userMetadataId
     self.channelMetadataId = from.channelMetadataId
     self.status = from.status
-    self.uuid = if let uuid = from.uuid { KMPUUIDMetadata(metadata: uuid) } else { nil }
+    self.type = from.type
+    self.user = if let user = from.user { KMPUserMetadata(metadata: user) } else { nil }
     self.channel = if let channel = from.channel { KMPChannelMetadata(metadata: channel) } else { nil }
     self.updated =  if let date = from.updated { DateFormatter.iso8601.string(from: date) } else { nil }
     self.eTag = from.eTag

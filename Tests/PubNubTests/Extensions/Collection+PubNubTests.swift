@@ -12,7 +12,7 @@
 import XCTest
 
 final class CollectionPubNubTests: XCTestCase {
-  func testPubNubUUID() {
+  func testCSVString() {
     let csvInput = ["one", "two", "three", "four"]
     let csvOutput = "one,two,three,four"
 

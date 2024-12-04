@@ -11,19 +11,21 @@
 @testable import PubNubSDK
 import XCTest
 
-final class ObjectsUUIDRouterTests: XCTestCase {
+final class ObjectsUserRouterTests: XCTestCase {
   let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
-  let testUser = PubNubUUIDMetadataBase(name: "TestUser")
-  let invalidUser = PubNubUUIDMetadataBase(name: "")
+  let testUser = PubNubUserMetadataBase(name: "TestUser")
+  let invalidUser = PubNubUserMetadataBase(name: "")
 }
 
 // MARK: - All Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testAll_Router() {
-    let router = ObjectsUUIDRouter(
-      .all(customFields: true, totalCount: true, filter: "filter",
-           sort: ["sort"], limit: 100, start: "start", end: "end"),
+    let router = ObjectsUserRouter(
+      .all(
+        include: [.custom], totalCount: true, filter: "filter",
+        sort: ["sort"], limit: 100, start: "start", end: "end"
+      ),
       configuration: config
     )
 
@@ -33,39 +35,45 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testAll_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(
-      .all(customFields: true, totalCount: true, filter: "filter",
-           sort: ["sort"], limit: 100, start: "start", end: "end"),
+    let router = ObjectsUserRouter(
+      .all(
+        include: [.custom], totalCount: true, filter: "filter",
+        sort: ["sort"], limit: 100, start: "start", end: "end"
+      ),
       configuration: config
     )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testAll_Success() {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_all_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
-          let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
+    guard
+      let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_all_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
     else {
       return XCTFail("Could not create mock url session")
     }
 
-    let firstTest = PubNubUUIDMetadataBase(
+    let firstTest = PubNubUserMetadataBase(
       metadataId: "WGWPWPJBRJ", name: "HNNCTGRURF",
       updated: firstDate, eTag: "AY/Cz7edr46A3wE"
     )
-    let lastTest = PubNubUUIDMetadataBase(
+    let lastTest = PubNubUserMetadataBase(
       metadataId: "OSPULBRLGN", name: "VDUVIGRMWF",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: lastDate, eTag: "AeH55Y3T0a78Ew"
     )
+    
     let page = PubNubHashedPageBase(start: "NextPage", end: "PrevPage", totalCount: 2)
-
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    
+    pubnub.allUserMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
         XCTAssertEqual(metadataObjects.compactMap { try? $0.transcode() }, [firstTest, lastTest])
@@ -89,7 +97,7 @@ extension ObjectsUUIDRouterTests {
     let testPage = PubNubHashedPageBase(start: "NextPage")
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    pubnub.allUserMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
         XCTAssertTrue(metadataObjects.isEmpty)
@@ -111,7 +119,7 @@ extension ObjectsUUIDRouterTests {
     }
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    pubnub.allUserMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -132,7 +140,7 @@ extension ObjectsUUIDRouterTests {
     }
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    pubnub.allUserMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -153,7 +161,7 @@ extension ObjectsUUIDRouterTests {
     }
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    pubnub.allUserMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -174,7 +182,7 @@ extension ObjectsUUIDRouterTests {
     }
 
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.allUUIDMetadata { result in
+    pubnub.allUserMetadata { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -190,10 +198,12 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Fetch Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testFetch_Router() {
-    let router = ObjectsUUIDRouter(.fetch(metadataId: "OtherUser", customFields: true),
-                                   configuration: config)
+    let router = ObjectsUserRouter(
+      .fetch(metadataId: "OtherUser", include: [.custom]),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Metadata for a UUID")
     XCTAssertEqual(router.category, "Fetch Metadata for a UUID")
@@ -201,30 +211,37 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testFetch_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.fetch(metadataId: "", customFields: true), configuration: config)
+    let router = ObjectsUserRouter(.fetch(metadataId: "", include: [.custom]), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testFetch_Success() {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+    guard
+      let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
 
-    let testObject = PubNubUUIDMetadataBase(
+    let testObject = PubNubUserMetadataBase(
       metadataId: "TestUser", name: "Test User",
       type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -244,8 +261,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -265,8 +286,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -286,8 +311,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -307,8 +336,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -328,8 +361,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -345,9 +382,9 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Set Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testSet_Router() {
-    let router = ObjectsUUIDRouter(.set(metadata: testUser, customFields: true), configuration: config)
+    let router = ObjectsUserRouter(.set(metadata: testUser, include: [.custom]), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Set Metadata for a UUID")
     XCTAssertEqual(router.category, "Set Metadata for a UUID")
@@ -355,29 +392,36 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testSet_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.set(metadata: invalidUser, customFields: true), configuration: config)
+    let router = ObjectsUserRouter(.set(metadata: invalidUser, include: [.custom]), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testSet_Success() {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+    guard 
+      let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
 
-    let testObject = PubNubUUIDMetadataBase(
+    let testObject = PubNubUserMetadataBase(
       metadataId: "TestUser", name: "Test User", type: "Test Type", status: "Test Status",
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -397,8 +441,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -418,8 +466,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -439,8 +491,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -460,8 +516,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -481,8 +541,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -502,8 +566,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -523,8 +591,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(uuid: testUser) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -540,9 +612,9 @@ extension ObjectsUUIDRouterTests {
 
 // MARK: - Remove Tests
 
-extension ObjectsUUIDRouterTests {
+extension ObjectsUserRouterTests {
   func testRemove_Router() {
-    let router = ObjectsUUIDRouter(.remove(metadataId: "TestUser"), configuration: config)
+    let router = ObjectsUserRouter(.remove(metadataId: "TestUser"), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove Metadata from a UUID")
     XCTAssertEqual(router.category, "Remove Metadata from a UUID")
@@ -550,10 +622,12 @@ extension ObjectsUUIDRouterTests {
   }
 
   func testRemove_Router_ValidationError() {
-    let router = ObjectsUUIDRouter(.remove(metadataId: ""), configuration: config)
+    let router = ObjectsUserRouter(.remove(metadataId: ""), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testRemove_Success() {
@@ -563,8 +637,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case let .success(metadataId):
         XCTAssertEqual(metadataId, "TestUser")
@@ -584,8 +662,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: nil) { [weak self] result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata(nil) { [weak self] result in
       switch result {
       case let .success(metadataId):
         XCTAssertEqual(metadataId, self?.config.uuid)
@@ -605,8 +687,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -626,8 +712,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -647,8 +737,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -668,8 +762,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -689,8 +787,12 @@ extension ObjectsUUIDRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.remove(uuid: "TestUser") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")

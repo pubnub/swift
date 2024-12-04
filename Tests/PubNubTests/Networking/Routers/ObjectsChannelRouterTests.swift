@@ -22,8 +22,10 @@ final class ObjectsChannelRouterTests: XCTestCase {
 extension ObjectsChannelRouterTests {
   func testAll_Router() {
     let router = ObjectsChannelRouter(
-      .all(customFields: true, totalCount: true, filter: "filter",
-           sort: ["sort"], limit: 100, start: "start", end: "end"),
+      .all(
+        include: [.custom], totalCount: true, filter: "filter",
+        sort: ["sort"], limit: 100, start: "start", end: "end"
+      ),
       configuration: config
     )
 
@@ -34,21 +36,26 @@ extension ObjectsChannelRouterTests {
 
   func testAll_Router_ValidationError() {
     let router = ObjectsChannelRouter(
-      .all(customFields: true, totalCount: true, filter: "filter",
-           sort: ["sort"], limit: 100, start: "start", end: "end"),
+      .all(
+        include: [.custom], totalCount: true, filter: "filter",
+        sort: ["sort"], limit: 100, start: "start", end: "end"
+      ),
       configuration: config
     )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testAll_Success() {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_all_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
-          let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
+    guard
+      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_all_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
+      let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -62,9 +69,17 @@ extension ObjectsChannelRouterTests {
       custom: ["info": "JMGXDNYF"],
       updated: lastDate, eTag: "AeH55Y3T0a78Ew"
     )
-    let page = PubNubHashedPageBase(start: "NextPage", end: "PrevPage", totalCount: 2)
+    let page = PubNubHashedPageBase(
+      start: "NextPage",
+      end: "PrevPage",
+      totalCount: 2
+    )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
@@ -87,8 +102,8 @@ extension ObjectsChannelRouterTests {
     }
 
     let testPage = PubNubHashedPageBase(totalCount: 0)
-
     let pubnub = PubNub(configuration: config, session: sessions.session)
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
@@ -110,7 +125,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -131,7 +150,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -152,7 +175,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -173,7 +200,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -192,8 +223,10 @@ extension ObjectsChannelRouterTests {
 
 extension ObjectsChannelRouterTests {
   func testFetch_Router() {
-    let router = ObjectsChannelRouter(.fetch(metadataId: "OtherUser", customFields: true),
-                                      configuration: config)
+    let router = ObjectsChannelRouter(
+      .fetch(metadataId: "OtherUser", include: [.custom]),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch Metadata for a Channel")
     XCTAssertEqual(router.category, "Fetch Metadata for a Channel")
@@ -201,17 +234,23 @@ extension ObjectsChannelRouterTests {
   }
 
   func testFetch_Router_ValidationError() {
-    let router = ObjectsChannelRouter(.fetch(metadataId: "", customFields: true), configuration: config)
+    let router = ObjectsChannelRouter(
+      .fetch(metadataId: "", include: [.custom]),
+      configuration: config
+    )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testFetch_Success() {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+    guard 
+      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -223,8 +262,12 @@ extension ObjectsChannelRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -244,8 +287,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -265,8 +312,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -286,8 +337,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -307,8 +362,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -328,8 +387,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetch(channel: "TestChannel") { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -347,7 +410,10 @@ extension ObjectsChannelRouterTests {
 
 extension ObjectsChannelRouterTests {
   func testSet_Router() {
-    let router = ObjectsChannelRouter(.set(metadata: testChannel, customFields: true), configuration: config)
+    let router = ObjectsChannelRouter(
+      .set(metadata: testChannel, include: [.custom]),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Set Metadata for a Channel")
     XCTAssertEqual(router.category, "Set Metadata for a Channel")
@@ -355,17 +421,23 @@ extension ObjectsChannelRouterTests {
   }
 
   func testSet_Router_ValidationError() {
-    let router = ObjectsChannelRouter(.set(metadata: invalidUser, customFields: true), configuration: config)
+    let router = ObjectsChannelRouter(
+      .set(metadata: invalidUser, include: [.custom]),
+      configuration: config
+    )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testSet_Success() {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-          let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
+    guard 
+      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
+      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
       return XCTFail("Could not create mock url session")
     }
@@ -377,8 +449,12 @@ extension ObjectsChannelRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case let .success(responseObject):
         XCTAssertEqual(try? responseObject.transcode(), testObject)
@@ -398,8 +474,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -419,8 +499,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -440,8 +524,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -461,8 +549,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -482,8 +574,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -503,8 +599,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -524,8 +624,12 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.set(channel: testChannel) { result in
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
+    pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -553,8 +657,10 @@ extension ObjectsChannelRouterTests {
   func testRemove_Router_ValidationError() {
     let router = ObjectsChannelRouter(.remove(metadataId: ""), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError,
-                      PubNubError(.invalidEndpointType, router: router))
+    XCTAssertNotEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.invalidEndpointType, router: router)
+    )
   }
 
   func testRemove_Success() {
@@ -564,7 +670,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case let .success(metadataId):
@@ -585,7 +695,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -606,7 +720,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -627,7 +745,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -648,7 +770,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -669,7 +795,11 @@ extension ObjectsChannelRouterTests {
       return XCTFail("Could not create mock url session")
     }
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(
+      configuration: config,
+      session: sessions.session
+    )
+    
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:

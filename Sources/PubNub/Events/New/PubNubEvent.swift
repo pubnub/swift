@@ -36,9 +36,9 @@ public enum PubNubMessageActionEvent {
 
 /// Possible subevents for AppContext
 public enum PubNubAppContextEvent {
-  /// The `PubNubUUIDMetadataChangeset` of the set Membership
-  case userMetadataSet(PubNubUUIDMetadataChangeset)
-  /// The unique identifer of the UUID that was removed
+  /// The `PubNubUserMetadataChangeset` of the set Membership
+  case userMetadataSet(PubNubUserMetadataChangeset)
+  /// The unique identifer of the User that was removed
   case userMetadataRemoved(metadataId: String)
   /// The changeset for the Channel object that changed
   case channelMetadataSet(PubNubChannelMetadataChangeset)

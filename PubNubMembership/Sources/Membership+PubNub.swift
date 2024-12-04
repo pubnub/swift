@@ -350,7 +350,7 @@ public extension PubNubMembershipInterface {
         customFields: nil,
         totalCount: false,
         changes: .init(
-          set: users.map { .init(metadataId: $0.user.id, status: $0.status, custom: $0.custom?.flatJSON) },
+          set: users.map { .init(metadataId: $0.user.id, status: $0.status, type: nil, custom: $0.custom?.flatJSON) },
           delete: []
         ),
         filter: nil,
@@ -387,7 +387,7 @@ public extension PubNubMembershipInterface {
         customFields: nil,
         totalCount: false,
         changes: .init(
-          set: spaces.map { .init(metadataId: $0.space.id, status: $0.status, custom: $0.custom?.flatJSON) },
+          set: spaces.map { .init(metadataId: $0.space.id, status: $0.status, type: nil, custom: $0.custom?.flatJSON) },
           delete: []
         ),
         filter: nil,
@@ -451,7 +451,7 @@ public extension PubNubMembershipInterface {
         totalCount: false,
         changes: .init(
           set: [],
-          delete: userIds.map { .init(metadataId: $0, status: nil, custom: nil) }
+          delete: userIds.map { .init(metadataId: $0, status: nil, type: nil, custom: nil) }
         ),
         filter: nil,
         sort: [],
@@ -488,7 +488,7 @@ public extension PubNubMembershipInterface {
         totalCount: false,
         changes: .init(
           set: [],
-          delete: spaceIds.map { .init(metadataId: $0, status: nil, custom: nil) }
+          delete: spaceIds.map { .init(metadataId: $0, status: nil, type: nil, custom: nil) }
         ),
         filter: nil,
         sort: [],

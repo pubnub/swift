@@ -38,15 +38,15 @@ extension PubNubContractTestCase {
   /// Retrieve `UUID metadata` object information using owner name.
   ///
   /// - Parameter name: Entity name which is the same as name of file in which it is stored.
-  /// - Returns: Parsed `PubNubUUIDMetadata` object or `nil` in case of parse / load error.
-  func uuidMetadata(with name: String) -> PubNubUUIDMetadata? {
-    guard let uuidData = loadDataFile(entityDataPathByName(name)) else { return nil }
-    guard let uuidMetadata = try? Constant.jsonDecoder.decode(PubNubUUIDMetadataBase.self, from: uuidData) else {
+  /// - Returns: Parsed `PubNubUserMetadata` object or `nil` in case of parse / load error.
+  func uuidMetadata(with name: String) -> PubNubUserMetadata? {
+    guard let userData = loadDataFile(entityDataPathByName(name)) else { return nil }
+    guard let userMetadata = try? Constant.jsonDecoder.decode(PubNubUserMetadataBase.self, from: userData) else {
       XCTAssert(false, "Unable to load / parse data for '\(name)' persona.")
       return nil
     }
 
-    return uuidMetadata
+    return userMetadata
   }
 
   /// Retrieve `membership metadata` object information using owner name.

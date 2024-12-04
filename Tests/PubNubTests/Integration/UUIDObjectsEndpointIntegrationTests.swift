@@ -37,7 +37,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest", profileURL: "http://example.com"
     )
 
@@ -62,7 +62,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testUserDeleteAndCreateEndpoint", name: "Swift ITest"
     )
 
@@ -86,7 +86,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testUserCreateAndDeleteEndpoint", name: "Swift ITest"
     )
 
@@ -110,7 +110,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testUserFetchMemberships", name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(
@@ -155,7 +155,7 @@ class UUIDObjectsEndpointIntegrationTests: XCTestCase {
 
     let client = PubNub(configuration: config)
 
-    let testUser = PubNubUUIDMetadataBase(
+    let testUser = PubNubUserMetadataBase(
       metadataId: "testUpdateMemberships", name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(

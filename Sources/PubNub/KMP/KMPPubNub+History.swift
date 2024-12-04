@@ -25,6 +25,7 @@ public extension KMPPubNub {
     includeMeta: Bool,
     includeMessageActions: Bool,
     includeMessageType: Bool,
+    includeCustomMessageType: Bool,
     page: KMPBoundedPage?,
     onSuccess: @escaping ((KMPFetchMessagesResult)) -> Void,
     onFailure: @escaping ((Error) -> Void)
@@ -35,6 +36,7 @@ public extension KMPPubNub {
       includeMeta: includeMeta,
       includeUUID: includeUUID,
       includeMessageType: includeMessageType,
+      includeCustomMessageType: includeCustomMessageType,
       page: PubNubBoundedPageBase(
         start: page?.start?.uint64Value,
         end: page?.end?.uint64Value,

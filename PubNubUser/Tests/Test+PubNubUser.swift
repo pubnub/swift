@@ -103,7 +103,7 @@ class PubNubUserModelTests: XCTestCase {
   }
 
   func testPubNubUser_Convert_UUIDMetadata() {
-    let userMetadata = PubNubUUIDMetadataBase(
+    let userMetadata = PubNubUserMetadataBase(
       metadataId: testUser.id,
       name: testUser.name,
       type: testUser.type,
@@ -120,7 +120,7 @@ class PubNubUserModelTests: XCTestCase {
   }
 
   func testPubNubUser_Convert_UUIDMetadata_nilProfileUrl() {
-    let userMetadata = PubNubUUIDMetadataBase(
+    let userMetadata = PubNubUserMetadataBase(
       metadataId: testUser.id,
       name: testUser.name,
       type: testUser.type,
@@ -140,7 +140,7 @@ class PubNubUserModelTests: XCTestCase {
   }
 
   func testPubNubUser_Convert_UUIDMetadata_nilCustom() {
-    let userMetadata = PubNubUUIDMetadataBase(
+    let userMetadata = PubNubUserMetadataBase(
       metadataId: testUser.id,
       name: testUser.name,
       type: testUser.type,

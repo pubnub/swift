@@ -76,13 +76,10 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     case uuidType = "uuid.type"
     case uuidStatus = "uuid.status"
     case status
+    case type
 
-    static func merge(_ other: [Include]?) -> [String] {
-      var includes = [Include.status]
-
-      includes.append(contentsOf: other ?? [])
-
-      return includes.map { $0.rawValue }
+    static func csvString(from includes: [Include]?) -> String? {
+      return includes?.map { $0.rawValue }.csvString
     }
   }
 
@@ -102,12 +99,14 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
   public struct MembershipChange: JSONCodable, Equatable {
     let metadataId: String
     let status: String?
+    let type: String?
     let custom: [String: JSONCodableScalar]?
 
     // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case object = "channel"
       case status
+      case type
       case custom
     }
 
@@ -116,9 +115,10 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       case metadataId = "id"
     }
 
-    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, type: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
       self.status = status
+      self.type = type
       self.custom = custom
     }
 
@@ -126,6 +126,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
       status = try container.decodeIfPresent(String.self, forKey: .status)
+      type = try container.decodeIfPresent(String.self, forKey: .type)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
@@ -135,6 +136,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
       try container.encodeIfPresent(status, forKey: .status)
+      try container.encodeIfPresent(type, forKey: .type)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
@@ -146,9 +148,8 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     ) -> Bool {
       return lhs.metadataId == rhs.metadataId &&
         lhs.status == rhs.status &&
-        lhs.custom?
-        .mapValues { $0.codableValue } == rhs.custom?
-        .mapValues { $0.codableValue }
+        lhs.type == rhs.type &&
+        lhs.custom?.mapValues { $0.codableValue } == rhs.custom?.mapValues { $0.codableValue }
     }
   }
 
@@ -168,11 +169,13 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
   public struct MemberChange: JSONCodable, Equatable {
     let metadataId: String
     let status: String?
+    let type: String?
     let custom: [String: JSONCodableScalar]?
 
-    public init(metadataId: String, status: String?, custom: [String: JSONCodableScalar]?) {
+    public init(metadataId: String, status: String?, type: String?, custom: [String: JSONCodableScalar]?) {
       self.metadataId = metadataId
       self.status = status
+      self.type = type
       self.custom = custom
     }
 
@@ -180,6 +183,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     enum CodingKeys: String, CodingKey {
       case object = "uuid"
       case status
+      case type
       case custom
     }
 
@@ -192,6 +196,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
       status = try container.decodeIfPresent(String.self, forKey: .status)
+      type = try container.decodeIfPresent(String.self, forKey: .type)
 
       let nestedContainer = try container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       metadataId = try nestedContainer.decode(String.self, forKey: .metadataId)
@@ -201,6 +206,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encodeIfPresent(custom?.mapValues { $0.scalarValue }, forKey: .custom)
       try container.encodeIfPresent(status, forKey: .status)
+      try container.encodeIfPresent(type, forKey: .type)
 
       var nestedContainer = container.nestedContainer(keyedBy: NestedCodingKeys.self, forKey: .object)
       try nestedContainer.encode(metadataId, forKey: .metadataId)
@@ -212,9 +218,8 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
     ) -> Bool {
       return lhs.metadataId == rhs.metadataId &&
         lhs.status == rhs.status &&
-        lhs.custom?
-        .mapValues { $0.codableValue } == rhs.custom?
-        .mapValues { $0.codableValue }
+        lhs.type == rhs.type &&
+        lhs.custom?.mapValues { $0.codableValue } == rhs.custom?.mapValues { $0.codableValue }
     }
   }
 
@@ -261,7 +266,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.csvString(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -270,7 +275,7 @@ public struct ObjectsMembershipsRouter: HTTPRouter {
       query.appendIfPresent(key: .filter, value: filter)
       query.appendIfNotEmpty(key: .sort, value: sort)
       query.appendIfPresent(key: .limit, value: limit?.description)
-      query.appendIfPresent(key: .include, value: Include.merge(customFields).csvString)
+      query.appendIfPresent(key: .include, value: Include.csvString(from: customFields))
       query.appendIfPresent(key: .count, value: totalCount ? totalCount.description : nil)
       query.appendIfPresent(key: .start, value: start?.description)
       query.appendIfPresent(key: .end, value: end?.description)
@@ -412,8 +417,9 @@ public struct PubNubMembershipsResponsePayload: Codable {
 
 public struct ObjectMetadataPartial: Codable {
   let channel: PartialMetadata<PubNubChannelMetadataBase>?
-  let uuid: PartialMetadata<PubNubUUIDMetadataBase>?
+  let uuid: PartialMetadata<PubNubUserMetadataBase>?
   let status: String?
+  let type: String?
   let custom: [String: JSONCodableScalarType]?
   let updated: Date
   let eTag: String
@@ -427,6 +433,7 @@ public struct ObjectMetadataPartial: Codable {
     case channel
     case uuid
     case status
+    case type
     case custom
     case updated
     case eTag
@@ -438,8 +445,9 @@ public struct ObjectMetadataPartial: Codable {
 
   init(
     channel: PartialMetadata<PubNubChannelMetadataBase>?,
-    uuid: PartialMetadata<PubNubUUIDMetadataBase>?,
+    uuid: PartialMetadata<PubNubUserMetadataBase>?,
     status: String?,
+    type: String?,
     updated: Date,
     eTag: String,
     custom: [String: JSONCodableScalarType]?
@@ -448,6 +456,7 @@ public struct ObjectMetadataPartial: Codable {
     self.uuid = uuid
     self.updated = updated
     self.status = status
+    self.type = type
     self.eTag = eTag
     self.custom = custom
   }
@@ -457,13 +466,13 @@ public struct ObjectMetadataPartial: Codable {
     custom = try container.decodeIfPresent([String: JSONCodableScalarType].self, forKey: .custom)
     updated = try container.decode(Date.self, forKey: .updated)
     eTag = try container.decode(String.self, forKey: .eTag)
-
     status = try container.decodeIfPresent(String.self, forKey: .status)
+    type = try container.decodeIfPresent(String.self, forKey: .type)
 
     if let channel = try? container.decodeIfPresent(PubNubChannelMetadataBase.self, forKey: .channel) {
       self.channel = .init(metadataId: channel.metadataId, metadataObject: channel)
       uuid = nil
-    } else if let uuid = try? container.decodeIfPresent(PubNubUUIDMetadataBase.self, forKey: .uuid) {
+    } else if let uuid = try? container.decodeIfPresent(PubNubUserMetadataBase.self, forKey: .uuid) {
       self.uuid = .init(metadataId: uuid.metadataId, metadataObject: uuid)
       channel = nil
     } else {
@@ -477,6 +486,7 @@ public struct ObjectMetadataPartial: Codable {
     try container.encode(updated, forKey: .updated)
     try container.encode(eTag, forKey: .eTag)
     try container.encodeIfPresent(status, forKey: .status)
+    try container.encodeIfPresent(type, forKey: .type)
     try container.encodeIfPresent(custom, forKey: .custom)
 
     if uuid?.metadataObject != nil || channel?.metadataObject != nil {

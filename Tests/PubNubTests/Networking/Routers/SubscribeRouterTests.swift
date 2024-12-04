@@ -337,11 +337,11 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let pubnub = PubNub(configuration: configuration)
 
-        let baseUser = PubNubUUIDMetadataBase(
+        let baseUser = PubNubUserMetadataBase(
           metadataId: "TestUserID",
           name: "Not Real Name"
         )
-        let patchedObjectUser = PubNubUUIDMetadataBase(
+        let patchedObjectUser = PubNubUserMetadataBase(
           metadataId: "TestUserID",
           name: "Test Name", type: "Test Type", status: "Test Status",
           updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
@@ -563,15 +563,18 @@ extension SubscribeRouterTests {
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
-        let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
+        let uuid = PubNubUserMetadataBase(metadataId: "TestUserID")
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(
-          uuidMetadataId: "TestUserID",
+          userMetadataId: "TestUserID",
           channelMetadataId: "TestSpaceID",
-          uuid: uuid, channel: channel,
+          status: "Test Status",
+          user: uuid,
+          channel: channel,
           custom: ["something": true],
-          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
+          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), 
+          eTag: "TestETag"
         )
         
         mockResult.listener.didReceiveSubscription = { [unowned self] event in
@@ -625,12 +628,12 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
-        let uuid = PubNubUUIDMetadataBase(metadataId: "TestUserID")
+        let uuid = PubNubUserMetadataBase(metadataId: "TestUserID")
         let pubnub = PubNub(configuration: configuration)
 
         let testMembership = PubNubMembershipMetadataBase(
-          uuidMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
-          uuid: uuid, channel: channel,
+          userMetadataId: "TestUserID", channelMetadataId: "TestSpaceID",
+          user: uuid, channel: channel,
           updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
         )
         

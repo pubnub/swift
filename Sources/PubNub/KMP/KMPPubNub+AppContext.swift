@@ -57,9 +57,6 @@ extension KMPPubNub {
     }
   }
 
-  // swiftlint:disable todo
-  // TODO: Swift SDK allows to sort by the status field, it's not present in KMP
-
   private func mapToMembershipSortFields(from array: [String]) -> [PubNub.MembershipSortField] {
     array.compactMap {
       switch $0 {
@@ -69,15 +66,21 @@ extension KMPPubNub {
         return PubNub.MembershipSortField(property: .object(.name))
       case "channel.updated", "uuid.updated":
         return PubNub.MembershipSortField(property: .object(.updated))
+      case "channel.type", "uuid.type":
+        return PubNub.MembershipSortField(property: .object(.type))
+      case "channel.status", "uuid.status":
+        return PubNub.MembershipSortField(property: .object(.status))
       case "updated":
         return PubNub.MembershipSortField(property: .updated)
+      case "status":
+        return PubNub.MembershipSortField(property: .status)
+      case "type":
+        return PubNub.MembershipSortField(property: .type)
       default:
         return nil
       }
     }
   }
-
-  // swiftlint:enable todo
 }
 
 @objc
@@ -113,12 +116,12 @@ public extension KMPPubNub {
   }
 
   func getChannelMetadata(
-    channel: String,
+    metadataId: String,
     includeCustom: Bool,
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetch(channel: channel, include: includeCustom) {
+    pubnub.fetchChannelMetadata(metadataId, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -129,7 +132,7 @@ public extension KMPPubNub {
   }
 
   func setChannelMetadata(
-    channel: String,
+    metadataId: String,
     name: String?,
     description: String?,
     custom: KMPAnyJSON?,
@@ -139,17 +142,15 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.set(
-      channel: PubNubChannelMetadataBase(
-        metadataId: channel,
-        name: name,
-        type: type,
-        status: status,
-        channelDescription: description,
-        custom: convertDictionaryToScalars(custom?.asMap())
-      ),
-      include: includeCustom
-    ) {
+    let channelMetadata = PubNubChannelMetadataBase(
+      metadataId: metadataId,
+      name: name,
+      type: type,
+      status: status,
+      channelDescription: description,
+      custom: convertDictionaryToScalars(custom?.asMap())
+    )
+    pubnub.setChannelMetadata(channelMetadata, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -160,11 +161,11 @@ public extension KMPPubNub {
   }
 
   func removeChannelMetadata(
-    channel: String,
+    metadataId: String,
     onSuccess: @escaping ((String) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.remove(channel: channel) {
+    pubnub.removeChannelMetadata(metadataId) {
       switch $0 {
       case .success(let channel):
         onSuccess(channel)
@@ -174,18 +175,18 @@ public extension KMPPubNub {
     }
   }
 
-  func getAllUUIDMetadata(
+  func getAllUserMetadata(
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
     sort: [KMPObjectSortProperty],
     includeCount: Bool,
     includeCustom: Bool,
-    onSuccess: @escaping (([KMPUUIDMetadata], NSNumber?, KMPHashedPage) -> Void),
+    onSuccess: @escaping (([KMPUserMetadata], NSNumber?, KMPHashedPage) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.allUUIDMetadata(
-      include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
+    pubnub.allUserMetadata(
+      include: PubNub.UserIncludeFields(custom: includeCustom, totalCount: includeCount),
       filter: filter,
       sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
@@ -194,7 +195,7 @@ public extension KMPPubNub {
       switch $0 {
       case .success(let res):
         onSuccess(
-          res.uuids.map { KMPUUIDMetadata(metadata: $0) },
+          res.users.map { KMPUserMetadata(metadata: $0) },
           res.next?.totalCount?.asNumber,
           KMPHashedPage(page: res.next)
         )
@@ -204,24 +205,24 @@ public extension KMPPubNub {
     }
   }
 
-  func getUUIDMetadata(
-    uuid: String?,
+  func getUserMetadata(
+    metadataId: String?,
     includeCustom: Bool,
-    onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
+    onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetch(uuid: uuid, include: includeCustom) {
+    pubnub.fetchUserMetadata(metadataId, include: PubNub.UserIncludeFields(custom: includeCustom)) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(KMPUUIDMetadata(metadata: metadata))
+        onSuccess(KMPUserMetadata(metadata: metadata))
       case .failure(let error):
         onFailure(KMPError(underlying: error))
       }
     }
   }
 
-  func setUUIDMetadata(
-    uuid: String?,
+  func setUserMetadata(
+    metadataId: String?,
     name: String?,
     externalId: String?,
     profileUrl: String?,
@@ -230,37 +231,38 @@ public extension KMPPubNub {
     includeCustom: Bool,
     type: String?,
     status: String?,
-    onSuccess: @escaping ((KMPUUIDMetadata) -> Void),
+    onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.set(
-      uuid: PubNubUUIDMetadataBase(
-        metadataId: uuid ?? pubnub.configuration.userId,
-        name: name,
-        type: type,
-        status: status,
-        externalId: externalId,
-        profileURL: profileUrl,
-        email: email,
-        custom: convertDictionaryToScalars(custom?.asMap())
-      ),
-      include: includeCustom
+    let userMetadata = PubNubUserMetadataBase(
+      metadataId: metadataId ?? pubnub.configuration.userId,
+      name: name,
+      type: type,
+      status: status,
+      externalId: externalId,
+      profileURL: profileUrl,
+      email: email,
+      custom: convertDictionaryToScalars(custom?.asMap())
+    )
+    pubnub.setUserMetadata(
+      userMetadata,
+      include: PubNub.UserIncludeFields(custom: includeCustom)
     ) {
       switch $0 {
       case .success(let metadata):
-        onSuccess(KMPUUIDMetadata(metadata: metadata))
+        onSuccess(KMPUserMetadata(metadata: metadata))
       case .failure(let error):
         onFailure(KMPError(underlying: error))
       }
     }
   }
 
-  func removeUUIDMetadata(
-    uuid: String?,
+  func removeUserMetadata(
+    metadataId: String?,
     onSuccess: @escaping ((String) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.remove(uuid: uuid) {
+    pubnub.removeUserMetadata(metadataId) {
       switch $0 {
       case .success(let result):
         onSuccess(result)
@@ -271,7 +273,7 @@ public extension KMPPubNub {
   }
 
   func getMemberships(
-    uuid: String?,
+    userId: String?,
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
@@ -285,7 +287,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMemberships(
-      uuid: uuid,
+      userId: userId,
       include: .init(
         customFields: includeCustom,
         channelFields: includeChannelFields,
@@ -313,7 +315,7 @@ public extension KMPPubNub {
 
   func setMemberships(
     channels: [KMPChannelMetadata],
-    uuid: String?,
+    userId: String?,
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
@@ -327,10 +329,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.setMemberships(
-      uuid: uuid,
+      userId: userId,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid ?? pubnub.configuration.userId,
+          userMetadataId: userId ?? pubnub.configuration.userId,
           channelMetadataId: $0.id,
           status: $0.status,
           custom: convertDictionaryToScalars($0.custom)
@@ -363,7 +365,7 @@ public extension KMPPubNub {
 
   func removeMemberships(
     channels: [String],
-    uuid: String?,
+    userId: String?,
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
@@ -377,10 +379,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removeMemberships(
-      uuid: uuid,
+      userId: userId,
       channels: channels.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: uuid ?? pubnub.configuration.userId,
+          userMetadataId: userId ?? pubnub.configuration.userId,
           channelMetadataId: $0
         )
       },
@@ -417,9 +419,9 @@ public extension KMPPubNub {
     sort: [String],
     includeCount: Bool,
     includeCustom: Bool,
-    includeUUIDFields: Bool,
-    includeUUIDCustomFields: Bool,
-    includeUUIDType: Bool,
+    includeUserFields: Bool,
+    includeUserCustomFields: Bool,
+    includeUserType: Bool,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -427,9 +429,9 @@ public extension KMPPubNub {
       channel: channel,
       include: .init(
         customFields: includeCustom,
-        uuidFields: includeUUIDFields,
-        uuidCustomFields: includeUUIDCustomFields,
-        uuidTypeField: includeUUIDType,
+        uuidFields: includeUserFields,
+        uuidCustomFields: includeUserCustomFields,
+        uuidTypeField: includeUserType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -452,24 +454,24 @@ public extension KMPPubNub {
 
   func setChannelMembers(
     channel: String,
-    uuids: [KMPUUIDMetadata],
+    users: [KMPUserMetadata],
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
     includeCustom: Bool,
-    includeUUIDFields: Bool,
-    includeUUIDCustomFields: Bool,
-    includeUUIDType: Bool,
+    includeUser: Bool,
+    includeUserCustom: Bool,
+    includeUserType: Bool,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.setMembers(
       channel: channel,
-      uuids: uuids.map {
+      users: users.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: $0.id,
+          userMetadataId: $0.id,
           channelMetadataId: channel,
           status: $0.status,
           custom: convertDictionaryToScalars($0.custom)
@@ -477,9 +479,9 @@ public extension KMPPubNub {
       },
       include: .init(
         customFields: includeCustom,
-        uuidFields: includeUUIDFields,
-        uuidCustomFields: includeUUIDCustomFields,
-        uuidTypeField: includeUUIDType,
+        uuidFields: includeUser,
+        uuidCustomFields: includeUserCustom,
+        uuidTypeField: includeUserType,
         totalCount: includeCount
       ),
       filter: filter,
@@ -502,32 +504,32 @@ public extension KMPPubNub {
 
   func removeChannelMembers(
     channel: String,
-    uuids: [String],
+    users: [String],
     limit: NSNumber?,
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
     includeCount: Bool,
     includeCustom: Bool,
-    includeUUIDFields: Bool,
-    includeUUIDCustomFields: Bool,
-    includeUUIDType: Bool,
+    includeUser: Bool,
+    includeUserCustom: Bool,
+    includeUserType: Bool,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.removeMembers(
       channel: channel,
-      uuids: uuids.map {
+      users: users.map {
         PubNubMembershipMetadataBase(
-          uuidMetadataId: $0,
+          userMetadataId: $0,
           channelMetadataId: channel
         )
       },
       include: .init(
         customFields: includeCustom,
-        uuidFields: includeUUIDFields,
-        uuidCustomFields: includeUUIDCustomFields,
-        uuidTypeField: includeUUIDType,
+        uuidFields: includeUser,
+        uuidCustomFields: includeUserCustom,
+        uuidTypeField: includeUserType,
         totalCount: includeCount
       ),
       filter: filter,

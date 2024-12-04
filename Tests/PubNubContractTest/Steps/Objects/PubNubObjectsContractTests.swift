@@ -15,7 +15,7 @@ import PubNubSDK
 @objc public class PubNubObjectsContractTests: PubNubContractTestCase {
   public static var membershipMetadata: [String: PubNubTestMembershipForAction?] = [:]
   public static var channelsMetadata: [String: PubNubChannelMetadata?] = [:]
-  public static var uuidsMetadata: [String: PubNubUUIDMetadata?] = [:]
+  public static var uuidsMetadata: [String: PubNubUserMetadata?] = [:]
   private static var _setUserIdAsCurrentUser: Bool = false
 
   public var membershipsMetadata: [String: PubNubTestMembershipForAction?] {
@@ -28,7 +28,7 @@ import PubNubSDK
     set { Self.channelsMetadata = newValue }
   }
 
-  public var uuidsMetadata: [String: PubNubUUIDMetadata?] {
+  public var uuidsMetadata: [String: PubNubUserMetadata?] {
     get { Self.uuidsMetadata }
     set { Self.uuidsMetadata = newValue }
   }
@@ -129,7 +129,7 @@ import PubNubSDK
 
       XCTAssertNotNil(uuidMetadata.metadataId)
       if usedDataType == "id" {
-        self.uuidsMetadata[uuidMetadata.metadataId] = PubNubUUIDMetadataBase(metadataId: uuidMetadata.metadataId)
+        self.uuidsMetadata[uuidMetadata.metadataId] = PubNubUserMetadataBase(metadataId: uuidMetadata.metadataId)
       } else {
         self.uuidsMetadata[uuidMetadata.metadataId] = uuidMetadata
       }

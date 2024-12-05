@@ -107,6 +107,7 @@ public extension KMPPubNub {
     meta: Any?,
     ttl: NSNumber?,
     shouldStore: NSNumber?,
+    customMessageType: String?,
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -130,6 +131,7 @@ public extension KMPPubNub {
       ),
       request: PubNub.PublishFileRequest(
         additionalMessage: messageCodable,
+        customMessageType: customMessageType,
         store: shouldStore?.boolValue,
         ttl: ttl?.intValue,
         meta: metaCodable
@@ -176,6 +178,7 @@ public extension KMPPubNub {
     meta: Any?,
     ttl: NSNumber?,
     shouldStore: NSNumber?,
+    customMessageType: String?,
     onSuccess: @escaping ((KMPFile, Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -198,6 +201,7 @@ public extension KMPPubNub {
       remoteFilename: fileName,
       publishRequest: PubNub.PublishFileRequest(
         additionalMessage: additionalMessage,
+        customMessageType: customMessageType,
         store: shouldStore?.boolValue,
         ttl: ttl?.intValue,
         meta: meta

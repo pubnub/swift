@@ -124,11 +124,11 @@ public class KMPSetMembershipResult: KMPAppContextEventResult {
 @objc
 public class KMPRemoveMembershipResult: KMPAppContextEventResult {
   @objc public let channelId: String
-  @objc public let uuid: String
+  @objc public let userId: String
 
-  init(channelId: String, uuid: String) {
+  init(channelId: String, userId: String) {
     self.channelId = channelId
-    self.uuid = uuid
+    self.userId = userId
     super.init(channel: channelId)
   }
 }
@@ -149,7 +149,7 @@ extension KMPAppContextEventResult {
     case .membershipMetadataSet(let metadata):
       return KMPSetMembershipResult(metadata: KMPMembershipMetadata(from: metadata))
     case .membershipMetadataRemoved(let metadata):
-      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, uuid: metadata.userMetadataId)
+      return KMPRemoveMembershipResult(channelId: metadata.channelMetadataId, userId: metadata.userMetadataId)
     }
   }
 }

@@ -45,12 +45,14 @@ public extension KMPPubNub {
     meta: Any?,
     shouldStore: NSNumber?,
     ttl: NSNumber?,
+    customMessageType: String?,
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.publish(
       channel: channel,
       message: asCodable(message),
+      customMessageType: customMessageType,
       shouldStore: shouldStore?.boolValue,
       storeTTL: shouldStore?.intValue,
       meta: asOptionalCodable(meta)
@@ -72,10 +74,15 @@ public extension KMPPubNub {
   func signal(
     channel: String,
     message: Any,
+    customMessageType: String?,
     onSuccess: @escaping ((Timetoken) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.signal(channel: channel, message: asCodable(message)) {
+    pubnub.signal(
+      channel: channel,
+      message: asCodable(message),
+      customMessageType: customMessageType
+    ) {
       switch $0 {
       case .success(let timetoken):
         onSuccess(timetoken)

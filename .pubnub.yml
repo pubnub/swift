@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.2.0"
+version: "8.2.1"
 schema: 1
 changelog:
+  - date: 2024-12-09
+    version: 8.2.1
+    changes:
+      - type: feature
+        text: "Add support for `customMessageType` in the KMP layer (internal usage)."
   - date: 2024-12-04
     version: 8.2.0
     changes:
@@ -619,7 +624,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

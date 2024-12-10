@@ -355,7 +355,7 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
       concreteAdditionalMessage = newValue?.codableValue
     }
   }
-  
+
   public var metadata: JSONCodable? {
     get {
       concreteMeta
@@ -368,7 +368,6 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
   var concreteFile: PubNubFileBase
   var concreteAdditionalMessage: AnyJSON?
   var concreteMeta: AnyJSON?
-
 
   public init(
     file: PubNubFile,

@@ -50,6 +50,8 @@ public extension URLSessionConfiguration {
     let configuration = URLSessionConfiguration.pubnub
     configuration.timeoutIntervalForRequest += Constant.minimumSubscribeRequestTimeout
     configuration.httpMaximumConnectionsPerHost = 1
+    configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+    configuration.urlCache = nil
 
     return configuration
   }

@@ -305,6 +305,8 @@ public protocol PubNubFileEvent {
   var additionalMessage: JSONCodable? { get }
   /// Meta information for the event
   var metadata: JSONCodable? { get }
+  /// A user-provided custom message type
+  var customMessageType: String? { get set }
 
   /// Allows for converting  between different `PubNubFileEvent` types
   init(from other: PubNubFileEvent) throws
@@ -339,31 +341,34 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
   public var channelGroup: String?
   public var publisher: String
   public var timetoken: Timetoken
+  public var customMessageType: String?
 
-  var concreteFile: PubNubFileBase
   public var file: PubNubFile {
-    return concreteFile
+    concreteFile
   }
 
-  var concreteAdditionalMessage: AnyJSON?
   public var additionalMessage: JSONCodable? {
     get {
-      return concreteAdditionalMessage
+      concreteAdditionalMessage
     }
     set {
       concreteAdditionalMessage = newValue?.codableValue
     }
   }
-
-  var concreteMeta: AnyJSON?
+  
   public var metadata: JSONCodable? {
     get {
-      return concreteMeta
+      concreteMeta
     }
     set {
       concreteMeta = newValue?.codableValue
     }
   }
+
+  var concreteFile: PubNubFileBase
+  var concreteAdditionalMessage: AnyJSON?
+  var concreteMeta: AnyJSON?
+
 
   public init(
     file: PubNubFile,
@@ -371,7 +376,8 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
     publisher: String,
     timetoken: Timetoken,
     additionalMessage: JSONCodable?,
-    metadata: JSONCodable?
+    metadata: JSONCodable?,
+    customMessageType: String? = nil
   ) {
     concreteFile = PubNubFileBase(from: file)
     self.channelGroup = channelGroup
@@ -379,6 +385,7 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
     self.timetoken = timetoken
     self.additionalMessage = additionalMessage
     self.metadata = metadata
+    self.customMessageType = customMessageType
   }
 
   public init(from other: PubNubFileEvent) throws {
@@ -388,7 +395,8 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
       publisher: other.publisher,
       timetoken: other.timetoken,
       additionalMessage: other.additionalMessage,
-      metadata: other.metadata
+      metadata: other.metadata,
+      customMessageType: other.customMessageType
     )
   }
 
@@ -414,7 +422,8 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
       publisher: publisher,
       timetoken: subscription.publishTimetoken.timetoken,
       additionalMessage: filePayload.additionalDetails,
-      metadata: subscription.metadata
+      metadata: subscription.metadata,
+      customMessageType: subscription.customMessageType
     )
   }
 

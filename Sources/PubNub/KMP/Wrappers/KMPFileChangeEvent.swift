@@ -24,6 +24,7 @@ public class KMPFileChangeEvent: NSObject {
   @objc public let publisher: String?
   @objc public let message: KMPAnyJSON?
   @objc public let metadata: KMPAnyJSON?
+  @objc public let customMessageType: String?
   @objc public let subscription: String?
   @objc public let file: KMPFile
 
@@ -36,6 +37,7 @@ public class KMPFileChangeEvent: NSObject {
         publisher: fileEvent.publisher,
         message: fileEvent.additionalMessage?.codableValue,
         metadata: fileEvent.metadata?.codableValue,
+        customMessageType: fileEvent.customMessageType,
         subscription: fileEvent.channelGroup,
         file: KMPFile(
           from: fileEvent.file,
@@ -51,6 +53,7 @@ public class KMPFileChangeEvent: NSObject {
     publisher: String?,
     message: AnyJSON?,
     metadata: AnyJSON?,
+    customMessageType: String?,
     subscription: String?,
     file: KMPFile
   ) {
@@ -59,6 +62,7 @@ public class KMPFileChangeEvent: NSObject {
     self.publisher = publisher
     self.message = if let message = message { KMPAnyJSON(message) } else { nil }
     self.metadata = if let metadata = metadata { KMPAnyJSON(metadata) } else { nil }
+    self.customMessageType = customMessageType
     self.subscription = subscription
     self.file = file
   }

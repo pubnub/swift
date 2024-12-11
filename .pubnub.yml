@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.2.1"
+version: "8.2.2"
 schema: 1
 changelog:
+  - date: 2024-12-11
+    version: 8.2.2
+    changes:
+      - type: bug
+        text: "Fix excessive memory usage in the high-volume messages use case."
+      - type: bug
+        text: "Add missing `customMessageType` in `PubNubFileEvent`."
   - date: 2024-12-09
     version: 8.2.1
     changes:
@@ -624,7 +631,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

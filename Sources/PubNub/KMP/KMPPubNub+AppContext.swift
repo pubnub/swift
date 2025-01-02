@@ -352,6 +352,7 @@ public extension KMPPubNub {
           userMetadataId: userId ?? pubnub.configuration.userId,
           channelMetadataId: $0.id,
           status: $0.status,
+          type: $0.type,
           custom: convertDictionaryToScalars($0.custom)
         )
       },
@@ -488,6 +489,7 @@ public extension KMPPubNub {
           userMetadataId: $0.id,
           channelMetadataId: channel,
           status: $0.status,
+          type: $0.type,
           custom: convertDictionaryToScalars($0.custom)
         )
       },

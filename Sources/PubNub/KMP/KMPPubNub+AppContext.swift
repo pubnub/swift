@@ -81,6 +81,33 @@ extension KMPPubNub {
       }
     }
   }
+
+  private func mapToPubNubIncludeFields(from includeFields: KMPAppContextIncludeFields) -> PubNub.IncludeFields {
+    PubNub.IncludeFields(
+      custom: includeFields.includeCustom,
+      type: includeFields.includeType,
+      status: includeFields.includeStatus,
+      totalCount: includeFields.includeTotalCount
+    )
+  }
+
+  private func mapToChannelIncludeFields(from includeFields: KMPChannelIncludeFields) -> PubNub.ChannelIncludeFields {
+    PubNub.ChannelIncludeFields(
+      custom: includeFields.includeCustom,
+      type: includeFields.includeType,
+      status: includeFields.includeStatus,
+      totalCount: includeFields.includeTotalCount
+    )
+  }
+
+  private func mapToPubNubUserIncludeFields(from includeFields: KMPUserIncludeFields) -> PubNub.UserIncludeFields {
+    PubNub.UserIncludeFields(
+      custom: includeFields.includeCustom,
+      type: includeFields.includeType,
+      status: includeFields.includeStatus,
+      totalCount: includeFields.includeTotalCount
+    )
+  }
 }
 
 @objc
@@ -90,13 +117,12 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [KMPObjectSortProperty],
-    includeCount: Bool,
-    includeCustom: Bool,
+    include includeFields: KMPChannelIncludeFields,
     onSuccess: @escaping (([KMPChannelMetadata], NSNumber?, KMPHashedPage) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allChannelMetadata(
-      include: PubNub.IncludeFields(custom: includeCustom, totalCount: includeCount),
+      include: mapToPubNubIncludeFields(from: includeFields),
       filter: filter,
       sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
@@ -117,11 +143,11 @@ public extension KMPPubNub {
 
   func getChannelMetadata(
     metadataId: String,
-    includeCustom: Bool,
+    include includeFields: KMPChannelIncludeFields,
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetchChannelMetadata(metadataId, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
+    pubnub.fetchChannelMetadata(metadataId, include: mapToChannelIncludeFields(from: includeFields)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -136,9 +162,9 @@ public extension KMPPubNub {
     name: String?,
     description: String?,
     custom: KMPAnyJSON?,
-    includeCustom: Bool,
     type: String?,
     status: String?,
+    include includeFields: KMPChannelIncludeFields,
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -150,7 +176,7 @@ public extension KMPPubNub {
       channelDescription: description,
       custom: convertDictionaryToScalars(custom?.asMap())
     )
-    pubnub.setChannelMetadata(channelMetadata, include: PubNub.ChannelIncludeFields(custom: includeCustom)) {
+    pubnub.setChannelMetadata(channelMetadata, include: mapToChannelIncludeFields(from: includeFields)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -180,13 +206,12 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [KMPObjectSortProperty],
-    includeCount: Bool,
-    includeCustom: Bool,
+    include includeFields: KMPUserIncludeFields,
     onSuccess: @escaping (([KMPUserMetadata], NSNumber?, KMPHashedPage) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.allUserMetadata(
-      include: PubNub.UserIncludeFields(custom: includeCustom, totalCount: includeCount),
+      include: mapToPubNubUserIncludeFields(from: includeFields),
       filter: filter,
       sort: objectSortProperties(from: sort),
       limit: limit?.intValue,
@@ -207,11 +232,11 @@ public extension KMPPubNub {
 
   func getUserMetadata(
     metadataId: String?,
-    includeCustom: Bool,
+    include includeFields: KMPUserIncludeFields,
     onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.fetchUserMetadata(metadataId, include: PubNub.UserIncludeFields(custom: includeCustom)) {
+    pubnub.fetchUserMetadata(metadataId, include: mapToPubNubUserIncludeFields(from: includeFields)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPUserMetadata(metadata: metadata))
@@ -228,9 +253,9 @@ public extension KMPPubNub {
     profileUrl: String?,
     email: String?,
     custom: KMPAnyJSON?,
-    includeCustom: Bool,
     type: String?,
     status: String?,
+    include includeFields: KMPUserIncludeFields,
     onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -244,10 +269,7 @@ public extension KMPPubNub {
       email: email,
       custom: convertDictionaryToScalars(custom?.asMap())
     )
-    pubnub.setUserMetadata(
-      userMetadata,
-      include: PubNub.UserIncludeFields(custom: includeCustom)
-    ) {
+    pubnub.setUserMetadata(userMetadata, include: mapToPubNubUserIncludeFields(from: includeFields)) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPUserMetadata(metadata: metadata))
@@ -278,22 +300,21 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeChannelFields: Bool,
-    includeChannelCustomFields: Bool,
-    includeChannelType: Bool,
+    include includeFields: KMPMembershipIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMemberships(
       userId: userId,
       include: .init(
-        customFields: includeCustom,
-        channelFields: includeChannelFields,
-        channelCustomFields: includeChannelCustomFields,
-        channelTypeField: includeChannelType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        channelFields: includeFields.includeChannel,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        channelCustomFields: includeFields.includeChannelCustom,
+        channelTypeField: includeFields.includeChannelType,
+        channelStatusField: includeFields.includeChannelStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),
@@ -320,11 +341,7 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeChannelFields: Bool,
-    includeChannelCustomFields: Bool,
-    includeChannelType: Bool,
+    include includeFields: KMPMembershipIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -339,11 +356,14 @@ public extension KMPPubNub {
         )
       },
       include: .init(
-        customFields: includeCustom,
-        channelFields: includeChannelFields,
-        channelCustomFields: includeChannelCustomFields,
-        channelTypeField: includeChannelType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        channelFields: includeFields.includeChannel,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        channelCustomFields: includeFields.includeChannelCustom,
+        channelTypeField: includeFields.includeChannelType,
+        channelStatusField: includeFields.includeChannelStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),
@@ -370,11 +390,7 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeChannelFields: Bool,
-    includeChannelCustomFields: Bool,
-    includeChannelType: Bool,
+    include includeFields: KMPMembershipIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -387,11 +403,14 @@ public extension KMPPubNub {
         )
       },
       include: .init(
-        customFields: includeCustom,
-        channelFields: includeChannelFields,
-        channelCustomFields: includeChannelCustomFields,
-        channelTypeField: includeChannelType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        channelFields: includeFields.includeChannel,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        channelCustomFields: includeFields.includeChannelCustom,
+        channelTypeField: includeFields.includeChannelType,
+        channelStatusField: includeFields.includeChannelStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),
@@ -417,22 +436,21 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeUserFields: Bool,
-    includeUserCustomFields: Bool,
-    includeUserType: Bool,
+    include includeFields: KMPMemberIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.fetchMembers(
       channel: channel,
       include: .init(
-        customFields: includeCustom,
-        uuidFields: includeUserFields,
-        uuidCustomFields: includeUserCustomFields,
-        uuidTypeField: includeUserType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        uuidFields: includeFields.includeUser,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        uuidCustomFields: includeFields.includeUserCustom,
+        uuidTypeField: includeFields.includeUserType,
+        uuidStatusField: includeFields.includeUserStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),
@@ -459,11 +477,7 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeUser: Bool,
-    includeUserCustom: Bool,
-    includeUserType: Bool,
+    include includeFields: KMPMemberIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -478,11 +492,14 @@ public extension KMPPubNub {
         )
       },
       include: .init(
-        customFields: includeCustom,
-        uuidFields: includeUser,
-        uuidCustomFields: includeUserCustom,
-        uuidTypeField: includeUserType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        uuidFields: includeFields.includeUser,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        uuidCustomFields: includeFields.includeUserCustom,
+        uuidTypeField: includeFields.includeUserType,
+        uuidStatusField: includeFields.includeUserStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),
@@ -509,11 +526,7 @@ public extension KMPPubNub {
     page: KMPHashedPage?,
     filter: String?,
     sort: [String],
-    includeCount: Bool,
-    includeCustom: Bool,
-    includeUser: Bool,
-    includeUserCustom: Bool,
-    includeUserType: Bool,
+    include includeFields: KMPMemberIncludeFields,
     onSuccess: @escaping (([KMPMembershipMetadata], NSNumber?, KMPHashedPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -526,11 +539,14 @@ public extension KMPPubNub {
         )
       },
       include: .init(
-        customFields: includeCustom,
-        uuidFields: includeUser,
-        uuidCustomFields: includeUserCustom,
-        uuidTypeField: includeUserType,
-        totalCount: includeCount
+        customFields: includeFields.includeCustom,
+        uuidFields: includeFields.includeUser,
+        statusField: includeFields.includeStatus,
+        typeField: includeFields.includeType,
+        uuidCustomFields: includeFields.includeUserCustom,
+        uuidTypeField: includeFields.includeUserType,
+        uuidStatusField: includeFields.includeUserStatus,
+        totalCount: includeFields.includeTotalCount
       ),
       filter: filter,
       sort: mapToMembershipSortFields(from: sort),

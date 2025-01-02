@@ -37,6 +37,7 @@ import Foundation
 }
 
 @objc public class KMPUserIncludeFields: KMPAppContextIncludeFields {
+  @objc
   override public init(
     includeCustom: Bool = true,
     includeStatus: Bool = true,
@@ -50,9 +51,24 @@ import Foundation
       includeTotalCount: includeTotalCount
     )
   }
+
+  @objc
+  public convenience init(
+    includeCustom: Bool = true,
+    includeStatus: Bool = true,
+    includeType: Bool = true
+  ) {
+    self.init(
+      includeCustom: includeCustom,
+      includeStatus: includeStatus,
+      includeType: includeType,
+      includeTotalCount: false
+    )
+  }
 }
 
 @objc public class KMPChannelIncludeFields: KMPAppContextIncludeFields {
+  @objc
   override public init(
     includeCustom: Bool = true,
     includeStatus: Bool = true,
@@ -64,6 +80,20 @@ import Foundation
       includeStatus: includeStatus,
       includeType: includeType,
       includeTotalCount: includeTotalCount
+    )
+  }
+
+  @objc
+  public convenience init(
+    includeCustom: Bool = true,
+    includeStatus: Bool = true,
+    includeType: Bool = true
+  ) {
+    self.init(
+      includeCustom: includeCustom,
+      includeStatus: includeStatus,
+      includeType: includeType,
+      includeTotalCount: false
     )
   }
 }

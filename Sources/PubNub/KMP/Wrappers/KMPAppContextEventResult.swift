@@ -221,9 +221,10 @@ public class KMPChannelMetadata: NSObject {
   }
 
   @objc
-  public init(id: String, custom: KMPAnyJSON, status: String?) {
+  public init(id: String, custom: KMPAnyJSON, type: String?, status: String?) {
     self.id = id
     self.custom = custom.asMap()
+    self.type = type
     self.status = status
   }
 }
@@ -255,10 +256,12 @@ public class KMPUserMetadata: NSObject {
   public init(
     id: String,
     custom: KMPAnyJSON?,
+    type: String?,
     status: String?
   ) {
     self.id = id
     self.custom = custom?.asMap()
+    self.type = type
     self.status = status
   }
 

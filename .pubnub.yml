@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.2.2"
+version: "8.2.3"
 schema: 1
 changelog:
+  - date: 2025-01-03
+    version: 8.2.3
+    changes:
+      - type: feature
+        text: "Handle all possible values for the `include` field in the KMP layer (internal usage)."
   - date: 2024-12-11
     version: 8.2.2
     changes:
@@ -631,7 +636,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.3.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

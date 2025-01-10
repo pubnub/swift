@@ -44,6 +44,7 @@ public extension KMPPubNub {
     message: Any,
     meta: Any?,
     shouldStore: NSNumber?,
+    usePost: NSNumber?,
     ttl: NSNumber?,
     customMessageType: String?,
     onSuccess: @escaping ((Timetoken) -> Void),
@@ -54,8 +55,9 @@ public extension KMPPubNub {
       message: asCodable(message),
       customMessageType: customMessageType,
       shouldStore: shouldStore?.boolValue,
-      storeTTL: shouldStore?.intValue,
-      meta: asOptionalCodable(meta)
+      storeTTL: ttl?.intValue,
+      meta: asOptionalCodable(meta),
+      shouldCompress: usePost?.boolValue ?? false
     ) {
       switch $0 {
       case .success(let timetoken):

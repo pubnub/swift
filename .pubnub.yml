@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.2.3"
+version: "8.2.4"
 schema: 1
 changelog:
+  - date: 2025-01-10
+    version: 8.2.4
+    changes:
+      - type: bug
+        text: "Fix the issue of passing an invalid value for the `storeTTL` parameter (internal use)."
+      - type: bug
+        text: "Handle `shouldCompress` parameter (internal use)."
   - date: 2025-01-03
     version: 8.2.3
     changes:
@@ -636,7 +643,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.4.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

@@ -17,7 +17,20 @@ struct EventEngineDependencies<Dependencies> {
 class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
   private let dispatcher: any Dispatcher<Invocation, Event, Input>
-  private(set) var state: State
+  private let recursiveLock = NSRecursiveLock()
+  private var internalStateContainer: State
+
+  private(set) var state: State {
+    get {
+      recursiveLock.lock()
+      defer { recursiveLock.unlock() }
+      return internalStateContainer
+    } set {
+      recursiveLock.lock()
+      defer { recursiveLock.unlock() }
+      internalStateContainer = newValue
+    }
+  }
 
   var dependencies: EventEngineDependencies<Input>
   var onStateUpdated: ((State) -> Void)?
@@ -29,7 +42,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     dispatcher: some Dispatcher<Invocation, Event, Input>,
     dependencies: EventEngineDependencies<Input>
   ) {
-    self.state = state
+    self.internalStateContainer = state
     self.onStateUpdated = onStateUpdated
     self.transition = transition
     self.dispatcher = dispatcher
@@ -37,19 +50,22 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   }
 
   func send(event: Event) {
-    objc_sync_enter(self)
+    recursiveLock.lock()
 
     defer {
-      objc_sync_exit(self)
+      recursiveLock.unlock()
     }
+
+    let currentState = state
+
     guard transition.canTransition(
-      from: state,
+      from: currentState,
       dueTo: event
     ) else {
       return
     }
 
-    let transitionResult = transition.transition(from: state, event: event)
+    let transitionResult = transition.transition(from: currentState, event: event)
     let invocations = transitionResult.invocations
 
     state = transitionResult.state

@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.2.4"
+version: "8.2.5"
 schema: 1
 changelog:
+  - date: 2025-01-16
+    version: 8.2.5
+    changes:
+      - type: bug
+        text: "Fix the crash issue caused by multiple accesses to the `state` property in multithreaded scenarios."
   - date: 2025-01-10
     version: 8.2.4
     changes:
@@ -643,7 +648,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.4.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/8.2.5.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

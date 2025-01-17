@@ -167,6 +167,12 @@ public extension Constant {
   /// [RFC6585 section 4](https://datatracker.ietf.org/doc/html/rfc6585#section-4)
   static let retryAfterHeaderKey = "Retry-After"
 
+  /// The HTTP `If-Match` request header makes a request conditional. A server will return resources for `GET` and `HEAD` methods, or upload resource for `PUT` and other non-safe methods, only if the resource
+  /// matches one of the `ETag` values in the `If-Match` request header. If the conditional does not match, the `412 Precondition Failed` response is returned instead.
+  ///
+  /// [RFC7232 section 3.1](https://datatracker.ietf.org/doc/html/rfc7232#section-3.1)
+  static let ifMatchHeaderKey = "If-Match"
+
   internal static let defaultUserAgentHeader: String = {
     let userAgent: String = {
       let appNameVersion = "\(Constant.appBundleId)/\(Constant.appVersion)"

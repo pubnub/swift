@@ -64,13 +64,15 @@ public struct ObjectsUserRouter: HTTPRouter {
   }
 
   // Init
-  public init(_ endpoint: Endpoint, configuration: RouterConfiguration) {
+  public init(_ endpoint: Endpoint, configuration: RouterConfiguration, customHeaders: [String: String] = [:]) {
     self.endpoint = endpoint
     self.configuration = configuration
+    self.customHeaders = customHeaders
   }
 
   public var endpoint: Endpoint
   public var configuration: RouterConfiguration
+  public var customHeaders: [String: String]
 
   // Protocol Properties
   public var service: PubNubService {
@@ -79,6 +81,10 @@ public struct ObjectsUserRouter: HTTPRouter {
 
   public var category: String {
     return endpoint.description
+  }
+
+  public var additionalHeaders: [String: String] {
+    customHeaders
   }
 
   public var path: Result<String, Error> {

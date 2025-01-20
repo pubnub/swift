@@ -164,6 +164,7 @@ public extension KMPPubNub {
     custom: KMPAnyJSON?,
     type: String?,
     status: String?,
+    ifMatchesEtag: String?,
     include includeFields: KMPChannelIncludeFields,
     onSuccess: @escaping ((KMPChannelMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -176,7 +177,11 @@ public extension KMPPubNub {
       channelDescription: description,
       custom: convertDictionaryToScalars(custom?.asMap())
     )
-    pubnub.setChannelMetadata(channelMetadata, include: mapToChannelIncludeFields(from: includeFields)) {
+    pubnub.setChannelMetadata(
+      channelMetadata,
+      ifMatchesEtag: ifMatchesEtag,
+      include: mapToChannelIncludeFields(from: includeFields)
+    ) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPChannelMetadata(metadata: metadata))
@@ -255,6 +260,7 @@ public extension KMPPubNub {
     custom: KMPAnyJSON?,
     type: String?,
     status: String?,
+    ifMatchesEtag: String?,
     include includeFields: KMPUserIncludeFields,
     onSuccess: @escaping ((KMPUserMetadata) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -269,7 +275,11 @@ public extension KMPPubNub {
       email: email,
       custom: convertDictionaryToScalars(custom?.asMap())
     )
-    pubnub.setUserMetadata(userMetadata, include: mapToPubNubUserIncludeFields(from: includeFields)) {
+    pubnub.setUserMetadata(
+      userMetadata,
+      ifMatchesEtag: ifMatchesEtag,
+      include: mapToPubNubUserIncludeFields(from: includeFields)
+    ) {
       switch $0 {
       case .success(let metadata):
         onSuccess(KMPUserMetadata(metadata: metadata))

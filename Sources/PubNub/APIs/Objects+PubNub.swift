@@ -537,7 +537,8 @@ public extension PubNub {
   ///
   ///  Set metadata for a User in the database, optionally including the custom data object for each.
   /// - Parameters:
-  ///   - user: The `PubNubUserMetadata` to set
+  ///   - metadata: The `PubNubUserMetadata` to set
+  ///   - ifMatchesEtag: The entity tag to be used for the `If-Match` HTTP header to enable conditional requests
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -545,16 +546,20 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func setUserMetadata(
     _ metadata: PubNubUserMetadata,
+    ifMatchesEtag: String? = nil,
     include: UserIncludeFields = UserIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
+    let customHeadersIfAny = if let entityTag = ifMatchesEtag {
+      [Constant.ifMatchHeaderKey: entityTag]
+    } else {
+      [String: String]()
+    }
     let router = ObjectsUserRouter(
-      .set(
-        metadata: metadata,
-        include: include.includeFields
-      ),
-      configuration: requestConfig.customConfiguration ?? configuration
+      .set(metadata: metadata, include: include.includeFields),
+      configuration: requestConfig.customConfiguration ?? configuration,
+      customHeaders: customHeadersIfAny
     )
 
     route(
@@ -760,6 +765,7 @@ public extension PubNub {
   ///
   /// - Parameters:
   ///   - metadata: The `PubNubChannelMetadata` to set
+  ///   - ifMatchesEtag: The entity tag to be used for the `If-Match` HTTP header to enable conditional requests
   ///   - include: Include respective additional fields in the response.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -767,13 +773,20 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func setChannelMetadata(
     _ metadata: PubNubChannelMetadata,
+    ifMatchesEtag: String? = nil,
     include: ChannelIncludeFields = ChannelIncludeFields(),
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
+    let customHeadersIfAny = if let entityTag = ifMatchesEtag {
+      [Constant.ifMatchHeaderKey: entityTag]
+    } else {
+      [String: String]()
+    }
     let router = ObjectsChannelRouter(
       .set(metadata: metadata, include: include.includeFields),
-      configuration: requestConfig.customConfiguration ?? configuration
+      configuration: requestConfig.customConfiguration ?? configuration,
+      customHeaders: customHeadersIfAny
     )
 
     route(

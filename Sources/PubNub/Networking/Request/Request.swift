@@ -101,10 +101,10 @@ final class Request {
 
   deinit {
     PubNub.log.debug("Request Destroyed \(requestID)")
-    
+
     let currentState = atomicState.lockedRead { $0 }
     let taskState = currentState.taskState
-    
+
     // Ensure that the response is always delivered to the caller. This situation could occur if the task is created
     // but not yet resumed, and the session is invalidated in the meantime.
     if taskState == .initialized {
@@ -112,7 +112,7 @@ final class Request {
       atomicState.lockedWrite { $0.error = error }
       finish(error: error)
     }
-    
+
     atomicState.lockedWrite { $0.purgeAll() }
   }
 

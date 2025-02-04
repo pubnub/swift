@@ -1356,19 +1356,27 @@ public extension PubNub {
   /// - Parameter message: The plain text message to be encrypted
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
   func encrypt(message: String) -> Result<Data, Error> {
+    PubNub.log.debug("Will encrypt String message \(message)")
+
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
+      PubNub.log.debug("Did fail to encrypt String message due to missing CryptoModule")
       return .failure(CryptoError.invalidKey)
     }
     guard let dataMessage = message.data(using: .utf8) else {
+      PubNub.log.debug("Cannot convert String message \(message) into UTF8 data")
       return .failure(CryptoError.decodeError)
     }
 
-    return cryptoModule.encrypt(data: dataMessage).map {
+    let encryptionResult = cryptoModule.encrypt(data: dataMessage).map {
       $0.base64EncodedData()
     }.mapError {
       $0 as Error
     }
+
+    PubNub.log.debug("Did encrypt String message with Result: \(encryptionResult)")
+
+    return encryptionResult
   }
 
   /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
@@ -1377,21 +1385,29 @@ public extension PubNub {
   func decrypt(data: Data) -> Result<String, Error> {
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(ErrorDescription.missingCryptoKey)
+      PubNub.log.debug("Did fail to decrypt Data due to missing CryptoModule")
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
       PubNub.log.error("Cannot create Base64-encoded data")
+      PubNub.log.debug("Did fail to decode Base64-encoded Data")
       return .failure(CryptoError.decodeError)
     }
 
-    return cryptoModule.decrypt(data: base64EncodedData)
-      .flatMap {
-        guard let string = String(data: $0, encoding: .utf8) else {
+    let decryptionResult = cryptoModule.decrypt(data: base64EncodedData)
+      .flatMap { data -> Result<String, PubNubError> in
+        guard let string = String(data: data, encoding: .utf8) else {
           return .failure(PubNubError(.decryptionFailure, additional: ["Cannot create String from received bytes"]))
         }
         return .success(string)
       }
-      .mapError { $0 as Error }
+      .mapError {
+        $0 as Error
+      }
+
+    PubNub.log.debug("Did decrypt Data with Result: \(decryptionResult)")
+
+    return decryptionResult
   }
 }
 

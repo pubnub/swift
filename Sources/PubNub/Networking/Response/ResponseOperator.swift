@@ -92,15 +92,19 @@ extension Request {
     decoder responseDecoder: D,
     completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   ) {
-    appendResponseCompletion { result in
+    appendResponseCompletion { [requestID] result in
       queue.async {
         completion(
           result.flatMap { response in
+            let responseStr = String(data: response.payload, encoding: .utf8) ?? "`UTF8 decoding failed`"
+            PubNub.log.debug("Decoding \(requestID) Request response \(responseStr)")
             // Decode the data response into the correct data type
-            responseDecoder.decode(response: response).flatMap { decoded in
+            let decodingResult = responseDecoder.decode(response: response).flatMap { decoded in
               // Do any decryption of the decoded data result
               responseDecoder.decrypt(response: decoded)
             }
+            PubNub.log.debug("Did finish decoding Request \(requestID)")
+            return decodingResult
           }
         )
       }

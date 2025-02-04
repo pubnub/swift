@@ -64,6 +64,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
           notify: listener
         )
       case .cancel(let cancelInvocation):
+        PubNub.log.debug("Will cancel Effect \(cancelInvocation)")
         effectsCache.getEffect(with: cancelInvocation.id)?.cancelTask()
         effectsCache.removeEffect(id: cancelInvocation.id)
       }
@@ -75,6 +76,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     storageId id: String,
     notify listener: DispatcherListener<Event>
   ) {
+    PubNub.log.debug("Will dispatch Effect: \(effect)")
     effectsCache.put(effect: effect, with: id)
     effect.performTask { [weak effectsCache] results in
       effectsCache?.removeEffect(id: id)

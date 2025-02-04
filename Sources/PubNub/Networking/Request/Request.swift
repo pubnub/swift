@@ -10,6 +10,7 @@
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 final class Request {
   enum TaskState: String, CustomStringConvertible {
     case initialized = "Initialized"
@@ -254,15 +255,19 @@ final class Request {
   }
 
   func didResume(_ task: URLSessionTask) {
+    PubNub.log.debug("Sending HTTP request for \(requestID) \(task.currentRequest?.debugString() ?? "Missing request details")")
     sessionStream?.emitRequest(self, didResume: task)
   }
 
   func didCancel(_ task: URLSessionTask) {
+    PubNub.log.debug("Did cancel underlying URLSessionTask for \(requestID)")
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
     // Process the Validators for any additional errors
+    let statusCode = String(describing: task.httpResponse?.statusCode)
+    PubNub.log.debug("Response received with \(statusCode) status code for \(requestID)")
     atomicValidators.lockedRead { $0.forEach { $0() } }
 
     if let error = error {
@@ -275,6 +280,8 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
+    let statusCode = String(describing: task.httpResponse?.statusCode)
+    PubNub.log.debug("Error \(error) received with \(statusCode) status code for \(requestID)")
     self.error = PubNubError.sessionDelegate(error, router: router)
     sessionStream?.emitRequest(self, didComplete: task, with: error)
     retryOrFinish(with: error)
@@ -325,17 +332,19 @@ final class Request {
     }
 
     processResponseCompletion(atomicState.lockedRead { state -> Result<EndpointResponse<Data>, Error> in
-
       if let error = state.error {
         return .failure(error)
       }
-
-      if let request = state.urlRequests.last,
-         let response = state.tasks.last?.httpResponse,
-         let data = state.responesData {
-        return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
+      if let request = state.urlRequests.last, let response = state.tasks.last?.httpResponse, let data = state.responesData {
+        return .success(
+          EndpointResponse(
+            router: router,
+            request: request,
+            response: response,
+            payload: data
+          )
+        )
       }
-
       return .failure(PubNubError(.missingCriticalResponseData, router: router))
     })
 

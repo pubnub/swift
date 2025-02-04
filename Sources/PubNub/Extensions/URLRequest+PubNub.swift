@@ -77,3 +77,30 @@ public extension URLRequest {
     )
   }
 }
+
+extension URLRequest {
+  func debugString() -> String {
+    guard let url = url else {
+      return "No URL found in request"
+    }
+
+    var debugString = ""
+
+    if let httpMethod = method?.rawValue {
+      debugString += "HTTP METHOD: \(httpMethod)"
+    } else {
+      debugString += "No HTTP method set"
+    }
+
+    debugString += " URL: \(url.absoluteString)"
+    debugString += " HTTP Body: "
+
+    if let httpBody = httpBody {
+      debugString += "\(String(data: httpBody, encoding: .utf8) ?? "(Cannot decode `httpBody` as UTF8 string`)")"
+    } else {
+      debugString += "No HTTP body"
+    }
+
+    return debugString
+  }
+}

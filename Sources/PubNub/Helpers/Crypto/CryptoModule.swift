@@ -52,6 +52,13 @@ public struct CryptoModule {
   ///   - **Success**: An encrypted `Data` object
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
+    PubNub.log.debug("Will encrypt Data \(data.asUTF8String())", category: LogCategory.crypto.rawValue)
+    let encryptionResult = performDataEncryption(data: data)
+    PubNub.log.debug("Did finish encrypting Data", category: LogCategory.crypto.rawValue)
+    return encryptionResult
+  }
+
+  private func performDataEncryption(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
         .encryptionFailure,
@@ -79,6 +86,22 @@ public struct CryptoModule {
   ///  - **Success**: A decrypted `Data` object
   ///  - **Failure**: `PubNubError` describing the reason of failure
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
+    PubNub.log.debug(
+      "Will decrypt Data with \(data.count) bytes",
+      category: LogCategory.crypto.rawValue
+    )
+
+    let decryptionResult = performDataDecryption(data: data)
+
+    PubNub.log.debug(
+      "Did finish decrypting Data",
+      category: LogCategory.crypto.rawValue
+    )
+
+    return decryptionResult
+  }
+
+  private func performDataDecryption(data: Data) -> Result<Data, PubNubError> {
     guard !data.isEmpty else {
       return .failure(PubNubError(
         .decryptionFailure,
@@ -149,6 +172,23 @@ public struct CryptoModule {
   ///   - **Success**: An `InputStream` value
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
+    PubNub.log.debug(
+      "Will encrypt InputStream with contentLength \(contentLength)",
+      category: LogCategory.crypto.rawValue
+    )
+    let streamEncryptionResult = performStreamEncryption(
+      stream: stream,
+      contentLength: contentLength
+    )
+    PubNub.log.debug(
+      "Did finish encrypting InputStream",
+      category: LogCategory.crypto.rawValue
+    )
+
+    return streamEncryptionResult
+  }
+
+  private func performStreamEncryption(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
         .encryptionFailure,
@@ -192,6 +232,29 @@ public struct CryptoModule {
   ///  - **Failure**: `PubNubError` describing the reason of failure
   @discardableResult
   public func decrypt(
+    stream: InputStream,
+    contentLength: Int,
+    to outputPath: URL
+  ) -> Result<InputStream, PubNubError> {
+    PubNub.log.debug(
+      "Will decrypt InputStream with contentLength \(contentLength) to \(outputPath)",
+      category: LogCategory.crypto.rawValue
+    )
+    let streamDecryptionResult = performStreamDecryption(
+      stream: stream,
+      contentLength: contentLength,
+      to: outputPath
+    )
+    PubNub.log.debug(
+      "Did finish decrypting InputStream",
+      category: LogCategory.crypto.rawValue
+    )
+
+    return streamDecryptionResult
+  }
+
+  @discardableResult
+  public func performStreamDecryption(
     stream: InputStream,
     contentLength: Int,
     to outputPath: URL
@@ -302,19 +365,37 @@ extension CryptoModule: CustomStringConvertible {
 
 extension CryptoModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
-    guard let data = string.data(using: .utf8) else {
-      return .failure(PubNubError(
+    PubNub.log.debug(
+      "Will encrypt String \(string)",
+      category: LogCategory.crypto.rawValue
+    )
+
+    let encryptionResult: Result<Base64EncodedString, PubNubError> = if let data = string.data(using: .utf8) {
+      encrypt(
+        data: data
+      ).map {
+        $0.base64EncodedString()
+      }
+    } else {
+      .failure(PubNubError(
         .encryptionFailure,
         additional: ["Cannot create Data from provided String"]
       ))
     }
-    return encrypt(data: data).map {
-      $0.base64EncodedString()
-    }
+    PubNub.log.debug(
+      "Did finish encrypting String",
+      category: LogCategory.crypto.rawValue
+    )
+
+    return encryptionResult
   }
 
   func decryptedString(from data: Data) -> Result<String, PubNubError> {
-    decrypt(data: data).flatMap {
+    PubNub.log.debug(
+      "Will decrypt String from Data count \(data.count)",
+      category: LogCategory.crypto.rawValue
+    )
+    let decryptionResult = decrypt(data: data).flatMap {
       if let stringValue = String(data: $0, encoding: .utf8) {
         return .success(stringValue)
       } else {
@@ -324,5 +405,13 @@ extension CryptoModule {
         ))
       }
     }
+    PubNub.log.debug(
+      "Did finish decrypting Data",
+      category: LogCategory.crypto.rawValue
+    )
+
+    return decryptionResult
   }
+
+  // swiftlint:disable:next file_length
 }

@@ -102,7 +102,7 @@ public class CryptoStream {
     let rawStatus = CCCryptorRelease(context.pointee)
 
     if rawStatus != kCCSuccess {
-      PubNub.log.error("CryptoStream CCCryptoRelease failed with status \(rawStatus).")
+      PubNub.log.error("CryptoStream CCCryptoRelease failed with status \(rawStatus)", category: LogCategory.crypto.rawValue)
     }
 
     context.deallocate()

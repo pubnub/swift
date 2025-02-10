@@ -12,7 +12,7 @@ import Foundation
 
 // MARK: - PresenceState
 
-protocol PresenceState: Equatable {
+protocol PresenceState: Equatable, CustomStringConvertible {
   var input: PresenceInput { get }
 }
 
@@ -23,6 +23,13 @@ extension PresenceState {
 
   var groups: [String] {
     input.groups
+  }
+
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [("input", input)]
+    )
   }
 }
 
@@ -37,22 +44,45 @@ extension Presence {
   struct Heartbeating: PresenceState {
     let input: PresenceInput
   }
+}
 
+extension Presence {
   struct HeartbeatCooldown: PresenceState {
     let input: PresenceInput
   }
+}
 
+extension Presence {
   struct HeartbeatFailed: PresenceState {
     let input: PresenceInput
     let error: PubNubError
   }
+}
 
+extension Presence.HeartbeatFailed {
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [("input", input), ("error", error.reason)]
+    )
+  }
+}
+
+extension Presence {
   struct HeartbeatStopped: PresenceState {
     let input: PresenceInput
   }
+}
 
+extension Presence {
   struct HeartbeatInactive: PresenceState {
     let input: PresenceInput = .init()
+  }
+}
+
+extension Presence.HeartbeatInactive {
+  var description: String {
+    String.formattedDescription(self)
   }
 }
 
@@ -80,19 +110,25 @@ extension Presence {
 // MARK: - Presence Effect Invocations
 
 extension Presence {
-  enum Invocation: AnyEffectInvocation {
+  enum Invocation: AnyEffectInvocation, CustomStringConvertible {
     case heartbeat(channels: [String], groups: [String])
     case leave(channels: [String], groups: [String])
     case wait
 
     // swiftlint:disable:next nesting
-    enum Cancellable: AnyCancellableInvocation {
+    enum Cancellable: AnyCancellableInvocation, CustomStringConvertible {
       case wait
 
       var id: String {
         switch self {
         case .wait:
           return "Presence.ScheduleNextHeartbeat"
+        }
+      }
+      var description: String {
+        switch self {
+        case .wait:
+          return "Presence.Invocation.Cancellable.Wait"
         }
       }
     }
@@ -105,6 +141,23 @@ extension Presence {
         return Cancellable.wait.id
       case .leave:
         return "Presence.Leave"
+      }
+    }
+
+    var description: String {
+      switch self {
+      case let .heartbeat(channels, groups):
+        return String.formattedDescription(
+          "Presence.Invocation.Heartbeat",
+          arguments: [("channels", channels), ("groups", groups)]
+        )
+      case let .leave(channels, groups):
+        return String.formattedDescription(
+          "Presence.Invocation.Leave",
+          arguments: [("channels", channels), ("groups", groups)]
+        )
+      case .wait:
+        return "Presence.Invocation.Wait"
       }
     }
   }

@@ -45,7 +45,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
     }
 
     guard let tokenData = Data(base64Encoded: unescapedToken) else {
-      PubNub.log.warn("PAM Token `\(token)` was not a valid base64 encoded string")
+      PubNub.log.warn("PAM Token `\(token)` was not a valid Base64-encoded string")
       return nil
     }
 

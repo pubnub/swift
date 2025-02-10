@@ -50,6 +50,10 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     notify listener: DispatcherListener<Event>
   ) {
     invocations.forEach {
+      PubNub.log.debug(
+        "Received invocation: \($0)",
+        category: LogCategory.eventEngine.rawValue
+      )
       switch $0 {
       case .managed(let invocation):
         executeEffect(
@@ -75,7 +79,14 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     storageId id: String,
     notify listener: DispatcherListener<Event>
   ) {
-    effectsCache.put(effect: effect, with: id)
+    effectsCache.put(
+      effect: effect,
+      with: id
+    )
+    PubNub.log.debug(
+      "Dispatching Effect: \(effect)",
+      category: LogCategory.eventEngine.rawValue
+    )
     effect.performTask { [weak effectsCache] results in
       effectsCache?.removeEffect(id: id)
       listener.onAnyInvocationCompleted(results)

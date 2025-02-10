@@ -49,14 +49,17 @@ public extension ResponseDecoder {
 
   func decode(response: EndpointResponse<Data>) -> Result<EndpointResponse<Payload>, Error> {
     do {
-      let decodedPayload = try Constant.jsonDecoder.decode(Payload.self, from: response.payload)
-
-      let decodedResponse = EndpointResponse<Payload>(router: response.router,
-                                                      request: response.request,
-                                                      response: response.response,
-                                                      data: response.data,
-                                                      payload: decodedPayload)
-
+      let decodedPayload = try Constant.jsonDecoder.decode(
+        Payload.self,
+        from: response.payload
+      )
+      let decodedResponse = EndpointResponse<Payload>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: decodedPayload
+      )
       return .success(decodedResponse)
     } catch {
       return .failure(PubNubError(.jsonDataDecodingFailure, response: response, error: error))
@@ -74,13 +77,19 @@ public extension ResponseDecoder {
     for data: Data
   ) -> PubNubError? {
     // Attempt to decode based on general system response payload
-    let generalErrorPayload = try? Constant.jsonDecoder.decode(GenericServicePayloadResponse.self, from: data)
-
-    return PubNubError(reason: generalErrorPayload?.pubnubReason,
-                       router: router, request: request, response: response,
-                       additional: generalErrorPayload?.details,
-                       affectedChannels: generalErrorPayload?.affectedChannels,
-                       affectedChannelGroups: generalErrorPayload?.affectedChannelGroups)
+    let generalErrorPayload = try? Constant.jsonDecoder.decode(
+      GenericServicePayloadResponse.self,
+      from: data
+    )
+    return PubNubError(
+      reason: generalErrorPayload?.pubnubReason,
+      router: router,
+      request: request,
+      response: response,
+      additional: generalErrorPayload?.details,
+      affectedChannels: generalErrorPayload?.affectedChannels,
+      affectedChannelGroups: generalErrorPayload?.affectedChannelGroups
+    )
   }
 }
 

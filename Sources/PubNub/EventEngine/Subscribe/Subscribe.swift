@@ -12,7 +12,7 @@ import Foundation
 
 // MARK: - SubscribeState
 
-protocol SubscribeState: Equatable {
+protocol SubscribeState: Equatable, CustomStringConvertible {
   var input: SubscribeInput { get }
   var cursor: SubscribeCursor { get }
   var connectionStatus: ConnectionStatus { get }
@@ -22,12 +22,20 @@ extension SubscribeState {
   var hasTimetoken: Bool {
     cursor.timetoken != 0
   }
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [("input", input), ("cursor", cursor)]
+    )
+  }
 }
 
 //
 // A namespace for Events, concrete State types and Invocations used in Subscribe EE
 //
-enum Subscribe {}
+enum Subscribe {
+
+}
 
 // MARK: - Subscribe States
 
@@ -37,13 +45,17 @@ extension Subscribe {
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
+}
 
+extension Subscribe {
   struct HandshakeStoppedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
+}
 
+extension Subscribe {
   struct HandshakeFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
@@ -57,19 +69,34 @@ extension Subscribe {
       self.connectionStatus = .connectionError(error)
     }
   }
+}
 
+extension Subscribe.HandshakeFailedState {
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [("input", input), ("cursor", cursor), ("error", error.reason)]
+    )
+  }
+}
+
+extension Subscribe {
   struct ReceivingState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus: ConnectionStatus
   }
+}
 
+extension Subscribe {
   struct ReceiveStoppedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
     let connectionStatus = ConnectionStatus.disconnected
   }
+}
 
+extension Subscribe {
   struct ReceiveFailedState: SubscribeState {
     let input: SubscribeInput
     let cursor: SubscribeCursor
@@ -83,12 +110,28 @@ extension Subscribe {
       self.connectionStatus = .disconnectedUnexpectedly(error)
     }
   }
+}
 
+extension Subscribe.ReceiveFailedState {
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [("input", input), ("cursor", cursor), ("error", error.reason)]
+    )
+  }
+}
+
+extension Subscribe {
   struct UnsubscribedState: SubscribeState {
-    // swiftlint:disable:next force_unwrapping
-    let cursor: SubscribeCursor = .init(timetoken: 0)!
+    let cursor: SubscribeCursor = .init(timetoken: 0, region: 0)
     let input: SubscribeInput = .init()
     let connectionStatus = ConnectionStatus.disconnected
+  }
+}
+
+extension Subscribe.UnsubscribedState {
+  var description: String {
+    String.formattedDescription(self)
   }
 }
 
@@ -109,10 +152,17 @@ extension Subscribe {
 }
 
 extension Subscribe {
-  struct ConnectionStatusChange: Equatable {
+  struct ConnectionStatusChange: Equatable, CustomStringConvertible {
     let oldStatus: ConnectionStatus
     let newStatus: ConnectionStatus
     let error: PubNubError?
+
+    var description: String {
+      String.formattedDescription(
+        self,
+        arguments: [("oldStatus", oldStatus), ("newStatus", newStatus), ("erorr", error?.reason ?? "nil")]
+      )
+    }
   }
 }
 
@@ -134,14 +184,14 @@ extension Subscribe {
 // MARK: - Subscribe Effect Invocations
 
 extension Subscribe {
-  enum Invocation: AnyEffectInvocation {
+  enum Invocation: AnyEffectInvocation, CustomStringConvertible {
     case handshakeRequest(channels: [String], groups: [String])
     case receiveMessages(channels: [String], groups: [String], cursor: SubscribeCursor)
     case emitStatus(change: Subscribe.ConnectionStatusChange)
     case emitMessages(events: [SubscribeMessagePayload], forCursor: SubscribeCursor)
 
     // swiftlint:disable:next nesting
-    enum Cancellable: AnyCancellableInvocation {
+    enum Cancellable: AnyCancellableInvocation, CustomStringConvertible {
       case handshakeRequest
       case receiveMessages
 
@@ -151,6 +201,15 @@ extension Subscribe {
           return "Subscribe.HandshakeRequest"
         case .receiveMessages:
           return "Subscribe.ReceiveMessages"
+        }
+      }
+
+      var description: String {
+        switch self {
+        case .handshakeRequest:
+          return "Subscribe.Invocation.Cancellable.HandshakeRequest"
+        case .receiveMessages:
+          return "Subscribe.Invocation.ReceiveMessages"
         }
       }
     }
@@ -165,6 +224,31 @@ extension Subscribe {
         return "Subscribe.EmitMessages"
       case .emitStatus:
         return "Subscribe.EmitStatus"
+      }
+    }
+
+    var description: String {
+      switch self {
+      case let .handshakeRequest(channels, groups):
+        return String.formattedDescription(
+          "Subscribe.Invocation.HandshakeRequest",
+          arguments: [("channels", channels), ("groups", groups)]
+        )
+      case let .receiveMessages(channels, groups, cursor):
+        return String.formattedDescription(
+          "Subscribe.Invocation.ReceiveMessages",
+          arguments: [("channels", channels), ("groups", groups), ("cursor", cursor)]
+        )
+      case let .emitStatus(change):
+        return String.formattedDescription(
+          "Subscribe.Invocation.EmitStatus",
+          arguments: [("change", change)]
+        )
+      case let .emitMessages(messages, cursor):
+        return String.formattedDescription(
+          "Subscribe.Invocation.EmitMessages",
+          arguments: [("messages", messages), ("cursor", cursor)]
+        )
       }
     }
   }

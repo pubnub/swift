@@ -34,11 +34,22 @@ class MessageCache {
   }
 }
 
-struct EmitMessagesEffect: EffectHandler {
+struct EmitMessagesEffect: EffectHandler, CustomStringConvertible {
   let messages: [SubscribeMessagePayload]
   let cursor: SubscribeCursor
   let subscriptions: WeakSet<BaseSubscriptionListener>
   let messageCache: MessageCache
+
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("messages", messages),
+        ("cursor", cursor),
+        ("subscriptions", subscriptions)
+      ]
+    )
+  }
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {
     // Attempt to detect missed messages due to queue overflow

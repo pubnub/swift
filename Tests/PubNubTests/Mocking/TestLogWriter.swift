@@ -14,17 +14,15 @@ import Foundation
 class TestSyncLogWriter: LogWriter {
   var executor: LogExecutable = LogExecutionType.sync(lock: NSRecursiveLock())
   var prefix: LogPrefix = [.all]
-
   var logClosure: ((String) -> Void)?
 
-  func send(message _: String) {}
+  func send(message: @autoclosure @escaping () -> String, with logType: PubNubSDK.LogType, and category: String?) {}
 }
 
 class TestAsyncLogWriter: LogWriter {
   var executor: LogExecutable = LogExecutionType.async(queue: DispatchQueue.global())
   var prefix: LogPrefix = [.all]
-
   var logClosure: ((String) -> Void)?
 
-  func send(message _: String) {}
+  func send(message: @autoclosure @escaping () -> String, with logType: PubNubSDK.LogType, and category: String?) {}
 }

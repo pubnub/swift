@@ -53,7 +53,10 @@ public final class HTTPSession {
     self.delegate = delegate
     self.sessionStream = sessionStream
 
-    PubNub.log.debug("Session created \(sessionID)")
+    PubNub.log.debug(
+      "Session created \(sessionID)",
+      category: LogCategory.networking.rawValue
+    )
 
     delegate.sessionBridge = self
   }

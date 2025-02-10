@@ -66,7 +66,15 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     }
 
     let transitionResult = transition.transition(from: currentState, event: event)
+    let newState = transitionResult.state
     let invocations = transitionResult.invocations
+    let currentStateDescr = String(describing: currentState)
+    let newStateDescr = String(describing: newState)
+
+    PubNub.log.debug(
+      "Did transition from \(currentStateDescr) to \(newStateDescr)",
+      category: LogCategory.eventEngine.rawValue
+    )
 
     state = transitionResult.state
     onStateUpdated?(state)

@@ -11,7 +11,7 @@
 import Foundation
 
 /// Reconnection policy which will be used if/when a request fails
-public struct AutomaticRetry: RequestOperator, Hashable {
+public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible {
   /// Exponential backoff twice for any 500 response code or `URLError` contained in `defaultRetryableURLErrorCodes`
   public static var `default` = AutomaticRetry()
   /// No retry will be performed
@@ -32,7 +32,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   static let maxDelay: UInt = 150
 
   /// Provides the action taken when a retry is to be performed
-  public enum ReconnectionPolicy: Hashable, Equatable {
+  public enum ReconnectionPolicy: Hashable, Equatable, CustomStringConvertible {
     /// Exponential backoff with base/scale factor of 2, and a 150s max delay
     public static let defaultExponential: ReconnectionPolicy = .exponential(minDelay: minDelay, maxDelay: maxDelay)
     /// Linear reconnect every 3 seconds
@@ -64,10 +64,25 @@ public struct AutomaticRetry: RequestOperator, Hashable {
         return 6
       }
     }
+
+    public var description: String {
+      switch self {
+      case let .exponential(minDelay, maxDelay):
+        return String.formattedDescription(
+          "AutomaticRetry.ReconnectionPolicy.Exponential",
+          arguments: [("minDelay", minDelay), ("maxDelay", maxDelay)]
+        )
+      case let .linear(delay):
+        return String.formattedDescription(
+          "AutomaticRetry.ReconnectionPolicy.Linear",
+          arguments: [("delay", delay)]
+        )
+      }
+    }
   }
 
   /// List of known endpoint groups (by context) possible to retry
-  public enum Endpoint {
+  public enum Endpoint: String, CustomStringConvertible {
     /// Sending a message
     case messageSend
     /// Subscribing to channels and channel groups
@@ -87,6 +102,10 @@ public struct AutomaticRetry: RequestOperator, Hashable {
     case appContext
     /// Accessing and managing Message Actions
     case messageActions
+
+    public var description: String {
+      rawValue
+    }
   }
 
   /// Collection of default `URLError.Code` objects that will trigger a retry
@@ -117,6 +136,20 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   public let retryableURLErrorCodes: Set<URLError.Code>
   /// The list of endpoints excluded from retrying
   public let excluded: [AutomaticRetry.Endpoint]
+
+  /// Conformance to `CustomStringConvertible` protocol
+  public var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("retryLimit", retryLimit),
+        ("policy", policy),
+        ("retryableHTTPStatusCodes", retryableHTTPStatusCodes.map { $0.rawValue }),
+        ("retryableURLErrorCodes", retryableURLErrorCodes.map { $0.rawValue }),
+        ("excluded", excluded)
+      ]
+    )
+  }
 
   public init(
     retryLimit: UInt = 6,

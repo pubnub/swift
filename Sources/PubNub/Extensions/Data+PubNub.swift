@@ -81,4 +81,8 @@ extension Data {
       append(data)
     }
   }
+
+  func asUTF8String() -> String {
+    String(data: self, encoding: .utf8) ?? String("Cannot represent as UTF-8 string")
+  }
 }

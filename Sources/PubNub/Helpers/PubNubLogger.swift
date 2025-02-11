@@ -10,6 +10,7 @@
 
 import Foundation
 
+/// Represents the various details that can be included in a log message
 public struct LogPrefix: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
@@ -32,6 +33,7 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
 
 // MARK: - Level
 
+/// Represents different levels of logging, such as debug, info, warning, etc.
 public struct LogType: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 

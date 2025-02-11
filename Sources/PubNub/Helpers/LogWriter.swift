@@ -13,8 +13,8 @@ import os
 
 // MARK: - Log Category
 
-// Reserverd Category Types
-public enum LogCategory: String {
+/// Reserverd category types
+enum LogCategory: String {
   case none = "None"
   case eventEngine = "EventEngine"
   case networking = "Networking"
@@ -24,15 +24,39 @@ public enum LogCategory: String {
 
 // MARK: - Log Writer
 
+/// A protocol that defines a log writer, which handles logging messages to a specific output
 public protocol LogWriter {
+  /// A protocol responsible for dispatching log messages. Return your custom instance or use of the built-in ``LogExecutionType`` cases
   var executor: LogExecutable { get }
+  /// Returns the details included in a log message
   var prefix: LogPrefix { get }
 
+  /// Logs a message with the specified log type and category.
+  ///
+  /// - Parameters:
+  ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
+  ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
+  ///   - category: An optional category to classify the log message
   func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String?)
 }
 
 public extension LogWriter {
-  // swiftlint:disable:next function_parameter_count
+  /// Generates a log prefix based on the specified logging details.
+  ///
+  /// This method constructs a default log prefix by checking which metadata elements (e.g., file name, function name, line number, thread) are enabled
+  /// in the provided `prefix:` parameter. If a detail is included in the mask, it is appended to the final log prefix.
+  ///
+  /// - Parameters:
+  ///   - prefix: A bitmask specifying which details should be included in the prefix
+  ///   - category: An optional category to classify the log message
+  ///   - level: The severity level of the log
+  ///   - date: A timestamp for when the log entry was created
+  ///   - queue: The label of the current `DispatchQueue` or `"Unknown Queue"` if no label was found
+  ///   - thread: A thread name
+  ///   - file: The source file name where the log statement was executed
+  ///   - function: The function name where the log statement was called
+  ///   - line: The line number in the source file
+  /// - Returns: A formatted string containing the selected log details
   func format(
     prefix: LogPrefix,
     category: String?,
@@ -72,13 +96,18 @@ public extension LogWriter {
   }
 }
 
+/// A protocol responsible for dispatching a log message
 public protocol LogExecutable {
   func execute(log job: @escaping () -> Void)
 }
 
+/// Conforms to ``LogExecutable`` and provides default built-in strategies for dispatching log messages that you can choose from
 public enum LogExecutionType: LogExecutable {
+  /// Executes logging using an `NSLocking` for synchronization
   case sync(lock: NSLocking)
+  /// Executes logging using a dedicated `DispatchQueue` for concurrency control
   case async(queue: DispatchQueue)
+  /// No special execution strategy is applied; logs are processed directly
   case none
 
   public func execute(log job: @escaping () -> Void) {
@@ -97,6 +126,7 @@ public enum LogExecutionType: LogExecutable {
 
 // MARK: - Console Logger
 
+/// The concrete ``LogWriter`` implementation responsible for writing log messages to the console
 public struct ConsoleLogWriter: LogWriter {
   public var sendToNSLog: Bool
   public var executor: LogExecutable
@@ -123,6 +153,7 @@ public struct ConsoleLogWriter: LogWriter {
 
 // MARK: - File Logger
 
+/// The concrete ``LogWriter`` implementation responsible for writing log messages to a file
 open class FileLogWriter: LogWriter {
   public var executor: LogExecutable
   public var prefix: LogPrefix
@@ -193,7 +224,6 @@ open class FileLogWriter: LogWriter {
   public func createOrUpdateFile(with contents: String) -> URL? {
     // Update a file if it exists
     // and if the file + message size is less than maxFileSize
-
     if let file = currentFile,
        FileManager.default.fileExists(atPath: file.path),
        file.sizeOf + contents.utf8.count < maxFileSize {
@@ -225,9 +255,10 @@ open class FileLogWriter: LogWriter {
   }
 
   public func update(_ file: URL, message: String) {
-    if FileManager.default.fileExists(atPath: file.path),
-       let stream = OutputStream(toFileAtPath: file.path, append: true),
-       let messageData = message.data(using: .utf8) {
+    if
+      FileManager.default.fileExists(atPath: file.path),
+      let stream = OutputStream(toFileAtPath: file.path, append: true),
+      let messageData = message.data(using: .utf8) {
       let dataArray = [UInt8](messageData)
       stream.open()
       defer { stream.close() }
@@ -256,6 +287,7 @@ open class FileLogWriter: LogWriter {
 
 // MARK: - OSLogWriter
 
+/// A concrete implementation that delegates all log messages to the `os` Logger
 @available(macOS 11.0, iOS 14.0, watchOS 7.0, tvOS 14.0, *)
 public struct OSLogWriter: LogWriter {
   public let executor: LogExecutable = LogExecutionType.none

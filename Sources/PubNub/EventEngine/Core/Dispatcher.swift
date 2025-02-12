@@ -51,7 +51,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
   ) {
     invocations.forEach {
       PubNub.log.debug(
-        "Received invocation: \($0)",
+        "Received invocation \($0)",
         category: LogCategory.eventEngine.rawValue
       )
       switch $0 {
@@ -84,7 +84,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       with: id
     )
     PubNub.log.debug(
-      "Dispatching Effect: \(effect)",
+      "Dispatching effect \(effect)",
       category: LogCategory.eventEngine.rawValue
     )
     effect.performTask { [weak effectsCache] results in

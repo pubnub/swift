@@ -87,7 +87,7 @@ extension URLRequest {
 
     var debugString = ""
     debugString += (method?.rawValue ?? "UNKNOWN_HTTP_METHOD") + " "
-    debugString += (allHTTPHeaderFields?.map { "\($0.key): \($0.value)" }.joined(separator: ", ") ?? "") + " "
+    debugString += "headers " + (allHTTPHeaderFields?.map { "\($0.key): \($0.value)" }.joined(separator: ", ") ?? "") + " "
     debugString += url.absoluteString + " "
     debugString += "with body: "
 

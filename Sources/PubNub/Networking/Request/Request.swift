@@ -262,7 +262,7 @@ final class Request {
 
   func didResume(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "Sending HTTP request for \(requestID): \(task.requestDescr())",
+      "Sending HTTP request \(task.requestDescr())",
       category: LogCategory.networking.rawValue
     )
     sessionStream?.emitRequest(
@@ -278,9 +278,9 @@ final class Request {
 
   func didComplete(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "\(requestID) response received with \(task.statusCodeDescr()), " +
-      "content: \(dataDescription) " +
-      "for request URL: \(task.currentRequestUrl()))",
+      "\(requestID) received response with \(task.statusCodeDescr()) " +
+      "content \(dataDescription) " +
+      "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue
     )
 
@@ -298,9 +298,9 @@ final class Request {
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
     PubNub.log.debug(
-      "\(requestID) response received with \(task.statusCodeDescr()), " +
+      "\(requestID) received response received with \(task.statusCodeDescr()), " +
       "content: \(dataDescription) " +
-      "for request URL: \(task.currentRequestUrl()))",
+      "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue
     )
 

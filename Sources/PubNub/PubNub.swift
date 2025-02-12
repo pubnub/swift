@@ -61,7 +61,7 @@ public class PubNub {
     self.presenceStateContainer = container.presenceStateContainer
 
     PubNub.log.debug(
-      "Did create PubNub instance with \(instanceID) and configuration: \(configuration)",
+      "Did create PubNub instance with \(instanceID) and configuration \(configuration)",
       category: LogCategory.pubNub.rawValue
     )
   }
@@ -1685,7 +1685,7 @@ public extension PubNub {
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
   func encrypt(message: String) -> Result<Data, Error> {
     PubNub.log.debug(
-      "Will encrypt String message \(message)",
+      "Encrypting String",
       category: LogCategory.pubNub.rawValue
     )
 
@@ -1695,14 +1695,14 @@ public extension PubNub {
         category: LogCategory.pubNub.rawValue
       )
       PubNub.log.debug(
-        "Did fail to encrypt String message due to missing CryptoModule",
+        "Encryption of String failed due to \(ErrorDescription.missingCryptoKey)",
         category: LogCategory.crypto.rawValue
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let dataMessage = message.data(using: .utf8) else {
       PubNub.log.debug(
-        "Cannot convert String message \(message) into UTF-8 data",
+        "Encryption of String failed due to \("invalid UTF-8 encoded String")",
         category: LogCategory.pubNub.rawValue
       )
       return .failure(CryptoError.decodeError)
@@ -1714,10 +1714,18 @@ public extension PubNub {
       $0 as Error
     }
 
-    PubNub.log.debug(
-      "Did finish encrypting String message",
-      category: LogCategory.pubNub.rawValue
-    )
+    switch encryptionResult {
+    case .success:
+      PubNub.log.debug(
+        "String encrypted successfully",
+        category: LogCategory.pubNub.rawValue
+      )
+    case let .failure(error):
+      PubNub.log.debug(
+        "Encryption of String failed due to \(error)",
+        category: LogCategory.pubNub.rawValue
+      )
+    }
 
     return encryptionResult
   }
@@ -1727,7 +1735,7 @@ public extension PubNub {
   /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
   func decrypt(data: Data) -> Result<String, Error> {
     PubNub.log.debug(
-      "Will decrypt Data with \(data.count) bytes",
+      "Decrypting Data",
       category: LogCategory.pubNub.rawValue
     )
 
@@ -1737,18 +1745,14 @@ public extension PubNub {
         category: LogCategory.pubNub.rawValue
       )
       PubNub.log.debug(
-        "Did fail to decrypt Data due to missing CryptoModule",
+        "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
         category: LogCategory.pubNub.rawValue
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
       PubNub.log.error(
-        "Cannot create Base64-encoded data",
-        category: LogCategory.pubNub.rawValue
-      )
-      PubNub.log.debug(
-        "Did fail to decode Base64-encoded Data",
+        "Decryption of Data failed due to \("invalid Base64-encoded Data")",
         category: LogCategory.pubNub.rawValue
       )
       return .failure(CryptoError.decodeError)
@@ -1765,10 +1769,18 @@ public extension PubNub {
         $0 as Error
       }
 
-    PubNub.log.debug(
-      "Did finish decrypting Data",
-      category: LogCategory.pubNub.rawValue
-    )
+    switch decryptionResult {
+    case .success:
+      PubNub.log.debug(
+        "Data decrypted successfully",
+        category: LogCategory.pubNub.rawValue
+      )
+    case let .failure(error):
+      PubNub.log.debug(
+        "Decryption of Data failed due to \(error)",
+        category: LogCategory.pubNub.rawValue
+      )
+    }
 
     return decryptionResult
   }

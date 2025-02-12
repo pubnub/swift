@@ -103,15 +103,30 @@ extension Request {
   ) {
     appendResponseCompletion { result in
       queue.async {
-        completion(
-          result.flatMap { response in
-            // Decode the data response into the correct data type
-            responseDecoder.decode(response: response).flatMap { decoded in
-              // Do any decryption of the decoded data result
-              responseDecoder.decrypt(response: decoded)
-            }
-          }
+        PubNub.log.debug(
+          "Deserializing response",
+          category: LogCategory.networking.rawValue
         )
+        let deserializationResult = result.flatMap { response in
+          // Decode the data response into the correct data type
+          responseDecoder.decode(response: response).flatMap { decoded in
+            // Do any decryption of the decoded data result
+            responseDecoder.decrypt(response: decoded)
+          }
+        }
+        switch deserializationResult {
+        case .success:
+          PubNub.log.debug(
+            "Response deserialized successfully",
+            category: LogCategory.networking.rawValue
+          )
+        case let .failure(error):
+          PubNub.log.debug(
+            "Deserialization of content failed due to \(error)",
+            category: LogCategory.networking.rawValue
+          )
+        }
+        completion(deserializationResult)
       }
     }
   }

@@ -197,6 +197,11 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
+    PubNub.log.debug(
+      "Did fail to mutate URL request due to \(mutatorError)",
+      category: LogCategory.networking.rawValue
+    )
+
     error = mutatorError
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
     retryOrFinish(with: mutatorError)

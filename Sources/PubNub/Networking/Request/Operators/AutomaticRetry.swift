@@ -246,7 +246,11 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
 private extension AutomaticRetry {
   static func validate<T>(value: T, using condition: Bool, replaceOnFailure: T, warningMessage message: String) -> T {
     guard condition else {
-      PubNub.log.warn(message); return replaceOnFailure
+      PubNub.log.warn(
+        message,
+        category: LogCategory.pubNub.rawValue
+      )
+      return replaceOnFailure
     }
     return value
   }

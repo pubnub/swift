@@ -198,7 +198,7 @@ final class Request {
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
     PubNub.log.debug(
-      "Did fail to mutate URL request due to \(mutatorError)",
+      "Did fail to mutate URL request for \(requestID) due to \(mutatorError)",
       category: LogCategory.networking.rawValue
     )
 
@@ -267,7 +267,7 @@ final class Request {
 
   func didResume(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "Sending HTTP request \(task.requestDescr())",
+      "Sending HTTP request \(task.requestDescr()) for \(requestID)",
       category: LogCategory.networking.rawValue
     )
     sessionStream?.emitRequest(
@@ -283,7 +283,7 @@ final class Request {
 
   func didComplete(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "\(requestID) received response with \(task.statusCodeDescr()) " +
+      "Received response for \(requestID) with \(task.statusCodeDescr()) " +
       "content \(dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue
@@ -303,7 +303,7 @@ final class Request {
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
     PubNub.log.debug(
-      "\(requestID) received response received with \(task.statusCodeDescr()), " +
+      "Received response for \(requestID) with \(task.statusCodeDescr()), " +
       "content: \(dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue

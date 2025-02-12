@@ -379,7 +379,13 @@ extension CryptoModule: Hashable {
 
 extension CryptoModule: CustomStringConvertible {
   public var description: String {
-    "Default cryptor: \(defaultCryptor.id), others: \(cryptors.map { $0.id })"
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("defaultCryptor", defaultCryptor.id),
+        ("cryptors", defaultCryptor.id)
+      ]
+    )
   }
 }
 

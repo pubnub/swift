@@ -94,7 +94,7 @@ extension URLRequest {
     if let httpBody = httpBody {
       debugString += "\(String(data: httpBody, encoding: .utf8) ?? "(Cannot decode `httpBody` as UTF-8 string`)")"
     } else {
-      debugString += "No HTTP body"
+      debugString += "no HTTP body"
     }
 
     return debugString

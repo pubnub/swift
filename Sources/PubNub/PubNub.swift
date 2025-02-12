@@ -192,7 +192,7 @@ public extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      "Executing \(#function)",
+      String.formattedDescription("Executing time", arguments: [("custom", requestConfig)]),
       category: LogCategory.pubNub.rawValue
     )
     route(
@@ -241,14 +241,15 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.publish",
+        "Executing publish",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
           ("customMessageType", customMessageType ?? "nil"),
           ("storeTTL", storeTTL ?? "nil"),
           ("meta", meta?.jsonStringify ?? "nil"),
-          ("shouldCompress", shouldCompress)
+          ("shouldCompress", shouldCompress),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -319,11 +320,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.fire",
+        "Executing fire",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
-          ("meta", meta?.jsonStringify ?? "nil")
+          ("meta", meta?.jsonStringify ?? "nil"),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -360,11 +362,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.signal",
+        "Executing signal",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
-          ("customMessageType", customMessageType ?? "nil")
+          ("customMessageType", customMessageType ?? "nil"),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -401,11 +404,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.subscribe",
+        "Executing subscribe",
         arguments: [
-          ("channels", channels),
-          ("channelGroups", channelGroups),
-          ("timetoken", timetoken ?? "nil")
+          ("to", channels),
+          ("and", channelGroups),
+          ("at", timetoken ?? "nil"),
+          ("withPresence", withPresence)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -428,10 +432,10 @@ public extension PubNub {
   func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.subscribe",
+        "Executing unsubscribe",
         arguments: [
-          ("channels", channels),
-          ("channelGroups", channelGroups),
+          ("from", channels),
+          ("and", channelGroups),
           ("presenceOnly", presenceOnly)
         ]
       ), category: LogCategory.pubNub.rawValue
@@ -446,7 +450,7 @@ public extension PubNub {
   /// Unsubscribe from all channels and channel groups
   func unsubscribeAll() {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.unsubscribeAll"),
+      String.formattedDescription("Executing unsubscribeAll()"),
       category: LogCategory.pubNub.rawValue
     )
     subscription.unsubscribeAll()
@@ -455,7 +459,7 @@ public extension PubNub {
   /// Stops the subscriptions in progress
   func disconnect() {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.disconnect"),
+      String.formattedDescription("Executing disconnect()"),
       category: LogCategory.pubNub.rawValue
     )
     subscription.disconnect()
@@ -466,11 +470,8 @@ public extension PubNub {
   func reconnect(at timetoken: Timetoken? = nil) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.reconnect",
-        arguments: [(
-          "timetoken",
-          timetoken ?? "nil"
-        )]
+        "Executing reconnect",
+        arguments: [("at", timetoken ?? "nil")]
       )
     )
 
@@ -578,6 +579,7 @@ extension PubNub: EntityCreator {
 
 public extension PubNub {
   /// Set state dictionary pairs specific to a subscriber uuid
+  ///
   /// - Parameters:
   ///   - state: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
@@ -595,11 +597,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.setPresence",
+        "Executing setPresence",
         arguments: [
           ("state", state),
-          ("channels", channels),
-          ("channelGroups", groups)
+          ("on", channels),
+          ("and", groups),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -626,6 +629,7 @@ public extension PubNub {
   }
 
   /// Get state dictionary pairs from a specific subscriber uuid
+  ///
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
@@ -643,11 +647,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.getPresenceState",
+        "Executing getPresenceState",
         arguments: [
-          ("uuid", uuid),
-          ("channels", channels),
-          ("channelGroups", groups)
+          ("for", uuid),
+          ("on", channels),
+          ("and", groups),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
@@ -692,17 +697,19 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.hereNow",
+        "Executing hereNow",
         arguments: [
-          ("uuid", uuid),
-          ("channels", channels),
+          ("on", channels),
+          ("and", includeUUIDs),
           ("includeUUIDs", includeUUIDs),
-          ("includeState", includeState)
+          ("includeState", includeState),
+          ("custom", requestConfig)
         ]
       ), category: LogCategory.pubNub.rawValue
     )
 
     let router: PresenceRouter
+
     if channels.isEmpty, groups.isEmpty {
       router = PresenceRouter(
         .hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState),
@@ -728,6 +735,7 @@ public extension PubNub {
   }
 
   /// Obtain information about the current list of channels a UUID is subscribed to
+  ///
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - custom: Custom configuration overrides for this request
@@ -740,7 +748,13 @@ public extension PubNub {
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.whereNow", arguments: [("uuid", uuid)]),
+      String.formattedDescription(
+        "Executing whereNow",
+        arguments: [
+          ("for", uuid),
+          ("custom", requestConfig)
+        ]
+      ),
       category: LogCategory.pubNub.rawValue
     )
     route(
@@ -758,6 +772,7 @@ public extension PubNub {
 
 public extension PubNub {
   /// Lists all the channel groups
+  ///
   /// - Parameters:
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -768,9 +783,15 @@ public extension PubNub {
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.listChannelGroups"),
+      String.formattedDescription(
+        "Executing listChannelGroups",
+        arguments: [
+          ("custom", requestConfig)
+        ]
+      ),
       category: LogCategory.pubNub.rawValue
     )
+
     route(
       ChannelGroupsRouter(.channelGroups, configuration: requestConfig.customConfiguration ?? configuration),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
@@ -782,6 +803,7 @@ public extension PubNub {
   }
 
   /// Removes the channel group.
+  ///
   /// - Parameters:
   ///   - channelGroup: The channel group to remove.
   ///   - custom: Custom configuration overrides for this request
@@ -794,9 +816,16 @@ public extension PubNub {
     completion: ((Result<String, Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.removeChannelGroup", arguments: [("channelGroup", channelGroup)]),
+      String.formattedDescription(
+        "Ececuting removeChannelGroup",
+        arguments: [
+          ("channelGroup", channelGroup),
+          ("custom", requestConfig)
+        ]
+      ),
       category: LogCategory.pubNub.rawValue
     )
+
     route(
       ChannelGroupsRouter(
         .deleteGroup(group: channelGroup),
@@ -811,6 +840,7 @@ public extension PubNub {
   }
 
   /// Lists all the channels of the channel group.
+  ///
   /// - Parameters:
   ///   - for: The channel group to list channels on.
   ///   - custom: Custom configuration overrides for this request
@@ -823,9 +853,16 @@ public extension PubNub {
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.listChannels", arguments: [("channelGroup", group)]),
+      String.formattedDescription(
+        "Executing listChannels",
+        arguments: [
+          ("for", group),
+          ("custom", requestConfig)
+        ]
+      ),
       category: LogCategory.pubNub.rawValue
     )
+
     route(
       ChannelGroupsRouter(
         .channelsForGroup(group: group),
@@ -840,6 +877,7 @@ public extension PubNub {
   }
 
   /// Adds a channel to a channel group.
+  ///
   /// - Parameters:
   ///   - channels: List of channels to add to the group
   ///   - to: The Channel Group to add the list of channels to.
@@ -855,10 +893,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.addChannels",
+        "Executing add",
         arguments: [
           ("channels", channels),
-          ("channelGroup", group)
+          ("to", group),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -878,6 +917,7 @@ public extension PubNub {
   }
 
   /// Removes the channels from the channel group.
+  ///
   /// - Parameters:
   ///   - channels: List of channels to remove from the group
   ///   - from: The Channel Group to remove the list of channels from
@@ -893,10 +933,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.removeChannels",
+        "Executing remove",
         arguments: [
           ("channels", channels),
-          ("channelGroup", group)
+          ("from", group),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -936,10 +977,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.listPushChannelRegistrations",
+        "Executing listPushChannelRegistrations",
         arguments: [
-          ("deviceToken", deviceToken.hexEncodedString),
-          ("pushType", pushType)
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -979,12 +1021,13 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.managePushChannelRegistrations",
+        "Executing managePushChannelRegistrations",
         arguments: [
-          ("removals", removals),
-          ("additions", additions),
-          ("deviceToken", deviceToken.hexEncodedString),
-          ("pushType", pushType)
+          ("byRemoving", removals),
+          ("thenAdding", additions),
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1070,10 +1113,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.removeAllPushChannelRegistrations",
+        "Excecuting removeAllPushChannelRegistrations",
         arguments: [
-          ("deviceToken", deviceToken.hexEncodedString),
-          ("pushType", pushType)
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1111,11 +1155,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.listAPNSPushChannelRegistrations",
+        "Executing listAPNSPushChannelRegistrations",
         arguments: [
-          ("deviceToken", deviceToken.hexEncodedString),
-          ("topic", topic),
-          ("environment", environment)
+          ("for", deviceToken.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1157,13 +1202,14 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.manageAPNSDevicesOnChannels",
+        "Executing manageAPNSDevicesOnChannels",
         arguments: [
-          ("removals", removals),
-          ("additions", additions),
-          ("deviceToken", token.hexEncodedString),
-          ("topic", topic),
-          ("environment", environment)
+          ("byRemoving", removals),
+          ("thenAdding", additions),
+          ("device", token.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1266,11 +1312,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.removeAllAPNSPushDevice",
+        "Executing removeAllAPNSPushDevice",
         arguments: [
-          ("deviceToken", deviceToken.hexEncodedString),
-          ("topic", topic),
-          ("environment", environment)
+          ("for", deviceToken.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1328,15 +1375,16 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.fetchMessageHistory",
+        "Executing fetchMessageHistory",
         arguments: [
-          ("channels", channels),
+          ("for", channels),
           ("includeActions", includeActions),
           ("includeMeta", includeMeta),
           ("includeUUID", includeUUID),
           ("includeMessageType", includeMessageType),
           ("includeCustomMessageType", includeCustomMessageType),
-          ("page", page ?? "nil")
+          ("page", page ?? "nil"),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1411,11 +1459,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.deleteMessageHistory",
+        "Executing deleteMessageHistory",
         arguments: [
-          ("channel", channel),
+          ("from", channel),
           ("start", start ?? "nil"),
-          ("end", end ?? "nil")
+          ("end", end ?? "nil"),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1447,7 +1496,13 @@ public extension PubNub {
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
     PubNub.log.debug(
-      String.formattedDescription("PubNub.messageCounts", arguments: [("channels", channels)]),
+      String.formattedDescription(
+        "Executing messageCounts",
+        arguments: [
+          ("channels", channels),
+          ("custom", requestConfig)
+        ]
+      ),
       category: LogCategory.pubNub.rawValue
     )
     let router = HistoryRouter(
@@ -1482,10 +1537,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.messageCounts",
+        "Executing messageCounts",
         arguments: [
           ("channels", channels),
-          ("timetoken", timetoken)
+          ("timetoken", timetoken),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1527,10 +1583,11 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.fetchMessageActions",
+        "Executing fetchMessageActions",
         arguments: [
           ("channel", channel),
-          ("page", page ?? "nil")
+          ("page", page ?? "nil"),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1578,12 +1635,13 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.addMessageAction",
+        "Executing addMessageAction",
         arguments: [
           ("channel", channel),
           ("type", actionType),
           ("value", value),
-          ("messageTimetoken", messageTimetoken)
+          ("messageTimetoken", messageTimetoken),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue
@@ -1637,11 +1695,12 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription(
-        "PubNub.removeMessageActions",
+        "Executing removeMessageActions",
         arguments: [
           ("channel", channel),
-          ("timetoken", timetoken),
-          ("actionTimetoken", actionTimetoken)
+          ("message", timetoken),
+          ("action", actionTimetoken),
+          ("custom", requestConfig)
         ]
       ),
       category: LogCategory.pubNub.rawValue

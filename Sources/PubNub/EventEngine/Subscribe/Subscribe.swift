@@ -180,7 +180,7 @@ extension Subscribe {
     let configuration: PubNubConfiguration
     let subscriptions: WeakSet<BaseSubscriptionListener>
 
-    init(configuration: PubNubConfiguration, listeners: WeakSet<BaseSubscriptionListener> = WeakSet<BaseSubscriptionListener>([])) {
+    init(configuration: PubNubConfiguration, listeners: WeakSet<BaseSubscriptionListener> = .init([])) {
       self.configuration = configuration
       self.subscriptions = listeners
     }

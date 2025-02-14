@@ -297,7 +297,6 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  // swiftlint:disable:next cyclomatic_complexity
   public func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String? = nil) {
     let finalLoggerCategory = if let category {
       LogCategory(rawValue: category) ?? .none

@@ -319,9 +319,7 @@ public struct OSLogWriter: LogWriter {
     switch logType {
     case .debug, .all:
       finalLogger.debug("\(message())")
-    case .log:
-      finalLogger.trace("\(message())")
-    case .info, .event:
+    case .log, .info, .event:
       finalLogger.info("\(message())")
     case .warn:
       finalLogger.warning("\(message())")

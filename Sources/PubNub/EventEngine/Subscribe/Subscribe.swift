@@ -23,10 +23,7 @@ extension SubscribeState {
     cursor.timetoken != 0
   }
   var description: String {
-    String.formattedDescription(
-      self,
-      arguments: [("input", input), ("cursor", cursor)]
-    )
+    String.formattedDescription(self, arguments: [("input", input), ("cursor", cursor)])
   }
 }
 
@@ -75,7 +72,11 @@ extension Subscribe.HandshakeFailedState {
   var description: String {
     String.formattedDescription(
       self,
-      arguments: [("input", input), ("cursor", cursor), ("error", error.reason)]
+      arguments: [
+        ("input", input),
+        ("cursor", cursor),
+        ("error", error.reason)
+      ]
     )
   }
 }
@@ -116,7 +117,11 @@ extension Subscribe.ReceiveFailedState {
   var description: String {
     String.formattedDescription(
       self,
-      arguments: [("input", input), ("cursor", cursor), ("error", error.reason)]
+      arguments: [
+        ("input", input),
+        ("cursor", cursor),
+        ("error", error.reason)
+      ]
     )
   }
 }
@@ -160,7 +165,11 @@ extension Subscribe {
     var description: String {
       String.formattedDescription(
         self,
-        arguments: [("oldStatus", oldStatus), ("newStatus", newStatus), ("erorr", error?.reason ?? "nil")]
+        arguments: [
+          ("oldStatus", oldStatus),
+          ("newStatus", newStatus),
+          ("erorr", error?.reason ?? "nil")
+        ]
       )
     }
   }
@@ -171,10 +180,7 @@ extension Subscribe {
     let configuration: PubNubConfiguration
     let subscriptions: WeakSet<BaseSubscriptionListener>
 
-    init(
-      configuration: PubNubConfiguration,
-      listeners: WeakSet<BaseSubscriptionListener> = WeakSet<BaseSubscriptionListener>([])
-    ) {
+    init(configuration: PubNubConfiguration, listeners: WeakSet<BaseSubscriptionListener> = WeakSet<BaseSubscriptionListener>([])) {
       self.configuration = configuration
       self.subscriptions = listeners
     }

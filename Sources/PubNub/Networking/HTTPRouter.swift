@@ -11,7 +11,7 @@
 import Foundation
 
 /// Base configuration for PubNub Endpoints
-public protocol RouterConfiguration {
+public protocol RouterConfiguration: CustomStringConvertible {
   /// Specifies the PubNub Publish Key to be used when publishing messages to a channel
   var publishKey: String? { get }
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
@@ -36,6 +36,28 @@ public protocol RouterConfiguration {
   var enableEventEngine: Bool { get }
   /// When `true` the SDK will resend the last channel state that was set using `PubNub.setPresence`
   var maintainPresenceState: Bool { get }
+}
+
+extension RouterConfiguration {
+  var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("publishKey", publishKey?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("subscribeKey", subscribeKey.getLastCharacters(6) ?? "`Invalid length`"),
+        ("uuid", uuid),
+        ("useSecureConnections", useSecureConnections),
+        ("origin", origin),
+        ("authKey", authKey?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("authToken", authToken?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("cryptoModule", cryptoModule ?? "nil"),
+        ("useRequestId", useRequestId),
+        ("consumerIdentifiers", consumerIdentifiers ?? "nil"),
+        ("enableEventEngine", enableEventEngine),
+        ("maintainPresenceState", maintainPresenceState)
+      ]
+    )
+  }
 }
 
 public extension RouterConfiguration {

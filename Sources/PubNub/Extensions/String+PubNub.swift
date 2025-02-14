@@ -72,7 +72,13 @@ extension String {
   static func formattedDescription(_ instance: Any, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
     formattedDescription(String(describing: type(of: instance)), arguments: arguments())
   }
+
   static func formattedDescription(_ prefix: String, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
     "\(prefix)(\(arguments().map { "\($0.0): \(String(describing: $0.1))" }.joined(separator: ", ")))"
+  }
+
+  func getLastCharacters(_ count: Int) -> String? {
+    guard self.count >= count else { return nil }
+    return String(suffix(count))
   }
 }

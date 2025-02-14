@@ -180,6 +180,12 @@ extension Dictionary where Key == String, Value == PubNubChannel {
 
 extension SubscribeInput: CustomStringConvertible {
   var description: String {
-    String.formattedDescription(self, arguments: [("channels", allSubscribedChannelNames), ("groups", allSubscribedGroupNames)])
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("channels", allSubscribedChannelNames),
+        ("groups", allSubscribedGroupNames)
+      ]
+    )
   }
 }

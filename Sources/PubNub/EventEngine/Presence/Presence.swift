@@ -26,10 +26,7 @@ extension PresenceState {
   }
 
   var description: String {
-    String.formattedDescription(
-      self,
-      arguments: [("input", input)]
-    )
+    String.formattedDescription(self, arguments: [("input", input)])
   }
 }
 
@@ -61,10 +58,7 @@ extension Presence {
 
 extension Presence.HeartbeatFailed {
   var description: String {
-    String.formattedDescription(
-      self,
-      arguments: [("input", input), ("error", error.reason)]
-    )
+    String.formattedDescription(self, arguments: [("input", input), ("error", error.reason)])
   }
 }
 

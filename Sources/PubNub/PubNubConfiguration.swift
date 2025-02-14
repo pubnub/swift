@@ -247,3 +247,32 @@ public struct PubNubConfiguration: Hashable {
   /// Ordered list of key-value pairs which identify various consumers.
   public var consumerIdentifiers: [String: String] = [:]
 }
+
+extension PubNubConfiguration: CustomStringConvertible {
+  public var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("publishKey", publishKey?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("subscribeKey", subscribeKey.getLastCharacters(6) ?? "`Invalid length`"),
+        ("cryptoModule", cryptoModule ?? "nil"),
+        ("authKey", authKey?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("authToken", authToken?.getLastCharacters(6) ?? "`Empty or invalid length`"),
+        ("userId", userId),
+        ("useSecureConnections", useSecureConnections),
+        ("origin", origin),
+        ("useInstanceId", useInstanceId),
+        ("useRequestId", useRequestId),
+        ("enableEventEngine", enableEventEngine),
+        ("automaticRetry", automaticRetry ?? "nil"),
+        ("urlSessionConfiguration", urlSessionConfiguration),
+        ("durationUntilTimeout", durationUntilTimeout),
+        ("heartbeatInterval", heartbeatInterval),
+        ("supressLeaveEvents", supressLeaveEvents),
+        ("requestMessageCountThreshold", requestMessageCountThreshold),
+        ("filterExpression", filterExpression ?? "nil"),
+        ("consumerIdentifiers", consumerIdentifiers)
+      ]
+    )
+  }
+}

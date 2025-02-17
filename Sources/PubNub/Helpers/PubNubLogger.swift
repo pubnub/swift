@@ -77,10 +77,12 @@ extension LogType: CustomStringConvertible {
 
 // MARK: - PubNub Logger
 
+/// Provides a custom logger for handling log messages from the PubNub SDK.
 public struct PubNubLogger {
   let loggingQueue = DispatchQueue(label: "com.pubnub.logger", qos: .default)
-
+  /// An array of `LogWriter` instances responsible for processing log messages.
   public var writers: [LogWriter]
+  /// The current log level, determining the severity of messages to be logged.
   public var levels: LogType
 
   init(levels: LogType = .all, writers: [LogWriter]) {

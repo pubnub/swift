@@ -33,6 +33,10 @@ public protocol LogWriter {
 
   /// Logs a message with the specified log type and category.
   ///
+  /// - Warning: Debug-level logging is verbose and may include sensitive information, such as API responses, user data, or internal system details.
+  /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
+  /// our in-house ``OSLogWriter`` implementation safely writes logs using `os.Logger`, ensuring optimal performance and security while adhering to this contract.
+  ///
   /// - Parameters:
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
   ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
@@ -127,6 +131,7 @@ public enum LogExecutionType: LogExecutable {
 // MARK: - Console Logger
 
 /// The concrete ``LogWriter`` implementation responsible for writing log messages to the console
+@available(*, deprecated, message: "Use `OSLogWriter` instead")
 public struct ConsoleLogWriter: LogWriter {
   public var sendToNSLog: Bool
   public var executor: LogExecutable
@@ -153,7 +158,10 @@ public struct ConsoleLogWriter: LogWriter {
 
 // MARK: - File Logger
 
-/// The concrete ``LogWriter`` implementation responsible for writing log messages to a file
+/// The concrete ``LogWriter`` implementation responsible for writing log messages to a file.
+///
+/// - Warning: This file-based logger is designed for debugging and troubleshooting only. Avoid using it in production,  as it does not provide built-in security measures.
+/// Be aware that logs may include sensitive information (e.g., user data, API responses) when debug-level logging is enabled. If possible, prefer ``OSLogWriter`` for better performance and system integration.
 open class FileLogWriter: LogWriter {
   public var executor: LogExecutable
   public var prefix: LogPrefix

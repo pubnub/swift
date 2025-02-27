@@ -99,14 +99,14 @@ final class Request {
     self.delegate = delegate
 
     PubNub.log.info(
-      "Request Created \(requestID) on \(router)",
+      "Request Created \(self.requestID) on \(router)",
       category: LogCategory.networking.rawValue
     )
   }
 
   deinit {
     PubNub.log.info(
-      "Request Destroyed \(requestID)",
+      "Request Destroyed \(self.requestID)",
       category: LogCategory.networking.rawValue
     )
 
@@ -198,7 +198,7 @@ final class Request {
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
     PubNub.log.debug(
-      "Did fail to mutate URL request for \(requestID) due to \(mutatorError)",
+      "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
       category: LogCategory.networking.rawValue
     )
 
@@ -221,7 +221,7 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    PubNub.log.debug("Did fail to create URLRequest for \(requestID) due to \(error)")
+    PubNub.log.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
@@ -267,7 +267,7 @@ final class Request {
 
   func didResume(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "Sending HTTP request \(task.requestDescr()) for \(requestID)",
+      "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
       category: LogCategory.networking.rawValue
     )
     sessionStream?.emitRequest(
@@ -277,14 +277,14 @@ final class Request {
   }
 
   func didCancel(_ task: URLSessionTask) {
-    PubNub.log.debug("Did cancel URLSessionTask task for \(requestID)", category: LogCategory.networking.rawValue)
+    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: LogCategory.networking.rawValue)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
     PubNub.log.debug(
-      "Received response for \(requestID) with \(task.statusCodeDescr()) " +
-      "content \(dataDescription) " +
+      "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
+      "content \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue
     )
@@ -303,8 +303,8 @@ final class Request {
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
     PubNub.log.debug(
-      "Received response for \(requestID) with \(task.statusCodeDescr()), " +
-      "content: \(dataDescription) " +
+      "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
+      "content: \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
       category: LogCategory.networking.rawValue
     )
@@ -350,7 +350,10 @@ final class Request {
       } else {
         responseMessage = "without response."
       }
-      PubNub.log.error("Request \(requestID) failed with error \(error) \(responseMessage)")
+      PubNub.log.error(
+        "Request \(self.requestID) failed with error \(error) \(responseMessage)",
+        category: LogCategory.networking.rawValue
+      )
     }
 
     if let error = error {

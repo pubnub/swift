@@ -31,9 +31,12 @@ public protocol LogWriter {
   /// Returns the details included in a log message
   var prefix: LogPrefix { get }
 
-  /// Logs a message with the specified log type and category.
+  /// Logs a message with the specified log type and category. 
   ///
-  /// - Warning: Debug-level logging is verbose and may include sensitive information, such as API responses, user data, or internal system details.
+  /// - Note: The ``PubNubLogger`` instance that contains this object will only call this method if` logType` is greater than or equal
+  ///  to its configured minimum log level.
+  ///
+  /// - Warning: Debug-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, or internal system details.
   /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
   /// our in-house ``OSLogWriter`` implementation safely writes logs using `os.Logger`, ensuring optimal performance and security while adhering to this contract.
   ///
@@ -233,8 +236,8 @@ open class FileLogWriter: LogWriter {
     // Update a file if it exists
     // and if the file + message size is less than maxFileSize
     if let file = currentFile,
-       FileManager.default.fileExists(atPath: file.path),
-       file.sizeOf + contents.utf8.count < maxFileSize {
+      FileManager.default.fileExists(atPath: file.path),
+      file.sizeOf + contents.utf8.count < maxFileSize {
       update(file, message: contents)
       return file
     }

@@ -204,9 +204,16 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               customMessageType: message.customMessageType,
               error: error
             )
-            PubNub.log.warn("History message failed to decrypt due to \(error)")
+            PubNub.log.warn(
+              "History message failed to decrypt due to \(error)",
+              category: LogCategory.crypto.rawValue
+            )
           }
         } else {
+          let error = PubNubError(
+            PubNubError.Reason.decryptionFailure,
+            additional: ["Cannot decrypt message due to invalid Base-64 input"]
+          )
           messages[index] = MessageHistoryMessagePayload(
             message: message.message,
             timetoken: message.timetoken,
@@ -214,10 +221,11 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
             uuid: message.uuid,
             messageType: message.messageType,
             customMessageType: message.customMessageType,
-            error: PubNubError(
-              .decryptionFailure,
-              additional: ["Cannot decrypt message due to invalid Base-64 input"]
-            )
+            error: error
+          )
+          PubNub.log.warn(
+            "History message failed to decrypt due to \(error)",
+            category: LogCategory.crypto.rawValue
           )
         }
       }

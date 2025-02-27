@@ -91,7 +91,7 @@ public struct PubNubLogger {
   }
 
   public func debug(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -114,7 +114,7 @@ public struct PubNubLogger {
   }
 
   public func info(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -126,7 +126,7 @@ public struct PubNubLogger {
     send(
       .info,
       category: category,
-      message: message(),
+      message: message,
       date: date,
       queue: queue,
       thread: thread,
@@ -137,7 +137,7 @@ public struct PubNubLogger {
   }
 
   public func event(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -149,7 +149,7 @@ public struct PubNubLogger {
     send(
       .event,
       category: category,
-      message: message(),
+      message: message,
       date: date,
       queue: queue,
       thread: thread,
@@ -160,7 +160,7 @@ public struct PubNubLogger {
   }
 
   public func warn(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -171,7 +171,7 @@ public struct PubNubLogger {
   ) {
     send(
       .warn,
-      message: message(),
+      message: message,
       date: date,
       queue: queue,
       thread: thread,
@@ -182,7 +182,7 @@ public struct PubNubLogger {
   }
 
   public func error(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -194,7 +194,7 @@ public struct PubNubLogger {
     send(
       .error,
       category: category,
-      message: message(),
+      message: message,
       date: date,
       queue: queue,
       thread: thread,
@@ -206,7 +206,7 @@ public struct PubNubLogger {
 
   public func custom(
     _ level: LogType,
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
     category: String? = nil,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -232,7 +232,7 @@ public struct PubNubLogger {
   public func send(
     _ level: LogType,
     category: String? = nil,
-    message: @autoclosure () -> Any,
+    message: @escaping @autoclosure () -> Any,
     date: Date,
     queue: String,
     thread: String,
@@ -245,23 +245,24 @@ public struct PubNubLogger {
     }
 
     for writer in writers {
-      let prefix = writer.format(
-        prefix: writer.prefix,
-        category: category,
-        level: level,
-        date: date,
-        queue: queue,
-        thread: thread,
-        file: file,
-        function: function,
-        line: line
-      )
-
-      let fullMessage = prefix.isEmpty ? "\(message())" : "\(prefix)\(message())"
+      let fullMessage = {
+        let prefix = writer.format(
+          prefix: writer.prefix,
+          category: category,
+          level: level,
+          date: date,
+          queue: queue,
+          thread: thread,
+          file: file,
+          function: function,
+          line: line
+        )
+        return prefix.isEmpty ? "\(message())" : "\(prefix)\(message())"
+      }
 
       writer.executor.execute {
         writer.send(
-          message: fullMessage,
+          message: fullMessage(),
           with: level,
           and: category
         )

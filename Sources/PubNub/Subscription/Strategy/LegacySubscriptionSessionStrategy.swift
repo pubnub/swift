@@ -340,10 +340,16 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
           switch result {
           case .success:
             if !channels.isEmpty {
-              PubNub.log.info("Presence Leave Successful on channels \(channels.map { $0.id })")
+              PubNub.log.info(
+                "Presence Leave Successful on channels \(channels.map { $0.id })",
+                category: LogCategory.pubNub.rawValue
+              )
             }
             if !groups.isEmpty {
-              PubNub.log.info("Presence Leave Successful on groups \(groups.map { $0.id })")
+              PubNub.log.info(
+                "Presence Leave Successful on groups \(groups.map { $0.id })",
+                category: LogCategory.pubNub.rawValue
+              )
             }
           case let .failure(error):
             self?.notify {

@@ -160,7 +160,10 @@ public class CryptoInputStream: InputStream {
   ) {
     // Create a stream from the content source
     guard let plaintextStream = InputStream(url: url) else {
-      PubNub.log.error("Could not create `SecureInputStream` due to underlying InputStream(url:) failing for \(url)")
+      PubNub.log.error(
+        "Could not create `SecureInputStream` due to underlying InputStream(url:) failing for \(url)",
+        category: LogCategory.crypto.rawValue
+      )
       return nil
     }
 

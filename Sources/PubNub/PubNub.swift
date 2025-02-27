@@ -61,7 +61,7 @@ public class PubNub {
     self.presenceStateContainer = container.presenceStateContainer
 
     PubNub.log.debug(
-      "Did create PubNub instance with \(instanceID) and configuration \(configuration)",
+      "Did create PubNub instance with \(self.instanceID) and configuration \(self.configuration)",
       category: LogCategory.pubNub.rawValue
     )
   }
@@ -1755,7 +1755,7 @@ public extension PubNub {
       )
       PubNub.log.debug(
         "Encryption of String failed due to \(ErrorDescription.missingCryptoKey)",
-        category: LogCategory.crypto.rawValue
+        category: LogCategory.pubNub.rawValue
       )
       return .failure(CryptoError.invalidKey)
     }

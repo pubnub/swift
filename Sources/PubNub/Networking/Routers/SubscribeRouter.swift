@@ -165,7 +165,10 @@ struct SubscribeDecoder: ResponseDecoder {
         message.payload = AnyJSON(reverse: decodedString)
         return message
       case .failure(let error):
-        PubNub.log.warn("Subscribe message failed to decrypt due to \(error)")
+        PubNub.log.warn(
+          "Subscribe message failed to decrypt due to \(error)",
+          category: LogCategory.crypto.rawValue
+        )
         message.error = error
         return message
       }

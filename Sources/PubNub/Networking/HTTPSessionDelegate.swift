@@ -21,7 +21,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
     PubNub.log.warn(
-      "Session Invalidated \(String(describing: sessionBridge?.sessionID))",
+      "Session Invalidated \(String(describing: self.sessionBridge?.sessionID))",
       category: LogCategory.networking.rawValue
     )
 

@@ -216,13 +216,13 @@ struct RegisteredPushChannelsResponseDecoder: ResponseDecoder {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
-      let pushListPayload = RegisteredPushChannelsPayloadResponse(channels: stringArray)
-
-      let decodedResponse = EndpointResponse<RegisteredPushChannelsPayloadResponse>(router: response.router,
-                                                                                    request: response.request,
-                                                                                    response: response.response,
-                                                                                    data: response.data,
-                                                                                    payload: pushListPayload)
+      let decodedResponse = EndpointResponse<RegisteredPushChannelsPayloadResponse>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: RegisteredPushChannelsPayloadResponse(channels: stringArray)
+      )
 
       return .success(decodedResponse)
     } catch {
@@ -238,23 +238,24 @@ struct ModifyPushResponseDecoder: ResponseDecoder {
     do {
       let anyJSONPayload = try Constant.jsonDecoder.decode(AnyJSON.self, from: response.payload)
 
-      guard let anyArray = anyJSONPayload.arrayOptional,
-            anyArray.first as? Int != nil, anyArray.last as? String != nil
-      else {
+      guard let anyArray = anyJSONPayload.arrayOptional, anyArray.first is Int, anyArray.last is String else {
         return .failure(PubNubError(.malformedResponseBody, response: response))
       }
 
       let endpoint = (response.router as? PushRouter)?.endpoint
+
       let payload = ModifiedPushChannelsPayloadResponse(
         added: endpoint?.addedChannels ?? [],
         removed: endpoint?.removedChannels ?? []
       )
 
-      let decodedResponse = EndpointResponse<ModifiedPushChannelsPayloadResponse>(router: response.router,
-                                                                                  request: response.request,
-                                                                                  response: response.response,
-                                                                                  data: response.data,
-                                                                                  payload: payload)
+      let decodedResponse = EndpointResponse<ModifiedPushChannelsPayloadResponse>(
+        router: response.router,
+        request: response.request,
+        response: response.response,
+        data: response.data,
+        payload: payload
+      )
 
       return .success(decodedResponse)
     } catch {

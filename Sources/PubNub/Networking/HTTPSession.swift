@@ -31,7 +31,7 @@ public final class HTTPSession {
   /// The `RequestOperator` that is attached to every request
   public var defaultRequestOperator: RequestOperator?
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
-  var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
+  let taskToRequest: Atomic<[URLSessionTask: RequestReplaceable]> = Atomic([:])
   /// Default HTTPSession configuration for PubNub REST endpoints
   static var pubnub = HTTPSession(configuration: .pubnub)
 
@@ -88,10 +88,12 @@ public final class HTTPSession {
   }
 
   deinit {
-    PubNub.log.debug("Session Destroyed \(sessionID) with active requests \(taskToRequest.values.map { $0.requestID })")
+    PubNub.log.debug("Session Destroyed \(sessionID) with active requests \((taskToRequest.lockedRead { $0 }).values.map { $0.requestID })")
 
-    for value in taskToRequest.values {
-      value.cancel(PubNubError(.sessionDeinitialized, router: value.router))
+    taskToRequest.lockedRead {
+      $0.values.forEach {
+        $0.cancel(PubNubError(.sessionDeinitialized, router: $0.router))
+      }
     }
     invalidateAndCancel()
   }
@@ -203,7 +205,7 @@ public final class HTTPSession {
     // so we lock to avoid crashes from creating tasks while invalidated
     if !isInvalidated {
       let task = session.dataTask(with: urlRequestCopy)
-      taskToRequest[task] = request
+      taskToRequest.lockedWrite { $0[task] = request }
       request.didCreate(task)
     } else {
       PubNub.log.warn("Attempted to create task from invalidated session: \(sessionID)")

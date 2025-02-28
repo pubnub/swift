@@ -24,7 +24,6 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
     // Set invalidated in case this happened unexpectedly
     sessionBridge?.isInvalidated = true
-
     sessionBridge?.sessionInvalidated(with: error)
   }
 
@@ -47,7 +46,6 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
     // Remove request/task from list
     sessionBridge?.didComplete(task)
-
     sessionBridge?.sessionStream?.emitURLSession(session, task: task, didCompleteWith: error)
   }
 
@@ -67,7 +65,6 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
   ) {
     sessionBridge?.sessionStream?.emitURLSession(session, didReceive: challenge)
-
     completionHandler(.performDefaultHandling, nil)
   }
 }
@@ -93,21 +90,24 @@ protocol SessionStateBridge: AnyObject {
 
 extension HTTPSession: SessionStateBridge {
   func request(for task: URLSessionTask) -> RequestReplaceable? {
-    return taskToRequest[task]
+    taskToRequest.lockedRead { $0[task] }
   }
 
   func didComplete(_ task: URLSessionTask) {
     // Cleanup the task/requst map
-    taskToRequest.removeValue(forKey: task)
+    taskToRequest.lockedWrite { $0.removeValue(forKey: task) }
   }
 
   func sessionInvalidated(with error: Error?) {
     // Notify the requests that the tasks have been invalidated
-    taskToRequest.values.forEach {
-      $0.cancel(PubNubError(.sessionInvalidated, router: $0.router, underlying: error))
+    taskToRequest.lockedRead {
+      $0.values.forEach {
+        $0.cancel(PubNubError(.sessionInvalidated, router: $0.router, underlying: error))
+      }
     }
-
     // Clean up the task dictionary
-    taskToRequest.removeAll()
+    taskToRequest.lockedWrite {
+      $0.removeAll()
+    }
   }
 }

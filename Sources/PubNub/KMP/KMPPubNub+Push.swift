@@ -30,13 +30,21 @@ extension KMPPubNub {
       return nil
     }
   }
+
+  func data(from deviceId: String, for pushService: PubNub.PushService) -> Data? {
+    if pushService == .apns {
+      Data(hexEncodedString: deviceId)
+    } else {
+      deviceId.data(using: .utf8)
+    }
+  }
 }
 
 @objc
 public extension KMPPubNub {
   func addChannelsToPushNotifications(
     channels: [String],
-    deviceId: Data,
+    deviceId: String,
     pushType: String,
     topic: String,
     environment: String,
@@ -61,9 +69,18 @@ public extension KMPPubNub {
       ))
       return
     }
+    guard let deviceIdData = data(from: deviceId, for: pushService) else {
+      onFailure(KMPError(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid deviceId"]
+        )
+      ))
+      return
+    }
 
     if !topic.isEmpty {
-      pubnub.addAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
+      pubnub.addAPNSDevicesOnChannels(channels, device: deviceIdData, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -72,7 +89,7 @@ public extension KMPPubNub {
         }
       }
     } else {
-      pubnub.addPushChannelRegistrations(channels, for: deviceId, of: pushService) {
+      pubnub.addPushChannelRegistrations(channels, for: deviceIdData, of: pushService) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -84,7 +101,7 @@ public extension KMPPubNub {
   }
 
   func listPushChannels(
-    deviceId: Data,
+    deviceId: String,
     pushType: String,
     topic: String,
     environment: String,
@@ -109,9 +126,18 @@ public extension KMPPubNub {
       ))
       return
     }
+    guard let deviceIdData = data(from: deviceId, for: pushService) else {
+      onFailure(KMPError(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid deviceId"]
+        )
+      ))
+      return
+    }
 
     if !topic.isEmpty {
-      pubnub.listAPNSPushChannelRegistrations(for: deviceId, on: topic, environment: environment) {
+      pubnub.listAPNSPushChannelRegistrations(for: deviceIdData, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -120,7 +146,7 @@ public extension KMPPubNub {
         }
       }
     } else {
-      pubnub.listPushChannelRegistrations(for: deviceId, of: pushService) {
+      pubnub.listPushChannelRegistrations(for: deviceIdData, of: pushService) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -133,7 +159,7 @@ public extension KMPPubNub {
 
   func removeChannelsFromPush(
     channels: [String],
-    deviceId: Data,
+    deviceId: String,
     pushType: String,
     topic: String,
     environment: String,
@@ -158,9 +184,18 @@ public extension KMPPubNub {
       ))
       return
     }
+    guard let deviceIdData = data(from: deviceId, for: pushService) else {
+      onFailure(KMPError(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid deviceId"]
+        )
+      ))
+      return
+    }
 
     if !topic.isEmpty {
-      pubnub.removeAPNSDevicesOnChannels(channels, device: deviceId, on: topic, environment: environment) {
+      pubnub.removeAPNSDevicesOnChannels(channels, device: deviceIdData, on: topic, environment: environment) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -169,7 +204,7 @@ public extension KMPPubNub {
         }
       }
     } else {
-      pubnub.removePushChannelRegistrations(channels, for: deviceId, of: pushService) {
+      pubnub.removePushChannelRegistrations(channels, for: deviceIdData, of: pushService) {
         switch $0 {
         case .success(let channels):
           onSuccess(channels)
@@ -183,7 +218,7 @@ public extension KMPPubNub {
 
   func removeAllChannelsFromPush(
     pushType: String,
-    deviceId: Data,
+    deviceId: String,
     topic: String,
     environment: String,
     onSuccess: @escaping (() -> Void),
@@ -207,9 +242,18 @@ public extension KMPPubNub {
       ))
       return
     }
+    guard let deviceIdData = data(from: deviceId, for: pushService) else {
+      onFailure(KMPError(
+        underlying: PubNubError(
+          .invalidArguments,
+          additional: ["Invalid deviceId"]
+        )
+      ))
+      return
+    }
 
     if !topic.isEmpty {
-      pubnub.removeAllAPNSPushDevice(for: deviceId, on: topic, environment: environment) {
+      pubnub.removeAllAPNSPushDevice(for: deviceIdData, on: topic, environment: environment) {
         switch $0 {
         case .success:
           onSuccess()
@@ -218,7 +262,7 @@ public extension KMPPubNub {
         }
       }
     } else {
-      pubnub.removeAllPushChannelRegistrations(for: deviceId, of: pushService) {
+      pubnub.removeAllPushChannelRegistrations(for: deviceIdData, of: pushService) {
         switch $0 {
         case .success:
           onSuccess()

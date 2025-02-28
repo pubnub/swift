@@ -245,7 +245,7 @@ public struct PubNubLogger {
     }
 
     for writer in writers {
-      let fullMessage = {
+      var fullMessage = {
         let prefix = writer.format(
           prefix: writer.prefix,
           category: category,
@@ -267,6 +267,8 @@ public struct PubNubLogger {
           and: category
         )
       }
+
+      fullMessage = { "" }
     }
   }
 

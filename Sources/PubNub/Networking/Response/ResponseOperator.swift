@@ -105,7 +105,7 @@ extension Request {
       queue.async {
         PubNub.log.debug(
           "Deserializing response for \(requestID)",
-          category: LogCategory.networking.rawValue
+          category: .networking
         )
         let deserializationResult = result.flatMap { response in
           // Decode the data response into the correct data type
@@ -118,12 +118,12 @@ extension Request {
         case .success:
           PubNub.log.debug(
             "Response deserialized successfully for \(requestID)",
-            category: LogCategory.networking.rawValue
+            category: .networking
           )
         case let .failure(error):
           PubNub.log.debug(
             "Deserialization of content for \(requestID) failed due to \(error)",
-            category: LogCategory.networking.rawValue
+            category: .networking
           )
         }
         completion(deserializationResult)

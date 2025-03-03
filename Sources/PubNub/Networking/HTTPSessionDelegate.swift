@@ -22,7 +22,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
     PubNub.log.warn(
       "Session Invalidated \(String(describing: self.sessionBridge?.sessionID))",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     // Set invalidated in case this happened unexpectedly
@@ -36,7 +36,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     guard let request = sessionBridge?.request(for: task) else {
       PubNub.log.warn(
         "Cannot find matching RequestReplaceable for URLSessionTask",
-        category: LogCategory.networking.rawValue
+        category: .networking
       )
       return
     }

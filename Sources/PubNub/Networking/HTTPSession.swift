@@ -55,7 +55,7 @@ public final class HTTPSession {
 
     PubNub.log.debug(
       "Session created \(self.sessionID)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     delegate.sessionBridge = self
@@ -211,7 +211,7 @@ public final class HTTPSession {
     } else {
       PubNub.log.warn(
         "Attempted to create task from invalidated session: \(self.sessionID)",
-        category: LogCategory.networking.rawValue
+        category: .networking
       )
     }
   }
@@ -261,7 +261,7 @@ extension HTTPSession: RequestDelegate {
 
     PubNub.log.info(
       "Retrying request \(request.requestID) due to error \(error)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in

@@ -52,7 +52,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     invocations.forEach {
       PubNub.log.debug(
         "Received invocation \($0)",
-        category: LogCategory.eventEngine.rawValue
+        category: .eventEngine
       )
       switch $0 {
       case .managed(let invocation):
@@ -85,7 +85,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     )
     PubNub.log.debug(
       "Dispatching effect \(effect)",
-      category: LogCategory.eventEngine.rawValue
+      category: .eventEngine
     )
     effect.performTask { [weak effectsCache] results in
       effectsCache?.removeEffect(id: id)

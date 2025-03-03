@@ -62,7 +62,7 @@ public class PubNub {
 
     PubNub.log.debug(
       "Did create PubNub instance with \(self.instanceID) and configuration \(self.configuration)",
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
   }
 
@@ -193,7 +193,7 @@ public extension PubNub {
   ) {
     PubNub.log.debug(
       String.formattedDescription("Executing time", arguments: [("custom", requestConfig)]),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
     route(
       TimeRouter(.time, configuration: requestConfig.customConfiguration ?? configuration),
@@ -251,7 +251,7 @@ public extension PubNub {
           ("shouldCompress", shouldCompress),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     let router: PublishRouter
@@ -327,7 +327,7 @@ public extension PubNub {
           ("meta", meta?.jsonStringify ?? "nil"),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     route(
@@ -369,7 +369,7 @@ public extension PubNub {
           ("customMessageType", customMessageType ?? "nil"),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     route(
@@ -411,7 +411,7 @@ public extension PubNub {
           ("at", timetoken ?? "nil"),
           ("withPresence", withPresence)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     subscription.subscribe(
@@ -438,7 +438,7 @@ public extension PubNub {
           ("and", channelGroups),
           ("presenceOnly", presenceOnly)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
     subscription.unsubscribe(
       from: channels,
@@ -451,7 +451,7 @@ public extension PubNub {
   func unsubscribeAll() {
     PubNub.log.debug(
       String.formattedDescription("Executing unsubscribeAll()"),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
     subscription.unsubscribeAll()
   }
@@ -460,7 +460,7 @@ public extension PubNub {
   func disconnect() {
     PubNub.log.debug(
       String.formattedDescription("Executing disconnect()"),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
     subscription.disconnect()
   }
@@ -604,7 +604,7 @@ public extension PubNub {
           ("and", groups),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     let router = PresenceRouter(
@@ -654,7 +654,7 @@ public extension PubNub {
           ("and", groups),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     let router = PresenceRouter(
@@ -705,7 +705,7 @@ public extension PubNub {
           ("includeState", includeState),
           ("custom", requestConfig)
         ]
-      ), category: LogCategory.pubNub.rawValue
+      ), category: .pubNub
     )
 
     let router: PresenceRouter
@@ -755,7 +755,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
     route(
       PresenceRouter(.whereNow(uuid: uuid), configuration: requestConfig.customConfiguration ?? configuration),
@@ -789,7 +789,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -823,7 +823,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -860,7 +860,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -900,7 +900,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -940,7 +940,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -984,7 +984,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1030,7 +1030,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router = PushRouter(
@@ -1120,7 +1120,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1163,7 +1163,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1212,7 +1212,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router = PushRouter(
@@ -1320,7 +1320,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1387,7 +1387,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router: HistoryRouter
@@ -1467,7 +1467,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1503,7 +1503,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
     let router = HistoryRouter(
       .messageCounts(channels: channels.map { $0.key }, timetoken: nil, channelsTimetoken: channels.map { $0.value }),
@@ -1544,7 +1544,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router = HistoryRouter(
@@ -1590,7 +1590,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     route(
@@ -1644,7 +1644,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router = MessageActionsRouter(
@@ -1703,7 +1703,7 @@ public extension PubNub {
           ("custom", requestConfig)
         ]
       ),
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     let router = MessageActionsRouter(
@@ -1745,24 +1745,24 @@ public extension PubNub {
   func encrypt(message: String) -> Result<Data, Error> {
     PubNub.log.debug(
       "Encrypting String",
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(
         ErrorDescription.missingCryptoKey,
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       PubNub.log.debug(
         "Encryption of String failed due to \(ErrorDescription.missingCryptoKey)",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let dataMessage = message.data(using: .utf8) else {
       PubNub.log.debug(
         "Encryption of String failed due to \("invalid UTF-8 encoded String")",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return .failure(CryptoError.decodeError)
     }
@@ -1777,12 +1777,12 @@ public extension PubNub {
     case .success:
       PubNub.log.debug(
         "String encrypted successfully",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
     case let .failure(error):
       PubNub.log.debug(
         "Encryption of String failed due to \(error)",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
     }
 
@@ -1795,24 +1795,24 @@ public extension PubNub {
   func decrypt(data: Data) -> Result<String, Error> {
     PubNub.log.debug(
       "Decrypting Data",
-      category: LogCategory.pubNub.rawValue
+      category: .pubNub
     )
 
     guard let cryptoModule = configuration.cryptoModule else {
       PubNub.log.error(
         ErrorDescription.missingCryptoKey,
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       PubNub.log.debug(
         "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
       PubNub.log.error(
         "Decryption of Data failed due to \("invalid Base64-encoded Data")",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return .failure(CryptoError.decodeError)
     }
@@ -1832,12 +1832,12 @@ public extension PubNub {
     case .success:
       PubNub.log.debug(
         "Data decrypted successfully",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
     case let .failure(error):
       PubNub.log.debug(
         "Decryption of Data failed due to \(error)",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
     }
 

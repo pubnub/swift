@@ -39,7 +39,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
     guard let unescapedToken = token.unescapedPAMToken else {
       PubNub.log.warn(
         "PAM Token `\(token)` was not able to be properly escaped.",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return nil
     }
@@ -47,7 +47,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
     guard let tokenData = Data(base64Encoded: unescapedToken) else {
       PubNub.log.warn(
         "PAM Token `\(token)` was not a valid Base64-encoded string",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return nil
     }
@@ -61,7 +61,7 @@ public struct PAMToken: Codable, Equatable, Hashable {
     } catch {
       PubNub.log.error(
         "PAM Token `\(token.hexEncodedString)` was not valid CBOR due to: \(error.localizedDescription)",
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return nil
     }

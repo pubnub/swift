@@ -206,7 +206,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
             )
             PubNub.log.warn(
               "History message failed to decrypt due to \(error)",
-              category: LogCategory.crypto.rawValue
+              category: .crypto
             )
           }
         } else {
@@ -225,7 +225,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
           )
           PubNub.log.warn(
             "History message failed to decrypt due to \(error)",
-            category: LogCategory.crypto.rawValue
+            category: .crypto
           )
         }
       }

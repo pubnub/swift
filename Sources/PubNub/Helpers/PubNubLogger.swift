@@ -92,7 +92,7 @@ public struct PubNubLogger {
 
   public func debug(
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -115,7 +115,7 @@ public struct PubNubLogger {
 
   public func info(
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -138,7 +138,7 @@ public struct PubNubLogger {
 
   public func event(
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -161,7 +161,7 @@ public struct PubNubLogger {
 
   public func warn(
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -183,7 +183,7 @@ public struct PubNubLogger {
 
   public func error(
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -207,7 +207,7 @@ public struct PubNubLogger {
   public func custom(
     _ level: LogType,
     _ message: @escaping @autoclosure () -> Any,
-    category: String? = nil,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -228,10 +228,48 @@ public struct PubNubLogger {
     )
   }
 
+  public func format(
+    prefix: LogPrefix,
+    category: LogCategory,
+    level: LogType,
+    date: Date,
+    queue: String,
+    thread: String,
+    file: String,
+    function: String,
+    line: Int
+  ) -> String {
+    var prefixString = ""
+
+    let categoryStr = if prefix.contains(.category) {
+      "[\(category.rawValue)]"
+    } else {
+      ""
+    }
+
+    if prefix == .none {
+      return prefixString
+    }
+    if prefix.contains(.level) {
+      prefixString = "\(level.description) "
+    }
+    if prefix.contains(.date) {
+      prefixString = "\(prefixString)\(DateFormatter.iso8601.string(from: date)) "
+    }
+    if prefix.contains(.queue) || prefix.contains(.thread) {
+      prefixString = "\(prefixString)(\(queue)#\(thread)) "
+    }
+    if prefix.contains(.file) || prefix.contains(.function) || prefix.contains(.line) {
+      prefixString = "\(prefixString){\(file.absolutePathFilename).\(function)#\(line)} "
+    }
+
+    return categoryStr + "[\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))] "
+  }
+
   // swiftlint:disable:next function_parameter_count
   public func send(
     _ level: LogType,
-    category: String? = nil,
+    category: LogCategory = .none,
     message: @escaping @autoclosure () -> Any,
     date: Date,
     queue: String,
@@ -246,7 +284,7 @@ public struct PubNubLogger {
 
     for writer in writers {
       var fullMessage = {
-        let prefix = writer.format(
+        let prefix = format(
           prefix: writer.prefix,
           category: category,
           level: level,

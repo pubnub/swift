@@ -248,7 +248,7 @@ private extension AutomaticRetry {
     guard condition else {
       PubNub.log.warn(
         message,
-        category: LogCategory.pubNub.rawValue
+        category: .pubNub
       )
       return replaceOnFailure
     }

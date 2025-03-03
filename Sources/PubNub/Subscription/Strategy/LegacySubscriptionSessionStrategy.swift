@@ -342,13 +342,13 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
             if !channels.isEmpty {
               PubNub.log.info(
                 "Presence Leave Successful on channels \(channels.map { $0.id })",
-                category: LogCategory.pubNub.rawValue
+                category: .pubNub
               )
             }
             if !groups.isEmpty {
               PubNub.log.info(
                 "Presence Leave Successful on groups \(groups.map { $0.id })",
-                category: LogCategory.pubNub.rawValue
+                category: .pubNub
               )
             }
           case let .failure(error):

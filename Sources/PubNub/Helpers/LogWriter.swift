@@ -13,8 +13,8 @@ import os
 
 // MARK: - Log Category
 
-/// Reserverd category types
-enum LogCategory: String {
+/// Reserverd PubNub log category types
+public enum LogCategory: String {
   case none = "None"
   case eventEngine = "EventEngine"
   case networking = "Networking"
@@ -43,64 +43,8 @@ public protocol LogWriter {
   /// - Parameters:
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
   ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
-  ///   - category: An optional category to classify the log message
-  func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory: String?)
-}
-
-public extension LogWriter {
-  /// Generates a log prefix based on the specified logging details.
-  ///
-  /// This method constructs a default log prefix by checking which metadata elements (e.g., file name, function name, line number, thread) are enabled
-  /// in the provided `prefix:` parameter. If a detail is included in the mask, it is appended to the final log prefix.
-  ///
-  /// - Parameters:
-  ///   - prefix: A bitmask specifying which details should be included in the prefix
-  ///   - category: An optional category to classify the log message
-  ///   - level: The severity level of the log
-  ///   - date: A timestamp for when the log entry was created
-  ///   - queue: The label of the current `DispatchQueue` or `"Unknown Queue"` if no label was found
-  ///   - thread: A thread name
-  ///   - file: The source file name where the log statement was executed
-  ///   - function: The function name where the log statement was called
-  ///   - line: The line number in the source file
-  /// - Returns: A formatted string containing the selected log details
-  func format(
-    prefix: LogPrefix,
-    category: String?,
-    level: LogType,
-    date: Date,
-    queue: String,
-    thread: String,
-    file: String,
-    function: String,
-    line: Int
-  ) -> String {
-    var prefixString = ""
-
-    let categoryStr = if let category, prefix.contains(.category) {
-      "[\(category.description)]"
-    } else {
-      ""
-    }
-
-    if prefix == .none {
-      return prefixString
-    }
-    if prefix.contains(.level) {
-      prefixString = "\(level.description) "
-    }
-    if prefix.contains(.date) {
-      prefixString = "\(prefixString)\(DateFormatter.iso8601.string(from: date)) "
-    }
-    if prefix.contains(.queue) || prefix.contains(.thread) {
-      prefixString = "\(prefixString)(\(queue)#\(thread)) "
-    }
-    if prefix.contains(.file) || prefix.contains(.function) || prefix.contains(.line) {
-      prefixString = "\(prefixString){\(file.absolutePathFilename).\(function)#\(line)} "
-    }
-
-    return categoryStr + "[\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))] "
-  }
+  ///   - category: A category to classify the log message
+  func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory: LogCategory)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -150,7 +94,7 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
     if sendToNSLog {
       NSLog("%@", message())
     } else {
@@ -220,7 +164,7 @@ open class FileLogWriter: LogWriter {
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
 
@@ -308,14 +252,8 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
-    let finalLoggerCategory = if let category {
-      LogCategory(rawValue: category) ?? .none
-    } else {
-      LogCategory.none
-    }
-
-    let finalLogger = switch finalLoggerCategory {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
+    let finalLogger = switch category {
     case .eventEngine:
       Logger.eventEngine
     case .networking:

@@ -167,7 +167,7 @@ struct SubscribeDecoder: ResponseDecoder {
       case .failure(let error):
         PubNub.log.warn(
           "Subscribe message failed to decrypt due to \(error)",
-          category: LogCategory.crypto.rawValue
+          category: .crypto
         )
         message.error = error
         return message

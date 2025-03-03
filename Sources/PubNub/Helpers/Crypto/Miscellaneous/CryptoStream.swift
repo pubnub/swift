@@ -104,7 +104,7 @@ public class CryptoStream {
     if rawStatus != kCCSuccess {
       PubNub.log.error(
         "CryptoStream CCCryptoRelease failed with status \(rawStatus)",
-        category: LogCategory.crypto.rawValue
+        category: .crypto
       )
     }
 

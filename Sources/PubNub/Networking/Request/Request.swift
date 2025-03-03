@@ -100,14 +100,14 @@ final class Request {
 
     PubNub.log.info(
       "Request Created \(self.requestID) on \(router)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
   }
 
   deinit {
     PubNub.log.info(
       "Request Destroyed \(self.requestID)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     let currentState = atomicState.lockedRead { $0 }
@@ -199,7 +199,7 @@ final class Request {
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
     PubNub.log.debug(
       "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     error = mutatorError
@@ -268,7 +268,7 @@ final class Request {
   func didResume(_ task: URLSessionTask) {
     PubNub.log.debug(
       "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
     sessionStream?.emitRequest(
       self,
@@ -277,7 +277,7 @@ final class Request {
   }
 
   func didCancel(_ task: URLSessionTask) {
-    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: LogCategory.networking.rawValue)
+    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
@@ -286,7 +286,7 @@ final class Request {
       "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
       "content \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     // Process the Validators for any additional errors
@@ -306,7 +306,7 @@ final class Request {
       "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
       "content: \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
-      category: LogCategory.networking.rawValue
+      category: .networking
     )
 
     self.error = PubNubError.sessionDelegate(error, router: router)
@@ -352,7 +352,7 @@ final class Request {
       }
       PubNub.log.error(
         "Request \(self.requestID) failed with error \(error) \(responseMessage)",
-        category: LogCategory.networking.rawValue
+        category: .networking
       )
     }
 

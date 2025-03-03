@@ -44,7 +44,7 @@ public protocol LogWriter {
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
   ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
   ///   - category: An optional category to classify the log message
-  func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String?)
+  func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory: String?)
 }
 
 public extension LogWriter {
@@ -150,7 +150,7 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String? = nil) {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
     if sendToNSLog {
       NSLog("%@", message())
     } else {
@@ -220,7 +220,7 @@ open class FileLogWriter: LogWriter {
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String? = nil) {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
 
@@ -308,7 +308,7 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> String, with logType: LogType, and category: String? = nil) {
+  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: String? = nil) {
     let finalLoggerCategory = if let category {
       LogCategory(rawValue: category) ?? .none
     } else {

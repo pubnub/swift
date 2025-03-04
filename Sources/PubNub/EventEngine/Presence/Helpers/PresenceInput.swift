@@ -56,3 +56,9 @@ struct PresenceInput: Equatable {
     return equalChannels && equalGroups
   }
 }
+
+extension PresenceInput: CustomStringConvertible {
+  var description: String {
+    String.formattedDescription(self, arguments: [("channels", channelsSet), ("groups", groups)])
+  }
+}

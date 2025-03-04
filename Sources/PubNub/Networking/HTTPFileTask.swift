@@ -327,7 +327,8 @@ public class HTTPFileDownloadTask: HTTPFileTask {
       completionBlock?(.success(destinationURL))
     } catch {
       PubNub.log.warn(
-        "Could not move file to \(destinationURL.absoluteString) due to \(error.localizedDescription)"
+        "Could not move file to \(self.destinationURL.absoluteString) due to \(error.localizedDescription)",
+        category: .networking
       )
       // Set the error to alert that even though a file was retrieved the destination is wrong
       responseError = error
@@ -432,7 +433,8 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: temporaryURL)
     } catch {
       PubNub.log.warn(
-        "Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)"
+        "Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)",
+        category: .networking
       )
       didError?(session, downloadTask, error)
       tasksByIdentifier[downloadTask.taskIdentifier]?.didError(error)

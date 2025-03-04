@@ -53,7 +53,10 @@ public final class HTTPSession {
     self.delegate = delegate
     self.sessionStream = sessionStream
 
-    PubNub.log.debug("Session created \(sessionID)")
+    PubNub.log.debug(
+      "Session created \(self.sessionID)",
+      category: .networking
+    )
 
     delegate.sessionBridge = self
   }
@@ -88,7 +91,7 @@ public final class HTTPSession {
   }
 
   deinit {
-    PubNub.log.debug("Session Destroyed \(sessionID) with active requests \(taskToRequest.values.map { $0.requestID })")
+    PubNub.log.debug("Session Destroyed \(self.sessionID) with active requests \(self.taskToRequest.values.map { $0.requestID })")
 
     for value in taskToRequest.values {
       value.cancel(PubNubError(.sessionDeinitialized, router: value.router))
@@ -206,7 +209,10 @@ public final class HTTPSession {
       taskToRequest[task] = request
       request.didCreate(task)
     } else {
-      PubNub.log.warn("Attempted to create task from invalidated session: \(sessionID)")
+      PubNub.log.warn(
+        "Attempted to create task from invalidated session: \(self.sessionID)",
+        category: .networking
+      )
     }
   }
 
@@ -253,7 +259,10 @@ extension HTTPSession: RequestDelegate {
       return
     }
 
-    PubNub.log.info("Retrying request \(request.requestID) due to error \(error)")
+    PubNub.log.info(
+      "Retrying request \(request.requestID) due to error \(error)",
+      category: .networking
+    )
 
     retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in
       self?.sessionQueue.async {

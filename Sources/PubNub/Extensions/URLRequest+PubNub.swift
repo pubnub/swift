@@ -77,3 +77,26 @@ public extension URLRequest {
     )
   }
 }
+
+extension URLRequest {
+  // Returns a formatted string describing the details of a `URLRequest`
+  func formattedDescription() -> String {
+    guard let url = url else {
+      return "No URL found in request"
+    }
+
+    var debugString = ""
+    debugString += (method?.rawValue ?? "UNKNOWN_HTTP_METHOD") + " "
+    debugString += "headers " + (allHTTPHeaderFields?.map { "\($0.key): \($0.value)" }.joined(separator: ", ") ?? "") + " "
+    debugString += url.absoluteString + " "
+    debugString += "with body: "
+
+    if let httpBody = httpBody {
+      debugString += "\(String(data: httpBody, encoding: .utf8) ?? "(Cannot decode `httpBody` as UTF-8 string`)")"
+    } else {
+      debugString += "no HTTP body"
+    }
+
+    return debugString
+  }
+}

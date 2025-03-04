@@ -17,12 +17,9 @@ public struct PAMToken: Codable, Equatable, Hashable {
   public let timestamp: Int
   public let ttl: Int
   public let authorizedUUID: String?
-
   public let resources: PAMTokenResource
   public let patterns: PAMTokenResource
-
   public let meta: [String: AnyJSON]
-
   public let signature: String
 
   public fileprivate(set) var rawValue: String = ""
@@ -40,12 +37,18 @@ public struct PAMToken: Codable, Equatable, Hashable {
 
   static func token(from token: String) -> PAMToken? {
     guard let unescapedToken = token.unescapedPAMToken else {
-      PubNub.log.warn("PAM Token `\(token)` was not able to be properly escaped.")
+      PubNub.log.warn(
+        "PAM Token `\(token)` was not able to be properly escaped.",
+        category: .pubNub
+      )
       return nil
     }
 
     guard let tokenData = Data(base64Encoded: unescapedToken) else {
-      PubNub.log.warn("PAM Token `\(token)` was not a valid base64 encoded string")
+      PubNub.log.warn(
+        "PAM Token `\(token)` was not a valid Base64-encoded string",
+        category: .pubNub
+      )
       return nil
     }
 
@@ -56,7 +59,10 @@ public struct PAMToken: Codable, Equatable, Hashable {
     do {
       return try CBORDecoder().decode(PAMToken.self, from: token)
     } catch {
-      PubNub.log.error("PAM Token `\(token.hexEncodedString)` was not valid CBOR due to: \(error.localizedDescription)")
+      PubNub.log.error(
+        "PAM Token `\(token.hexEncodedString)` was not valid CBOR due to: \(error.localizedDescription)",
+        category: .pubNub
+      )
       return nil
     }
   }

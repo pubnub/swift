@@ -1,9 +1,20 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "8.3.1"
+version: "9.0.0"
 schema: 1
 changelog:
+  - date: 2025-03-04
+    version: 9.0.0
+    changes:
+      - type: feature
+        text: "Add `OSLogWriter` as the recommended `LogWriter` to use."
+      - type: feature
+        text: "Refine `LogWriter` protocol signature to support built-in `Logger` from the `os` framework."
+      - type: feature
+        text: "Enhance object descriptions with `CustomStringConvertible`."
+      - type: feature
+        text: "Add explanatory documentation for debug-level logging messages."
   - date: 2025-01-24
     version: 8.3.1
     changes:
@@ -658,7 +669,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/8.3.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.0.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

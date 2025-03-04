@@ -327,7 +327,6 @@ extension AnyJSON: ExpressibleByArrayLiteral {
 extension AnyJSON: ExpressibleByDictionaryLiteral {
   public init(dictionaryLiteral elements: (String, Codable)...) {
     let dictionary = elements.reduce(into: [:]) { $0[$1.0] = $1.1 }
-
     self.init(dictionary)
   }
 }

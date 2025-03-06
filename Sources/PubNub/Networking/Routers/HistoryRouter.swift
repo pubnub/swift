@@ -180,7 +180,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
       var messages = messages
       // Replace index with decrypted message
       for (index, message) in messages.enumerated() {
-        // Convert base64 string into Data
+        // Convert Base64 string into Data
         if let messageData = message.message.dataOptional {
           // If a message fails we just return the original and move on
           switch cryptoModule.decryptedString(from: messageData) {
@@ -204,9 +204,16 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               customMessageType: message.customMessageType,
               error: error
             )
-            PubNub.log.warn("History message failed to decrypt due to \(error)")
+            PubNub.log.warn(
+              "History message failed to decrypt due to \(error)",
+              category: .crypto
+            )
           }
         } else {
+          let error = PubNubError(
+            PubNubError.Reason.decryptionFailure,
+            additional: ["Cannot decrypt message due to invalid Base-64 input"]
+          )
           messages[index] = MessageHistoryMessagePayload(
             message: message.message,
             timetoken: message.timetoken,
@@ -214,10 +221,11 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
             uuid: message.uuid,
             messageType: message.messageType,
             customMessageType: message.customMessageType,
-            error: PubNubError(
-              .decryptionFailure,
-              additional: ["Cannot decrypt message due to invalid Base-64 input"]
-            )
+            error: error
+          )
+          PubNub.log.warn(
+            "History message failed to decrypt due to \(error)",
+            category: .crypto
           )
         }
       }

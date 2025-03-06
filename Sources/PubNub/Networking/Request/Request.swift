@@ -10,6 +10,7 @@
 
 import Foundation
 
+// swiftlint:disable:next type_body_length
 final class Request {
   enum TaskState: String, CustomStringConvertible {
     case initialized = "Initialized"
@@ -39,17 +40,12 @@ final class Request {
 
   struct InternalState {
     var taskState: TaskState = .initialized
-
     var responseCompletionClosure: ((Result<EndpointResponse<Data>, Error>) -> Void)?
-
     var tasks: [URLSessionTask] = []
-
     var urlRequests: [URLRequest] = []
     var error: Error?
     var previousErrors: [Error] = []
-
     var retryCount = 0
-
     var responesData: Data?
 
     mutating func purgeAll() {
@@ -64,13 +60,19 @@ final class Request {
   let router: HTTPRouter
   let requestQueue: DispatchQueue
   let requestOperator: RequestOperator?
-
-  private(set) weak var delegate: RequestDelegate?
   let sessionStream: SessionStream?
-
   let atomicState: Atomic<InternalState> = Atomic(InternalState())
 
+  private(set) weak var delegate: RequestDelegate?
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
+
+  private var dataDescription: String {
+    if let data {
+      return String(data: data, encoding: .utf8) ?? "Cannot decode into UTF-8 string"
+    } else {
+      return "Empty data"
+    }
+  }
 
   init(
     with router: HTTPRouter,
@@ -96,11 +98,17 @@ final class Request {
     self.requestOperator = MultiplexRequestOperator(operators: operators)
     self.delegate = delegate
 
-    PubNub.log.debug("Request Created \(requestID) on \(router)")
+    PubNub.log.info(
+      "Request Created \(self.requestID) on \(router)",
+      category: .networking
+    )
   }
 
   deinit {
-    PubNub.log.debug("Request Destroyed \(requestID)")
+    PubNub.log.info(
+      "Request Destroyed \(self.requestID)",
+      category: .networking
+    )
 
     let currentState = atomicState.lockedRead { $0 }
     let taskState = currentState.taskState
@@ -185,15 +193,17 @@ final class Request {
 
   func didMutate(_ initialRequest: URLRequest, to mutatedRequest: URLRequest) {
     atomicState.lockedWrite { $0.urlRequests.append(mutatedRequest) }
-
     sessionStream?.emitRequest(self, didMutate: initialRequest, to: mutatedRequest)
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
+    PubNub.log.debug(
+      "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
+      category: .networking
+    )
+
     error = mutatorError
-
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
-
     retryOrFinish(with: mutatorError)
   }
 
@@ -211,6 +221,8 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
+    PubNub.log.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
+
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
     sessionStream?.emitRequest(self, didFailToCreateURLRequestWith: pubnubError)
@@ -254,14 +266,29 @@ final class Request {
   }
 
   func didResume(_ task: URLSessionTask) {
-    sessionStream?.emitRequest(self, didResume: task)
+    PubNub.log.debug(
+      "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
+      category: .networking
+    )
+    sessionStream?.emitRequest(
+      self,
+      didResume: task
+    )
   }
 
   func didCancel(_ task: URLSessionTask) {
+    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
+    PubNub.log.debug(
+      "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
+      "content \(self.dataDescription) " +
+      "for request URL \(task.currentRequestUrl()))",
+      category: .networking
+    )
+
     // Process the Validators for any additional errors
     atomicValidators.lockedRead { $0.forEach { $0() } }
 
@@ -275,6 +302,13 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
+    PubNub.log.debug(
+      "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
+      "content: \(self.dataDescription) " +
+      "for request URL \(task.currentRequestUrl()))",
+      category: .networking
+    )
+
     self.error = PubNubError.sessionDelegate(error, router: router)
     sessionStream?.emitRequest(self, didComplete: task, with: error)
     retryOrFinish(with: error)
@@ -316,7 +350,10 @@ final class Request {
       } else {
         responseMessage = "without response."
       }
-      PubNub.log.error("Request \(requestID) failed with error \(error) \(responseMessage)")
+      PubNub.log.error(
+        "Request \(self.requestID) failed with error \(error) \(responseMessage)",
+        category: .networking
+      )
     }
 
     if let error = error {
@@ -325,18 +362,25 @@ final class Request {
     }
 
     processResponseCompletion(atomicState.lockedRead { state -> Result<EndpointResponse<Data>, Error> in
-
       if let error = state.error {
         return .failure(error)
       }
-
-      if let request = state.urlRequests.last,
-         let response = state.tasks.last?.httpResponse,
-         let data = state.responesData {
-        return .success(EndpointResponse(router: router, request: request, response: response, payload: data))
+      if let request = state.urlRequests.last, let response = state.tasks.last?.httpResponse, let data = state.responesData {
+        return .success(
+          EndpointResponse(
+            router: router,
+            request: request,
+            response: response,
+            payload: data
+          )
+        )
       }
-
-      return .failure(PubNubError(.missingCriticalResponseData, router: router))
+      return .failure(
+        PubNubError(
+          .missingCriticalResponseData,
+          router: router
+        )
+      )
     })
 
     didFinish()
@@ -353,14 +397,12 @@ extension Request {
         return
       }
       mutableState.taskState = .resumed
-
       requestQueue.async { self.didResume() }
 
       guard let task = mutableState.tasks.last, task.state != .completed else {
         return
       }
       task.resume()
-
       requestQueue.async { self.didResume(task) }
     }
     return self
@@ -378,9 +420,7 @@ extension Request {
         return
       }
       mutableState.taskState = .cancelled
-
       self.requestQueue.async { self.didCancel() }
-
       mutableState.error = error
 
       guard let task = mutableState.tasks.last else {
@@ -404,11 +444,12 @@ extension Request {
 
   func validate(_ closure: @escaping ValidationClosure) -> Self {
     let validator: () -> Void = { [weak self] in
-      guard self?.error == nil,
-            let request = self?.urlRequest,
-            let response = self?.urlResponse,
-            let router = self?.router,
-            let data = self?.data
+      guard
+        self?.error == nil,
+        let request = self?.urlRequest,
+        let response = self?.urlResponse,
+        let router = self?.router,
+        let data = self?.data
       else {
         return
       }
@@ -457,7 +498,24 @@ protocol RequestDelegate: AnyObject {
     andPrevious error: Error?,
     completion: @escaping (Result<TimeInterval, Error>) -> Void
   )
-  func retryRequest(_ request: RequestReplaceable, withDelay timeDelay: TimeInterval?)
+  func retryRequest(
+    _ request: RequestReplaceable,
+    withDelay timeDelay: TimeInterval?
+  )
+}
+
+// MARK: - Private Extensions
+
+private extension URLSessionTask {
+  func requestDescr() -> String {
+    currentRequest?.formattedDescription() ?? "Missing request description"
+  }
+  func statusCodeDescr() -> String {
+    httpResponse?.statusCode.description ?? "Unknown HTTP status"
+  }
+  func currentRequestUrl() -> String {
+    currentRequest?.url?.absoluteString ?? "Missing URL details"
+  }
 }
 
 // swiftlint:disable:this file_length

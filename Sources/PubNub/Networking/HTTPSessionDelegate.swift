@@ -20,11 +20,13 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
-    PubNub.log.warn("Session Invalidated \(String(describing: sessionBridge?.sessionID))")
+    PubNub.log.warn(
+      "Session Invalidated \(String(describing: self.sessionBridge?.sessionID))",
+      category: .networking
+    )
 
     // Set invalidated in case this happened unexpectedly
     sessionBridge?.isInvalidated = true
-
     sessionBridge?.sessionInvalidated(with: error)
   }
 
@@ -32,6 +34,10 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
+      PubNub.log.warn(
+        "Cannot find matching RequestReplaceable for URLSessionTask",
+        category: .networking
+      )
       return
     }
 
@@ -47,7 +53,6 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
     // Remove request/task from list
     sessionBridge?.didComplete(task)
-
     sessionBridge?.sessionStream?.emitURLSession(session, task: task, didCompleteWith: error)
   }
 
@@ -67,7 +72,6 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
   ) {
     sessionBridge?.sessionStream?.emitURLSession(session, didReceive: challenge)
-
     completionHandler(.performDefaultHandling, nil)
   }
 }

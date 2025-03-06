@@ -59,6 +59,11 @@ public class PubNub {
     self.networkSession = container.defaultHTTPSession
     self.fileURLSession = container.fileURLSession
     self.presenceStateContainer = container.presenceStateContainer
+
+    PubNub.log.debug(
+      "Did create PubNub instance with \(self.instanceID) and configuration \(self.configuration)",
+      category: .pubNub
+    )
   }
 
   func route<Decoder>(
@@ -128,6 +133,7 @@ public extension PubNub {
     public var responseQueue: DispatchQueue
 
     /// Default init for all fields
+    ///
     /// - Parameters:
     ///   - customSession: The custom Network session that that will be used to make the request
     ///   - customConfiguration: The endpoint configuration used by the request
@@ -150,6 +156,7 @@ public extension PubNub {
     public let totalCount: Int?
 
     /// Default init
+    ///
     /// - Parameters:
     ///   - start: The value of the  start of a next page
     ///   - end: The value of the end of a slice of paged data
@@ -174,6 +181,7 @@ public extension PubNub {
 
 public extension PubNub {
   /// Get current `Timetoken` from System
+  ///
   /// - Parameters:
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -183,6 +191,10 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription("Executing time", arguments: [("custom", requestConfig)]),
+      category: .pubNub
+    )
     route(
       TimeRouter(.time, configuration: requestConfig.customConfiguration ?? configuration),
       responseDecoder: TimeResponseDecoder(),
@@ -227,6 +239,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing publish",
+        arguments: [
+          ("channel", channel),
+          ("message", message.jsonStringify ?? "nil"),
+          ("customMessageType", customMessageType ?? "nil"),
+          ("storeTTL", storeTTL ?? "nil"),
+          ("meta", meta?.jsonStringify ?? "nil"),
+          ("shouldCompress", shouldCompress),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     let router: PublishRouter
     if shouldCompress {
       router = PublishRouter(
@@ -291,6 +318,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing fire",
+        arguments: [
+          ("channel", channel),
+          ("message", message.jsonStringify ?? "nil"),
+          ("meta", meta?.jsonStringify ?? "nil"),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     route(
       PublishRouter(
         .fire(message: message.codableValue, channel: channel, meta: meta?.codableValue),
@@ -321,6 +360,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing signal",
+        arguments: [
+          ("channel", channel),
+          ("message", message.jsonStringify ?? "nil"),
+          ("customMessageType", customMessageType ?? "nil"),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     route(
       PublishRouter(
         .signal(message: message.codableValue, channel: channel, customMessageType: customMessageType),
@@ -351,6 +402,18 @@ public extension PubNub {
     at timetoken: Timetoken? = nil,
     withPresence: Bool = false
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing subscribe",
+        arguments: [
+          ("to", channels),
+          ("and", channelGroups),
+          ("at", timetoken ?? "nil"),
+          ("withPresence", withPresence)
+        ]
+      ), category: .pubNub
+    )
+
     subscription.subscribe(
       to: channels,
       and: channelGroups,
@@ -367,22 +430,51 @@ public extension PubNub {
   ///   - and: List of channel groups to unsubscribe from
   ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
   func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
-    subscription.unsubscribe(from: channels, and: channelGroups, presenceOnly: presenceOnly)
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing unsubscribe",
+        arguments: [
+          ("from", channels),
+          ("and", channelGroups),
+          ("presenceOnly", presenceOnly)
+        ]
+      ), category: .pubNub
+    )
+    subscription.unsubscribe(
+      from: channels,
+      and: channelGroups,
+      presenceOnly: presenceOnly
+    )
   }
 
   /// Unsubscribe from all channels and channel groups
   func unsubscribeAll() {
+    PubNub.log.debug(
+      String.formattedDescription("Executing unsubscribeAll()"),
+      category: .pubNub
+    )
     subscription.unsubscribeAll()
   }
 
   /// Stops the subscriptions in progress
   func disconnect() {
+    PubNub.log.debug(
+      String.formattedDescription("Executing disconnect()"),
+      category: .pubNub
+    )
     subscription.disconnect()
   }
 
   /// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
   func reconnect(at timetoken: Timetoken? = nil) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing reconnect",
+        arguments: [("at", timetoken ?? "nil")]
+      )
+    )
+
     subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
   }
 
@@ -487,6 +579,7 @@ extension PubNub: EntityCreator {
 
 public extension PubNub {
   /// Set state dictionary pairs specific to a subscriber uuid
+  ///
   /// - Parameters:
   ///   - state: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
@@ -502,6 +595,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<JSONCodable, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing setPresence",
+        arguments: [
+          ("state", state),
+          ("on", channels),
+          ("and", groups),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     let router = PresenceRouter(
       .setState(channels: channels, groups: groups, state: state),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -524,6 +629,7 @@ public extension PubNub {
   }
 
   /// Get state dictionary pairs from a specific subscriber uuid
+  ///
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - on: Additional network configuration to use on the request
@@ -539,6 +645,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(uuid: String, stateByChannel: [String: JSONCodable]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing getPresenceState",
+        arguments: [
+          ("for", uuid),
+          ("on", channels),
+          ("and", groups),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     let router = PresenceRouter(
       .getState(uuid: uuid, channels: channels, groups: groups),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -577,7 +695,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing hereNow",
+        arguments: [
+          ("on", channels),
+          ("and", includeUUIDs),
+          ("includeUUIDs", includeUUIDs),
+          ("includeState", includeState),
+          ("custom", requestConfig)
+        ]
+      ), category: .pubNub
+    )
+
     let router: PresenceRouter
+
     if channels.isEmpty, groups.isEmpty {
       router = PresenceRouter(
         .hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState),
@@ -603,6 +735,7 @@ public extension PubNub {
   }
 
   /// Obtain information about the current list of channels a UUID is subscribed to
+  ///
   /// - Parameters:
   ///   - for: The UUID for which to query the subscribed channels of
   ///   - custom: Custom configuration overrides for this request
@@ -614,6 +747,16 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing whereNow",
+        arguments: [
+          ("for", uuid),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
     route(
       PresenceRouter(.whereNow(uuid: uuid), configuration: requestConfig.customConfiguration ?? configuration),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .presence),
@@ -629,6 +772,7 @@ public extension PubNub {
 
 public extension PubNub {
   /// Lists all the channel groups
+  ///
   /// - Parameters:
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -638,6 +782,16 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing listChannelGroups",
+        arguments: [
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       ChannelGroupsRouter(.channelGroups, configuration: requestConfig.customConfiguration ?? configuration),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .channelGroups),
@@ -649,6 +803,7 @@ public extension PubNub {
   }
 
   /// Removes the channel group.
+  ///
   /// - Parameters:
   ///   - channelGroup: The channel group to remove.
   ///   - custom: Custom configuration overrides for this request
@@ -660,6 +815,17 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Ececuting removeChannelGroup",
+        arguments: [
+          ("channelGroup", channelGroup),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       ChannelGroupsRouter(
         .deleteGroup(group: channelGroup),
@@ -674,6 +840,7 @@ public extension PubNub {
   }
 
   /// Lists all the channels of the channel group.
+  ///
   /// - Parameters:
   ///   - for: The channel group to list channels on.
   ///   - custom: Custom configuration overrides for this request
@@ -685,6 +852,17 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing listChannels",
+        arguments: [
+          ("for", group),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       ChannelGroupsRouter(
         .channelsForGroup(group: group),
@@ -699,6 +877,7 @@ public extension PubNub {
   }
 
   /// Adds a channel to a channel group.
+  ///
   /// - Parameters:
   ///   - channels: List of channels to add to the group
   ///   - to: The Channel Group to add the list of channels to.
@@ -712,6 +891,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing add",
+        arguments: [
+          ("channels", channels),
+          ("to", group),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       ChannelGroupsRouter(
         .addChannelsToGroup(group: group, channels: channels),
@@ -726,6 +917,7 @@ public extension PubNub {
   }
 
   /// Removes the channels from the channel group.
+  ///
   /// - Parameters:
   ///   - channels: List of channels to remove from the group
   ///   - from: The Channel Group to remove the list of channels from
@@ -739,6 +931,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing remove",
+        arguments: [
+          ("channels", channels),
+          ("from", group),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       ChannelGroupsRouter(
         .removeChannelsForGroup(group: group, channels: channels),
@@ -757,6 +961,7 @@ public extension PubNub {
 
 public extension PubNub {
   /// All channels on which push notification has been enabled using specified pushToken.
+  ///
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
@@ -770,6 +975,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing listPushChannelRegistrations",
+        arguments: [
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       PushRouter(
         .listPushChannels(pushToken: deviceToken, pushType: pushType),
@@ -784,6 +1001,7 @@ public extension PubNub {
   }
 
   /// Adds or removes push notification functionality on provided set of channels.
+  ///
   /// - Parameters:
   ///   - byRemoving: The list of channels to remove the device registration from
   ///   - thenAdding: The list of channels to add the device registration to
@@ -801,6 +1019,20 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing managePushChannelRegistrations",
+        arguments: [
+          ("byRemoving", removals),
+          ("thenAdding", additions),
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router = PushRouter(
       .managePushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -817,6 +1049,7 @@ public extension PubNub {
   }
 
   /// Adds or removes push notification functionality on provided set of channels.
+  ///
   /// - Parameters:
   ///   - additions: The list of channels to add the device registration to
   ///   - for: A device token to identify the device for registration changes
@@ -840,6 +1073,7 @@ public extension PubNub {
   }
 
   /// Adds or removes push notification functionality on provided set of channels.
+  ///
   /// - Parameters:
   ///   - removals: The list of channels to remove the device registration from
   ///   - for: A device token to identify the device for registration changes
@@ -863,6 +1097,7 @@ public extension PubNub {
   }
 
   /// Disable push notifications from all channels which is registered with specified pushToken.
+  ///
   /// - Parameters:
   ///   - for: The Channel Group to remove the list of channels from
   ///   - of: The type of Remote Notification service used to send the notifications
@@ -876,6 +1111,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Excecuting removeAllPushChannelRegistrations",
+        arguments: [
+          ("for", deviceToken.hexEncodedString),
+          ("of", pushType),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       PushRouter(
         .removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
@@ -890,6 +1137,7 @@ public extension PubNub {
   }
 
   /// All channels on which APNS push notification has been enabled using specified device token and topic.
+  ///
   /// - Parameters:
   ///   - for: The device token used during registration
   ///   - on: The topic of the remote notification (which is typically the bundle ID for your app)
@@ -905,6 +1153,19 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing listAPNSPushChannelRegistrations",
+        arguments: [
+          ("for", deviceToken.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       PushRouter(
         .manageAPNS(pushToken: deviceToken, environment: environment, topic: topic, adding: [], removing: []),
@@ -919,6 +1180,7 @@ public extension PubNub {
   }
 
   /// Adds or removes APNS push notification functionality on provided set of channels for a given topic
+  ///
   /// - Parameters:
   ///   - byRemoving: The list of channels to remove the device registration from
   ///   - thenAdding: The list of channels to add the device registration to
@@ -938,6 +1200,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing manageAPNSDevicesOnChannels",
+        arguments: [
+          ("byRemoving", removals),
+          ("thenAdding", additions),
+          ("device", token.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router = PushRouter(
       .manageAPNS(
         pushToken: token, environment: environment, topic: topic,
@@ -967,6 +1244,7 @@ public extension PubNub {
   }
 
   /// Enable APNS2 push notifications on provided set of channels.
+  ///
   /// - Parameters:
   ///   - additions: The list of channels to add the device registration to
   ///   - device: The device to add/remove from the channels
@@ -1032,6 +1310,19 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing removeAllAPNSPushDevice",
+        arguments: [
+          ("for", deviceToken.hexEncodedString),
+          ("on", topic),
+          ("environment", environment),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       PushRouter(
         .removeAllAPNS(pushToken: deviceToken, environment: environment, topic: topic),
@@ -1082,6 +1373,23 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing fetchMessageHistory",
+        arguments: [
+          ("for", channels),
+          ("includeActions", includeActions),
+          ("includeMeta", includeMeta),
+          ("includeUUID", includeUUID),
+          ("includeMessageType", includeMessageType),
+          ("includeCustomMessageType", includeCustomMessageType),
+          ("page", page ?? "nil"),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router: HistoryRouter
 
     switch (channels.count > 1, includeActions) {
@@ -1133,6 +1441,7 @@ public extension PubNub {
   }
 
   /// Removes the messages from the history of a specific channel.
+  ///
   /// - Parameters:
   ///   - from: The channel to delete the messages from.
   ///   - start: Time token delimiting the start of time slice (exclusive) to delete messages from.
@@ -1148,6 +1457,19 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing deleteMessageHistory",
+        arguments: [
+          ("from", channel),
+          ("start", start ?? "nil"),
+          ("end", end ?? "nil"),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       HistoryRouter(
         .delete(channel: channel, start: start, end: end),
@@ -1173,6 +1495,16 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing messageCounts",
+        arguments: [
+          ("channels", channels),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
     let router = HistoryRouter(
       .messageCounts(channels: channels.map { $0.key }, timetoken: nil, channelsTimetoken: channels.map { $0.value }),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -1189,6 +1521,7 @@ public extension PubNub {
   }
 
   /// Returns the number of messages published for each channels for a single time
+  ///
   /// - Parameters:
   ///   - channels: The channel to delete the messages from.
   ///   - timetoken: The timetoken for all channels in the list to get message counts for.
@@ -1202,6 +1535,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing messageCounts",
+        arguments: [
+          ("channels", channels),
+          ("timetoken", timetoken),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router = HistoryRouter(
       .messageCounts(channels: channels, timetoken: timetoken, channelsTimetoken: nil),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -1222,6 +1567,7 @@ public extension PubNub {
 
 public extension PubNub {
   /// Fetch a list of Message Actions for a channel
+  ///
   /// - Parameters:
   ///   - channel: The name of the channel
   ///   - page: The paging object used for pagination
@@ -1235,6 +1581,18 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(actions: [PubNubMessageAction], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing fetchMessageActions",
+        arguments: [
+          ("channel", channel),
+          ("page", page ?? "nil"),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     route(
       MessageActionsRouter(
         .fetch(channel: channel, start: page?.start, end: page?.end, limit: page?.limit),
@@ -1257,6 +1615,7 @@ public extension PubNub {
   }
 
   /// Add an Action to a parent Message
+  ///
   /// - Parameters:
   ///   - channel: The name of the channel
   ///   - type: The Message Action's type
@@ -1274,6 +1633,20 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing addMessageAction",
+        arguments: [
+          ("channel", channel),
+          ("type", actionType),
+          ("value", value),
+          ("messageTimetoken", messageTimetoken),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router = MessageActionsRouter(
       .add(channel: channel, type: actionType, value: value, timetoken: messageTimetoken),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -1303,6 +1676,7 @@ public extension PubNub {
   }
 
   /// Removes a Message Action from a published Message
+  ///
   /// - Parameters:
   ///   - channel: The name of the channel
   ///   - message: The publish timetoken of a parent message.
@@ -1319,6 +1693,19 @@ public extension PubNub {
     // swiftlint:disable:next large_tuple
     completion: ((Result<(channel: String, message: Timetoken, action: Timetoken), Error>) -> Void)?
   ) {
+    PubNub.log.debug(
+      String.formattedDescription(
+        "Executing removeMessageActions",
+        arguments: [
+          ("channel", channel),
+          ("message", timetoken),
+          ("action", actionTimetoken),
+          ("custom", requestConfig)
+        ]
+      ),
+      category: .pubNub
+    )
+
     let router = MessageActionsRouter(
       .remove(channel: channel, message: timetoken, action: actionTimetoken),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -1356,42 +1743,105 @@ public extension PubNub {
   /// - Parameter message: The plain text message to be encrypted
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
   func encrypt(message: String) -> Result<Data, Error> {
+    PubNub.log.debug(
+      "Encrypting String",
+      category: .pubNub
+    )
+
     guard let cryptoModule = configuration.cryptoModule else {
-      PubNub.log.error(ErrorDescription.missingCryptoKey)
+      PubNub.log.error(
+        ErrorDescription.missingCryptoKey,
+        category: .pubNub
+      )
+      PubNub.log.debug(
+        "Encryption of String failed due to \(ErrorDescription.missingCryptoKey)",
+        category: .pubNub
+      )
       return .failure(CryptoError.invalidKey)
     }
     guard let dataMessage = message.data(using: .utf8) else {
+      PubNub.log.debug(
+        "Encryption of String failed due to \("invalid UTF-8 encoded String")",
+        category: .pubNub
+      )
       return .failure(CryptoError.decodeError)
     }
 
-    return cryptoModule.encrypt(data: dataMessage).map {
+    let encryptionResult = cryptoModule.encrypt(data: dataMessage).map {
       $0.base64EncodedData()
     }.mapError {
       $0 as Error
     }
+
+    switch encryptionResult {
+    case .success:
+      PubNub.log.debug(
+        "String encrypted successfully",
+        category: .pubNub
+      )
+    case let .failure(error):
+      PubNub.log.debug(
+        "Encryption of String failed due to \(error)",
+        category: .pubNub
+      )
+    }
+
+    return encryptionResult
   }
 
   /// Decrypts the given `Data` object using `CryptoModule` provided in `configuration`
   /// - Parameter data: The encrypted `Data` to decrypt
   /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
   func decrypt(data: Data) -> Result<String, Error> {
+    PubNub.log.debug(
+      "Decrypting Data",
+      category: .pubNub
+    )
+
     guard let cryptoModule = configuration.cryptoModule else {
-      PubNub.log.error(ErrorDescription.missingCryptoKey)
+      PubNub.log.error(
+        ErrorDescription.missingCryptoKey,
+        category: .pubNub
+      )
+      PubNub.log.debug(
+        "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
+        category: .pubNub
+      )
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
-      PubNub.log.error("Cannot create Base64-encoded data")
+      PubNub.log.error(
+        "Decryption of Data failed due to \("invalid Base64-encoded Data")",
+        category: .pubNub
+      )
       return .failure(CryptoError.decodeError)
     }
 
-    return cryptoModule.decrypt(data: base64EncodedData)
-      .flatMap {
-        guard let string = String(data: $0, encoding: .utf8) else {
+    let decryptionResult = cryptoModule.decrypt(data: base64EncodedData)
+      .flatMap { data -> Result<String, PubNubError> in
+        guard let string = String(data: data, encoding: .utf8) else {
           return .failure(PubNubError(.decryptionFailure, additional: ["Cannot create String from received bytes"]))
         }
         return .success(string)
       }
-      .mapError { $0 as Error }
+      .mapError {
+        $0 as Error
+      }
+
+    switch decryptionResult {
+    case .success:
+      PubNub.log.debug(
+        "Data decrypted successfully",
+        category: .pubNub
+      )
+    case let .failure(error):
+      PubNub.log.debug(
+        "Decryption of Data failed due to \(error)",
+        category: .pubNub
+      )
+    }
+
+    return decryptionResult
   }
 }
 

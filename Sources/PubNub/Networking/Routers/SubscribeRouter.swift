@@ -165,7 +165,10 @@ struct SubscribeDecoder: ResponseDecoder {
         message.payload = AnyJSON(reverse: decodedString)
         return message
       case .failure(let error):
-        PubNub.log.warn("Subscribe message failed to decrypt due to \(error)")
+        PubNub.log.warn(
+          "Subscribe message failed to decrypt due to \(error)",
+          category: .crypto
+        )
         message.error = error
         return message
       }
@@ -277,7 +280,7 @@ public struct SubscribeCursor: Codable, Hashable {
   }
 }
 
-public struct SubscribeMessagePayload: Codable, Hashable {
+public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertible {
   public let shard: String
   public let subscription: String?
   public let channel: String
@@ -418,5 +421,27 @@ public struct SubscribeMessagePayload: Codable, Hashable {
 
     try container.encode(customMessageType, forKey: .customMessageType)
   }
+
+  public var description: String {
+    String.formattedDescription(
+      self,
+      arguments: [
+        ("shard", shard),
+        ("subscription", subscription?.description ?? "nil"),
+        ("channel", channel),
+        ("messageType", messageType),
+        ("customMessageType", customMessageType ?? "nil"),
+        ("payload", payload.jsonStringify ?? ""),
+        ("flags", flags),
+        ("publisher", publisher ?? "nil"),
+        ("subscribeKey", subscribeKey),
+        ("originTimetoken", originTimetoken ?? "nil"),
+        ("publishTimetoken", publishTimetoken),
+        ("metadata", metadata?.jsonStringify ?? "nil"),
+        ("error", error?.reason ?? "nil")
+      ]
+    )
+  }
+
   // swiftlint:disable:next file_length
 }

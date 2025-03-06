@@ -10,6 +10,7 @@
 
 import Foundation
 
+/// Represents the various details that can be included in a log message
 public struct LogPrefix: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
@@ -22,6 +23,7 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
   public static let file = LogPrefix(rawValue: 1 << 4)
   public static let function = LogPrefix(rawValue: 1 << 5)
   public static let line = LogPrefix(rawValue: 1 << 6)
+  public static let category = LogPrefix(rawValue: 1 << 7)
   public static let all = LogPrefix(rawValue: UInt32.max)
 
   public init(rawValue: UInt32) {
@@ -31,6 +33,7 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
 
 // MARK: - Level
 
+/// Represents different levels of logging, such as debug, info, warning, etc.
 public struct LogType: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
@@ -74,10 +77,12 @@ extension LogType: CustomStringConvertible {
 
 // MARK: - PubNub Logger
 
+/// Provides a custom logger for handling log messages from the PubNub SDK.
 public struct PubNubLogger {
   let loggingQueue = DispatchQueue(label: "com.pubnub.logger", qos: .default)
-
+  /// An array of `LogWriter` instances responsible for processing log messages.
   public var writers: [LogWriter]
+  /// The current log level, determining the severity of messages to be logged.
   public var levels: LogType
 
   init(levels: LogType = .all, writers: [LogWriter]) {
@@ -86,7 +91,8 @@ public struct PubNubLogger {
   }
 
   public func debug(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -94,17 +100,22 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(.debug, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      .debug,
+      category: category,
+      message: message(),
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   public func info(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -112,17 +123,22 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(.info, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      .info,
+      category: category,
+      message: message,
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   public func event(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -130,17 +146,22 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(.event, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      .event,
+      category: category,
+      message: message,
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   public func warn(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -148,17 +169,21 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(.warn, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      .warn,
+      message: message,
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   public func error(
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -166,18 +191,23 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(.error, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      .error,
+      category: category,
+      message: message,
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   public func custom(
     _ level: LogType,
-    _ message: @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> Any,
+    category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
     thread: String = Thread.currentName,
@@ -185,18 +215,22 @@ public struct PubNubLogger {
     function: String = #function,
     line: Int = #line
   ) {
-    send(level, message: message(),
-         date: date,
-         queue: queue,
-         thread: thread,
-         file: file,
-         function: function,
-         line: line)
+    send(
+      level,
+      category: category,
+      message: message(),
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
-  // swiftlint:disable:next function_parameter_count
   public func format(
     prefix: LogPrefix,
+    category: LogCategory,
     level: LogType,
     date: Date,
     queue: String,
@@ -206,6 +240,13 @@ public struct PubNubLogger {
     line: Int
   ) -> String {
     var prefixString = ""
+
+    let categoryStr = if prefix.contains(.category) {
+      "[\(category.rawValue)]"
+    } else {
+      ""
+    }
+
     if prefix == .none {
       return prefixString
     }
@@ -221,13 +262,15 @@ public struct PubNubLogger {
     if prefix.contains(.file) || prefix.contains(.function) || prefix.contains(.line) {
       prefixString = "\(prefixString){\(file.absolutePathFilename).\(function)#\(line)} "
     }
-    return "[\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))] "
+
+    return categoryStr + "[\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))] "
   }
 
   // swiftlint:disable:next function_parameter_count
   public func send(
     _ level: LogType,
-    message: @autoclosure () -> Any,
+    category: LogCategory = .none,
+    message: @escaping @autoclosure () -> Any,
     date: Date,
     queue: String,
     thread: String,
@@ -240,24 +283,34 @@ public struct PubNubLogger {
     }
 
     for writer in writers {
-      let prefix = format(prefix: writer.prefix,
-                          level: level,
-                          date: date,
-                          queue: queue,
-                          thread: thread,
-                          file: file,
-                          function: function,
-                          line: line)
-
-      let fullMessage = "\(prefix)\(message())"
+      var fullMessage = {
+        let prefix = format(
+          prefix: writer.prefix,
+          category: category,
+          level: level,
+          date: date,
+          queue: queue,
+          thread: thread,
+          file: file,
+          function: function,
+          line: line
+        )
+        return prefix.isEmpty ? "\(message())" : "\(prefix)\(message())"
+      }
 
       writer.executor.execute {
-        writer.send(message: fullMessage)
+        writer.send(
+          message: fullMessage(),
+          withType: level,
+          withCategory: category
+        )
       }
+
+      fullMessage = { "" }
     }
   }
 
   public var enabled: Bool {
-    return levels != .none
+    levels != .none
   }
 }

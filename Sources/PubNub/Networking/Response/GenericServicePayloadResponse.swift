@@ -184,7 +184,7 @@ enum EndpointResponseMessage: RawRepresentable, Codable, Hashable, ExpressibleBy
     case .nothingToDelete:
       return "No matching message actions to delete"
     case let .unknown(message):
-      return "Unknown: \(message)"
+      return message
     }
   }
 

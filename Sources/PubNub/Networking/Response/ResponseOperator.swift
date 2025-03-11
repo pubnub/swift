@@ -81,12 +81,23 @@ public extension ResponseDecoder {
       GenericServicePayloadResponse.self,
       from: data
     )
+
+    let fullDetails: [ErrorDetail]? = if let payload = generalErrorPayload {
+      [ErrorDetail(
+        message: payload.message.rawValue,
+        location: router.description,
+        locationType: router.category
+      )] + payload.details
+    } else {
+      generalErrorPayload?.details
+    }
+
     return PubNubError(
       reason: generalErrorPayload?.pubnubReason,
       router: router,
       request: request,
       response: response,
-      additional: generalErrorPayload?.details,
+      additional: fullDetails,
       affectedChannels: generalErrorPayload?.affectedChannels,
       affectedChannelGroups: generalErrorPayload?.affectedChannelGroups
     )

@@ -197,7 +197,7 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .unauthorized:
       return "Access was denied due to insufficient authentication/authorization"
     case .forbidden:
-      return "No permissions required to perform this operation"
+      return "Insufficient permissions to perform this operation"
     case .resourceNotFound:
       return "Requested resource not found at that endpoint"
     case .conflict:

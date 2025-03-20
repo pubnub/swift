@@ -236,7 +236,7 @@ extension MessageActionsRouterTests {
         XCTFail("Request should fail.")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason, .badRequest)
-        XCTAssertEqual(error.pubNubError?.details, ["Missing field"])
+        XCTAssertEqual(error.pubNubError?.details, ["Request payload contained invalid input.", "Missing field"])
       }
       expectation.fulfill()
     }

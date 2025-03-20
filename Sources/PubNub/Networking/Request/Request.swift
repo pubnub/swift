@@ -344,11 +344,10 @@ final class Request {
 
   func finish(error _: Error? = nil) {
     if let error = error, !error.isCancellationError {
-      let responseMessage: String
-      if let response = urlResponse {
-        responseMessage = "for response \(response.description)"
+      let responseMessage = if let response = urlResponse {
+        "for response \(response.description)"
       } else {
-        responseMessage = "without response."
+        "without response."
       }
       PubNub.log.error(
         "Request \(self.requestID) failed with error \(error) \(responseMessage)",

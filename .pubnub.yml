@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.0.0"
+version: "9.0.1"
 schema: 1
 changelog:
+  - date: 2025-03-20
+    version: 9.0.1
+    changes:
+      - type: bug
+        text: "Include endpoint error message in PubNubError's `details` property."
+      - type: bug
+        text: "Defer computing the textual representation of EventEngine's current and previous states until needed."
   - date: 2025-03-04
     version: 9.0.0
     changes:
@@ -669,7 +676,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.0.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.0.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

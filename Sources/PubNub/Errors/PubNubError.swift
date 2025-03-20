@@ -11,7 +11,7 @@
 import Foundation
 
 public struct PubNubError: Error {
-  // MARK: - Properties
+  // MARK: - Properties 
 
   /// The reason why the error occurred
   public let reason: Reason
@@ -251,7 +251,6 @@ public struct PubNubError: Error {
     affectedChannelGroups channelGroups: [String]? = nil
   ) {
     var reasonOrResponse = reason
-
     var affectedValues = [AffectedValue]()
 
     if let request = request {
@@ -268,10 +267,12 @@ public struct PubNubError: Error {
       affectedValues.append(.channelGroups(channelGroups))
     }
 
-    self.init(reasonOrResponse ?? .unrecognizedStatusCode,
-              router: router,
-              additional: details?.compactMap { $0.message } ?? [],
-              affected: affectedValues)
+    self.init(
+      reasonOrResponse ?? .unrecognizedStatusCode,
+      router: router,
+      additional: details?.compactMap { $0.message } ?? [],
+      affected: affectedValues
+    )
   }
 
   init(router: HTTPRouter, request: URLRequest, response: HTTPURLResponse) {

@@ -82,3 +82,8 @@ fastlane/test_output
 # GitHub Actions #
 ##################
 .github/.release
+
+# VS
+
+.vscode/
+buildServer.json

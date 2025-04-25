@@ -99,6 +99,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
     self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: SubscribeEffectFactory(
         session: container[HTTPSubscribeSessionDependencyKey.self],
+        sessionResponseQueue: .main,
+        messageCache: .init(messageCountTreshold: Int(configuration.requestMessageCountThreshold)),
         presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
       )
     ))

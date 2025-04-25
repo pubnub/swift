@@ -84,6 +84,7 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
     self.dispatcherDecorator = DispatcherDecorator(wrappedInstance: EffectDispatcher(
       factory: PresenceEffectFactory(
         session: container[HTTPPresenceSessionDependencyKey.self],
+        sessionResponseQueue: .main,
         presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
       )
     ))

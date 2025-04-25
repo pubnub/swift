@@ -65,7 +65,8 @@ struct EmitMessagesEffect: EffectHandler, CustomStringConvertible {
       }
     }
 
-    let filteredMessages = messages.filter { message in // Dedupe the message
+    let filteredMessages = messages.filter { message in
+      // Dedupe the message.
       // Update cache and notify if not a duplicate message
       if !messageCache.contains(message) {
         messageCache.append(message)

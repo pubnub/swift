@@ -64,7 +64,8 @@ class PresenceTransitionTests: XCTestCase {
     configuration: PubNubConfiguration(
       publishKey: "publishKey",
       subscribeKey: "subscribeKey",
-      userId: "userId"
+      userId: "userId",
+      heartbeatInterval: 30
     )
   )
   
@@ -87,7 +88,7 @@ class PresenceTransitionTests: XCTestCase {
     let state = Presence.HeartbeatInactive()
     let event = Presence.Event.joined(channels: ["c1", "c2"], groups: ["g1", "g2"])
     
-    XCTAssertFalse(PresenceTransition(configuration: configWithEmptyInterval).canTransition(from: state, dueTo: event))
+    XCTAssertTrue(PresenceTransition(configuration: configWithEmptyInterval).canTransition(from: state, dueTo: event))
     XCTAssertTrue(PresenceTransition(configuration: configWithInterval).canTransition(from: state, dueTo: event))
   }
   

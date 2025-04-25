@@ -60,7 +60,14 @@ class DependencyContainer {
     register(key: HTTPPresenceSessionDependencyKey.self, scope: .weak)
     register(key: HTTPSubscribeSessionQueueDependencyKey.self, scope: .weak)
     register(key: PresenceStateContainerDependencyKey.self, scope: .weak)
+    register(key: PubNubMessageCacheDependencyKey.self, scope: .weak)
+    register(key: SubscribeTransitionDependencyKey.self, scope: .weak)
+    register(key: SubscribeEffectFactoryDependencyKey.self, scope: .weak)
+    register(key: SubscribeEffectDispatcherDependencyKey.self, scope: .weak)
     register(key: SubscribeEventEngineDependencyKey.self, scope: .weak)
+    register(key: PresenceTransitionDependencyKey.self, scope: .weak)
+    register(key: PresenceEffectFactoryDependencyKey.self, scope: .weak)
+    register(key: PresenceEffectDispatcherDependencyKey.self, scope: .weak)
     register(key: PresenceEventEngineDependencyKey.self, scope: .weak)
     register(key: SubscriptionSessionDependencyKey.self, scope: .weak)
   }
@@ -95,7 +102,7 @@ class DependencyContainer {
     preconditionFailure("Cannot create value for key \(key)")
   }
 
-  func register<K: DependencyKey>(key: K.Type, scope: Scope = .container) {
+  private func register<K: DependencyKey>(key: K.Type, scope: Scope = .container) {
     registeredKeys[ObjectIdentifier(key)] = (key: key, scope: scope)
   }
 
@@ -171,6 +178,34 @@ extension DependencyContainer {
   fileprivate var presenceEngine: PresenceEngine {
     self[PresenceEventEngineDependencyKey.self]
   }
+
+  fileprivate var messageCache: MessageCache {
+    self[PubNubMessageCacheDependencyKey.self]
+  }
+
+  fileprivate var subscribeEffectFactory: some EffectHandlerFactory<Subscribe.Invocation, Subscribe.Event, Subscribe.Dependencies> {
+    self[SubscribeEffectFactoryDependencyKey.self]
+  }
+
+  fileprivate var subscribeEffectDispatcher: some Dispatcher<Subscribe.Invocation, Subscribe.Event, Subscribe.Dependencies> {
+    self[SubscribeEffectDispatcherDependencyKey.self]
+  }
+
+  fileprivate var subscribeTransition: some TransitionProtocol<SubscribeState, Subscribe.Event, Subscribe.Invocation> {
+    self[SubscribeTransitionDependencyKey.self]
+  }
+
+  fileprivate var presenceEffectFactory: some EffectHandlerFactory<Presence.Invocation, Presence.Event, Presence.Dependencies> {
+    self[PresenceEffectFactoryDependencyKey.self]
+  }
+
+  fileprivate var presenceEffectDispatcher: some Dispatcher<Presence.Invocation, Presence.Event, Presence.Dependencies> {
+    self[PresenceEffectDispatcherDependencyKey.self]
+  }
+
+  fileprivate var presenceTransition: some TransitionProtocol<PresenceState, Presence.Event, Presence.Invocation> {
+    self[PresenceTransitionDependencyKey.self]
+  }
 }
 
 // - MARK: PubNubConfiguration
@@ -184,6 +219,14 @@ struct PubNubConfigurationDependencyKey: DependencyKey {
 struct PubNubInstanceIDDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> UUID {
     container.instanceID
+  }
+}
+
+// - MARK: MessageCache
+
+struct PubNubMessageCacheDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> MessageCache {
+    MessageCache()
   }
 }
 
@@ -263,39 +306,74 @@ struct PresenceStateContainerDependencyKey: DependencyKey {
   }
 }
 
-// MARK: SubscribeEventEngine
+// MARK: Subscribe Event Engine
 
-struct SubscribeEventEngineDependencyKey: DependencyKey {
-  static func value(from container: DependencyContainer) -> SubscribeEngine {
-    let effectHandlerFactory = SubscribeEffectFactory(
+struct SubscribeEffectFactoryDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some EffectHandlerFactory<Subscribe.Invocation, Subscribe.Event, Subscribe.Dependencies> {
+    SubscribeEffectFactory(
       session: container.httpSubscribeSession,
+      sessionResponseQueue: .main,
+      messageCache: container.messageCache,
       presenceStateContainer: container.presenceStateContainer
     )
-    let subscribeEngine = SubscribeEngine(
-      state: Subscribe.UnsubscribedState(),
-      transition: SubscribeTransition(),
-      dispatcher: EffectDispatcher(factory: effectHandlerFactory),
-      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: container.configuration))
-    )
-    return subscribeEngine
   }
 }
 
-// MARK: PresenceEventEngine
+struct SubscribeEffectDispatcherDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some Dispatcher<Subscribe.Invocation, Subscribe.Event, Subscribe.Dependencies> {
+    EffectDispatcher(factory: container.subscribeEffectFactory)
+  }
+}
+
+struct SubscribeTransitionDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some TransitionProtocol<SubscribeState, Subscribe.Event, Subscribe.Invocation> {
+    SubscribeTransition()
+  }
+}
+
+struct SubscribeEventEngineDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> SubscribeEngine {
+    SubscribeEngine(
+      state: Subscribe.UnsubscribedState(),
+      transition: container.subscribeTransition,
+      dispatcher: container.subscribeEffectDispatcher,
+      dependencies: .init(value: Subscribe.Dependencies(configuration: container.configuration))
+    )
+  }
+}
+
+// MARK: Presence Event Engine
+
+struct PresenceEffectFactoryDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some EffectHandlerFactory<Presence.Invocation, Presence.Event, Presence.Dependencies> {
+    PresenceEffectFactory(
+      session: container.httpPresenceSession,
+      sessionResponseQueue: .main,
+      presenceStateContainer: container.presenceStateContainer
+    )
+  }
+}
+
+struct PresenceEffectDispatcherDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some Dispatcher<Presence.Invocation, Presence.Event, Presence.Dependencies> {
+    EffectDispatcher(factory: container.presenceEffectFactory)
+  }
+}
+
+struct PresenceTransitionDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> some TransitionProtocol<PresenceState, Presence.Event, Presence.Invocation> {
+    PresenceTransition(configuration: container.configuration)
+  }
+}
 
 struct PresenceEventEngineDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> PresenceEngine {
-    let effectHandlerFactory = PresenceEffectFactory(
-      session: container.httpPresenceSession,
-      presenceStateContainer: container.presenceStateContainer
-    )
-    let presenceEngine = PresenceEngine(
+    PresenceEngine(
       state: Presence.HeartbeatInactive(),
-      transition: PresenceTransition(configuration: container.configuration),
-      dispatcher: EffectDispatcher(factory: effectHandlerFactory),
-      dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: container.configuration))
+      transition: container.presenceTransition,
+      dispatcher: container.presenceEffectDispatcher,
+      dependencies: .init(value: Presence.Dependencies(configuration: container.configuration))
     )
-    return presenceEngine
   }
 }
 

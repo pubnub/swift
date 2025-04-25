@@ -24,7 +24,7 @@ class PresenceTransition: TransitionProtocol {
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
     case .joined:
-      return configuration.heartbeatInterval > 0
+      return true
     case .left:
       return true
     case .heartbeatSuccess:
@@ -143,7 +143,11 @@ fileprivate extension PresenceTransition {
 
 fileprivate extension PresenceTransition {
   func heartbeatSuccessTransition(from state: State) -> TransitionResult<State, Invocation> {
-    return TransitionResult(state: Presence.HeartbeatCooldown(input: state.input))
+    if configuration.heartbeatInterval > 0 {
+      return TransitionResult(state: Presence.HeartbeatCooldown(input: state.input))
+    } else {
+      return TransitionResult(state: Presence.HeartbeatStopped(input: state.input))
+    }
   }
 }
 

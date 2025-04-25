@@ -222,8 +222,9 @@ public struct PubNubConfiguration: Hashable {
   /// This switch can help you verify the behavior of the PubNub SDK with the new engine enabled
   /// in your app. It will default to true in a future SDK release.
   public var enableEventEngine: Bool = true
-  /// When `true` the SDK will resend the last channel state that was set using `PubNub.setPresence`.
-  /// Applies only if `heartbeatInterval` is greater than 0 and `enableEventEngine` is true
+  /// When `true` the SDK will resend the last channel state that was set using ``PubNub/setPresence(state:on:and:custom:completion:)``.
+  ///
+  /// Applies only if `enableEventEngine` is true.
   public var maintainPresenceState: Bool = false
   /// Reconnection policy which will be used if/when a request fails
   public var automaticRetry: AutomaticRetry?

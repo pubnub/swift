@@ -38,8 +38,19 @@ class SubscribeEffectsTests: XCTestCase {
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, sessionQueue: .main)
-    factory = SubscribeEffectFactory(session: httpSession, presenceStateContainer: .shared)
+    
+    httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      sessionQueue: .main
+    )
+    factory = SubscribeEffectFactory(
+      session: httpSession,
+      sessionResponseQueue: .main,
+      messageCache: .init(messageCountTreshold: 100),
+      presenceStateContainer: .shared
+    )
+    
     super.setUp()
   }
   

@@ -55,7 +55,7 @@ class EmitMessagesTests: XCTestCase {
       messages: messages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
       subscriptions: WeakSet(subscriptions),
-      messageCache: MessageCache()
+      messageCache: MessageCache(messageCountTreshold: 100)
     )
     
     subscriptions.forEach {
@@ -87,7 +87,7 @@ class EmitMessagesTests: XCTestCase {
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
       subscriptions: WeakSet(subscriptions),
-      messageCache: MessageCache()
+      messageCache: MessageCache(messageCountTreshold: 100)
     )
     
     subscriptions.forEach() {
@@ -121,7 +121,7 @@ class EmitMessagesTests: XCTestCase {
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
       subscriptions: WeakSet(subscriptions),
-      messageCache: MessageCache()
+      messageCache: MessageCache(messageCountTreshold: 100)
     )
     
     subscriptions.forEach {
@@ -152,9 +152,13 @@ class EmitMessagesTests: XCTestCase {
         payload: AnyJSON("Hello again, it's a message \(idx)")
       )
     }
-    let cache = MessageCache(
-      messagesArray: initialMessages
-    )
+    
+    let cache = MessageCache(messageCountTreshold: 100)
+    
+    newMessages.forEach {
+      cache.append($0)
+    }
+    
     let effect = EmitMessagesEffect(
       messages: newMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),

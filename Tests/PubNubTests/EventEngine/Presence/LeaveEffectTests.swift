@@ -23,7 +23,7 @@ class LeaveEffectTests: XCTestCase {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
     httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, sessionQueue: .main)
-    factory = PresenceEffectFactory(session: httpSession, presenceStateContainer: .shared)
+    factory = PresenceEffectFactory(session: httpSession, sessionResponseQueue: .main, presenceStateContainer: .shared)
     
     super.setUp()
   }

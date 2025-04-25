@@ -226,7 +226,7 @@ struct PubNubInstanceIDDependencyKey: DependencyKey {
 
 struct PubNubMessageCacheDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> MessageCache {
-    MessageCache()
+    MessageCache(messageCountTreshold: Int(container.configuration.requestMessageCountThreshold))
   }
 }
 

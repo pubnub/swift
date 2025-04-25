@@ -12,9 +12,11 @@ import Foundation
 
 class MessageCache {
   private(set) var messagesArray = [SubscribeMessagePayload?].init(repeating: nil, count: 100)
+  private let messageCountTreshold: Int
 
-  init(messagesArray: [SubscribeMessagePayload?] = .init(repeating: nil, count: 100)) {
-    self.messagesArray = messagesArray
+  init(messageCountTreshold: Int) {
+    self.messageCountTreshold = messageCountTreshold
+    self.messagesArray = .init(repeating: nil, count: messageCountTreshold)
   }
 
   var isOverflowed: Bool {

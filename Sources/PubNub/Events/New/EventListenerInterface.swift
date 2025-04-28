@@ -10,35 +10,6 @@
 
 import Foundation
 
-// MARK: - StatusEmitter
-
-/// A protocol for types that emit PubNub status events from the Subscribe loop.
-public protocol StatusListenerInterface: AnyObject {
-  /// An underlying queue to dispatch events
-  var queue: DispatchQueue { get }
-  /// A unique emitter's identifier
-  var uuid: UUID { get }
-  /// A closure to be called when the connection status changes.
-  var onConnectionStateChange: ((ConnectionStatus) -> Void)? { get set }
-}
-
-/// Defines additional status listener that can be attached to `Subscription` or `SubscriptionSet`
-public class StatusListener: StatusListenerInterface {
-  public let uuid: UUID
-  public let queue: DispatchQueue
-  public var onConnectionStateChange: ((ConnectionStatus) -> Void)?
-
-  public init(
-    uuid: UUID = UUID(),
-    queue: DispatchQueue = .main,
-    onConnectionStateChange: @escaping ((ConnectionStatus) -> Void)
-  ) {
-    self.uuid = uuid
-    self.queue = queue
-    self.onConnectionStateChange = onConnectionStateChange
-  }
-}
-
 // MARK: - EventListenerInterface
 
 /// A protocol for types that emit PubNub events from the Subscribe loop.
@@ -155,26 +126,15 @@ public protocol EventListenerHandler {
   func removeAllListeners()
 }
 
-/// A protocol representing a type that can be utilized to dispose of a conforming object.
-public protocol SubscriptionDisposable {
-  /// Determines whether current emitter is disposed
-  var isDisposed: Bool { get }
-  /// Stops listening to incoming events and disposes current emitter
-  func dispose()
-}
-
-// `SubscribeMessagesReceiver` is an internal protocol defining a receiver for subscription messages.
-// Types that conform to this protocol are responsible for handling and processing these payloads
-// into concrete events for the user.
+// The internal protocol defining a receiver for the Subscribe loop's payloads.
 protocol SubscribeMessagesReceiver: AnyObject {
   // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribableType: [String]] { get }
-  // This method should return an array of `PubNubEvent` instances,
-  // representing the concrete events for the user.
+  var subscriptionTopology: [SubscribeTargetType: [String]] { get }
+  // This method should return an array of `PubNubEvent` instances, representing the concrete events for the user.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]
 }
 
-// An internal class that functions as a bridge between the legacy `BaseSubscriptionListener`
+// Functions as a bridge between the legacy `BaseSubscriptionListener`
 // and either `Subscription` or `SubscriptionSet`, forwarding the received payloads.
 class BaseSubscriptionListenerAdapter: BaseSubscriptionListener {
   private(set) weak var receiver: SubscribeMessagesReceiver?

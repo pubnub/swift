@@ -18,9 +18,9 @@
 import Foundation
 
 @objc public class KMPEntity: NSObject {
-  let entity: Subscribable
+  let entity: SubscribeTarget
 
-  init(entity: Subscribable) {
+  init(entity: SubscribeTarget) {
     self.entity = entity
   }
 

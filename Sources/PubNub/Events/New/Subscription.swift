@@ -11,11 +11,16 @@
 import Foundation
 
 /// A final class representing a PubNub subscription.
-///
-/// Use this class to create and manage subscriptions for a specific `Subscribable` entity.
-/// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
-/// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
-public final class Subscription: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
+public final class Subscription: SubscriptionInternalInterface {
+  /// The queue that events will be received on
+  public let queue: DispatchQueue
+  /// A unique identifier for `Subscription`
+  public let uuid: UUID = UUID()
+  /// An underlying entity that should be added to the Subscribe loop
+  public let entity: SubscribeTarget
+  /// Attached options
+  public let options: SubscriptionOptions
+
   /// Initializes a `Subscription` object.
   ///
   /// - Parameters:
@@ -24,7 +29,7 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   ///   - options: Additional subscription options
   public init(
     queue: DispatchQueue = .main,
-    entity: Subscribable,
+    entity: SubscribeTarget,
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) {
     self.queue = queue
@@ -32,20 +37,7 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     self.options = SubscriptionOptions.empty() + options
   }
 
-  public let queue: DispatchQueue
-  /// A unique identifier for `Subscription`
-  public let uuid: UUID = UUID()
-  /// An underlying entity that should be added to the Subscribe loop
-  public let entity: Subscribable
-  /// Attached options
-  public let options: SubscriptionOptions
-  /// Whether current subscription is disposed or not
-  public private(set) var isDisposed = false
-  // Stores the timetoken the user subscribed with
-  private(set) var timetoken: Timetoken?
-  // Stores additional listeners
-  private let listenersContainer: SubscriptionListenersContainer = .init()
-
+  public var isDisposed: Bool { isBeingDisposed.lockedRead { $0 } }
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
@@ -55,6 +47,9 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
 
+  private let isBeingDisposed: Atomic<Bool> = Atomic(false)
+  private let listenersContainer: SubscriptionListenersContainer = .init()
+  
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(
     receiver: self,
@@ -62,15 +57,15 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     queue: queue
   )
 
-  internal var pubnub: PubNub? {
+  weak var pubnub: PubNub? {
     entity.pubnub
   }
 
-  internal var subscriptionType: SubscribableType {
-    entity.subscriptionType
+  var subscriptionType: SubscribeTargetType {
+    entity.targetType
   }
 
-  internal var subscriptionNames: [String] {
+  var subscriptionNames: [String] {
     let hasPresenceOption = options.hasPresenceOption()
     let name = entity.name
 
@@ -108,9 +103,15 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     clearCallbacks()
     unsubscribe()
     removeAllListeners()
-    isDisposed = true
+    isBeingDisposed.lockedWrite { $0 = true }
   }
+  
+  deinit {
+    dispose()
+  }
+}
 
+extension Subscription: EventListenerHandler {
   /// Adds additional subscription listener
   public func addEventListener(_ listener: EventListener) {
     listenersContainer.storeEventListener(listener)
@@ -125,13 +126,9 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   public func removeAllListeners() {
     listenersContainer.removeAllEventListeners()
   }
-
-  deinit {
-    dispose()
-  }
 }
 
-extension Subscription: SubscribeCapable {
+extension Subscription {
   /// Subscribes to the associated `entity` with the specified timetoken.
   ///
   /// - Parameter timetoken: The timetoken to use for subscribing. If `nil`, the `0` value is used.
@@ -175,7 +172,7 @@ extension Subscription: Hashable {
 // MARK: - SubscribeMessagesReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
+  var subscriptionTopology: [SubscribeTargetType: [String]] {
     [subscriptionType: subscriptionNames]
   }
 
@@ -190,7 +187,6 @@ extension Subscription: SubscribeMessagesReceiver {
   }
 
   func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
-    let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
     let isMatchingEntity: Bool
 
     if subscriptionType == .channel {
@@ -201,7 +197,7 @@ extension Subscription: SubscribeMessagesReceiver {
       isMatchingEntity = true
     }
 
-    if isMatchingEntity && isNewerOrEqualToTimetoken {
+    if isMatchingEntity {
       let event = payload.asPubNubEvent()
       return options.filterCriteriaSatisfied(event: event) ? event : nil
     } else {

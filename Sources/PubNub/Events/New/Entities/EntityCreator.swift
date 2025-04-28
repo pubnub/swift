@@ -63,7 +63,7 @@ public extension EntityCreator {
   /// - Returns: A `SubscriptionSet` instance for managing the specified entities.
   func subscription(
     queue: DispatchQueue = .main,
-    entities: any Collection<Subscribable>,
+    entities: some Collection<SubscribeTarget>,
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) -> SubscriptionSet {
     SubscriptionSet(

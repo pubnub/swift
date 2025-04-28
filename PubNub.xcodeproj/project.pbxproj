@@ -467,11 +467,9 @@
 		3DB9257F2B7AA75F001B7E90 /* SubscriptionSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */; };
 		3DB925802B7AA75F001B7E90 /* PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */; };
 		3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */; };
-		3DB925822B7AA75F001B7E90 /* Subscribable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925742B7AA75F001B7E90 /* Subscribable.swift */; };
 		3DB925832B7AA75F001B7E90 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925752B7AA75F001B7E90 /* Subscription.swift */; };
 		3DB925842B7AA75F001B7E90 /* EventListenerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */; };
 		3DB925852B7AA75F001B7E90 /* EntityCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925782B7AA75F001B7E90 /* EntityCreator.swift */; };
-		3DB925862B7AA75F001B7E90 /* EntitySubscribable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925792B7AA75F001B7E90 /* EntitySubscribable.swift */; };
 		3DB925872B7AA75F001B7E90 /* SessionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9257B2B7AA75F001B7E90 /* SessionStream.swift */; };
 		3DBB2C212ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
 		3DBB2C222ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */; };
@@ -481,6 +479,13 @@
 		3DBFF2C32C2300F500142985 /* KMPSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C22C2300F500142985 /* KMPSubscription.swift */; };
 		3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */; };
 		3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */; };
+		3DFDF2652DBBD94000D42426 /* StatusListenerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF2642DBBD94000D42426 /* StatusListenerInterface.swift */; };
+		3DFDF2672DBBD94800D42426 /* SubscribeCapable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF2662DBBD94800D42426 /* SubscribeCapable.swift */; };
+		3DFDF2692DBBD94C00D42426 /* SubscribeTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF2682DBBD94C00D42426 /* SubscribeTarget.swift */; };
+		3DFDF26B2DBBD95500D42426 /* SubscriptionOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF26A2DBBD95500D42426 /* SubscriptionOptions.swift */; };
+		3DFDF26D2DBBD95B00D42426 /* SubscriptionProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF26C2DBBD95B00D42426 /* SubscriptionProvider.swift */; };
+		3DFDF26F2DBBDA6200D42426 /* SubscriptionInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF26E2DBBDA6200D42426 /* SubscriptionInterface.swift */; };
+		3DFDF2712DBBE31800D42426 /* AnySubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFDF2702DBBE31800D42426 /* AnySubscription.swift */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
@@ -1090,11 +1095,9 @@
 		3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSet.swift; sourceTree = "<group>"; };
 		3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEvent.swift; sourceTree = "<group>"; };
 		3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SubscribeMessagePayload+PubNubEvent.swift"; sourceTree = "<group>"; };
-		3DB925742B7AA75F001B7E90 /* Subscribable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribable.swift; sourceTree = "<group>"; };
 		3DB925752B7AA75F001B7E90 /* Subscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListenerInterface.swift; sourceTree = "<group>"; };
 		3DB925782B7AA75F001B7E90 /* EntityCreator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntityCreator.swift; sourceTree = "<group>"; };
-		3DB925792B7AA75F001B7E90 /* EntitySubscribable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EntitySubscribable.swift; sourceTree = "<group>"; };
 		3DB9257B2B7AA75F001B7E90 /* SessionStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStream.swift; sourceTree = "<group>"; };
 		3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubCryptoModuleContractTestSteps.swift; sourceTree = "<group>"; };
 		3DBFF2BA2C203EDC00142985 /* KMPUploadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPUploadable.swift; sourceTree = "<group>"; };
@@ -1104,6 +1107,13 @@
 		3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceStateContainer.swift; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
+		3DFDF2642DBBD94000D42426 /* StatusListenerInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusListenerInterface.swift; sourceTree = "<group>"; };
+		3DFDF2662DBBD94800D42426 /* SubscribeCapable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeCapable.swift; sourceTree = "<group>"; };
+		3DFDF2682DBBD94C00D42426 /* SubscribeTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeTarget.swift; sourceTree = "<group>"; };
+		3DFDF26A2DBBD95500D42426 /* SubscriptionOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionOptions.swift; sourceTree = "<group>"; };
+		3DFDF26C2DBBD95B00D42426 /* SubscriptionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionProvider.swift; sourceTree = "<group>"; };
+		3DFDF26E2DBBDA6200D42426 /* SubscriptionInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionInterface.swift; sourceTree = "<group>"; };
+		3DFDF2702DBBE31800D42426 /* AnySubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnySubscription.swift; sourceTree = "<group>"; };
 		793079152667C63700F23B72 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; path = CODEOWNERS; sourceTree = "<group>"; };
 		793079172667C63700F23B72 /* validate-yml.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "validate-yml.js"; sourceTree = "<group>"; };
 		793079182667C63700F23B72 /* validate-pubnub-yml.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "validate-pubnub-yml.yml"; sourceTree = "<group>"; };
@@ -2382,10 +2392,16 @@
 			isa = PBXGroup;
 			children = (
 				3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */,
+				3DFDF2642DBBD94000D42426 /* StatusListenerInterface.swift */,
 				3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */,
-				3DB925742B7AA75F001B7E90 /* Subscribable.swift */,
+				3DFDF2662DBBD94800D42426 /* SubscribeCapable.swift */,
+				3DFDF2682DBBD94C00D42426 /* SubscribeTarget.swift */,
+				3DFDF26C2DBBD95B00D42426 /* SubscriptionProvider.swift */,
+				3DFDF26E2DBBDA6200D42426 /* SubscriptionInterface.swift */,
+				3DFDF2702DBBE31800D42426 /* AnySubscription.swift */,
 				3DB925752B7AA75F001B7E90 /* Subscription.swift */,
 				3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */,
+				3DFDF26A2DBBD95500D42426 /* SubscriptionOptions.swift */,
 				3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */,
 				3DB925772B7AA75F001B7E90 /* Entities */,
 				3DB925722B7AA75F001B7E90 /* Extensions */,
@@ -2405,7 +2421,6 @@
 			isa = PBXGroup;
 			children = (
 				3DB925782B7AA75F001B7E90 /* EntityCreator.swift */,
-				3DB925792B7AA75F001B7E90 /* EntitySubscribable.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -3640,16 +3655,19 @@
 				3DA24A412C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift in Sources */,
 				35C829DC23147AC000F59D3C /* SubscriptionState.swift in Sources */,
 				35E71C3C2490678E0032A991 /* PubNubPresence.swift in Sources */,
+				3DFDF26B2DBBD95500D42426 /* SubscriptionOptions.swift in Sources */,
 				35D8D4CD22EB90F1001B07D9 /* Int+PubNub.swift in Sources */,
 				35B3824A233AAB8C0028803F /* JSONCodable.swift in Sources */,
 				35599792230A3F11000BCFD1 /* Thread+PubNub.swift in Sources */,
+				3DFDF2652DBBD94000D42426 /* StatusListenerInterface.swift in Sources */,
 				3DB2C4872C0F4B250060B8CF /* KMPStatusListener.swift in Sources */,
 				3D389FEF2B35AF4A006928E7 /* Presence.swift in Sources */,
-				3DB925862B7AA75F001B7E90 /* EntitySubscribable.swift in Sources */,
+				3DFDF2672DBBD94800D42426 /* SubscribeCapable.swift in Sources */,
 				3D389FF82B35AF4A006928E7 /* PresenceInput.swift in Sources */,
 				3DB9257D2B7AA75F001B7E90 /* SubscriptionStream.swift in Sources */,
 				3DA24A392C2AAA3D005B959B /* KMPPubNub+History.swift in Sources */,
 				3567434822E1E4F700BF2639 /* Collection+PubNub.swift in Sources */,
+				3DFDF26F2DBBDA6200D42426 /* SubscriptionInterface.swift in Sources */,
 				354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */,
 				359512102301DCAB00C9D3AE /* Crypto.swift in Sources */,
 				3534D4E822C67D0E008E89FA /* OperationQueue+PubNub.swift in Sources */,
@@ -3674,6 +3692,7 @@
 				3557CE0723886434004BBACC /* PubNubAPNSPayload.swift in Sources */,
 				3D389FED2B35AF4A006928E7 /* Subscribe.swift in Sources */,
 				3D389FE22B35AF4A006928E7 /* Dispatcher.swift in Sources */,
+				3DFDF2712DBBE31800D42426 /* AnySubscription.swift in Sources */,
 				3D389FF02B35AF4A006928E7 /* PresenceTransition.swift in Sources */,
 				35DB0C4D287476BF001E1F76 /* OptionalChange.swift in Sources */,
 				35458BAB230F369A0085B502 /* InstanceIdOperator.swift in Sources */,
@@ -3730,11 +3749,12 @@
 				3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */,
 				35E4604F234B8B9D005D04AE /* ErrorDescription.swift in Sources */,
 				35089A0922E3C08D002BCC94 /* Error+PubNub.swift in Sources */,
+				3DFDF26D2DBBD95B00D42426 /* SubscriptionProvider.swift in Sources */,
 				3534D4E422C57659008E89FA /* PublishRouter.swift in Sources */,
 				35EE358C22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift in Sources */,
 				3DB692522D555AA5006702DC /* Logger.swift in Sources */,
 				3D389FEE2B35AF4A006928E7 /* SubscribeTransition.swift in Sources */,
-				3DB925822B7AA75F001B7E90 /* Subscribable.swift in Sources */,
+				3DFDF2692DBBD94C00D42426 /* SubscribeTarget.swift in Sources */,
 				3D7062C42D26AA20000729E1 /* KMPAppContextIncludeFields.swift in Sources */,
 				3DB9257E2B7AA75F001B7E90 /* PubNubEntityEvent.swift in Sources */,
 				3D389FE32B35AF4A006928E7 /* EffectHandler.swift in Sources */,

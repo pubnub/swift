@@ -426,7 +426,7 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
+  var subscriptionTopology: [SubscribeTargetType: [String]] {
     [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
   }
 

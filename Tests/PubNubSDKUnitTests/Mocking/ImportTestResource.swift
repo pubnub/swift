@@ -44,7 +44,7 @@ extension URLErrorResource {
 }
 
 enum ImportTestResource {
-  static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
+  static let testsBundle = Bundle.module
 
   static func importResource(_ filename: String, withExtension ext: String = "json") throws -> Data {
     let url = try ImportTestResource.resourceURL(filename, withExtension: ext)
@@ -57,7 +57,7 @@ enum ImportTestResource {
   }
 
   static func resourceURL(_ filename: String, withExtension ext: String = "json") throws -> URL {
-    guard let url = testsBundle.url(forResource: filename, withExtension: ext) else {
+    guard let url = Bundle.module.url(forResource: filename, withExtension: ext) else {
       throw ImportTestResourceError.jsonResourceNotFound
     }
 

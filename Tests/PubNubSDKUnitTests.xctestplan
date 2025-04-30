@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "6ADBEB07-9DA0-4683-B7C7-CA5C71532DD9",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : false,
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "PubNubSDKUnitTests",
+        "name" : "PubNubSDKUnitTests"
+      }
+    }
+  ],
+  "version" : 1
+}

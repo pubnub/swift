@@ -225,48 +225,6 @@
 		3DBFF2C12C22F27300142985 /* PubNub+URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C02C22F27300142985 /* PubNub+URL.swift */; };
 		3DBFF2C32C2300F500142985 /* KMPSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBFF2C22C2300F500142985 /* KMPSubscription.swift */; };
 		3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */; };
-		3DFEB0F52DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E12DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
-		3DFEB0F62DC23B80000833F5 /* PubNubPublishContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E82DC23B80000833F5 /* PubNubPublishContractTestSteps.swift */; };
-		3DFEB0F72DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E42DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
-		3DFEB0F82DC23B80000833F5 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E22DC23B80000833F5 /* PubNubObjectsContractTests.swift */; };
-		3DFEB0F92DC23B80000833F5 /* PubNubAccessContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D22DC23B80000833F5 /* PubNubAccessContractTestSteps.swift */; };
-		3DFEB0FA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift */; };
-		3DFEB0FB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift */; };
-		3DFEB0FC2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EE2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift */; };
-		3DFEB0FD2DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D92DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
-		3DFEB0FE2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DD2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift */; };
-		3DFEB0FF2DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D42DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift */; };
-		3DFEB1002DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D62DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift */; };
-		3DFEB1012DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E32DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift */; };
-		3DFEB1022DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D82DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift */; };
-		3DFEB1032DC23B80000833F5 /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0F12DC23B80000833F5 /* PubNubContractCucumberTest.m */; };
-		3DFEB1042DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D72DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift */; };
-		3DFEB1052DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DF2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift */; };
-		3DFEB1062DC23B80000833F5 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E52DC23B80000833F5 /* PubNubObjectsTestHelpers.swift */; };
-		3DFEB1072DC23B80000833F5 /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0F22DC23B80000833F5 /* PubNubContractTestCase.swift */; };
-		3DFEB1082DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EC2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift */; };
-		3DFEB1092DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E62DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift */; };
-		3DFEB10A2DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E12DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift */; };
-		3DFEB10B2DC23B80000833F5 /* PubNubPublishContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E82DC23B80000833F5 /* PubNubPublishContractTestSteps.swift */; };
-		3DFEB10C2DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E42DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
-		3DFEB10D2DC23B80000833F5 /* PubNubObjectsContractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E22DC23B80000833F5 /* PubNubObjectsContractTests.swift */; };
-		3DFEB10E2DC23B80000833F5 /* PubNubAccessContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D22DC23B80000833F5 /* PubNubAccessContractTestSteps.swift */; };
-		3DFEB10F2DC23B80000833F5 /* PubNubPushContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift */; };
-		3DFEB1102DC23B80000833F5 /* PubNubFilesContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift */; };
-		3DFEB1112DC23B80000833F5 /* PubNubTimeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EE2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift */; };
-		3DFEB1122DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D92DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift */; };
-		3DFEB1132DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DD2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift */; };
-		3DFEB1142DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D42DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift */; };
-		3DFEB1152DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D62DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift */; };
-		3DFEB1162DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E32DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift */; };
-		3DFEB1172DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D82DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift */; };
-		3DFEB1182DC23B80000833F5 /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0F12DC23B80000833F5 /* PubNubContractCucumberTest.m */; };
-		3DFEB1192DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0D72DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift */; };
-		3DFEB11A2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0DF2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift */; };
-		3DFEB11B2DC23B80000833F5 /* PubNubObjectsTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E52DC23B80000833F5 /* PubNubObjectsTestHelpers.swift */; };
-		3DFEB11C2DC23B80000833F5 /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0F22DC23B80000833F5 /* PubNubContractTestCase.swift */; };
-		3DFEB11D2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0EC2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift */; };
-		3DFEB11E2DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DFEB0E62DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
 		7941EEA9270E433F0054D9EF /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
@@ -520,6 +478,7 @@
 		35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+PubNub.swift"; sourceTree = "<group>"; };
 		35F0257222BAB043007BD7D3 /* PubNub_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNub_Info.plist; path = Sources/PubNub/PubNub_Info.plist; sourceTree = SOURCE_ROOT; };
 		35F0259822BBFA85007BD7D3 /* HTTPSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPSession.swift; sourceTree = "<group>"; };
+		3D19B8362DC240F8008F31B0 /* PubNubSDKUnitTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PubNubSDKUnitTests.xctestplan; sourceTree = "<group>"; };
 		3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHashedPage.swift; sourceTree = "<group>"; };
 		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
 		3D339C742BFF826500197342 /* KMPEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPEventListener.swift; sourceTree = "<group>"; };
@@ -604,28 +563,6 @@
 		3DBFF2C22C2300F500142985 /* KMPSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPSubscription.swift; sourceTree = "<group>"; };
 		3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubPresenceStateContainer.swift; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
-		3DFEB0D22DC23B80000833F5 /* PubNubAccessContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubAccessContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0D42DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubCryptoModuleContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0D62DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0D72DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubEventEngineTestsHelpers.swift; sourceTree = "<group>"; };
-		3DFEB0D82DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPresenceEngineContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0D92DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeEngineContractTestsSteps.swift; sourceTree = "<group>"; };
-		3DFEB0DB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubFilesContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0DD2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubHistoryContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0DF2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageActionsContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0E12DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0E22DC23B80000833F5 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
-		3DFEB0E32DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0E42DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0E52DC23B80000833F5 /* PubNubObjectsTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsTestHelpers.swift; sourceTree = "<group>"; };
-		3DFEB0E62DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUserMetadataContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0E82DC23B80000833F5 /* PubNubPublishContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPublishContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0EA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0EC2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSubscribeContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0EE2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTimeContractTestSteps.swift; sourceTree = "<group>"; };
-		3DFEB0F12DC23B80000833F5 /* PubNubContractCucumberTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PubNubContractCucumberTest.m; sourceTree = "<group>"; };
-		3DFEB0F22DC23B80000833F5 /* PubNubContractTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubContractTestCase.swift; sourceTree = "<group>"; };
-		3DFEB0F32DC23B80000833F5 /* PubNubContractTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PubNubContractTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3DFEB11F2DC23B92000833F5 /* EffectInvocation+Equatable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EffectInvocation+Equatable.swift"; sourceTree = "<group>"; };
 		3DFEB1212DC23B92000833F5 /* HeartbeatEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeartbeatEffectTests.swift; sourceTree = "<group>"; };
 		3DFEB1222DC23B92000833F5 /* LeaveEffectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveEffectTests.swift; sourceTree = "<group>"; };
@@ -669,15 +606,6 @@
 		3DFEB1502DC23B92000833F5 /* ValidatedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatedTests.swift; sourceTree = "<group>"; };
 		3DFEB1512DC23B92000833F5 /* WeakBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakBoxTests.swift; sourceTree = "<group>"; };
 		3DFEB1522DC23B92000833F5 /* XMLCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XMLCodingTests.swift; sourceTree = "<group>"; };
-		3DFEB1542DC23B92000833F5 /* ChannelObjectsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelObjectsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB1552DC23B92000833F5 /* MessageActionsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageActionsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB1562DC23B92000833F5 /* OnboardingSnippets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSnippets.swift; sourceTree = "<group>"; };
-		3DFEB1572DC23B92000833F5 /* PresenceEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEndpointIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB1582DC23B92000833F5 /* PublishEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishEndpointIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB1592DC23B92000833F5 /* PubNub+Integration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PubNub+Integration.swift"; sourceTree = "<group>"; };
-		3DFEB15A2DC23B92000833F5 /* PushIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB15B2DC23B92000833F5 /* SubscriptionIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionIntegrationTests.swift; sourceTree = "<group>"; };
-		3DFEB15C2DC23B92000833F5 /* UUIDObjectsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UUIDObjectsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3DFEB15E2DC23B92000833F5 /* groups_channels_add_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = groups_channels_add_success.json; sourceTree = "<group>"; };
 		3DFEB15F2DC23B92000833F5 /* groups_channels_list_success.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = groups_channels_list_success.json; sourceTree = "<group>"; };
 		3DFEB1602DC23B92000833F5 /* groups_channels_list_success_empty.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = groups_channels_list_success_empty.json; sourceTree = "<group>"; };
@@ -1666,135 +1594,10 @@
 		3DFEB0D12DC23B60000833F5 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				3DFEB22B2DC23B92000833F5 /* PubNubUnitTests */,
-				3DFEB0F42DC23B80000833F5 /* PubNubContractTests */,
+				3D19B8362DC240F8008F31B0 /* PubNubSDKUnitTests.xctestplan */,
+				3DFEB22B2DC23B92000833F5 /* PubNubSDKUnitTests */,
 			);
 			path = Tests;
-			sourceTree = "<group>";
-		};
-		3DFEB0D32DC23B80000833F5 /* Access */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0D22DC23B80000833F5 /* PubNubAccessContractTestSteps.swift */,
-			);
-			path = Access;
-			sourceTree = "<group>";
-		};
-		3DFEB0D52DC23B80000833F5 /* CryptorModule */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0D42DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift */,
-			);
-			path = CryptorModule;
-			sourceTree = "<group>";
-		};
-		3DFEB0DA2DC23B80000833F5 /* EventEngine */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0D62DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift */,
-				3DFEB0D72DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift */,
-				3DFEB0D82DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift */,
-				3DFEB0D92DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift */,
-			);
-			path = EventEngine;
-			sourceTree = "<group>";
-		};
-		3DFEB0DC2DC23B80000833F5 /* Files */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0DB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift */,
-			);
-			path = Files;
-			sourceTree = "<group>";
-		};
-		3DFEB0DE2DC23B80000833F5 /* History */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0DD2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift */,
-			);
-			path = History;
-			sourceTree = "<group>";
-		};
-		3DFEB0E02DC23B80000833F5 /* Message Actions */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0DF2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift */,
-			);
-			path = "Message Actions";
-			sourceTree = "<group>";
-		};
-		3DFEB0E72DC23B80000833F5 /* Objects */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0E12DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift */,
-				3DFEB0E22DC23B80000833F5 /* PubNubObjectsContractTests.swift */,
-				3DFEB0E32DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift */,
-				3DFEB0E42DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift */,
-				3DFEB0E52DC23B80000833F5 /* PubNubObjectsTestHelpers.swift */,
-				3DFEB0E62DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift */,
-			);
-			path = Objects;
-			sourceTree = "<group>";
-		};
-		3DFEB0E92DC23B80000833F5 /* Publish */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0E82DC23B80000833F5 /* PubNubPublishContractTestSteps.swift */,
-			);
-			path = Publish;
-			sourceTree = "<group>";
-		};
-		3DFEB0EB2DC23B80000833F5 /* Push */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0EA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift */,
-			);
-			path = Push;
-			sourceTree = "<group>";
-		};
-		3DFEB0ED2DC23B80000833F5 /* Subscribe */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0EC2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift */,
-			);
-			path = Subscribe;
-			sourceTree = "<group>";
-		};
-		3DFEB0EF2DC23B80000833F5 /* Utilities */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0EE2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift */,
-			);
-			path = Utilities;
-			sourceTree = "<group>";
-		};
-		3DFEB0F02DC23B80000833F5 /* Steps */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0D32DC23B80000833F5 /* Access */,
-				3DFEB0D52DC23B80000833F5 /* CryptorModule */,
-				3DFEB0DA2DC23B80000833F5 /* EventEngine */,
-				3DFEB0DC2DC23B80000833F5 /* Files */,
-				3DFEB0DE2DC23B80000833F5 /* History */,
-				3DFEB0E02DC23B80000833F5 /* Message Actions */,
-				3DFEB0E72DC23B80000833F5 /* Objects */,
-				3DFEB0E92DC23B80000833F5 /* Publish */,
-				3DFEB0EB2DC23B80000833F5 /* Push */,
-				3DFEB0ED2DC23B80000833F5 /* Subscribe */,
-				3DFEB0EF2DC23B80000833F5 /* Utilities */,
-			);
-			path = Steps;
-			sourceTree = "<group>";
-		};
-		3DFEB0F42DC23B80000833F5 /* PubNubContractTests */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB0F02DC23B80000833F5 /* Steps */,
-				3DFEB0F12DC23B80000833F5 /* PubNubContractCucumberTest.m */,
-				3DFEB0F22DC23B80000833F5 /* PubNubContractTestCase.swift */,
-				3DFEB0F32DC23B80000833F5 /* PubNubContractTests-Bridging-Header.h */,
-			);
-			path = PubNubContractTests;
 			sourceTree = "<group>";
 		};
 		3DFEB1202DC23B92000833F5 /* Helpers */ = {
@@ -1914,22 +1717,6 @@
 				3DFEB1522DC23B92000833F5 /* XMLCodingTests.swift */,
 			);
 			path = Helpers;
-			sourceTree = "<group>";
-		};
-		3DFEB15D2DC23B92000833F5 /* Integration */ = {
-			isa = PBXGroup;
-			children = (
-				3DFEB1542DC23B92000833F5 /* ChannelObjectsEndpointIntegrationTests.swift */,
-				3DFEB1552DC23B92000833F5 /* MessageActionsEndpointIntegrationTests.swift */,
-				3DFEB1562DC23B92000833F5 /* OnboardingSnippets.swift */,
-				3DFEB1572DC23B92000833F5 /* PresenceEndpointIntegrationTests.swift */,
-				3DFEB1582DC23B92000833F5 /* PublishEndpointIntegrationTests.swift */,
-				3DFEB1592DC23B92000833F5 /* PubNub+Integration.swift */,
-				3DFEB15A2DC23B92000833F5 /* PushIntegrationTests.swift */,
-				3DFEB15B2DC23B92000833F5 /* SubscriptionIntegrationTests.swift */,
-				3DFEB15C2DC23B92000833F5 /* UUIDObjectsEndpointIntegrationTests.swift */,
-			);
-			path = Integration;
 			sourceTree = "<group>";
 		};
 		3DFEB1652DC23B92000833F5 /* Channel Groups */ = {
@@ -2278,22 +2065,21 @@
 			path = Subscription;
 			sourceTree = "<group>";
 		};
-		3DFEB22B2DC23B92000833F5 /* PubNubUnitTests */ = {
+		3DFEB22B2DC23B92000833F5 /* PubNubSDKUnitTests */ = {
 			isa = PBXGroup;
 			children = (
+				3DFEB2292DC23B92000833F5 /* PubNubConfigurationTests.swift */,
+				3DFEB22A2DC23B92000833F5 /* PubNubTests.swift */,
 				3DFEB12E2DC23B92000833F5 /* EventEngine */,
 				3DFEB1372DC23B92000833F5 /* Events */,
 				3DFEB1472DC23B92000833F5 /* Extensions */,
 				3DFEB1532DC23B92000833F5 /* Helpers */,
-				3DFEB15D2DC23B92000833F5 /* Integration */,
 				3DFEB20E2DC23B92000833F5 /* Mocking */,
 				3DFEB2232DC23B92000833F5 /* Networking */,
 				3DFEB2252DC23B92000833F5 /* Push */,
 				3DFEB2282DC23B92000833F5 /* Subscription */,
-				3DFEB2292DC23B92000833F5 /* PubNubConfigurationTests.swift */,
-				3DFEB22A2DC23B92000833F5 /* PubNubTests.swift */,
 			);
-			path = PubNubUnitTests;
+			path = PubNubSDKUnitTests;
 			sourceTree = "<group>";
 		};
 		793079142667C63700F23B72 /* .github */ = {
@@ -2412,9 +2198,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		3558069D23145749005CDD92 /* PubNubIntegration */ = {
+		3558069D23145749005CDD92 /* PubNubSDKIntegrationTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 3558073423145749005CDD92 /* Build configuration list for PBXNativeTarget "PubNubIntegration" */;
+			buildConfigurationList = 3558073423145749005CDD92 /* Build configuration list for PBXNativeTarget "PubNubSDKIntegrationTests" */;
 			buildPhases = (
 				355806A023145749005CDD92 /* Sources */,
 				355806DA23145749005CDD92 /* Frameworks */,
@@ -2425,7 +2211,7 @@
 			dependencies = (
 				3558069E23145749005CDD92 /* PBXTargetDependency */,
 			);
-			name = PubNubIntegration;
+			name = PubNubSDKIntegrationTests;
 			productName = PubNubTests;
 			productReference = 3558073723145749005CDD92 /* PubNubIntTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -2707,7 +2493,7 @@
 				"PubNub::PubNub" /* PubNubSDK */,
 				7941EE6B270E433F0054D9EF /* PubNubSDKContractTests */,
 				79657A93271A13F700BACEC5 /* PubNubSDKContractTestsBeta */,
-				3558069D23145749005CDD92 /* PubNubIntegration */,
+				3558069D23145749005CDD92 /* PubNubSDKIntegrationTests */,
 				358B890A284D206B00DB0F3D /* PubNubUser */,
 				358B8913284D206B00DB0F3D /* PubNubUserTests */,
 				35CA8FF0285A5DAC007C2F65 /* PubNubUserIntTests */,
@@ -3005,27 +2791,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				3DFEB10A2DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */,
-				3DFEB10B2DC23B80000833F5 /* PubNubPublishContractTestSteps.swift in Sources */,
-				3DFEB10C2DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
-				3DFEB10D2DC23B80000833F5 /* PubNubObjectsContractTests.swift in Sources */,
-				3DFEB10E2DC23B80000833F5 /* PubNubAccessContractTestSteps.swift in Sources */,
-				3DFEB10F2DC23B80000833F5 /* PubNubPushContractTestSteps.swift in Sources */,
-				3DFEB1102DC23B80000833F5 /* PubNubFilesContractTestSteps.swift in Sources */,
-				3DFEB1112DC23B80000833F5 /* PubNubTimeContractTestSteps.swift in Sources */,
-				3DFEB1122DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
-				3DFEB1132DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift in Sources */,
-				3DFEB1142DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift in Sources */,
-				3DFEB1152DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift in Sources */,
-				3DFEB1162DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
-				3DFEB1172DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift in Sources */,
-				3DFEB1182DC23B80000833F5 /* PubNubContractCucumberTest.m in Sources */,
-				3DFEB1192DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift in Sources */,
-				3DFEB11A2DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift in Sources */,
-				3DFEB11B2DC23B80000833F5 /* PubNubObjectsTestHelpers.swift in Sources */,
-				3DFEB11C2DC23B80000833F5 /* PubNubContractTestCase.swift in Sources */,
-				3DFEB11D2DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift in Sources */,
-				3DFEB11E2DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3033,27 +2798,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 0;
 			files = (
-				3DFEB0F52DC23B80000833F5 /* PubNubObjectsChannelMetadataContractTestSteps.swift in Sources */,
-				3DFEB0F62DC23B80000833F5 /* PubNubPublishContractTestSteps.swift in Sources */,
-				3DFEB0F72DC23B80000833F5 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */,
-				3DFEB0F82DC23B80000833F5 /* PubNubObjectsContractTests.swift in Sources */,
-				3DFEB0F92DC23B80000833F5 /* PubNubAccessContractTestSteps.swift in Sources */,
-				3DFEB0FA2DC23B80000833F5 /* PubNubPushContractTestSteps.swift in Sources */,
-				3DFEB0FB2DC23B80000833F5 /* PubNubFilesContractTestSteps.swift in Sources */,
-				3DFEB0FC2DC23B80000833F5 /* PubNubTimeContractTestSteps.swift in Sources */,
-				3DFEB0FD2DC23B80000833F5 /* PubNubSubscribeEngineContractTestsSteps.swift in Sources */,
-				3DFEB0FE2DC23B80000833F5 /* PubNubHistoryContractTestSteps.swift in Sources */,
-				3DFEB0FF2DC23B80000833F5 /* PubNubCryptoModuleContractTestSteps.swift in Sources */,
-				3DFEB1002DC23B80000833F5 /* PubNubEventEngineContractTestSteps.swift in Sources */,
-				3DFEB1012DC23B80000833F5 /* PubNubObjectsMembersContractTestSteps.swift in Sources */,
-				3DFEB1022DC23B80000833F5 /* PubNubPresenceEngineContractTestSteps.swift in Sources */,
-				3DFEB1032DC23B80000833F5 /* PubNubContractCucumberTest.m in Sources */,
-				3DFEB1042DC23B80000833F5 /* PubNubEventEngineTestsHelpers.swift in Sources */,
-				3DFEB1052DC23B80000833F5 /* PubNubMessageActionsContractTestSteps.swift in Sources */,
-				3DFEB1062DC23B80000833F5 /* PubNubObjectsTestHelpers.swift in Sources */,
-				3DFEB1072DC23B80000833F5 /* PubNubContractTestCase.swift in Sources */,
-				3DFEB1082DC23B80000833F5 /* PubNubSubscribeContractTestSteps.swift in Sources */,
-				3DFEB1092DC23B80000833F5 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4431,7 +4175,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		3558073423145749005CDD92 /* Build configuration list for PBXNativeTarget "PubNubIntegration" */ = {
+		3558073423145749005CDD92 /* Build configuration list for PBXNativeTarget "PubNubSDKIntegrationTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				3558073523145749005CDD92 /* Debug */,

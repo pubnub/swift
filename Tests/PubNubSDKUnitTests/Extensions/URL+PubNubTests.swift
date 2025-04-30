@@ -19,7 +19,7 @@ final class URLPubNubTests: XCTestCase {
     }
     let queryItem = URLQueryItem(name: "key", value: "value")
 
-    let newURL = url.appending(queryItems: [queryItem])
+    let newURL = url.byAppending(queryItems: [queryItem])
 
     XCTAssertEqual(newURL?.absoluteString, testString)
   }
@@ -31,7 +31,7 @@ final class URLPubNubTests: XCTestCase {
     }
     let queryItem = URLQueryItem(name: "key", value: "value")
 
-    let newURL = url.appending(queryItems: [queryItem])
+    let newURL = url.byAppending(queryItems: [queryItem])
 
     XCTAssertEqual(newURL?.absoluteString, testString)
   }

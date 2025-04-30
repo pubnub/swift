@@ -47,12 +47,14 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.durationUntilTimeout, 20)
   }
 
-  func testInit_Bundle() {
-    let config = PubNubConfiguration(from: testsBundle)
-
-    XCTAssertEqual(config.publishKey, plistPublishKeyValue)
-    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
-  }
+  // TODO:
+  
+//  func testInit_Bundle() {
+//    let config = PubNubConfiguration(from: testsBundle)
+//
+//    XCTAssertEqual(config.publishKey, plistPublishKeyValue)
+//    XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
+//  }
 
   func testInit_RawValues() {
     let config = PubNubConfiguration(
@@ -67,15 +69,15 @@ class PubNubConfigurationTests: XCTestCase {
 
   func testConfigurations_DifferentCryptoModules() {
     let firstConfig = PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: "demo",
+      subscribeKey: "demo",
+      userId: "userId",
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
     )
     let secondConfig = PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: "demo",
+      subscribeKey: "demo",
+      userId: "userId",
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
     )
 

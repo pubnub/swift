@@ -26,7 +26,7 @@ public extension URL {
   /// - parameters:
   ///   - queryItems: The `URLQueryItem` collection to append
   /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
+  func byAppending(queryItems: [URLQueryItem]) -> URL? {
     var urlComponents = URLComponents(string: absoluteString)
 
     if urlComponents?.queryItems != nil {

@@ -22,10 +22,14 @@ public struct RequestIdOperator: RequestOperator {
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
     var mutatedRequest = urlRequest
-    mutatedRequest.url = mutatedRequest.url?
-      .appending(queryItems: [URLQueryItem(name: RequestIdOperator.requestIDKey,
-                                           value: requestID)])
-
+    mutatedRequest.url = mutatedRequest.url?.byAppending(
+      queryItems: [
+        URLQueryItem(
+          name: RequestIdOperator.requestIDKey,
+          value: requestID
+        )
+      ]
+    )
     completion(.success(mutatedRequest))
   }
 }

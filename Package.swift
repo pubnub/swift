@@ -66,7 +66,7 @@ let package = Package(
       path: "PubNubMembership/Sources"
     ),
     .testTarget(
-      name: "PubNubTests",
+      name: "PubNubSDKUnitTests",
       dependencies: ["PubNubSDK"]
     )
   ],

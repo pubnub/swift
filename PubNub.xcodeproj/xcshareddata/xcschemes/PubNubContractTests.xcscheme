@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7941EE6B270E433F0054D9EF"
                BuildableName = "PubNubContractTests.xctest"
-               BlueprintName = "PubNubContractTests"
+               BlueprintName = "PubNubSDKContractTests"
                ReferencedContainer = "container:PubNub.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -34,7 +34,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7941EE6B270E433F0054D9EF"
                BuildableName = "PubNubContractTests.xctest"
-               BlueprintName = "PubNubContractTests"
+               BlueprintName = "PubNubSDKContractTests"
                ReferencedContainer = "container:PubNub.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -62,7 +62,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7941EE6B270E433F0054D9EF"
             BuildableName = "PubNubContractTests.xctest"
-            BlueprintName = "PubNubContractTests"
+            BlueprintName = "PubNubSDKContractTests"
             ReferencedContainer = "container:PubNub.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

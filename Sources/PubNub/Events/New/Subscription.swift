@@ -10,16 +10,39 @@
 
 import Foundation
 
+/// A property wrapper that provides thread-safe access to a value.
+@propertyWrapper
+public class AtomicValue<Value> {
+  private let atomic: Atomic<Value>
+
+  public var wrappedValue: Value {
+    get { atomic.lockedRead { $0 } }
+    set { atomic.lockedWrite { $0 = newValue } }
+  }
+
+  public init(wrappedValue: Value) {
+    self.atomic = Atomic(wrappedValue)
+  }
+}
+
 /// A final class representing a PubNub subscription.
-public final class Subscription: SubscriptionInternalInterface {
-  /// The queue that events will be received on
+public final class Subscription {
   public let queue: DispatchQueue
-  /// A unique identifier for `Subscription`
   public let uuid: UUID = UUID()
-  /// An underlying entity that should be added to the Subscribe loop
   public let entity: SubscribeTarget
-  /// Attached options
   public let options: SubscriptionOptions
+
+  @AtomicValue public private(set) var isDisposed: Bool = false
+  @AtomicValue var listenersCache: SubscriptionListenersContainer = .init()
+
+  public var onEvent: ((PubNubEvent) -> Void)?
+  public var onEvents: (([PubNubEvent]) -> Void)?
+  public var onMessage: ((PubNubMessage) -> Void)?
+  public var onSignal: ((PubNubMessage) -> Void)?
+  public var onPresence: ((PubNubPresenceChange) -> Void)?
+  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
+  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
+  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
 
   /// Initializes a `Subscription` object.
   ///
@@ -37,19 +60,6 @@ public final class Subscription: SubscriptionInternalInterface {
     self.options = SubscriptionOptions.empty() + options
   }
 
-  public var isDisposed: Bool { isBeingDisposed.lockedRead { $0 } }
-  public var onEvent: ((PubNubEvent) -> Void)?
-  public var onEvents: (([PubNubEvent]) -> Void)?
-  public var onMessage: ((PubNubMessage) -> Void)?
-  public var onSignal: ((PubNubMessage) -> Void)?
-  public var onPresence: ((PubNubPresenceChange) -> Void)?
-  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
-  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
-  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
-
-  private let isBeingDisposed: Atomic<Bool> = Atomic(false)
-  private let listenersContainer: SubscriptionListenersContainer = .init()
-  
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(
     receiver: self,
@@ -57,42 +67,30 @@ public final class Subscription: SubscriptionInternalInterface {
     queue: queue
   )
 
-  weak var pubnub: PubNub? {
-    entity.pubnub
+  deinit {
+    dispose()
   }
+}
 
-  var subscriptionType: SubscribeTargetType {
-    entity.targetType
-  }
+// MARK: - SubscriptionInterface
 
-  var subscriptionNames: [String] {
-    let hasPresenceOption = options.hasPresenceOption()
-    let name = entity.name
-
-    switch entity {
-    case is ChannelRepresentation:
-      return hasPresenceOption ? [name, name.presenceChannelName] : [name]
-    case is ChannelGroupRepresentation:
-      return hasPresenceOption ? [name, name.presenceChannelName] : [name]
-    default:
-      return [entity.name]
-    }
-  }
-
+extension Subscription: SubscriptionInterface {
   /// Creates a clone of the current instance of `Subscription`.
   ///
   /// Use this method to create a new instance with the same configuration as the current `Subscription`.
   /// The clone is a separate instance that can be used independently.
   public func clone() -> Subscription {
-    let clonedSubscription = Subscription(
+    let copy = Subscription(
       queue: queue,
       entity: entity,
       options: options
     )
-    if pubnub?.hasRegisteredAdapter(with: uuid) ?? false {
-      pubnub?.registerAdapter(clonedSubscription.adapter)
+
+    if let pubnub = entity.pubnub, pubnub.hasRegisteredAdapter(with: uuid) {
+      pubnub.registerAdapter(copy.adapter)
     }
-    return clonedSubscription
+
+    return copy
   }
 
   /// Disposes the current `Subscription`, ending the subscription.
@@ -101,117 +99,40 @@ public final class Subscription: SubscriptionInternalInterface {
   /// Once disposed, the subscription interface cannot be restarted.
   public func dispose() {
     clearCallbacks()
-    unsubscribe()
     removeAllListeners()
-    isBeingDisposed.lockedWrite { $0 = true }
-  }
-  
-  deinit {
-    dispose()
+    unsubscribe()
+    isDisposed = true
   }
 }
 
-extension Subscription: EventListenerHandler {
-  /// Adds additional subscription listener
-  public func addEventListener(_ listener: EventListener) {
-    listenersContainer.storeEventListener(listener)
-  }
+// MARK: - InternalSubscriptionInterface
 
-  /// Removes subscription listener
-  public func removeEventListener(_ listener: EventListener) {
-    listenersContainer.removeEventListener(listener)
-  }
-
-  /// Removes all event listeners
-  public func removeAllListeners() {
-    listenersContainer.removeAllEventListeners()
-  }
-}
-
-extension Subscription {
-  /// Subscribes to the associated `entity` with the specified timetoken.
-  ///
-  /// - Parameter timetoken: The timetoken to use for subscribing. If `nil`, the `0` value is used.
-  public func subscribe(with timetoken: Timetoken?) {
-    guard let pubnub = pubnub, !isDisposed else {
-      return
+extension Subscription: InternalSubscriptionInterface {
+  // The PubNub instance associated with the current `Subscription`
+  var pubnub: PubNub? {
+    get {
+      entity.pubnub
     }
-    let channels = subscriptionType == .channel ? [self] : []
-    let channelGroups = subscriptionType == .channelGroup ? [self] : []
-
-    pubnub.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
   }
 
-  /// Unsubscribes from the associated entity, ending the PubNub subscription.
-  ///
-  /// Use this method to gracefully end the subscription and stop receiving messages for the associated entity.
-  /// If there are no remaining subscriptions that match the associated entity, the unsubscribe action will be performed,
-  /// and the entity will be deregistered from the Subscribe loop. After unsubscribing, the subscription interface
-  /// can be restarted if needed.
-  public func unsubscribe() {
-    guard let pubnub = pubnub, !isDisposed else {
-      return
-    }
-    let channels = subscriptionType == .channel ? [self] : []
-    let groups = subscriptionType == .channelGroup ? [self] : []
-
-    pubnub.internalUnsubscribe(from: channels, and: groups, presenceOnly: false)
-  }
-}
-
-extension Subscription: Hashable {
-  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
-    lhs.uuid == rhs.uuid
-  }
-
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(uuid)
-  }
-}
-
-// MARK: - SubscribeMessagesReceiver
-
-extension Subscription: SubscribeMessagesReceiver {
+  // The topology of the subscription, returning underlying channel and/or channel groups.
   var subscriptionTopology: [SubscribeTargetType: [String]] {
-    [subscriptionType: subscriptionNames]
+    let hasPresenceOption = options.hasPresenceOption()
+    let name = entity.name
+
+    let subscriptionNames = switch entity {
+    case is ChannelRepresentation:
+      hasPresenceOption ? [name, name.presenceChannelName] : [name]
+    case is ChannelGroupRepresentation:
+      hasPresenceOption ? [name, name.presenceChannelName] : [name]
+    default:
+      [entity.name]
+    }
+
+    return [entity.targetType: subscriptionNames]
   }
 
-  @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
-    let events = payloads.compactMap { event(from: $0) }
-    // Emit events to the current Subscription's closures
-    emit(events: events)
-    // Emits events to the underlying attached listeners
-    listenersContainer.eventListeners.forEach { $0.emit(events: events) }
-    // Returns events that were emitted
-    return events
-  }
-
-  func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
-    let isMatchingEntity: Bool
-
-    if subscriptionType == .channel {
-      isMatchingEntity = isMatchingEntityName(entity.name, string: payload.channel)
-    } else if subscriptionType == .channelGroup {
-      isMatchingEntity = isMatchingEntityName(entity.name, string: payload.subscription ?? payload.channel)
-    } else {
-      isMatchingEntity = true
-    }
-
-    if isMatchingEntity {
-      let event = payload.asPubNubEvent()
-      return options.filterCriteriaSatisfied(event: event) ? event : nil
-    } else {
-      return nil
-    }
-  }
-
-  fileprivate func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
-    guard entityName.hasSuffix(".*") else {
-      return entityName == string
-    }
-    if let firstIndex = entityName.lastIndex(of: "."), let secondIndex = string.lastIndex(of: ".") {
-      return entityName.prefix(upTo: firstIndex) == string.prefix(upTo: secondIndex)
-    }
-    return false
+  func shouldProcessSubscription(_ subscription: InternalSubscriptionInterface) -> Bool {
+    subscription.uuid == uuid
   }
 }

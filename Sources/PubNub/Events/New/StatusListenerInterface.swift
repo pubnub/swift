@@ -35,4 +35,4 @@ public class StatusListener: StatusListenerInterface {
     self.queue = queue
     self.onConnectionStateChange = onConnectionStateChange
   }
-} 
+}

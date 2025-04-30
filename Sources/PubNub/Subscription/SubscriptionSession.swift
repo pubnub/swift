@@ -430,7 +430,16 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
     [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
   }
 
-  func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
+  func onPayloadsReceived(payloads: [SubscribeMessagePayload]) {
+
+    let allSubscriptions = strategy.listeners.allObjects.compactMap {
+      ($0 as? BaseSubscriptionListenerAdapter)?.receiver as? InternalSubscriptionInterface
+    }
+
+    allSubscriptions.allSatisfy { subscription in
+      subscription.shouldProcessSubscription(allSubscriptions.filter { $0 !== subscription })
+    }
+
     // Translates payloads into PubNub Subscibe Loop events
     let events = payloads.map { $0.asPubNubEvent() }
     // Emits events from the SubscriptionSession
@@ -443,6 +452,10 @@ extension SubscriptionSession: SubscribeMessagesReceiver {
 }
 
 extension SubscriptionSession: EventListenerHandler {
+  var eventListeners: [EventListener] {
+    listenersContainer.eventListeners
+  }
+
   func addEventListener(_ listener: EventListener) {
     listenersContainer.storeEventListener(listener)
   }

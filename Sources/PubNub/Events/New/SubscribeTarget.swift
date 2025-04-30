@@ -17,10 +17,11 @@ public class SubscribeTarget: SubscriptionProvider {
   /// An entity name
   public let name: String
   /// The PubNub client associated with this channel.
-  weak var pubnub: PubNub?
+  internal weak var pubnub: PubNub?
   /// An underlying subscription type
-  let targetType: SubscribeTargetType
-
+  internal let targetType: SubscribeTargetType
+  /// A helper property returning underlying channel and/or channel groups.
+  internal var subscriptionTopology: [SubscribeTargetType: [String]] { [targetType: [name]] }
 
   init(name: String, targetType: SubscribeTargetType, pubnub: PubNub) {
     self.name = name
@@ -43,8 +44,7 @@ public class SubscribeTarget: SubscriptionProvider {
       options: options
     )
   }
-} 
-
+}
 
 // MARK: - SubscribeTargetType
 

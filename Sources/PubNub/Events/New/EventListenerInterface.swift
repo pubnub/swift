@@ -121,17 +121,11 @@ extension EventListenerInterface {
 
 /// Provides functionalities to add and remove additional listeners.
 public protocol EventListenerHandler {
+  var eventListeners: [EventListener] { get }
+
   func addEventListener(_ listener: EventListener)
   func removeEventListener(_ listener: EventListener)
   func removeAllListeners()
-}
-
-// The internal protocol defining a receiver for the Subscribe loop's payloads.
-protocol SubscribeMessagesReceiver: AnyObject {
-  // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribeTargetType: [String]] { get }
-  // This method should return an array of `PubNubEvent` instances, representing the concrete events for the user.
-  @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]
 }
 
 // Functions as a bridge between the legacy `BaseSubscriptionListener`

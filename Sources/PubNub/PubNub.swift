@@ -526,8 +526,24 @@ extension PubNub {
     subscription.registerAdapter(adapter)
   }
 
+  func registerAdapters(_ adapters: [BaseSubscriptionListenerAdapter]) {
+    adapters.forEach { subscription.registerAdapter($0) }
+  }
+
   func hasRegisteredAdapter(with uuid: UUID) -> Bool {
     subscription.hasRegisteredAdapter(with: uuid)
+  }
+
+  func onSubscriptionCloned(subscription: SubscriptionInterface) -> SubscriptionInterface {
+    fatalError()
+  }
+
+  func internalSubscribe(subscription: SubscriptionInterface) {
+
+  }
+
+  func internalUnsubscribe(subscription: SubscriptionInterface) {
+
   }
 
   func internalSubscribe(
@@ -1957,6 +1973,10 @@ extension PubNub: StatusListenerInterface {
 }
 
 extension PubNub: EventListenerHandler {
+  public var eventListeners: [EventListener] {
+    subscription.eventListeners
+  }
+
   public func addEventListener(_ listener: EventListener) {
     subscription.addEventListener(listener)
   }

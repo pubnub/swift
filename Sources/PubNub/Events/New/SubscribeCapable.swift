@@ -20,12 +20,3 @@ public protocol SubscribeCapable {
   /// Unsubscribes from, stopping the subscription.
   func unsubscribe()
 }
-
-public extension SubscribeCapable {
-  /// Subscribes with the `0` timetoken.
-  ///
-  /// Convenience method equivalent to calling `subscribe(with:)` with `nil`.
-  func subscribe() {
-    subscribe(with: nil)
-  }
-} 

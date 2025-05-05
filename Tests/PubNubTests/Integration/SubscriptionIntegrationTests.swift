@@ -52,7 +52,7 @@ class SubscriptionIntegrationTests: XCTestCase {
               XCTFail("Only should emit these two states")
             }
           case .subscribeError:
-            subscribeExpect.fulfill() // 8E988B17-C0AA-42F1-A6F9-1461BF51C82C
+            subscribeExpect.fulfill()
           default:
             break
           }

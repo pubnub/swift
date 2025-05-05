@@ -16,12 +16,11 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPublishEndpoint() {
     let publishExpect = expectation(description: "Publish Response")
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
-
-    // Publish a simple message to the demo_tutorial channel
-    client.publish(channel: "SwiftITest", message: "TestPublish") { result in
+    let channelName = randomString()
+    
+    client.publish(channel: channelName, message: "TestPublish") { result in
       switch result {
       case .success:
         break
@@ -30,19 +29,22 @@ class PublishEndpointIntegrationTests: XCTestCase {
       }
       publishExpect.fulfill()
     }
+    
+    defer {
+      client.deleteMessageHistory(from: channelName, completion: nil)
+    }
 
     wait(for: [publishExpect], timeout: 10.0)
   }
 
   func testSignalTooLong() {
     let publishExpect = expectation(description: "Publish Response")
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
     client.signal(
       channel: "SwiftITest",
-      message: ["$": "35.75", "HI": "b62", "t": "BO"]
+      message: ["$": "35.75", "HI": "b62", "t": "BO", "X": "Lorem ipsum dolor sit amet"]
     ) { result in
       switch result {
       case .success:
@@ -58,13 +60,12 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testCompressedPublishEndpoint() {
     let compressedPublishExpect = expectation(description: "Compressed Publish Response")
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
-
-    // Publish a simple message to the demo_tutorial channel
+    let channelName = randomString()
+    
     client.publish(
-      channel: "SwiftITest",
+      channel: channelName,
       message: "TestCompressedPublish",
       shouldCompress: true
     ) { result in
@@ -76,18 +77,21 @@ class PublishEndpointIntegrationTests: XCTestCase {
       }
       compressedPublishExpect.fulfill()
     }
+    
+    defer {
+      client.deleteMessageHistory(from: channelName, completion: nil)
+    }
 
     wait(for: [compressedPublishExpect], timeout: 10.0)
   }
 
   func testFireEndpoint() {
     let fireExpect = expectation(description: "Fire Response")
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
+    let channelName = randomString()
 
-    // Publish a simple message to the demo_tutorial channel
-    client.fire(channel: "SwiftITest", message: "TestFire") { result in
+    client.fire(channel: channelName, message: "TestFire") { result in
       switch result {
       case .success:
         break
@@ -102,12 +106,11 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testSignalEndpoint() {
     let signalExpect = expectation(description: "Signal Response")
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
+    let channelName = randomString()
 
-    // Publish a simple message to the demo_tutorial channel
-    client.signal(channel: "SwiftITest", message: "TestSignal") { result in
+    client.signal(channel: channelName, message: "TestSignal") { result in
       switch result {
       case .success:
         break
@@ -123,13 +126,11 @@ class PublishEndpointIntegrationTests: XCTestCase {
   func testPushblishEscapedString() {
     let message = "{\"text\": \"bob\", \"duckName\": \"swiftduck\"}"
     let publishExpect = expectation(description: "Publish Response")
-
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
+    let channelName = randomString()
 
-    // Publish a simple message to the demo_tutorial channel
-    client.publish(channel: "SwiftITest", message: message) { result in
+    client.publish(channel: channelName, message: message) { result in
       switch result {
       case .success:
         XCTFail("Publish should fail")
@@ -139,15 +140,18 @@ class PublishEndpointIntegrationTests: XCTestCase {
       publishExpect.fulfill()
     }
 
+    defer {
+      client.deleteMessageHistory(from: channelName, completion: nil)
+    }
+
     wait(for: [publishExpect], timeout: 10.0)
   }
 
   func testPublishPushPayload() {
     let publishExpect = expectation(description: "Publish Response")
-
-    // Instantiate PubNub
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
+    let channelName = randomString()
 
     let pushMessage = PubNubPushMessage(
       apns: PubNubAPNSPayload(
@@ -164,8 +168,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       additional: "Push Message from PubNub Swift SDK"
     )
 
-    // Publish a simple message to the demo_tutorial channel
-    client.publish(channel: "SwiftITest", message: pushMessage) { result in
+    client.publish(channel: channelName, message: pushMessage) { result in
       switch result {
       case .success:
         break
@@ -173,6 +176,10 @@ class PublishEndpointIntegrationTests: XCTestCase {
         XCTFail("Failed due to error: \(error)")
       }
       publishExpect.fulfill()
+    }
+
+    defer {
+      client.deleteMessageHistory(from: channelName, completion: nil)
     }
 
     wait(for: [publishExpect], timeout: 10.0)
@@ -192,8 +199,8 @@ class PublishEndpointIntegrationTests: XCTestCase {
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
     ))
 
-    let channelForFistClient = "ChannelA"
-    let channelForSecondClient = "ChannelB"
+    let channelForFistClient = randomString()
+    let channelForSecondClient = randomString()
 
     let publishExpect = expectation(description: "Publish Response")
     publishExpect.assertForOverFulfill = true
@@ -201,7 +208,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
     let subscribeExpect = expectation(description: "Subscribe Response")
     subscribeExpect.assertForOverFulfill = true
-    subscribeExpect.assertForOverFulfill = true
+    subscribeExpect.expectedFulfillmentCount = 2
 
     for client in [firstClient, secondClient] {
       client.onConnectionStateChange = { [unowned client] newStatus in
@@ -234,6 +241,11 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
     subscription.subscribe()
     subscriptionFromSecondClient.subscribe()
+
+    defer {
+      firstClient.deleteMessageHistory(from: channelForFistClient, completion: nil)
+      secondClient.deleteMessageHistory(from: channelForSecondClient, completion: nil)
+    }
 
     wait(for: [publishExpect, subscribeExpect], timeout: 10.0)
   }

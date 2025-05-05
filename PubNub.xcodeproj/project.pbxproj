@@ -143,7 +143,7 @@
 		355E1E6923458BC10094D3E0 /* objects_members_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 355E1E6823458BC10094D3E0 /* objects_members_success.json */; };
 		355F213722DECFCD004DEFBF /* Typealias+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */; };
 		3562DBB923428961006DFFBC /* objects_uuid_remove_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3562DBB823428961006DFFBC /* objects_uuid_remove_success.json */; };
-		3562DBBD23429798006DFFBC /* UUIDObjectsEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3562DBBA234294D5006DFFBC /* UUIDObjectsEndpointIntegrationTests.swift */; };
+		3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3562DBBA234294D5006DFFBC /* UserObjectsEndpointIntegrationTests.swift */; };
 		3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3562DBC0234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift */; };
 		3562DBC523450D6F006DFFBC /* objects_channel_all_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3562DBC423450D6E006DFFBC /* objects_channel_all_success.json */; };
 		3562DBC923450D98006DFFBC /* objects_channel_fetch_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3562DBC823450D98006DFFBC /* objects_channel_fetch_success.json */; };
@@ -757,7 +757,7 @@
 		355E1E6823458BC10094D3E0 /* objects_members_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_members_success.json; sourceTree = "<group>"; };
 		355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Typealias+PubNub.swift"; sourceTree = "<group>"; };
 		3562DBB823428961006DFFBC /* objects_uuid_remove_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_uuid_remove_success.json; sourceTree = "<group>"; };
-		3562DBBA234294D5006DFFBC /* UUIDObjectsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UUIDObjectsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
+		3562DBBA234294D5006DFFBC /* UserObjectsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserObjectsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3562DBC0234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChannelObjectsEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3562DBC22345066F006DFFBC /* ObjectsChannelRouterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectsChannelRouterTests.swift; sourceTree = "<group>"; };
 		3562DBC423450D6E006DFFBC /* objects_channel_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_channel_all_success.json; sourceTree = "<group>"; };
@@ -1386,9 +1386,9 @@
 				35293AA1236B51A00049A71F /* PubNub+Integration.swift */,
 				35C829D723145AFD00F59D3C /* OnboardingSnippets.swift */,
 				359287B5231727EC0046F7A2 /* PublishEndpointIntegrationTests.swift */,
-				3562DBBA234294D5006DFFBC /* UUIDObjectsEndpointIntegrationTests.swift */,
-				35293A99236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift */,
+				3562DBBA234294D5006DFFBC /* UserObjectsEndpointIntegrationTests.swift */,
 				3562DBC0234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift */,
+				35293A99236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift */,
 				359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */,
 				353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */,
 				3557CE022386054C004BBACC /* PushIntegrationTests.swift */,
@@ -3392,7 +3392,7 @@
 			files = (
 				35293AA2236B51A00049A71F /* PubNub+Integration.swift in Sources */,
 				359287B02316EC580046F7A2 /* OnboardingSnippets.swift in Sources */,
-				3562DBBD23429798006DFFBC /* UUIDObjectsEndpointIntegrationTests.swift in Sources */,
+				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,
 				359287C7232712520046F7A2 /* PresenceEndpointIntegrationTests.swift in Sources */,

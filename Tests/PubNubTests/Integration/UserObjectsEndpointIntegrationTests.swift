@@ -17,9 +17,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
-    let expectedUsers = userStubs()
-    
-    setupTestUsers(client: client)
+    let expectedUsers = setupTestUsers(client: client)
     
     client.allUserMetadata(filter: "id LIKE 'swift-*'") { result in
       switch result {
@@ -35,10 +33,12 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     
     defer {
       for user in expectedUsers {
-        client.removeUserMetadata(
-          user.metadataId,
-          completion: nil
-        )
+        waitForCompletion {
+          client.removeUserMetadata(
+            user.metadataId,
+            completion: $0
+          )
+        }
       }
     }
     
@@ -50,7 +50,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest")
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { setResult in
       client.fetchUserMetadata(testUser.metadataId) { result in
         switch result {
         case let .success(user):
@@ -64,7 +64,12 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.removeUserMetadata(testUser.metadataId, completion: nil)
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
     }
     
     wait(for: [fetchExpect], timeout: 10.0)
@@ -87,6 +92,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       }
     }
     
+    defer {
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
+    }
+    
     wait(for: [fetchExpect], timeout: 10.0)
   }
   
@@ -104,6 +118,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(error.pubNubError?.reason, .resourceNotFound)
       }
       fetchExpect.fulfill()
+    }
+    
+    defer {
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
     }
     
     wait(for: [fetchExpect], timeout: 10.0)
@@ -124,7 +147,6 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       // Update the user metadata
       testUser.profileURL = "https://example2.com"
       testUser.externalId = "XYZ"
-      
       // Set the user metadata with the ifMatchesEtag parameter
       client.setUserMetadata(testUser, ifMatchesEtag: "12345") { result in
         switch result {
@@ -138,8 +160,11 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       }
     }
     
-    defer {
-      client.removeUserMetadata(testUser.metadataId, completion: nil)
+    waitForCompletion {
+      client.removeUserMetadata(
+        testUser.metadataId,
+        completion: $0
+      )
     }
     
     wait(for: [setExpect], timeout: 10.0)
@@ -190,8 +215,25 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.removeUserMetadata(testUser.metadataId, completion: nil)
-      client.removeChannelMetadata(testChannel.metadataId, completion: nil)
+      waitForCompletion {
+        client.removeMemberships(
+          userId: testUser.metadataId,
+          channels: [membership],
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel.metadataId,
+          completion: $0
+        )
+      }
     }
     
     wait(for: [fetchMembershipExpect], timeout: 10.0)
@@ -236,8 +278,25 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.removeUserMetadata(testUser.metadataId, completion: nil)
-      client.removeChannelMetadata(testChannel.metadataId, completion: nil)
+      waitForCompletion {
+        client.removeMemberships(
+          userId: testUser.metadataId,
+          channels: [membership],
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel.metadataId,
+          completion: $0
+        )
+      }
     }
     
     wait(for: [updateMembershipExpect], timeout: 10.0)
@@ -277,11 +336,133 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.removeUserMetadata(testUser.metadataId, completion: nil)
-      client.removeChannelMetadata(testChannel.metadataId, completion: nil)
+      waitForCompletion {
+        client.removeMemberships(
+          userId: testUser.metadataId,
+          channels: [membership],
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel.metadataId,
+          completion: $0
+        )
+      }
     }
     
     wait(for: [removeMembershipExpect], timeout: 10.0)
+  }
+  
+  func testManageMemberships() {
+    let manageMembershipExpect = expectation(description: "Manage Membership Expectation")
+    let client = PubNub(configuration: config)
+    
+    let testUser = PubNubUserMetadataBase(
+      metadataId: "testManageMemberships",
+      name: "Swift ITest"
+    )
+    let testChannel1 = PubNubChannelMetadataBase(
+      metadataId: "testManageMembershipsSpace1",
+      name: "Swift Membership ITest 1"
+    )
+    let testChannel2 = PubNubChannelMetadataBase(
+      metadataId: "testManageMembershipsSpace2",
+      name: "Swift Membership ITest 2"
+    )
+    let testChannel3 = PubNubChannelMetadataBase(
+      metadataId: "testManageMembershipsSpace3",
+      name: "Swift Membership ITest 3"
+    )
+    
+    let membership1 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel1.metadataId,
+      user: testUser,
+      channel: testChannel1
+    )
+    let membership2 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel2.metadataId,
+      user: testUser,
+      channel: testChannel2
+    )
+    let membership3 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser.metadataId,
+      channelMetadataId: testChannel3.metadataId,
+      user: testUser,
+      channel: testChannel3
+    )
+    
+    // First set up initial memberships
+    client.setUserMetadata(testUser) { _ in
+      client.setChannelMetadata(testChannel1) { _ in
+        client.setChannelMetadata(testChannel2) { _ in
+          client.setChannelMetadata(testChannel3) { _ in
+            client.setMemberships(userId: testUser.metadataId, channels: [membership1, membership2]) { _ in
+              client.manageMemberships(
+                userId: testUser.metadataId,
+                setting: [membership3],
+                removing: [membership1]
+              ) { result in
+                switch result {
+                case let .success((memberships, _)):
+                  XCTAssertEqual(memberships.count, 2)
+                  XCTAssertTrue(memberships.contains { $0.channelMetadataId == testChannel2.metadataId })
+                  XCTAssertTrue(memberships.contains { $0.channelMetadataId == testChannel3.metadataId })
+                  XCTAssertFalse(memberships.contains { $0.channelMetadataId == testChannel1.metadataId })
+                case let .failure(error):
+                  XCTFail("Failed due to error: \(error)")
+                }
+                manageMembershipExpect.fulfill()
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    defer {
+      waitForCompletion {
+        client.removeMemberships(
+          userId: testUser.metadataId,
+          channels: [membership1, membership2, membership3],
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel1.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel2.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          testChannel3.metadataId,
+          completion: $0
+        )
+      }
+    }
+    
+    wait(for: [manageMembershipExpect], timeout: 10.0)
   }
 }
 
@@ -327,7 +508,7 @@ private extension UserObjectsEndpointIntegrationTests {
     ]
   }
   
-  func setupTestUsers(client: PubNub) {
+  func setupTestUsers(client: PubNub) -> [PubNubUserMetadata] {
     let setupExpect = expectation(description: "Setup Test Users Expectation")
     let testUsers = userStubs()
     
@@ -342,6 +523,11 @@ private extension UserObjectsEndpointIntegrationTests {
       }
     }
     
-    wait(for: [setupExpect], timeout: 10.0)
+    wait(
+      for: [setupExpect],
+      timeout: 10.0
+    )
+    
+    return testUsers
   }
 }

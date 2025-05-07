@@ -26,11 +26,11 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
 
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
-
     let actionType = "reaction"
     let actionValue = "smiley_face"
 
     let listener = SubscriptionListener()
+    
     listener.didReceiveMessageAction = { event in
       switch event {
       case let .added(action):
@@ -98,25 +98,53 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     client.add(listener)
     client.subscribe(to: [testChannel])
 
-    defer { listener.cancel() }
+    defer {
+      listener.cancel()
+      waitForCompletion { client.deleteMessageHistory(from: testChannel, completion: $0) }
+    }
 
     wait(for: [addExpect, fetchExpect, removeExpect, addedEventExcept, removedEventExcept], timeout: 10.0)
   }
 
   func testFetchMessageActionsEndpoint() {
     let fetchExpect = expectation(description: "Fetch Message Actions Expectation")
-
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    client.fetchMessageActions(channel: testChannel) { result in
-      switch result {
-      case .success:
-        break
-      case .failure:
-        XCTFail("Failed Fetching Message Actions")
+    client.publish(channel: testChannel, message: "This is a message") { [unowned self] result in
+      if let timetoken = try? result.get() {
+        client.addMessageAction(
+          channel: self.testChannel,
+          type: "reaction",
+          value: ":+1",
+          messageTimetoken: timetoken
+        ) { _ in
+          client.fetchMessageActions(
+            channel: self.testChannel,
+            page: nil
+          ) { fetchMessageActionsResult in
+            if let messageActions = try? fetchMessageActionsResult.get().actions {
+              XCTAssertEqual(messageActions.count, 1)
+              XCTAssertEqual(messageActions.first?.actionType, "reaction")
+              XCTAssertEqual(messageActions.first?.actionValue, ":+1")
+            } else {
+              XCTFail("Unexpected condition. Unable to retrieve fetched message actions")
+            }
+            fetchExpect.fulfill()
+          }
+        }
+      } else {
+        XCTFail("Unexpected condition")
       }
-      fetchExpect.fulfill()
+    }
+    
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: testChannel,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [fetchExpect], timeout: 10.0)
@@ -125,10 +153,8 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
   func testHistoryWithMessageActions() {
     let addExpect = expectation(description: "Add Message Action Expectation")
     let historyExpect = expectation(description: "Fetch Message Action Expectation")
-
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
-
     let actionType = "reaction"
     let actionValue = "smiley_face"
 
@@ -143,25 +169,33 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(messageAction.actionType, actionType)
         XCTAssertEqual(messageAction.actionValue, actionValue)
 
-        client.fetchMessageHistory(for: [self.testChannel], includeActions: true) { historyResult in
+        client.fetchMessageHistory(
+          for: [self.testChannel],
+          includeActions: true
+        ) { historyResult in
           switch historyResult {
           case let .success((messages, _)):
             let channelHistory = messages[self.testChannel]
-            XCTAssertNotNil(channelHistory)
-
             let message = channelHistory?.filter { $0.published == messageAction.messageTimetoken }
             XCTAssertNotNil(message)
           case .failure:
             XCTFail("Failed Fetching Message Actions")
           }
-
           historyExpect.fulfill()
         }
-
       case .failure:
         XCTFail("Failed Fetching Message Actions")
       }
       addExpect.fulfill()
+    }
+    
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: testChannel,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [addExpect, historyExpect], timeout: 10.0)

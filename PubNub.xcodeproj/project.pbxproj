@@ -187,7 +187,6 @@
 		358C6421238C6787009CE354 /* PubNubPushMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358C6420238C6787009CE354 /* PubNubPushMessage.swift */; };
 		359152A122BA9AA30048842D /* PubNubConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152A022BA9AA30048842D /* PubNubConfiguration.swift */; };
 		359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359152AA22BAA6730048842D /* PubNubConfigurationTests.swift */; };
-		359287B02316EC580046F7A2 /* OnboardingSnippets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C829D723145AFD00F59D3C /* OnboardingSnippets.swift */; };
 		359287B82317294B0046F7A2 /* PublishEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359287B5231727EC0046F7A2 /* PublishEndpointIntegrationTests.swift */; };
 		359287BF23183DC20046F7A2 /* subscription_signal_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287BE23183DBB0046F7A2 /* subscription_signal_success.json */; };
 		359287C123183E530046F7A2 /* subscription_presence_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287C023183E4A0046F7A2 /* subscription_presence_success.json */; };
@@ -887,7 +886,6 @@
 		35C6B6DC22F501780054F242 /* Encodable+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Encodable+PubNub.swift"; sourceTree = "<group>"; };
 		35C6B6DF22F513D80054F242 /* subscription_mixed_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_mixed_success.json; sourceTree = "<group>"; };
 		35C6B6E522F51A060054F242 /* AnyJSONType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyJSONType.swift; sourceTree = "<group>"; };
-		35C829D723145AFD00F59D3C /* OnboardingSnippets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingSnippets.swift; sourceTree = "<group>"; };
 		35C829DB23147AC000F59D3C /* SubscriptionState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionState.swift; sourceTree = "<group>"; };
 		35C8FDCA25003A9F0069E89E /* file_generateURL_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = file_generateURL_success.json; sourceTree = "<group>"; };
 		35CA8FFF285A5DAC007C2F65 /* PubNubUserIntTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubUserIntTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1383,8 +1381,6 @@
 		3558073823145A48005CDD92 /* Integration */ = {
 			isa = PBXGroup;
 			children = (
-				35293AA1236B51A00049A71F /* PubNub+Integration.swift */,
-				35C829D723145AFD00F59D3C /* OnboardingSnippets.swift */,
 				359287B5231727EC0046F7A2 /* PublishEndpointIntegrationTests.swift */,
 				3562DBBA234294D5006DFFBC /* UserObjectsEndpointIntegrationTests.swift */,
 				3562DBC0234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift */,
@@ -1392,6 +1388,7 @@
 				359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */,
 				353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */,
 				3557CE022386054C004BBACC /* PushIntegrationTests.swift */,
+				3DADDF942DCB4776001564C3 /* Helpers */,
 			);
 			path = Integration;
 			sourceTree = "<group>";
@@ -2322,6 +2319,14 @@
 				3D7411A12C171F20002267B8 /* Helpers */,
 			);
 			path = KMP;
+			sourceTree = "<group>";
+		};
+		3DADDF942DCB4776001564C3 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				35293AA1236B51A00049A71F /* PubNub+Integration.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		3DB692502D555A93006702DC /* Logger */ = {
@@ -3391,7 +3396,6 @@
 			buildActionMask = 0;
 			files = (
 				35293AA2236B51A00049A71F /* PubNub+Integration.swift in Sources */,
-				359287B02316EC580046F7A2 /* OnboardingSnippets.swift in Sources */,
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,

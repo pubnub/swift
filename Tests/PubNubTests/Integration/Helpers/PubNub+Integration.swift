@@ -10,6 +10,9 @@
 
 import Foundation
 import PubNubSDK
+import XCTest
+
+// MARK: - PubNub
 
 extension PubNub {
   func publishWithMessageAction(
@@ -46,9 +49,40 @@ extension PubNub {
   }
 }
 
+// MARK: - Random string generator
+
 func randomString(length: Int = 6, withPrefix: Bool = true) -> String {
   let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
   let prefix = withPrefix ? "swift-" : ""
   
   return prefix + String((0..<length).compactMap { _ in characters.randomElement() })
+}
+
+// MARK: - Helper functions
+
+extension XCTestCase {
+  func waitForCompletion<T: Any>(
+    suppressErrorIfAny: Bool = false,
+    timeout: TimeInterval = 10.0,
+    file: StaticString = #file,
+    line: UInt = #line,
+    _ operation: (@escaping (Result<T, Error>) -> Void) -> Void
+  ) {
+    let expect = XCTestExpectation(description: "Wait for completion (\(file) \(line)")
+    expect.assertForOverFulfill = true
+    expect.expectedFulfillmentCount = 1
+    
+    operation { result in
+      if case .failure(let failure) = result {
+        preconditionFailure("Operation failed with error: \(failure)", file: file, line: line)
+      } else {
+        expect.fulfill()
+      }
+    }
+    
+    wait(
+      for: [expect],
+      timeout: timeout
+    )
+  }
 }

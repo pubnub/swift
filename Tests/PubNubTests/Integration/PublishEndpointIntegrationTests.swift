@@ -31,7 +31,12 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.deleteMessageHistory(from: channelName, completion: nil)
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channelName,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [publishExpect], timeout: 10.0)
@@ -79,7 +84,12 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
     
     defer {
-      client.deleteMessageHistory(from: channelName, completion: nil)
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channelName,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [compressedPublishExpect], timeout: 10.0)
@@ -123,7 +133,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     wait(for: [signalExpect], timeout: 10.0)
   }
 
-  func testPushblishEscapedString() {
+  func testPublishEscapedString() {
     let message = "{\"text\": \"bob\", \"duckName\": \"swiftduck\"}"
     let publishExpect = expectation(description: "Publish Response")
     let configuration = PubNubConfiguration(from: testsBundle)
@@ -141,7 +151,12 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
 
     defer {
-      client.deleteMessageHistory(from: channelName, completion: nil)
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channelName,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [publishExpect], timeout: 10.0)
@@ -179,7 +194,12 @@ class PublishEndpointIntegrationTests: XCTestCase {
     }
 
     defer {
-      client.deleteMessageHistory(from: channelName, completion: nil)
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channelName,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [publishExpect], timeout: 10.0)
@@ -228,8 +248,13 @@ class PublishEndpointIntegrationTests: XCTestCase {
       }
     }
 
-    let subscription = firstClient.channel(channelForFistClient).subscription()
-    let subscriptionFromSecondClient = secondClient.channel(channelForSecondClient).subscription()
+    let subscription = firstClient
+      .channel(channelForFistClient)
+      .subscription()
+    
+    let subscriptionFromSecondClient = secondClient
+      .channel(channelForSecondClient)
+      .subscription()
 
     subscription.onMessage = { message in
       XCTAssertEqual(message.payload.stringOptional, "This is a message")
@@ -243,8 +268,18 @@ class PublishEndpointIntegrationTests: XCTestCase {
     subscriptionFromSecondClient.subscribe()
 
     defer {
-      firstClient.deleteMessageHistory(from: channelForFistClient, completion: nil)
-      secondClient.deleteMessageHistory(from: channelForSecondClient, completion: nil)
+      waitForCompletion {
+        firstClient.deleteMessageHistory(
+          from: channelForFistClient,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        secondClient.deleteMessageHistory(
+          from: channelForSecondClient,
+          completion: $0
+        )
+      }
     }
 
     wait(for: [publishExpect, subscribeExpect], timeout: 10.0)

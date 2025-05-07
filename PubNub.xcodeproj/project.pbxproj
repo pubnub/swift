@@ -452,6 +452,7 @@
 		3DA24A432C2AAB54005B959B /* KMPPubNub+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */; };
 		3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
+		3DADDF972DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */; };
 		3DB2C4872C0F4B250060B8CF /* KMPStatusListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */; };
 		3DB692522D555AA5006702DC /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB692512D555AA5006702DC /* Logger.swift */; };
 		3DB9255C2B7A2B89001B7E90 /* SubscriptionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */; };
@@ -1074,6 +1075,7 @@
 		3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+AppContext.swift"; sourceTree = "<group>"; };
 		3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Files.swift"; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
+		3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGroupEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPStatusListener.swift; sourceTree = "<group>"; };
 		3DB692512D555AA5006702DC /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		3DB925592B7A2B89001B7E90 /* SubscriptionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStreamTests.swift; sourceTree = "<group>"; };
@@ -1388,6 +1390,7 @@
 				359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */,
 				353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */,
 				3557CE022386054C004BBACC /* PushIntegrationTests.swift */,
+				3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */,
 				3DADDF942DCB4776001564C3 /* Helpers */,
 			);
 			path = Integration;
@@ -3396,6 +3399,7 @@
 			buildActionMask = 0;
 			files = (
 				35293AA2236B51A00049A71F /* PubNub+Integration.swift in Sources */,
+				3DADDF972DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift in Sources */,
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,

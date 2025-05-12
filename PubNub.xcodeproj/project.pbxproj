@@ -2238,12 +2238,12 @@
 			path = Strategy;
 			sourceTree = "<group>";
 		};
-		3D6265D22ABC8E6900FDD5E6 /* CryptorModule */ = {
+		3D6265D22ABC8E6900FDD5E6 /* CryptoModule */ = {
 			isa = PBXGroup;
 			children = (
 				3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */,
 			);
-			path = CryptorModule;
+			path = CryptoModule;
 			sourceTree = "<group>";
 		};
 		3D7411A12C171F20002267B8 /* Helpers */ = {
@@ -2463,7 +2463,7 @@
 			isa = PBXGroup;
 			children = (
 				3D38A0192B35AFBE006928E7 /* EventEngine */,
-				3D6265D22ABC8E6900FDD5E6 /* CryptorModule */,
+				3D6265D22ABC8E6900FDD5E6 /* CryptoModule */,
 				A5F88ECF2906A9DE00F49D5C /* Objects */,
 				79407BC2271D4CFA0032076C /* Access */,
 				79407BC4271D4CFA0032076C /* Message Actions */,

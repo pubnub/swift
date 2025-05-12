@@ -192,14 +192,14 @@ class CryptoTests: XCTestCase {
       let encryptedStreamResult = try cryptoModule.encrypt(
         stream: inputStream,
         contentLength: data.count
-      ).get() as! MultipartInputStream
+      ).get()
 
       let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream")
       try? FileManager.default.removeItem(at: decryptedURL)
       
       cryptoModule.decrypt(
-        stream: encryptedStreamResult,
-        contentLength: encryptedStreamResult.length,
+        stream: encryptedStreamResult.stream,
+        contentLength: encryptedStreamResult.contentLength,
         to: decryptedURL
       )
       

@@ -210,6 +210,48 @@ class CryptoTests: XCTestCase {
       XCTFail("Could not write to temp file \(error)")
     }
   }
+  
+  func testDecryptStreamWithInputAndOutputURL() throws {
+    guard let encryptedTextURL = ImportTestResource.testsBundle.url(
+      forResource: "file_upload_sample_encrypted",
+      withExtension: "txt"
+    ) else {
+      return XCTFail("Could not get the URL for resource")
+    }
+    guard let plainTextURL = ImportTestResource.testsBundle.url(
+      forResource: "file_upload_sample",
+      withExtension: "txt"
+    ) else {
+      return XCTFail("Could not get the URL for resource")
+    }
+    guard let expectedDecryptedContent = String(
+      data: try Data(contentsOf: plainTextURL),
+      encoding: .utf8
+    ) else {
+      return XCTFail("Could not create string from data")
+    }
+
+    let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "enigma", withRandomIV: true)
+    let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+    let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream")
+    
+    try? FileManager.default.removeItem(at: outputPath)
+    
+    cryptoModule.decryptStream(
+      from: encryptedTextURL,
+      to: outputPath
+    )
+    
+    let actualDecryptedContent = String(
+      data: try Data(contentsOf: outputPath),
+      encoding: .utf8
+    )
+    
+    XCTAssertEqual(
+      expectedDecryptedContent,
+      actualDecryptedContent
+    )
+  }
 
   // MARK: - CryptoError
 

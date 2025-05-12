@@ -275,6 +275,48 @@ public struct CryptoModule {
     return streamDecryptionResult
   }
 
+  /// Decrypts the stream from the given URL and writes it to the output path
+  ///
+  /// - Parameters:
+  ///   - url: URL of the encrypted stream
+  ///   - outputPath: Path to write the decrypted stream
+  /// - Returns:
+  ///  - **Success**: A decrypted `InputStream` object
+  ///  - **Failure**: `PubNubError` describing the reason of failure
+  @discardableResult
+  public func decryptStream(from url: URL, to outputPath: URL) -> Result<InputStream, PubNubError> {
+    PubNub.log.debug(
+      "Decrypting file",
+      category: .crypto
+    )
+
+    guard let inputStream = InputStream(url: url) else {
+      PubNub.log.debug(
+        "Cannot create InputStream from \(url). Ensure that the file exists at the specified path",
+        category: .crypto
+      )
+      return .failure(PubNubError(
+        .decryptionFailure,
+        additional: ["File doesn't exists at \(url) path"]
+      ))
+    }
+
+    let streamDecryptionResult = performStreamDecryption(
+      stream: inputStream,
+      contentLength: url.sizeOf,
+      to: outputPath
+    )
+
+    switch streamDecryptionResult {
+    case .success:
+      PubNub.log.debug("File decrypted successfully", category: .crypto)
+    case let .failure(error):
+      PubNub.log.debug("Decryption of file failed due to \(error)", category: .crypto)
+    }
+
+    return streamDecryptionResult
+  }
+
   @discardableResult
   public func performStreamDecryption(
     stream: InputStream,

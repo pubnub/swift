@@ -1,9 +1,16 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.0.1"
+version: "9.1.0"
 schema: 1
 changelog:
+  - date: 2025-05-13
+    version: 9.1.0
+    changes:
+      - type: feature
+        text: "The `encrypt(stream:contentLength:)` method in `CryptoModule` now returns an `EncryptedStreamResult` containing both the encrypted stream and its total content length."
+      - type: feature
+        text: "The new `decryptStream(from:to:)` method in CryptoModule simplifies file decryption by automatically handling low-level details, in contrast to `decrypt(stream:contentLength:to:)`. Instead of manually creating an InputStream and specifying the content length, you now only need to provide the source and destination URLs."
   - date: 2025-03-20
     version: 9.0.1
     changes:
@@ -100,7 +107,7 @@ changelog:
       - type: feature
         text: "Replace module name with `PubNubSDK` due to compiler error when a public type shares the same name as the module."
       - type: feature
-        text: " add new `subscriptionChanged(channels, groups)` connection status and remove previously deprecated `connecting` and `reconnecting` cases."
+        text: "Add new `subscriptionChanged(channels, groups)` connection status and remove previously deprecated `connecting` and `reconnecting` cases."
       - type: feature
         text: "Remove previously deprecated `.legacyExponential(base, scale, maxDelay)` reconnection policy."
       - type: feature
@@ -676,7 +683,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.0.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.1.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

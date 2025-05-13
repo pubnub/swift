@@ -297,7 +297,7 @@ public struct CryptoModule {
       )
       return .failure(PubNubError(
         .decryptionFailure,
-        additional: ["File doesn't exists at \(url) path"]
+        additional: ["File doesn't exist at \(url) path"]
       ))
     }
 

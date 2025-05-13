@@ -13,7 +13,7 @@ import Foundation
 extension InputStream {
   public func writeEncodedData(to fileURL: URL) throws {
     if FileManager.default.fileExists(atPath: fileURL.path) {
-      throw PubNubError(.fileMissingAtPath, additional: [fileURL.path])
+      throw PubNubError(.fileExistsAtPath, additional: [fileURL.path])
     }
 
     guard let outputStream = OutputStream(url: fileURL, append: false) else {

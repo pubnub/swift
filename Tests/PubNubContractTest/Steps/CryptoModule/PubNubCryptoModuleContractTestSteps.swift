@@ -24,7 +24,7 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
   
   var encryptDataRes: Result<Data, PubNubError>!
   var decryptDataRes: Result<Data, PubNubError>!
-  var encryptStreamRes: Result<InputStream, PubNubError>!
+  var encryptStreamRes: Result<CryptoModule.EncryptedStreamResult, PubNubError>!
   var decryptStreamRes: Result<InputStream, PubNubError>!
   
   var givenFileUrl: URL!
@@ -150,9 +150,9 @@ public class PubNubCryptoModuleContractTestSteps: PubNubContractTestCase {
         let decryptedData = try! self.cryptoModule.decrypt(data: encryptedData).get()
         XCTAssertEqual(expectedData, decryptedData)
       } else {
-        let encryptedStream = try! self.encryptStreamRes.get()
-        let length = (encryptedStream as! MultipartInputStream).length
-        self.cryptoModule.decrypt(stream: encryptedStream, contentLength: length, to: self.outputPath)
+        let encryptedStreamMetadata = try! self.encryptStreamRes.get()
+        let length = encryptedStreamMetadata.contentLength
+        self.cryptoModule.decrypt(stream: encryptedStreamMetadata.stream, contentLength: length, to: self.outputPath)
         let decryptedData = try! Data(contentsOf: self.outputPath)
         XCTAssertEqual(expectedData, decryptedData)
       }

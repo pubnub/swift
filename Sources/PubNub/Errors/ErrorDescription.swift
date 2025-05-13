@@ -263,7 +263,9 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
     case .outputStreamFailure:
       return "An `OutputStream` failed due to the contained underlying error"
     case .fileMissingAtPath:
-      return "A File did not exist at the specified path.  Ensure the URL is not nil, and it paths to a file"
+      return "A File did not exist at the specified path. Ensure the URL is not nil, and it paths to a file"
+    case .fileExistsAtPath:
+      return "A File exists at the specified path"
     case .backgroundUpdatesDisabled:
       return "System canceled the background task because background tasks are disabled."
     case .backgroundInsufficientResources:

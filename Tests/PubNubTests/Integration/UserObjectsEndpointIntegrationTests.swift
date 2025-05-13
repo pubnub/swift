@@ -137,13 +137,13 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     var testUser = PubNubUserMetadataBase(
-      metadataId: "testUserWithEntityTag",
+      metadataId: randomString(),
       name: "Swift ITest",
       externalId: "ABC",
       profileURL: "https://example.com"
     )
     
-    client.setUserMetadata(testUser) { firstResult in
+    client.setUserMetadata(testUser) { [unowned client] firstResult in
       // Update the user metadata
       testUser.profileURL = "https://example2.com"
       testUser.externalId = "XYZ"
@@ -190,7 +190,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.setMemberships(userId: testUser.metadataId, channels: [membership]) { _ in
           client.fetchMemberships(
@@ -258,7 +258,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.setMemberships(userId: testUser.metadataId, channels: [membership]) { result in
           switch result {
@@ -321,7 +321,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.removeMemberships(userId: testUser.metadataId, channels: [membership]) { result in
           switch result {
@@ -401,7 +401,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     )
     
     // First set up initial memberships
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel1) { _ in
         client.setChannelMetadata(testChannel2) { _ in
           client.setChannelMetadata(testChannel3) { _ in
@@ -470,37 +470,37 @@ private extension UserObjectsEndpointIntegrationTests {
   func userStubs() -> [PubNubUserMetadataBase] {
     [
       PubNubUserMetadataBase(
-        metadataId: "swift-1",
+        metadataId: randomString(),
         name: "Test User One",
         profileURL: "https://example.com/user1",
         custom: ["role": "admin", "department": "engineering"]
       ),
       PubNubUserMetadataBase(
-        metadataId: "swift-2",
+        metadataId: randomString(),
         name: "Test User Two",
         profileURL: "https://example.com/user2",
         custom: ["role": "user", "department": "marketing"]
       ),
       PubNubUserMetadataBase(
-        metadataId: "swift-3",
+        metadataId: randomString(),
         name: "Test User Three",
         profileURL: "https://example.com/user3",
         custom: ["role": "manager", "department": "sales"]
       ),
       PubNubUserMetadataBase(
-        metadataId: "swift-4",
+        metadataId: randomString(),
         name: "Test User Four",
         profileURL: "https://example.com/user4",
         custom: ["role": "developer", "department": "mobile"]
       ),
       PubNubUserMetadataBase(
-        metadataId: "swift-5",
+        metadataId: randomString(),
         name: "Test User Five",
         profileURL: "https://example.com/user5",
         custom: ["role": "designer", "department": "ux"]
       ),
       PubNubUserMetadataBase(
-        metadataId: "swift-6",
+        metadataId: randomString(),
         name: "Test User Six",
         profileURL: "https://example.com/user6",
         custom: ["role": "qa", "department": "testing"]

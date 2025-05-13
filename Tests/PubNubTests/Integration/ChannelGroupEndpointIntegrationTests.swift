@@ -39,7 +39,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
     let testChannels = ["testChannel1", "testChannel2"]
     
     // First add channels to the group
-    client.add(channels: testChannels, to: testGroup) { _ in
+    client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then list channels in the group
       client.listChannels(for: testGroup) { result in
         switch result {
@@ -115,7 +115,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
     let testChannels = ["testChannel1", "testChannel2"]
     
     // First add channels to the group
-    client.add(channels: testChannels, to: testGroup) { _ in
+    client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then remove them
       client.remove(channels: testChannels, from: testGroup) { result in
         switch result {
@@ -155,7 +155,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
     let testChannels = ["testChannel1", "testChannel2"]
     
     // First add channels to the group
-    client.add(channels: testChannels, to: testGroup) { _ in
+    client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then remove the group
       client.remove(channelGroup: testGroup) { result in
         switch result {

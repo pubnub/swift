@@ -364,6 +364,7 @@
 		35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */; };
 		35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941322EFB7C10051C455 /* unknownEndpointError.json */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		3D0934362DD33A74007132B1 /* FilesEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */; };
 		3D1C4FF62C074BDB0030B3D6 /* KMPHashedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */; };
 		3D2642942C3BE835000154EC /* Dictionary+ObjCRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */; };
 		3D339C782BFF826500197342 /* KMPEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C742BFF826500197342 /* KMPEventListener.swift */; };
@@ -991,6 +992,7 @@
 		35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unrecognizedEndpointError.json; sourceTree = "<group>"; };
 		35FE941322EFB7C10051C455 /* unknownEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknownEndpointError.json; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHashedPage.swift; sourceTree = "<group>"; };
 		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
 		3D339C742BFF826500197342 /* KMPEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPEventListener.swift; sourceTree = "<group>"; };
@@ -1391,6 +1393,7 @@
 				353D92A92356244100367B9F /* SubscriptionIntegrationTests.swift */,
 				3557CE022386054C004BBACC /* PushIntegrationTests.swift */,
 				3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */,
+				3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */,
 				3DADDF942DCB4776001564C3 /* Helpers */,
 			);
 			path = Integration;
@@ -3403,6 +3406,7 @@
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,
+				3D0934362DD33A74007132B1 /* FilesEndpointIntegrationTests.swift in Sources */,
 				359287C7232712520046F7A2 /* PresenceEndpointIntegrationTests.swift in Sources */,
 				3520962F2358D64C00A641DF /* TestSetup.swift in Sources */,
 				352096302358D67000A641DF /* TestLogWriter.swift in Sources */,

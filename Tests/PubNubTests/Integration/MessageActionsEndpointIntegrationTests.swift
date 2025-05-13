@@ -13,9 +13,8 @@ import XCTest
 
 class MessageActionsEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: MessageActionsEndpointIntegrationTests.self)
-  let testChannel = "SwiftITest-MessageActions"
+  let testChannel = randomString()
 
-  // swiftlint:disable:next cyclomatic_complexity function_body_length
   func testAddMessageAction() {
     let addExpect = expectation(description: "Add Message Action Expectation")
     let fetchExpect = expectation(description: "Fetch Message Action Expectation")
@@ -39,7 +38,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
       }
     }
 
-    listener.didReceiveStatus = { [unowned self] status in
+    listener.didReceiveStatus = { [unowned self, unowned client] status in
       switch status {
       case let .success(connection):
         if connection.isConnected {
@@ -90,8 +89,14 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
   func testDeleteMessageAction() {
     let addExpect = expectation(description: "Add Message Action Expectation")
     let removeExpect = expectation(description: "Remove Message Action Expectation")
+    let addedEventExcept = expectation(description: "Add Message Action Event Expectation")
     let removedEventExcept = expectation(description: "Remove Message Action Event Expectation")
-
+    
+    addedEventExcept.assertForOverFulfill = true
+    addedEventExcept.expectedFulfillmentCount = 1
+    removedEventExcept.assertForOverFulfill = true
+    removedEventExcept.expectedFulfillmentCount = 1
+    
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
     let actionType = "reaction"
@@ -102,15 +107,15 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     listener.didReceiveMessageAction = { event in
       switch event {
       case .added:
-        XCTFail("Unexpected message action addition")
+        addedEventExcept.fulfill()
       case let .removed(action):
         XCTAssertEqual(action.actionType, actionType)
         XCTAssertEqual(action.actionValue, actionValue)
         removedEventExcept.fulfill()
       }
     }
-
-    listener.didReceiveStatus = { [unowned self] status in
+    
+    listener.didReceiveStatus = { [unowned self, unowned client] status in
       switch status {
       case let .success(connection):
         if connection.isConnected {
@@ -155,7 +160,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
       waitForCompletion { client.deleteMessageHistory(from: testChannel, completion: $0) }
     }
 
-    wait(for: [addExpect, removeExpect, removedEventExcept], timeout: 10.0)
+    wait(for: [addExpect, addedEventExcept, removeExpect, removedEventExcept], timeout: 10.0)
   }
 
   func testFetchMessageActionsEndpoint() {
@@ -163,7 +168,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
 
-    client.publish(channel: testChannel, message: "This is a message") { [unowned self] result in
+    client.publish(channel: testChannel, message: "This is a message") { [unowned self, unowned client] result in
       if let timetoken = try? result.get() {
         client.addMessageAction(
           channel: self.testChannel,
@@ -211,7 +216,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
       channel: testChannel,
       message: "Hello!",
       actionType: actionType, actionValue: actionValue
-    ) { [unowned self] publishResult in
+    ) { [unowned self, unowned client] publishResult in
       switch publishResult {
       case let .success(messageAction):
         XCTAssertEqual(messageAction.publisher, configuration.uuid)

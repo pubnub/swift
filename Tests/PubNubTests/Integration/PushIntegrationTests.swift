@@ -58,7 +58,7 @@ class PushIntegrationTests: XCTestCase {
       thenAdding: [channel],
       device: pushToken,
       on: pushTopic
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // List Channels
       client.listAPNSPushChannelRegistrations(for: pushToken, on: pushTopic) { result in
         switch result {
@@ -95,7 +95,7 @@ class PushIntegrationTests: XCTestCase {
       [channel],
       device: pushToken,
       on: pushTopic
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // List Channels
       client.listAPNSPushChannelRegistrations(for: pushToken, on: pushTopic) { result in
         switch result {
@@ -134,7 +134,7 @@ class PushIntegrationTests: XCTestCase {
       thenAdding: [channel],
       device: pushToken,
       on: pushTopic
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       client.removeAllAPNSPushDevice(for: pushToken, on: self.pushTopic) { _ in
         client.listAPNSPushChannelRegistrations(for: self.pushToken, on: self.pushTopic) { result in
           switch result {
@@ -163,7 +163,7 @@ class PushIntegrationTests: XCTestCase {
       byRemoving: [],
       thenAdding: [channel],
       for: pushToken
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // List Channels
       client.listPushChannelRegistrations(for: pushToken) { result in
         switch result {
@@ -200,7 +200,7 @@ class PushIntegrationTests: XCTestCase {
       byRemoving: [],
       thenAdding: ["c1", "c2", "c3", "c4"],
       for: pushToken
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // Then remove some and add new ones
       client.managePushChannelRegistrations(
         byRemoving: ["c1", "c2"],
@@ -246,7 +246,7 @@ class PushIntegrationTests: XCTestCase {
       thenAdding: ["c1", "c2", "c3", "c4"],
       device: pushToken,
       on: pushTopic
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // Then remove some and add new ones
       client.manageAPNSDevicesOnChannels(
         byRemoving: ["c1", "c2"],
@@ -293,7 +293,7 @@ class PushIntegrationTests: XCTestCase {
       byRemoving: [],
       thenAdding: ["c1", "c2", "c3"],
       for: pushToken
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // Then remove specific channels
       client.removePushChannelRegistrations(["c1", "c2"], for: pushToken) { result in
         // List remaining channels
@@ -329,7 +329,7 @@ class PushIntegrationTests: XCTestCase {
     let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
 
     // Add multiple channels at once
-    client.addPushChannelRegistrations(["c1", "c2", "c3"], for: pushToken) { [unowned self] result in
+    client.addPushChannelRegistrations(["c1", "c2", "c3"], for: pushToken) { [unowned self, unowned client] result in
       // List added channels
       client.listPushChannelRegistrations(for: pushToken) { result in
         switch result {
@@ -366,7 +366,7 @@ class PushIntegrationTests: XCTestCase {
       byRemoving: [],
       thenAdding: ["c1", "c2", "c3"],
       for: pushToken
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // Then remove all channels
       client.removeAllPushChannelRegistrations(for: pushToken) { result in
         // List remaining channels (should be empty)
@@ -399,7 +399,7 @@ class PushIntegrationTests: XCTestCase {
       thenAdding: ["c1", "c2", "c3"],
       device: pushToken,
       on: pushTopic
-    ) { [unowned self] result in
+    ) { [unowned self, unowned client] result in
       // Then remove specific channels
       client.removeAPNSDevicesOnChannels(
         ["c1", "c2"],

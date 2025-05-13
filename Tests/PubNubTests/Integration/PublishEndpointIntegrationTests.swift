@@ -46,9 +46,10 @@ class PublishEndpointIntegrationTests: XCTestCase {
     let publishExpect = expectation(description: "Publish Response")
     let configuration = PubNubConfiguration(from: testsBundle)
     let client = PubNub(configuration: configuration)
-
+    let testChannel = randomString()
+    
     client.signal(
-      channel: "SwiftITest",
+      channel: testChannel,
       message: ["$": "35.75", "HI": "b62", "t": "BO", "X": "Lorem ipsum dolor sit amet"]
     ) { result in
       switch result {
@@ -264,6 +265,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       XCTAssertEqual(message.payload.stringOptional, "This is a message")
       subscribeExpect.fulfill()
     }
+    
     subscription.subscribe()
     subscriptionFromSecondClient.subscribe()
 

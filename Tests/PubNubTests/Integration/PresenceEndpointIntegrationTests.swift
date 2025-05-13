@@ -63,10 +63,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success(channels):
           XCTAssertNotNil(channels[testChannel])
-          XCTAssertEqual(
-            channels[testChannel]?.occupantsState[presenceConfig.userId]?.codableValue,
-            ["StateKey": "StateValue"]
-          )
+          XCTAssertEqual(channels[testChannel]?.occupantsState[presenceConfig.userId]?.codableValue, ["StateKey": "StateValue"])
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -170,14 +167,8 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success(channels):
           XCTAssertNotNil(channels[testChannel])
-          XCTAssertEqual(
-            channels[testChannel]?.occupantsState[presenceConfig.userId]?.codableValue,
-            ["StateKey": "StateValue"]
-          )
-          XCTAssertEqual(
-            channels[otherChannel]?.occupantsState[presenceConfig.userId]?.codableValue,
-            ["StateKey": "StateValue"]
-          )
+          XCTAssertEqual(channels[testChannel]?.occupantsState[presenceConfig.userId]?.codableValue, ["StateKey": "StateValue"])
+          XCTAssertEqual(channels[otherChannel]?.occupantsState[presenceConfig.userId]?.codableValue, ["StateKey": "StateValue"])
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }

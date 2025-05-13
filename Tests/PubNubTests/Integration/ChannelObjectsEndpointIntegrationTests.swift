@@ -50,7 +50,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     let testChannel = PubNubChannelMetadataBase(metadataId: "testCreateAndFetchEndpoint", name: "Swift ITest")
     
-    client.setChannelMetadata(testChannel) { _ in
+    client.setChannelMetadata(testChannel) { [unowned client] _ in
       client.fetchChannelMetadata(testChannel.metadataId) { result in
         switch result {
         case let .success(channel):
@@ -77,9 +77,9 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
   func testDeleteAndCreateEndpoint() {
     let fetchExpect = expectation(description: "Create User Expectation")
     let client = PubNub(configuration: config)
-    let testChannel = PubNubChannelMetadataBase(metadataId: "testDeleteAndCreateEndpoint", name: "Swift ITest")
+    let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
-    client.setChannelMetadata(testChannel) { _ in
+    client.setChannelMetadata(testChannel) { [unowned client] _ in
       client.removeChannelMetadata(testChannel.metadataId) { result in
         switch result {
         case let .success(metadataId):
@@ -106,7 +106,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchNotExistingChannel() {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
     let client = PubNub(configuration: config)
-    let testChannel = PubNubChannelMetadataBase(metadataId: "testFetchNotExistingChannel", name: "Swift ITest")
+    let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
     client.fetchChannelMetadata(testChannel.metadataId) { result in
       switch result {
@@ -137,12 +137,12 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     var testChannel = PubNubChannelMetadataBase(
-      metadataId: "testChannelWithEntityTag",
+      metadataId: randomString(),
       name: "Swift ITest",
       custom: ["type": "public"]
     )
     
-    client.setChannelMetadata(testChannel) { firstResult in
+    client.setChannelMetadata(testChannel) { [unowned client] firstResult in
       // Update the channel metadata
       testChannel.custom = ["type": "private"]
       // Set the channel metadata with the ifMatchesEtag parameter
@@ -175,11 +175,11 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     let testUser = PubNubUserMetadataBase(
-      metadataId: "testFetchMembersUUID",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testFetchMembersChannel",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let membership = PubNubMembershipMetadataBase(
@@ -189,7 +189,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.setMembers(channel: testChannel.metadataId, users: [membership]) { _ in
           client.fetchMembers(
@@ -222,7 +222,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       waitForCompletion {
         client.removeUserMetadata(
-          testChannel.metadataId,
+          testUser.metadataId,
           completion: $0
         )
       }
@@ -242,11 +242,11 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     let testUser = PubNubUserMetadataBase(
-      metadataId: "testManageMembersUUID",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testManageMembersChannel",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let membership = PubNubMembershipMetadataBase(
@@ -256,7 +256,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.setMembers(
           channel: testChannel.metadataId,
@@ -289,7 +289,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       waitForCompletion {
         client.removeUserMetadata(
-          testChannel.metadataId,
+          testUser.metadataId,
           completion: $0
         )
       }
@@ -309,11 +309,11 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     let testUser = PubNubUserMetadataBase(
-      metadataId: "testRemoveMembersUUID",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testRemoveMembersChannel",
+      metadataId: randomString(),
       name: "Swift ITest"
     )
     let membership = PubNubMembershipMetadataBase(
@@ -323,7 +323,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       channel: testChannel
     )
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel) { _ in
         client.setMembers(channel: testChannel.metadataId, users: [membership]) { _ in
           client.removeMembers(channel: testChannel.metadataId, users: [membership]) { result in
@@ -349,7 +349,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       waitForCompletion {
         client.removeUserMetadata(
-          testChannel.metadataId,
+          testUser.metadataId,
           completion: $0
         )
       }
@@ -369,19 +369,19 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     
     let testUser1 = PubNubUserMetadataBase(
-      metadataId: "testManageMembersUser1",
+      metadataId: randomString(),
       name: "Swift ITest User 1"
     )
     let testUser2 = PubNubUserMetadataBase(
-      metadataId: "testManageMembersUser2",
+      metadataId: randomString(),
       name: "Swift ITest User 2"
     )
     let testUser3 = PubNubUserMetadataBase(
-      metadataId: "testManageMembersUser3",
+      metadataId: randomString(),
       name: "Swift ITest User 3"
     )
     let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testManageMembersChannel",
+      metadataId: randomString(),
       name: "Swift ITest Channel"
     )
     
@@ -405,7 +405,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     )
     
     // First set up initial members
-    client.setUserMetadata(testUser1) { _ in
+    client.setUserMetadata(testUser1) { [unowned client] _ in
       client.setUserMetadata(testUser2) { _ in
         client.setUserMetadata(testUser3) { _ in
           client.setChannelMetadata(testChannel) { _ in
@@ -459,6 +459,12 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
       waitForCompletion {
+        client.removeUserMetadata(
+          testUser3.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
         client.removeChannelMetadata(
           testChannel.metadataId,
           completion: $0
@@ -474,32 +480,32 @@ private extension ChannelObjectsEndpointIntegrationTests {
   func channelStubs() -> [PubNubChannelMetadataBase] {
     [
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-1",
+        metadataId: randomString(),
         name: "Test Channel One",
         custom: ["type": "public", "category": "general"]
       ),
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-2",
+        metadataId: randomString(),
         name: "Test Channel Two",
         custom: ["type": "private", "category": "support"]
       ),
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-3",
+        metadataId: randomString(),
         name: "Test Channel Three",
         custom: ["type": "public", "category": "announcements"]
       ),
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-4",
+        metadataId: randomString(),
         name: "Test Channel Four",
         custom: ["type": "private", "category": "development"]
       ),
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-5",
+        metadataId: randomString(),
         name: "Test Channel Five",
         custom: ["type": "public", "category": "marketing"]
       ),
       PubNubChannelMetadataBase(
-        metadataId: "swift-channel-6",
+        metadataId: randomString(),
         name: "Test Channel Six",
         custom: ["type": "private", "category": "sales"]
       )

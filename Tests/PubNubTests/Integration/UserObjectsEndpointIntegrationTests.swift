@@ -50,7 +50,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest")
     
-    client.setUserMetadata(testUser) { setResult in
+    client.setUserMetadata(testUser) { [unowned client] setResult in
       client.fetchUserMetadata(testUser.metadataId) { result in
         switch result {
         case let .success(user):
@@ -80,7 +80,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: "testUserCreateAndDeleteEndpoint", name: "Swift ITest")
     
-    client.setUserMetadata(testUser) { _ in
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.removeUserMetadata(testUser.metadataId) { result in
         switch result {
         case let .success(userMetadataId):
@@ -514,7 +514,7 @@ private extension UserObjectsEndpointIntegrationTests {
     
     testUsers.enumerated().forEach { index, user in
       client.setUserMetadata(user) { result in
-        if case .failure(let error) = result {
+        if case let .failure(error) = result {
           XCTFail("Failed to setup test user \(user.metadataId): \(error)")
         }
         if index == testUsers.count - 1 {

@@ -518,7 +518,7 @@ private extension ChannelObjectsEndpointIntegrationTests {
     
     testChannels.enumerated().forEach { index, channel in
       client.setChannelMetadata(channel) { result in
-        if case .failure(let error) = result {
+        if case let .failure(error) = result {
           XCTFail("Failed to setup test channel \(channel.metadataId): \(error)")
         }
         if index == testChannels.count - 1 {

@@ -47,6 +47,37 @@ extension PubNub {
       }
     }
   }
+
+  func subscribeSynchronously(
+    to channels: [String],
+    and channelGroups: [String] = [],
+    withPresence: Bool = false,
+    timeout: TimeInterval = 10.0
+  ) {
+    let expectation = XCTestExpectation(description: "Subscribe synchronously")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 1
+    
+    onConnectionStateChange = { newStatus in 
+      if newStatus == .connected {
+        expectation.fulfill()
+      }
+    }
+    subscribe(
+      to: channels,
+      and: channelGroups,
+      withPresence: withPresence
+    )
+    
+    let result = XCTWaiter.wait(
+      for: [expectation],
+      timeout: timeout
+    )
+    
+    if result != .completed {
+      XCTFail("Subscribe operation timed out")
+    }
+  }
 }
 
 // MARK: - Random string generator
@@ -56,33 +87,4 @@ func randomString(length: Int = 6, withPrefix: Bool = true) -> String {
   let prefix = withPrefix ? "swift-" : ""
   
   return prefix + String((0..<length).compactMap { _ in characters.randomElement() })
-}
-
-// MARK: - Helper functions
-
-extension XCTestCase {
-  func waitForCompletion<T: Any>(
-    suppressErrorIfAny: Bool = false,
-    timeout: TimeInterval = 10.0,
-    file: StaticString = #file,
-    line: UInt = #line,
-    _ operation: (@escaping (Result<T, Error>) -> Void) -> Void
-  ) {
-    let expect = XCTestExpectation(description: "Wait for completion (\(file) \(line)")
-    expect.assertForOverFulfill = true
-    expect.expectedFulfillmentCount = 1
-    
-    operation { result in
-      if case .failure(let failure) = result {
-        preconditionFailure("Operation failed with error: \(failure)", file: file, line: line)
-      } else {
-        expect.fulfill()
-      }
-    }
-    
-    wait(
-      for: [expect],
-      timeout: timeout
-    )
-  }
 }

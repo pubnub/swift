@@ -452,6 +452,7 @@
 		3DA24A412C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A402C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift */; };
 		3DA24A432C2AAB54005B959B /* KMPPubNub+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */; };
 		3DA24A452C2AABC0005B959B /* KMPPubNub+Files.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */; };
+		3DAB7C512DD5047F0003D693 /* XCTestCase+Integration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */; };
 		3DACC7F72AB88F8E00210B14 /* Data+CommonCrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */; };
 		3DADDF972DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */; };
 		3DB2C4872C0F4B250060B8CF /* KMPStatusListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */; };
@@ -1076,6 +1077,7 @@
 		3DA24A402C2AAB23005B959B /* KMPPubNub+ChannelGroups.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+ChannelGroups.swift"; sourceTree = "<group>"; };
 		3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+AppContext.swift"; sourceTree = "<group>"; };
 		3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Files.swift"; sourceTree = "<group>"; };
+		3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Integration.swift"; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGroupEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPStatusListener.swift; sourceTree = "<group>"; };
@@ -2331,6 +2333,7 @@
 			isa = PBXGroup;
 			children = (
 				35293AA1236B51A00049A71F /* PubNub+Integration.swift */,
+				3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -3406,6 +3409,7 @@
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,
+				3DAB7C512DD5047F0003D693 /* XCTestCase+Integration.swift in Sources */,
 				3D0934362DD33A74007132B1 /* FilesEndpointIntegrationTests.swift in Sources */,
 				359287C7232712520046F7A2 /* PresenceEndpointIntegrationTests.swift in Sources */,
 				3520962F2358D64C00A641DF /* TestSetup.swift in Sources */,

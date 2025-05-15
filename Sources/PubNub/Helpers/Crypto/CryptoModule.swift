@@ -207,15 +207,14 @@ public struct CryptoModule {
     }
   }
 
-  /// Encrypts the given local file URL and writes the encrypted stream to the output path
+  /// Encrypts the given local file URL and returns the result as an `EncryptedStreamResult`
   ///
   /// - Parameters:
   ///   - from: The local file URL of the stream to encrypt
-  ///   - to: The path to write the encrypted stream
   /// - Returns:
   ///   - **Success**: An `EncryptedStreamResult` containing the encrypted input stream and its total content length
   ///   - **Failure**: `PubNubError` describing the reason of failure
-  public func encryptStream(from localFileURL: URL, to outputPath: URL) -> Result<EncryptedStreamResult, PubNubError> {
+  public func encryptStream(from localFileURL: URL) -> Result<EncryptedStreamResult, PubNubError> {
     guard let inputStream = InputStream(url: localFileURL) else {
       PubNub.log.debug(
         "Cannot create InputStream from \(localFileURL). Ensure that the file exists at the specified path",

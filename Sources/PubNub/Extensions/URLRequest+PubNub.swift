@@ -59,8 +59,8 @@ public extension URLRequest {
     if let cryptoModule = cryptoModule {
       switch cryptoModule.encrypt(stream: contentStream, contentLength: content.contentLength) {
       case .success(let encryptingResult):
-        finalStream = encryptingResult
-        contentLength = prefixData.count + ((encryptingResult as? MultipartInputStream)?.length ?? 0) + postfixData.count
+        finalStream = encryptingResult.stream
+        contentLength = prefixData.count + encryptingResult.contentLength + postfixData.count
       case .failure(let encryptionError):
         throw encryptionError
       }

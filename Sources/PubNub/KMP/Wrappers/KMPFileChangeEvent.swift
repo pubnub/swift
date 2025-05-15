@@ -87,7 +87,7 @@ public class KMPFile: NSObject {
   }
 
   init(from: PubNubFile, url: URL?) {
-    self.id = from.channel
+    self.id = from.fileId
     self.name = from.filename
     self.size = from.size
     self.contentType = from.contentType

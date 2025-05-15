@@ -192,14 +192,14 @@ class CryptoTests: XCTestCase {
       let encryptedStreamResult = try cryptoModule.encrypt(
         stream: inputStream,
         contentLength: data.count
-      ).get() as! MultipartInputStream
+      ).get()
 
       let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream")
       try? FileManager.default.removeItem(at: decryptedURL)
       
       cryptoModule.decrypt(
-        stream: encryptedStreamResult,
-        contentLength: encryptedStreamResult.length,
+        stream: encryptedStreamResult.stream,
+        contentLength: encryptedStreamResult.contentLength,
         to: decryptedURL
       )
       
@@ -209,6 +209,48 @@ class CryptoTests: XCTestCase {
     } catch {
       XCTFail("Could not write to temp file \(error)")
     }
+  }
+  
+  func testDecryptStreamWithInputAndOutputURL() throws {
+    guard let encryptedTextURL = ImportTestResource.testsBundle.url(
+      forResource: "file_upload_sample_encrypted",
+      withExtension: "txt"
+    ) else {
+      return XCTFail("Could not get the URL for resource")
+    }
+    guard let plainTextURL = ImportTestResource.testsBundle.url(
+      forResource: "file_upload_sample",
+      withExtension: "txt"
+    ) else {
+      return XCTFail("Could not get the URL for resource")
+    }
+    guard let expectedDecryptedContent = String(
+      data: try Data(contentsOf: plainTextURL),
+      encoding: .utf8
+    ) else {
+      return XCTFail("Could not create string from data")
+    }
+
+    let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "enigma", withRandomIV: true)
+    let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
+    let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream")
+    
+    try? FileManager.default.removeItem(at: outputPath)
+    
+    cryptoModule.decryptStream(
+      from: encryptedTextURL,
+      to: outputPath
+    )
+    
+    let actualDecryptedContent = String(
+      data: try Data(contentsOf: outputPath),
+      encoding: .utf8
+    )
+    
+    XCTAssertEqual(
+      expectedDecryptedContent,
+      actualDecryptedContent
+    )
   }
 
   // MARK: - CryptoError

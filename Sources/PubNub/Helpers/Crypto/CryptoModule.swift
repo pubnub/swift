@@ -10,17 +10,6 @@
 
 import Foundation
 
-@available(*, unavailable, renamed: "CryptoModule")
-public class CryptorModule {
-  public static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
-    preconditionFailure("This method is no longer available")
-  }
-
-  public static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
-    preconditionFailure("This method is no longer available")
-  }
-}
-
 /// Object capable of encryption/decryption
 public struct CryptoModule {
   private let defaultCryptor: any Cryptor
@@ -28,6 +17,14 @@ public struct CryptoModule {
   private let legacyCryptorId: CryptorId = []
 
   typealias Base64EncodedString = String
+
+  /// Represents an encrypted stream with its total content length
+  public struct EncryptedStreamResult {
+    /// The encrypted input stream
+    public let stream: InputStream
+    /// Total length of the encrypted content
+    public let contentLength: Int
+  }
 
   /// Initializes `CryptoModule` with custom ``Cryptor`` objects capable of encryption and decryption
   ///
@@ -176,15 +173,15 @@ public struct CryptoModule {
     }
   }
 
-  /// Encrypts the given `InputStream` object
+  /// Creates an encrypted stream from the given stream
   ///
   /// - Parameters:
   ///   - stream: Stream to encrypt
-  ///   - contentLength: Content length of encoded stream
+  ///   - contentLength: Content length of the stream to encrypt
   /// - Returns:
-  ///   - **Success**: An `InputStream` value
+  ///   - **Success**: An `EncryptedStreamResult` containing the encrypted input stream and its total content length
   ///   - **Failure**: `PubNubError` describing the reason of failure
-  public func encrypt(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
+  public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamResult, PubNubError> {
     PubNub.log.debug(
       "Encrypting file",
       category: .crypto
@@ -202,10 +199,54 @@ public struct CryptoModule {
       PubNub.log.debug("Encryption of file failed due to \(error)")
     }
 
-    return streamEncryptionResult
+    return streamEncryptionResult.map { multipartStream in
+      EncryptedStreamResult(
+        stream: multipartStream,
+        contentLength: multipartStream.length
+      )
+    }
   }
 
-  private func performStreamEncryption(stream: InputStream, contentLength: Int) -> Result<InputStream, PubNubError> {
+  /// Encrypts the given local file URL and returns the result as an `EncryptedStreamResult`
+  ///
+  /// - Parameters:
+  ///   - from: The local file URL of the stream to encrypt
+  /// - Returns:
+  ///   - **Success**: An `EncryptedStreamResult` containing the encrypted input stream and its total content length
+  ///   - **Failure**: `PubNubError` describing the reason of failure
+  public func encryptStream(from localFileURL: URL) -> Result<EncryptedStreamResult, PubNubError> {
+    guard let inputStream = InputStream(url: localFileURL) else {
+      PubNub.log.debug(
+        "Cannot create InputStream from \(localFileURL). Ensure that the file exists at the specified path",
+        category: .crypto
+      )
+      return .failure(PubNubError(
+        .fileMissingAtPath,
+        additional: ["Cannot create InputStream from \(localFileURL)"]
+      ))
+    }
+
+    let streamEncryptionResult = performStreamEncryption(
+      stream: inputStream,
+      contentLength: localFileURL.sizeOf
+    )
+
+    switch streamEncryptionResult {
+    case .success:
+      PubNub.log.debug("File encrypted successfully")
+    case let .failure(error):
+      PubNub.log.debug("Encryption of file failed due to \(error)")
+    }
+
+    return streamEncryptionResult.map {
+      EncryptedStreamResult(
+        stream: $0,
+        contentLength: $0.length
+      )
+    }
+  }
+
+  private func performStreamEncryption(stream: InputStream, contentLength: Int) -> Result<MultipartInputStream, PubNubError> {
     guard contentLength > 0 else {
       return .failure(PubNubError(
         .encryptionFailure,
@@ -242,7 +283,7 @@ public struct CryptoModule {
   ///
   /// - Parameters:
   ///   - stream: Stream to decrypt
-  ///   - contentLength: Content length of encrypted stream
+  ///   - contentLength: Content length of the encrypted stream
   ///   - to: URL where the stream should be decrypted to
   /// - Returns:
   ///  - **Success**: A decrypted `InputStream` object
@@ -273,8 +314,49 @@ public struct CryptoModule {
     return streamDecryptionResult
   }
 
+  /// Decrypts the stream from the given local file URL and writes it to the output path
+  ///
+  /// - Parameters:
+  ///   - from: The local file URL of the encrypted stream
+  ///   - to: The path to write the decrypted stream
+  /// - Returns:
+  ///  - **Success**: A decrypted `InputStream` object
+  ///  - **Failure**: `PubNubError` describing the reason of failure
   @discardableResult
-  public func performStreamDecryption(
+  public func decryptStream(from localFileURL: URL, to outputPath: URL) -> Result<InputStream, PubNubError> {
+    PubNub.log.debug(
+      "Decrypting file",
+      category: .crypto
+    )
+
+    guard let inputStream = InputStream(url: localFileURL) else {
+      PubNub.log.debug(
+        "Cannot create InputStream from \(localFileURL). Ensure that the file exists at the specified path",
+        category: .crypto
+      )
+      return .failure(PubNubError(
+        .decryptionFailure,
+        additional: ["File doesn't exist at \(localFileURL) path"]
+      ))
+    }
+
+    let streamDecryptionResult = performStreamDecryption(
+      stream: inputStream,
+      contentLength: localFileURL.sizeOf,
+      to: outputPath
+    )
+
+    switch streamDecryptionResult {
+    case .success:
+      PubNub.log.debug("File decrypted successfully", category: .crypto)
+    case let .failure(error):
+      PubNub.log.debug("Decryption of file failed due to \(error)", category: .crypto)
+    }
+
+    return streamDecryptionResult
+  }
+
+  private func performStreamDecryption(
     stream: InputStream,
     contentLength: Int,
     to outputPath: URL

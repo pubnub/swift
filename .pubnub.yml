@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.1.0"
+version: "9.2.0"
 schema: 1
 changelog:
+  - date: 2025-05-15
+    version: 9.2.0
+    changes:
+      - type: feature
+        text: "The `encryptStream(from:)` convenience method is designed to encrypt a local file. It eliminates the need for the caller to provide an `InputStream` and its content length - these are handled internally. You only need to pass a local file URL."
   - date: 2025-05-13
     version: 9.1.0
     changes:
@@ -683,7 +688,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.1.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

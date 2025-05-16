@@ -367,6 +367,7 @@
 		3D0934362DD33A74007132B1 /* FilesEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */; };
 		3D1C4FF62C074BDB0030B3D6 /* KMPHashedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */; };
 		3D2642942C3BE835000154EC /* Dictionary+ObjCRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */; };
+		3D2AF8BD2DD72CEB009303B6 /* HistoryEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D2AF8BC2DD72CEB009303B6 /* HistoryEndpointIntegrationTests.swift */; };
 		3D339C782BFF826500197342 /* KMPEventListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C742BFF826500197342 /* KMPEventListener.swift */; };
 		3D339C792BFF826500197342 /* KMPFetchMessagesResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C752BFF826500197342 /* KMPFetchMessagesResult.swift */; };
 		3D339C7A2BFF826500197342 /* KMPPresenceChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D339C762BFF826500197342 /* KMPPresenceChange.swift */; };
@@ -996,6 +997,7 @@
 		3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHashedPage.swift; sourceTree = "<group>"; };
 		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
+		3D2AF8BC2DD72CEB009303B6 /* HistoryEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D339C742BFF826500197342 /* KMPEventListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPEventListener.swift; sourceTree = "<group>"; };
 		3D339C752BFF826500197342 /* KMPFetchMessagesResult.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPFetchMessagesResult.swift; sourceTree = "<group>"; };
 		3D339C762BFF826500197342 /* KMPPresenceChange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPresenceChange.swift; sourceTree = "<group>"; };
@@ -1396,6 +1398,7 @@
 				3557CE022386054C004BBACC /* PushIntegrationTests.swift */,
 				3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */,
 				3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */,
+				3D2AF8BC2DD72CEB009303B6 /* HistoryEndpointIntegrationTests.swift */,
 				3DADDF942DCB4776001564C3 /* Helpers */,
 			);
 			path = Integration;
@@ -3408,6 +3411,7 @@
 				3DADDF972DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift in Sources */,
 				3562DBBD23429798006DFFBC /* UserObjectsEndpointIntegrationTests.swift in Sources */,
 				35293A9A236A1DE70049A71F /* MessageActionsEndpointIntegrationTests.swift in Sources */,
+				3D2AF8BD2DD72CEB009303B6 /* HistoryEndpointIntegrationTests.swift in Sources */,
 				3562DBC1234408DC006DFFBC /* ChannelObjectsEndpointIntegrationTests.swift in Sources */,
 				3DAB7C512DD5047F0003D693 /* XCTestCase+Integration.swift in Sources */,
 				3D0934362DD33A74007132B1 /* FilesEndpointIntegrationTests.swift in Sources */,

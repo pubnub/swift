@@ -275,4 +275,62 @@ class FilesEndpointIntegrationTests: XCTestCase {
     }
     wait(for: [downloadFileExpect, decryptFileExpect, removeFileExpect], timeout: 30.0)
   }
+  
+  func testGetFileDownloadURL() throws {
+    let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
+    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let remoteFileId = "remoteFileId"
+    let testChannel = randomString()
+
+    let downloadContentExpect = expectation(description: "Download Content Check")
+    let removeFileExpect = expectation(description: "Remove File Response")
+        
+    let performDeleteFile = { (file: PubNubFile) in
+      client.remove(
+        fileId: file.fileId,
+        filename: file.filename,
+        channel: testChannel
+      ) { result in
+        switch result {
+        case .success:
+          removeFileExpect.fulfill()
+        case let .failure(error):
+          XCTFail("Unexpected condition: \(error)")
+        }
+      }
+    }
+
+    client.send(
+      .data(data, contentType: "text/plain"),
+      channel: testChannel,
+      remoteFilename: remoteFileId
+    ) { result in
+      switch result {
+      case let .success(sendFileResponse):
+        // Get download URL and download the file
+        guard let downloadURL = try? client.generateFileDownloadURL(
+          channel: testChannel,
+          fileId: sendFileResponse.file.fileId,
+          filename: sendFileResponse.file.filename
+        ) else {
+          return XCTFail("Cannot generate file download URL")
+        }
+        // Create a task to download the file
+        let task = URLSession.shared.dataTask(with: downloadURL) { downloadedData, response, error in
+          performDeleteFile(sendFileResponse.file)
+          XCTAssertNil(error, "Download failed: \(error?.localizedDescription ?? "")")
+          XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200, "Invalid HTTP response")
+          XCTAssertEqual(downloadedData, data, "Downloaded content doesn't match original")
+          downloadContentExpect.fulfill()
+        }
+        // Resume the task
+        task.resume()
+        
+      case let .failure(error):
+        XCTFail("Unexpected error: \(error)")
+      }
+    }
+    
+    wait(for: [downloadContentExpect, removeFileExpect], timeout: 30.0)
+  }
 }

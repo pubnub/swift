@@ -206,7 +206,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     wait(for: [publishExpect], timeout: 10.0)
   }
 
-  func testPublish_WithCryptoModulesFromDifferentClients() {
+  func testPublishWithCryptoModulesFromDifferentClients() {
     let firstClient = PubNub(configuration: PubNubConfiguration(
       publishKey: PubNubConfiguration(from: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,

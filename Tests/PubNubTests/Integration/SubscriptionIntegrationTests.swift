@@ -15,6 +15,12 @@ class SubscriptionIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: SubscriptionIntegrationTests.self)
   
   func testSubscribeError() {
+    let configuration = PubNubConfiguration(
+      publishKey: "",
+      subscribeKey: "",
+      userId: UUID().uuidString
+    )
+    
     let subscribeExpect = expectation(description: "Subscribe Expectation")
     subscribeExpect.assertForOverFulfill = true
     subscribeExpect.expectedFulfillmentCount = 1
@@ -24,7 +30,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     disconnectedExpect.expectedFulfillmentCount = 1
     
     // Should return subscription key error
-    let pubnub = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: configuration)
     let listener = SubscriptionListener()
     
     listener.didReceiveSubscription = { event in

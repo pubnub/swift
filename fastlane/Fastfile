@@ -56,6 +56,27 @@ lane :contract_test do
   )
 end
 
+desc "Executes Integration Tests"
+lane :integration_test do
+  pub_key = ENV['SDK_PUB_KEY']
+  sub_key = ENV['SDK_SUB_KEY']
+
+  set_info_plist_value(
+    path: "PubNub.xcodeproj/PubNubTests_Info.plist",
+    key: "PubNubPublishKey",
+    value: pub_key
+  )
+  set_info_plist_value(
+    path: "PubNub.xcodeproj/PubNubTests_Info.plist",
+    key: "PubNubSubscribeKey",
+    value: sub_key
+  )    
+
+  Dir.chdir("..") do
+    sh "set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace PubNub.xcworkspace -scheme PubNubIntegration -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' -parallel-testing-enabled NO test 2>&1 | xcpretty"
+  end
+end
+
 desc "Generates Code Coverage Files"
 lane :code_coverage do
   scan(

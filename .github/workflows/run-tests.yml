@@ -110,7 +110,7 @@ jobs:
       - name: Pre-load simulators list
         run: xcrun simctl list -j
       - name: Run integration tests
-        run: set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace PubNub.xcworkspace -scheme PubNubIntegration -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' -parallel-testing-enabled NO test 2>&1
+        run: bundle exec fastlane integration_test
       - name: Cancel workflow runs for commit on error
         if: failure()
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure

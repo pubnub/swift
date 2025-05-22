@@ -83,7 +83,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
       waitForCompletion { client.deleteMessageHistory(from: testChannel, completion: $0) }
     }
 
-    wait(for: [addExpect, fetchExpect, addedEventExcept], timeout: 10.0)
+    wait(for: [addExpect, fetchExpect, addedEventExcept], timeout: 15.0)
   }
 
   func testDeleteMessageAction() {

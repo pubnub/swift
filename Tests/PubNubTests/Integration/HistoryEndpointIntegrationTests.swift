@@ -25,16 +25,18 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     let historyExpect = expectation(description: "History Response")
     let client = PubNub(configuration: config)
     
-    client.fetchMessageHistory(for: [channel]) { result in
-      switch result {
-      case let .success(response):
-        XCTAssertEqual(response.messagesByChannel.count, 1)
-        XCTAssertEqual(response.messagesByChannel[channel]?.count, 3)
-        XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, ["Message 1", "Message 2", "Message 3"])
-      case let .failure(error):
-        XCTFail("Failed to fetch history: \(error)")
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [unowned client] in
+      client.fetchMessageHistory(for: [channel]) { result in
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.messagesByChannel.count, 1)
+          XCTAssertEqual(response.messagesByChannel[channel]?.count, 3)
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, ["Message 1", "Message 2", "Message 3"])
+        case let .failure(error):
+          XCTFail("Failed to fetch history: \(error)")
+        }
+        historyExpect.fulfill()
       }
-      historyExpect.fulfill()
     }
     
     defer {
@@ -46,7 +48,7 @@ class HistoryEndpointIntegrationTests: XCTestCase {
       }
     }
     
-    wait(for: [historyExpect], timeout: 10.0)
+    wait(for: [historyExpect], timeout: 15.0)
   }
   
   func testDeleteMessageHistory() throws {

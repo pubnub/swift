@@ -343,7 +343,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.add(listener)
     pubnub.subscribe(to: [testChannelName])
     
-    wait(for: [expectation], timeout: 5.0)
+    wait(for: [expectation], timeout: 10.0)
   }
   
   func testAddingNextListenerUsingSubscriptionObjects() {

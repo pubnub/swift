@@ -82,9 +82,7 @@ extension PubNub {
 
 // MARK: - Random string generator
 
-func randomString(length: Int = 6, withPrefix: Bool = true) -> String {
+func randomString(length: Int = 6) -> String {
   let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  let prefix = withPrefix ? "swift-" : ""
-  
-  return prefix + String((0..<length).compactMap { _ in characters.randomElement() })
+  return "swift-" + String((0..<length).compactMap { _ in characters.randomElement() })
 }

@@ -730,7 +730,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 12.0
+                    - watchOS 11.5
                   target-architecture:
                     - arm64
                     - armv7k
@@ -791,7 +791,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 12.0
+                    - watchOS 11.5
                   target-architecture:
                     - armv7k
                     - arm64_32
@@ -844,7 +844,7 @@ sdks:
                   minimum-os-version:
                     - watchOS 4.0
                   maximum-os-version:
-                    - watchOS 12.0
+                    - watchOS 11.5
                   target-architecture:
                     - armv7k
                     - arm64_32

@@ -697,7 +697,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.0.1
+                    - macOS 15.5
                   target-architecture:
                     - arm64
                     - x86_64
@@ -707,7 +707,7 @@ sdks:
                   minimum-os-version:
                     - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.0.1
+                    - iOS 18.5
                   target-architecture:
                     - arm64
                   target-devices:
@@ -719,7 +719,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.0
+                    - tvOS 18.5
                   target-architecture:
                     - arm64
                   target-devices:
@@ -758,7 +758,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.0.1
+                    - macOS 15.5
                   target-architecture:
                     - arm64
                     - x86_64
@@ -768,7 +768,7 @@ sdks:
                   minimum-os-version:
                     - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.0.1
+                    - iOS 18.5
                   target-architecture:
                     - arm64
                   target-devices:
@@ -780,7 +780,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.0
+                    - tvOS 18.5
                   target-architecture:
                     - arm64
                   target-devices:
@@ -810,7 +810,7 @@ sdks:
                   minimum-os-version:
                     - macOS 10.15
                   maximum-os-version:
-                    - macOS 15.0.1
+                    - macOS 15.5
                   target-architecture:
                     - arm64
                     - x86_64
@@ -818,9 +818,9 @@ sdks:
                   runtime-version:
                     - Swift 5.x
                   minimum-os-version:
-                    - iOS 14.0
+                    - iOS 12.0
                   maximum-os-version:
-                    - iOS 18.0.1
+                    - iOS 18.5
                   target-architecture:
                     - arm64
                     - armv7
@@ -833,7 +833,7 @@ sdks:
                   minimum-os-version:
                     - tvOS 12.0
                   maximum-os-version:
-                    - tvOS 18.0
+                    - tvOS 18.5
                   target-architecture:
                     - arm64
                   target-devices:
@@ -854,7 +854,7 @@ sdks:
 supported-platforms:
   - version: PubNub Swift SDK
     platforms:
-      - iOS 14.0 or higher
+      - iOS 12.0 or higher
       - macOS 10.15 or higher
       - tvOS 12.0 or higher
       - watchOS 4.0 or higher

@@ -1,6 +1,6 @@
 # PubNub Swift SDK
 
-[![Platform](https://img.shields.io/cocoapods/p/PubNubSwift.svg?style=flat)](https://img.shields.io/cocoapods/p/PubNubSwift.svg)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpubnub%2Fswift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pubnub/swift)
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/PubNubSwift.svg)](https://img.shields.io/cocoapods/v/PubNubSwift.svg)
 [![Swift Package Manager compatible](https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -40,9 +40,11 @@ You have several options to set up your project. We provide instructions here fo
 ### [Swift Package Manager](https://github.com/apple/swift-package-manager)
 
 1. Create or open your project inside of Xcode
-1. Navigate to File > Swift Packages > Add Package Dependency
-1. Search for PubNub and select the swift package owned by pubnub, and hit the Next button
-1. Use the `Up to Next Major Version` rule spanning from `8.0.0` < `9.0.0`, and hit the Next button
+2. Navigate to **File** > **Add Package Dependencies...**
+3. Enter the package URL: `https://github.com/pubnub/swift.git`
+4. Use the `Up to Next Major Version` rule spanning from `9.0.0` < `10.0.0`
+5. Click `Add Package`
+6. From the list of package products, assign `PubNubSDK` to your target application
 
 For more information see Apple's guide on [Adding Package Dependencies to Your App](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app)
 
@@ -53,7 +55,7 @@ For more information see Apple's guide on [Adding Package Dependencies to Your A
 use_frameworks!
 
 target 'YOUR_TARGET_NAME' do
-  pod 'PubNubSwift', '~> 8.0'
+  pod 'PubNubSwift', '~> 9.0'
 end
 ```
 
@@ -72,7 +74,7 @@ Officially supported: Carthage 0.39.1 and up.
 Add the following to `Cartfile`:
 
 ```ruby
-github "pubnub/swift" ~> 8.0
+github "pubnub/swift" ~> 9.0
 ```
 
 Then in the directory containing your `Cartfile`, execute the following:

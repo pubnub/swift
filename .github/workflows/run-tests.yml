@@ -66,6 +66,54 @@ jobs:
       - name: Cancel workflow runs for commit on error
         if: failure()
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
+  integration-tests:
+    name: Integration tests
+    env:
+      SDK_PUB_KEY: ${{ secrets.SDK_PUB_KEY }}
+      SDK_SUB_KEY: ${{ secrets.SDK_SUB_KEY }}
+    runs-on:
+      group: macos-gh
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - name: Checkout actions
+        uses: actions/checkout@v4
+        with:
+          repository: pubnub/client-engineering-deployment-tools
+          ref: v1
+          token: ${{ secrets.GH_TOKEN }}
+          path: .github/.release/actions
+      - name: Setup Ruby 3.2.2
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2.2
+          bundler-cache: true
+      - name: Cache installed Pods
+        uses: actions/cache@v4
+        with:
+          path: Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      - name: Cache Swift Package Manager
+        uses: actions/cache@v4
+        with:
+          path: |
+            .build
+            ~/Library/Developer/Xcode/DerivedData/**/SourcePackages/checkouts
+          key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
+      - name: Pre-load simulators list
+        run: xcrun simctl list -j
+      - name: Run integration tests
+        run: bundle exec fastlane integration_test
+      - name: Cancel workflow runs for commit on error
+        if: failure()
+        uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   acceptance-tests:
     name: Acceptance tests
     runs-on:
@@ -131,7 +179,7 @@ jobs:
           retention-days: 7
   all-tests:
     name: Tests
-    needs: [tests, acceptance-tests]
+    needs: [tests, integration-tests, acceptance-tests]
     runs-on:
       group: organization/Default
     steps:

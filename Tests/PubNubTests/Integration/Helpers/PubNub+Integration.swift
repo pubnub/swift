@@ -10,6 +10,9 @@
 
 import Foundation
 import PubNubSDK
+import XCTest
+
+// MARK: - PubNub
 
 extension PubNub {
   func publishWithMessageAction(
@@ -44,4 +47,42 @@ extension PubNub {
       }
     }
   }
+
+  func subscribeSynchronously(
+    to channels: [String],
+    and channelGroups: [String] = [],
+    withPresence: Bool = false,
+    timeout: TimeInterval = 10.0
+  ) {
+    let expectation = XCTestExpectation(description: "Subscribe synchronously")
+    expectation.assertForOverFulfill = true
+    expectation.expectedFulfillmentCount = 1
+    
+    onConnectionStateChange = { newStatus in 
+      if newStatus == .connected {
+        expectation.fulfill()
+      }
+    }
+    subscribe(
+      to: channels,
+      and: channelGroups,
+      withPresence: withPresence
+    )
+    
+    let result = XCTWaiter.wait(
+      for: [expectation],
+      timeout: timeout
+    )
+    
+    if result != .completed {
+      XCTFail("Subscribe operation timed out")
+    }
+  }
+}
+
+// MARK: - Random string generator
+
+func randomString(length: Int = 6) -> String {
+  let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  return "swift-" + String((0..<length).compactMap { _ in characters.randomElement() })
 }

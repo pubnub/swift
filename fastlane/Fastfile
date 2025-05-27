@@ -73,6 +73,8 @@ lane :integration_test do
   )    
 
   Dir.chdir("..") do
+    # Invoking the integration tests using xcodebuild directly to avoid an issue with the scan method,
+    # which is unable to detect the simulator:
     sh "set -o pipefail && env NSUnbufferedIO=YES xcodebuild -workspace PubNub.xcworkspace -scheme PubNubIntegration -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.4' -parallel-testing-enabled NO test 2>&1 | xcpretty"
   end
 end

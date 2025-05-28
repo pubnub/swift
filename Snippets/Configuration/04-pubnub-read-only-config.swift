@@ -1,4 +1,3 @@
-// snippet.hide
 import PubNubSDK
 
 let configuration = PubNubConfiguration(
@@ -10,7 +9,7 @@ let pubnub = PubNub(
   configuration: configuration
 )
 
-// snippet.show
+// snippet.config-read-only
 // Accessing the current configuration
 var config = pubnub.configuration
 // Modyfing user ID parameter

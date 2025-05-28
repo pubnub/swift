@@ -4,9 +4,9 @@ import PubNubSDK
 /// Creates automatic retry behavior for failed requests with a linear backoff policy
 /// The delay parameter (4 seconds) specifies the base linear delay between retry attempts.
 
-/// As an example, we'll disable automatic retry for publish requests.
+/// As an example, we'll disable automatic retry for publish, signal, and fire requests.
 /// Other possible values to exclude are:
-/// - .messageSend 
+/// - .messageSend
 /// - .subscribe
 /// - .presence
 /// - .files
@@ -16,8 +16,8 @@ import PubNubSDK
 /// - .appContext
 /// - .messageActions
 let automaticRetry = AutomaticRetry(
-    policy: .linear(delay: 4),
-    exclude: [.messageSend]
+  policy: .linear(delay: 4),
+  exclude: [.messageSend]
 )
 
 // Creates a PubNub instance with retry mechanism enabled:

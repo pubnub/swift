@@ -24,7 +24,7 @@ let automaticRetry = AutomaticRetry(
 let pubNub = PubNub(
   publishKey: "yourPublishKey",
   subscribeKey: "yourSubscribeKey",
-  secretKey: "yourUserId",
+  userId: "myUniqueUserId",
   automaticRetry: automaticRetry
 )
 // snippet.end

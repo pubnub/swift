@@ -9,7 +9,7 @@ func aesCbcCryptoModuleExample() {
     configuration: PubNubConfiguration(
       publishKey: "yourPublishKey",
       subscribeKey: "yourSubscribeKey",
-      userId: "yourUserId",
+      userId: "myUniqueUserId",
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
     )
   )
@@ -24,7 +24,7 @@ func legacyCryptoModuleExample() {
     configuration: PubNubConfiguration(
       publishKey: "yourPublishKey",
       subscribeKey: "yourSubscribeKey",
-      userId: "yourUserId",
+      userId: "myUniqueUserId",
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
     )
   )

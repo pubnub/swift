@@ -5,8 +5,8 @@ func aesCbcCryptoModuleExample() {
   // Uses 256-bit AES-CBC encryption (recommended) with backward compatibility for legacy encryption
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
-      publishKey: "yourPublishKey",
-      subscribeKey: "yourSubscribeKey",
+      publishKey: "demo",
+      subscribeKey: "demo",
       userId: "myUniqueUserId",
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
     )
@@ -19,8 +19,8 @@ func legacyCryptoModuleExample() {
   // Uses a legacy encryption mechanism (128-bit cipher key entropy) that is no longer recommended.
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
-      publishKey: "yourPublishKey",
-      subscribeKey: "yourSubscribeKey",
+      publishKey: "demo",
+      subscribeKey: "demo",
       userId: "myUniqueUserId",
       cryptoModule: CryptoModule.legacyCryptoModule(with: "pubnubenigma")
     )

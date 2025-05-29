@@ -5,8 +5,8 @@ func basicConfigExample() {
   // Creates a PubNubConfiguration instance with publish and subscribe keys, user ID,
   // and heartbeat interval:
   let configuration = PubNubConfiguration(
-    publishKey: "yourPublishKey",
-    subscribeKey: "yourSubscribeKey",
+    publishKey: "demo",
+    subscribeKey: "demo",
     userId: "myUniqueUserId",
     heartbeatInterval: 100
   )
@@ -21,8 +21,8 @@ func basicConfigExample() {
 func userIdConfigExample() {
   // snippet.config-user-id
   let config = PubNubConfiguration(
-    publishKey: "yourPublishKey",
-    subscribeKey: "yourSubscribeKey",
+    publishKey: "demo",
+    subscribeKey: "demo",
     userId: "myUniqueUserId"
   )
   let pubnub = PubNub(
@@ -35,6 +35,7 @@ func filterExpressionExample() {
   // snippet.filter-expression
   // snippet.hide
   let configuration = PubNubConfiguration(
+    publishKey: "demo",
     subscribeKey: "demo",
     userId: "myUniqueUserId"
   )

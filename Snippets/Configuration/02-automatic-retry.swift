@@ -22,8 +22,8 @@ let automaticRetry = AutomaticRetry(
 
 // Creates a PubNub instance with retry mechanism enabled:
 let pubNub = PubNub(
-  publishKey: "yourPublishKey",
-  subscribeKey: "yourSubscribeKey",
+  publishKey: "demo",
+  subscribeKey: "demo",
   userId: "myUniqueUserId",
   automaticRetry: automaticRetry
 )

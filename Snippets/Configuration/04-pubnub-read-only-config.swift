@@ -1,8 +1,8 @@
 import PubNubSDK
 
 let configuration = PubNubConfiguration(
-  publishKey: "yourPublishKey",
-  subscribeKey: "yourSubscribeKey",
+  publishKey: "demo",
+  subscribeKey: "demo",
   userId: "myUniqueUserId"
 )
 let pubnub = PubNub(

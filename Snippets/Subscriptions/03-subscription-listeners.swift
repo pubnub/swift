@@ -1,3 +1,13 @@
+//
+//  03-subscription-listeners.swift
+//
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
+//
+
 import PubNubSDK
 
 let pubnub = PubNub(
@@ -18,11 +28,11 @@ struct Person: JSONCodable {
 
 // Add a listener for Message events.
 
-// Assume that a Person object was sent as the message parameter
-// in PubNub's publish(...) method, or that the received payload can be decoded as a Person object
+// Assume that a Person object was sent as the message parameter in PubNub's publish(...) method,
+// or that the received payload can be decoded as a Person object
 subscription.onMessage = { message in
   print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
-  print("Will attempt to decode the message payloadas a Person object")
+  print("Will attempt to decode the message payload as a Person object")
 
   if let person = try? message.payload.decode(Person.self) {
     print("Person object decoded successfully: \(person)")

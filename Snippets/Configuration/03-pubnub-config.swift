@@ -1,3 +1,13 @@
+//
+//  03-pubnub-config.swift
+//
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
+//
+
 import PubNubSDK
 
 func basicConfigExample() {
@@ -10,7 +20,7 @@ func basicConfigExample() {
     userId: "myUniqueUserId",
     heartbeatInterval: 100
   )
-  
+
   // Creates a PubNub instance with the configuration specified above:
   let pubnub = PubNub(
     configuration: configuration

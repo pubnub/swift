@@ -1,3 +1,13 @@
+//
+//  01-subscription-set-add-remove.swift
+//
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
+//
+
 import PubNubSDK
 
 let pubnub = PubNub(
@@ -20,7 +30,7 @@ let sportsSubscription = pubnub.channel("sports-scores").subscription()
 
 // An example of how to add a `sportsSubscription` to a SubscriptionSet
 subscriptionSet.add(subscription: sportsSubscription)
-// An example of how to remove a `sportsSubscription` to a SubscriptionSet
+// An example of how to remove a `sportsSubscription` from a SubscriptionSet
 subscriptionSet.remove(subscription: sportsSubscription)
 
 // Triggers the `.subscribe()` method on the SubscriptionSet.

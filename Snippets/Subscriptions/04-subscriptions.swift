@@ -1,3 +1,13 @@
+//
+//  04-subscriptions.swift
+//
+//  Copyright (c) PubNub Inc.
+//  All rights reserved.
+//
+//  This source code is licensed under the license found in the
+//  LICENSE file in the root directory of this source tree.
+//
+
 import PubNubSDK
 
 // Initializes a PubNub object with the configuration.
@@ -11,10 +21,6 @@ let pubnub = PubNub(
 )
 
 // snippet.clone
-let entitiesToSubscribe = [
-  pubnub.channel("channel"),
-  pubnub.channelGroup("channelGroup")
-]
 let subscriptionSet = pubnub.subscription(
   entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
   options: ReceivePresenceEvents()
@@ -23,15 +29,11 @@ let channelSubscription = pubnub
   .channel("channelName")
   .subscription()
 
-
 let clonedSubscriptionSet = subscriptionSet.clone()
 let clonedSubscription = channelSubscription.clone()
 // snippet.end
-
 
 // snippet.unsubscribe
 subscription.unsubscribe()
 subscriptionSet.unsubscribe()
 // snippet.end
-
-

@@ -22,4 +22,8 @@ let sportsSubscription = pubnub.channel("sports-scores").subscription()
 subscriptionSet.add(subscription: sportsSubscription)
 // An example of how to remove a `sportsSubscription` to a SubscriptionSet
 subscriptionSet.remove(subscription: sportsSubscription)
+
+// Triggers the `.subscribe()` method on the SubscriptionSet.
+// This will trigger the batch subscription including all underlying subscriptions.
+subscriptionSet.subscribe()
 // snippet.end

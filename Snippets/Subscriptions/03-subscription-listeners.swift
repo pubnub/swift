@@ -77,7 +77,7 @@ subscription.onFileEvent = { fileEvent in
 }
 // snippet.end
 
-// snippet-on-events
+// snippet.on-events
 // Add a batched subscription event that possibly contains multiple events
 subscription.onEvents = { events in
   print("Received events: \(events)")

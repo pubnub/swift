@@ -17,11 +17,11 @@ import PubNubSDK
 /// - .messageActions
 let automaticRetry = AutomaticRetry(
   policy: .linear(delay: 4),
-  exclude: [.messageSend]
+  excluded: [.messageSend]
 )
 
 // Creates a PubNub instance with retry mechanism enabled:
-let pubNub = PubNub(
+let pubnub = PubNub(
   publishKey: "demo",
   subscribeKey: "demo",
   userId: "myUniqueUserId",

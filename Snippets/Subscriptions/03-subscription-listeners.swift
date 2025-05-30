@@ -9,8 +9,27 @@ let pubnub = PubNub(
 let subscription = pubnub.channel("channelName").subscription()
 
 // snippet.on-message
+// Defines a custom type that will be used to decode the message payload
+struct Person: JSONCodable {
+  var lastName: String
+  var firstName: String
+  var age: Int
+}
+
+// Add a listener for Message events.
+
+// Assume that a Person object was sent as the message parameter
+// in PubNub's publish(...) method, or that the received payload can be decoded as a Person object
 subscription.onMessage = { message in
   print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
+  print("Will attempt to decode the message payloadas a Person object")
+
+  if let person = try? message.payload.decode(Person.self) {
+    print("Person object decoded successfully: \(person)")
+    print("Person details: \(person.lastName), \(person.firstName), \(person.age)")
+  } else {
+    print("Failed to decode the message payload as a Person object")
+  }
 }
 // snippet.end
 
@@ -36,9 +55,9 @@ subscription.onPresence = { presenceChange in
 // Add a listener to receive Message Reaction events
 subscription.onMessageAction = { messageActionEvent in
   switch messageActionEvent {
-  case .added(let messageAction):
+  case let .added(messageAction):
     print("Message action added in \(messageAction.channel) channel at message timetoken \(messageAction.messageTimetoken)")
-  case .removed(let messageAction):
+  case let .removed(messageAction):
     print("A message reaction with the timetoken of \(messageAction.actionTimetoken) has been removed")
   }
 }

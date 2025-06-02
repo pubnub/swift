@@ -11,10 +11,11 @@
 import PubNubSDK
 
 let pubnub = PubNub(
-  publishKey: "demo",
-  subscribeKey: "demo",
-  userId: "myUniqueUserId",
-  automaticRetry: automaticRetry
+  configuration: PubNubConfiguration(
+    publishKey: "demo",
+    subscribeKey: "demo",
+    userId: "myUniqueUserId"
+  )
 )
 
 // snippet.subscription-set-add-remove

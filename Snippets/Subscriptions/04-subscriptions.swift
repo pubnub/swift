@@ -25,12 +25,12 @@ let subscriptionSet = pubnub.subscription(
   entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
   options: ReceivePresenceEvents()
 )
-let channelSubscription = pubnub
+let subscription = pubnub
   .channel("channelName")
   .subscription()
 
 let clonedSubscriptionSet = subscriptionSet.clone()
-let clonedSubscription = channelSubscription.clone()
+let clonedSubscription = subscription.clone()
 // snippet.end
 
 // snippet.unsubscribe

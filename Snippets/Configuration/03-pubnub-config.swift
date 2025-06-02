@@ -22,9 +22,7 @@ func basicConfigExample() {
   )
 
   // Creates a PubNub instance with the configuration specified above:
-  let pubnub = PubNub(
-    configuration: configuration
-  )
+  let pubnub = PubNub(configuration: configuration)
   // snippet.end
 }
 
@@ -35,9 +33,8 @@ func userIdConfigExample() {
     subscribeKey: "demo",
     userId: "myUniqueUserId"
   )
-  let pubnub = PubNub(
-    configuration: config
-  )
+  
+  let pubnub = PubNub(configuration: config)
   // snippet.end
 }
 

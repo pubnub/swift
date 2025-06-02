@@ -9,9 +9,11 @@
 //
 
 let pubnub = PubNub(
-  publishKey: "demo",
-  subscribeKey: "demo",
-  userId: "myUniqueUserId"
+  configuration: PubNubConfiguration(
+    publishKey: "demo",
+    subscribeKey: "demo",
+    userId: "myUniqueUserId"
+  )
 )
 
 // snippet.listener-basic

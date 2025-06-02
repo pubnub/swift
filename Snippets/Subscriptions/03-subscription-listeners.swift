@@ -11,12 +11,16 @@
 import PubNubSDK
 
 let pubnub = PubNub(
-  publishKey: "demo",
-  subscribeKey: "demo",
-  userId: "myUniqueUserId"
+  configuration: PubNubConfiguration(
+    publishKey: "demo",
+    subscribeKey: "demo",
+    userId: "myUniqueUserId"
+  )
 )
 
-let subscription = pubnub.channel("channelName").subscription()
+let subscription = pubnub
+  .channel("channelName")
+  .subscription()
 
 // snippet.on-message
 // Defines a custom type that will be used to decode the message payload

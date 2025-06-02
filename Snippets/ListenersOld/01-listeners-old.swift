@@ -8,6 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+import PubNubSDK
+
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -50,14 +52,14 @@ listener.didReceiveBatchSubscription = { events in
         print("This message came through subscription: \(subscription).")
       }
       print("Message payload: \(message.payload). Sent by: \(message.publisher ?? "unknown").")
-      
+
     case .signalReceived(let signal):
       print("The \(signal.channel) channel received a signal at \(signal.published).")
       if let subscription = signal.subscription {
         print("This signal came through subscription: \(subscription).")
       }
       print("Signal payload: \(signal.payload). Sent by: \(signal.publisher ?? "unknown").")
-      
+
     case .connectionStatusChanged(let connectionChange):
       switch connectionChange {
       case let .subscriptionChanged(channels, groups):
@@ -73,7 +75,7 @@ listener.didReceiveBatchSubscription = { events in
       case let .disconnectedUnexpectedly(error):
         print("Connection status: disconnected unexpectedly due to error! \(error.localizedDescription)")
       }
-      
+
     case .subscriptionChanged(let subscribeChange):
       switch subscribeChange {
       case let .subscribed(channels, groups):
@@ -83,7 +85,7 @@ listener.didReceiveBatchSubscription = { events in
       case let .unsubscribed(channels, groups):
         print("Unsubscribed from channels: \(channels), groups: \(groups).")
       }
-      
+
     case .presenceChanged(let presenceChange):
       print("Presence updated for channel \(presenceChange.channel) with occupancy \(presenceChange.occupancy).")
       for action in presenceChange.actions {
@@ -98,7 +100,7 @@ listener.didReceiveBatchSubscription = { events in
           print("\(uuid) updated state to \(state) at \(presenceChange.timetoken).")
         }
       }
-      
+
     case .uuidMetadataSet(let uuidMetadataChange):
       print("UUID metadata changes detected for \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated).")
       // Detailed handling of changeset
@@ -114,33 +116,33 @@ listener.didReceiveBatchSubscription = { events in
         }
       }
       print("To apply these changes, fetch the relevant object and call `uuidMetadataChange.apply(to: otherUUIDMetadata)`.")
-      
+
     case .uuidMetadataRemoved(let metadataId):
       print("Metadata for UUID \(metadataId) has been removed.")
-      
+
     case .channelMetadataSet(let channelMetadata):
       print("Channel metadata changes detected for \(channelMetadata.metadataId) at \(channelMetadata.updated).")
       print("To apply these changes, fetch the relevant object and call `channelMetadata.apply(to: otherChannelMetadata)`.")
-      
+
     case .channelMetadataRemoved(let metadataId):
       print("Metadata for channel \(metadataId) has been removed.")
-      
+
     case .membershipMetadataSet(let membership):
       print("Membership established between UUID \(membership.uuidMetadataId) and channel \(membership.channelMetadataId).")
-      
+
     case .membershipMetadataRemoved(let membership):
       print("Membership removed between UUID \(membership.uuidMetadataId) and channel \(membership.channelMetadataId).")
-      
+
     case .messageActionAdded(let messageAction):
       print("Message action added in \(messageAction.channel) channel at message timetoken \(messageAction.messageTimetoken).")
       print("Action created at \(messageAction.actionTimetoken) with type \(messageAction.actionType) and value \(messageAction.actionValue).")
-      
+
     case .messageActionRemoved(let messageAction):
       print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
       print("A message reaction with the timetoken of \(messageAction.actionTimetoken) has been removed")
     case .subscribeError(let error):
       print("Subscription error occurred: \(error.localizedDescription). Check if a `disconnectedUnexpectedly` status also happened; if so, restart the subscription.")
-      
+
     case let .fileUploaded(fileEvent):
       print("A file was uploaded: \(fileEvent)")
     }

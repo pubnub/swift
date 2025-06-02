@@ -8,9 +8,9 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// snippet.publish
 import PubNubSDK
 
-// snippet.publish
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(

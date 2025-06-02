@@ -8,9 +8,9 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// snippet.automatic-retry
 import PubNubSDK
 
-// snippet.automatic-retry
 /// Creates automatic retry behavior for failed requests with a linear backoff policy
 /// The delay parameter (4 seconds) specifies the base linear delay between retry attempts.
 

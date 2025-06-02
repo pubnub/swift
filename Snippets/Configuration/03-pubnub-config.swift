@@ -12,8 +12,6 @@ import PubNubSDK
 
 func basicConfigExample() {
   // snippet.config-basic
-  // Creates a PubNubConfiguration instance with publish and subscribe keys, user ID,
-  // and heartbeat interval:
   let configuration = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
@@ -33,7 +31,7 @@ func userIdConfigExample() {
     subscribeKey: "demo",
     userId: "myUniqueUserId"
   )
-  
+
   let pubnub = PubNub(configuration: config)
   // snippet.end
 }

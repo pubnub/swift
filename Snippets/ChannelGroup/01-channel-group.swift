@@ -10,6 +10,8 @@
 
 // Initializes a PubNub object with the configuration
 // snippet.add-channels
+import PubNubSDK
+
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -41,7 +43,6 @@ pubnub.listChannels(for: "family") { result in
   }
 }
 // snippet.end
-
 
 // snippet.remove-channels
 pubnub.remove(

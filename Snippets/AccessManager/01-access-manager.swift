@@ -9,6 +9,8 @@
 //
 
 // snippet.set-token
+import PubNubSDK
+
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -19,5 +21,5 @@ let pubnub = PubNub(
 )
 
 // Update the authentication token granted by the server
-pubnub.set(token: "p0thisAkFl043rhDdHRsCkNyZXisRGNoYW6hanNlY3JldAFDZ3Jwsample3KgQ3NwY6BDcGF0pERjaGFuoENnctokenVzcqBDc3BjoERtZXRhoENzaWdYIGOAeTyWGJI")
+pubnub.set(token: "authToken")
 // snippet.end

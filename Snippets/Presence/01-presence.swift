@@ -9,6 +9,8 @@
 //
 
 // snippet.here-now
+import PubNubSDK
+
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -18,12 +20,13 @@ let pubnub = PubNub(
   )
 )
 
+// Get presence information for a channel
 pubnub.hereNow(on: ["my_channel"]) { result in
   switch result {
   case let .success(presenceByChannel):
     print("Total channels: \(presenceByChannel.count)")
     print("Total occupancy across all channels: \(presenceByChannel.reduce(0) { $0 + $1.value.occupancy })")
-    
+
     if let myChannelPresence = presenceByChannel["my_channel"] {
       print("The occupancy for `my_channel` is \(myChannelPresence.occupancy)")
       // Iterating over each occupant in the channel and printing their UUID
@@ -118,7 +121,7 @@ pubnub.setPresence(
 ) { result in
   switch result {
   case let .success(presenceSet):
-    print("The String value for `New` is: \(presenceSet.codableValue[rawValue: "New"] as? String)")
+    print("The String value for `New` is: \(presenceSet.codableValue[rawValue: "new"] as? String)")
   case let .failure(error):
     print("Failed Set State Response: \(error.localizedDescription)")
   }

@@ -21,11 +21,7 @@ let pubnub = PubNub(
 // snippet.subscription-set
 // Create a subscription set with multiple local entities
 let subscriptionSet = pubnub.subscription(
-  entities: [
-    pubnub.channel("channel"),
-    pubnub.channelGroup("channelGroup"),
-    pubnub.userMetadata("userMetadataIdentifier")
-  ],
+  entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup"), pubnub.userMetadata("userMetadataIdentifier")],
   options: ReceivePresenceEvents()
 )
 

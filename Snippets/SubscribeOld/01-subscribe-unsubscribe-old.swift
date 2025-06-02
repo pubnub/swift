@@ -8,6 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+import PubNubSDK
+
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",

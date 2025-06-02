@@ -1,5 +1,5 @@
 //
-//  01-connection-status.swift
+//  01-access-manager.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import PubNubSDK
-
+// snippet.set-token
+// Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -18,8 +18,6 @@ let pubnub = PubNub(
   )
 )
 
-// snippet.connection-status
-pubnub.onConnectionStateChange = { newStatus in
-  print("Connection status: \(newStatus)")
-}
+// Update the authentication token granted by the server
+pubnub.set(token: "p0thisAkFl043rhDdHRsCkNyZXisRGNoYW6hanNlY3JldAFDZ3Jwsample3KgQ3NwY6BDcGF0pERjaGFuoENnctokenVzcqBDc3BjoERtZXRhoENzaWdYIGOAeTyWGJI")
 // snippet.end

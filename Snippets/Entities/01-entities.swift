@@ -10,7 +10,6 @@
 
 import PubNubSDK
 
-// Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",

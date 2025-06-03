@@ -90,7 +90,7 @@ pubnub.fetchMessageHistory(
 ) { result in
   switch result {
   case let .success(response):
-    response.messagesByChannel.forEach { (channel, messages) in
+    response.messagesByChannel.forEach { channel, messages in
       print("Channel `\(channel)` has the following messages: \(messages)")
     }
     if let nextPage = response.next {
@@ -205,7 +205,7 @@ pubnub.messageCounts(
 ) { result in
   switch result {
   case let .success(messageCountByChannel):
-    messageCountByChannel.forEach { (channel, messageCount) in
+    messageCountByChannel.forEach { channel, messageCount in
       print("The current message count for `\(channel)` is \(messageCount)")
     }
   case let .failure(error):
@@ -224,7 +224,7 @@ pubnub.messageCounts(
 ) { result in
   switch result {
   case let .success(messageCountByChannel):
-    messageCountByChannel.forEach { (channel, messageCount) in
+    messageCountByChannel.forEach { channel, messageCount in
       print("The current message count for `\(channel)` is \(messageCount)")
     }
   case let .failure(error):

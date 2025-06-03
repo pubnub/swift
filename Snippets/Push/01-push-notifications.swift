@@ -10,6 +10,7 @@
 
 // snippet.add-apns-devices-on-channels
 import PubNubSDK
+import Foundation
 
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
@@ -74,7 +75,7 @@ pubnub.removeAllAPNSPushDevice(
   environment: .production
 ) { result in
   switch result {
-  case let .success:
+  case .success:
     print("All channels have been removed for the device token.")
   case let .failure(error):
     print("Failed Push List Response: \(error.localizedDescription)")
@@ -128,7 +129,7 @@ pubnub.removeAllPushChannelRegistrations(
   for: Data([0x01, 0x02, 0x03, 0x04]) // Replace with actual device token
 ) { result in
   switch result {
-  case let .success:
+  case .success:
     print("All channels have been removed for the device token.")
   case let .failure(error):
     print("Failed Push Deletion Response: \(error.localizedDescription)")

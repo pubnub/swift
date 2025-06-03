@@ -21,5 +21,5 @@ let pubnub = PubNub(
 )
 
 // Update the authentication token granted by the server
-pubnub.set(token: "authToken")
+pubnub.set(token: "#yourAuthToken")
 // snippet.end

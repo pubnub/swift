@@ -12,6 +12,7 @@
 // snippet.add-channels
 import PubNubSDK
 
+// Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -69,7 +70,7 @@ pubnub.listChannelGroups { result in
 }
 // snippet.end
 
-// snippet.delete-channel-group
+// snippet.remove-channel-group
 pubnub.remove(channelGroup: "channelSwift") { result in
   switch result {
   case let .success(channelGroup):

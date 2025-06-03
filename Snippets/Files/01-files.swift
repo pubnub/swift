@@ -10,6 +10,7 @@
 
 // snippet.send-file
 import PubNubSDK
+import Foundation
 
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(

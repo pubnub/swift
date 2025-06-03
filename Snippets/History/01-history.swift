@@ -134,23 +134,14 @@ pubnub.fetchMessageHistory(
   switch result {
   case let .success(response):
     if let myChannelMessages = response.messagesByChannel["my_channel"] {
-      // Iterating over each message in the channel
       myChannelMessages.forEach { message in
         print("Message sent at \(message.published):")
-        if !actions.isEmpty {
-          // If actions are present, print them
-          print("Actions: \(actions)")
-        } else {
-          // Informing that no actions are present for this message
-          print("No actions for this message")
-        }
+        print("Actions: \(message.actions)")
       }
     }
-
     if let nextPage = response.next {
       print("The next page used for pagination: \(nextPage)")
     }
-
   case let .failure(error):
     print("Failed History Fetch Response: \(error.localizedDescription)")
   }
@@ -162,7 +153,7 @@ pubnub.deleteMessageHistory(
   from: "my_channel"
 ) { result in
   switch result {
-  case let .success:
+  case .success:
     print("The message deletion was successful")
   case let .failure(error):
     print("Failed Message Deletion Response: \(error.localizedDescription)")
@@ -177,7 +168,7 @@ pubnub.deleteMessageHistory(
   end: 15526611838554310
 ) { result in
   switch result {
-  case let .success:
+  case .success:
     print("The message deletion was successful")
   case let .failure(error):
     print("Failed Message Deletion Response: \(error.localizedDescription)")

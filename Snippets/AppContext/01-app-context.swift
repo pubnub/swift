@@ -25,9 +25,7 @@ pubnub.allUserMetadata { result in
   switch result {
   case let .success(response):
     print("The user metadata objects: \(response.users)")
-    if let nextPage = response.next {
-      print("The next page used for pagination: \(nextPage)")
-    }
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Fetch All request failed with error: \(error.localizedDescription)")
   }
@@ -47,7 +45,7 @@ pubnub.fetchUserMetadata("some-id") { result in
 
 // snippet.set-user-metadata
 let userMetadataToSet = PubNubUserMetadataBase(
-  id: "some-id",
+  metadataId: "some-id",
   name: "Some User",
   custom: ["department": "Engineering"]
 )
@@ -78,7 +76,7 @@ pubnub.allChannelMetadata { result in
   switch result {
   case let .success(response):
     print("The channel metadata objects \(response.channels)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Fetch All request failed with error: \(error.localizedDescription)")
   }
@@ -98,7 +96,7 @@ pubnub.fetchChannelMetadata("some-channel-id") { result in
 
 // snippet.set-channel-metadata
 let channelMetadataToSet = PubNubChannelMetadataBase(
-  id: "some-channel-id",
+  metadataId: "some-channel-id",
   name: "Channel Name"
 )
 
@@ -127,12 +125,12 @@ existingChannelMetadata.custom = ["admin": "Charles Dawson"]
 existingChannelMetadata.name = "Unrelated"
 
 // When you're ready, set the updated metadata on the server to persist the changes:
-pubNub.setChannelMetadata(existingChannelMetadata) {
+pubnub.setChannelMetadata(existingChannelMetadata) {
   switch $0 {
   case let .success(metadata):
     print("Did successfully set channel metadata with \(metadata.metadataId)")
   case let .failure(error):
-    print("Unexpected error along the way")
+    print("Unexpected error along the way: \(error)")
   }
 }
 // snippet.end
@@ -153,7 +151,7 @@ pubnub.fetchMemberships(userId: "some-user-id") { result in
   switch result {
   case let .success(response):
     print("The channel memberships for the userId: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Fetch Memberships request failed with error: \(error.localizedDescription)")
   }
@@ -168,7 +166,7 @@ pubnub.fetchMemberships(
   switch result {
   case let .success(response):
     print("List of channel memberships: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("An error occurred: \(error.localizedDescription)")
   }
@@ -188,7 +186,7 @@ pubnub.setMemberships(
   switch result {
   case let .success(response):
     print("The channel memberships for the userId: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Update Memberships request failed with error: \(error.localizedDescription)")
   }
@@ -208,7 +206,7 @@ pubnub.removeMemberships(
   switch result {
   case let .success(response):
     print("The channel memberships for the userId: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Update Memberships request failed with error: \(error.localizedDescription)")
   }
@@ -220,7 +218,7 @@ pubnub.fetchMembers(channel: "my_channel_id") { result in
   switch result {
   case let .success(response):
     print("The user members for the channel: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Fetch Memberships request failed with error: \(error.localizedDescription)")
   }
@@ -240,7 +238,7 @@ pubnub.setMembers(
   switch result {
   case let .success(response):
     print("The user members for the channel: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Update Memberships request failed with error: \(error.localizedDescription)")
   }
@@ -260,7 +258,7 @@ pubnub.removeMembers(
   switch result {
   case let .success(response):
     print("The user members of the channel: \(response.memberships)")
-    print("The next page used for pagination: \(String(describing: nextPage))")
+    print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Update Memberships request failed with error: \(error.localizedDescription)")
   }

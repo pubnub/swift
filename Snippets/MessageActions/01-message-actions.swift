@@ -52,7 +52,7 @@ pubnub.removeMessageActions(
 // snippet.end
 
 // snippet.fetch-message-actions
-pubnub.fetchMessageActions(channel: String) { result in
+pubnub.fetchMessageActions(channel: "my_channel") { result in
   switch result {
   case let .success(response):
     print("The actions for the channel \(response.actions)")

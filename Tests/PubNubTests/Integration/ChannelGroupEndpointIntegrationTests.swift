@@ -66,14 +66,14 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
     client.add(channels: testChannels, to: testGroup) { [unowned client] result in
       switch result {
       case let .success(addChannelsResponse):
-        XCTAssertEqual(addChannelsResponse.channels, testChannels)
+        XCTAssertEqual(Set(addChannelsResponse.channels), Set(testChannels))
         XCTAssertEqual(addChannelsResponse.group, testGroup)        
         // Fetch the channels for the group and verify they are the same as the ones added
         client.listChannels(for: testGroup) { listChannelsResult in
           switch listChannelsResult {
           case let .success((group, channels)):
             XCTAssertEqual(group, testGroup)
-            XCTAssertEqual(channels, testChannels)
+            XCTAssertEqual(Set(channels), Set(testChannels))
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

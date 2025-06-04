@@ -10,6 +10,7 @@
 
 // snippet.add-message-action
 import PubNubSDK
+import Foundation
 
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
@@ -59,6 +60,17 @@ pubnub.fetchMessageActions(channel: "my_channel") { result in
     print("The next page used for pagination: \(String(describing: response.next))")
   case let .failure(error):
     print("Error from failed response: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.pubnub-time
+pubnub.time { result in
+  switch result {
+  case let .success(timetoken):
+    print("Handle downloaded server timetoken: \(timetoken)")
+  case let .failure(error):
+    print("Handle response error: \(error.localizedDescription)")
   }
 }
 // snippet.end

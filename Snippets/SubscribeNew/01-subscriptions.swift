@@ -51,7 +51,8 @@ func subscriptionSetAddRemoveExample() {
   // An example of how to remove a `sportsSubscription` from a SubscriptionSet
   subscriptionSet.remove(subscription: sportsSubscription)
 
-  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to all contained entities
+  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions
+  // to all contained entities
   subscriptionSet.subscribe()
   // snippet.end
 }

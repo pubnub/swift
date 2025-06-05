@@ -22,7 +22,7 @@ func basicConfigExample() {
     heartbeatInterval: 100
   )
 
-  // Creates a PubNub instance with the configuration specified above:
+  // Creates a PubNub instance with the configuration specified above
   let pubnub = PubNub(
     configuration: configuration
   )
@@ -45,7 +45,7 @@ func aesCbcCryptoModuleExample() {
 
 func legacyCryptoModuleExample() {
   // snippet.legacy-crypto-module
-  // Uses a legacy encryption mechanism (128-bit cipher key entropy) that is no longer recommended.
+  // Uses a legacy encryption mechanism (128-bit cipher key entropy) that is no longer recommended
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
       publishKey: "demo",
@@ -78,7 +78,7 @@ func automaticRetryExample() {
     excluded: [.messageSend]
   )
 
-  // Creates a PubNub instance with retry mechanism enabled:
+  // Creates a PubNub instance with retry mechanism enabled
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
       publishKey: "demo",

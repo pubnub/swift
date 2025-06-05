@@ -49,16 +49,12 @@ listener.didReceiveBatchSubscription = { events in
     switch event {
     case .messageReceived(let message):
       print("The \(message.channel) channel received a message at \(message.published).")
-      if let subscription = message.subscription {
-        print("This message came through subscription: \(subscription).")
-      }
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: message.subscription)).")
       print("Message payload: \(message.payload). Sent by: \(message.publisher ?? "unknown").")
 
     case .signalReceived(let signal):
       print("The \(signal.channel) channel received a signal at \(signal.published).")
-      if let subscription = signal.subscription {
-        print("This signal came through subscription: \(subscription).")
-      }
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: message.subscription)).")
       print("Signal payload: \(signal.payload). Sent by: \(signal.publisher ?? "unknown").")
 
     case .connectionStatusChanged(let connectionChange):
@@ -70,7 +66,7 @@ listener.didReceiveBatchSubscription = { events in
       case .connected:
         print("Connection status: connected!")
       case .disconnected:
-        print("Connection status: disconnected.")
+        print("Connection status: disconnected!")
       case let .connectionError(error):
         print("Connection status: connection error! \(error.localizedDescription)")
       case let .disconnectedUnexpectedly(error):
@@ -88,7 +84,9 @@ listener.didReceiveBatchSubscription = { events in
       }
 
     case .presenceChanged(let presenceChange):
-      print("Presence updated for channel \(presenceChange.channel) with occupancy \(presenceChange.occupancy).")
+      print("Presence updated for channel \(presenceChange.channel)")
+      print("Channel occupancy \(presenceChange.occupancy)")
+
       for action in presenceChange.actions {
         switch action {
         case let .join(uuids):
@@ -104,18 +102,7 @@ listener.didReceiveBatchSubscription = { events in
 
     case .uuidMetadataSet(let uuidMetadataChange):
       print("UUID metadata changes detected for \(uuidMetadataChange.metadataId) at \(uuidMetadataChange.updated).")
-      // Detailed handling of changeset
-      print("User Metadata Changes for \(uuidMetadataChange.metadataId):")
-      print("Updated at: \(uuidMetadataChange.updated)")
-      // Print all changes made to the object
-      uuidMetadataChange.changes.forEach {
-        switch $0 {
-        case let .stringOptional(key, value):
-          debugPrint("Value for \(key): \(String(describing: value))")
-        case let .customOptional(key, value):
-          debugPrint("Value for \(key): \(String(describing: value))")
-        }
-      }
+      print("All changes made to the object: \(uuidMetadataChange.changes)")
       print("To apply these changes, fetch the relevant object and call `uuidMetadataChange.apply(to: otherUUIDMetadata)`.")
 
     case .uuidMetadataRemoved(let metadataId):
@@ -123,6 +110,7 @@ listener.didReceiveBatchSubscription = { events in
 
     case .channelMetadataSet(let channelMetadata):
       print("Channel metadata changes detected for \(channelMetadata.metadataId) at \(channelMetadata.updated).")
+      print("All changes made to the object: \(uuidMetadataChange.changes)")
       print("To apply these changes, fetch the relevant object and call `channelMetadata.apply(to: otherChannelMetadata)`.")
 
     case .channelMetadataRemoved(let metadataId):
@@ -141,6 +129,7 @@ listener.didReceiveBatchSubscription = { events in
     case .messageActionRemoved(let messageAction):
       print("The \(messageAction.channel) channel received a message at \(messageAction.messageTimetoken)")
       print("A message reaction with the timetoken of \(messageAction.actionTimetoken) has been removed")
+
     case .subscribeError(let error):
       print("Subscription error occurred: \(error.localizedDescription). Check if a `disconnectedUnexpectedly` status also happened; if so, restart the subscription.")
 

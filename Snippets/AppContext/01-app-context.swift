@@ -8,9 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.all-user-metadata
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -20,6 +23,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.all-user-metadata
 // Retrieve all user metadata
 pubnub.allUserMetadata { result in
   switch result {

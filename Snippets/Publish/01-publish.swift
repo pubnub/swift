@@ -40,7 +40,7 @@ struct CustomMessage: JSONCodable {
 
 // snippet.end
 
-// snippet.publish
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -50,6 +50,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.publish
 // Publish a message to a channel
 pubnub.publish(
   channel: "my-channel",

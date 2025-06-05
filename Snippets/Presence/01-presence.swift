@@ -8,9 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.here-now
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -20,6 +23,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.here-now
 // Get presence information for a channel
 pubnub.hereNow(on: ["my_channel"]) { result in
   switch result {

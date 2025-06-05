@@ -8,9 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.set-token
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -20,6 +23,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.set-token
 // Update the authentication token granted by the server
 pubnub.set(token: "#yourAuthToken")
 // snippet.end

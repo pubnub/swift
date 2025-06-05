@@ -8,10 +8,13 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.encrypt-data
+// snippet.import
 import PubNubSDK
 import Foundation
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -21,6 +24,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.encrypt-data
 func encryptDataExample() throws {
   // Initialize the crypto module with a cipher key
   let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")

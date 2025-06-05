@@ -8,9 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.fetch-message-history
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -20,6 +23,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.fetch-message-history
 // Retrieve the last message on a channel
 pubnub.fetchMessageHistory(for: ["my_channel"]) { result in
   switch result {

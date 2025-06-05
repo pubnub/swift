@@ -8,10 +8,13 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.add-message-action
+// snippet.import
 import PubNubSDK
 import Foundation
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -21,6 +24,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.add-message-action
 pubnub.addMessageAction(
   channel: "my_channel",
   type: "reaction",

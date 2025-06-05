@@ -8,10 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// Initializes a PubNub object with the configuration
-// snippet.add-channels
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -21,6 +23,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.add-channels
 pubnub.add(
   channels: ["channelSwift", "otherChannel"],
   to: "SwiftGroup"

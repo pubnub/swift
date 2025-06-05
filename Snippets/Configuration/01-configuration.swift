@@ -10,11 +10,11 @@
 
 // snippet.import
 import PubNubSDK
+
 // snippet.end
 
 func basicConfigExample() {
   // snippet.config-basic
-
   let configuration = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
@@ -31,7 +31,6 @@ func basicConfigExample() {
 
 func aesCbcCryptoModuleExample() {
   // snippet.crypto-module
-
   // Uses 256-bit AES-CBC encryption (recommended) with backward compatibility for legacy encryption
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
@@ -46,7 +45,6 @@ func aesCbcCryptoModuleExample() {
 
 func legacyCryptoModuleExample() {
   // snippet.legacy-crypto-module
-
   // Uses a legacy encryption mechanism (128-bit cipher key entropy) that is no longer recommended.
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
@@ -61,7 +59,6 @@ func legacyCryptoModuleExample() {
 
 func automaticRetryExample() {
   // snippet.automatic-retry
-
   /// Creates automatic retry behavior for failed requests with a linear backoff policy
   /// The delay parameter (4 seconds) specifies the base linear delay between retry attempts.
 
@@ -96,7 +93,7 @@ func automaticRetryExample() {
 func publishKeyAsNilExample() {
   // snippet.config-publish-key-nil
   let config = PubNubConfiguration(
-    publishKey: "demo",
+    publishKey: nil,
     subscribeKey: "demo",
     userId: "myUniqueUserId"
   )

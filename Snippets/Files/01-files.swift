@@ -8,10 +8,13 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.send-file
+// snippet.import
 import PubNubSDK
 import Foundation
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -21,6 +24,9 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
+// snippet.send-file
 // Replace with actual file path
 pubnub.send(
   .file(url: URL(fileURLWithPath: "/path/to/cat_picture.jpg")),

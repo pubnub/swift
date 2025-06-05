@@ -31,6 +31,7 @@ func subscriptionSetBasicExample() {
     entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup"), pubnub.userMetadata("userMetadataIdentifier")],
     options: ReceivePresenceEvents()
   )
+
   // Triggers the subscription
   subscriptionSet.subscribe()
   // snippet.end
@@ -38,12 +39,15 @@ func subscriptionSetBasicExample() {
 
 func subscriptionSetAddRemoveExample() {
   // snippet.subscription-set-add-remove
+  // Create references to example entities
   let weatherChannelEntity = pubnub.channel("weather-updates")
   let newsGroupEntity = pubnub.channelGroup("news-feed")
 
-  // Create a SubscriptionSet object from individual entities
+  // Create a SubscriptionSet object from entities above
   let subscriptionSet = pubnub.subscription(entities: [weatherChannelEntity, newsGroupEntity])
-  // Create a subscription for another channel entity
+
+  // Create a subscription for another channel entity to demonstrate
+  // adding and removing to/from a SubscriptionSet
   let sportsSubscription = pubnub.channel("sports-scores").subscription()
 
   // An example of how to add a `sportsSubscription` to a SubscriptionSet
@@ -88,6 +92,7 @@ func unsubscribeExample() {
 }
 
 // snippet.subscription
+// Create an example subscription for a channel
 let subscription = pubnub
   .channel("channelName")
   .subscription()

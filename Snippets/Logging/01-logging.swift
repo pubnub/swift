@@ -8,10 +8,13 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.configure-logging
+// snippet.import
 import PubNubSDK
 import Foundation
 
+// snippet.end
+
+// snippet.configure-logging
 // Configure PubNub logging system
 func configureLoggingExample() {
   // Set logging levels

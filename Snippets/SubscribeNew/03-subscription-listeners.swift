@@ -18,9 +18,12 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.subscription
 let subscription = pubnub
   .channel("channelName")
   .subscription()
+
+// snippet.end
 
 // snippet.on-message
 // Defines a custom type that will be used to decode the message payload

@@ -8,8 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -18,8 +22,14 @@ let pubnub = PubNub(
   )
 )
 
+// snippet.end
+
 // snippet.connection-status
 pubnub.onConnectionStateChange = { newStatus in
   print("Connection status: \(newStatus)")
 }
+// snippet.end
+
+// snippet.unsubscribe-all
+pubnub.unsubscribeAll()
 // snippet.end

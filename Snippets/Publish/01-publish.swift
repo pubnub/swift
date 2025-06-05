@@ -8,9 +8,39 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-// snippet.publish
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.custom-type-message
+/// Ensure that your custom object implements `JSONCodable`
+struct Message: JSONCodable {
+  var greeting: String
+  var location: String
+}
+
+// snippet.end
+
+// snippet.custom-type-location
+/// Ensure that your custom types conform to `JSONCodable`
+struct Location: JSONCodable {
+  var lat: Double
+  var long: Double
+}
+
+// snippet.end
+
+// snippet.custom-type-custom-message
+/// Ensure that your custom object implements `JSONCodable`
+struct CustomMessage: JSONCodable {
+  var greeting: String
+  var location: Location
+}
+
+// snippet.end
+
+// snippet.publish
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -58,12 +88,6 @@ pubnub.publish(
 // snippet.end
 
 // snippet.publish-custom-type
-/// Ensure that your custom object implements `JSONCodable`
-struct Message: JSONCodable {
-  var greeting: String
-  var location: String
-}
-
 /// Publish payload JSON equivalent to:
 ///
 /// ```
@@ -75,6 +99,31 @@ struct Message: JSONCodable {
 pubnub.publish(
   channel: "my_channel",
   message: Message(greeting: "hello", location: "right here")
+) { result in
+  switch result {
+  case let .success(timetoken):
+    print("Message Successfully Published at: \(timetoken)")
+  case let .failure(error):
+    print("Failed Publish Response: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.publish-mixed
+/// Publish payload JSON equivalent to:
+///
+/// ```
+/// {
+///   "greeting": "hello",
+///   "location": {
+///     "lat": 37.782486,
+///     "long": -122.395344
+///   }
+/// }
+/// ```
+pubnub.publish(
+  channel: "my_channel",
+  message: CustomMessage(greeting: "hello", location: Location(lat: 37.782486, long: -122.395344))
 ) { result in
   switch result {
   case let .success(timetoken):
@@ -104,6 +153,35 @@ let pushMessage = PubNubPushMessage(
 pubnub.publish(
   channel: "my-channel",
   message: pushMessage
+) { result in
+  switch result {
+  case let .success(timetoken):
+    print("Message Successfully Published at: \(timetoken)")
+  case let .failure(error):
+    print("Failed Response: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.fire
+pubnub.fire(
+  channel: "my-channel",
+  message: "Hello from PubNub Swift SDK"
+) { result in
+  switch result {
+  case let .success(timetoken):
+    print("Message Successfully Published at: \(timetoken)")
+  case let .failure(error):
+    print("Failed Response: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
+// snippet.signal
+pubnub.signal(
+  channel: "my-channel",
+  message: "Hello from PubNub Swift SDK",
+  customMessageType: "text-message-signalled"
 ) { result in
   switch result {
   case let .success(timetoken):

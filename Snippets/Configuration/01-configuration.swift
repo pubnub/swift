@@ -23,7 +23,9 @@ func basicConfigExample() {
   )
 
   // Creates a PubNub instance with the configuration specified above:
-  let pubnub = PubNub(configuration: configuration)
+  let pubnub = PubNub(
+    configuration: configuration
+  )
   // snippet.end
 }
 
@@ -91,15 +93,17 @@ func automaticRetryExample() {
   // snippet.end
 }
 
-func userIdConfigExample() {
-  // snippet.config-user-id
+func publishKeyAsNilExample() {
+  // snippet.config-publish-key-nil
   let config = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",
     userId: "myUniqueUserId"
   )
 
-  let pubnub = PubNub(configuration: config)
+  let pubnub = PubNub(
+    configuration: config
+  )
   // snippet.end
 }
 

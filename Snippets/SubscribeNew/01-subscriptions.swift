@@ -14,6 +14,7 @@ import PubNubSDK
 // snippet.end
 
 // snippet.pubnub
+// Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -24,16 +25,12 @@ let pubnub = PubNub(
 
 // snippet.end
 
-func subscriptionSetBasicExample() {
-  // snippet.subscription-set
-  // Create a subscription set with multiple local entities
-  let subscriptionSet = pubnub.subscription(
-    entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup"), pubnub.userMetadata("userMetadataIdentifier")],
-    options: ReceivePresenceEvents()
-  )
-
+func subscriptionBasicExample() {
+  // snippet.basic-usage
+  // Create a subscription for an example channel
+  let subscription = pubnub.channel("channel").subscription(options: ReceivePresenceEvents())
   // Triggers the subscription
-  subscriptionSet.subscribe()
+  subscription.subscribe()
   // snippet.end
 }
 
@@ -50,13 +47,11 @@ func subscriptionSetAddRemoveExample() {
   // adding and removing to/from a SubscriptionSet
   let sportsSubscription = pubnub.channel("sports-scores").subscription()
 
-  // An example of how to add a `sportsSubscription` to a SubscriptionSet
+  // An example of how to add/remove a `sportsSubscription` to/from a SubscriptionSet
   subscriptionSet.add(subscription: sportsSubscription)
-  // An example of how to remove a `sportsSubscription` from a SubscriptionSet
   subscriptionSet.remove(subscription: sportsSubscription)
 
-  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions
-  // to all contained entities
+  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to all contained entities
   subscriptionSet.subscribe()
   // snippet.end
 }

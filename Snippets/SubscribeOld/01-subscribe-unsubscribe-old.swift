@@ -38,7 +38,10 @@ pubnub.subscribe(to: ["a.b.*"])
 // snippet.end
 
 // snippet.subscribe-channel-group
-pubnub.subscribe(to: [], and: ["my_group"])
+pubnub.subscribe(
+  to: [],
+  and: ["my_group"]
+)
 // snippet.end
 
 // snippet.subscribe-channel-group-presence

@@ -8,8 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// snippet.import
 import PubNubSDK
 
+// snippet.end
+
+// snippet.pubnub
 // Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
@@ -19,10 +23,15 @@ let pubnub = PubNub(
   )
 )
 
-// snippet.listener-basic
+// snippet.end
+
+// snippet.subscription-listener
 // Create a new listener instance
 let listener = SubscriptionListener()
 
+// snippet.end
+
+// snippet.did-receive-subscription
 // Add listener event callbacks
 listener.didReceiveSubscription = { event in
   switch event {
@@ -39,11 +48,14 @@ listener.didReceiveSubscription = { event in
   }
 }
 
+// snippet.end
+
+// snippet.add-listener
 // Start receiving subscription events
 pubnub.add(listener)
 // snippet.end
 
-// snippet.listener-batch-subscription
+// snippet.did-receive-batch-subscription
 listener.didReceiveBatchSubscription = { events in
   for event in events {
     switch event {
@@ -140,7 +152,7 @@ listener.didReceiveBatchSubscription = { events in
 }
 // snippet.end
 
-// snippet.listener-subscription
+// snippet.did-receive-subscription
 listener.didReceiveSubscription = { event in
   switch event {
     // Same content as the above example

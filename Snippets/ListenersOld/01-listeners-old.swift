@@ -152,7 +152,7 @@ listener.didReceiveBatchSubscription = { events in
 }
 // snippet.end
 
-// snippet.did-receive-subscription
+// snippet.did-receive-subscription-2
 listener.didReceiveSubscription = { event in
   switch event {
     // Same content as the above example

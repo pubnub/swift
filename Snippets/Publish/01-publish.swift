@@ -14,7 +14,7 @@ import PubNubSDK
 // snippet.end
 
 // snippet.custom-type-message
-/// Ensure that your custom object implements `JSONCodable`
+/// Ensure that your custom type implements `JSONCodable`
 struct Message: JSONCodable {
   var greeting: String
   var location: String
@@ -23,7 +23,7 @@ struct Message: JSONCodable {
 // snippet.end
 
 // snippet.custom-type-location
-/// Ensure that your custom types conform to `JSONCodable`
+/// Ensure that your custom type implements `JSONCodable`
 struct Location: JSONCodable {
   var lat: Double
   var long: Double
@@ -32,7 +32,7 @@ struct Location: JSONCodable {
 // snippet.end
 
 // snippet.custom-type-custom-message
-/// Ensure that your custom object implements `JSONCodable`
+/// Ensure that your custom type implements `JSONCodable`
 struct CustomMessage: JSONCodable {
   var greeting: String
   var location: Location

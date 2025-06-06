@@ -54,7 +54,7 @@ listener.didReceiveBatchSubscription = { events in
 
     case .signalReceived(let signal):
       print("The \(signal.channel) channel received a signal at \(signal.published).")
-      print("The channel group or wildcard subscription match (if exists): \(String(describing: message.subscription)).")
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: signal.subscription)).")
       print("Signal payload: \(signal.payload). Sent by: \(signal.publisher ?? "unknown").")
 
     case .connectionStatusChanged(let connectionChange):
@@ -110,7 +110,7 @@ listener.didReceiveBatchSubscription = { events in
 
     case .channelMetadataSet(let channelMetadata):
       print("Channel metadata changes detected for \(channelMetadata.metadataId) at \(channelMetadata.updated).")
-      print("All changes made to the object: \(uuidMetadataChange.changes)")
+      print("All changes made to the object: \(channelMetadata.changes)")
       print("To apply these changes, fetch the relevant object and call `channelMetadata.apply(to: otherChannelMetadata)`.")
 
     case .channelMetadataRemoved(let metadataId):

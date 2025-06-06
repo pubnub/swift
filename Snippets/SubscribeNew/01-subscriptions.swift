@@ -95,26 +95,40 @@ let subscription = pubnub
 // snippet.end
 
 // snippet.on-message
-// Defines a custom type that will be used to decode the message payload
+// Defines a custom type that can be used to decode the message payload
 struct Person: JSONCodable {
   var lastName: String
   var firstName: String
   var age: Int
 }
 
-// Add a listener for Message events.
-
-// Assume that a Person object was sent as the message parameter in PubNub's publish(...) method,
-// or that the received payload can be decoded as a Person object
+// Add a listener for Message events
 subscription.onMessage = { message in
-  print("Message Received: \(message) Publisher: \(message.publisher ?? "defaultUUID")")
-  print("Will attempt to decode the message payload as a Person object")
-
+  // Example showing how to decode the message payload as the custom Person type defined above
   if let person = try? message.payload.decode(Person.self) {
-    print("Person object decoded successfully: \(person)")
+    print("Person object decoded successfully")
     print("Person details: \(person.lastName), \(person.firstName), \(person.age)")
-  } else {
-    print("Failed to decode the message payload as a Person object")
+  }
+  // Example showing how to decode the message payload as a raw [String: Any] dictionary
+  else if let dictionary = message.payload.codableValue.dictionaryOptional {
+    print("Dictionary decoded successfully: \(dictionary)")
+  }
+  // Example showing how to decode the message payload as a raw [Any] array
+  else if let array = message.payload.codableValue.arrayOptional {
+    print("Array decoded successfully: \(array)")
+  }
+  // Example showing how to decode the message payload as a String scalar value.
+  // If you need other scalar types, you can use the properties listed below:
+  //
+  // - .intOptional - to decode payload as an Int value
+  // - .boolOptional - to decode payload as a Bool value
+  // - .doubleOptional - to decode payload as a Double value
+  else if let scalarValue = message.payload.codableValue.stringOptional {
+    print("Scalar value: \(scalarValue)")
+  }
+  // Fallback when the message payload cannot be decoded
+  else {
+    print("Failed to decode the message payload")
   }
 }
 // snippet.end

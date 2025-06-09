@@ -209,6 +209,20 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   func unsubscribeAll() {
     strategy.unsubscribeAll()
   }
+
+  // MARK: - Deinit
+
+  deinit {
+    if connectionStatus.isActive {
+      // Calling disconnect() will trigger status notifications to user-added listeners
+      disconnect()
+      // Ensures the status notification is also dispatched for the global status listener.
+      // We don't rely on disconnect() to complete because this object may not exist when it finishes.
+      globalStatusListener.queue.async { [onConnectionStateChange] in
+        onConnectionStateChange?(.disconnected)
+      }
+    }
+  }
 }
 
 extension SubscriptionSession {

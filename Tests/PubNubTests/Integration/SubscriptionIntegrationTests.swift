@@ -242,7 +242,11 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     pubnub.subscribe(to: [testChannelName])
     
-    defer { pubnub.disconnect() }
+    defer {
+      pubnub.onConnectionStateChange = nil
+      pubnub.disconnect()
+    }
+    
     wait(for: [statusExpect, messageExpect], timeout: 30.0)
   }
 
@@ -313,6 +317,12 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.subscribe(to: [testChannelName])
     
     XCTAssertEqual(pubnub.subscribedChannels, [testChannelName])
+    
+    defer {
+      pubnub.onConnectionStateChange = nil
+      pubnub.disconnect()
+    }
+    
     wait(for: [expectation], timeout: 5.0)
   }
   
@@ -343,6 +353,11 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.add(listener)
     pubnub.subscribe(to: [testChannelName])
     
+    defer {
+      pubnub.onConnectionStateChange = nil
+      pubnub.disconnect()
+    }
+    
     wait(for: [expectation], timeout: 10.0)
   }
   
@@ -372,6 +387,11 @@ class SubscriptionIntegrationTests: XCTestCase {
     }
     
     firstSubscription.subscribe()
+    
+    defer {
+      pubnub.onConnectionStateChange = nil
+      pubnub.disconnect()
+    }
     
     wait(for: [expectation], timeout: 5.0)
   }

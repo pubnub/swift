@@ -8,6 +8,7 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
+// swiftlint:disable line_length
 // snippet.import
 import PubNubSDK
 
@@ -180,3 +181,4 @@ pubnub.unsubscribe(
 // snippet.unsubscribe-all
 pubnub.unsubscribeAll()
 // snippet.end
+// swiftlint:enable line_length

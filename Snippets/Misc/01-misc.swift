@@ -31,7 +31,7 @@ func encryptDataExample() throws {
   // Initialize the crypto module with a cipher key
   let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
   // The message to encrypt
-  let messageToEncrypt = "this is message".data(using: .utf8) ?? Data()
+  let messageToEncrypt = Data("this is message".utf8)
   // Encrypt the message
   let encryptedMessage: Data = try cryptoModule.encrypt(data: messageToEncrypt).get()
   // Proceed with encrypted message
@@ -43,7 +43,7 @@ func decryptDataExample() throws {
   // Initialize the crypto module with a cipher key
   let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
   // Encrypt a message to demonstrate its decryption later
-  let messageToEncrypt = "this is message".data(using: .utf8) ?? Data()
+  let messageToEncrypt = Data("this is message".utf8)
   let encryptedMessage = try cryptoModule.encrypt(data: messageToEncrypt).get()
   // Decrypt data
   let decryptedData: Data = try cryptoModule.decrypt(data: encryptedMessage).get()

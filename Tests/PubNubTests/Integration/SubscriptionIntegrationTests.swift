@@ -395,4 +395,46 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5.0)
   }
+
+  func testConnectionStatusOnDeallocation() {
+    let disconnectedExpect = XCTestExpectation(description: "Disconnected status expectation")
+    disconnectedExpect.assertForOverFulfill = true
+    disconnectedExpect.expectedFulfillmentCount = 2
+    
+    let listener = SubscriptionListener()
+    let testChannelName = randomString()
+    
+    var pubnub: PubNub? = PubNub(configuration: .init(from: testsBundle))
+    
+    listener.didReceiveStatus = { statusChange in
+      if case let .success(status) = statusChange, status == .connected {
+        pubnub = nil
+      } else if case let .success(status) = statusChange, status == .disconnected {
+        disconnectedExpect.fulfill()
+      } else {
+        XCTFail("Unexpected status change: \(statusChange)")
+      }
+    }
+    
+    pubnub?.onConnectionStateChange = { newStatus in
+      if newStatus == .connected {
+        debugPrint("Successfully connected to the remote system")
+      } else if newStatus == .disconnected {
+        disconnectedExpect.fulfill()
+      } else {
+        XCTFail("Unexpected connection status: \(newStatus)")
+      }
+    }
+    
+    pubnub?.add(listener)
+    pubnub?.subscribe(to: [testChannelName])
+    
+    defer {
+      listener.didReceiveStatus = nil
+      pubnub?.onConnectionStateChange = nil
+      pubnub?.disconnect()
+    }
+    
+    wait(for: [disconnectedExpect], timeout: 10.0)
+  }
 }

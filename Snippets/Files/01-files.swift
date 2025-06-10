@@ -28,7 +28,7 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.send-file
-// Sends a file to a channel
+// Sends a File to a channel
 pubnub.send(
   .file(url: URL(fileURLWithPath: "/path/to/your/file.jpg")),
   channel: "my_channel",
@@ -62,7 +62,7 @@ pubnub.listFiles(channel: "my_channel") { result in
 // snippet.end
 
 // snippet.generate-file-download-url
-// Generate a download URL for a file
+// Generate a download URL for a File
 let downloadURL = try? pubnub.generateFileDownloadURL(
   channel: "some-channel",
   fileId: "some-file-id",
@@ -78,7 +78,7 @@ let requestFile = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
-// Download the file to the specified URL
+// Download the File to the specified URL
 pubnub.download(
   file: requestFile,
   toFileURL: requestFile.fileURL
@@ -98,7 +98,7 @@ pubnub.download(
 // snippet.end
 
 // snippet.download-file-resume
-// Assumes this is the portion of the file that was downloaded prior to the interruption.
+// Assumes this is the portion of the File that was downloaded prior to the interruption.
 // See above documentation on how to obtain this data
 let resumeData = Data()
 
@@ -109,7 +109,7 @@ let fileToResume = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
-// Resume the download of the file
+// Resume the download of the File
 pubnub.download(
   file: fileToResume,
   toFileURL: fileToResume.fileURL,
@@ -151,7 +151,7 @@ let fileToDownload = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
-// Download the file using a PubNub instance with a custom file session
+// Download the File using a PubNub instance with a custom file session
 pubNubWithCustomFileURLSession.download(
   file: fileToDownload,
   toFileURL: fileToDownload.fileURL
@@ -171,7 +171,7 @@ pubNubWithCustomFileURLSession.download(
 // snippet.end
 
 // snippet.remove-file
-// Remove a file from a channel
+// Remove a File from a channel
 pubnub.remove(
   fileId: "id-of-a-file",
   filename: "example.png",
@@ -187,21 +187,22 @@ pubnub.remove(
 // snippet.end
 
 // snippet.publish-file-request
-// Replace `fileURL:` with your destination URL
+// Assume this is a File that you want to publish to a channel
 let someFile = PubNubLocalFileBase(
   channel: "my_channel",
   fileId: "fileId-from-PubNub",
   fileURL: URL(fileURLWithPath: "path/to/example.png")
 )
 
+// Provides additional message that can be send during a File publish
 let publishRequest = PubNub.PublishFileRequest(
   additionalMessage: "Some additional message",
   customMessageType: "customMessageType"
 )
 
-// Publish the file to a channel
+// Publish the File to a channel
 pubnub.publish(
-  file: file,
+  file: someFile,
   request: publishRequest
 ) { result in
   switch result {

@@ -47,6 +47,7 @@ pubnub.hereNow(on: ["my_channel"]) { result in
 // snippet.end
 
 // snippet.here-now-2
+// Get presence information for a channel without UUIDs
 pubnub.hereNow(
   on: ["my-channel"],
   includeUUIDs: false
@@ -63,6 +64,7 @@ pubnub.hereNow(
 // snippet.end
 
 // snippet.here-now-channel-groups
+// Get presence information for a channel group
 pubnub.hereNow(
   on: [],
   and: ["my-channel-group"]
@@ -77,6 +79,7 @@ pubnub.hereNow(
 // snippet.end
 
 // snippet.where-now
+// Get the channels that a specific UUID is present on
 pubnub.whereNow(for: "my-unique-uuid") { result in
   switch result {
   case let .success(channelsByUUID):
@@ -91,6 +94,7 @@ pubnub.whereNow(for: "my-unique-uuid") { result in
 // snippet.end
 
 // snippet.set-presence-state
+// Set the presence state for a channel and channel group
 pubnub.setPresence(
   state: ["new": "state"],
   on: ["channelSwift"],
@@ -106,6 +110,7 @@ pubnub.setPresence(
 // snippet.end
 
 // snippet.get-presence-state
+// Get the presence state for a channel and channel group
 pubnub.getPresenceState(
   for: pubnub.configuration.uuid,
   on: ["channelSwift"],
@@ -121,6 +126,7 @@ pubnub.getPresenceState(
 // snippet.end
 
 // snippet.get-presence-state-decode
+// Get the presence state for a channel and decode it into a Dictionary type
 pubnub.setPresence(
   state: ["new": "state"],
   on: ["channelSwift"]
@@ -140,6 +146,7 @@ struct MyPresenceState: JSONCodable {
   var new: String
 }
 
+// Set the presence state for a channel and decode it into a custom type
 pubnub.setPresence(
   state: ["new": "state"],
   on: ["channelSwift"]

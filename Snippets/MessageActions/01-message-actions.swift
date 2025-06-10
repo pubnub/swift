@@ -28,6 +28,7 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.add-message-action
+// Add a message action to already existing message published at a specific timetoken
 pubnub.addMessageAction(
   channel: "my_channel",
   type: "reaction",
@@ -45,6 +46,7 @@ pubnub.addMessageAction(
 // snippet.end
 
 // snippet.remove-message-action
+// Remove a message action from a message. Both the message and the action are identified by their timetokens
 pubnub.removeMessageActions(
   channel: "my_channel",
   message: 15_610_547_826_969_050,
@@ -60,6 +62,7 @@ pubnub.removeMessageActions(
 // snippet.end
 
 // snippet.fetch-message-actions
+// Fetch all message actions for a channel
 pubnub.fetchMessageActions(channel: "my_channel") { result in
   switch result {
   case let .success(response):

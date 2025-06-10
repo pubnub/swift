@@ -52,14 +52,17 @@ func decryptDataExample() throws {
 // snippet.end
 
 // snippet.pubnub-disconnect
+// Stops the subscriptions in progress
 pubnub.disconnect()
 // snippet.end
 
 // snippet.pubnub-reconnect
+// Reconnets to a stopped subscription with the previous subscribed channels and channel groups
 pubnub.reconnect()
 // snippet.end
 
 // snippet.time
+// Retrieves the current server time
 pubnub.time { result in
   switch result {
   case .success(let timetoken):

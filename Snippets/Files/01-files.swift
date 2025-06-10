@@ -28,12 +28,12 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.send-file
-// Replace with actual file path
+// Sends a file to a channel
 pubnub.send(
-  .file(url: URL(fileURLWithPath: "/path/to/cat_picture.jpg")),
+  .file(url: URL(fileURLWithPath: "/path/to/your/file.jpg")),
   channel: "my_channel",
   remoteFilename: "cat_picture.jpg",
-  publishRequest: .init(additionalMessage: ["text": "Look at this photo!"], customMessageType: "yourCustomType")
+  publishRequest: .init(additionalMessage: ["text": "Look at this photo!"], customMessageType: "yourCustomMessageType")
 ) { (fileTask: HTTPFileUploadTask) in
   print("The task \(fileTask.urlSessionTask.taskIdentifier) has started uploading; no need to call `resume()`")
   print("If needed, the `URLSessionUploadTask` can be accessed with `fileTask.urlSessionTask`")
@@ -49,6 +49,7 @@ pubnub.send(
 // snippet.end
 
 // snippet.list-files
+// Retrieve list of files uploaded to a channel
 pubnub.listFiles(channel: "my_channel") { result in
   switch result {
   case let .success(response):
@@ -61,6 +62,7 @@ pubnub.listFiles(channel: "my_channel") { result in
 // snippet.end
 
 // snippet.generate-file-download-url
+// Generate a download URL for a file
 let downloadURL = try? pubnub.generateFileDownloadURL(
   channel: "some-channel",
   fileId: "some-file-id",
@@ -76,6 +78,7 @@ let requestFile = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
+// Download the file to the specified URL
 pubnub.download(
   file: requestFile,
   toFileURL: requestFile.fileURL
@@ -95,8 +98,8 @@ pubnub.download(
 // snippet.end
 
 // snippet.download-file-resume
-// Assuming this is the portion of the file that was downloaded prior to the interruption.
-// See above documentation on ways you can obtain this data
+// Assumes this is the portion of the file that was downloaded prior to the interruption.
+// See above documentation on how to obtain this data
 let resumeData = Data()
 
 // Replace `fileURL:` with your destination URL
@@ -106,6 +109,7 @@ let fileToResume = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
+// Resume the download of the file
 pubnub.download(
   file: fileToResume,
   toFileURL: fileToResume.fileURL,
@@ -126,6 +130,7 @@ pubnub.download(
 // snippet.end
 
 // snippet.download-file-custom-url-session
+// Initialize a PubNub object with a custom URL session
 let pubNubWithCustomFileURLSession = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -146,6 +151,7 @@ let fileToDownload = PubNubLocalFileBase(
   fileURL: URL(fileURLWithPath: "your/download/url.png")
 )
 
+// Download the file using a PubNub instance with a custom file session
 pubNubWithCustomFileURLSession.download(
   file: fileToDownload,
   toFileURL: fileToDownload.fileURL
@@ -165,6 +171,7 @@ pubNubWithCustomFileURLSession.download(
 // snippet.end
 
 // snippet.remove-file
+// Remove a file from a channel
 pubnub.remove(
   fileId: "id-of-a-file",
   filename: "example.png",
@@ -192,6 +199,7 @@ let publishRequest = PubNub.PublishFileRequest(
   customMessageType: "customMessageType"
 )
 
+// Publish the file to a channel
 pubnub.publish(
   file: file,
   request: publishRequest

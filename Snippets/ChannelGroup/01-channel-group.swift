@@ -26,6 +26,7 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.add-channels
+// Add channels to a channel group
 pubnub.add(
   channels: ["channelSwift", "otherChannel"],
   to: "SwiftGroup"
@@ -40,6 +41,7 @@ pubnub.add(
 // snippet.end
 
 // snippet.list-channels
+// List the channels in a channel group
 pubnub.listChannels(for: "family") { result in
   switch result {
   case let .success(response):
@@ -51,6 +53,7 @@ pubnub.listChannels(for: "family") { result in
 // snippet.end
 
 // snippet.remove-channels
+// Remove channels from a channel group
 pubnub.remove(
   channels: ["channelSwift", "otherChannel"],
   from: "SwiftGroup"
@@ -65,6 +68,7 @@ pubnub.remove(
 // snippet.end
 
 // snippet.list-channel-groups
+// List all channel groups
 pubnub.listChannelGroups { result in
   switch result {
   case let .success(channelGroups):
@@ -76,6 +80,7 @@ pubnub.listChannelGroups { result in
 // snippet.end
 
 // snippet.remove-channel-group
+// Remove a channel group
 pubnub.remove(channelGroup: "SwiftGroup") { result in
   switch result {
   case let .success(channelGroup):

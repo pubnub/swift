@@ -26,7 +26,7 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.fetch-message-history
-// Retrieve the last message on a channel
+// Retrieve messages from a channel
 pubnub.fetchMessageHistory(for: ["my_channel"]) { result in
   switch result {
   case let .success(response):
@@ -46,6 +46,7 @@ pubnub.fetchMessageHistory(for: ["my_channel"]) { result in
 // snippet.end
 
 // snippet.fetch-message-history-end
+// Retrieve messages that are newer or equal to a specific timetoken
 pubnub.fetchMessageHistory(
   for: ["my_channel"],
   page: PubNubBoundedPageBase(end: 13406746780720711)
@@ -68,6 +69,8 @@ pubnub.fetchMessageHistory(
 // snippet.end
 
 // snippet.fetch-message-history-start
+// Retrieve messages older than a specific timetoken (exclusive).
+// Exclusive means that the message associated with the `13406746780720711` timetoken will be excluded from the result.
 pubnub.fetchMessageHistory(
   for: ["my_channel"],
   page: PubNubBoundedPageBase(start: 13406746780720711)
@@ -90,6 +93,7 @@ pubnub.fetchMessageHistory(
 // snippet.end
 
 // snippet.fetch-message-history-limit
+// Retrieve messages from multiple channels with a limit on the number of messages returned
 pubnub.fetchMessageHistory(
   for: ["channelSwift", "otherChannel", "myChannel"],
   page: PubNubBoundedPageBase(limit: 10)
@@ -109,6 +113,7 @@ pubnub.fetchMessageHistory(
 // snippet.end
 
 // snippet.fetch-message-history-include-meta
+// Retrieve messages from a channel with metadata
 pubnub.fetchMessageHistory(
   for: ["my_channel"],
   includeMeta: true
@@ -133,6 +138,7 @@ pubnub.fetchMessageHistory(
 // snippet.end
 
 // snippet.fetch-message-history-include-actions
+// Retrieve messages from a channel with actions
 pubnub.fetchMessageHistory(
   for: ["my_channel"],
   includeActions: true
@@ -155,6 +161,7 @@ pubnub.fetchMessageHistory(
 // snippet.end
 
 // snippet.delete-message-history
+// Delete all messages from a channel
 pubnub.deleteMessageHistory(
   from: "my_channel"
 ) { result in
@@ -168,6 +175,7 @@ pubnub.deleteMessageHistory(
 // snippet.end
 
 // snippet.delete-specific-message-from-history
+// Delete a specific message from a channel
 pubnub.deleteMessageHistory(
   from: "my_channel",
   start: 15526611838554309,
@@ -183,6 +191,7 @@ pubnub.deleteMessageHistory(
 // snippet.end
 
 // snippet.message-counts
+// Retrieve the message count for a channel
 pubnub.messageCounts(channels: ["my_channel"]) { result in
   switch result {
   case let .success(messageCountByChannel):
@@ -196,6 +205,7 @@ pubnub.messageCounts(channels: ["my_channel"]) { result in
 // snippet.end
 
 // snippet.message-counts-multiple-channels
+// Retrieve the message count for multiple channels
 pubnub.messageCounts(
   channels: ["my_channel", "other_channel", "their_channel"],
   timetoken: 15526611838554310
@@ -212,6 +222,7 @@ pubnub.messageCounts(
 // snippet.end
 
 // snippet.message-counts-multiple-channels-different-timetokens
+// Retrieve the message count for multiple channels with different timetokens
 pubnub.messageCounts(
   channels: [
     "my_channel": 15526611838554309,

@@ -14,6 +14,7 @@ import PubNubSDK
 // snippet.end
 
 // snippet.pubnub
+// Initializes a PubNub object with the configuration
 let pubnub = PubNub(
   configuration: PubNubConfiguration(
     publishKey: "demo",
@@ -25,11 +26,13 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.connection-status
+// Sets a callback to handle connection state changes
 pubnub.onConnectionStateChange = { newStatus in
   print("Connection status: \(newStatus)")
 }
 // snippet.end
 
 // snippet.unsubscribe-all
+// Unsubscribes from all channels and channel groups
 pubnub.unsubscribeAll()
 // snippet.end

@@ -153,7 +153,7 @@ subscription.onPresence = { presenceChange in
 // snippet.end
 
 // snippet.on-message-action
-// Add a listener to receive Message Reaction events
+// Add a listener to receive Message Action events
 subscription.onMessageAction = { messageActionEvent in
   switch messageActionEvent {
   case let .added(messageAction):

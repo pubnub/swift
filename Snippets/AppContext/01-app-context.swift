@@ -39,6 +39,7 @@ pubnub.allUserMetadata { result in
 // snippet.end
 
 // snippet.fetch-user-metadata
+// Retrieve user metadata for a specific identifier
 pubnub.fetchUserMetadata("some-id") { result in
   switch result {
   case let .success(userMetadata):
@@ -50,6 +51,7 @@ pubnub.fetchUserMetadata("some-id") { result in
 // snippet.end
 
 // snippet.set-user-metadata
+// Set user metadata for a specific identifier
 let userMetadataToSet = PubNubUserMetadataBase(
   metadataId: "some-id",
   name: "Some User",
@@ -67,6 +69,7 @@ pubnub.setUserMetadata(userMetadataToSet) { result in
 // snippet.end
 
 // snippet.remove-user-metadata
+// Remove user metadata for a specific identifier
 pubnub.removeUserMetadata("some-id") { result in
   switch result {
   case let .success(metadataId):
@@ -78,6 +81,7 @@ pubnub.removeUserMetadata("some-id") { result in
 // snippet.end
 
 // snippet.all-channel-metadata
+// Retrieve all channel metadata
 pubnub.allChannelMetadata { result in
   switch result {
   case let .success(response):
@@ -90,6 +94,7 @@ pubnub.allChannelMetadata { result in
 // snippet.end
 
 // snippet.fetch-channel-metadata
+// Retrieve channel metadata for a specific identifier
 pubnub.fetchChannelMetadata("some-channel-id") { result in
   switch result {
   case let .success(channelMetadata):
@@ -101,6 +106,7 @@ pubnub.fetchChannelMetadata("some-channel-id") { result in
 // snippet.end
 
 // snippet.set-channel-metadata
+// Set channel metadata for a specific identifier
 let channelMetadataToSet = PubNubChannelMetadataBase(
   metadataId: "some-channel-id",
   name: "Channel Name"
@@ -142,6 +148,7 @@ pubnub.setChannelMetadata(existingChannelMetadata) { result in
 // snippet.end
 
 // snippet.remove-channel-metadata
+// Remove channel metadata for a specific identifier
 pubnub.removeChannelMetadata("some-channel-id") { result in
   switch result {
   case let .success(metadataId):
@@ -153,6 +160,7 @@ pubnub.removeChannelMetadata("some-channel-id") { result in
 // snippet.end
 
 // snippet.fetch-memberships
+// Retrieve channel memberships for a specific user identifier
 pubnub.fetchMemberships(userId: "some-user-id") { result in
   switch result {
   case let .success(response):
@@ -165,6 +173,7 @@ pubnub.fetchMemberships(userId: "some-user-id") { result in
 // snippet.end
 
 // snippet.fetch-memberships-sort
+// Retrieve channel memberships for a specific user identifier and sort them by name
 pubnub.fetchMemberships(
   userId: "someUserId",
   sort: [.init(property: .object(.name))]
@@ -185,6 +194,7 @@ let membershipToSet = PubNubMembershipMetadataBase(
   channelMetadataId: "my_channel"
 )
 
+// Set channel memberships for a specific user identifier
 pubnub.setMemberships(
   userId: membershipToSet.userMetadataId,
   channels: [membershipToSet]
@@ -205,6 +215,7 @@ let membershipToRemove = PubNubMembershipMetadataBase(
   channelMetadataId: "my_channel"
 )
 
+// Remove channel memberships for a specific user identifier
 pubnub.removeMemberships(
   userId: membershipToRemove.userMetadataId,
   channels: [membershipToRemove]
@@ -220,6 +231,7 @@ pubnub.removeMemberships(
 // snippet.end
 
 // snippet.fetch-members
+// Retrieve members for a specific channel
 pubnub.fetchMembers(channel: "my_channel_id") { result in
   switch result {
   case let .success(response):
@@ -237,6 +249,7 @@ let userToSet = PubNubMembershipMetadataBase(
   channelMetadataId: "my_channel"
 )
 
+// Set members for a specific channel
 pubnub.setMembers(
   channel: userToSet.channelMetadataId,
   users: [userToSet]
@@ -257,6 +270,7 @@ let memberToRemove = PubNubMembershipMetadataBase(
   channelMetadataId: "my_channel"
 )
 
+// Remove members for a specific channel
 pubnub.removeMembers(
   channel: memberToRemove.channelMetadataId,
   users: [memberToRemove]

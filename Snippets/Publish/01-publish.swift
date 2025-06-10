@@ -138,6 +138,7 @@ pubnub.publish(
 // snippet.end
 
 // snippet.publish-apns-message
+// Publish a message to a channel with APNS and FCM payloads
 let pushMessage = PubNubPushMessage(
   apns: PubNubAPNSPayload(
     aps: APSPayload(alert: .object(.init(title: "Apple Message")), badge: 1, sound: .string("default")),
@@ -167,6 +168,7 @@ pubnub.publish(
 // snippet.end
 
 // snippet.fire
+// Publish a message to PubNub Functions Event Handlers
 pubnub.fire(
   channel: "my-channel",
   message: "Hello from PubNub Swift SDK"
@@ -181,6 +183,7 @@ pubnub.fire(
 // snippet.end
 
 // snippet.signal
+// Send a signal to a channel
 pubnub.signal(
   channel: "my-channel",
   message: "Hello from PubNub Swift SDK",

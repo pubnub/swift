@@ -15,6 +15,7 @@ import PubNubSDK
 
 func basicConfigExample() {
   // snippet.config-basic
+  // Create a configuration object with the desired parameters
   let configuration = PubNubConfiguration(
     publishKey: "demo",
     subscribeKey: "demo",

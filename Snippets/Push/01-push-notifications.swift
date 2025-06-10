@@ -27,7 +27,7 @@ let pubnub = PubNub(
 // snippet.end
 
 // snippet.add-apns-devices-on-channels
-// Adding a device to a channel for APNs
+// Enable APNS push notifications for a device on a provided channel
 pubnub.addAPNSDevicesOnChannels(
   ["channelSwift"],
   device: Data([0x01, 0x02, 0x03, 0x04]), // Replace with actual device token
@@ -44,6 +44,7 @@ pubnub.addAPNSDevicesOnChannels(
 // snippet.end
 
 // snippet.list-apns-push-channel-registrations
+// Retrieve all channels on which APNS push notification has been enabled using specified device token and topic
 pubnub.listAPNSPushChannelRegistrations(
   for: Data([0x01, 0x02, 0x03, 0x04]), // Replace with actual device token
   on: "com.app.bundle",
@@ -59,6 +60,7 @@ pubnub.listAPNSPushChannelRegistrations(
 // snippet.end
 
 // snippet.remove-apns-devices-on-channels
+// Disable APNS push notifications for a device on a provided channel
 pubnub.removeAPNSDevicesOnChannels(
   ["channelSwift"],
   device: Data([0x01, 0x02, 0x03, 0x04]), // Replace with actual device token
@@ -75,6 +77,7 @@ pubnub.removeAPNSDevicesOnChannels(
 // snippet.end
 
 // snippet.remove-all-apns-push-device
+// Disable APNS push notifications for a device on all channels
 pubnub.removeAllAPNSPushDevice(
   for: Data([0x01, 0x02, 0x03, 0x04]), // Replace with actual device token
   on: "com.app.bundle",
@@ -90,6 +93,7 @@ pubnub.removeAllAPNSPushDevice(
 // snippet.end
 
 // snippet.add-push-channels-registrations
+// Add push notification functionality on provided set of channels
 pubnub.addPushChannelRegistrations(
   ["channelSwift"],
   for: Data([0x01, 0x02, 0x03, 0x04]) // Replace with actual device token
@@ -104,6 +108,7 @@ pubnub.addPushChannelRegistrations(
 // snippet.end
 
 // snippet.list-push-channels-registrations
+// Retrieve all channels on which push notification has been enabled using specified device token
 pubnub.listPushChannelRegistrations(
   for: Data([0x01, 0x02, 0x03, 0x04]) // Replace with actual device token
 ) { result in
@@ -117,6 +122,7 @@ pubnub.listPushChannelRegistrations(
 // snippet.end
 
 // snippet.remove-push-channel-registrations
+// Remove push notification functionality on provided set of channels
 pubnub.removePushChannelRegistrations(
   ["channelSwift"],
   for: Data([0x01, 0x02, 0x03, 0x04]) // Replace with actual device token
@@ -131,6 +137,7 @@ pubnub.removePushChannelRegistrations(
 // snippet.end
 
 // snippet.remove-all-push-channel-registrations
+// Remove push notification functionality on all channels
 pubnub.removeAllPushChannelRegistrations(
   for: Data([0x01, 0x02, 0x03, 0x04]) // Replace with actual device token
 ) { result in

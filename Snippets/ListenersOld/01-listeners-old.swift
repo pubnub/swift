@@ -52,7 +52,8 @@ listener.didReceiveSubscription = { event in
 // snippet.end
 
 // snippet.add-listener
-// Start receiving subscription events
+// Add a listener to enable the receiving of subscription events.
+// Ensure that you call `pubnub.add(listener)` before subscribing to channels or channel groups
 pubnub.add(listener)
 // snippet.end
 

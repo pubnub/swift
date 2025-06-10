@@ -61,18 +61,10 @@ pubnub.listFiles(channel: "my_channel") { result in
 // snippet.end
 
 // snippet.generate-file-download-url
-let file = PubNubFileBase(
+let downloadURL = try? pubnub.generateFileDownloadURL(
   channel: "some-channel",
   fileId: "some-file-id",
-  filename: "filename",
-  size: 1234102,
-  contentType: "plain/text"
-)
-
-let downloadURL = try? pubnub.generateFileDownloadURL(
-  channel: file.channel,
-  fileId: file.fileId,
-  filename: file.filename
+  filename: "filename"
 )
 // snippet.end
 

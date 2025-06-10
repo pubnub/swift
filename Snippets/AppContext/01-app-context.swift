@@ -131,8 +131,8 @@ existingChannelMetadata.custom = ["admin": "Charles Dawson"]
 existingChannelMetadata.name = "Unrelated"
 
 // When you're ready, set the updated metadata on the server to persist the changes:
-pubnub.setChannelMetadata(existingChannelMetadata) {
-  switch $0 {
+pubnub.setChannelMetadata(existingChannelMetadata) { result in
+  switch result {
   case let .success(metadata):
     print("Did successfully set channel metadata with \(metadata.metadataId)")
   case let .failure(error):

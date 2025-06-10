@@ -70,15 +70,4 @@ pubnub.fetchMessageActions(channel: "my_channel") { result in
   }
 }
 // snippet.end
-
-// snippet.pubnub-time
-pubnub.time { result in
-  switch result {
-  case let .success(timetoken):
-    print("Handle downloaded server timetoken: \(timetoken)")
-  case let .failure(error):
-    print("Handle response error: \(error.localizedDescription)")
-  }
-}
-// snippet.end
 // swiftlint:enable line_length

@@ -58,3 +58,14 @@ pubnub.disconnect()
 // snippet.pubnub-reconnect
 pubnub.reconnect()
 // snippet.end
+
+// snippet.time
+pubnub.time { result in
+  switch result {
+  case .success(let timetoken):
+    print("Current server time: \(timetoken)")
+  case .failure(let error):
+    print("Failed to get server time: \(error)")
+  }
+}
+// snippet.end

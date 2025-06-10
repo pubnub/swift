@@ -76,7 +76,7 @@ pubnub.listChannelGroups { result in
 // snippet.end
 
 // snippet.remove-channel-group
-pubnub.remove(channelGroup: "channelSwift") { result in
+pubnub.remove(channelGroup: "SwiftGroup") { result in
   switch result {
   case let .success(channelGroup):
     print("The channel-group that was removed: \(channelGroup)")

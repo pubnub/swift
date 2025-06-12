@@ -2,6 +2,8 @@ name: Validations
 
 on:
   push:
+    branches-ignore:
+      - master
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

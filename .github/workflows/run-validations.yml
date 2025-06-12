@@ -76,7 +76,7 @@ jobs:
         if: failure()
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   demo-app-validation:
-    name: Validate demo application
+    name: Validate demo applications
     runs-on:
       group: macos-gh
     steps:

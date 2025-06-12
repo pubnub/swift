@@ -3,7 +3,7 @@ name: Tests
 on:
   push:
     branches-ignore:
-	  - master
+      - master
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

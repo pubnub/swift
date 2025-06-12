@@ -29,13 +29,13 @@ Executes SDK Unit Tests
 
 Executes Acceptance Tests
 
-### code_coverage
+### integration_test
 
 ```sh
-[bundle exec] fastlane code_coverage
+[bundle exec] fastlane integration_test
 ```
 
-Generates Code Coverage Files
+Executes Integration Tests
 
 ### lint_cocoapods
 
@@ -53,29 +53,13 @@ Lints a release using Cocoapods
 
 Lints a release using Swift Package Manager
 
-### code_coverage_local
-
-```sh
-[bundle exec] fastlane code_coverage_local
-```
-
-Generates Code Coverage Files
-
 ### build_example
 
 ```sh
 [bundle exec] fastlane build_example
 ```
 
-Builds the SDK Example app
-
-### generate_docs
-
-```sh
-[bundle exec] fastlane generate_docs
-```
-
-Generate Documentation
+Builds SDK example applications
 
 ----
 

@@ -105,7 +105,7 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-      - name: Demo application build validation
+      - name: Demo applications build validation
         run: bundle exec fastlane build_example --env ios
       - name: Cancel workflow runs for commit on error
         if: failure()

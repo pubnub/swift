@@ -16,7 +16,7 @@ class PubNubViewModel: ObservableObject {
   @Published var messages: [String] = []
   // Reference to the SDK instance
   private let pubnub: PubNub
-  
+
   // A dedicated subscription object for the example chat channel
   lazy var subscription: Subscription? = pubnub
     .channel("hello_world")
@@ -32,7 +32,7 @@ class PubNubViewModel: ObservableObject {
     setupConnectionHandling()
     setupMessageHandling()
   }
-  
+
   private func setupConnectionHandling() {
     pubnub.onConnectionStateChange = { [weak self] newStatus in
       print("Connection status changed: \(newStatus)")
@@ -52,7 +52,7 @@ class PubNubViewModel: ObservableObject {
       self?.messages.append(message.payload.stringOptional ?? "N/A")
     }
   }
-  
+
   private func sendWelcomeMessage() {
     pubnub.publish(
       channel: "hello_world",

@@ -13,7 +13,7 @@ import PubNubSDK
 
 struct ContentView: View {
   @EnvironmentObject var pubNubViewModel: PubNubViewModel
-  
+
   var body: some View {
     List(pubNubViewModel.messages, id: \.self) { message in
       Text(message)

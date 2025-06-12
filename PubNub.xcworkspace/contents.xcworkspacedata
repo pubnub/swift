@@ -5,7 +5,13 @@
       location = "group:PubNub.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Examples/Examples.xcodeproj">
+      location = "group:Examples/GettingStarted-SwiftUI/GettingStarted-SwiftUI.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Examples/GettingStarted-UIKit/GettingStarted-UIKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Examples/Example-iOS/Example-iOS.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

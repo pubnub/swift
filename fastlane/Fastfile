@@ -13,7 +13,6 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-# TODO: Could not find the iOS 12
 before_all do |lane, opts|
 
   # Need to use UTF-8 when using xcpretty
@@ -29,22 +28,11 @@ end
 
 desc "Executes SDK Unit Tests"
 lane :test do
-  if ENV['PLATFORM'] == 'mac' # Test using phyiscal device
-    scan(
-      workspace: ENV['WORKSPACE'],
-      scheme: ENV['SCHEME_SDK'],
-      destination: ENV['DESTINATION']
-    )
-  else # Test using simulators
-    ENV["DEVICES"].split(',').each do |device|
-      scan(
-        workspace: ENV['WORKSPACE'],
-        scheme: ENV['SCHEME_SDK'],
-        device: device,
-        code_coverage: true
-      )
-    end
-  end
+  scan(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_SDK'],
+    destination: ENV['DESTINATION']
+  )
 end
 
 desc "Executes Acceptance Tests"
@@ -52,7 +40,7 @@ lane :contract_test do
   scan(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_SDK'],
-    device: ENV["DEVICE"]
+    destination: ENV['DESTINATION']
   )
 end
 
@@ -79,30 +67,6 @@ lane :integration_test do
   end
 end
 
-desc "Generates Code Coverage Files"
-lane :code_coverage do
-  scan(
-    workspace: ENV['WORKSPACE'],
-    scheme: ENV['SCHEME_SDK'],
-    device: ENV['COVERAGE'],
-    code_coverage: true
-  )
-
-  # Generate code coverage files
-  slather(
-    github: ENV["CI"],
-    workspace: ENV['WORKSPACE'],
-    proj: ENV['PROJECT_SDK'],
-    scheme: ENV['SCHEME_SDK'],
-    output_directory: 'fastlane/test_output',
-    use_bundle_exec: true,
-    cobertura_xml: true,
-    decimals: 2,
-    verbose: true,
-    ignore: "Tests/**/*"
-  )
-end
-
 desc "Lints a release using Cocoapods"
 lane :lint_cocoapods do
   pod_lib_lint(
@@ -119,30 +83,26 @@ lane :lint_swift_package_manager do
   end
 end
 
-desc "Generates Code Coverage Files"
-lane :code_coverage_local do
-  # Generate code coverage files
-  slather(
-    github: ENV["CI"],
-    workspace: ENV['WORKSPACE'],
-    proj: ENV['PROJECT_SDK'],
-    scheme: ENV['SCHEME_SDK'],
-    output_directory: 'fastlane/test_output',
-    use_bundle_exec: true,
-    html: true,
-    decimals: 2,
-    verbose: true,
-    ignore: "Tests/**/*",
-    show: true
-  )
-end
-
-desc "Builds the SDK Example app"
+desc "Builds SDK example applications"
 lane :build_example do
   xcodebuild(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_EXAMPLE'],
-    destination: ENV['DESTINATION_EXAMPLE'],
+    destination: ENV['EXAMPLE_APPS_DESTINATION'],
+    configuration: "Release",
+    build: true
+  )
+  xcodebuild(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_GETTING_STARTED_SWIFTUI'],
+    destination: ENV['EXAMPLE_APPS_DESTINATION'],
+    configuration: "Release",
+    build: true
+  )
+  xcodebuild(
+    workspace: ENV['WORKSPACE'],
+    scheme: ENV['SCHEME_GETTING_STARTED_UIKIT'],
+    destination: ENV['EXAMPLE_APPS_DESTINATION'],
     configuration: "Release",
     build: true
   )

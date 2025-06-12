@@ -16,11 +16,15 @@
 		359F779F22B7FEF700B6B46F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 359F779E22B7FEF700B6B46F /* Assets.xcassets */; };
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
-		3D26A6152C6BB68A007B4539 /* PubNubSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 3D26A6142C6BB68A007B4539 /* PubNubSDK */; };
 		3D34160D2BB5CE20008558A0 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */; };
-		792CF27428C4FBB300C83408 /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27328C4FBB300C83408 /* PubNubMembership */; };
-		792CF27628C4FBB300C83408 /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27528C4FBB300C83408 /* PubNubSpace */; };
-		792CF27828C4FBB300C83408 /* PubNubUser in Frameworks */ = {isa = PBXBuildFile; productRef = 792CF27728C4FBB300C83408 /* PubNubUser */; };
+		3D59D4882DF98D4D0021D3CB /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */; };
+		3D59D4892DF98D4D0021D3CB /* PubNubSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D59D48B2DF98D540021D3CB /* PubNubUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48A2DF98D540021D3CB /* PubNubUser.framework */; };
+		3D59D48C2DF98D540021D3CB /* PubNubUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48A2DF98D540021D3CB /* PubNubUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D59D48E2DF98D580021D3CB /* PubNubSpace.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */; };
+		3D59D48F2DF98D580021D3CB /* PubNubSpace.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D59D4912DF98D5C0021D3CB /* PubNubMembership.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */; };
+		3D59D4922DF98D5C0021D3CB /* PubNubMembership.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -30,6 +34,10 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				3D59D4892DF98D4D0021D3CB /* PubNubSDK.framework in Embed Frameworks */,
+				3D59D48C2DF98D540021D3CB /* PubNubUser.framework in Embed Frameworks */,
+				3D59D4922DF98D5C0021D3CB /* PubNubMembership.framework in Embed Frameworks */,
+				3D59D48F2DF98D580021D3CB /* PubNubSpace.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -61,6 +69,10 @@
 		359F77AA22B7FF5700B6B46F /* PubNub.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNub.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigDetailTableViewController.swift; sourceTree = "<group>"; };
 		3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailTableViewController.swift; sourceTree = "<group>"; };
+		3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D59D48A2DF98D540021D3CB /* PubNubUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubSpace.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubMembership.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		792CF27A28C4FCB800C83408 /* PubNub SDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "PubNub SDK"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -69,10 +81,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				792CF27428C4FBB300C83408 /* PubNubMembership in Frameworks */,
-				3D26A6152C6BB68A007B4539 /* PubNubSDK in Frameworks */,
-				792CF27828C4FBB300C83408 /* PubNubUser in Frameworks */,
-				792CF27628C4FBB300C83408 /* PubNubSpace in Frameworks */,
+				3D59D4882DF98D4D0021D3CB /* PubNubSDK.framework in Frameworks */,
+				3D59D48B2DF98D540021D3CB /* PubNubUser.framework in Frameworks */,
+				3D59D4912DF98D5C0021D3CB /* PubNubMembership.framework in Frameworks */,
+				3D59D48E2DF98D580021D3CB /* PubNubSpace.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -95,7 +107,7 @@
 			children = (
 				792CF27928C4FCB800C83408 /* Packages */,
 				35F0258A22BAC173007BD7D3 /* Sources */,
-				359F779622B7FEF600B6B46F /* iOS Example */,
+				359F779622B7FEF600B6B46F /* Example-iOS */,
 				359F779522B7FEF600B6B46F /* Products */,
 				359F77A922B7FF5700B6B46F /* Frameworks */,
 			);
@@ -109,19 +121,22 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		359F779622B7FEF600B6B46F /* iOS Example */ = {
+		359F779622B7FEF600B6B46F /* Example-iOS */ = {
 			isa = PBXGroup;
 			children = (
 				35304F9022FF64D4006A02CA /* iOS Example.entitlements */,
 				359F77CF22B8070900B6B46F /* Resources */,
 			);
-			name = "iOS Example";
 			path = "Example-iOS";
 			sourceTree = "<group>";
 		};
 		359F77A922B7FF5700B6B46F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */,
+				3D59D48A2DF98D540021D3CB /* PubNubUser.framework */,
+				3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */,
+				3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */,
 				359F77AA22B7FF5700B6B46F /* PubNub.framework */,
 			);
 			name = Frameworks;
@@ -176,10 +191,6 @@
 			);
 			name = "iOS Example";
 			packageProductDependencies = (
-				792CF27328C4FBB300C83408 /* PubNubMembership */,
-				792CF27528C4FBB300C83408 /* PubNubSpace */,
-				792CF27728C4FBB300C83408 /* PubNubUser */,
-				3D26A6142C6BB68A007B4539 /* PubNubSDK */,
 			);
 			productName = swiftSdkiOS;
 			productReference = 359F779422B7FEF600B6B46F /* iOS Example.app */;
@@ -206,7 +217,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 359F778F22B7FEF600B6B46F /* Build configuration list for PBXProject "Examples" */;
+			buildConfigurationList = 359F778F22B7FEF600B6B46F /* Build configuration list for PBXProject "Example-iOS" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -215,6 +226,8 @@
 				Base,
 			);
 			mainGroup = 359F778B22B7FEF600B6B46F;
+			packageReferences = (
+			);
 			productRefGroup = 359F779522B7FEF600B6B46F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -443,7 +456,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		359F778F22B7FEF600B6B46F /* Build configuration list for PBXProject "Examples" */ = {
+		359F778F22B7FEF600B6B46F /* Build configuration list for PBXProject "Example-iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				359F77A422B7FEF700B6B46F /* Debug */,
@@ -462,25 +475,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		3D26A6142C6BB68A007B4539 /* PubNubSDK */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PubNubSDK;
-		};
-		792CF27328C4FBB300C83408 /* PubNubMembership */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PubNubMembership;
-		};
-		792CF27528C4FBB300C83408 /* PubNubSpace */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PubNubSpace;
-		};
-		792CF27728C4FBB300C83408 /* PubNubUser */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = PubNubUser;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 359F778C22B7FEF600B6B46F /* Project object */;
 }

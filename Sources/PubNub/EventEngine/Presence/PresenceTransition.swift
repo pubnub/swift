@@ -104,7 +104,14 @@ fileprivate extension PresenceTransition {
       groups: joining.groups
     )
     if state is Presence.HeartbeatStopped {
-      return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
+      if configuration.heartbeatInterval > 0 {
+        return TransitionResult(state: Presence.HeartbeatStopped(input: newInput))
+      } else {
+        // When heartbeat interval is 0 (no recurring heartbeat loop), we still need to
+        // transition to Heartbeating state to ensure the server properly registers
+        // presence on these channels with a one-time heartbeat call
+        return TransitionResult(state: Presence.Heartbeating(input: newInput))
+      }
     } else {
       return TransitionResult(state: Presence.Heartbeating(input: newInput))
     }
@@ -146,7 +153,9 @@ fileprivate extension PresenceTransition {
     if configuration.heartbeatInterval > 0 {
       return TransitionResult(state: Presence.HeartbeatCooldown(input: state.input))
     } else {
-      return TransitionResult(state: Presence.HeartbeatInactive())
+      // When heartbeat interval is 0, stop heartbeating after successful registration
+      // since no recurring heartbeat loop is needed
+      return TransitionResult(state: Presence.HeartbeatStopped(input: state.input))
     }
   }
 }

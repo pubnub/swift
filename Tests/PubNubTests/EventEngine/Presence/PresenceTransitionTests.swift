@@ -496,7 +496,7 @@ class PresenceTransitionTests: XCTestCase {
       event: .heartbeatSuccess
     )
     
-    XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatInactive()))
+    XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatStopped(input: input)))
     XCTAssertTrue(results.invocations.isEmpty)
   }
   

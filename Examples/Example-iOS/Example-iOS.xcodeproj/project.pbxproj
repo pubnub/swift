@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -17,14 +17,10 @@
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
 		3D34160D2BB5CE20008558A0 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */; };
-		3D7C08C62E0600C900A51BCA /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */; };
-		3D7C08C72E0600C900A51BCA /* PubNubSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D7C08C82E0600C900A51BCA /* PubNubUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C32E0600C900A51BCA /* PubNubUser.framework */; };
-		3D7C08C92E0600C900A51BCA /* PubNubUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C32E0600C900A51BCA /* PubNubUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D7C08CA2E0600C900A51BCA /* PubNubSpace.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */; };
-		3D7C08CB2E0600C900A51BCA /* PubNubSpace.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D7C08CC2E0600C900A51BCA /* PubNubMembership.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */; };
-		3D7C08CD2E0600C900A51BCA /* PubNubMembership.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D7C08D12E06107800A51BCA /* PubNubMembership in Frameworks */ = {isa = PBXBuildFile; productRef = 3D7C08D02E06107800A51BCA /* PubNubMembership */; };
+		3D7C08D32E06107800A51BCA /* PubNubSDK in Frameworks */ = {isa = PBXBuildFile; productRef = 3D7C08D22E06107800A51BCA /* PubNubSDK */; };
+		3D7C08D52E06107800A51BCA /* PubNubSpace in Frameworks */ = {isa = PBXBuildFile; productRef = 3D7C08D42E06107800A51BCA /* PubNubSpace */; };
+		3D7C08D72E06107800A51BCA /* PubNubUser in Frameworks */ = {isa = PBXBuildFile; productRef = 3D7C08D62E06107800A51BCA /* PubNubUser */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,20 +32,6 @@
 			files = (
 			);
 			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		3D7C08CE2E0600C900A51BCA /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				3D7C08C72E0600C900A51BCA /* PubNubSDK.framework in Embed Frameworks */,
-				3D7C08C92E0600C900A51BCA /* PubNubUser.framework in Embed Frameworks */,
-				3D7C08CD2E0600C900A51BCA /* PubNubMembership.framework in Embed Frameworks */,
-				3D7C08CB2E0600C900A51BCA /* PubNubSpace.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -85,10 +67,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3D7C08C62E0600C900A51BCA /* PubNubSDK.framework in Frameworks */,
-				3D7C08C82E0600C900A51BCA /* PubNubUser.framework in Frameworks */,
-				3D7C08CC2E0600C900A51BCA /* PubNubMembership.framework in Frameworks */,
-				3D7C08CA2E0600C900A51BCA /* PubNubSpace.framework in Frameworks */,
+				3D7C08D12E06107800A51BCA /* PubNubMembership in Frameworks */,
+				3D7C08D72E06107800A51BCA /* PubNubUser in Frameworks */,
+				3D7C08D52E06107800A51BCA /* PubNubSpace in Frameworks */,
+				3D7C08D32E06107800A51BCA /* PubNubSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +173,6 @@
 				359F779122B7FEF600B6B46F /* Frameworks */,
 				359F779222B7FEF600B6B46F /* Resources */,
 				359F782022B808C700B6B46F /* Embed Watch Content */,
-				3D7C08CE2E0600C900A51BCA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -199,6 +180,10 @@
 			);
 			name = "iOS Example";
 			packageProductDependencies = (
+				3D7C08D02E06107800A51BCA /* PubNubMembership */,
+				3D7C08D22E06107800A51BCA /* PubNubSDK */,
+				3D7C08D42E06107800A51BCA /* PubNubSpace */,
+				3D7C08D62E06107800A51BCA /* PubNubUser */,
 			);
 			productName = swiftSdkiOS;
 			productReference = 359F779422B7FEF600B6B46F /* iOS Example.app */;
@@ -235,6 +220,7 @@
 			);
 			mainGroup = 359F778B22B7FEF600B6B46F;
 			packageReferences = (
+				3D7C08CF2E06107800A51BCA /* XCLocalSwiftPackageReference "../../../swift" */,
 			);
 			productRefGroup = 359F779522B7FEF600B6B46F /* Products */;
 			projectDirPath = "";
@@ -481,6 +467,32 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		3D7C08CF2E06107800A51BCA /* XCLocalSwiftPackageReference "../../../swift" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../../swift;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3D7C08D02E06107800A51BCA /* PubNubMembership */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PubNubMembership;
+		};
+		3D7C08D22E06107800A51BCA /* PubNubSDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PubNubSDK;
+		};
+		3D7C08D42E06107800A51BCA /* PubNubSpace */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PubNubSpace;
+		};
+		3D7C08D62E06107800A51BCA /* PubNubUser */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = PubNubUser;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 359F778C22B7FEF600B6B46F /* Project object */;
 }

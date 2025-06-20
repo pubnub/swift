@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.2.0"
+version: "9.2.1"
 schema: 1
 changelog:
+  - date: 2025-06-20
+    version: 9.2.1
+    changes:
+      - type: bug
+        text: "Add missing heartbeat call when changing channels or channel groups."
   - date: 2025-05-15
     version: 9.2.0
     changes:
@@ -688,7 +693,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

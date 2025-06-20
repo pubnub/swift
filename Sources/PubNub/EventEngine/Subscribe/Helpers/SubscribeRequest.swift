@@ -22,9 +22,6 @@ class SubscribeRequest {
   private let channelStates: [String: JSONCodable]
   private var request: RequestReplaceable?
 
-  var retryLimit: UInt { configuration.automaticRetry?.retryLimit ?? 0 }
-  var onAuthChallengeReceived: (() -> Void)?
-
   init(
     configuration: PubNubConfiguration,
     channels: [String],
@@ -43,12 +40,6 @@ class SubscribeRequest {
     self.region = region
     self.session = session
     self.sessionResponseQueue = sessionResponseQueue
-
-    if let sessionListener = session.sessionStream as? SessionListener {
-      sessionListener.sessionDidReceiveChallenge = { [weak self] _, _ in
-        self?.onAuthChallengeReceived?()
-      }
-    }
   }
 
   func execute(onCompletion: @escaping (Result<SubscribeResponse, PubNubError>) -> Void) {
@@ -83,7 +74,6 @@ class SubscribeRequest {
   }
 
   func cancel() {
-    onAuthChallengeReceived = nil
     request?.cancel(PubNubError(.clientCancelled))
   }
 

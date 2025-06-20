@@ -17,31 +17,17 @@
 		359F77A222B7FEF700B6B46F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 359F77A022B7FEF700B6B46F /* LaunchScreen.storyboard */; };
 		35F0258F22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35F0258E22BAC6C9007BD7D3 /* ConfigDetailTableViewController.swift */; };
 		3D34160D2BB5CE20008558A0 /* DetailTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D34160C2BB5CE20008558A0 /* DetailTableViewController.swift */; };
-		3D59D4882DF98D4D0021D3CB /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */; };
-		3D59D4892DF98D4D0021D3CB /* PubNubSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D59D48B2DF98D540021D3CB /* PubNubUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48A2DF98D540021D3CB /* PubNubUser.framework */; };
-		3D59D48C2DF98D540021D3CB /* PubNubUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48A2DF98D540021D3CB /* PubNubUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D59D48E2DF98D580021D3CB /* PubNubSpace.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */; };
-		3D59D48F2DF98D580021D3CB /* PubNubSpace.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		3D59D4912DF98D5C0021D3CB /* PubNubMembership.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */; };
-		3D59D4922DF98D5C0021D3CB /* PubNubMembership.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D7C08C62E0600C900A51BCA /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */; };
+		3D7C08C72E0600C900A51BCA /* PubNubSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D7C08C82E0600C900A51BCA /* PubNubUser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C32E0600C900A51BCA /* PubNubUser.framework */; };
+		3D7C08C92E0600C900A51BCA /* PubNubUser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C32E0600C900A51BCA /* PubNubUser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D7C08CA2E0600C900A51BCA /* PubNubSpace.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */; };
+		3D7C08CB2E0600C900A51BCA /* PubNubSpace.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		3D7C08CC2E0600C900A51BCA /* PubNubMembership.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */; };
+		3D7C08CD2E0600C900A51BCA /* PubNubMembership.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		35458BA0230C995C0085B502 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				3D59D4892DF98D4D0021D3CB /* PubNubSDK.framework in Embed Frameworks */,
-				3D59D48C2DF98D540021D3CB /* PubNubUser.framework in Embed Frameworks */,
-				3D59D4922DF98D5C0021D3CB /* PubNubMembership.framework in Embed Frameworks */,
-				3D59D48F2DF98D580021D3CB /* PubNubSpace.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		359F782022B808C700B6B46F /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -50,6 +36,20 @@
 			files = (
 			);
 			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3D7C08CE2E0600C900A51BCA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				3D7C08C72E0600C900A51BCA /* PubNubSDK.framework in Embed Frameworks */,
+				3D7C08C92E0600C900A51BCA /* PubNubUser.framework in Embed Frameworks */,
+				3D7C08CD2E0600C900A51BCA /* PubNubMembership.framework in Embed Frameworks */,
+				3D7C08CB2E0600C900A51BCA /* PubNubSpace.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -73,6 +73,10 @@
 		3D59D48A2DF98D540021D3CB /* PubNubUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubSpace.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D59D4902DF98D5C0021D3CB /* PubNubMembership.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubMembership.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D7C08C32E0600C900A51BCA /* PubNubUser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubUser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubSpace.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = PubNubMembership.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		792CF27A28C4FCB800C83408 /* PubNub SDK */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "PubNub SDK"; path = ..; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -81,10 +85,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3D59D4882DF98D4D0021D3CB /* PubNubSDK.framework in Frameworks */,
-				3D59D48B2DF98D540021D3CB /* PubNubUser.framework in Frameworks */,
-				3D59D4912DF98D5C0021D3CB /* PubNubMembership.framework in Frameworks */,
-				3D59D48E2DF98D580021D3CB /* PubNubSpace.framework in Frameworks */,
+				3D7C08C62E0600C900A51BCA /* PubNubSDK.framework in Frameworks */,
+				3D7C08C82E0600C900A51BCA /* PubNubUser.framework in Frameworks */,
+				3D7C08CC2E0600C900A51BCA /* PubNubMembership.framework in Frameworks */,
+				3D7C08CA2E0600C900A51BCA /* PubNubSpace.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -133,6 +137,10 @@
 		359F77A922B7FF5700B6B46F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3D7C08C22E0600C900A51BCA /* PubNubSDK.framework */,
+				3D7C08C32E0600C900A51BCA /* PubNubUser.framework */,
+				3D7C08C42E0600C900A51BCA /* PubNubSpace.framework */,
+				3D7C08C52E0600C900A51BCA /* PubNubMembership.framework */,
 				3D59D4872DF98D4D0021D3CB /* PubNubSDK.framework */,
 				3D59D48A2DF98D540021D3CB /* PubNubUser.framework */,
 				3D59D48D2DF98D580021D3CB /* PubNubSpace.framework */,
@@ -183,7 +191,7 @@
 				359F779122B7FEF600B6B46F /* Frameworks */,
 				359F779222B7FEF600B6B46F /* Resources */,
 				359F782022B808C700B6B46F /* Embed Watch Content */,
-				35458BA0230C995C0085B502 /* Embed Frameworks */,
+				3D7C08CE2E0600C900A51BCA /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -416,7 +424,6 @@
 		359F77A722B7FEF700B6B46F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;
@@ -436,7 +443,6 @@
 		359F77A822B7FEF700B6B46F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "iOS Example.entitlements";
 				CODE_SIGN_STYLE = Automatic;

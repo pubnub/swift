@@ -89,21 +89,21 @@ lane :build_example do
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_EXAMPLE'],
     destination: ENV['EXAMPLE_APPS_DESTINATION'],
-    configuration: "Release",
+    configuration: "Build",
     build: true
   )
   xcodebuild(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_GETTING_STARTED_SWIFTUI'],
     destination: ENV['EXAMPLE_APPS_DESTINATION'],
-    configuration: "Release",
+    configuration: "Build",
     build: true
   )
   xcodebuild(
     workspace: ENV['WORKSPACE'],
     scheme: ENV['SCHEME_GETTING_STARTED_UIKIT'],
     destination: ENV['EXAMPLE_APPS_DESTINATION'],
-    configuration: "Release",
+    configuration: "Build",
     build: true
   )
 end

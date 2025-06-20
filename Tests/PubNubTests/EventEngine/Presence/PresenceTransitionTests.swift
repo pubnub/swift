@@ -64,7 +64,8 @@ class PresenceTransitionTests: XCTestCase {
     configuration: PubNubConfiguration(
       publishKey: "publishKey",
       subscribeKey: "subscribeKey",
-      userId: "userId"
+      userId: "userId",
+      heartbeatInterval: 30
     )
   )
   
@@ -87,12 +88,38 @@ class PresenceTransitionTests: XCTestCase {
     let state = Presence.HeartbeatInactive()
     let event = Presence.Event.joined(channels: ["c1", "c2"], groups: ["g1", "g2"])
     
-    XCTAssertFalse(PresenceTransition(configuration: configWithEmptyInterval).canTransition(from: state, dueTo: event))
+    XCTAssertTrue(PresenceTransition(configuration: configWithEmptyInterval).canTransition(from: state, dueTo: event))
     XCTAssertTrue(PresenceTransition(configuration: configWithInterval).canTransition(from: state, dueTo: event))
   }
   
   func testPresence_JoinedEventForHeartbeatInactiveState() {
     let results = transition.transition(
+      from: Presence.HeartbeatInactive(),
+      event: .joined(channels: ["c3"], groups: ["g3"])
+    )
+    let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
+      .regular(.heartbeat(channels: ["c3"], groups: ["g3"]))
+    ]
+    let expectedState = Presence.Heartbeating(
+      input: PresenceInput(channels: ["c3"], groups: ["g3"])
+    )
+    
+    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+  }
+  
+  func testPresence_JoinedEventForHeartbeatInactiveState_EmptyInterval() {
+    let configWithEmptyInterval = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      heartbeatInterval: 0
+    )
+    
+    let presenceTransition = PresenceTransition(
+      configuration: configWithEmptyInterval
+    )
+    let results = presenceTransition.transition(
       from: Presence.HeartbeatInactive(),
       event: .joined(channels: ["c3"], groups: ["g3"])
     )
@@ -451,6 +478,26 @@ class PresenceTransitionTests: XCTestCase {
     
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+  }
+  
+  func testPresence_HeartbeatSuccessForEmptyInterval() {
+    let configWithEmptyInterval = PubNubConfiguration(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId",
+      heartbeatInterval: 0
+    )
+    
+    let presenceTransition = PresenceTransition(configuration: configWithEmptyInterval)
+    let input = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
+    
+    let results = presenceTransition.transition(
+      from: Presence.Heartbeating(input: input),
+      event: .heartbeatSuccess
+    )
+    
+    XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatStopped(input: input)))
+    XCTAssertTrue(results.invocations.isEmpty)
   }
   
   // MARK: - Heartbeat Failed

@@ -13,6 +13,7 @@ excluded:
   - fastlane
   - Tests
   - Pods
+  - Examples
 opt_in_rules:
   - force_unwrapping
   - overridden_super_call

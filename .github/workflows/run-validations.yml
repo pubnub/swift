@@ -2,6 +2,8 @@ name: Validations
 
 on:
   push:
+    branches-ignore:
+      - master
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -76,7 +78,7 @@ jobs:
         if: failure()
         uses: ./.github/.release/actions/actions/utils/fast-jobs-failure
   demo-app-validation:
-    name: Validate demo application
+    name: Validate demo applications
     runs-on:
       group: macos-gh
     steps:
@@ -105,7 +107,7 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
-      - name: Demo application build validation
+      - name: Demo applications build validation
         run: bundle exec fastlane build_example --env ios
       - name: Cancel workflow runs for commit on error
         if: failure()

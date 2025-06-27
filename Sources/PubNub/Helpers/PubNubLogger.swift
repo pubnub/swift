@@ -34,7 +34,7 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
 // MARK: - Level
 
 /// Represents different levels of logging, such as debug, info, warning, etc.
-public struct LogType: OptionSet, Equatable, Hashable {
+public struct LogType: OptionSet, Equatable, Hashable, JSONCodable {
   public let rawValue: UInt32
 
   // Reserverd Log Types
@@ -86,7 +86,7 @@ public struct PubNubLogger {
   /// A unique identifier for the PubNub instance this logger is associated with
   private var pubNubInstanceId: UUID?
 
-  init(levels: LogType = .all, writers: [LogWriter]) {
+  public init(levels: LogType = .all, writers: [LogWriter]) {
     self.writers = writers
     self.levels = levels
   }
@@ -120,7 +120,7 @@ public struct PubNubLogger {
   }
 
   public func debug(
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -143,7 +143,7 @@ public struct PubNubLogger {
   }
 
   public func info(
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -155,7 +155,7 @@ public struct PubNubLogger {
     send(
       .info,
       category: category,
-      message: message,
+      message: message(),
       date: date,
       queue: queue,
       thread: thread,
@@ -166,7 +166,7 @@ public struct PubNubLogger {
   }
 
   public func event(
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -178,7 +178,7 @@ public struct PubNubLogger {
     send(
       .event,
       category: category,
-      message: message,
+      message: message(),
       date: date,
       queue: queue,
       thread: thread,
@@ -189,7 +189,7 @@ public struct PubNubLogger {
   }
 
   public func warn(
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -200,7 +200,7 @@ public struct PubNubLogger {
   ) {
     send(
       .warn,
-      message: message,
+      message: message(),
       date: date,
       queue: queue,
       thread: thread,
@@ -211,7 +211,7 @@ public struct PubNubLogger {
   }
 
   public func error(
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -223,7 +223,7 @@ public struct PubNubLogger {
     send(
       .error,
       category: category,
-      message: message,
+      message: message(),
       date: date,
       queue: queue,
       thread: thread,
@@ -235,7 +235,7 @@ public struct PubNubLogger {
 
   public func custom(
     _ level: LogType,
-    _ message: @escaping @autoclosure () -> Any,
+    _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -299,7 +299,7 @@ public struct PubNubLogger {
   public func send(
     _ level: LogType,
     category: LogCategory = .none,
-    message: @escaping @autoclosure () -> Any,
+    message: @escaping @autoclosure () -> LogMessageConvertible,
     date: Date,
     queue: String,
     thread: String,
@@ -313,7 +313,7 @@ public struct PubNubLogger {
 
     for writer in writers {
       var fullMessage = {
-        let prefix = format(
+        let additionalDetails = format(
           prefix: writer.prefix,
           category: category,
           level: level,
@@ -324,18 +324,28 @@ public struct PubNubLogger {
           function: function,
           line: line
         )
-        return prefix.isEmpty ? "\(message())" : "\(prefix)\(message())"
+        let finalMessage = message().toLogMessage(
+          pubNubId: pubNubInstanceId?.uuidString ?? "",
+          logLevel: level,
+          category: category,
+          location: additionalDetails
+        )
+        return finalMessage
       }
 
       writer.executor.execute {
-        writer.send(
-          message: fullMessage(),
-          withType: level,
-          withCategory: category
-        )
+        writer.send(message: fullMessage())
       }
 
-      fullMessage = { "" }
+      fullMessage = {
+        BaseLogMessage(
+          pubNubId: "",
+          logLevel: .debug,
+          category: .none,
+          type: "",
+          message: ""
+        )
+      }
     }
   }
 

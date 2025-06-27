@@ -14,12 +14,103 @@ import os
 // MARK: - Log Category
 
 /// Reserverd PubNub log category types
-public enum LogCategory: String {
+public enum LogCategory: String, JSONCodable {
   case none = "None"
   case eventEngine = "EventEngine"
   case networking = "Networking"
   case crypto = "Crypto"
   case pubNub = "PubNub"
+}
+
+// MARK: - Log Message
+
+/// A protocol that defines a log message reported by the PubNub SDK
+public protocol LogMessage: JSONCodable, CustomStringConvertible {
+  /// The timestamp of the log message
+  var timestamp: TimeInterval { get }
+  /// The unique identifier of the PubNub instance that generated the log message
+  var pubNubId: String { get }
+  /// The log level of the log message
+  var logLevel: LogType { get }
+  /// Additional information about the log message
+  var location: String? { get }
+  /// The type of the log message
+  var type: String { get }
+  /// The category of the log message
+  var category: LogCategory { get }
+  /// The message of the log message
+  var message: AnyJSON { get }
+}
+
+/// A base implementation of the `LogMessage` protocol that all log messages inherit from
+public class BaseLogMessage: LogMessage {
+  /// The timestamp of the log message
+  public let timestamp: TimeInterval
+  public let pubNubId: String
+  public let logLevel: LogType
+  public let location: String?
+  public let type: String
+  public let category: LogCategory
+  public let message: AnyJSON
+
+  init(
+    timestamp: TimeInterval = Date().timeIntervalSince1970,
+    pubNubId: String,
+    logLevel: LogType,
+    category: LogCategory,
+    location: String? = nil,
+    type: String,
+    message: AnyJSON
+  ) {
+    self.timestamp = timestamp
+    self.pubNubId = pubNubId
+    self.logLevel = logLevel
+    self.category = category
+    self.location = location
+    self.type = type
+    self.message = message
+  }
+
+  public var description: String {
+    if let location {
+      return location + message.description
+    } else {
+      return message.description
+    }
+  }
+}
+
+// MARK: - Log Message Convertible
+
+/// A protocol that allows types to be converted into LogMessage instances
+public protocol LogMessageConvertible {
+  /// Converts the conforming type to a LogMessage
+  /// - Parameters:
+  ///   - pubNubId: The PubNub instance identifier
+  ///   - logLevel: The log level as a string
+  ///   - category: The category of the log message
+  ///   - location: Optional location information
+  /// - Returns: A LogMessage instance
+  func toLogMessage(
+    pubNubId: String,
+    logLevel: LogType,
+    category: LogCategory,
+    location: String?
+  ) -> LogMessage
+}
+
+/// A default implementation of the `LogMessageConvertible` protocol for `String`
+extension String: LogMessageConvertible {
+  public func toLogMessage(pubNubId: String, logLevel: LogType, category: LogCategory, location: String?) -> LogMessage {
+    BaseLogMessage(
+      pubNubId: pubNubId,
+      logLevel: logLevel,
+      category: category,
+      location: location,
+      type: "text",
+      message: AnyJSON(self)
+    )
+  }
 }
 
 // MARK: - Log Writer
@@ -31,20 +122,16 @@ public protocol LogWriter {
   /// Returns the details included in a log message
   var prefix: LogPrefix { get }
 
-  /// Logs a message with the specified log type and category. 
+  /// Logs a given message
   ///
-  /// - Note: The ``PubNubLogger`` instance that contains this object will only call this method if` logType` is greater than or equal
-  ///  to its configured minimum log level.
+  /// - Note: This method is called only if the  log message’s ``LogMessage/logLevel`` is not lower than the parent ``PubNubLogger`` instance’s log level.
   ///
   /// - Warning: Debug-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, or internal system details.
   /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
   /// our in-house ``OSLogWriter`` implementation safely writes logs using `os.Logger`, ensuring optimal performance and security while adhering to this contract.
   ///
-  /// - Parameters:
-  ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
-  ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
-  ///   - category: A category to classify the log message
-  func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory: LogCategory)
+  /// - Parameter message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
+  func send(message: @escaping @autoclosure () -> LogMessage)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -97,11 +184,11 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage) {
     if sendToNSLog {
-      NSLog("%@", message())
+      NSLog("%@", message().description)
     } else {
-      print(message())
+      print(message().description)
     }
   }
 }
@@ -166,21 +253,21 @@ open class FileLogWriter: LogWriter {
 
     do {
       guard let parentDir = FileManager.default.urls(for: directory, in: domain).first else {
-        outputWriter.send(message: "Error: Nothing found at the intersection of the domain and parent directory", withType: .log, withCategory: .none)
+        debugPrint("Error: Nothing found at the intersection of the domain and parent directory")
         preconditionFailure("Nothing found at the intersection of the domain and parent directory")
       }
       let logDir = parentDir.appendingPathComponent(name, isDirectory: true)
       try FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true, attributes: nil)
 
-      outputWriter.send(message: "File log writer will output logs to: `\(logDir)`", withType: .log, withCategory: .none)
+      debugPrint("File log writer will output logs to: `\(logDir)`")
       self.init(logDirectory: logDir, executor: executor, prefix: prefix)
     } catch {
-      outputWriter.send(message: "Error: Could not create logging files at location provided due to \(error)", withType: .log, withCategory: .none)
+      debugPrint("Error: Could not create logging files at location provided due to \(error)")
       preconditionFailure("Could not create logging files at location provided due to \(error)")
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
 
@@ -209,9 +296,9 @@ open class FileLogWriter: LogWriter {
     )
 
     if !create(fileURL, with: contents) {
-      consoleOutputWriter.send(message: "Error: Failed to create log file at \(fileURL.absoluteString)", withType: .log, withCategory: .none)
+      debugPrint("Error: Failed to create log file at \(fileURL.absoluteString)")
     } else {
-      consoleOutputWriter.send(message: "Created new log file at \(fileURL.absoluteString)", withType: .log, withCategory: .none)
+      debugPrint("Created new log file at \(fileURL.absoluteString)")
     }
 
     return fileURL
@@ -237,7 +324,7 @@ open class FileLogWriter: LogWriter {
       if stream.hasSpaceAvailable {
         let dataWritten = stream.write(dataArray, maxLength: dataArray.count)
         if dataWritten != dataArray.count {
-          consoleOutputWriter.send(message: "Error: Data remainig to be written", withType: .log, withCategory: .none)
+          debugPrint("Error: Data remainig to be written")
         }
       }
     }
@@ -251,7 +338,7 @@ open class FileLogWriter: LogWriter {
     do {
       try FileManager.default.removeItem(at: file)
     } catch {
-      consoleOutputWriter.send(message: "Error: Could not delete file at \(file) due to: \(error)", withType: .log, withCategory: .none)
+      debugPrint("Error: Could not delete file at \(file) due to: \(error)")
     }
   }
 }
@@ -268,8 +355,10 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
-    let finalLogger = switch category {
+  public func send(message: @escaping @autoclosure () -> LogMessage) {
+    let messageToLog = message()
+
+    let finalLogger = switch message().category {
     case .eventEngine:
       Logger.eventEngine
     case .networking:
@@ -280,17 +369,17 @@ public struct OSLogWriter: LogWriter {
       Logger.defaultLogger
     }
 
-    switch logType {
+    switch messageToLog.logLevel {
     case .debug, .all:
-      finalLogger.debug("\(message())")
+      finalLogger.debug("\(messageToLog.description)")
     case .log, .info, .event:
-      finalLogger.info("\(message())")
+      finalLogger.info("\(messageToLog.description)")
     case .warn:
-      finalLogger.warning("\(message())")
+      finalLogger.warning("\(messageToLog.description)")
     case .error:
-      finalLogger.error("\(message())")
+      finalLogger.error("\(messageToLog.description)")
     default:
-      finalLogger.debug("\(message())")
+      finalLogger.debug("\(messageToLog.description)")
     }
   }
 }

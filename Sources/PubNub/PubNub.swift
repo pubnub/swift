@@ -45,10 +45,12 @@ public class PubNub {
     logger: PubNubLogger = PubNubLogger.defaultLogger()
   ) {
     let container = DependencyContainer(instanceID: UUID(), configuration: configuration)
+    let loggerWithInstanceId = logger.clone(withPubNubInstanceId: container.instanceID)
+
+    container.register(value: loggerWithInstanceId, forKey: PubNubLoggerDependencyKey.self)
     container.register(value: session, forKey: DefaultHTTPSessionDependencyKey.self)
     container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
     container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
-    container.register(value: logger, forKey: PubNubLoggerDependencyKey.self)
     self.init(container: container)
   }
 

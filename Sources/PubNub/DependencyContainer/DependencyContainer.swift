@@ -54,6 +54,7 @@ class DependencyContainer {
   init(instanceID: UUID = UUID(), configuration: PubNubConfiguration) {
     register(value: configuration, forKey: PubNubConfigurationDependencyKey.self)
     register(value: instanceID, forKey: PubNubInstanceIDDependencyKey.self)
+    register(key: PubNubLoggerDependencyKey.self, scope: .weak)
     register(key: FileURLSessionDependencyKey.self, scope: .weak)
     register(key: DefaultHTTPSessionDependencyKey.self, scope: .weak)
     register(key: HTTPSubscribeSessionDependencyKey.self, scope: .weak)
@@ -63,7 +64,6 @@ class DependencyContainer {
     register(key: SubscribeEventEngineDependencyKey.self, scope: .weak)
     register(key: PresenceEventEngineDependencyKey.self, scope: .weak)
     register(key: SubscriptionSessionDependencyKey.self, scope: .weak)
-    register(key: PubNubLoggerDependencyKey.self, scope: .weak)
   }
 
   subscript<K>(key: K.Type) -> K.Value where K: DependencyKey {
@@ -350,7 +350,7 @@ struct SubscriptionSessionDependencyKey: DependencyKey {
 
 struct PubNubLoggerDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> PubNubLogger {
-    PubNubLogger.defaultLogger()
+    PubNubLogger.defaultLogger().clone(withPubNubInstanceId: container.instanceID)
   }
 }
 

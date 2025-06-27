@@ -31,7 +31,7 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
   /// The unique identifier of the PubNub instance that generated the log message
   var pubNubId: String { get }
   /// The log level of the log message
-  var logLevel: LogType { get }
+  var logLevel: LogLevel { get }
   /// Additional information about the log message
   var location: String? { get }
   /// The type of the log message
@@ -46,20 +46,22 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
 public class BaseLogMessage: LogMessage {
   public let timestamp: TimeInterval
   public let pubNubId: String
-  public let logLevel: LogType
+  public let logLevel: LogLevel
   public let location: String?
   public let type: String
   public let category: LogCategory
   public let message: AnyJSON
+  public let details: String?
 
   init(
     timestamp: TimeInterval = Date().timeIntervalSince1970,
     pubNubId: String,
-    logLevel: LogType,
+    logLevel: LogLevel,
     category: LogCategory,
     location: String? = nil,
     type: String,
-    message: AnyJSON
+    message: AnyJSON,
+    details: String? = nil
   ) {
     self.timestamp = timestamp
     self.pubNubId = pubNubId
@@ -68,22 +70,20 @@ public class BaseLogMessage: LogMessage {
     self.location = location
     self.type = type
     self.message = message
+    self.details = details
   }
 
   public var description: String {
-    if let location {
-      return location + message.description
-    } else {
-      return message.description
-    }
+    [timestamp.description, pubNubId, logLevel.description, location ?? "", message.description].joined(separator: " ")
   }
 }
 
 // MARK: - Log Message Convertible
 
-/// A protocol that allows types to be converted into LogMessage instances
+/// A protocol that allows types to be converted into ``LogMessage`` instances
 public protocol LogMessageConvertible {
   /// Converts the conforming type to a LogMessage
+  ///
   /// - Parameters:
   ///   - pubNubId: The PubNub instance identifier
   ///   - logLevel: The log level as a string
@@ -92,7 +92,7 @@ public protocol LogMessageConvertible {
   /// - Returns: A LogMessage instance
   func toLogMessage(
     pubNubId: String,
-    logLevel: LogType,
+    logLevel: LogLevel,
     category: LogCategory,
     location: String?
   ) -> LogMessage
@@ -100,7 +100,7 @@ public protocol LogMessageConvertible {
 
 /// A default implementation of the `LogMessageConvertible` protocol for `String`
 extension String: LogMessageConvertible {
-  public func toLogMessage(pubNubId: String, logLevel: LogType, category: LogCategory, location: String?) -> LogMessage {
+  public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
     BaseLogMessage(
       pubNubId: pubNubId,
       logLevel: logLevel,
@@ -133,7 +133,7 @@ public protocol LogWriter {
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
   ///   - type: The severity level of the log (e.g., debug, info, warning, error).
   ///   - category: The category to classify the log message
-  func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory)
+  func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -186,11 +186,7 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(
-    message: @escaping @autoclosure () -> LogMessage,
-    type: LogType,
-    category: LogCategory
-  ) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
     if sendToNSLog {
       NSLog("%@", message().description)
     } else {
@@ -265,7 +261,7 @@ open class FileLogWriter: LogWriter {
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
     // Ensure that the max number of log files hasn't been reached
@@ -352,7 +348,7 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
     // Select the appropriate logger based on category (without evaluating message)
     let finalLogger = switch category {
     case .eventEngine:
@@ -368,7 +364,7 @@ public struct OSLogWriter: LogWriter {
     }
 
     // Now evaluate the message only once, when we actually need to log it
-    switch type {
+    switch level {
     case .debug, .all:
       finalLogger.debug("\(message().description)")
     case .log, .info, .event:

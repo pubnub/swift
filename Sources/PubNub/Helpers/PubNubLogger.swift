@@ -34,40 +34,40 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
 // MARK: - Level
 
 /// Represents different levels of logging, such as debug, info, warning, etc.
-public struct LogType: OptionSet, Equatable, Hashable, JSONCodable {
+public struct LogLevel: OptionSet, Equatable, Hashable, JSONCodable {
   public let rawValue: UInt32
 
   // Reserverd Log Types
-  public static let none = LogType([])
-  public static let debug = LogType(rawValue: 1 << 0)
-  public static let info = LogType(rawValue: 1 << 1)
-  public static let event = LogType(rawValue: 1 << 2)
-  public static let warn = LogType(rawValue: 1 << 3)
-  public static let error = LogType(rawValue: 1 << 4)
-  public static let log = LogType(rawValue: 1 << 31)
-  public static let all = LogType(rawValue: UInt32.max)
+  public static let none = LogLevel([])
+  public static let debug = LogLevel(rawValue: 1 << 0)
+  public static let info = LogLevel(rawValue: 1 << 1)
+  public static let event = LogLevel(rawValue: 1 << 2)
+  public static let warn = LogLevel(rawValue: 1 << 3)
+  public static let error = LogLevel(rawValue: 1 << 4)
+  public static let log = LogLevel(rawValue: 1 << 31)
+  public static let all = LogLevel(rawValue: UInt32.max)
 
   public init(rawValue: UInt32) {
     self.rawValue = rawValue
   }
 }
 
-extension LogType: CustomStringConvertible {
+extension LogLevel: CustomStringConvertible {
   public var description: String {
     switch self {
-    case LogType.debug:
+    case LogLevel.debug:
       return "Debug"
-    case LogType.info:
+    case LogLevel.info:
       return "Info"
-    case LogType.event:
+    case LogLevel.event:
       return "Event"
-    case LogType.warn:
+    case LogLevel.warn:
       return "Warn"
-    case LogType.error:
+    case LogLevel.error:
       return "Error"
-    case LogType.log:
+    case LogLevel.log:
       return "Logger Event"
-    case LogType.all:
+    case LogLevel.all:
       return "All"
     default:
       return "Custom"
@@ -82,16 +82,16 @@ public struct PubNubLogger {
   /// An array of `LogWriter` instances responsible for processing log messages.
   public var writers: [LogWriter]
   /// The current log level, determining the severity of messages to be logged.
-  public var levels: LogType
+  public var levels: LogLevel
   /// A unique identifier for the PubNub instance this logger is associated with
   private var pubNubInstanceId: UUID?
 
-  public init(levels: LogType = .all, writers: [LogWriter]) {
+  public init(levels: LogLevel = .all, writers: [LogWriter]) {
     self.writers = writers
     self.levels = levels
   }
 
-  init(levels: LogType = .all, writers: [LogWriter], pubNubInstanceId: UUID) {
+  init(levels: LogLevel = .all, writers: [LogWriter], pubNubInstanceId: UUID) {
     self.writers = writers
     self.levels = levels
     self.pubNubInstanceId = pubNubInstanceId
@@ -234,7 +234,7 @@ public struct PubNubLogger {
   }
 
   public func custom(
-    _ level: LogType,
+    _ level: LogLevel,
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -260,7 +260,7 @@ public struct PubNubLogger {
   public func format(
     prefix: LogPrefix,
     category: LogCategory,
-    level: LogType,
+    level: LogLevel,
     date: Date,
     queue: String,
     thread: String,
@@ -270,34 +270,22 @@ public struct PubNubLogger {
   ) -> String {
     var prefixString = ""
 
-    let categoryStr = if prefix.contains(.category) {
-      "[\(category.rawValue)]"
-    } else {
-      ""
-    }
-
     if prefix == .none {
       return prefixString
     }
-    if prefix.contains(.level) {
-      prefixString = "\(level.description) "
-    }
-    if prefix.contains(.date) {
-      prefixString = "\(prefixString)\(DateFormatter.iso8601.string(from: date)) "
-    }
     if prefix.contains(.queue) || prefix.contains(.thread) {
-      prefixString = "\(prefixString)(\(queue)#\(thread)) "
+      prefixString = "\(queue)#\(thread)"
     }
     if prefix.contains(.file) || prefix.contains(.function) || prefix.contains(.line) {
-      prefixString = "\(prefixString){\(file.absolutePathFilename).\(function)#\(line)} "
+      prefixString = "\(prefixString + (prefixString.isEmpty ? "" : " "))\(file.fileNameWithExtension):\(line) \(function)"
     }
 
-    return categoryStr + "[\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))] "
+    return "\(prefixString.trimmingCharacters(in: CharacterSet(arrayLiteral: " ")))"
   }
 
   // swiftlint:disable:next function_parameter_count
   public func send(
-    _ level: LogType,
+    _ level: LogLevel,
     category: LogCategory = .none,
     message: @escaping @autoclosure () -> LogMessageConvertible,
     date: Date,
@@ -334,7 +322,11 @@ public struct PubNubLogger {
       }
 
       writer.executor.execute {
-        writer.send(message: fullMessage())
+        writer.send(
+          message: fullMessage(),
+          level: level,
+          category: category
+        )
       }
 
       fullMessage = {

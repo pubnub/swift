@@ -55,6 +55,11 @@ extension String {
     return self
   }
 
+  /// Returns filename with extension
+  var fileNameWithExtension: String {
+    return components(separatedBy: "/").last ?? self
+  }
+
   /// The value of this `String` formatted for use inside a JSON payload
   public var jsonDescription: String {
     return "\"\(description)\""

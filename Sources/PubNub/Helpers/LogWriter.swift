@@ -44,7 +44,6 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
 
 /// A base implementation of the `LogMessage` protocol that all log messages inherit from
 public class BaseLogMessage: LogMessage {
-  /// The timestamp of the log message
   public let timestamp: TimeInterval
   public let pubNubId: String
   public let logLevel: LogType
@@ -130,8 +129,11 @@ public protocol LogWriter {
   /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
   /// our in-house ``OSLogWriter`` implementation safely writes logs using `os.Logger`, ensuring optimal performance and security while adhering to this contract.
   ///
-  /// - Parameter message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
-  func send(message: @escaping @autoclosure () -> LogMessage)
+  /// - Parameters:
+  ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
+  ///   - type: The severity level of the log (e.g., debug, info, warning, error).
+  ///   - category: The category to classify the log message
+  func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -184,7 +186,11 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage) {
+  public func send(
+    message: @escaping @autoclosure () -> LogMessage,
+    type: LogType,
+    category: LogCategory
+  ) {
     if sendToNSLog {
       NSLog("%@", message().description)
     } else {
@@ -197,8 +203,13 @@ public struct ConsoleLogWriter: LogWriter {
 
 /// The concrete ``LogWriter`` implementation responsible for writing log messages to a file.
 ///
-/// - Warning: This file-based logger is designed for debugging and troubleshooting only. Avoid using it in production,  as it does not provide built-in security measures.
-/// Be aware that logs may include sensitive information (e.g., user data, API responses) when debug-level logging is enabled. If possible, prefer ``OSLogWriter`` for better performance and system integration.
+/// - Warning: This file-based logger is designed for debugging and troubleshooting only. Avoid using it in production, as it does not provide built-in security measures.
+/// Be aware that logs may include sensitive information (e.g., user data, API responses) when debug-level logging is enabled. If possible, prefer ``OSLogWriter`` for better
+/// performance and system integration.
+@available(iOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(macOS, deprecated: 11.0, message: "Use `OSLogWriter` instead.")
+@available(tvOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(watchOS, deprecated: 6.0, message: "Use `OSLogWriter` instead.")
 open class FileLogWriter: LogWriter {
   public var executor: LogExecutable
   public var prefix: LogPrefix
@@ -211,16 +222,6 @@ open class FileLogWriter: LogWriter {
   public var directoryURL: URL
   /// The current log file
   var currentFile: URL?
-  /// Returns a log writer for console output. This is used to log events or internal errors within this writer
-  private let consoleOutputWriter: LogWriter
-
-  private static func getConsoleOutputWriter() -> LogWriter {
-    if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
-      return OSLogWriter()
-    } else {
-      return ConsoleLogWriter()
-    }
-  }
 
   public required init(
     logDirectory: URL,
@@ -231,7 +232,6 @@ open class FileLogWriter: LogWriter {
     currentFile = FileManager.default.newestFile(logDirectory)
     self.executor = executor
     self.prefix = prefix
-    self.consoleOutputWriter = FileLogWriter.getConsoleOutputWriter()
   }
 
   /// Attempts to create a `LogFileWriter` at the specified directory location
@@ -249,8 +249,6 @@ open class FileLogWriter: LogWriter {
     executor: LogExecutionType = .sync(lock: NSRecursiveLock()),
     prefix: LogPrefix = .all
   ) {
-    let outputWriter = FileLogWriter.getConsoleOutputWriter()
-
     do {
       guard let parentDir = FileManager.default.urls(for: directory, in: domain).first else {
         debugPrint("Error: Nothing found at the intersection of the domain and parent directory")
@@ -267,10 +265,9 @@ open class FileLogWriter: LogWriter {
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
-
     // Ensure that the max number of log files hasn't been reached
     if FileManager.default.files(in: directoryURL).count > maxLogFiles {
       if let oldest = FileManager.default.oldestFile(directoryURL) {
@@ -355,31 +352,33 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage) {
-    let messageToLog = message()
-
-    let finalLogger = switch message().category {
+  public func send(message: @escaping @autoclosure () -> LogMessage, type: LogType, category: LogCategory) {
+    // Select the appropriate logger based on category (without evaluating message)
+    let finalLogger = switch category {
     case .eventEngine:
       Logger.eventEngine
     case .networking:
       Logger.network
     case .pubNub:
       Logger.pubNub
+    case .crypto:
+      Logger.crypto
     default:
       Logger.defaultLogger
     }
 
-    switch messageToLog.logLevel {
+    // Now evaluate the message only once, when we actually need to log it
+    switch type {
     case .debug, .all:
-      finalLogger.debug("\(messageToLog.description)")
+      finalLogger.debug("\(message().description)")
     case .log, .info, .event:
-      finalLogger.info("\(messageToLog.description)")
+      finalLogger.info("\(message().description)")
     case .warn:
-      finalLogger.warning("\(messageToLog.description)")
+      finalLogger.warning("\(message().description)")
     case .error:
-      finalLogger.error("\(messageToLog.description)")
+      finalLogger.error("\(message().description)")
     default:
-      finalLogger.debug("\(messageToLog.description)")
+      finalLogger.debug("\(message().description)")
     }
   }
 }

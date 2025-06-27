@@ -413,6 +413,7 @@ public extension PubNub {
   /// - Note:The returned URL is used to download a file independent of the `PubNub` instance, and not to be used with the PubNub `download(file:downloadTo:resumeData:completion:)` function.
   ///
   /// This method doesn't make any API calls, but the URL construction might change and should not be cached
+  /// 
   /// - Parameters:
   ///   - channel: The `PubNubFile` representing the uploaded File
   ///   - fileId: Unique file identifier which has been assigned during file upload.
@@ -458,7 +459,8 @@ public extension PubNub {
       task: downloadTask,
       session: session.configuration.identifier,
       downloadTo: url,
-      cryptoModule: decrypt ?? configuration.cryptoModule
+      cryptoModule: decrypt ?? configuration.cryptoModule,
+      logger: logger
     )
 
     // Create task map inside Delegate

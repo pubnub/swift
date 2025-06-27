@@ -79,15 +79,44 @@ extension LogType: CustomStringConvertible {
 
 /// Provides a custom logger for handling log messages from the PubNub SDK.
 public struct PubNubLogger {
-  let loggingQueue = DispatchQueue(label: "com.pubnub.logger", qos: .default)
   /// An array of `LogWriter` instances responsible for processing log messages.
   public var writers: [LogWriter]
   /// The current log level, determining the severity of messages to be logged.
   public var levels: LogType
+  /// A unique identifier for the PubNub instance this logger is associated with
+  private var pubNubInstanceId: UUID?
 
   init(levels: LogType = .all, writers: [LogWriter]) {
     self.writers = writers
     self.levels = levels
+  }
+
+  init(levels: LogType = .all, writers: [LogWriter], pubNubInstanceId: UUID) {
+    self.writers = writers
+    self.levels = levels
+    self.pubNubInstanceId = pubNubInstanceId
+  }
+
+  func clone(withPubNubInstanceId id: UUID) -> PubNubLogger {
+    PubNubLogger(levels: levels, writers: writers, pubNubInstanceId: id)
+  }
+
+  /// Returns a default logger for the SDK
+  public static func defaultLogger() -> PubNubLogger {
+    if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
+      return PubNubLogger(levels: [.event, .warn, .error], writers: [OSLogWriter()])
+    } else {
+      return PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
+    }
+  }
+
+  /// Returns a default log writer for console output
+  static func consoleOutputWriter() -> LogWriter {
+    if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
+      return OSLogWriter()
+    } else {
+      return ConsoleLogWriter()
+    }
   }
 
   public func debug(

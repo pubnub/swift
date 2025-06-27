@@ -18,6 +18,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let transition: any TransitionProtocol<State, Event, Invocation>
   private let dispatcher: any Dispatcher<Invocation, Event, Input>
   private let recursiveLock = NSRecursiveLock()
+  private let logger: PubNubLogger
   private var internalStateContainer: State
 
   private(set) var state: State {
@@ -40,13 +41,15 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     transition: some TransitionProtocol<State, Event, Invocation>,
     onStateUpdated: ((State) -> Void)? = nil,
     dispatcher: some Dispatcher<Invocation, Event, Input>,
-    dependencies: EventEngineDependencies<Input>
+    dependencies: EventEngineDependencies<Input>,
+    logger: PubNubLogger
   ) {
     self.internalStateContainer = state
     self.onStateUpdated = onStateUpdated
     self.transition = transition
     self.dispatcher = dispatcher
     self.dependencies = dependencies
+    self.logger = logger
   }
 
   func send(event: Event) {
@@ -69,8 +72,8 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     let newState = transitionResult.state
     let invocations = transitionResult.invocations
 
-    PubNub.log.debug("Exiting \(String(describing: currentState))", category: .eventEngine)
-    PubNub.log.debug("Entering \(String(describing: newState))", category: .eventEngine)
+    logger.debug("Exiting \(String(describing: currentState))", category: .eventEngine)
+    logger.debug("Entering \(String(describing: newState))", category: .eventEngine)
 
     state = newState
     onStateUpdated?(newState)

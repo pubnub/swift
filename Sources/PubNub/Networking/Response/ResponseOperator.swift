@@ -112,9 +112,9 @@ extension Request {
     decoder responseDecoder: D,
     completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   ) {
-    appendResponseCompletion { [requestID] result in
+    appendResponseCompletion { [requestID, logger] result in
       queue.async {
-        PubNub.log.debug(
+        logger.debug(
           "Deserializing response for \(requestID)",
           category: .networking
         )
@@ -127,12 +127,12 @@ extension Request {
         }
         switch deserializationResult {
         case .success:
-          PubNub.log.debug(
+          logger.debug(
             "Response deserialized successfully for \(requestID)",
             category: .networking
           )
         case let .failure(error):
-          PubNub.log.debug(
+          logger.debug(
             "Deserialization of content for \(requestID) failed due to \(error)",
             category: .networking
           )

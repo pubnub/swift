@@ -18,7 +18,7 @@ public protocol RouterConfiguration {
   var subscribeKey: String { get }
   // UUID to be used as a device identifier
   var uuid: String { get }
-  /// for further details.
+  /// If true, requests will be made over `https`, otherwise they will use `http`
   var useSecureConnections: Bool { get }
   /// Domain name used for requests
   var origin: String { get }

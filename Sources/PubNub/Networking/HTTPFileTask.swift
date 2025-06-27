@@ -30,15 +30,13 @@ public extension URLSessionDownloadTask {
 public class HTTPFileTask: Hashable {
   /// The underlying URLSessionTask that is being processed
   public private(set) var urlSessionTask: URLSessionTask
-
   /// A representation of the overall task progress.
   public let progress: Progress
-  var progressBlock: ProgressBlock?
-
-  var responseError: Error?
-
   /// The background identifier of the URLSession that is processing this task
   public let sessionIdentifier: String?
+
+  var progressBlock: ProgressBlock?
+  var responseError: Error?
 
   /// Creates a new task based on an existing URLSessionTask and the URLSession that created it
   ///
@@ -220,23 +218,24 @@ public class HTTPFileDownloadTask: HTTPFileTask {
   public var completionBlock: ((Result<URL, Error>) -> Void)?
   /// The crypto object that will attempt to decrypt the file
   public var cryptoModule: CryptoModule?
-
   /// The location where the temporary downloaded file should be copied
   public private(set) var destinationURL: URL
   /// If an automatic decryption took place this is the URL of the downloaded file
   public private(set) var encryptedURL: URL?
   /// The temporary location the file was downloaded to
   var downloadURL: URL?
+  /// The logger to be used
+  var logger: PubNubLogger?
 
   /// Cancels a download and calls a callback with resume data for later use.
   public func cancel(byProducingResumeData: @escaping (Data?) -> Void) {
     (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
   }
 
-  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptoModule: CryptoModule?) {
+  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptoModule: CryptoModule?, logger: PubNubLogger) {
     self.destinationURL = url
     self.cryptoModule = cryptoModule
-
+    self.logger = logger
     super.init(task: task, session: identifier)
   }
 
@@ -273,7 +272,6 @@ public class HTTPFileDownloadTask: HTTPFileTask {
           router: nil, request: urlSessionTask.currentRequest, response: response,
           additional: generalErrorPayload.details
         )
-
         completionBlock?(.failure(error))
       } else if let xmlError = try? XMLDecoder().decode(FileUploadError.self, from: data).asPubNubError {
         completionBlock?(.failure(xmlError))
@@ -323,10 +321,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
       completionBlock?(.success(destinationURL))
     } catch {
-      PubNub.log.warn(
-        "Could not move file to \(self.destinationURL.absoluteString) due to \(error.localizedDescription)",
-        category: .networking
-      )
+      logger?.warn("Could not move file to \(self.destinationURL.absoluteString) due to \(error.localizedDescription)", category: .networking)
       // Set the error to alert that even though a file was retrieved the destination is wrong
       responseError = error
       // Return the temporary file
@@ -343,6 +338,7 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
 open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownloadDelegate {
   var tasksByIdentifier = [Int: HTTPFileTask]()
+  var logger: PubNubLogger?
 
   public struct ProgressUnit {
     public var currentBytes: Int64
@@ -363,12 +359,8 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
   // Public Responders
   public var didComplete: ((_ session: URLSessionReplaceable, _ task: URLSessionTask) -> Void)?
   public var didError: ((_ session: URLSessionReplaceable, _ task: URLSessionTask, _ error: Error) -> Void)?
-  public var didDownload: (
-    (_ session: URLSessionReplaceable, _ task: URLSessionDownloadTask, _ downloadTo: URL) -> Void
-  )?
-  public var didTrasmitData: (
-    (_ session: URLSessionReplaceable, _ task: URLSessionTask, _ update: ProgressUnit) -> Void
-  )?
+  public var didDownload: ((_ session: URLSessionReplaceable, _ task: URLSessionDownloadTask, _ downloadTo: URL) -> Void)?
+  public var didTrasmitData: ((_ session: URLSessionReplaceable, _ task: URLSessionTask, _ update: ProgressUnit) -> Void)?
 
   // MARK: URLSessionDelegate
 
@@ -425,14 +417,10 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
     do {
       // Move file to a temporary location or it's lost at the end of this scope
       try FileManager.default.moveItem(at: location, to: temporaryURL)
-
       didDownload?(session, downloadTask, temporaryURL)
       (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: temporaryURL)
     } catch {
-      PubNub.log.warn(
-        "Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)",
-        category: .networking
-      )
+      logger?.warn("Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)", category: .networking)
       didError?(session, downloadTask, error)
       tasksByIdentifier[downloadTask.taskIdentifier]?.didError(error)
     }

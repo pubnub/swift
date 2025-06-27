@@ -35,9 +35,11 @@ protocol Dispatcher<Invocation, Event, Dependencies> {
 class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Dispatcher {
   private let factory: any EffectHandlerFactory<Invocation, Event, Dependencies>
   private let effectsCache = EffectsCache<Event>()
+  private let logger: PubNubLogger
 
-  init(factory: some EffectHandlerFactory<Invocation, Event, Dependencies>) {
+  init(factory: some EffectHandlerFactory<Invocation, Event, Dependencies>, logger: PubNubLogger) {
     self.factory = factory
+    self.logger = logger
   }
 
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
@@ -50,7 +52,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     notify listener: DispatcherListener<Event>
   ) {
     invocations.forEach {
-      PubNub.log.debug(
+      logger.debug(
         "Received invocation \($0)",
         category: .eventEngine
       )
@@ -83,7 +85,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       effect: effect,
       with: id
     )
-    PubNub.log.debug(
+    logger.debug(
       "Dispatching effect \(effect)",
       category: .eventEngine
     )

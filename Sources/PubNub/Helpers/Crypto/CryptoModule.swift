@@ -15,6 +15,7 @@ public struct CryptoModule {
   private let defaultCryptor: any Cryptor
   private let cryptors: [any Cryptor]
   private let legacyCryptorId: CryptorId = []
+  private let logger: PubNubLogger?
 
   typealias Base64EncodedString = String
 
@@ -39,6 +40,23 @@ public struct CryptoModule {
   public init(default cryptor: any Cryptor, cryptors: [any Cryptor] = []) {
     self.defaultCryptor = cryptor
     self.cryptors = cryptors
+    self.logger = nil
+  }
+
+  init(default cryptor: any Cryptor, cryptors: [any Cryptor] = [], logger: PubNubLogger?) {
+    if let logger {
+      self.defaultCryptor = cryptor.clone(with: logger)
+      self.cryptors = cryptors.map { $0.clone(with: logger) }
+    } else {
+      self.defaultCryptor = cryptor
+      self.cryptors = cryptors
+    }
+    self.logger = logger
+  }
+
+  // Creates a clone of the `CryptoModule` with a new logger
+  func clone(with logger: PubNubLogger) -> CryptoModule {
+    CryptoModule(default: defaultCryptor, cryptors: cryptors, logger: logger)
   }
 
   /// Encrypts the given `Data` object
@@ -49,7 +67,7 @@ public struct CryptoModule {
   ///   - **Success**: An encrypted `Data` object
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Encrypting Data \(data.asUTF8String())",
       category: .crypto
     )
@@ -58,9 +76,9 @@ public struct CryptoModule {
 
     switch encryptionResult {
     case .success:
-      PubNub.log.debug("Data encrypted successfully", category: .crypto)
+      logger?.debug("Data encrypted successfully", category: .crypto)
     case let .failure(error):
-      PubNub.log.debug("Encryption of Data failed due to \(error)", category: .crypto)
+      logger?.debug("Encryption of Data failed due to \(error)", category: .crypto)
     }
 
     return encryptionResult
@@ -94,7 +112,7 @@ public struct CryptoModule {
   ///  - **Success**: A decrypted `Data` object
   ///  - **Failure**: `PubNubError` describing the reason of failure
   public func decrypt(data: Data) -> Result<Data, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Decrypting Data",
       category: .crypto
     )
@@ -103,9 +121,9 @@ public struct CryptoModule {
 
     switch decryptionResult {
     case .success:
-      PubNub.log.debug("Data decrypted successfully", category: .crypto)
+      logger?.debug("Data decrypted successfully", category: .crypto)
     case let .failure(error):
-      PubNub.log.debug("Decryption of Data failed due to \(error)", category: .crypto)
+      logger?.debug("Decryption of Data failed due to \(error)", category: .crypto)
     }
 
     return decryptionResult
@@ -182,7 +200,7 @@ public struct CryptoModule {
   ///   - **Success**: An `EncryptedStreamResult` containing the encrypted input stream and its total content length
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(stream: InputStream, contentLength: Int) -> Result<EncryptedStreamResult, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Encrypting file",
       category: .crypto
     )
@@ -194,9 +212,9 @@ public struct CryptoModule {
 
     switch streamEncryptionResult {
     case .success:
-      PubNub.log.debug("File encrypted successfully")
+      logger?.debug("File encrypted successfully")
     case let .failure(error):
-      PubNub.log.debug("Encryption of file failed due to \(error)")
+      logger?.debug("Encryption of file failed due to \(error)")
     }
 
     return streamEncryptionResult.map { multipartStream in
@@ -216,7 +234,7 @@ public struct CryptoModule {
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encryptStream(from localFileURL: URL) -> Result<EncryptedStreamResult, PubNubError> {
     guard let inputStream = InputStream(url: localFileURL) else {
-      PubNub.log.debug(
+      logger?.debug(
         "Cannot create InputStream from \(localFileURL). Ensure that the file exists at the specified path",
         category: .crypto
       )
@@ -233,9 +251,9 @@ public struct CryptoModule {
 
     switch streamEncryptionResult {
     case .success:
-      PubNub.log.debug("File encrypted successfully")
+      logger?.debug("File encrypted successfully")
     case let .failure(error):
-      PubNub.log.debug("Encryption of file failed due to \(error)")
+      logger?.debug("Encryption of file failed due to \(error)")
     }
 
     return streamEncryptionResult.map {
@@ -294,7 +312,7 @@ public struct CryptoModule {
     contentLength: Int,
     to outputPath: URL
   ) -> Result<InputStream, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Decrypting file",
       category: .crypto
     )
@@ -306,9 +324,9 @@ public struct CryptoModule {
 
     switch streamDecryptionResult {
     case .success:
-      PubNub.log.debug("File decrypted successfully")
+      logger?.debug("File decrypted successfully")
     case let .failure(error):
-      PubNub.log.debug("Decryption of file failed due to \(error)")
+      logger?.debug("Decryption of file failed due to \(error)")
     }
 
     return streamDecryptionResult
@@ -324,13 +342,13 @@ public struct CryptoModule {
   ///  - **Failure**: `PubNubError` describing the reason of failure
   @discardableResult
   public func decryptStream(from localFileURL: URL, to outputPath: URL) -> Result<InputStream, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Decrypting file",
       category: .crypto
     )
 
     guard let inputStream = InputStream(url: localFileURL) else {
-      PubNub.log.debug(
+      logger?.debug(
         "Cannot create InputStream from \(localFileURL). Ensure that the file exists at the specified path",
         category: .crypto
       )
@@ -348,9 +366,9 @@ public struct CryptoModule {
 
     switch streamDecryptionResult {
     case .success:
-      PubNub.log.debug("File decrypted successfully", category: .crypto)
+      logger?.debug("File decrypted successfully", category: .crypto)
     case let .failure(error):
-      PubNub.log.debug("Decryption of file failed due to \(error)", category: .crypto)
+      logger?.debug("Decryption of file failed due to \(error)", category: .crypto)
     }
 
     return streamDecryptionResult
@@ -473,7 +491,7 @@ extension CryptoModule: CustomStringConvertible {
 
 extension CryptoModule {
   func encrypt(string: String) -> Result<Base64EncodedString, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Encrypting String",
       category: .crypto
     )
@@ -493,12 +511,12 @@ extension CryptoModule {
 
     switch encryptionResult {
     case .success:
-      PubNub.log.debug(
+      logger?.debug(
         "String encrypted successfully",
         category: .crypto
       )
     case let .failure(error):
-      PubNub.log.debug(
+      logger?.debug(
         "Encryption of String failed due to \(error)",
         category: .crypto
       )
@@ -508,7 +526,7 @@ extension CryptoModule {
   }
 
   func decryptedString(from data: Data) -> Result<String, PubNubError> {
-    PubNub.log.debug(
+    logger?.debug(
       "Decrypting Data",
       category: .crypto
     )
@@ -526,12 +544,12 @@ extension CryptoModule {
 
     switch decryptionResult {
     case .success:
-      PubNub.log.debug(
+      logger?.debug(
         "Data decrypted successfully",
         category: .crypto
       )
     case let .failure(error):
-      PubNub.log.debug(
+      logger?.debug(
         "Decryption of Data failed due to \(error)",
         category: .crypto
       )

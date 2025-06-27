@@ -62,6 +62,7 @@ final class Request {
   let requestOperator: RequestOperator?
   let sessionStream: SessionStream?
   let atomicState: Atomic<InternalState> = Atomic(InternalState())
+  let logger: PubNubLogger
 
   private(set) weak var delegate: RequestDelegate?
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
@@ -80,7 +81,8 @@ final class Request {
     sessionStream: SessionStream?,
     requestOperator: RequestOperator? = nil,
     delegate: RequestDelegate,
-    createdBy sessionID: UUID
+    createdBy sessionID: UUID,
+    logger: PubNubLogger
   ) {
     self.router = router
     self.requestQueue = requestQueue
@@ -95,17 +97,19 @@ final class Request {
       let requestIdOperator = RequestIdOperator(requestID: requestID.description)
       operators.append(requestIdOperator)
     }
+
     self.requestOperator = MultiplexRequestOperator(operators: operators)
+    self.logger = logger
     self.delegate = delegate
 
-    PubNub.log.info(
+    logger.info(
       "Request Created \(self.requestID) on \(router)",
       category: .networking
     )
   }
 
   deinit {
-    PubNub.log.info(
+    logger.info(
       "Request Destroyed \(self.requestID)",
       category: .networking
     )
@@ -197,7 +201,7 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
-    PubNub.log.debug(
+    logger.debug(
       "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
       category: .networking
     )
@@ -221,7 +225,7 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    PubNub.log.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
+    logger.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
@@ -266,7 +270,7 @@ final class Request {
   }
 
   func didResume(_ task: URLSessionTask) {
-    PubNub.log.debug(
+    logger.debug(
       "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
       category: .networking
     )
@@ -277,12 +281,12 @@ final class Request {
   }
 
   func didCancel(_ task: URLSessionTask) {
-    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
+    logger.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
-    PubNub.log.debug(
+    logger.debug(
       "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
       "content \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
@@ -302,7 +306,7 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
-    PubNub.log.debug(
+    logger.debug(
       "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
       "content: \(self.dataDescription) " +
       "for request URL \(task.currentRequestUrl()))",
@@ -349,7 +353,7 @@ final class Request {
       } else {
         "without response."
       }
-      PubNub.log.error(
+      logger.error(
         "Request \(self.requestID) failed with error \(error) \(responseMessage)",
         category: .networking
       )

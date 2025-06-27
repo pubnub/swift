@@ -63,6 +63,7 @@ class DependencyContainer {
     register(key: SubscribeEventEngineDependencyKey.self, scope: .weak)
     register(key: PresenceEventEngineDependencyKey.self, scope: .weak)
     register(key: SubscriptionSessionDependencyKey.self, scope: .weak)
+    register(key: PubNubLoggerDependencyKey.self, scope: .weak)
   }
 
   subscript<K>(key: K.Type) -> K.Value where K: DependencyKey {
@@ -152,6 +153,10 @@ extension DependencyContainer {
     self[HTTPPresenceSessionDependencyKey.self]
   }
 
+  var logger: PubNubLogger {
+    self[PubNubLoggerDependencyKey.self]
+  }
+
   fileprivate var automaticRetry: RequestOperator? {
     configuration.automaticRetry
   }
@@ -191,12 +196,17 @@ struct PubNubInstanceIDDependencyKey: DependencyKey {
 
 extension DependencyKey where Value == SessionReplaceable {
   @discardableResult
-  static func updateSession(session: SessionReplaceable, with operators: [RequestOperator]) -> SessionReplaceable {
+  static func updateSession(
+    session: SessionReplaceable,
+    with operators: [RequestOperator],
+    and logger: PubNubLogger
+  ) -> SessionReplaceable {
     session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
       operators: operators
     )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
       operators: operators
     ))
+    .usingDefault(logger: logger)
   }
 }
 
@@ -206,7 +216,7 @@ struct DefaultHTTPSessionDependencyKey: DependencyKey {
   }
 
   static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
-    updateSession(session: value, with: [container.automaticRetry].compactMap { $0 })
+    updateSession(session: value, with: [container.automaticRetry].compactMap { $0 }, and: container.logger)
   }
 }
 
@@ -220,7 +230,7 @@ struct HTTPSubscribeSessionDependencyKey: DependencyKey {
   }
 
   static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
-    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 })
+    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 }, and: container.logger)
   }
 }
 
@@ -239,7 +249,7 @@ struct HTTPPresenceSessionDependencyKey: DependencyKey {
     )
   }
   static func onValueResolved(value: SessionReplaceable, in container: DependencyContainer) {
-    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 })
+    updateSession(session: value, with: [container.instanceIDOperator].compactMap { $0 }, and: container.logger)
   }
 }
 
@@ -252,6 +262,16 @@ struct FileURLSessionDependencyKey: DependencyKey {
       delegate: FileSessionManager(),
       delegateQueue: .main
     )
+  }
+}
+
+struct FileURLSessionManagerDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> FileSessionManager {
+    FileSessionManager()
+  }
+
+  static func onValueResolved(value: FileSessionManager, in container: DependencyContainer) {
+    value.logger = container.logger
   }
 }
 
@@ -274,8 +294,9 @@ struct SubscribeEventEngineDependencyKey: DependencyKey {
     let subscribeEngine = SubscribeEngine(
       state: Subscribe.UnsubscribedState(),
       transition: SubscribeTransition(),
-      dispatcher: EffectDispatcher(factory: effectHandlerFactory),
-      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: container.configuration))
+      dispatcher: EffectDispatcher(factory: effectHandlerFactory, logger: container.logger),
+      dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: container.configuration)),
+      logger: container.logger
     )
     return subscribeEngine
   }
@@ -292,8 +313,9 @@ struct PresenceEventEngineDependencyKey: DependencyKey {
     let presenceEngine = PresenceEngine(
       state: Presence.HeartbeatInactive(),
       transition: PresenceTransition(configuration: container.configuration),
-      dispatcher: EffectDispatcher(factory: effectHandlerFactory),
-      dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: container.configuration))
+      dispatcher: EffectDispatcher(factory: effectHandlerFactory, logger: container.logger),
+      dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: container.configuration)),
+      logger: container.logger
     )
     return presenceEngine
   }
@@ -321,6 +343,14 @@ struct SubscriptionSessionDependencyKey: DependencyKey {
         )
       )
     }
+  }
+}
+
+// MARK: - Logger
+
+struct PubNubLoggerDependencyKey: DependencyKey {
+  static func value(from container: DependencyContainer) -> PubNubLogger {
+    PubNubLogger.defaultLogger()
   }
 }
 

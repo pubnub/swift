@@ -60,10 +60,6 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     subscribeEngine.state.connectionStatus
   }
 
-  deinit {
-    PubNub.log.debug("SubscriptionSession Destroyed")
-  }
-
   private func listenForStateUpdates() {
     subscribeEngine.onStateUpdated = { [weak self] state in
       if state is Subscribe.ReceivingState && state.hasTimetoken {

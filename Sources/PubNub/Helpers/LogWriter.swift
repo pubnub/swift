@@ -78,7 +78,10 @@ public enum LogExecutionType: LogExecutable {
 // MARK: - Console Logger
 
 /// The concrete ``LogWriter`` implementation responsible for writing log messages to the console
-@available(*, deprecated, message: "Use `OSLogWriter` instead")
+@available(iOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(macOS, deprecated: 11.0, message: "Use `OSLogWriter` instead.")
+@available(tvOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(watchOS, deprecated: 6.0, message: "Use `OSLogWriter` instead.")
 public struct ConsoleLogWriter: LogWriter {
   public var sendToNSLog: Bool
   public var executor: LogExecutable
@@ -121,6 +124,16 @@ open class FileLogWriter: LogWriter {
   public var directoryURL: URL
   /// The current log file
   var currentFile: URL?
+  /// Returns a log writer for console output. This is used to log events or internal errors within this writer
+  private let consoleOutputWriter: LogWriter
+
+  private static func getConsoleOutputWriter() -> LogWriter {
+    if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
+      return OSLogWriter()
+    } else {
+      return ConsoleLogWriter()
+    }
+  }
 
   public required init(
     logDirectory: URL,
@@ -131,6 +144,7 @@ open class FileLogWriter: LogWriter {
     currentFile = FileManager.default.newestFile(logDirectory)
     self.executor = executor
     self.prefix = prefix
+    self.consoleOutputWriter = FileLogWriter.getConsoleOutputWriter()
   }
 
   /// Attempts to create a `LogFileWriter` at the specified directory location
@@ -148,18 +162,20 @@ open class FileLogWriter: LogWriter {
     executor: LogExecutionType = .sync(lock: NSRecursiveLock()),
     prefix: LogPrefix = .all
   ) {
+    let outputWriter = FileLogWriter.getConsoleOutputWriter()
+
     do {
       guard let parentDir = FileManager.default.urls(for: directory, in: domain).first else {
-        PubNub.logLog.custom(.log, "Error: Nothing found at the intersection of the domain and parent directory")
+        outputWriter.send(message: "Error: Nothing found at the intersection of the domain and parent directory", withType: .log, withCategory: .none)
         preconditionFailure("Nothing found at the intersection of the domain and parent directory")
       }
       let logDir = parentDir.appendingPathComponent(name, isDirectory: true)
       try FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true, attributes: nil)
 
-      PubNub.logLog.custom(.log, "File log writer will output logs to: `\(logDir)`")
+      outputWriter.send(message: "File log writer will output logs to: `\(logDir)`", withType: .log, withCategory: .none)
       self.init(logDirectory: logDir, executor: executor, prefix: prefix)
     } catch {
-      PubNub.logLog.custom(.log, "Error: Could not create logging files at location provided due to \(error)")
+      outputWriter.send(message: "Error: Could not create logging files at location provided due to \(error)", withType: .log, withCategory: .none)
       preconditionFailure("Could not create logging files at location provided due to \(error)")
     }
   }
@@ -193,9 +209,9 @@ open class FileLogWriter: LogWriter {
     )
 
     if !create(fileURL, with: contents) {
-      PubNub.logLog.custom(.log, "Error: Failed to create log file at \(fileURL.absoluteString)")
+      consoleOutputWriter.send(message: "Error: Failed to create log file at \(fileURL.absoluteString)", withType: .log, withCategory: .none)
     } else {
-      PubNub.logLog.custom(.log, "Created new log file at \(fileURL.absoluteString)")
+      consoleOutputWriter.send(message: "Created new log file at \(fileURL.absoluteString)", withType: .log, withCategory: .none)
     }
 
     return fileURL
@@ -221,7 +237,7 @@ open class FileLogWriter: LogWriter {
       if stream.hasSpaceAvailable {
         let dataWritten = stream.write(dataArray, maxLength: dataArray.count)
         if dataWritten != dataArray.count {
-          PubNub.logLog.custom(.log, "Error: Data remainig to be written")
+          consoleOutputWriter.send(message: "Error: Data remainig to be written", withType: .log, withCategory: .none)
         }
       }
     }
@@ -235,7 +251,7 @@ open class FileLogWriter: LogWriter {
     do {
       try FileManager.default.removeItem(at: file)
     } catch {
-      PubNub.logLog.custom(.log, "Error: Could not delete file at \(file) due to: \(error)")
+      consoleOutputWriter.send(message: "Error: Could not delete file at \(file) due to: \(error)", withType: .log, withCategory: .none)
     }
   }
 }

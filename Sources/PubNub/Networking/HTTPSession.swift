@@ -30,6 +30,8 @@ public final class HTTPSession {
   public var sessionStream: SessionStream?
   /// The `RequestOperator` that is attached to every request
   public var defaultRequestOperator: RequestOperator?
+  /// The logger used to log events in this session
+  public var logger: PubNubLogger
   /// The collection of associations between `URLSessionTask` and their corresponding `Request`
   var taskToRequest: [URLSessionTask: RequestReplaceable] = [:]
   /// Default HTTPSession configuration for PubNub REST endpoints
@@ -38,6 +40,7 @@ public final class HTTPSession {
   init(
     session: URLSessionReplaceable,
     delegate: HTTPSessionDelegate,
+    logger: PubNubLogger,
     sessionQueue: DispatchQueue,
     requestQueue: DispatchQueue? = nil,
     sessionStream: SessionStream? = nil
@@ -48,17 +51,19 @@ public final class HTTPSession {
     )
 
     self.session = session
+    self.logger = logger
     self.sessionQueue = sessionQueue
     self.requestQueue = requestQueue ?? DispatchQueue(label: "com.pubnub.session.requestQueue", target: sessionQueue)
     self.delegate = delegate
     self.sessionStream = sessionStream
 
-    PubNub.log.debug(
-      "Session created \(self.sessionID)",
+    logger.debug(
+      "HTTPSession created \(self.sessionID)",
       category: .networking
     )
 
     delegate.sessionBridge = self
+    delegate.logger = logger
   }
 
   public convenience init(
@@ -79,11 +84,13 @@ public final class HTTPSession {
       delegate: delegate,
       delegateQueue: delegateQueue
     )
+
     session.sessionDescription = "Underlying URLSession for: com.pubnub.session"
 
     self.init(
       session: session,
       delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
       sessionQueue: sessionQueue,
       requestQueue: requestQueue,
       sessionStream: sessionStream
@@ -91,7 +98,7 @@ public final class HTTPSession {
   }
 
   deinit {
-    PubNub.log.debug("Session Destroyed \(self.sessionID) with active requests \(self.taskToRequest.values.map { $0.requestID })")
+    logger.debug("Session Destroyed \(self.sessionID) with active requests \(self.taskToRequest.values.map { $0.requestID })")
 
     for value in taskToRequest.values {
       value.cancel(PubNubError(.sessionDeinitialized, router: value.router))
@@ -110,14 +117,23 @@ public final class HTTPSession {
     return self
   }
 
+  /// The method used to set the logger
+  ///
+  /// - Parameter logger: The logger to be used
+  /// - Returns: This `Session` object
+  public func usingDefault(logger: PubNubLogger) -> Self {
+    self.logger = logger
+    return self
+  }
+
   // MARK: - Perform Request
 
   /// Creates and performs a request using the provided router
   ///
-  /// - parameters:
+  /// - Parameters:
   ///   -  with: The `Router` used to create the `Request`
   ///   -  requestOperator: The operator specific to this `Request`
-  /// - returns: This created `Request`
+  /// - Returns: This created `Request`
   public func request(
     with router: HTTPRouter,
     requestOperator: RequestOperator? = nil
@@ -128,7 +144,8 @@ public final class HTTPSession {
       sessionStream: sessionStream,
       requestOperator: requestOperator,
       delegate: self,
-      createdBy: sessionID
+      createdBy: sessionID,
+      logger: logger
     )
 
     perform(request)
@@ -209,7 +226,7 @@ public final class HTTPSession {
       taskToRequest[task] = request
       request.didCreate(task)
     } else {
-      PubNub.log.warn(
+      logger.warn(
         "Attempted to create task from invalidated session: \(self.sessionID)",
         category: .networking
       )
@@ -259,7 +276,7 @@ extension HTTPSession: RequestDelegate {
       return
     }
 
-    PubNub.log.info(
+    logger.info(
       "Retrying request \(request.requestID) due to error \(error)",
       category: .networking
     )

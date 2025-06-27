@@ -163,16 +163,16 @@ struct SubscribeDecoder: ResponseDecoder {
       case .success(let decodedString):
         // Create mutable copy of payload
         message.payload = AnyJSON(reverse: decodedString)
+        // Return the decrypted message
         return message
       case .failure(let error):
-        PubNub.log.warn(
-          "Subscribe message failed to decrypt due to \(error)",
-          category: .crypto
-        )
+        // Set the error on the message
         message.error = error
+        // Return the message with the error set
         return message
       }
     }
+
     message.error = PubNubError(
       .decryptionFailure,
       additional: ["Cannot decrypt message due to invalid Base-64 input"]

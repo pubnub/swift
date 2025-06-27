@@ -17,15 +17,10 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
   /// No retry will be performed
   public static var none = AutomaticRetry(retryLimit: 1)
   /// Retry on lost network connection
-  public static var connectionLost = AutomaticRetry(
-    policy: .defaultLinear,
-    retryableURLErrorCodes: [.networkConnectionLost]
-  )
+  public static var connectionLost = AutomaticRetry(policy: .defaultLinear, retryableURLErrorCodes: [.networkConnectionLost])
   /// Exponential backoff twice when no internet connection is detected
-  public static var noInternet = AutomaticRetry(
-    policy: .defaultExponential,
-    retryableURLErrorCodes: [.notConnectedToInternet]
-  )
+  public static var noInternet = AutomaticRetry(policy: .defaultExponential, retryableURLErrorCodes: [.notConnectedToInternet])
+
   // The minimum value allowed between retries
   static let minDelay: UInt = 2
   // The maximum value allowed between retries
@@ -44,7 +39,7 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
     case linear(delay: Double)
 
     func delay(for retryAttempt: Int) -> TimeInterval {
-      /// Generates a random interval that's added to the final value
+      /// Generates a random interval that's added to the final value.
       /// Mitigates receiving 429 status code that's the result of too many requests in a given amount of time
       let randomDelay = Double.random(in: 0...1)
 
@@ -136,10 +131,24 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
   public let retryableURLErrorCodes: Set<URLError.Code>
   /// The list of endpoints excluded from retrying
   public let excluded: [AutomaticRetry.Endpoint]
+  /// Collection of validation warnings generated during initialization
+  public let validationWarnings: [String]
+
+  /// The list of endpoints excluded from retrying by default
+  public static let defaultExcludedEndpoints: [AutomaticRetry.Endpoint] = [
+    .presence,
+    .messageSend,
+    .files,
+    .messageStorage,
+    .channelGroups,
+    .devicePushNotifications,
+    .appContext,
+    .messageActions
+  ]
 
   /// Conformance to `CustomStringConvertible` protocol
   public var description: String {
-    String.formattedDescription(
+    return String.formattedDescription(
       self,
       arguments: [
         ("retryLimit", retryLimit),
@@ -156,54 +165,17 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
     policy: ReconnectionPolicy = .defaultExponential,
     retryableHTTPStatusCodes: Set<Int> = [500, 429],
     retryableURLErrorCodes: Set<URLError.Code> = AutomaticRetry.defaultRetryableURLErrorCodes,
-    excluded endpoints: [AutomaticRetry.Endpoint] = [
-      .presence,
-      .messageSend,
-      .files,
-      .messageStorage,
-      .channelGroups,
-      .devicePushNotifications,
-      .appContext,
-      .messageActions
-    ]
+    excluded endpoints: [AutomaticRetry.Endpoint] = AutomaticRetry.defaultExcludedEndpoints
   ) {
-    switch policy {
-    case let .exponential(minDelay, maxDelay):
-      let validatedMinDelay = Self.validate(
-        value: minDelay,
-        using: minDelay >= Self.minDelay,
-        replaceOnFailure: Self.minDelay,
-        warningMessage: "The `minDelay` must be a minimum of \(Self.minDelay)"
-      )
-      let validatedMaxDelay = Self.validate(
-        value: maxDelay,
-        using: maxDelay >= minDelay,
-        replaceOnFailure: Self.minDelay,
-        warningMessage: "The `maxDelay` must be greater than or equal \(Self.minDelay)"
-      )
-      self.policy = .exponential(
-        minDelay: validatedMinDelay,
-        maxDelay: validatedMaxDelay
-      )
-    case let .linear(delay):
-      self.policy = .linear(delay: Self.validate(
-        value: delay,
-        using: delay >= Double(Self.minDelay),
-        replaceOnFailure: Double(Self.minDelay),
-        warningMessage: "The `linear.delay` must be greater than or equal \(Self.minDelay)."
-      ))
-    }
+    // Collect validation warnings
+    var warnings: [String] = []
 
-    self.retryLimit = Self.validate(
-      value: UInt(retryLimit),
-      using: retryLimit <= policy.maximumRetryLimit(),
-      replaceOnFailure: UInt(policy.maximumRetryLimit()),
-      warningMessage: "The `retryLimit` for \(policy) must be less than or equal \(policy.maximumRetryLimit())"
-    )
-
+    self.policy = Self.validatePolicy(policy, warnings: &warnings)
+    self.retryLimit = Self.validateRetryLimit(retryLimit, for: self.policy, warnings: &warnings)
     self.retryableHTTPStatusCodes = retryableHTTPStatusCodes
     self.retryableURLErrorCodes = retryableURLErrorCodes
     self.excluded = endpoints
+    self.validationWarnings = warnings
   }
 
   public func retry(
@@ -244,14 +216,76 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
 }
 
 private extension AutomaticRetry {
-  static func validate<T>(value: T, using condition: Bool, replaceOnFailure: T, warningMessage message: String) -> T {
+  static func validate<T>(
+    value: T,
+    using condition: Bool,
+    replaceOnFailure: T,
+    warningMessage message: String,
+    warnings: inout [String]
+  ) -> T {
     guard condition else {
-      PubNub.log.warn(
-        message,
-        category: .pubNub
-      )
+      warnings.append(message)
       return replaceOnFailure
     }
     return value
+  }
+
+  static func validatePolicy(_ policy: ReconnectionPolicy, warnings: inout [String]) -> ReconnectionPolicy {
+    switch policy {
+    case let .exponential(minDelay, maxDelay):
+      let validatedMinDelay = Self.validate(
+        value: minDelay,
+        using: minDelay >= Self.minDelay,
+        replaceOnFailure: Self.minDelay,
+        warningMessage: "The `minDelay` (\(minDelay)) must be at least \(Self.minDelay) seconds. Using \(Self.minDelay) instead.",
+        warnings: &warnings
+      )
+
+      let validatedMaxDelay = Self.validate(
+        value: maxDelay,
+        using: maxDelay >= validatedMinDelay && maxDelay <= Self.maxDelay,
+        replaceOnFailure: max(validatedMinDelay, min(maxDelay, Self.maxDelay)),
+        warningMessage: "AutomaticRetry: `maxDelay` (\(maxDelay)) must be between \(validatedMinDelay) and \(Self.maxDelay) seconds. Using \(max(validatedMinDelay, min(maxDelay, Self.maxDelay))) instead.",
+        warnings: &warnings
+      )
+
+      return .exponential(minDelay: validatedMinDelay, maxDelay: validatedMaxDelay)
+
+    case let .linear(delay):
+      let validatedDelay = Self.validate(
+        value: delay,
+        using: delay >= Double(Self.minDelay) && delay <= Double(Self.maxDelay),
+        replaceOnFailure: max(Double(Self.minDelay), min(delay, Double(Self.maxDelay))),
+        warningMessage: "AutomaticRetry: `linear.delay` (\(delay)) must be between \(Self.minDelay) and \(Self.maxDelay) seconds. Using \(max(Double(Self.minDelay), min(delay, Double(Self.maxDelay)))) instead.",
+        warnings: &warnings
+      )
+
+      return .linear(delay: validatedDelay)
+    }
+  }
+
+  static func validateRetryLimit(_ retryLimit: UInt, for policy: ReconnectionPolicy, warnings: inout [String]) -> UInt {
+    // Get the maximum retry limit for the policy
+    let maxRetryLimit = UInt(policy.maximumRetryLimit())
+
+    // Validate minimum retry limit (must be at least 1)
+    let minValidatedRetryLimit = Self.validate(
+      value: retryLimit,
+      using: retryLimit >= 1,
+      replaceOnFailure: 1,
+      warningMessage: "The `retryLimit` must be at least 1. Using 1 instead.",
+      warnings: &warnings
+    )
+
+    // Validate maximum retry limit against policy
+    let validatedRetryLimit = Self.validate(
+      value: minValidatedRetryLimit,
+      using: minValidatedRetryLimit <= maxRetryLimit,
+      replaceOnFailure: maxRetryLimit,
+      warningMessage: "The`retryLimit` (\(minValidatedRetryLimit)) exceeds maximum allowed for \(policy) policy (\(maxRetryLimit)). Using \(maxRetryLimit) instead.",
+      warnings: &warnings
+    )
+
+    return validatedRetryLimit
   }
 }

@@ -12,7 +12,10 @@ import Foundation
 
 /// A protocol defining a bridge to an implementation of `URLSessionDataDelegate` for receiving delegation events
 public class HTTPSessionDelegate: NSObject {
+  /// The adapter that maps `URLSessionDataDelegate` events to `SessionStateBridge` events
   weak var sessionBridge: SessionStateBridge?
+  /// The logger to be used for the `HTTPSessionDelegate`
+  var logger: PubNubLogger?
 }
 
 extension HTTPSessionDelegate: URLSessionDataDelegate {
@@ -20,11 +23,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
-    PubNub.log.warn(
-      "Session Invalidated \(String(describing: self.sessionBridge?.sessionID))",
-      category: .networking
-    )
-
+    logger?.warn("Session Invalidated \(String(describing: self.sessionBridge?.sessionID))", category: .networking)
     // Set invalidated in case this happened unexpectedly
     sessionBridge?.isInvalidated = true
     sessionBridge?.sessionInvalidated(with: error)
@@ -34,10 +33,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
-      PubNub.log.warn(
-        "Cannot find matching RequestReplaceable for URLSessionTask",
-        category: .networking
-      )
+      logger?.warn("Cannot find matching RequestReplaceable for URLSessionTask", category: .networking)
       return
     }
 
@@ -84,10 +80,11 @@ protocol SessionStateBridge: AnyObject {
   var sessionStream: SessionStream? { get }
   /// True if the underlying session is invalidated and can no longer perform requests
   var isInvalidated: Bool { get set }
+
   /// Performs a lookup to find the associated `Request` for a given `URLSessionTask`
   ///
-  /// - parameter for: The `URLSessionTask` used as a lookup key
-  /// - returns: The `Request` that is associated with the given `URLSessionTask`
+  /// - Parameter for: The `URLSessionTask` used as a lookup key
+  /// - Returns: The `Request` that is associated with the given `URLSessionTask`
   func request(for task: URLSessionTask) -> RequestReplaceable?
   /// Event that notifies a given `URLSessionTask` has completed
   func didComplete(_ task: URLSessionTask)

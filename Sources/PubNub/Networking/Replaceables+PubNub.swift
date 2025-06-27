@@ -24,6 +24,7 @@ public protocol URLSessionReplaceable {
   var delegateQueue: OperationQueue { get }
   /// A configuration object that defines behavior and policies for an URL session.
   var configuration: URLSessionConfiguration { get }
+
   /// Creates a task that retrieves the contents of an URL based on the specified URL request object.
   ///
   /// By creating a task based on a request object, you can tune various aspects of the task’s behavior,
@@ -35,6 +36,7 @@ public protocol URLSessionReplaceable {
   /// cache policy, request type, and body data or body stream.
   /// - Returns: The new session data task.
   func dataTask(with request: URLRequest) -> URLSessionDataTask
+
   /// Creates a task that performs an HTTP request for uploading the specified file.
   ///
   ///  An HTTP upload request is any request that contains a request body, such as a POST or PUT request. Upload tasks require you to create a request object so that you can provide metadata for the upload, like HTTP request headers.
@@ -45,6 +47,7 @@ public protocol URLSessionReplaceable {
   ///   - request: A URL request object that provides the URL, cache policy, request type, and so on.
   /// - Returns: The new session data task.
   func uploadTask(withStreamedRequest request: URLRequest) -> URLSessionUploadTask
+
   /// Creates a task that performs an HTTP request for uploading the specified file.
   ///
   ///  An HTTP upload request is any request that contains a request body, such as a POST or PUT request. Upload tasks require you to create a request object so that you can provide metadata for the upload, like HTTP request headers.
@@ -56,6 +59,7 @@ public protocol URLSessionReplaceable {
   ///   - fileURL: The URL of the file to upload.
   /// - Returns: The new session data task.
   func uploadTask(with request: URLRequest, fromFile fileURL: URL) -> URLSessionUploadTask
+
   /// Creates a download task that retrieves the contents of a URL based on the specified URL request object and saves the results to a file.
   ///
   ///  After you create the task, you must start it by calling its resume() method.
@@ -63,6 +67,7 @@ public protocol URLSessionReplaceable {
   /// - Parameter url: The URL to download.
   /// - Returns: The new session download task.
   func downloadTask(with url: URL) -> URLSessionDownloadTask
+
   /// Creates a download task that retrieves the contents of a URL based on the specified URL request object and saves the results to a file.
   ///
   ///  After you create the task, you must start it by calling its resume() method.
@@ -73,10 +78,12 @@ public protocol URLSessionReplaceable {
   /// - Parameter resumeData: A data object that provides the data necessary to resume a download.
   /// - Returns: The new session download task.
   func downloadTask(withResumeData resumeData: Data) -> URLSessionDownloadTask
+
   /// Cancels all outstanding tasks and then invalidates the session.
   ///
   /// Once invalidated, references to the delegate and callback objects are broken. After invalidation,
   /// session objects cannot be reused.
+  ///
   /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
 }
@@ -102,28 +109,48 @@ public protocol SessionReplaceable {
   var sessionQueue: DispatchQueue { get }
   /// The `RequestOperator` that is attached to every request
   var defaultRequestOperator: RequestOperator? { get set }
-
+  /// The event stream that session activity status will emit to
   var sessionStream: SessionStream? { get set }
+  /// The logger used to log events in this session
+  var logger: PubNubLogger { get set }
 
   /// The method used to set the default `RequestOperator`
   ///
-  /// - parameter requestOperator: The default `RequestOperator`
-  /// - returns: This `Session` object
+  /// - Parameter requestOperator: The default `RequestOperator`
+  /// - Returns: This `Session` object
   func usingDefault(requestOperator: RequestOperator?) -> Self
+
+  /// The method used to set the logger
+  ///
+  /// - Parameter logger: The logger to be used
+  /// - Returns: This `Session` object
+  func usingDefault(logger: PubNubLogger) -> Self
+
   /// Creates and performs a request using the provided router
   ///
-  /// - parameters:
+  /// - Parameters:
   ///   -  with: The `Router` used to create the `Request`
   ///   -  requestOperator: The operator specific to this `Request`
-  /// - returns: This created `Request`
+  /// - Returns: This created `Request`
   func request(with router: HTTPRouter, requestOperator: RequestOperator?) -> RequestReplaceable
+
   /// Cancels all outstanding tasks and then invalidates the session.
   ///
   /// Once invalidated, references to the delegate and callback objects are broken.
   /// After invalidation, session objects cannot be reused.
+  ///
   /// - Important: Calling this method on the session returned by the shared method has no effect.
   func invalidateAndCancel()
 
+  /// Creates and performs a request using the provided router
+  ///
+  /// - Parameters:
+  ///   -  router: The `Router` describing the endpoint to call
+  ///   -  requestOperator: The optional operator to be applied to the `Request`
+  ///   -  responseDecoder: The decoder used to decode the response data
+  ///   -  responseQueue: The queue the completion block will be returned on
+  ///   -  completion: The completion block being returned with the decoded response data or the error that occurred
+  /// - Returns: This created `Request`
   func route<Decoder>(
     _ router: HTTPRouter,
     requestOperator: RequestOperator?,
@@ -150,8 +177,15 @@ public extension SessionReplaceable {
       )
   }
 
-  func invalidateAndCancel() { /* no-op */ }
+  func invalidateAndCancel() {
+     /* no-op */
+  }
+
   func usingDefault(requestOperator _: RequestOperator?) -> Self {
+    return self
+  }
+
+  func usingDefault(logger _: PubNubLogger) -> Self {
     return self
   }
 }
@@ -164,6 +198,7 @@ public protocol RequestReplaceable: AnyObject {
   var router: HTTPRouter { get }
   var requestQueue: DispatchQueue { get }
   var requestOperator: RequestOperator? { get }
+  var logger: PubNubLogger { get }
 
   var urlRequest: URLRequest? { get }
   var urlResponse: HTTPURLResponse? { get }
@@ -181,11 +216,12 @@ public protocol RequestReplaceable: AnyObject {
 
   var retryCount: Int { get }
   var isCancelled: Bool { get }
-  func prepareForRetry()
 
-  @discardableResult
-  func cancel(_ error: Error) -> Self
+  func prepareForRetry()
   func validate() -> Self
+
+  @discardableResult func cancel(_ error: Error) -> Self
+
   /// The directions on how to process the response when it comes back from the `Endpoint`
   ///
   /// - Parameters:

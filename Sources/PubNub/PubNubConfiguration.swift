@@ -203,11 +203,11 @@ public struct PubNubConfiguration: Hashable {
 
   /// UserId to be used as a device identifier
   public var userId: String
-  /// If true, requests will be made over `https`, otherwise they will use 'http'
+  /// If true, requests will be made over `https`, otherwise they will use `http`
   ///
   /// You will still need to disable ATS for the system to allow insecure network traffic.
   ///
-  /// See Apple's
+  /// See Apple's 
   /// [documentation](https://developer.apple.com/documentation/security/preventing_insecure_network_connections)
   /// for further details.
   public var useSecureConnections: Bool

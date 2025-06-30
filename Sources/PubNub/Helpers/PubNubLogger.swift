@@ -110,15 +110,6 @@ public struct PubNubLogger {
     }
   }
 
-  /// Returns a default log writer for console output
-  static func consoleOutputWriter() -> LogWriter {
-    if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
-      return OSLogWriter()
-    } else {
-      return ConsoleLogWriter()
-    }
-  }
-
   public func debug(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
@@ -334,8 +325,9 @@ public struct PubNubLogger {
           pubNubId: "",
           logLevel: .debug,
           category: .none,
+          location: nil,
           type: "",
-          message: ""
+          message: .text("")
         )
       }
     }

@@ -51,6 +51,7 @@ public class PubNub {
     container.register(value: session, forKey: DefaultHTTPSessionDependencyKey.self)
     container.register(value: subscribeSession, forKey: HTTPSubscribeSessionDependencyKey.self)
     container.register(value: fileSession, forKey: FileURLSessionDependencyKey.self)
+
     self.init(container: container)
   }
 

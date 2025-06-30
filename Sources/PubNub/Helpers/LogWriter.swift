@@ -22,6 +22,25 @@ public enum LogCategory: String, JSONCodable {
   case pubNub = "PubNub"
 }
 
+// MARK: - Log Message Content
+
+/// An enum representing different types of log message content
+public enum LogMessageContent: JSONCodable, CustomStringConvertible {
+  /// A simple text message
+  case text(String)
+  /// A network request
+  case networkRequest(NetworkRequestContent)
+
+  public var description: String {
+    switch self {
+    case let .text(textValue):
+      textValue
+    case let .networkRequest(networkRequestContent):
+      networkRequestContent.description
+    }
+  }
+}
+
 // MARK: - Log Message
 
 /// A protocol that defines a log message reported by the PubNub SDK
@@ -39,7 +58,7 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
   /// The category of the log message
   var category: LogCategory { get }
   /// The message of the log message
-  var message: AnyJSON { get }
+  var message: LogMessageContent { get }
 }
 
 /// A base implementation of the `LogMessage` protocol that all log messages inherit from
@@ -50,7 +69,7 @@ public class BaseLogMessage: LogMessage {
   public let location: String?
   public let type: String
   public let category: LogCategory
-  public let message: AnyJSON
+  public let message: LogMessageContent
   public let details: String?
 
   init(
@@ -58,9 +77,9 @@ public class BaseLogMessage: LogMessage {
     pubNubId: String,
     logLevel: LogLevel,
     category: LogCategory,
-    location: String? = nil,
+    location: String?,
     type: String,
-    message: AnyJSON,
+    message: LogMessageContent,
     details: String? = nil
   ) {
     self.timestamp = timestamp
@@ -73,8 +92,124 @@ public class BaseLogMessage: LogMessage {
     self.details = details
   }
 
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(timestamp, forKey: .timestamp)
+    try container.encode(pubNubId, forKey: .pubNubId)
+    try container.encode(logLevel, forKey: .logLevel)
+    try container.encode(category, forKey: .category)
+    try container.encode(location, forKey: .location)
+    try container.encode(type, forKey: .type)
+    try container.encode(message, forKey: .message)
+    try container.encodeIfPresent(details, forKey: .details)
+  }
+
   public var description: String {
     [timestamp.description, pubNubId, logLevel.description, location ?? "", message.description].joined(separator: " ")
+  }
+}
+
+/// A struct representing a network request
+public struct NetworkRequestContent: JSONCodable, CustomStringConvertible, LogMessageConvertible {
+  var origin: String
+  var path: String
+  var query: [String: String]
+  var method: String
+  var headers: [String: String]
+  var formData: [String: String]
+  var body: String
+  var timeout: TimeInterval
+  var cancelled: Bool
+  var failed: Bool
+
+  init(
+    origin: String,
+    path: String,
+    query: [String: String],
+    method: String,
+    headers: [String: String],
+    formData: [String: String],
+    body: String,
+    timeout: TimeInterval,
+    cancelled: Bool,
+    failed: Bool
+  ) {
+    self.origin = origin
+    self.path = path
+    self.query = query
+    self.method = method
+    self.headers = headers
+    self.formData = formData
+    self.body = body
+    self.timeout = timeout
+    self.cancelled = cancelled
+    self.failed = failed
+  }
+
+  public var description: String {
+    ""
+  }
+
+  public func encode(to encoder: any Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(self.origin, forKey: .origin)
+    try container.encode(self.path, forKey: .path)
+    try container.encode(self.query, forKey: .query)
+    try container.encode(self.method, forKey: .method)
+    try container.encode(self.headers, forKey: .headers)
+    try container.encode(self.formData, forKey: .formData)
+    try container.encode(self.body, forKey: .body)
+    try container.encode(self.timeout, forKey: .timeout)
+  }
+
+  public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
+    BaseLogMessage(
+      pubNubId: pubNubId,
+      logLevel: logLevel,
+      category: category,
+      location: location,
+      type: "network-request",
+      message: .networkRequest(self)
+    )
+  }
+
+  /// An internal class that extends the base log message class to add network request specific properties
+  class NetworkLogMessage: BaseLogMessage {
+    /// Whether the network request was cancelled
+    let cancelled: Bool
+    /// Whether the network request failed
+    let failed: Bool
+
+    init(
+      timestamp: TimeInterval = Date().timeIntervalSince1970,
+      pubNubId: String,
+      logLevel: LogLevel,
+      category: LogCategory,
+      location: String?,
+      type: String,
+      message: NetworkRequestContent,
+      details: String? = nil,
+      cancelled: Bool = false,
+      failed: Bool = false
+    ) {
+      self.cancelled = cancelled
+      self.failed = failed
+
+      super.init(
+        timestamp: timestamp,
+        pubNubId: pubNubId,
+        logLevel: logLevel,
+        category: category,
+        location: location,
+        type: type,
+        message: .networkRequest(message),
+        details: details
+      )
+    }
+
+    required init(from decoder: any Decoder) throws {
+      fatalError("init(from:) has not been implemented")
+    }
   }
 }
 
@@ -107,7 +242,7 @@ extension String: LogMessageConvertible {
       category: category,
       location: location,
       type: "text",
-      message: AnyJSON(self)
+      message: LogMessageContent.text(self)
     )
   }
 }
@@ -123,7 +258,7 @@ public protocol LogWriter {
 
   /// Logs a given message
   ///
-  /// - Note: This method is called only if the  log message’s ``LogMessage/logLevel`` is not lower than the parent ``PubNubLogger`` instance’s log level.
+  /// - Note: This method is called only if the  log message's ``LogMessage/logLevel`` is not lower than the parent ``PubNubLogger`` instance's log level.
   ///
   /// - Warning: Debug-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, or internal system details.
   /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,

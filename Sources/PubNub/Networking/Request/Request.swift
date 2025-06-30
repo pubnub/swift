@@ -201,11 +201,7 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
-    logger.debug(
-      "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
-      category: .networking
-    )
-
+    logger.debug("Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)", category: .networking)
     error = mutatorError
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
     retryOrFinish(with: mutatorError)
@@ -225,7 +221,7 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    logger.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
+    logger.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)", category: .networking)
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
@@ -351,7 +347,7 @@ final class Request {
       let responseMessage = if let response = urlResponse {
         "for response \(response.description)"
       } else {
-        "without response."
+        "without response"
       }
       logger.error(
         "Request \(self.requestID) failed with error \(error) \(responseMessage)",

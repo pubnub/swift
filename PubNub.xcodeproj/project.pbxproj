@@ -426,6 +426,8 @@
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
+		3D65E8E12E2790E10041B534 /* LogMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D65E8E02E2790E10041B534 /* LogMessage.swift */; };
+		3D65E8E32E2791730041B534 /* LogMessageConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D65E8E22E2791730041B534 /* LogMessageConvertible.swift */; };
 		3D7062C42D26AA20000729E1 /* KMPAppContextIncludeFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7062C32D26AA20000729E1 /* KMPAppContextIncludeFields.swift */; };
 		3D7411A32C171F2B002267B8 /* Int+NSNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D7411A22C171F2B002267B8 /* Int+NSNumber.swift */; };
 		3D758DBF2AAA1C49005D2B36 /* CryptoModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */; };
@@ -1052,6 +1054,8 @@
 		3D452B242C05DF6D008987D4 /* KMPHereNowResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHereNowResult.swift; sourceTree = "<group>"; };
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
+		3D65E8E02E2790E10041B534 /* LogMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMessage.swift; sourceTree = "<group>"; };
+		3D65E8E22E2791730041B534 /* LogMessageConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMessageConvertible.swift; sourceTree = "<group>"; };
 		3D7062C32D26AA20000729E1 /* KMPAppContextIncludeFields.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAppContextIncludeFields.swift; sourceTree = "<group>"; };
 		3D7411A22C171F2B002267B8 /* Int+NSNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Int+NSNumber.swift"; sourceTree = "<group>"; };
 		3D758DBE2AAA1C49005D2B36 /* CryptoModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoModule.swift; sourceTree = "<group>"; };
@@ -1407,6 +1411,7 @@
 		355BE9F922C28C29000EC334 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				3D65E8DF2E2790AB0041B534 /* Logger */,
 				355BE9FC22C2917C000EC334 /* AnyJSON.swift */,
 				35C6B6E522F51A060054F242 /* AnyJSONType.swift */,
 				350EFBE322C95FED00FA33AA /* Atomic.swift */,
@@ -1417,7 +1422,6 @@
 				35B38249233AAB8C0028803F /* JSONCodable.swift */,
 				7951954D26C955CE001E308C /* PAMToken.swift */,
 				3559978B230A02B7000BCFD1 /* PubNubLogger.swift */,
-				35599798230C5878000BCFD1 /* LogWriter.swift */,
 				352224EC2533979200A5B330 /* Streams */,
 				355F213622DECFCD004DEFBF /* Typealias+PubNub.swift */,
 				35304F8922FE5425006A02CA /* Validated.swift */,
@@ -2252,6 +2256,16 @@
 				3DBB2C202ABD8053008A100E /* PubNubCryptoModuleContractTestSteps.swift */,
 			);
 			path = CryptoModule;
+			sourceTree = "<group>";
+		};
+		3D65E8DF2E2790AB0041B534 /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				35599798230C5878000BCFD1 /* LogWriter.swift */,
+				3D65E8E02E2790E10041B534 /* LogMessage.swift */,
+				3D65E8E22E2791730041B534 /* LogMessageConvertible.swift */,
+			);
+			path = Logger;
 			sourceTree = "<group>";
 		};
 		3D7411A12C171F20002267B8 /* Helpers */ = {
@@ -3622,6 +3636,7 @@
 				3D389FF72B35AF4A006928E7 /* PresenceHeartbeatRequest.swift in Sources */,
 				3D758DCE2AB0A835005D2B36 /* LegacyCryptor.swift in Sources */,
 				3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */,
+				3D65E8E32E2791730041B534 /* LogMessageConvertible.swift in Sources */,
 				35A66A7E22F861BA00AC67A9 /* SubscriptionSession.swift in Sources */,
 				3DB925872B7AA75F001B7E90 /* SessionStream.swift in Sources */,
 				3D7411A32C171F2B002267B8 /* Int+NSNumber.swift in Sources */,
@@ -3718,6 +3733,7 @@
 				3D339C7E2BFF82BD00197342 /* KMPMessageAction.swift in Sources */,
 				3D38A02B2B35B087006928E7 /* EventEngineSubscriptionSessionStrategy.swift in Sources */,
 				350EFBDC22C951F700FA33AA /* Request.swift in Sources */,
+				3D65E8E12E2790E10041B534 /* LogMessage.swift in Sources */,
 				3D758DD22AB0A91C005D2B36 /* AESCBCCryptor.swift in Sources */,
 				35A66A7F22F861BA00AC67A9 /* WeakBox.swift in Sources */,
 				357CA288251D3C9100BC40D3 /* MultipartInputStream.swift in Sources */,

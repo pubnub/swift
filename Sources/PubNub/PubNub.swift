@@ -428,22 +428,19 @@ public extension PubNub {
   /// - Parameters:
   ///   - from: List of channels to unsubscribe from
   ///   - and: List of channel groups to unsubscribe from
-  ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
-  func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
+  func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
     PubNub.log.debug(
       String.formattedDescription(
         "Executing unsubscribe",
         arguments: [
           ("from", channels),
-          ("and", channelGroups),
-          ("presenceOnly", presenceOnly)
+          ("and", channelGroups)
         ]
       ), category: .pubNub
     )
     subscription.unsubscribe(
       from: channels,
-      and: channelGroups,
-      presenceOnly: presenceOnly
+      and: channelGroups
     )
   }
 
@@ -544,13 +541,11 @@ extension PubNub {
 
   func internalUnsubscribe(
     from channels: [Subscription],
-    and groups: [Subscription],
-    presenceOnly: Bool
+    and groups: [Subscription]
   ) {
     subscription.internalUnsubscribe(
       from: channels,
-      and: groups,
-      presenceOnly: presenceOnly
+      and: groups
     )
   }
 }

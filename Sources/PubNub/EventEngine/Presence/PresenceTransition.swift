@@ -23,10 +23,10 @@ class PresenceTransition: TransitionProtocol {
 
   func canTransition(from state: State, dueTo event: Event) -> Bool {
     switch event {
-    case .joined:
-      return true
-    case .left:
-      return true
+    case let .joined(channels, channelGroups):
+      return channels.count > 0 || channelGroups.count > 0
+    case let .left(channels, channelGroups):
+      return channels.count > 0 || channelGroups.count > 0
     case .heartbeatSuccess:
       return state is Presence.Heartbeating
     case .heartbeatFailed:

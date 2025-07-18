@@ -63,7 +63,7 @@ class SubscribeTransition: TransitionProtocol {
         .managed(
           .handshakeRequest(
             channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedGroupNames
+            groups: state.input.allSubscribedChannelGroupNames
           )
         )
       ]
@@ -72,7 +72,7 @@ class SubscribeTransition: TransitionProtocol {
         .managed(
           .receiveMessages(
             channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedGroupNames,
+            groups: state.input.allSubscribedChannelGroupNames,
             cursor: state.cursor
           )
         )
@@ -134,8 +134,8 @@ fileprivate extension SubscribeTransition {
     cursor: SubscribeCursor
   ) -> TransitionResult<State, Invocation> {
     let newInput = SubscribeInput(
-      channels: channels.map { PubNubChannel(channel: $0) },
-      groups: groups.map { PubNubChannel(channel: $0) }
+      channels: Set(channels),
+      channelGroups: Set(groups)
     )
 
     if newInput.isEmpty {
@@ -146,8 +146,8 @@ fileprivate extension SubscribeTransition {
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: state.connectionStatus,
         newStatus: .subscriptionChanged(
-          channels: newInput.subscribedChannelNames,
-          groups: newInput.subscribedGroupNames
+          channels: newInput.allSubscribedChannelNames,
+          groups: newInput.allSubscribedChannelGroupNames
         ),
         error: nil
       )))
@@ -171,8 +171,8 @@ fileprivate extension SubscribeTransition {
       )
     case is Subscribe.ReceivingState:
       let newStatus: ConnectionStatus = .subscriptionChanged(
-        channels: newInput.subscribedChannelNames,
-        groups: newInput.subscribedGroupNames
+        channels: newInput.allSubscribedChannelNames,
+        groups: newInput.allSubscribedChannelGroupNames
       )
       return TransitionResult(
         state: Subscribe.ReceivingState(input: newInput, cursor: cursor, connectionStatus: newStatus),

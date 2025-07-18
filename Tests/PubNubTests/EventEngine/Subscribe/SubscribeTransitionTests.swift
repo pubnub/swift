@@ -65,7 +65,7 @@ extension Subscribe.Event: Equatable {
 
 class SubscribeTransitionTests: XCTestCase {
   private let transition = SubscribeTransition()
-  private let input = SubscribeInput(channels: [PubNubChannel(channel: "test-channel")])
+  private let input = SubscribeInput(channels: ["test-channel"])
   
   // MARK: - Subscription Changed
   
@@ -77,15 +77,10 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+    
+    let expChannels = ["c1", "c1-pnpres", "c2"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
+    
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
@@ -93,7 +88,7 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 0)!
     )
     
@@ -113,15 +108,10 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+    
+    let expChannels = ["c1", "c1-pnpres", "c2"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
+    
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
@@ -130,7 +120,7 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
     
@@ -146,18 +136,12 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expectedChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expectedGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+
+    let expectedChannels = ["c1", "c1-pnpres", "c2"]
+    let expectedGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
 
     let expectedState = Subscribe.HandshakeStoppedState(
-      input: SubscribeInput(channels: expectedChannels,groups: expectedGroups),
+      input: SubscribeInput(channels: expectedChannels, channelGroups: expectedGroups),
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
     
@@ -173,15 +157,10 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expectedChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expectedGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+
+    let expectedChannels = ["c1", "c1-pnpres", "c2"]
+    let expectedGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
+
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .managed(.handshakeRequest(
@@ -191,7 +170,7 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expectedChannels, groups: expectedGroups),
+      input: SubscribeInput(channels: expectedChannels, channelGroups: expectedGroups),
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
     
@@ -201,8 +180,8 @@ class SubscribeTransitionTests: XCTestCase {
   
   func test_SubscriptionChangedForReceivingState() throws {
     let status: ConnectionStatus = .subscriptionChanged(
-      channels: input.subscribedChannelNames,
-      groups: input.subscribedGroupNames
+      channels: input.allSubscribedChannelNames,
+      groups: input.allSubscribedChannelGroupNames
     )
     let results = transition.transition(
       from: Subscribe.ReceivingState(
@@ -214,19 +193,13 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
     
     let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
+      channels: expChannels,
+      groups: expGroups
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
@@ -243,9 +216,9 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 5001000, region: 22),
-      connectionStatus: .subscriptionChanged(channels: expChannels.map { $0.id }, groups: expGroups.map { $0.id })
+      connectionStatus: .subscriptionChanged(channels: expChannels, groups: expGroups)
     )
 
     XCTAssertTrue(results.state.isEqual(to: expectedState))
@@ -264,15 +237,10 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
+
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2"],
@@ -280,7 +248,7 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 500100900, region: 11)
     )
 
@@ -296,17 +264,12 @@ class SubscribeTransitionTests: XCTestCase {
         groups: ["g1", "g1-pnpres", "g2", "g2", "g2-pnpres", "g3"]
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3"]
+
     let expectedState = Subscribe.ReceiveStoppedState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 500100900, region: 11)
     )
 
@@ -318,8 +281,8 @@ class SubscribeTransitionTests: XCTestCase {
 
   func test_SubscriptionRestoredForReceivingState() throws {
     let status: ConnectionStatus = .subscriptionChanged(
-      channels: input.subscribedChannelNames,
-      groups: input.subscribedGroupNames
+      channels: input.allSubscribedChannelNames,
+      groups: input.allSubscribedChannelGroupNames
     )
     let results = transition.transition(
       from: Subscribe.ReceivingState(
@@ -332,21 +295,13 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
+
     let expectedNewStatus: ConnectionStatus = .subscriptionChanged(
-      channels: expChannels.map { $0.id },
-      groups: expGroups.map { $0.id }
+      channels: expChannels,
+      groups: expGroups
     )
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.receiveMessages),
@@ -363,11 +318,11 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     let expectedState = Subscribe.ReceivingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55),
       connectionStatus: .subscriptionChanged(
-        channels: expChannels.map { $0.id },
-        groups: expGroups.map {  $0.id }
+        channels: expChannels,
+        groups: expGroups
       )
     )
 
@@ -388,18 +343,9 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
     
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
@@ -408,7 +354,7 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
@@ -428,20 +374,12 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
+    
     let expectedState = Subscribe.ReceiveStoppedState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
@@ -458,18 +396,10 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
+
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .cancel(.handshakeRequest),
       .managed(.handshakeRequest(
@@ -478,7 +408,7 @@ class SubscribeTransitionTests: XCTestCase {
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
@@ -499,18 +429,10 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
+
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"],
@@ -519,7 +441,7 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     let expectedState = Subscribe.HandshakingState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
@@ -536,20 +458,12 @@ class SubscribeTransitionTests: XCTestCase {
         cursor: SubscribeCursor(timetoken: 100, region: 55)
       )
     )
-    let expChannels = [
-      PubNubChannel(id: "c1", withPresence: true),
-      PubNubChannel(id: "c2", withPresence: true),
-      PubNubChannel(id: "c3", withPresence: true),
-      PubNubChannel(id: "c4", withPresence: false)
-    ]
-    let expGroups = [
-      PubNubChannel(id: "g1", withPresence: true),
-      PubNubChannel(id: "g2", withPresence: true),
-      PubNubChannel(id: "g3", withPresence: true),
-      PubNubChannel(id: "g4", withPresence: false)
-    ]
+
+    let expChannels = ["c1", "c1-pnpres", "c2", "c2-pnpres", "c3", "c3-pnpres", "c4"]
+    let expGroups = ["g1", "g1-pnpres", "g2", "g2-pnpres", "g3", "g3-pnpres", "g4"]
+    
     let expectedState = Subscribe.HandshakeStoppedState(
-      input: SubscribeInput(channels: expChannels, groups: expGroups),
+      input: SubscribeInput(channels: expChannels, channelGroups: expGroups),
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
@@ -575,8 +489,9 @@ class SubscribeTransitionTests: XCTestCase {
         newStatus: .connected,
         error: nil
       ))),
-      .managed(.receiveMessages(channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames,
+      .managed(.receiveMessages(
+        channels: input.allSubscribedChannelNames,
+        groups: input.allSubscribedChannelGroupNames,
         cursor: cursor
       ))
     ]
@@ -637,7 +552,7 @@ class SubscribeTransitionTests: XCTestCase {
       )),
       .managed(.receiveMessages(
         channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames,
+        groups: input.allSubscribedChannelGroupNames,
         cursor: SubscribeCursor(timetoken: 18002000, region: 123)
       ))
     ]
@@ -690,7 +605,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames)
+        groups: input.allSubscribedChannelGroupNames)
       )
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -713,7 +628,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames
+        groups: input.allSubscribedChannelGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -736,7 +651,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames
+        groups: input.allSubscribedChannelGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(
@@ -760,7 +675,7 @@ class SubscribeTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Subscribe.Invocation>] = [
       .managed(.handshakeRequest(
         channels: input.allSubscribedChannelNames,
-        groups: input.allSubscribedGroupNames
+        groups: input.allSubscribedChannelGroupNames
       ))
     ]
     let expectedState = Subscribe.HandshakingState(

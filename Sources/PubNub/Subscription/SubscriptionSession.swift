@@ -71,8 +71,8 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     return statusListener
   }()
 
-  private var globalChannelSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
-  private var globalGroupSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
+  private let globalChannelSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
+  private let globalGroupSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
   private let strategy: any SubscriptionSessionStrategy
 
   init(
@@ -111,7 +111,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
 
   func subscribe(
     to channels: [String],
-    and groups: [String] = [],
+    and channelGroups: [String] = [],
     at cursor: SubscribeCursor? = nil,
     withPresence: Bool = false,
     using pubnub: PubNub
@@ -122,12 +122,13 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
       )
     }
-    let channelGroupSubscriptions = Set(groups).compactMap {
+    let channelGroupSubscriptions = Set(channelGroups).compactMap {
       pubnub.channelGroup($0).subscription(
         queue: queue,
         options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
       )
     }
+
     internalSubscribe(
       with: channelSubscriptions,
       and: channelGroupSubscriptions,
@@ -174,33 +175,35 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
 
   func unsubscribe(
     from channels: [String],
-    and groups: [String] = [],
-    presenceOnly: Bool = false
+    and channelGroups: [String] = []
   ) {
-    let channelNamesToUnsubscribe = channels.flatMap {
-      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
+    let channelsToUnsubscribe = channels.flatMap { $0.isPresenceChannelName ? [$0] : [$0, $0.presenceChannelName] }
+    let channelGroupsToUnsubscribe = channelGroups.flatMap { $0.isPresenceChannelName ? [$0] : [$0, $0.presenceChannelName] }
+
+    let matchingChannelsToUnsubscribe = globalChannelSubscriptions.lockedRead {
+      $0.compactMap {
+        channelsToUnsubscribe.contains($0.key) ? $0.value : nil
+      }
     }
-    let groupNamesToUnsubscribe = groups.flatMap {
-      presenceOnly ? [$0.presenceChannelName] : [$0, $0.presenceChannelName]
+    let matchingChannelGroupsToUnsubscribe = globalGroupSubscriptions.lockedRead {
+      $0.compactMap {
+        channelGroupsToUnsubscribe.contains($0.key) ? $0.value : nil
+      }
     }
+
     internalUnsubscribe(
-      from: globalChannelSubscriptions.lockedRead { $0.compactMap {
-        channelNamesToUnsubscribe.contains($0.key) ? $0.value : nil
-      } },
-      and: globalGroupSubscriptions.lockedRead { $0.compactMap {
-        groupNamesToUnsubscribe.contains($0.key) ? $0.value : nil
-      } },
-      presenceOnly: presenceOnly
+      from: matchingChannelsToUnsubscribe,
+      and: matchingChannelGroupsToUnsubscribe
     )
 
     globalChannelSubscriptions.lockedWrite { currentContainer in
-      channelNamesToUnsubscribe.forEach {
+      channelsToUnsubscribe.forEach {
         currentContainer.removeValue(forKey: $0)
       }
     }
 
     globalGroupSubscriptions.lockedWrite { currentContainer in
-      groupNamesToUnsubscribe.forEach {
+      channelGroupsToUnsubscribe.forEach {
         currentContainer.removeValue(forKey: $0)
       }
     }
@@ -225,159 +228,77 @@ extension SubscriptionSession {
     add(adapter)
   }
 
-  // Maps the raw channel/channel group array to collections of PubNubChannel that should be subscribed to
-  // with and without Presence, respectively.
-  private typealias SubscribeRetrievalRes = (
-    itemsWithPresenceIncluded: [PubNubChannel],
-    itemsWithoutPresence: [PubNubChannel]
-  )
-  // Maps the raw channel/channel group array to collections of `PubNubChannel` that should be unsubscribed to.
-  private typealias UnsubscribeRetrievalRes = (
-    presenceOnlyItems: [PubNubChannel],
-    mainItems: [PubNubChannel]
-  )
-
   // Composes final PubNubChannel lists the user should subscribe to
   // according to provided raw input and forwards the result to the underlying Subscription strategy.
   func internalSubscribe(
     with channels: [Subscription],
-    and groups: [Subscription],
+    and channelGroups: [Subscription],
     at timetoken: Timetoken?
   ) {
-    if channels.isEmpty, groups.isEmpty {
+    if channels.isEmpty, channelGroups.isEmpty {
       return
     }
-
-    let extractingChannelsRes = retrieveItemsToSubscribe(from: channels)
-    let extractingGroupsRes = retrieveItemsToSubscribe(from: groups)
-
     for channelSubscription in channels {
       registerAdapter(channelSubscription.adapter)
     }
-    for groupSubscription in groups {
+    for groupSubscription in channelGroups {
       registerAdapter(groupSubscription.adapter)
     }
+
     strategy.subscribe(
-      to: extractingChannelsRes.itemsWithPresenceIncluded + extractingChannelsRes.itemsWithoutPresence,
-      and: extractingGroupsRes.itemsWithPresenceIncluded + extractingGroupsRes.itemsWithoutPresence,
+      to: channels.flatMap { $0.subscriptionNames },
+      and: channelGroups.flatMap { $0.subscriptionNames },
       at: SubscribeCursor(timetoken: timetoken)
-    )
-  }
-
-  private func retrieveItemsToSubscribe(from subscriptions: [Subscription]) -> SubscribeRetrievalRes {
-    // Detects all Presence channels from provided String array and maps them into PubNubChannel
-    // containing the main channel name and the flag indicating the resulting PubNubChannel is subscribed
-    // with Presence. Note that Presence channels are supplementary to the main data channels.
-    // Therefore, subscribing to a Presence channel alone without its corresponding main channel is not supported.
-    let channelsWithPresenceIncluded = Set(subscriptions.flatMap {
-      $0.subscriptionNames
-    }.filter {
-      $0.isPresenceChannelName
-    }).map {
-      PubNubChannel(channel: $0)
-    }
-
-    // Detects remaining main channel names without Presence enabled from provided input and ensuring
-    // there are no duplicates with the result received from the previous step
-    let channelsWithoutPresence = Set(subscriptions.flatMap {
-      $0.subscriptionNames
-    }.map {
-      $0.trimmingPresenceChannelSuffix
-    }).symmetricDifference(channelsWithPresenceIncluded.map {
-      $0.id
-    }).map {
-      PubNubChannel(id: $0, withPresence: false)
-    }
-
-    return SubscribeRetrievalRes(
-      itemsWithPresenceIncluded: channelsWithPresenceIncluded,
-      itemsWithoutPresence: channelsWithoutPresence
     )
   }
 
   func internalUnsubscribe(
     from channels: [Subscription],
-    and channelGroups: [Subscription],
-    presenceOnly: Bool
+    and channelGroups: [Subscription]
   ) {
-    let extractingChannelsRes = extractItemsToUnsubscribe(
-      from: channels,
-      presenceItemsOnly: presenceOnly
-    )
-    let extractingGroupsRes = extractItemsToUnsubscribe(
-      from: channelGroups,
-      presenceItemsOnly: presenceOnly
-    )
+    let channelsToUnsubscribe = resolveItemsToUnsubscribe(from: channels)
+    let channelGroupsToUnsubscribe = resolveItemsToUnsubscribe(from: channelGroups)
+
     for channelSubscription in channels {
       remove(channelSubscription.adapter)
     }
     for channelGroupSubscription in channelGroups {
       remove(channelGroupSubscription.adapter)
     }
-    strategy.unsubscribeFrom(
-      mainChannels: extractingChannelsRes.mainItems,
-      presenceChannelsOnly: extractingChannelsRes.presenceOnlyItems,
-      mainGroups: extractingGroupsRes.mainItems,
-      presenceGroupsOnly: extractingGroupsRes.presenceOnlyItems
+
+    strategy.unsubscribe(
+      from: channelsToUnsubscribe,
+      and: channelGroupsToUnsubscribe
     )
   }
 
-  // Returns an array of subscriptions, excluding the given subscription and the global listener,
-  // that subscribe to at least one name in common with the given subscription
-  func matchingSubscriptions(for subscription: Subscription, presenceOnly: Bool) -> [SubscribeMessagesReceiver] {
-    let allSubscriptions = strategy.listeners.compactMap {
+  // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name
+  // in common with the given subscription
+  func hasOverlappingSubscriptions(for subscription: Subscription) -> Bool {
+    let remainingSubscriptions = strategy.listeners.compactMap {
       $0 as? BaseSubscriptionListenerAdapter
-    }
-    let namesToFind = subscription.subscriptionNames.filter {
-      presenceOnly ? $0.isPresenceChannelName : true
-    }
-    return allSubscriptions.compactMap {
-      if $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid {
-        return $0.receiver
-      } else {
-        return nil
-      }
     }.filter {
-      !(Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: namesToFind))
+      // Exclude the subscription being checked and the internal global events listener
+      // since the global listener is not a user-triggered subscription
+      $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
     }
+    let matchingSubscriptions = remainingSubscriptions.compactMap {
+     $0.receiver
+    }.filter {
+      !Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: subscription.subscriptionNames)
+    }
+
+    return !matchingSubscriptions.isEmpty
   }
 
-  // Creates the final list of Presence channels/channel groups and main channels/channel groups
-  // the user should unsubscribe from according to the following rules:
-  //
-  // 1. Unsubscribing from the main channel happens if:
-  //  * There are no references to its Presence equivalent from other subscriptions
-  //  * There are no references to the main channel from other subscriptions
-  // 2. Unsubscribing from the Presence channel happens if:
-  //  * There are no references to it from other subscriptions
-  private func extractItemsToUnsubscribe(
-    from subscriptions: [Subscription],
-    presenceItemsOnly: Bool
-  ) -> UnsubscribeRetrievalRes {
-    let presenceItems = Set(subscriptions.filter {
-      matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
-    }.flatMap {
-      $0.subscriptionNames
-    }).filter {
-      $0.isPresenceChannelName
-    }.map {
-      PubNubChannel(channel: $0)
+  private func resolveItemsToUnsubscribe(from subscriptions: [Subscription]) -> [String] {
+    return subscriptions.flatMap {
+      if !hasOverlappingSubscriptions(for: $0) {
+        return $0.subscriptionNames
+      } else {
+        return []
+      }
     }
-
-    let channels = presenceItemsOnly ? [] : Set(subscriptions.filter {
-      matchingSubscriptions(for: $0, presenceOnly: false).isEmpty && matchingSubscriptions(for: $0, presenceOnly: true).isEmpty
-    }.flatMap {
-      $0.subscriptionNames
-    }).symmetricDifference(presenceItems.map {
-      $0.presenceId
-    }).map {
-      PubNubChannel(id: $0, withPresence: false)
-    }
-
-    return UnsubscribeRetrievalRes(
-      presenceOnlyItems: presenceItems,
-      mainItems: channels
-    )
   }
 }
 

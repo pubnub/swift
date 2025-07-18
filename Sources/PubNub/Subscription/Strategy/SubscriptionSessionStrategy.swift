@@ -21,17 +21,8 @@ protocol SubscriptionSessionStrategy: AnyObject {
   var filterExpression: String? { get set }
   var listeners: WeakSet<BaseSubscriptionListener> { get set }
 
-  func subscribe(
-    to channels: [PubNubChannel],
-    and groups: [PubNubChannel],
-    at cursor: SubscribeCursor?
-  )
-  func unsubscribeFrom(
-    mainChannels: [PubNubChannel],
-    presenceChannelsOnly: [PubNubChannel],
-    mainGroups: [PubNubChannel],
-    presenceGroupsOnly: [PubNubChannel]
-  )
+  func subscribe(to channels: [String], and channelGroups: [String], at cursor: SubscribeCursor?)
+  func unsubscribe(from channels: [String], and channelGroups: [String])
 
   func reconnect(at cursor: SubscribeCursor?)
   func disconnect()

@@ -375,4 +375,52 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5.0)
   }
+  
+  func testSubscribingToPresenceChannelOnly() {
+    let presenceExpectation = XCTestExpectation(description: "Presence expectation")
+    presenceExpectation.assertForOverFulfill = true
+    presenceExpectation.expectedFulfillmentCount = 1
+    
+    let mainChannelName = randomString()
+    let presenceChannelName = mainChannelName + "-pnpres"
+    
+    let pubnub = PubNub(configuration: presenceConfiguration())
+    let subscription = pubnub.channel(presenceChannelName).subscription()
+    let anotherPubNub = PubNub(configuration: presenceConfiguration())
+    
+    subscription.onPresence = { presenceEvent in
+      if case let .join(userIds) = presenceEvent.actions.first {
+        if userIds.count == 1 && userIds.first == anotherPubNub.configuration.userId {
+          presenceExpectation.fulfill()
+        } else {
+          XCTFail("Unexpected condition")
+        }
+      } else {
+        XCTFail("Unexpected condition")
+      }
+    }
+    
+    pubnub.onConnectionStateChange = { [weak pubnub] newStatus in
+      if newStatus == .connected {
+        pubnub?.publish(channel: mainChannelName, message: "Some message") { _ in
+          anotherPubNub.subscribe(to: [mainChannelName])
+        }
+      }
+    }
+    
+    subscription.subscribe()
+    
+    wait(for: [presenceExpectation], timeout: 10.0)
+  }
+}
+
+private extension SubscriptionIntegrationTests {
+  func presenceConfiguration() -> PubNubConfiguration {
+    PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: randomString(),
+      durationUntilTimeout: 11
+    )
+  }
 }

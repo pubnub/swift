@@ -10,171 +10,107 @@
 
 import Foundation
 
+/// A container for the current subscribed channels and channel groups
 struct SubscribeInput: Equatable {
-  private let channelEntries: [String: PubNubChannel]
-  private let groupEntries: [String: PubNubChannel]
+  private let subscribedChannels: Set<String>
+  private let subscribedChannelGroups: Set<String>
 
-  // swiftlint:disable:next large_tuple
-  typealias InsertingResult = (
-    newInput: SubscribeInput,
-    insertedChannels: [PubNubChannel],
-    insertedGroups: [PubNubChannel]
-  )
-  // swiftlint:disable:next large_tuple
-  typealias RemovingResult = (
-    newInput: SubscribeInput,
-    removedChannels: [PubNubChannel],
-    removedGroups: [PubNubChannel]
-  )
-
-  init(channels: [PubNubChannel] = [], groups: [PubNubChannel] = []) {
-    self.channelEntries = channels.reduce(into: [String: PubNubChannel]()) { r, channel in
-      _ = r.insert(channel)
-    }
-    self.groupEntries = groups.reduce(into: [String: PubNubChannel]()) { r, channel in
-      _ = r.insert(channel)
-    }
+  /// Result of comparing two SubscribeInput instances
+  struct Difference {
+    /// Items that were added (present in new but not in old)
+    let addedChannels: Set<String>
+    /// Channels that were removed (present in old but not in new)
+    let removedChannels: Set<String>
+    /// Channel groups that were added (present in new but not in old)
+    let addedChannelGroups: Set<String>
+    /// Channel groups that were removed (present in old but not in new)
+    let removedChannelGroups: Set<String>
   }
 
-  private init(channels: [String: PubNubChannel], groups: [String: PubNubChannel]) {
-    self.channelEntries = channels
-    self.groupEntries = groups
+  init(channels: Set<String> = [], channelGroups: Set<String> = []) {
+    self.subscribedChannels = channels
+    self.subscribedChannelGroups = channelGroups
   }
 
+  init(channels: [String] = [], channelGroups: [String] = []) {
+    self.subscribedChannels = Set(channels)
+    self.subscribedChannelGroups = Set(channelGroups)
+  }
+
+  /// Whether the subscribe input is empty
+  ///
+  /// This is true if there are no subscribed channels or channel groups
   var isEmpty: Bool {
-    channelEntries.isEmpty && groupEntries.isEmpty
+    subscribedChannels.isEmpty && subscribedChannelGroups.isEmpty
   }
 
-  var channels: [PubNubChannel] {
-    Array(channelEntries.values)
-  }
-
-  var groups: [PubNubChannel] {
-    Array(groupEntries.values)
-  }
-
-  var subscribedChannelNames: [String] {
-    channelEntries.map { $0.key }
-  }
-
-  var subscribedGroupNames: [String] {
-    groupEntries.map { $0.key }
-  }
-
+  /// Names of all subscribed channels
+  ///
+  /// This list includes both regular and presence channel names
   var allSubscribedChannelNames: [String] {
-    channelEntries.reduce(into: [String]()) { result, entry in
-      result.append(entry.value.id)
-      if entry.value.isPresenceSubscribed {
-        result.append(entry.value.presenceId)
-      }
-    }
+    subscribedChannels.allObjects
   }
 
-  var allSubscribedGroupNames: [String] {
-    groupEntries.reduce(into: [String]()) { result, entry in
-      result.append(entry.value.id)
-      if entry.value.isPresenceSubscribed {
-        result.append(entry.value.presenceId)
-      }
-    }
+  /// Names of all subscribed main channels
+  ///
+  /// This list does not include presence channel names
+  var mainChannelNames: [String] {
+    subscribedChannels.filter { !$0.isPresenceChannelName }
   }
 
-  var presenceSubscribedChannelNames: [String] {
-    channelEntries.compactMap {
-      if $0.value.isPresenceSubscribed {
-        return $0.value.id
-      } else {
-        return nil
-      }
-    }
+  /// Names of all subscribed main channel groups
+  ///
+  /// This list does not include presence channel group names
+  var mainChannelGroupNames: [String] {
+    subscribedChannelGroups.filter { !$0.isPresenceChannelName }
   }
 
-  var presenceSubscribedGroupNames: [String] {
-    groupEntries.compactMap {
-      if $0.value.isPresenceSubscribed {
-        return $0.value.id
-      } else {
-        return nil
-      }
-    }
+  /// Names of all subscribed channel groups
+  ///
+  /// This list includes both regular and presence channel group names
+  var allSubscribedChannelGroupNames: [String] {
+    subscribedChannelGroups.allObjects
   }
 
+  /// Total number of subscribed channels and channel groups
   var totalSubscribedCount: Int {
-    channelEntries.count + groupEntries.count
+    subscribedChannels.count + subscribedChannelGroups.count
   }
 
-  func adding(
-    channels: [PubNubChannel],
-    and groups: [PubNubChannel]
-  ) -> SubscribeInput.InsertingResult {
-    // Gets a copy of current channels and channel groups
-    var currentChannels = channelEntries
-    var currentGroups = groupEntries
-
-    let insertedChannels = channels.filter { currentChannels.insert($0) }
-    let insertedGroups = groups.filter { currentGroups.insert($0) }
-
-    return InsertingResult(
-      newInput: SubscribeInput(channels: currentChannels, groups: currentGroups),
-      insertedChannels: insertedChannels,
-      insertedGroups: insertedGroups
+  /// Adds the given channels and channel groups and returns a new input without modifying the current one
+  func adding(channels: Set<String>, and channelGroups: Set<String>) -> SubscribeInput {
+    SubscribeInput(
+      channels: channels.union(subscribedChannels),
+      channelGroups: channelGroups.union(subscribedChannelGroups)
     )
   }
 
-  func removing(
-    mainChannels: [PubNubChannel],
-    presenceChannelsOnly: [PubNubChannel],
-    mainGroups: [PubNubChannel],
-    presenceGroupsOnly: [PubNubChannel]
-  ) -> SubscribeInput.RemovingResult {
-    // Gets a copy of current channels and channel groups
-    var currentChannels = channelEntries
-    var currentGroups = groupEntries
+  /// Removes the given channels and channel groups and returns a new input without modifying the current one
+  func removing(channels: Set<String>, and channelGroups: Set<String>) -> SubscribeInput {
+    SubscribeInput(
+      channels: subscribedChannels.subtracting(channels),
+      channelGroups: subscribedChannelGroups.subtracting(channelGroups)
+    )
+  }
 
-    let removedChannels = mainChannels.compactMap {
-      currentChannels.removeValue(forKey: $0.id)
-    } + presenceChannelsOnly.compactMap {
-      currentChannels.unsubscribePresence($0.id)
-    }
-    let removedGroups = mainGroups.compactMap {
-      currentGroups.removeValue(forKey: $0.id)
-    } + presenceGroupsOnly.compactMap {
-      currentGroups.unsubscribePresence($0.id)
-    }
-    return RemovingResult(
-      newInput: SubscribeInput(channels: currentChannels, groups: currentGroups),
+  /// Compares this input with another and returns the differences
+  func difference(from other: SubscribeInput) -> Difference {
+    let addedChannels = subscribedChannels.subtracting(other.subscribedChannels)
+    let removedChannels = other.subscribedChannels.subtracting(subscribedChannels)
+
+    let addedGroups = subscribedChannelGroups.subtracting(other.subscribedChannelGroups)
+    let removedGroups = other.subscribedChannelGroups.subtracting(subscribedChannelGroups)
+
+    return Difference(
+      addedChannels: addedChannels,
       removedChannels: removedChannels,
-      removedGroups: removedGroups
+      addedChannelGroups: addedGroups,
+      removedChannelGroups: removedGroups
     )
   }
 
   static func == (lhs: SubscribeInput, rhs: SubscribeInput) -> Bool {
-    let equalChannels = lhs.allSubscribedChannelNames.sorted(by: <) == rhs.allSubscribedChannelNames.sorted(by: <)
-    let equalGroups = lhs.allSubscribedGroupNames.sorted(by: <) == rhs.allSubscribedGroupNames.sorted(by: <)
-
-    return equalChannels && equalGroups
-  }
-}
-
-extension Dictionary where Key == String, Value == PubNubChannel {
-  // Inserts and returns the provided channel if that channel doesn't already exist
-  mutating func insert(_ channel: Value) -> Bool {
-    if let match = self[channel.id], match == channel {
-      return false
-    }
-    self[channel.id] = channel
-    return true
-  }
-
-  // Updates current Dictionary with the new channel value unsubscribed from Presence.
-  // Returns the updated value if the corresponding entry matching the passed `id:` was found, otherwise `nil`
-  @discardableResult mutating func unsubscribePresence(_ id: String) -> Value? {
-    if let match = self[id], match.isPresenceSubscribed {
-      let updatedChannel = PubNubChannel(id: match.id, withPresence: false)
-      self[match.id] = updatedChannel
-      return updatedChannel
-    }
-    return nil
+    lhs.subscribedChannels == rhs.subscribedChannels && lhs.subscribedChannelGroups == rhs.subscribedChannelGroups
   }
 }
 
@@ -184,7 +120,7 @@ extension SubscribeInput: CustomStringConvertible {
       self,
       arguments: [
         ("channels", allSubscribedChannelNames),
-        ("groups", allSubscribedGroupNames)
+        ("groups", allSubscribedChannelGroupNames)
       ]
     )
   }

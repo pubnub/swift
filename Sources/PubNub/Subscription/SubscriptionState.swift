@@ -76,14 +76,13 @@ public struct PubNubChannel: Hashable {
   /// If the channel is currently subscribed with presence
   public let isPresenceSubscribed: Bool
 
-  public init(id: String, withPresence: Bool = false) {
+  init(id: String, withPresence: Bool = false) {
     self.id = id
     presenceId = id.presenceChannelName
     isPresenceSubscribed = withPresence
   }
 
-  /// Detects if the string is a Presence channel name and sets the appropriate values
-  public init(channel: String) {
+  init(channel: String) {
     if channel.isPresenceChannelName {
       id = channel.trimmingPresenceChannelSuffix
       presenceId = channel
@@ -96,26 +95,41 @@ public struct PubNubChannel: Hashable {
   }
 }
 
-extension PubNubChannel: Codable {
-  enum CodingKeys: String, CodingKey {
-    case id
-    case presenceId
-    case isPresenceSubscribed
+extension Array where Element == PubNubChannel {
+  /// Returns consolidated channels that merge duplicate channels with their presence counterparts
+  ///
+  /// This method groups PubNubChannel instances by their main channel ID, detecting duplicates
+  /// representing the same logical channel with different presence settings and merging them
+  /// into single consolidated instances.
+  func consolidated() -> [PubNubChannel] {
+    let consolidatedMap = self.reduce(into: [String: Bool]()) { result, channel in
+      /// Check if we've already processed this channel ID and if any previous instance had presence enabled
+      result[channel.id] = (result[channel.id] ?? false) || channel.isPresenceSubscribed
+    }
+    return consolidatedMap.map { channelId, hasPresence in
+      PubNubChannel(id: channelId, withPresence: hasPresence)
+    }.sorted { $0.id < $1.id }
+  }
+}
+
+extension Dictionary where Key == String, Value == PubNubChannel {
+  // Inserts and returns the provided channel if that channel doesn't already exist
+  mutating func insert(_ channel: Value) -> Bool {
+    if let match = self[channel.id], match == channel {
+      return false
+    }
+    self[channel.id] = channel
+    return true
   }
 
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-
-    id = try container.decode(String.self, forKey: .id)
-    presenceId = try container.decode(String.self, forKey: .presenceId)
-    isPresenceSubscribed = try container.decode(Bool.self, forKey: .isPresenceSubscribed)
-  }
-
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    try container.encode(id, forKey: .id)
-    try container.encode(presenceId, forKey: .presenceId)
-    try container.encode(isPresenceSubscribed, forKey: .isPresenceSubscribed)
+  // Updates current Dictionary with the new channel value unsubscribed from Presence.
+  // Returns the updated value if the corresponding entry matching the passed `id:` was found, otherwise `nil`
+  @discardableResult mutating func unsubscribePresence(_ id: String) -> Value? {
+    if let match = self[id], match.isPresenceSubscribed {
+      let updatedChannel = PubNubChannel(id: match.id, withPresence: false)
+      self[match.id] = updatedChannel
+      return updatedChannel
+    }
+    return nil
   }
 }

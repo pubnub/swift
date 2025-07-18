@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.2.1"
+version: "9.2.2"
 schema: 1
 changelog:
+  - date: 2025-07-17
+    version: 9.2.2
+    changes:
+      - type: bug
+        text: "Add a wrapper around the reconnecting method for KMP (internal use)."
   - date: 2025-06-20
     version: 9.2.1
     changes:
@@ -693,7 +698,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

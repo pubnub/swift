@@ -66,6 +66,15 @@ public extension KMPPubNub {
   }
 }
 
+// MARK: - Reconnect
+
+@objc
+public extension KMPPubNub {
+  func reconnect(timetoken: NSNumber?) {
+    pubnub.reconnect(at: timetoken?.uint64Value)
+  }
+}
+
 // MARK: - Entities
 
 @objc

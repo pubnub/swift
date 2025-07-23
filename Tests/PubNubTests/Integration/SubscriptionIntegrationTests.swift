@@ -381,6 +381,9 @@ class SubscriptionIntegrationTests: XCTestCase {
     presenceExpectation.assertForOverFulfill = true
     presenceExpectation.expectedFulfillmentCount = 1
     
+    let messageExpectation = XCTestExpectation(description: "Message expectation")
+    messageExpectation.isInverted = true
+    
     let mainChannelName = randomString()
     let presenceChannelName = mainChannelName + "-pnpres"
     
@@ -399,6 +402,9 @@ class SubscriptionIntegrationTests: XCTestCase {
         XCTFail("Unexpected condition")
       }
     }
+    subscription.onMessage = { _ in
+      messageExpectation.fulfill()
+    }
     
     pubnub.onConnectionStateChange = { [weak pubnub] newStatus in
       if newStatus == .connected {
@@ -410,7 +416,31 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     subscription.subscribe()
     
-    wait(for: [presenceExpectation], timeout: 10.0)
+    wait(for: [presenceExpectation, messageExpectation], timeout: 10.0)
+  }
+  
+  func testSubscribedChannels() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let channelA = "A"
+    let channelB = "B"
+    
+    var firstSubscriptionToChannelA: Subscription? = pubnub.channel(channelA).subscription()
+    var secondSubscriptionToChannelA: Subscription? = pubnub.channel(channelA).subscription()
+    var subscriptionToChannelB: Subscription? = pubnub.channel(channelB).subscription()
+    
+    firstSubscriptionToChannelA?.subscribe()
+    secondSubscriptionToChannelA?.subscribe()
+    
+    XCTAssertEqual(pubnub.subscribedChannels, ["A"])
+    subscriptionToChannelB?.subscribe()
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "B"])
+
+    firstSubscriptionToChannelA = nil
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "B"])
+    secondSubscriptionToChannelA = nil
+    XCTAssertEqual(pubnub.subscribedChannels, ["B"])
+    subscriptionToChannelB = nil
+    XCTAssertTrue(pubnub.subscribedChannels.isEmpty)
   }
 }
 

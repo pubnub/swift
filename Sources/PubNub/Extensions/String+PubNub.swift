@@ -12,17 +12,17 @@ import Foundation
 
 extension String {
   /// A channel name conforming to PubNub presence channel naming conventions
-  var presenceChannelName: String {
+  public var presenceChannelName: String {
     return "\(self)\(Constant.presenceChannelSuffix)"
   }
 
   /// If the `String` conforms to PubNub presence channel naming conventions
-  var isPresenceChannelName: Bool {
+  public var isPresenceChannelName: Bool {
     return hasSuffix(Constant.presenceChannelSuffix)
   }
 
   /// If the `String` conforms to PubNub presence channel naming conventions
-  var trimmingPresenceChannelSuffix: String {
+  public var trimmingPresenceChannelSuffix: String {
     if isPresenceChannelName {
       return String(dropLast(Constant.presenceChannelSuffix.count))
     }

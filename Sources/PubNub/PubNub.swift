@@ -414,12 +414,29 @@ public extension PubNub {
       ), category: .pubNub
     )
 
+    let finalChanelList = if withPresence {
+      channels + channels.map { $0.presenceChannelName }
+    } else {
+      channels
+    }
+
+    let finalChannelGroupList = if withPresence {
+      channelGroups + channelGroups.map { $0.presenceChannelName }
+    } else {
+      channelGroups
+    }
+
+    let channelSubscriptions = Set(finalChanelList).compactMap {
+      channel($0).subscription(queue: queue)
+    }
+    let channelGroupSubscriptions = Set(finalChannelGroupList).compactMap {
+      channelGroup($0).subscription(queue: queue)
+    }
+
     subscription.subscribe(
-      to: channels,
-      and: channelGroups,
-      at: SubscribeCursor(timetoken: timetoken),
-      withPresence: withPresence,
-      using: self
+      to: channelSubscriptions,
+      and: channelGroupSubscriptions,
+      at: SubscribeCursor(timetoken: timetoken)
     )
   }
 

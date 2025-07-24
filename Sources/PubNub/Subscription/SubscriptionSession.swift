@@ -110,25 +110,10 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   // MARK: - Subscription Loop
 
   func subscribe(
-    to channels: [String],
-    and channelGroups: [String] = [],
-    at cursor: SubscribeCursor? = nil,
-    withPresence: Bool = false,
-    using pubnub: PubNub
+    to channelSubscriptions: [Subscription],
+    and channelGroupSubscriptions: [Subscription] = [],
+    at cursor: SubscribeCursor? = nil
   ) {
-    let channelSubscriptions = Set(channels).compactMap {
-      pubnub.channel($0).subscription(
-        queue: queue,
-        options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      )
-    }
-    let channelGroupSubscriptions = Set(channelGroups).compactMap {
-      pubnub.channelGroup($0).subscription(
-        queue: queue,
-        options: withPresence ? ReceivePresenceEvents() : SubscriptionOptions.empty()
-      )
-    }
-
     internalSubscribe(
       with: channelSubscriptions,
       and: channelGroupSubscriptions,

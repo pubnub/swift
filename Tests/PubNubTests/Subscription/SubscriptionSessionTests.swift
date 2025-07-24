@@ -71,7 +71,7 @@ class SubscriptionSessionTests: XCTestCase {
           }
         }
         subscriptionSession.add(listener)
-        subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
@@ -105,7 +105,7 @@ class SubscriptionSessionTests: XCTestCase {
           }
         }
         subscriptionSession.add(listener)
-        subscriptionSession.subscribe(to: [testChannel], at: SubscribeCursor(timetoken: 123456, region: 1), using: pubnub)
+        subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()], at: SubscribeCursor(timetoken: 123456, region: 1))
         XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }

@@ -442,6 +442,14 @@ class SubscriptionIntegrationTests: XCTestCase {
     subscriptionToChannelB = nil
     XCTAssertTrue(pubnub.subscribedChannels.isEmpty)
   }
+  
+  func testUnsubscribingPresenceOnly() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    pubnub.subscribe(to: ["A"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
+    pubnub.unsubscribe(from: ["A-pnpres"])
+    XCTAssertEqual(pubnub.subscribedChannels, ["A"])
+  }
 }
 
 private extension SubscriptionIntegrationTests {

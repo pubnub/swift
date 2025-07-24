@@ -62,8 +62,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .handshakeRequest(
-            channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedChannelGroupNames
+            channels: state.input.channelNames(withPresence: true),
+            groups: state.input.channelGroupNames(withPresence: true)
           )
         )
       ]
@@ -71,8 +71,8 @@ class SubscribeTransition: TransitionProtocol {
       return [
         .managed(
           .receiveMessages(
-            channels: state.input.allSubscribedChannelNames,
-            groups: state.input.allSubscribedChannelGroupNames,
+            channels: state.input.channelNames(withPresence: true),
+            groups: state.input.channelGroupNames(withPresence: true),
             cursor: state.cursor
           )
         )
@@ -146,8 +146,8 @@ fileprivate extension SubscribeTransition {
       .regular(.emitStatus(change: Subscribe.ConnectionStatusChange(
         oldStatus: state.connectionStatus,
         newStatus: .subscriptionChanged(
-          channels: newInput.allSubscribedChannelNames,
-          groups: newInput.allSubscribedChannelGroupNames
+          channels: newInput.channelNames(withPresence: true),
+          groups: newInput.channelGroupNames(withPresence: true)
         ),
         error: nil
       )))
@@ -171,8 +171,8 @@ fileprivate extension SubscribeTransition {
       )
     case is Subscribe.ReceivingState:
       let newStatus: ConnectionStatus = .subscriptionChanged(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedChannelGroupNames
+        channels: newInput.channelNames(withPresence: true),
+        groups: newInput.channelGroupNames(withPresence: true)
       )
       return TransitionResult(
         state: Subscribe.ReceivingState(input: newInput, cursor: cursor, connectionStatus: newStatus),

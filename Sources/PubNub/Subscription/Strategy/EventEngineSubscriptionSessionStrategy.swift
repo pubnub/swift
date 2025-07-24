@@ -45,11 +45,11 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
 
   var subscribedChannels: [String] {
-    subscribeEngine.state.input.allSubscribedChannelNames
+    subscribeEngine.state.input.channelNames(withPresence: true)
   }
 
   var subscribedChannelGroups: [String] {
-    subscribeEngine.state.input.allSubscribedChannelGroupNames
+    subscribeEngine.state.input.channelGroupNames(withPresence: true)
   }
 
   var subscriptionCount: Int {
@@ -101,8 +101,8 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   private func onFilterExpressionChanged() {
     let currentState = subscribeEngine.state
-    let channels = currentState.input.allSubscribedChannelNames
-    let groups = currentState.input.allSubscribedChannelGroupNames
+    let channels = currentState.input.channelNames(withPresence: true)
+    let groups = currentState.input.channelGroupNames(withPresence: true)
 
     sendSubscribeEvent(event: .subscriptionChanged(channels: channels, groups: groups))
   }
@@ -118,22 +118,22 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
     if let cursor = cursor, cursor.timetoken != 0 {
       sendSubscribeEvent(event: .subscriptionRestored(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedChannelGroupNames,
+        channels: newInput.channelNames(withPresence: true),
+        groups: newInput.channelGroupNames(withPresence: true),
         cursor: cursor
       ))
       sendPresenceEvent(event: .joined(
-        channels: newInput.mainChannelNames,
-        groups: newInput.mainChannelGroupNames
+        channels: newInput.channelNames(withPresence: false),
+        groups: newInput.channelGroupNames(withPresence: false)
       ))
     } else if currentInput != newInput {
       sendSubscribeEvent(event: .subscriptionChanged(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedChannelGroupNames
+        channels: newInput.channelNames(withPresence: true),
+        groups: newInput.channelGroupNames(withPresence: true)
       ))
       sendPresenceEvent(event: .joined(
-        channels: newInput.mainChannelNames,
-        groups: newInput.mainChannelGroupNames
+        channels: newInput.channelNames(withPresence: false),
+        groups: newInput.channelGroupNames(withPresence: false)
       ))
     } else {
       // No unique channels or channel groups were provided.
@@ -184,8 +184,8 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       }
 
       sendSubscribeEvent(event: .subscriptionChanged(
-        channels: newInput.allSubscribedChannelNames,
-        groups: newInput.allSubscribedChannelGroupNames
+        channels: newInput.channelNames(withPresence: true),
+        groups: newInput.channelGroupNames(withPresence: true)
       ))
       sendPresenceEvent(event: .left(
         channels: removedMainChannels,
@@ -214,8 +214,8 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
     notify {
       $0.emit(subscribe: .subscriptionChanged(
         .unsubscribed(
-          channels: currentInput.allSubscribedChannelNames.map { PubNubChannel(channel: $0) }.consolidated(),
-          groups: currentInput.allSubscribedChannelGroupNames.map { PubNubChannel(channel: $0) }.consolidated()
+          channels: currentInput.channelNames(withPresence: true).map { PubNubChannel(channel: $0) }.consolidated(),
+          groups: currentInput.channelGroupNames(withPresence: true).map { PubNubChannel(channel: $0) }.consolidated()
         )
       ))
     }

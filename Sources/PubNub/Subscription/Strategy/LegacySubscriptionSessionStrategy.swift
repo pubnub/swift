@@ -99,15 +99,10 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
     and channelGroups: [String],
     at cursor: SubscribeCursor?
   ) {
-    let channelsWithPresence = channels.filter { $0.isPresenceChannelName }.map { PubNubChannel(channel: $0) }
-    let channelsWithoutPresence = channels.filter { !$0.isPresenceChannelName }.map { PubNubChannel(channel: $0) }
-    let channelGroupsWithPresence = channelGroups.filter { $0.isPresenceChannelName }.map { PubNubChannel(channel: $0) }
-    let channelGroupsWithoutPresence = channelGroups.filter { !$0.isPresenceChannelName }.map { PubNubChannel(channel: $0) }
-
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
       .subscribed(
-        channels: (channelsWithPresence + channelsWithoutPresence).filter { state.channels.insert($0) }.consolidated(),
-        groups: (channelGroupsWithPresence + channelGroupsWithoutPresence).filter { state.groups.insert($0) }.consolidated()
+        channels: channels.map { PubNubChannel(channel: $0) }.filter { state.channels.insert($0) }.consolidated(),
+        groups: channelGroups.map { PubNubChannel(channel: $0) }.filter { state.groups.insert($0) }.consolidated()
       )
     }
     if subscribeChange.didChange {

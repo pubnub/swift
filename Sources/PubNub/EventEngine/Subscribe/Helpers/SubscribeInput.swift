@@ -44,32 +44,20 @@ struct SubscribeInput: Equatable {
     subscribedChannels.isEmpty && subscribedChannelGroups.isEmpty
   }
 
-  /// Names of all subscribed channels
+  /// Returns the names of all subscribed channels according to the `withPresence` parameter
   ///
-  /// This list includes both regular and presence channel names
-  var allSubscribedChannelNames: [String] {
-    subscribedChannels.allObjects
+  /// If `withPresence` is true, this list includes both regular and presence channel names
+  /// If `withPresence` is false, this list does not include presence channel names
+  func channelNames(withPresence: Bool) -> [String] {
+    withPresence ? subscribedChannels.allObjects : subscribedChannels.allObjects.filter { !$0.isPresenceChannelName }
   }
 
-  /// Names of all subscribed main channels
+  /// Returns the names of all subscribed channel groups according to the `withPresence` parameter
   ///
-  /// This list does not include presence channel names
-  var mainChannelNames: [String] {
-    subscribedChannels.filter { !$0.isPresenceChannelName }
-  }
-
-  /// Names of all subscribed main channel groups
-  ///
-  /// This list does not include presence channel group names
-  var mainChannelGroupNames: [String] {
-    subscribedChannelGroups.filter { !$0.isPresenceChannelName }
-  }
-
-  /// Names of all subscribed channel groups
-  ///
-  /// This list includes both regular and presence channel group names
-  var allSubscribedChannelGroupNames: [String] {
-    subscribedChannelGroups.allObjects
+  /// If `withPresence` is true, this list includes both regular and presence channel group names
+  /// If `withPresence` is false, this list does not include presence channel group names
+  func channelGroupNames(withPresence: Bool) -> [String] {
+    withPresence ? subscribedChannelGroups.allObjects : subscribedChannelGroups.allObjects.filter { !$0.isPresenceChannelName }
   }
 
   /// Total number of subscribed channels and channel groups
@@ -119,8 +107,8 @@ extension SubscribeInput: CustomStringConvertible {
     String.formattedDescription(
       self,
       arguments: [
-        ("channels", allSubscribedChannelNames),
-        ("groups", allSubscribedChannelGroupNames)
+        ("channels", channelNames(withPresence: true)),
+        ("groups", channelGroupNames(withPresence: true))
       ]
     )
   }

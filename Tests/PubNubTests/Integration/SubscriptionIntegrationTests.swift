@@ -450,6 +450,19 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.unsubscribe(from: ["A-pnpres"])
     XCTAssertEqual(pubnub.subscribedChannels, ["A"])
   }
+  
+  func testUnsubscribe() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    pubnub.subscribe(to: ["A"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
+    pubnub.subscribe(to: ["B"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres", "B", "B-pnpres"])
+    
+    // Unsubscribing from the main channel. This should also unsubscribe from the presence channel
+    pubnub.unsubscribe(from: ["A"])
+    // Ensuring backward compatibility and that the presence channel is unsubscribed along with the main channel
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["B", "B-pnpres"])
+  }
 }
 
 private extension SubscriptionIntegrationTests {

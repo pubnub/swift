@@ -260,7 +260,7 @@ extension SubscriptionSession {
   // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name
   // in common with the given subscription
   func hasOverlappingSubscriptions(for subscription: Subscription) -> Bool {
-    let remainingSubscriptions = strategy.listeners.compactMap {
+    let remainingSubscriptions = strategy.listeners.allObjects.compactMap {
       $0 as? BaseSubscriptionListenerAdapter
     }.filter {
       // Exclude the subscription being checked and the internal global events listener

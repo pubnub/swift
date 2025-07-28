@@ -14,17 +14,22 @@ import Foundation
 final class WeakBox<Element>: Hashable where Element: AnyObject, Element: Hashable {
   /// The stored element
   weak var underlying: Element?
+  /// The hash value of the underlying element
+  private let underlyingHashValue: Int
 
-  init(_ value: Element?) {
+  init(_ value: Element) {
     underlying = value
+    var hasher = Hasher()
+    value.hash(into: &hasher)
+    underlyingHashValue = hasher.finalize()
   }
 
   static func == (lhs: WeakBox<Element>, rhs: WeakBox<Element>) -> Bool {
-    return lhs.underlying == rhs.underlying
+    return lhs.underlyingHashValue == rhs.underlyingHashValue
   }
 
   func hash(into hasher: inout Hasher) {
-    hasher.combine(underlying)
+    hasher.combine(underlyingHashValue)
   }
 }
 

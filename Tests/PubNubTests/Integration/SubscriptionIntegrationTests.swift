@@ -375,4 +375,103 @@ class SubscriptionIntegrationTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5.0)
   }
+  
+  func testSubscribingToPresenceChannelOnly() {
+    let presenceExpectation = XCTestExpectation(description: "Presence expectation")
+    presenceExpectation.assertForOverFulfill = true
+    presenceExpectation.expectedFulfillmentCount = 1
+    
+    let messageExpectation = XCTestExpectation(description: "Message expectation")
+    messageExpectation.isInverted = true
+    
+    let mainChannelName = randomString()
+    let presenceChannelName = mainChannelName + "-pnpres"
+    
+    let pubnub = PubNub(configuration: presenceConfiguration())
+    let subscription = pubnub.channel(presenceChannelName).subscription()
+    let anotherPubNub = PubNub(configuration: presenceConfiguration())
+    
+    subscription.onPresence = { presenceEvent in
+      if case let .join(userIds) = presenceEvent.actions.first {
+        if userIds.count == 1 && userIds.first == anotherPubNub.configuration.userId {
+          presenceExpectation.fulfill()
+        } else {
+          XCTFail("Unexpected condition")
+        }
+      } else {
+        XCTFail("Unexpected condition")
+      }
+    }
+    subscription.onMessage = { _ in
+      messageExpectation.fulfill()
+    }
+    
+    pubnub.onConnectionStateChange = { [weak pubnub] newStatus in
+      if newStatus == .connected {
+        pubnub?.publish(channel: mainChannelName, message: "Some message") { _ in
+          anotherPubNub.subscribe(to: [mainChannelName])
+        }
+      }
+    }
+    
+    subscription.subscribe()
+    
+    wait(for: [presenceExpectation, messageExpectation], timeout: 10.0)
+  }
+  
+  func testSubscribedChannels() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let channelA = "A"
+    let channelB = "B"
+    
+    var firstSubscriptionToChannelA: Subscription? = pubnub.channel(channelA).subscription()
+    var secondSubscriptionToChannelA: Subscription? = pubnub.channel(channelA).subscription()
+    var subscriptionToChannelB: Subscription? = pubnub.channel(channelB).subscription()
+    
+    firstSubscriptionToChannelA?.subscribe()
+    secondSubscriptionToChannelA?.subscribe()
+    
+    XCTAssertEqual(pubnub.subscribedChannels, ["A"])
+    subscriptionToChannelB?.subscribe()
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "B"])
+
+    firstSubscriptionToChannelA = nil
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "B"])
+    secondSubscriptionToChannelA = nil
+    XCTAssertEqual(pubnub.subscribedChannels, ["B"])
+    subscriptionToChannelB = nil
+    XCTAssertTrue(pubnub.subscribedChannels.isEmpty)
+  }
+  
+  func testUnsubscribingPresenceOnly() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    pubnub.subscribe(to: ["A"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
+    pubnub.unsubscribe(from: ["A-pnpres"])
+    XCTAssertEqual(pubnub.subscribedChannels, ["A"])
+  }
+  
+  func testUnsubscribe() {
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    pubnub.subscribe(to: ["A"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
+    pubnub.subscribe(to: ["B"], withPresence: true)
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres", "B", "B-pnpres"])
+    
+    // Unsubscribing from the main channel. This should also unsubscribe from the presence channel
+    pubnub.unsubscribe(from: ["A"])
+    // Ensuring backward compatibility and that the presence channel is unsubscribed along with the main channel
+    XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["B", "B-pnpres"])
+  }
+}
+
+private extension SubscriptionIntegrationTests {
+  func presenceConfiguration() -> PubNubConfiguration {
+    PubNubConfiguration(
+      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      userId: randomString(),
+      durationUntilTimeout: 11
+    )
+  }
 }

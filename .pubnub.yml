@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.2.3"
+version: "9.3.0"
 schema: 1
 changelog:
+  - date: 2025-07-29
+    version: 9.3.0
+    changes:
+      - type: feature
+        text: "Add the ability to subscribe to presence channels only, without their main counterparts."
   - date: 2025-07-29
     version: 9.2.3
     changes:
@@ -703,7 +708,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.0.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

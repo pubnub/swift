@@ -95,14 +95,14 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   // MARK: - Subscription Loop
 
   func subscribe(
-    to channels: [PubNubChannel],
-    and groups: [PubNubChannel],
+    to channels: [String],
+    and channelGroups: [String],
     at cursor: SubscribeCursor?
   ) {
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
       .subscribed(
-        channels: channels.filter { state.channels.insert($0) },
-        groups: groups.filter { state.groups.insert($0) }
+        channels: channels.map { PubNubChannel(channel: $0) }.filter { state.channels.insert($0) }.consolidated(),
+        groups: channelGroups.map { PubNubChannel(channel: $0) }.filter { state.groups.insert($0) }.consolidated()
       )
     }
     if subscribeChange.didChange {
@@ -273,24 +273,24 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
 
   // MARK: - Unsubscribe
 
-  func unsubscribeFrom(
-    mainChannels: [PubNubChannel],
-    presenceChannelsOnly: [PubNubChannel],
-    mainGroups: [PubNubChannel],
-    presenceGroupsOnly: [PubNubChannel]
-  ) {
+  func unsubscribe(from channels: [String], and channelGroups: [String]) {
     let subscribeChange = internalState.lockedWrite { state -> SubscriptionChangeEvent in
       .unsubscribed(
-        channels: mainChannels.compactMap {
-          state.channels.removeValue(forKey: $0.id)
-        } + presenceChannelsOnly.compactMap {
-          state.channels.unsubscribePresence($0.id)
-        },
-        groups: mainGroups.compactMap {
-          state.groups.removeValue(forKey: $0.id)
-        } + presenceGroupsOnly.compactMap {
-          state.groups.unsubscribePresence($0.id)
-        }
+        channels: channels.compactMap {
+          if $0.isPresenceChannelName {
+            return state.channels.unsubscribePresence($0)
+          } else {
+            return state.channels.removeValue(forKey: $0)
+          }
+        }.consolidated(),
+
+        groups: channelGroups.compactMap {
+          if $0.isPresenceChannelName {
+            return state.groups.unsubscribePresence($0)
+          } else {
+            return state.groups.removeValue(forKey: $0)
+          }
+        }.consolidated()
       )
     }
     if subscribeChange.didChange {
@@ -313,7 +313,10 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       let removedGroups = mutableState.groups
       mutableState.groups.removeAll(keepingCapacity: true)
 
-      return .unsubscribed(channels: removedChannels.map { $0.value }, groups: removedGroups.map { $0.value })
+      return .unsubscribed(
+        channels: removedChannels.map { $0.value }.consolidated(),
+        groups: removedGroups.map { $0.value }.consolidated()
+      )
     }
 
     if subscribeChange.didChange {

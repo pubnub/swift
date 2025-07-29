@@ -414,12 +414,29 @@ public extension PubNub {
       ), category: .pubNub
     )
 
+    let finalChanelList = if withPresence {
+      channels + channels.map { $0.presenceChannelName }
+    } else {
+      channels
+    }
+
+    let finalChannelGroupList = if withPresence {
+      channelGroups + channelGroups.map { $0.presenceChannelName }
+    } else {
+      channelGroups
+    }
+
+    let channelSubscriptions = Set(finalChanelList).compactMap {
+      channel($0).subscription(queue: queue)
+    }
+    let channelGroupSubscriptions = Set(finalChannelGroupList).compactMap {
+      channelGroup($0).subscription(queue: queue)
+    }
+
     subscription.subscribe(
-      to: channels,
-      and: channelGroups,
-      at: SubscribeCursor(timetoken: timetoken),
-      withPresence: withPresence,
-      using: self
+      to: channelSubscriptions,
+      and: channelGroupSubscriptions,
+      at: SubscribeCursor(timetoken: timetoken)
     )
   }
 
@@ -428,22 +445,19 @@ public extension PubNub {
   /// - Parameters:
   ///   - from: List of channels to unsubscribe from
   ///   - and: List of channel groups to unsubscribe from
-  ///   - presenceOnly: If true, it only unsubscribes from presence events on the specified channels.
-  func unsubscribe(from channels: [String], and channelGroups: [String] = [], presenceOnly: Bool = false) {
+  func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
     PubNub.log.debug(
       String.formattedDescription(
         "Executing unsubscribe",
         arguments: [
           ("from", channels),
-          ("and", channelGroups),
-          ("presenceOnly", presenceOnly)
+          ("and", channelGroups)
         ]
       ), category: .pubNub
     )
     subscription.unsubscribe(
       from: channels,
-      and: channelGroups,
-      presenceOnly: presenceOnly
+      and: channelGroups
     )
   }
 
@@ -544,13 +558,11 @@ extension PubNub {
 
   func internalUnsubscribe(
     from channels: [Subscription],
-    and groups: [Subscription],
-    presenceOnly: Bool
+    and groups: [Subscription]
   ) {
     subscription.internalUnsubscribe(
       from: channels,
-      and: groups,
-      presenceOnly: presenceOnly
+      and: groups
     )
   }
 }

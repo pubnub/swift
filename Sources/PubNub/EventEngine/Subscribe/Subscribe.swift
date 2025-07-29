@@ -129,7 +129,7 @@ extension Subscribe.ReceiveFailedState {
 extension Subscribe {
   struct UnsubscribedState: SubscribeState {
     let cursor: SubscribeCursor = .init(timetoken: 0, region: 0)
-    let input: SubscribeInput = .init()
+    let input: SubscribeInput = .init(channels: [], channelGroups: [])
     let connectionStatus = ConnectionStatus.disconnected
   }
 }

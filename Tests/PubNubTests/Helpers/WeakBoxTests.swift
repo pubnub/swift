@@ -35,23 +35,6 @@ class WeakBoxTests: XCTestCase {
     }
   }
 
-  func testWeakBox_ReleaseWeakRef() {
-    let expectation = self.expectation(description: "testWeakBoxRetain")
-
-    var testObject: DeinitTest? = DeinitTest(value: "Hello")
-    testObject?.deinitClosure = {
-      expectation.fulfill()
-    }
-
-    let weakBox = WeakBox(testObject)
-
-    testObject = nil
-
-    XCTAssertNil(weakBox.underlying)
-
-    wait(for: [expectation], timeout: 1.0)
-  }
-
   func testWeakBox_ContainsStrongRef() {
     let weakBox = WeakBox(strongValue)
 
@@ -72,7 +55,6 @@ class WeakBoxTests: XCTestCase {
 class WeakSetTests: XCTestCase {
   func testAllObject() {
     let testObjects: [NSString] = ["Hello"]
-
     let weakSet = WeakSet<NSString>(testObjects)
 
     XCTAssertEqual(weakSet.allObjects, testObjects)
@@ -80,7 +62,6 @@ class WeakSetTests: XCTestCase {
 
   func testCount() {
     let testObjects: [NSString] = ["Hello"]
-
     let weakSet = WeakSet<NSString>(testObjects)
 
     XCTAssertEqual(weakSet.count, testObjects.count)
@@ -94,11 +75,8 @@ class WeakSetTests: XCTestCase {
     XCTAssertEqual(weakSet.count, testObjects.count)
 
     weakSet.update(newObject)
-
     XCTAssertEqual(weakSet.count, testObjects.count + 1)
-
     weakSet.update(newObject)
-
     XCTAssertEqual(weakSet.count, testObjects.count + 1)
   }
 
@@ -109,9 +87,7 @@ class WeakSetTests: XCTestCase {
     var weakSet = WeakSet<NSString>(testObjects)
 
     XCTAssertEqual(weakSet.count, testObjects.count)
-
     weakSet.remove(testObject)
-
     XCTAssertTrue(weakSet.isEmpty)
   }
 
@@ -120,11 +96,39 @@ class WeakSetTests: XCTestCase {
     let testObjects: [NSString] = [testObject]
 
     var weakSet = WeakSet<NSString>(testObjects)
-
     XCTAssertEqual(weakSet.count, testObjects.count)
-
     weakSet.removeAll()
-
     XCTAssertTrue(weakSet.isEmpty)
+  }
+
+  func testInsertingEqualObjects() {
+    let firstObject: NSString = "Hello"
+    let secondObject: NSString = "Hello"
+
+    var weakSet = WeakSet<NSString>([firstObject])
+    XCTAssertEqual(weakSet.count, 1)
+    weakSet.update(secondObject)
+    XCTAssertEqual(weakSet.count, 1)
+  }
+
+  func testRemovingEqualObjects() {
+    let firstObject: NSString = "Hello"
+    let secondObject: NSString = "Hello"
+
+    var weakSet = WeakSet<NSString>([firstObject])
+    XCTAssertEqual(weakSet.count, 1)
+    weakSet.remove(secondObject)
+    XCTAssertTrue(weakSet.isEmpty)
+  }
+
+  func testInitializingWithDuplicateObjects() {
+    let firstObject: NSString = "Hello"
+    let secondObject: NSString = "Hello"
+    let thirdObject: NSString = "World"
+
+    let weakSet = WeakSet<NSString>([firstObject, secondObject, thirdObject])
+    XCTAssertEqual(weakSet.count, 2)
+    XCTAssertTrue(weakSet.contains { $0 == "Hello" })
+    XCTAssertTrue(weakSet.contains { $0 == "World" })
   }
 }

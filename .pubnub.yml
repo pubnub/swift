@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.2.2"
+version: "9.2.3"
 schema: 1
 changelog:
+  - date: 2025-07-29
+    version: 9.2.3
+    changes:
+      - type: bug
+        text: "Fix WeakBox hash stability."
   - date: 2025-07-17
     version: 9.2.2
     changes:
@@ -698,7 +703,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.2.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.2.3.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

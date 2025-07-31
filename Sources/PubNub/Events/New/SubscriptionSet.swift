@@ -142,7 +142,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   /// Once disposed, the subscription interface cannot be restarted.
   public func dispose() {
     clearCallbacks()
-    currentSubscriptions.lockedRead { $0.forEach { $0.dispose() } }
+    currentSubscriptions.lockedRead { $0 }.forEach { $0.dispose() }
     removeAllListeners()
     isDisposedContainer.lockedWrite { $0 = true }
   }

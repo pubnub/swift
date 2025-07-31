@@ -463,6 +463,29 @@ class SubscriptionIntegrationTests: XCTestCase {
     // Ensuring backward compatibility and that the presence channel is unsubscribed along with the main channel
     XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["B", "B-pnpres"])
   }
+  
+  func testSubscriptionSetDispose() {
+    let expectation = expectation(description: "Test")
+    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let channel = pubnub.channel("test-channel")
+    let channel2 = pubnub.channel("test-channel2")
+    let subscriptionSet = pubnub.subscription(entities: [channel, channel2])
+    
+    subscriptionSet.subscribe()
+    
+    pubnub.onConnectionStateChange = { [unowned subscriptionSet] newStatus in
+      switch newStatus {
+      case .connected:
+        subscriptionSet.dispose()
+        XCTAssertTrue(subscriptionSet.isDisposed)
+        expectation.fulfill()
+      default:
+        break
+      }
+    }
+    
+    wait(for: [expectation], timeout: 3)
+  }
 }
 
 private extension SubscriptionIntegrationTests {

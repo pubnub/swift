@@ -27,7 +27,7 @@ import Foundation
   @objc public let meta: KMPAnyJSON
 
   init(from token: PAMToken) {
-    version = NSNumber(value: token.timestamp)
+    version = NSNumber(value: token.version)
     timestamp = NSNumber(value: token.timestamp)
     ttl = NSNumber(value: token.ttl)
     authorizedUUID = token.authorizedUUID ?? ""

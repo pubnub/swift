@@ -438,6 +438,7 @@
 		3D758DD52AB48A6A005D2B36 /* CryptorHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DD32AB48A6A005D2B36 /* CryptorHeader.swift */; };
 		3D758DD62AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D758DD42AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift */; };
 		3D8102AA2C009AA5005E3607 /* KMPAppContextEventResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8102A92C009AA5005E3607 /* KMPAppContextEventResult.swift */; };
+		3D867D1D2E422E6E00B03EEE /* KMPPAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */; };
 		3D8BAC102B8C96D70059A5C3 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
 		3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */; };
@@ -1064,6 +1065,7 @@
 		3D758DD32AB48A6A005D2B36 /* CryptorHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorHeader.swift; sourceTree = "<group>"; };
 		3D758DD42AB48A6A005D2B36 /* CryptorHeaderWithinStreamFinder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptorHeaderWithinStreamFinder.swift; sourceTree = "<group>"; };
 		3D8102A92C009AA5005E3607 /* KMPAppContextEventResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAppContextEventResult.swift; sourceTree = "<group>"; };
+		3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPPAMToken.swift; sourceTree = "<group>"; };
 		3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
 		3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPubNub.swift; sourceTree = "<group>"; };
@@ -2092,6 +2094,7 @@
 				3DBFF2C22C2300F500142985 /* KMPSubscription.swift */,
 				3D3C38822C47D62700E782E7 /* KMPError.swift */,
 				3D7062C32D26AA20000729E1 /* KMPAppContextIncludeFields.swift */,
+				3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */,
 			);
 			path = Wrappers;
 			sourceTree = "<group>";
@@ -3623,6 +3626,7 @@
 				3D758DCE2AB0A835005D2B36 /* LegacyCryptor.swift in Sources */,
 				3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */,
 				35A66A7E22F861BA00AC67A9 /* SubscriptionSession.swift in Sources */,
+				3D867D1D2E422E6E00B03EEE /* KMPPAMToken.swift in Sources */,
 				3DB925872B7AA75F001B7E90 /* SessionStream.swift in Sources */,
 				3D7411A32C171F2B002267B8 /* Int+NSNumber.swift in Sources */,
 				3D339C7C2BFF828B00197342 /* KMPMessage.swift in Sources */,

@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.3.1"
+version: "9.3.2"
 schema: 1
 changelog:
+  - date: 2025-08-06
+    version: 9.3.2
+    changes:
+      - type: bug
+        text: "Implement missing token parsing logic in KMP layer (internal use)."
   - date: 2025-07-31
     version: 9.3.1
     changes:
@@ -713,7 +718,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.1.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.2.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

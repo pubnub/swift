@@ -52,6 +52,14 @@ public extension KMPPubNub {
     pubnub.set(token: token)
   }
 
+  func parse(token: String) -> KMPPAMToken? {
+    if let token = pubnub.parse(token: token) {
+      return KMPPAMToken(from: token)
+    } else {
+      return nil
+    }
+  }
+
   func getToken() -> String? {
     pubnub.configuration.authToken
   }

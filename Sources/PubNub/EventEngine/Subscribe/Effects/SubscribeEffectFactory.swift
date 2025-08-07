@@ -72,8 +72,4 @@ class SubscribeEffectFactory: EffectHandlerFactory {
       )
     }
   }
-
-  deinit {
-    session.invalidateAndCancel()
-  }
 }

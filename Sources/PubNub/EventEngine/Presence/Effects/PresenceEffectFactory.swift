@@ -55,8 +55,4 @@ class PresenceEffectFactory: EffectHandlerFactory {
       return WaitEffect(configuration: dependencies.value.configuration)
     }
   }
-
-  deinit {
-    session.invalidateAndCancel()
-  }
 }

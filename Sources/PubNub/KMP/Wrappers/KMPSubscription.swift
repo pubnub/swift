@@ -156,7 +156,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func addListener(_ listener: KMPEventListener) {
-    let pubnub = subscriptionSet.currentSubscriptions.first?.entity.pubnub
+    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.entity.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
 
     eventListener.onMessage = {

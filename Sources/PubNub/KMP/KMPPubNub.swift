@@ -52,6 +52,14 @@ public extension KMPPubNub {
     pubnub.set(token: token)
   }
 
+  func parse(token: String) -> KMPPAMToken? {
+    if let token = pubnub.parse(token: token) {
+      return KMPPAMToken(from: token)
+    } else {
+      return nil
+    }
+  }
+
   func getToken() -> String? {
     pubnub.configuration.authToken
   }
@@ -63,6 +71,15 @@ public extension KMPPubNub {
 public extension KMPPubNub {
   func disconnect() {
     pubnub.disconnect()
+  }
+}
+
+// MARK: - Reconnect
+
+@objc
+public extension KMPPubNub {
+  func reconnect(timetoken: NSNumber?) {
+    pubnub.reconnect(at: timetoken?.uint64Value)
   }
 }
 

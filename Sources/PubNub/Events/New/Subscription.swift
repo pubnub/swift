@@ -158,7 +158,7 @@ extension Subscription: SubscribeCapable {
     let channels = subscriptionType == .channel ? [self] : []
     let groups = subscriptionType == .channelGroup ? [self] : []
 
-    pubnub.internalUnsubscribe(from: channels, and: groups, presenceOnly: false)
+    pubnub.internalUnsubscribe(from: channels, and: groups)
   }
 }
 
@@ -211,7 +211,7 @@ extension Subscription: SubscribeMessagesReceiver {
 
   fileprivate func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
     guard entityName.hasSuffix(".*") else {
-      return entityName == string
+      return entityName.trimmingPresenceChannelSuffix == string
     }
     if let firstIndex = entityName.lastIndex(of: "."), let secondIndex = string.lastIndex(of: ".") {
       return entityName.prefix(upTo: firstIndex) == string.prefix(upTo: secondIndex)

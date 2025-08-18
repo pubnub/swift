@@ -243,7 +243,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -279,7 +279,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -313,7 +313,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -380,7 +380,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -432,7 +432,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -491,7 +491,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -543,7 +543,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -609,7 +609,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -669,7 +669,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -725,7 +725,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -777,7 +777,7 @@ extension SubscribeRouterTests {
             XCTFail("Incorrect Event Received")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -828,7 +828,7 @@ extension SubscribeRouterTests {
             statusExpect.fulfill()
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -878,7 +878,7 @@ extension SubscribeRouterTests {
             XCTFail("Unexpected event received \(event)")
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -927,7 +927,7 @@ extension SubscribeRouterTests {
             break
           }
         }
-        mockResult.subscriptionSession.subscribe(to: [testChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
         
         defer { mockResult.listener.cancel() }
@@ -975,7 +975,7 @@ extension SubscribeRouterTests {
           }
         }
         
-        mockResult.subscriptionSession.subscribe(to: [testChannel, otherChannel], using: pubnub)
+        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription(), pubnub.channel(otherChannel).subscription()])
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(testChannel))
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(otherChannel))
         

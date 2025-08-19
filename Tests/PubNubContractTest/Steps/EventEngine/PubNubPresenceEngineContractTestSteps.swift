@@ -96,7 +96,8 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
         state: Presence.HeartbeatInactive(),
         transition: self.transitionDecorator,
         dispatcher: self.dispatcherDecorator,
-        dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration))
+        dependencies: EventEngineDependencies(value: Presence.Dependencies(configuration: configuration)),
+        logger: PubNubLogger.defaultLogger()
       ),
       forKey: PresenceEventEngineDependencyKey.self
     )

@@ -111,7 +111,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
         state: Subscribe.UnsubscribedState(),
         transition: self.transitionDecorator,
         dispatcher: self.dispatcherDecorator,
-        dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration))
+        dependencies: EventEngineDependencies(value: Subscribe.Dependencies(configuration: configuration)),
+        logger: PubNubLogger.defaultLogger()
       ),
       forKey: SubscribeEventEngineDependencyKey.self
     )

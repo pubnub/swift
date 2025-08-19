@@ -29,7 +29,7 @@ class HeartbeatEffectTests: XCTestCase {
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, sessionQueue: .main)
+    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, logger: PubNubLogger.defaultLogger(), sessionQueue: .main)
     factory = PresenceEffectFactory(session: httpSession, presenceStateContainer: .shared)
     
     super.setUp()

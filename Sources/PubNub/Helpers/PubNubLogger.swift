@@ -86,7 +86,12 @@ public struct PubNubLogger {
   /// A unique identifier for the PubNub instance this logger is associated with
   private var pubNubInstanceId: UUID?
 
-  public init(levels: LogLevel = .all, writers: [LogWriter]) {
+  /// Initializes a new `PubNubLogger` instance with the specified log levels and writers.
+  ///
+  /// - Parameters:
+  ///   - levels: The log levels to be included in the logger. Defaults to `.all`.
+  ///   - writers: The writers to be used for logging. Defaults to the default log writers.
+  public init(levels: LogLevel = .all, writers: [LogWriter] = PubNubLogger.defaultLogWriters()) {
     self.writers = writers
     self.levels = levels
   }
@@ -101,16 +106,21 @@ public struct PubNubLogger {
     PubNubLogger(levels: levels, writers: writers, pubNubInstanceId: id)
   }
 
-  /// Returns a default logger for the SDK
+  /// Returns a default logger with the default log levels and writers
   public static func defaultLogger() -> PubNubLogger {
+    PubNubLogger(levels: [.event, .warn, .error], writers: defaultLogWriters())
+  }
+
+  /// Returns the default log writers for the SDK
+  public static func defaultLogWriters() -> [LogWriter] {
     if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
-      return PubNubLogger(levels: [.event, .warn, .error], writers: [OSLogWriter()])
+      [OSLogWriter()]
     } else {
-      return PubNubLogger(levels: [.event, .warn, .error], writers: [ConsoleLogWriter(), FileLogWriter()])
+      [ConsoleLogWriter(), FileLogWriter()]
     }
   }
 
-  public func debug(
+  func debug(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -133,7 +143,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func info(
+  func info(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -156,7 +166,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func event(
+  func event(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -179,7 +189,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func warn(
+  func warn(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -201,7 +211,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func error(
+  func error(
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
     date: Date = Date(),
@@ -224,7 +234,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func custom(
+  func custom(
     _ level: LogLevel,
     _ message: @escaping @autoclosure () -> LogMessageConvertible,
     category: LogCategory = .none,
@@ -248,7 +258,7 @@ public struct PubNubLogger {
     )
   }
 
-  public func format(
+  func format(
     prefix: LogPrefix,
     category: LogCategory,
     level: LogLevel,
@@ -275,7 +285,7 @@ public struct PubNubLogger {
   }
 
   // swiftlint:disable:next function_parameter_count
-  public func send(
+  func send(
     _ level: LogLevel,
     category: LogCategory = .none,
     message: @escaping @autoclosure () -> LogMessageConvertible,

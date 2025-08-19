@@ -57,15 +57,22 @@ public class PubNub {
 
   init(container: DependencyContainer) {
     self.instanceID = container.instanceID
+    self.logger = container.logger.clone(withPubNubInstanceId: container.instanceID)
     self.configuration = container.configuration
     self.subscription = container.subscriptionSession
     self.networkSession = container.defaultHTTPSession
     self.fileURLSession = container.fileURLSession
     self.presenceStateContainer = container.presenceStateContainer
-    self.logger = container.logger.clone(withPubNubInstanceId: container.instanceID)
 
     logger.debug(
-      "Did create PubNub instance with \(self.instanceID) and configuration \(self.configuration)",
+      LogMessageContent.CustomObject(
+        operation: "init",
+        arguments: [
+          ("instanceID", self.instanceID.uuidString),
+          ("configuration", String(describing: self.configuration))
+        ],
+        details: "Initialize a new PubNub instance"
+      ),
       category: .pubNub
     )
   }
@@ -196,9 +203,14 @@ public extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription("Executing time", arguments: [("custom", requestConfig)]),
+      LogMessageContent.CustomObject(
+        operation: "time",
+        arguments: [("custom", requestConfig)],
+        details: "Get current Timetoken"
+      ),
       category: .pubNub
     )
+
     route(
       TimeRouter(.time, configuration: requestConfig.customConfiguration ?? configuration),
       responseDecoder: TimeResponseDecoder(),
@@ -244,8 +256,8 @@ public extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing publish",
+      LogMessageContent.CustomObject(
+        operation: "publish",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
@@ -254,11 +266,13 @@ public extension PubNub {
           ("meta", meta?.jsonStringify ?? "nil"),
           ("shouldCompress", shouldCompress),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute publish"
       ), category: .pubNub
     )
 
     let router: PublishRouter
+
     if shouldCompress {
       router = PublishRouter(
         .compressedPublish(
@@ -323,14 +337,15 @@ public extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing fire",
+      LogMessageContent.CustomObject(
+        operation: "fire",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
           ("meta", meta?.jsonStringify ?? "nil"),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute fire"
       ), category: .pubNub
     )
 
@@ -365,14 +380,15 @@ public extension PubNub {
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing signal",
+      LogMessageContent.CustomObject(
+        operation: "signal",
         arguments: [
           ("channel", channel),
           ("message", message.jsonStringify ?? "nil"),
           ("customMessageType", customMessageType ?? "nil"),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute signal"
       ), category: .pubNub
     )
 
@@ -407,14 +423,15 @@ public extension PubNub {
     withPresence: Bool = false
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing subscribe",
+      LogMessageContent.CustomObject(
+        operation: "subscribe",
         arguments: [
           ("to", channels),
           ("and", channelGroups),
           ("at", timetoken ?? "nil"),
           ("withPresence", withPresence)
-        ]
+        ],
+        details: "Execute subscribe"
       ), category: .pubNub
     )
 
@@ -451,13 +468,15 @@ public extension PubNub {
   ///   - and: List of channel groups to unsubscribe from
   func unsubscribe(from channels: [String], and channelGroups: [String] = []) {
     logger.debug(
-      String.formattedDescription(
-        "Executing unsubscribe",
+      LogMessageContent.CustomObject(
+        operation: "unsubscribe",
         arguments: [
           ("from", channels),
           ("and", channelGroups)
-        ]
-      ), category: .pubNub
+        ],
+        details: "Execute unsubscribe"
+      ),
+      category: .pubNub
     )
     subscription.unsubscribe(
       from: channels,
@@ -468,7 +487,10 @@ public extension PubNub {
   /// Unsubscribe from all channels and channel groups
   func unsubscribeAll() {
     logger.debug(
-      String.formattedDescription("Executing unsubscribeAll()"),
+      LogMessageContent.CustomObject(
+        operation: "unsubscribeAll",
+        details: "Execute unsubscribeAll"
+      ),
       category: .pubNub
     )
     subscription.unsubscribeAll()
@@ -477,7 +499,10 @@ public extension PubNub {
   /// Stops the subscriptions in progress
   func disconnect() {
     logger.debug(
-      String.formattedDescription("Executing disconnect()"),
+      LogMessageContent.CustomObject(
+        operation: "disconnect",
+        details: "Execute disconnect"
+      ),
       category: .pubNub
     )
     subscription.disconnect()
@@ -487,10 +512,12 @@ public extension PubNub {
   /// - Parameter at: The timetoken value used to reconnect or nil to use the previous stored value
   func reconnect(at timetoken: Timetoken? = nil) {
     logger.debug(
-      String.formattedDescription(
-        "Executing reconnect",
-        arguments: [("at", timetoken ?? "nil")]
-      )
+      LogMessageContent.CustomObject(
+        operation: "reconnect",
+        arguments: [("at", timetoken ?? "nil")],
+        details: "Execute reconnect"
+      ),
+      category: .pubNub
     )
 
     subscription.reconnect(at: SubscribeCursor(timetoken: timetoken))
@@ -612,14 +639,15 @@ public extension PubNub {
     completion: ((Result<JSONCodable, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing setPresence",
+      LogMessageContent.CustomObject(
+        operation: "setPresence",
         arguments: [
           ("state", state),
           ("on", channels),
           ("and", groups),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute setPresence"
       ), category: .pubNub
     )
 
@@ -662,14 +690,15 @@ public extension PubNub {
     completion: ((Result<(uuid: String, stateByChannel: [String: JSONCodable]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing getPresenceState",
+      LogMessageContent.CustomObject(
+        operation: "getPresenceState",
         arguments: [
           ("for", uuid),
           ("on", channels),
           ("and", groups),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute getPresenceState"
       ), category: .pubNub
     )
 
@@ -712,15 +741,16 @@ public extension PubNub {
     completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing hereNow",
+      LogMessageContent.CustomObject(
+        operation: "hereNow",
         arguments: [
           ("on", channels),
-          ("and", includeUUIDs),
+          ("and", groups),
           ("includeUUIDs", includeUUIDs),
           ("includeState", includeState),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute hereNow"
       ), category: .pubNub
     )
 
@@ -764,12 +794,13 @@ public extension PubNub {
     completion: ((Result<[String: [String]], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing whereNow",
+      LogMessageContent.CustomObject(
+        operation: "whereNow",
         arguments: [
           ("for", uuid),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute whereNow"
       ),
       category: .pubNub
     )
@@ -799,11 +830,10 @@ public extension PubNub {
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing listChannelGroups",
-        arguments: [
-          ("custom", requestConfig)
-        ]
+      LogMessageContent.CustomObject(
+        operation: "listChannelGroups",
+        arguments: [("custom", requestConfig)],
+        details: "Execute listChannelGroups"
       ),
       category: .pubNub
     )
@@ -832,12 +862,13 @@ public extension PubNub {
     completion: ((Result<String, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Ececuting removeChannelGroup",
+      LogMessageContent.CustomObject(
+        operation: "removeChannelGroup",
         arguments: [
           ("channelGroup", channelGroup),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute remove"
       ),
       category: .pubNub
     )
@@ -869,12 +900,13 @@ public extension PubNub {
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing listChannels",
+      LogMessageContent.CustomObject(
+        operation: "listChannels",
         arguments: [
           ("for", group),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute listChannels"
       ),
       category: .pubNub
     )
@@ -908,13 +940,14 @@ public extension PubNub {
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing add",
+      LogMessageContent.CustomObject(
+        operation: "addChannelsToGroup",
         arguments: [
           ("channels", channels),
           ("to", group),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute add"
       ),
       category: .pubNub
     )
@@ -948,13 +981,14 @@ public extension PubNub {
     completion: ((Result<(group: String, channels: [String]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing remove",
+      LogMessageContent.CustomObject(
+        operation: "removeChannelsFromGroup",
         arguments: [
           ("channels", channels),
           ("from", group),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute remove"
       ),
       category: .pubNub
     )
@@ -992,13 +1026,14 @@ public extension PubNub {
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing listPushChannelRegistrations",
+      LogMessageContent.CustomObject(
+        operation: "listPushChannelRegistrations",
         arguments: [
           ("for", deviceToken.hexEncodedString),
           ("of", pushType),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute listPushChannelRegistrations"
       ),
       category: .pubNub
     )
@@ -1036,15 +1071,16 @@ public extension PubNub {
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing managePushChannelRegistrations",
+      LogMessageContent.CustomObject(
+        operation: "managePushChannelRegistrations",
         arguments: [
           ("byRemoving", removals),
           ("thenAdding", additions),
           ("for", deviceToken.hexEncodedString),
           ("of", pushType),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute managePushChannelRegistrations"
       ),
       category: .pubNub
     )
@@ -1128,13 +1164,14 @@ public extension PubNub {
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Excecuting removeAllPushChannelRegistrations",
+      LogMessageContent.CustomObject(
+        operation: "removeAllPushChannelRegistrations",
         arguments: [
           ("for", deviceToken.hexEncodedString),
           ("of", pushType),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute removeAllPushChannelRegistrations"
       ),
       category: .pubNub
     )
@@ -1170,14 +1207,15 @@ public extension PubNub {
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing listAPNSPushChannelRegistrations",
+      LogMessageContent.CustomObject(
+        operation: "listAPNSPushChannelRegistrations",
         arguments: [
           ("for", deviceToken.hexEncodedString),
           ("on", topic),
           ("environment", environment),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute listAPNSPushChannelRegistrations"
       ),
       category: .pubNub
     )
@@ -1217,8 +1255,8 @@ public extension PubNub {
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing manageAPNSDevicesOnChannels",
+      LogMessageContent.CustomObject(
+        operation: "manageAPNSDevicesOnChannels",
         arguments: [
           ("byRemoving", removals),
           ("thenAdding", additions),
@@ -1226,7 +1264,8 @@ public extension PubNub {
           ("on", topic),
           ("environment", environment),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute manageAPNSDevicesOnChannels"
       ),
       category: .pubNub
     )
@@ -1327,14 +1366,15 @@ public extension PubNub {
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing removeAllAPNSPushDevice",
+      LogMessageContent.CustomObject(
+        operation: "removeAllAPNSPushDevice",
         arguments: [
           ("for", deviceToken.hexEncodedString),
           ("on", topic),
           ("environment", environment),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute removeAllAPNSPushDevice"
       ),
       category: .pubNub
     )
@@ -1390,8 +1430,8 @@ public extension PubNub {
     completion: ((Result<(messagesByChannel: [String: [PubNubMessage]], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing fetchMessageHistory",
+      LogMessageContent.CustomObject(
+        operation: "fetchMessageHistory",
         arguments: [
           ("for", channels),
           ("includeActions", includeActions),
@@ -1401,7 +1441,8 @@ public extension PubNub {
           ("includeCustomMessageType", includeCustomMessageType),
           ("page", page ?? "nil"),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute fetchMessageHistory"
       ),
       category: .pubNub
     )
@@ -1474,14 +1515,15 @@ public extension PubNub {
     completion: ((Result<Void, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing deleteMessageHistory",
+      LogMessageContent.CustomObject(
+        operation: "deleteMessageHistory",
         arguments: [
           ("from", channel),
           ("start", start ?? "nil"),
           ("end", end ?? "nil"),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute deleteMessageHistory"
       ),
       category: .pubNub
     )
@@ -1512,15 +1554,17 @@ public extension PubNub {
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing messageCounts",
+      LogMessageContent.CustomObject(
+        operation: "messageCounts",
         arguments: [
           ("channels", channels),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute messageCounts"
       ),
       category: .pubNub
     )
+
     let router = HistoryRouter(
       .messageCounts(channels: channels.map { $0.key }, timetoken: nil, channelsTimetoken: channels.map { $0.value }),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -1552,13 +1596,14 @@ public extension PubNub {
     completion: ((Result<[String: Int], Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing messageCounts",
+      LogMessageContent.CustomObject(
+        operation: "messageCounts",
         arguments: [
           ("channels", channels),
           ("timetoken", timetoken),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute messageCounts"
       ),
       category: .pubNub
     )
@@ -1598,13 +1643,14 @@ public extension PubNub {
     completion: ((Result<(actions: [PubNubMessageAction], next: PubNubBoundedPage?), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing fetchMessageActions",
+      LogMessageContent.CustomObject(
+        operation: "fetchMessageActions",
         arguments: [
           ("channel", channel),
           ("page", page ?? "nil"),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute fetchMessageActions"
       ),
       category: .pubNub
     )
@@ -1650,15 +1696,16 @@ public extension PubNub {
     completion: ((Result<PubNubMessageAction, Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing addMessageAction",
+      LogMessageContent.CustomObject(
+        operation: "addMessageAction",
         arguments: [
           ("channel", channel),
           ("type", actionType),
           ("value", value),
           ("messageTimetoken", messageTimetoken),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute addMessageAction"
       ),
       category: .pubNub
     )
@@ -1710,14 +1757,15 @@ public extension PubNub {
     completion: ((Result<(channel: String, message: Timetoken, action: Timetoken), Error>) -> Void)?
   ) {
     logger.debug(
-      String.formattedDescription(
-        "Executing removeMessageActions",
+      LogMessageContent.CustomObject(
+        operation: "removeMessageActions",
         arguments: [
           ("channel", channel),
           ("message", timetoken),
           ("action", actionTimetoken),
           ("custom", requestConfig)
-        ]
+        ],
+        details: "Execute removeMessageActions"
       ),
       category: .pubNub
     )
@@ -1760,7 +1808,11 @@ public extension PubNub {
   /// - Returns: A `Result` containing either the encryped `Data` (mapped to Base64-encoded data) or the `CryptoError`
   func encrypt(message: String) -> Result<Data, Error> {
     logger.debug(
-      "Encrypting String",
+      LogMessageContent.CustomObject(
+        operation: "encrypt",
+        arguments: [("message", message)],
+        details: "Execute encrypt"
+      ),
       category: .pubNub
     )
 
@@ -1770,14 +1822,22 @@ public extension PubNub {
         category: .pubNub
       )
       logger.debug(
-        "Encryption of String failed due to \(ErrorDescription.missingCryptoKey)",
+        LogMessageContent.CustomObject(
+          operation: "encrypt",
+          arguments: [("message", message)],
+          details: "Encryption of a String message failed due to \(ErrorDescription.missingCryptoKey)"
+        ),
         category: .pubNub
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let dataMessage = message.data(using: .utf8) else {
       logger.debug(
-        "Encryption of String failed due to \("invalid UTF-8 encoded String")",
+        LogMessageContent.CustomObject(
+          operation: "encrypt",
+          arguments: [("message", message)],
+          details: "Encryption of a String message failed due to \("invalid UTF-8 encoded String")"
+        ),
         category: .pubNub
       )
       return .failure(CryptoError.decodeError)
@@ -1789,15 +1849,13 @@ public extension PubNub {
       $0 as Error
     }
 
-    switch encryptionResult {
-    case .success:
+    if case let .failure(error) = encryptionResult {
       logger.debug(
-        "String encrypted successfully",
-        category: .pubNub
-      )
-    case let .failure(error):
-      logger.debug(
-        "Encryption of String failed due to \(error)",
+        LogMessageContent.CustomObject(
+          operation: "encrypt",
+          arguments: [("message", message)],
+          details: "Encryption of a String message failed due to \(error)"
+        ),
         category: .pubNub
       )
     }
@@ -1810,7 +1868,10 @@ public extension PubNub {
   /// - Returns: A `Result` containing either the decrypted plain text message or the `CryptoError`
   func decrypt(data: Data) -> Result<String, Error> {
     logger.debug(
-      "Decrypting Data",
+      LogMessageContent.CustomObject(
+        operation: "decrypt",
+        details: "Decrypt a Data message"
+      ),
       category: .pubNub
     )
 
@@ -1820,14 +1881,20 @@ public extension PubNub {
         category: .pubNub
       )
       logger.debug(
-        "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
+        LogMessageContent.CustomObject(
+          operation: "decrypt",
+          details: "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)"
+        ),
         category: .pubNub
       )
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
       logger.error(
-        "Decryption of Data failed due to \("invalid Base64-encoded Data")",
+        LogMessageContent.CustomObject(
+          operation: "decrypt",
+          details: "Decryption of Data failed due to \("invalid Base64-encoded Data")"
+        ),
         category: .pubNub
       )
       return .failure(CryptoError.decodeError)
@@ -1844,15 +1911,12 @@ public extension PubNub {
         $0 as Error
       }
 
-    switch decryptionResult {
-    case .success:
+    if case let .failure(error) = decryptionResult {
       logger.debug(
-        "Data decrypted successfully",
-        category: .pubNub
-      )
-    case let .failure(error):
-      logger.debug(
-        "Decryption of Data failed due to \(error)",
+        LogMessageContent.CustomObject(
+          operation: "decrypt",
+          details: "Decryption of Data failed due to \(error)"
+        ),
         category: .pubNub
       )
     }
@@ -1872,16 +1936,44 @@ public extension PubNub {
     do {
       return try PAMToken.token(from: token)
     } catch PAMToken.PAMTokenError.invalidEscapedToken {
-      logger.warn("PAM Token `\(token)` was not able to be properly escaped.", category: .pubNub)
+      logger.warn(
+        LogMessageContent.CustomObject(
+          operation: "parse",
+          arguments: [("token", token)],
+          details: "PAM Token `\(token)` was not able to be properly escaped."
+        ),
+        category: .pubNub
+      )
       return nil
     } catch PAMToken.PAMTokenError.invalidBase64EncodedToken {
-      logger.warn("PAM Token `\(token)` was not a valid Base64-encoded string", category: .pubNub)
+      logger.warn(
+        LogMessageContent.CustomObject(
+          operation: "parse",
+          arguments: [("token", token)],
+          details: "PAM Token `\(token)` was not a valid Base64-encoded string"
+        ),
+        category: .pubNub
+      )
       return nil
     } catch PAMToken.PAMTokenError.invalidCBOR(let error) {
-      logger.warn("PAM Token `\(token)` was not valid CBOR due to: \(error.localizedDescription)")
+      logger.warn(
+        LogMessageContent.CustomObject(
+          operation: "parse",
+          arguments: [("token", token)],
+          details: "PAM Token `\(token)` was not valid CBOR due to: \(error.localizedDescription)"
+        ),
+        category: .pubNub
+      )
       return nil
     } catch {
-      logger.warn("PAM Token `\(token)` was not valid due to: \(error.localizedDescription)")
+      logger.warn(
+        LogMessageContent.CustomObject(
+          operation: "parse",
+          arguments: [("token", token)],
+          details: "PAM Token `\(token)` was not valid due to: \(error.localizedDescription)"
+        ),
+        category: .pubNub
+      )
       return nil
     }
   }
@@ -1890,6 +1982,15 @@ public extension PubNub {
   ///
   /// - Parameter token: The token to add to the Token Management System.
   func set(token: String) {
+    logger.debug(
+      LogMessageContent.CustomObject(
+        operation: "set",
+        arguments: [("token", token)],
+        details: "Set auth token"
+      ),
+      category: .pubNub
+    )
+
     configuration.authToken = token
     subscription.configuration.authToken = token
   }

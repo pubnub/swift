@@ -134,12 +134,6 @@ extension Subscribe {
   }
 }
 
-extension Subscribe.UnsubscribedState {
-  var description: String {
-    String.formattedDescription(self)
-  }
-}
-
 // MARK: - Subscribe Events
 
 extension Subscribe {

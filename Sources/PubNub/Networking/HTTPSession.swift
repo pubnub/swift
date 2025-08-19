@@ -57,11 +57,6 @@ public final class HTTPSession {
     self.delegate = delegate
     self.sessionStream = sessionStream
 
-    logger.debug(
-      "HTTPSession created \(self.sessionID)",
-      category: .networking
-    )
-
     delegate.sessionBridge = self
     delegate.logger = logger
   }
@@ -98,11 +93,19 @@ public final class HTTPSession {
   }
 
   deinit {
-    logger.debug("Session Destroyed \(self.sessionID) with active requests \(self.taskToRequest.values.map { $0.requestID })")
+    logger.debug(
+      LogMessageContent.CustomObject(
+        operation: "session-deinit",
+        arguments: [("sessionID", self.sessionID), ("activeRequests", self.taskToRequest.values.map { $0.requestID })],
+        details: "Session Destroyed"
+      ),
+      category: .networking
+    )
 
     for value in taskToRequest.values {
       value.cancel(PubNubError(.sessionDeinitialized, router: value.router))
     }
+
     invalidateAndCancel()
   }
 
@@ -227,7 +230,11 @@ public final class HTTPSession {
       request.didCreate(task)
     } else {
       logger.warn(
-        "Attempted to create task from invalidated session: \(self.sessionID)",
+        LogMessageContent.CustomObject(
+          operation: "session-create-task",
+          arguments: [("sessionID", self.sessionID)],
+          details: "Attempted to create task from invalidated session"
+        ),
         category: .networking
       )
     }
@@ -277,7 +284,11 @@ extension HTTPSession: RequestDelegate {
     }
 
     logger.info(
-      "Retrying request \(request.requestID) due to error \(error)",
+      LogMessageContent.CustomObject(
+        operation: "session-retry",
+        arguments: [("requestID", request.requestID), ("error", error)],
+        details: "Retrying request"
+      ),
       category: .networking
     )
 

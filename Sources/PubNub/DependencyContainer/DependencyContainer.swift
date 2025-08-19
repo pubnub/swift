@@ -201,12 +201,15 @@ extension DependencyKey where Value == SessionReplaceable {
     with operators: [RequestOperator],
     and logger: PubNubLogger
   ) -> SessionReplaceable {
-    session.defaultRequestOperator == nil ? session.usingDefault(requestOperator: MultiplexRequestOperator(
-      operators: operators
-    )) : session.usingDefault(requestOperator: session.defaultRequestOperator?.merge(
-      operators: operators
-    ))
-    .usingDefault(logger: logger)
+    let requestOperator = if let existingOperator = session.defaultRequestOperator {
+      existingOperator.merge(operators: operators)
+    } else {
+      MultiplexRequestOperator(operators: operators)
+    }
+
+    return session
+      .usingDefault(requestOperator: requestOperator)
+      .usingDefault(logger: logger)
   }
 }
 

@@ -115,9 +115,14 @@ extension Request {
     appendResponseCompletion { [requestID, logger] result in
       queue.async {
         logger.debug(
-          "Deserializing response for \(requestID)",
+          LogMessageContent.CustomObject(
+            operation: "deserializing-response",
+            arguments: [("requestID", requestID)],
+            details: "Deserializing response"
+          ),
           category: .networking
         )
+
         let deserializationResult = result.flatMap { response in
           // Decode the data response into the correct data type
           responseDecoder.decode(response: response).flatMap { decoded in
@@ -125,18 +130,18 @@ extension Request {
             responseDecoder.decrypt(response: decoded)
           }
         }
-        switch deserializationResult {
-        case .success:
+
+        if case let .failure(error) = deserializationResult {
           logger.debug(
-            "Response deserialized successfully for \(requestID)",
-            category: .networking
-          )
-        case let .failure(error):
-          logger.debug(
-            "Deserialization of content for \(requestID) failed due to \(error)",
+            LogMessageContent.CustomObject(
+              operation: "deserialization-failed",
+              arguments: [("requestID", requestID), ("error", error)],
+              details: "Deserialization failed"
+            ),
             category: .networking
           )
         }
+
         completion(deserializationResult)
       }
     }

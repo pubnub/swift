@@ -53,7 +53,11 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
   ) {
     invocations.forEach {
       logger.debug(
-        "Received invocation \($0)",
+        LogMessageContent.CustomObject(
+          operation: "dispatch",
+          arguments: [("invocation", $0)],
+          details: "Received invocation"
+        ),
         category: .eventEngine
       )
       switch $0 {
@@ -86,7 +90,11 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       with: id
     )
     logger.debug(
-      "Dispatching effect \(effect)",
+      LogMessageContent.CustomObject(
+        operation: "executeEffect",
+        arguments: [("effect", effect)],
+        details: "Dispatching effect"
+      ),
       category: .eventEngine
     )
     effect.performTask { [weak effectsCache] results in

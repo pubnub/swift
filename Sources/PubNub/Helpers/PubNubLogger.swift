@@ -327,7 +327,9 @@ public struct PubNubLogger {
           category: .none,
           location: nil,
           type: "",
-          message: .text("")
+          message: .text(""),
+          details: nil,
+          additionalFields: [:]
         )
       }
     }

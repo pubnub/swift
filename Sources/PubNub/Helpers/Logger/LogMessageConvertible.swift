@@ -10,7 +10,7 @@
 
 import Foundation
 
-// MARK: - Log Message Convertible
+// MARK: - LogMessageConvertible
 
 /// A protocol that allows types to be converted into ``LogMessage`` instances
 public protocol LogMessageConvertible {
@@ -39,7 +39,9 @@ extension String: LogMessageConvertible {
       category: category,
       location: location,
       type: "text",
-      message: LogMessageContent.text(self)
+      message: LogMessageContent.text(self),
+      details: nil,
+      additionalFields: [:]
     )
   }
 }

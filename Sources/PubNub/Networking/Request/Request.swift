@@ -103,14 +103,22 @@ final class Request {
     self.delegate = delegate
 
     logger.info(
-      "Request Created \(self.requestID) on \(router)",
+      LogMessageContent.CustomObject(
+        operation: "request-init",
+        arguments: [("requestID", self.requestID), ("router", router)],
+        details: "Request Created"
+      ),
       category: .networking
     )
   }
 
   deinit {
     logger.info(
-      "Request Destroyed \(self.requestID)",
+      LogMessageContent.CustomObject(
+        operation: "request-deinit",
+        arguments: [("requestID", self.requestID)],
+        details: "Request Destroyed"
+      ),
       category: .networking
     )
 
@@ -201,7 +209,14 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
-    logger.debug("Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)", category: .networking)
+    logger.debug(
+      LogMessageContent.CustomObject(
+        operation: "request-mutate-fail",
+        arguments: [("requestID", self.requestID), ("error", mutatorError)],
+        details: "Did fail to mutate URL request"
+      ),
+      category: .networking
+    )
     error = mutatorError
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
     retryOrFinish(with: mutatorError)
@@ -221,7 +236,14 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    logger.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)", category: .networking)
+    logger.debug(
+      LogMessageContent.CustomObject(
+        operation: "request-create-fail",
+        arguments: [("requestID", self.requestID), ("error", error)],
+        details: "Did fail to create URLRequest"
+      ),
+      category: .networking
+    )
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
@@ -266,8 +288,21 @@ final class Request {
   }
 
   func didResume(_ task: URLSessionTask) {
+    let request: URLRequest? = task.currentRequest
+
     logger.debug(
-      "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
+      LogMessageContent.NetworkRequest(
+        id: self.requestID.uuidString,
+        origin: request?.url?.host ?? "Unknown origin",
+        path: request?.url?.path ?? "Unknown path",
+        query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+        method: request?.httpMethod ?? "Unknown HTTP method",
+        headers: request?.allHTTPHeaderFields ?? [:],
+        body: request?.httpBody,
+        details: nil,
+        isCancelled: false,
+        isFailed: false
+      ),
       category: .networking
     )
     sessionStream?.emitRequest(
@@ -277,15 +312,21 @@ final class Request {
   }
 
   func didCancel(_ task: URLSessionTask) {
-    logger.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
+    let request = task.currentRequest
+
     logger.debug(
-      "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
-      "content \(self.dataDescription) " +
-      "for request URL \(task.currentRequestUrl()))",
+      LogMessageContent.NetworkResponse(
+        id: self.requestID.uuidString,
+        url: request?.url,
+        status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
+        headers: request?.allHTTPHeaderFields ?? [:],
+        body: self.data,
+        details: nil
+      ),
       category: .networking
     )
 
@@ -302,10 +343,33 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
+    let request = task.currentRequest
+
     logger.debug(
-      "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
-      "content: \(self.dataDescription) " +
-      "for request URL \(task.currentRequestUrl()))",
+      LogMessageContent.NetworkRequest(
+        id: self.requestID.uuidString,
+        origin: request?.url?.host ?? "Unknown origin",
+        path: request?.url?.path ?? "Unknown path",
+        query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+        method: request?.httpMethod ?? "Unknown HTTP method",
+        headers: request?.allHTTPHeaderFields ?? [:],
+        body: request?.httpBody,
+        details: error.localizedDescription,
+        isCancelled: error.isCancellationError,
+        isFailed: true
+      ),
+      category: .networking
+    )
+
+    logger.debug(
+      LogMessageContent.NetworkResponse(
+        id: self.requestID.uuidString,
+        url: request?.url,
+        status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
+        headers: request?.allHTTPHeaderFields ?? [:],
+        body: self.data,
+        details: nil
+      ),
       category: .networking
     )
 
@@ -345,12 +409,17 @@ final class Request {
   func finish(error _: Error? = nil) {
     if let error = error, !error.isCancellationError {
       let responseMessage = if let response = urlResponse {
-        "for response \(response.description)"
+        response.description
       } else {
-        "without response"
+        "No response available"
       }
-      logger.error(
-        "Request \(self.requestID) failed with error \(error) \(responseMessage)",
+
+      logger.debug(
+        LogMessageContent.CustomObject(
+          operation: "request-failed",
+          arguments: [("requestID", self.requestID), ("error", error), ("responseMessage", responseMessage)],
+          details: "Request failed"
+        ),
         category: .networking
       )
     }
@@ -506,14 +575,14 @@ protocol RequestDelegate: AnyObject {
 // MARK: - Private Extensions
 
 private extension URLSessionTask {
-  func requestDescr() -> String {
-    currentRequest?.formattedDescription() ?? "Missing request description"
-  }
-  func statusCodeDescr() -> String {
-    httpResponse?.statusCode.description ?? "Unknown HTTP status"
-  }
-  func currentRequestUrl() -> String {
-    currentRequest?.url?.absoluteString ?? "Missing URL details"
+  func getURLQueryItems() -> [URLQueryItem] {
+    let components: URLComponents? = if let url = self.currentRequest?.url {
+      URLComponents(url: url, resolvingAgainstBaseURL: false)
+    } else {
+      nil
+    }
+
+    return components?.queryItems ?? []
   }
 }
 

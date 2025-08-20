@@ -85,7 +85,8 @@ class PubNubPresenceEngineContractTestsSteps: PubNubEventEngineContractTestsStep
       factory: PresenceEffectFactory(
         session: container[HTTPPresenceSessionDependencyKey.self],
         presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
-      )
+      ),
+      logger: PubNubLogger.defaultLogger()
     ))
     self.transitionDecorator = TransitionDecorator(
       wrappedInstance: PresenceTransition(configuration: configuration)

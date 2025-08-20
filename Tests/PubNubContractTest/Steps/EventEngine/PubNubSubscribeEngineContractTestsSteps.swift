@@ -100,7 +100,8 @@ class PubNubSubscribeEngineContractTestsSteps: PubNubEventEngineContractTestsSte
       factory: SubscribeEffectFactory(
         session: container[HTTPSubscribeSessionDependencyKey.self],
         presenceStateContainer: container[PresenceStateContainerDependencyKey.self]
-      )
+      ),
+      logger: PubNubLogger.defaultLogger()
     ))
     self.transitionDecorator = TransitionDecorator(
       wrappedInstance: SubscribeTransition()

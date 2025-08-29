@@ -121,7 +121,7 @@ public struct PubNubLogger {
   }
 
   func debug(
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -144,7 +144,7 @@ public struct PubNubLogger {
   }
 
   func info(
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -167,7 +167,7 @@ public struct PubNubLogger {
   }
 
   func event(
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -190,7 +190,7 @@ public struct PubNubLogger {
   }
 
   func warn(
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -212,7 +212,7 @@ public struct PubNubLogger {
   }
 
   func error(
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -236,7 +236,7 @@ public struct PubNubLogger {
 
   func custom(
     _ level: LogLevel,
-    _ message: @escaping @autoclosure () -> LogMessageConvertible,
+    _ message: @escaping @autoclosure () -> LogMessageContent,
     category: LogCategory = .none,
     date: Date = Date(),
     queue: String = DispatchQueue.currentLabel,
@@ -288,7 +288,7 @@ public struct PubNubLogger {
   func send(
     _ level: LogLevel,
     category: LogCategory = .none,
-    message: @escaping @autoclosure () -> LogMessageConvertible,
+    message: @escaping @autoclosure () -> LogMessageContent,
     date: Date,
     queue: String,
     thread: String,

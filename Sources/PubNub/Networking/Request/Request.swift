@@ -103,23 +103,25 @@ final class Request {
     self.delegate = delegate
 
     logger.info(
-      LogMessageContent.CustomObject(
-        operation: "request-init",
-        arguments: [("requestID", self.requestID), ("router", router)],
-        details: "Request Created"
-      ),
-      category: .networking
+      .customObject(
+        .init(
+          operation: "request-init",
+          details: "Request Created",
+          arguments: [("requestID", self.requestID), ("router", router)]
+        )
+      ), category: .networking
     )
   }
 
   deinit {
     logger.info(
-      LogMessageContent.CustomObject(
-        operation: "request-deinit",
-        arguments: [("requestID", self.requestID)],
-        details: "Request Destroyed"
-      ),
-      category: .networking
+      .customObject(
+        .init(
+          operation: "request-deinit",
+          details: "Request Destroyed",
+          arguments: [("requestID", self.requestID)]
+        )
+      ), category: .networking
     )
 
     let currentState = atomicState.lockedRead { $0 }
@@ -210,13 +212,18 @@ final class Request {
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "request-mutate-fail",
-        arguments: [("requestID", self.requestID), ("error", mutatorError)],
-        details: "Did fail to mutate URL request"
-      ),
-      category: .networking
+      .customObject(
+        .init(
+          operation: "request-mutate-fail",
+          details: "Did fail to mutate URL request",
+          arguments: [
+            ("requestID", self.requestID),
+            ("error", mutatorError)
+          ]
+        )
+      ), category: .networking
     )
+
     error = mutatorError
     sessionStream?.emitRequest(self, didFailToMutate: urlRequest, with: mutatorError)
     retryOrFinish(with: mutatorError)
@@ -237,12 +244,13 @@ final class Request {
 
   func didFailToCreateURLRequest(with error: Error) {
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "request-create-fail",
-        arguments: [("requestID", self.requestID), ("error", error)],
-        details: "Did fail to create URLRequest"
-      ),
-      category: .networking
+      .customObject(
+        .init(
+          operation: "request-create-fail",
+          details: "Did fail to create URLRequest",
+          arguments: [("requestID", self.requestID), ("error", error)]
+        )
+      ), category: .networking
     )
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
@@ -291,20 +299,22 @@ final class Request {
     let request: URLRequest? = task.currentRequest
 
     logger.debug(
-      LogMessageContent.NetworkRequest(
-        id: self.requestID.uuidString,
-        origin: request?.url?.host ?? "Unknown origin",
-        path: request?.url?.path ?? "Unknown path",
-        query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
-        method: request?.httpMethod ?? "Unknown HTTP method",
-        headers: request?.allHTTPHeaderFields ?? [:],
-        body: request?.httpBody,
-        details: nil,
-        isCancelled: false,
-        isFailed: false
-      ),
-      category: .networking
+      .networkRequest(
+        .init(
+          id: self.requestID.uuidString,
+          origin: request?.url?.host ?? "Unknown origin",
+          path: request?.url?.path ?? "Unknown path",
+          query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+          method: request?.httpMethod ?? "Unknown HTTP method",
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: request?.httpBody,
+          details: nil,
+          isCancelled: false,
+          isFailed: false
+        )
+      ), category: .networking
     )
+
     sessionStream?.emitRequest(
       self,
       didResume: task
@@ -319,13 +329,15 @@ final class Request {
     let request = task.currentRequest
 
     logger.debug(
-      LogMessageContent.NetworkResponse(
-        id: self.requestID.uuidString,
-        url: request?.url,
-        status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
-        headers: request?.allHTTPHeaderFields ?? [:],
-        body: self.data,
-        details: nil
+      .networkResponse(
+        .init(
+          id: self.requestID.uuidString,
+          url: request?.url,
+          status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: self.data,
+          details: nil
+        )
       ),
       category: .networking
     )
@@ -346,31 +358,33 @@ final class Request {
     let request = task.currentRequest
 
     logger.debug(
-      LogMessageContent.NetworkRequest(
-        id: self.requestID.uuidString,
-        origin: request?.url?.host ?? "Unknown origin",
-        path: request?.url?.path ?? "Unknown path",
-        query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
-        method: request?.httpMethod ?? "Unknown HTTP method",
-        headers: request?.allHTTPHeaderFields ?? [:],
-        body: request?.httpBody,
-        details: error.localizedDescription,
-        isCancelled: error.isCancellationError,
-        isFailed: true
-      ),
-      category: .networking
+      .networkRequest(
+        .init(
+          id: self.requestID.uuidString,
+          origin: request?.url?.host ?? "Unknown origin",
+          path: request?.url?.path ?? "Unknown path",
+          query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+          method: request?.httpMethod ?? "Unknown HTTP method",
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: request?.httpBody,
+          details: error.localizedDescription,
+          isCancelled: error.isCancellationError,
+          isFailed: true
+        )
+      ), category: .networking
     )
 
     logger.debug(
-      LogMessageContent.NetworkResponse(
-        id: self.requestID.uuidString,
-        url: request?.url,
-        status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
-        headers: request?.allHTTPHeaderFields ?? [:],
-        body: self.data,
-        details: nil
-      ),
-      category: .networking
+      .networkResponse(
+        .init(
+          id: self.requestID.uuidString,
+          url: request?.url,
+          status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: self.data,
+          details: nil
+        )
+      ), category: .networking
     )
 
     self.error = PubNubError.sessionDelegate(error, router: router)
@@ -415,12 +429,17 @@ final class Request {
       }
 
       logger.debug(
-        LogMessageContent.CustomObject(
-          operation: "request-failed",
-          arguments: [("requestID", self.requestID), ("error", error), ("responseMessage", responseMessage)],
-          details: "Request failed"
-        ),
-        category: .networking
+        .customObject(
+          .init(
+            operation: "request-failed",
+            details: "Request failed",
+            arguments: [
+              ("requestID", self.requestID),
+              ("error", error),
+              ("responseMessage", responseMessage)
+            ]
+          )
+        ), category: .networking
       )
     }
 

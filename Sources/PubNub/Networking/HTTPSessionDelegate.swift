@@ -23,7 +23,20 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
-    logger?.warn("Session Invalidated \(String(describing: self.sessionBridge?.sessionID))", category: .networking)
+    logger?.warn(
+      .customObject(
+        .init(
+          operation: "session-invalidated",
+          details: "Session Invalidated",
+          arguments: [
+            ("sessionID", String(describing: self.sessionBridge?.sessionID)),
+            ("error", error?.localizedDescription ?? "No error")
+          ]
+        )
+      ),
+      category: .networking
+    )
+
     // Set invalidated in case this happened unexpectedly
     sessionBridge?.isInvalidated = true
     sessionBridge?.sessionInvalidated(with: error)

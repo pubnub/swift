@@ -94,10 +94,12 @@ public final class HTTPSession {
 
   deinit {
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "session-deinit",
-        arguments: [("sessionID", self.sessionID), ("activeRequests", self.taskToRequest.values.map { $0.requestID })],
-        details: "Session Destroyed"
+      .customObject(
+        .init(
+          operation: "session-deinit",
+          details: "Session Destroyed",
+          arguments: [("sessionID", self.sessionID), ("activeRequests", self.taskToRequest.values.map { $0.requestID })]
+        )
       ),
       category: .networking
     )
@@ -230,10 +232,12 @@ public final class HTTPSession {
       request.didCreate(task)
     } else {
       logger.warn(
-        LogMessageContent.CustomObject(
-          operation: "session-create-task",
-          arguments: [("sessionID", self.sessionID)],
-          details: "Attempted to create task from invalidated session"
+        .customObject(
+          .init(
+            operation: "session-create-task",
+            details: "Attempted to create task from invalidated session",
+            arguments: [("sessionID", self.sessionID)]
+          )
         ),
         category: .networking
       )
@@ -284,12 +288,16 @@ extension HTTPSession: RequestDelegate {
     }
 
     logger.info(
-      LogMessageContent.CustomObject(
-        operation: "session-retry",
-        arguments: [("requestID", request.requestID), ("error", error)],
-        details: "Retrying request"
-      ),
-      category: .networking
+      .customObject(
+        .init(
+          operation: "session-retry",
+          details: "Retrying request",
+          arguments: [
+            ("requestID", request.requestID),
+            ("error", error)
+          ]
+        )
+      ), category: .networking
     )
 
     retrier.retry(request, for: self, dueTo: error) { [weak self] retryResult in

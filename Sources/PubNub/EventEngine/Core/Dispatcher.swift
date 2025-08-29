@@ -53,10 +53,12 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
   ) {
     invocations.forEach {
       logger.debug(
-        LogMessageContent.CustomObject(
-          operation: "dispatch",
-          arguments: [("invocation", $0)],
-          details: "Received invocation"
+        .customObject(
+          .init(
+            operation: "dispatch",
+            details: "Received invocation",
+            arguments: [("invocation", $0)]
+          )
         ),
         category: .eventEngine
       )
@@ -90,10 +92,12 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       with: id
     )
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "executeEffect",
-        arguments: [("effect", effect)],
-        details: "Dispatching effect"
+      .customObject(
+        .init(
+          operation: "executeEffect",
+          details: "Dispatching effect",
+          arguments: [("effect", effect)]
+        )
       ),
       category: .eventEngine
     )

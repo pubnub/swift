@@ -73,17 +73,21 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     let invocations = transitionResult.invocations
 
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "ee-transition",
-        details: "Exiting \(String(describing: currentState))"
+      .customObject(
+        .init(
+          operation: "ee-transition",
+          details: "Exiting \(String(describing: currentState))"
+        )
       ),
       category: .eventEngine
     )
 
     logger.debug(
-      LogMessageContent.CustomObject(
-        operation: "ee-transition",
-        details: "Entering \(String(describing: newState))"
+      .customObject(
+        .init(
+          operation: "ee-transition",
+          details: "Entering \(String(describing: newState))"
+        )
       ),
       category: .eventEngine
     )

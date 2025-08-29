@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import os
 
 // MARK: - Log Message
 
@@ -35,27 +36,82 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
 // MARK: - LogMessageContent
 
 /// An enum representing different types of log message content
-public enum LogMessageContent: JSONCodable, CustomStringConvertible {
+public enum LogMessageContent: JSONCodable, CustomStringConvertible, ExpressibleByStringLiteral, ExpressibleByStringInterpolation, LogMessageConvertible {
   /// A simple text message
   case text(String)
   /// A network request
   case networkRequest(NetworkRequest)
   /// A network response
   case networkResponse(NetworkResponse)
-  /// A method call
+  /// A custom object or method call
   case customObject(CustomObject)
 
   public var description: String {
     switch self {
     case let .text(textValue):
       textValue
-    case let .networkRequest(networkRequestContent):
-      networkRequestContent.description
-    case let .networkResponse(networkResponseContent):
-      networkResponseContent.description
-    case let .customObject(customObjectContent):
-      customObjectContent.description
+    case let .networkRequest(networkRequest):
+      networkRequest.description
+    case let .networkResponse(networkResponse):
+      networkResponse.description
+    case let .customObject(customObject):
+      customObject.description
     }
+  }
+
+  var logMessageType: String {
+    switch self {
+    case .text:
+      return "text"
+    case .networkRequest:
+      return "network-request"
+    case .networkResponse:
+      return "network-response"
+    case .customObject:
+      return "object"
+    }
+  }
+
+  var details: String? {
+    switch self {
+    case .text:
+      return nil
+    case let .networkRequest(networkRequest):
+      return networkRequest.details
+    case let .networkResponse(networkResponse):
+      return networkResponse.details
+    case let .customObject(customObject):
+      return customObject.details
+    }
+  }
+
+  var additionalFields: [String: AnyJSON] {
+    if case let .networkRequest(networkRequest) = self {
+      return ["cancelled": AnyJSON(networkRequest.isCancelled), "failed": AnyJSON(networkRequest.isFailed)]
+    } else {
+      return [:]
+    }
+  }
+
+  public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> any LogMessage {
+    BaseLogMessage(
+      pubNubId: pubNubId,
+      logLevel: logLevel,
+      category: category,
+      location: location,
+      type: logMessageType,
+      message: self,
+      details: details,
+      additionalFields: additionalFields
+    )
+  }
+
+  public init(stringLiteral value: String) {
+    self = .text(value)
+  }
+
+  public init(stringInterpolation value: String) {
+    self = .text(value)
   }
 }
 
@@ -86,34 +142,39 @@ class BaseLogMessage: LogMessage {
 
     var stringValue: String {
       switch self {
-      case .timestamp: return "timestamp"
-      case .pubNubId: return "pubNubId"
-      case .logLevel: return "logLevel"
-      case .category: return "category"
-      case .location: return "location"
-      case .type: return "type"
-      case .message: return "message"
-      case .details: return "details"
-      case .dynamic(let key): return key
+        case .timestamp: return "timestamp"
+        case .pubNubId: return "pubNubId"
+        case .logLevel: return "logLevel"
+        case .category: return "category"
+        case .location: return "location"
+        case .type: return "type"
+        case .message: return "message"
+        case .details: return "details"
+        case .dynamic(let key): return key
       }
     }
 
     init?(stringValue: String) {
       switch stringValue {
-      case "timestamp": self = .timestamp
-      case "pubNubId": self = .pubNubId
-      case "logLevel": self = .logLevel
-      case "category": self = .category
-      case "location": self = .location
-      case "type": self = .type
-      case "message": self = .message
-      case "details": self = .details
-      default: self = .dynamic(stringValue)
+        case "timestamp": self = .timestamp
+        case "pubNubId": self = .pubNubId
+        case "logLevel": self = .logLevel
+        case "category": self = .category
+        case "location": self = .location
+        case "type": self = .type
+        case "message": self = .message
+        case "details": self = .details
+        default: self = .dynamic(stringValue)
       }
     }
 
-    var intValue: Int? { nil }
-    init?(intValue: Int) { nil }
+    var intValue: Int? {
+      nil
+    }
+
+    init?(intValue: Int) {
+      nil
+    }
   }
 
   init(
@@ -341,7 +402,7 @@ extension LogMessageContent {
       case details
     }
 
-    init(operation: String = "", arguments: [(String, Any)] = [], details: String? = nil) {
+    init(operation: String = "", details: String? = nil, arguments: [(String, Any)] = []) {
       self.operation = operation
       self.arguments = arguments.map { ($0.0, String(describing: $0.1)) }
       self.details = details

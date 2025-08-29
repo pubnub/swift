@@ -115,12 +115,13 @@ extension Request {
     appendResponseCompletion { [requestID, logger] result in
       queue.async {
         logger.debug(
-          LogMessageContent.CustomObject(
-            operation: "deserializing-response",
-            arguments: [("requestID", requestID)],
-            details: "Deserializing response"
-          ),
-          category: .networking
+          .customObject(
+            .init(
+              operation: "deserializing-response",
+              details: "Deserializing response",
+              arguments: [("requestID", requestID)]
+            )
+          ), category: .networking
         )
 
         let deserializationResult = result.flatMap { response in
@@ -133,10 +134,15 @@ extension Request {
 
         if case let .failure(error) = deserializationResult {
           logger.debug(
-            LogMessageContent.CustomObject(
-              operation: "deserialization-failed",
-              arguments: [("requestID", requestID), ("error", error)],
-              details: "Deserialization failed"
+            .customObject(
+              .init(
+                operation: "deserialization-failed",
+                details: "Deserialization failed",
+                arguments: [
+                  ("requestID", requestID),
+                  ("error", error)
+                ]
+              )
             ),
             category: .networking
           )

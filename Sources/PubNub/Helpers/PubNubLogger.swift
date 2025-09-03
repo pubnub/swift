@@ -325,8 +325,7 @@ public struct PubNubLogger {
       writer.executor.execute {
         writer.send(
           message: fullMessage(),
-          level: level,
-          category: category
+          metadata: .init(level: level, category: category)
         )
       }
 

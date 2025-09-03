@@ -11,7 +11,17 @@
 import Foundation
 import os
 
-// MARK: - Log Category
+// MARK: - LogMetadata
+
+/// Lightweight routing metadata used by ``LogWriter/send(message:metadata:)`` to enable log filtering without evaluating the log message content
+public struct LogMetadata {
+  /// The severity level of the log (e.g., debug, info, warning, error)
+  public let level: LogLevel
+  /// The category to classify the log message  
+  public let category: LogCategory
+}
+
+// MARK: - LogCategory
 
 /// Reserverd PubNub log category types
 public enum LogCategory: String, JSONCodable {
@@ -22,7 +32,7 @@ public enum LogCategory: String, JSONCodable {
   case pubNub = "PubNub"
 }
 
-// MARK: - Log Writer
+// MARK: - LogWriter
 
 /// A protocol that defines a log writer, which handles logging messages to a specific output
 public protocol LogWriter {
@@ -41,9 +51,8 @@ public protocol LogWriter {
   ///
   /// - Parameters:
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
-  ///   - type: The severity level of the log (e.g., debug, info, warning, error).
-  ///   - category: The category to classify the log message
-  func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory)
+  ///   - metadata: Lightweight routing metadata for filtering and dispatching decisions
+  func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -96,7 +105,7 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     if sendToNSLog {
       NSLog("%@", message().description)
     } else {
@@ -171,7 +180,7 @@ open class FileLogWriter: LogWriter {
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
     // Ensure that the max number of log files hasn't been reached
@@ -258,9 +267,9 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> LogMessage, level: LogLevel, category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     // Select the appropriate logger based on category (without evaluating message)
-    let finalLogger = switch category {
+    let finalLogger = switch metadata.category {
     case .eventEngine:
       Logger.eventEngine
     case .networking:
@@ -274,7 +283,7 @@ public struct OSLogWriter: LogWriter {
     }
 
     // Now evaluate the message only once, when we actually need to log it
-    switch level {
+    switch metadata.level {
     case .debug, .all:
       finalLogger.debug("\(message().description)")
     case .log, .info, .event:

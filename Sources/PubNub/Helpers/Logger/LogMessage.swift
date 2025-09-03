@@ -87,10 +87,13 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
 
   var additionalFields: [String: AnyJSON] {
     if case let .networkRequest(networkRequest) = self {
-      return ["cancelled": AnyJSON(networkRequest.isCancelled), "failed": AnyJSON(networkRequest.isFailed)]
-    } else {
-      return [:]
+      return [
+        "cancelled": AnyJSON(networkRequest.isCancelled),
+        "failed": AnyJSON(networkRequest.isFailed)
+      ]
     }
+
+    return [:]
   }
 
   public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> any LogMessage {

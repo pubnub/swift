@@ -96,9 +96,12 @@ struct FileManagementRouter: HTTPRouter {
   }
 
   var queryItems: Result<[URLQueryItem], Error> {
-    let query = defaultQueryItems
+    var query = defaultQueryItems
 
     switch endpoint {
+    case let .list(_, limit, next):
+      query.appendIfPresent(key: .limit, value: limit.description)
+      query.appendIfPresent(key: .next, value: next)
     default:
       break
     }

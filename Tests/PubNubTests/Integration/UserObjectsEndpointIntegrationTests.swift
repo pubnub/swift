@@ -44,6 +44,94 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
+
+  func testFetchAllEndpointWithSortParameter() {
+    let fetchAllExpect = expectation(description: "Fetch All Expectation")
+    let client = PubNub(configuration: config)
+    let expectedUsers = setupTestUsers(client: client)
+    
+    client.allUserMetadata(
+      filter: "id LIKE 'swift-*'",
+      sort: [.init(property: .name, ascending: false)]
+    ) { result in
+      switch result {
+      case let .success((users, _)):
+        let expSortedUsers = expectedUsers.sorted(by: { $0.name ?? "" > $1.name ?? "" })
+        XCTAssertEqual(expSortedUsers.map { $0.metadataId } , users.map { $0.metadataId })
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      fetchAllExpect.fulfill()
+    }
+    
+    defer {
+      for user in expectedUsers {
+        waitForCompletion {
+          client.removeUserMetadata(
+            user.metadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchAllExpect], timeout: 10.0)
+  }
+  
+  func testFetchAllEndpointWithPaginationParameters() {
+    let fetchAllExpect = expectation(description: "Fetch All with Limit Expectation")
+    let client = PubNub(configuration: config)
+    let expectedUsers = setupTestUsers(client: client)
+    let limit = 3
+    
+    // First page
+    client.allUserMetadata(
+      filter: "id LIKE 'swift-*'",
+      limit: limit
+    ) { [unowned client] firstCallResult in
+      switch firstCallResult {
+      case let .success((users, page)):
+        // Verify first page contains expected number of users
+        XCTAssertEqual(users.count, limit)
+        // Fetch second page using the next cursor
+        client.allUserMetadata(
+          filter: "id LIKE 'swift-*'",
+          page: page
+        ) { secondCallResult in
+          switch secondCallResult {
+          case let .success((secondUserArray, _)):
+            XCTAssertEqual(secondUserArray.count, expectedUsers.count - limit)
+            // Combine identifiers from both pages
+            let firstPageIds = Set(users.map { $0.metadataId })
+            let secondPageIds = Set(secondUserArray.map { $0.metadataId })
+            let allFetchedIds = firstPageIds.union(secondPageIds)
+            // Compare with expected user identifiers
+            XCTAssertEqual(allFetchedIds, Set(expectedUsers.map { $0.metadataId }), "Fetched user IDs should match expected user IDs")
+            // Verify no duplicates between pages
+            XCTAssertTrue(firstPageIds.isDisjoint(with: secondPageIds), "Pages should not contain duplicate users")
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          fetchAllExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+    }
+    
+    defer {
+      for user in expectedUsers {
+        waitForCompletion {
+          client.removeUserMetadata(
+            user.metadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchAllExpect], timeout: 15.0)
+  }
   
   func testUserCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
@@ -84,7 +172,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       client.removeUserMetadata(testUser.metadataId) { result in
         switch result {
         case let .success(userMetadataId):
-          XCTAssertTrue(userMetadataId == testUser.metadataId)
+          XCTAssertEqual(userMetadataId, testUser.metadataId)
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -168,302 +256,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     }
     
     wait(for: [setExpect], timeout: 10.0)
-  }
-  
-  func testUserFetchMemberships() {
-    let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
-    let client = PubNub(configuration: config)
-    
-    let testUser = PubNubUserMetadataBase(
-      metadataId: "testUserFetchMemberships",
-      name: "Swift ITest"
-    )
-    let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testUserFetchMembershipsSpace",
-      name: "Swift Membership ITest"
-    )
-    
-    let membership = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel.metadataId,
-      user: testUser,
-      channel: testChannel
-    )
-    
-    client.setUserMetadata(testUser) { [unowned client] _ in
-      client.setChannelMetadata(testChannel) { _ in
-        client.setMemberships(userId: testUser.metadataId, channels: [membership]) { _ in
-          client.fetchMemberships(
-            userId: testUser.metadataId,
-            include: .init(channelFields: true, channelCustomFields: true),
-            sort: [.init(property: .object(.id), ascending: false), .init(property: .updated)]
-          ) { result in
-            switch result {
-            case let .success((memberships, _)):
-              XCTAssertEqual(memberships.count, 1)
-              XCTAssertTrue(memberships.allSatisfy {
-                  $0.channelMetadataId == testChannel.metadataId && $0.userMetadataId == testUser.metadataId
-                }
-              )
-            case let .failure(error):
-              XCTFail("Failed due to error: \(error)")
-            }
-            fetchMembershipExpect.fulfill()
-          }
-        }
-      }
-    }
-    
-    defer {
-      waitForCompletion {
-        client.removeMemberships(
-          userId: testUser.metadataId,
-          channels: [membership],
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeUserMetadata(
-          testUser.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel.metadataId,
-          completion: $0
-        )
-      }
-    }
-    
-    wait(for: [fetchMembershipExpect], timeout: 10.0)
-  }
-  
-  func testUpdateMembership() {
-    let updateMembershipExpect = expectation(description: "Update Membership Expectation")
-    let client = PubNub(configuration: config)
-    
-    let testUser = PubNubUserMetadataBase(
-      metadataId: "testUpdateMemberships",
-      name: "Swift ITest"
-    )
-    let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testUpdateMembershipsSpace",
-      name: "Swift Membership ITest"
-    )
-    let membership = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel.metadataId,
-      user: testUser,
-      channel: testChannel
-    )
-    
-    client.setUserMetadata(testUser) { [unowned client] _ in
-      client.setChannelMetadata(testChannel) { _ in
-        client.setMemberships(userId: testUser.metadataId, channels: [membership]) { result in
-          switch result {
-          case let .success((memberships, _)):
-            XCTAssertEqual(memberships.count, 1)
-            XCTAssertTrue(
-              memberships.allSatisfy {
-                $0.channelMetadataId == testChannel.metadataId && $0.userMetadataId == testUser.metadataId
-              }
-            )
-          case let .failure(error):
-            XCTFail("Failed due to error: \(error)")
-          }
-          updateMembershipExpect.fulfill()
-        }
-      }
-    }
-    
-    defer {
-      waitForCompletion {
-        client.removeMemberships(
-          userId: testUser.metadataId,
-          channels: [membership],
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeUserMetadata(
-          testUser.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel.metadataId,
-          completion: $0
-        )
-      }
-    }
-    
-    wait(for: [updateMembershipExpect], timeout: 10.0)
-  }
-  
-  func testRemoveMembership() {
-    let removeMembershipExpect = expectation(description: "Remove Membership Expectation")
-    let client = PubNub(configuration: config)
-    
-    let testUser = PubNubUserMetadataBase(
-      metadataId: "testUpdateMemberships",
-      name: "Swift ITest"
-    )
-    let testChannel = PubNubChannelMetadataBase(
-      metadataId: "testUpdateMembershipsSpace",
-      name: "Swift Membership ITest"
-    )
-    let membership = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel.metadataId,
-      user: testUser,
-      channel: testChannel
-    )
-    
-    client.setUserMetadata(testUser) { [unowned client] _ in
-      client.setChannelMetadata(testChannel) { _ in
-        client.removeMemberships(userId: testUser.metadataId, channels: [membership]) { result in
-          switch result {
-          case let .success((memberships, _)):
-            XCTAssertTrue(memberships.isEmpty)
-          case let .failure(error):
-            XCTFail("Failed due to error: \(error)")
-          }
-          removeMembershipExpect.fulfill()
-        }
-      }
-    }
-    
-    defer {
-      waitForCompletion {
-        client.removeMemberships(
-          userId: testUser.metadataId,
-          channels: [membership],
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeUserMetadata(
-          testUser.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel.metadataId,
-          completion: $0
-        )
-      }
-    }
-    
-    wait(for: [removeMembershipExpect], timeout: 10.0)
-  }
-  
-  func testManageMemberships() {
-    let manageMembershipExpect = expectation(description: "Manage Membership Expectation")
-    let client = PubNub(configuration: config)
-    
-    let testUser = PubNubUserMetadataBase(
-      metadataId: "testManageMemberships",
-      name: "Swift ITest"
-    )
-    let testChannel1 = PubNubChannelMetadataBase(
-      metadataId: "testManageMembershipsSpace1",
-      name: "Swift Membership ITest 1"
-    )
-    let testChannel2 = PubNubChannelMetadataBase(
-      metadataId: "testManageMembershipsSpace2",
-      name: "Swift Membership ITest 2"
-    )
-    let testChannel3 = PubNubChannelMetadataBase(
-      metadataId: "testManageMembershipsSpace3",
-      name: "Swift Membership ITest 3"
-    )
-    
-    let membership1 = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel1.metadataId,
-      user: testUser,
-      channel: testChannel1
-    )
-    let membership2 = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel2.metadataId,
-      user: testUser,
-      channel: testChannel2
-    )
-    let membership3 = PubNubMembershipMetadataBase(
-      userMetadataId: testUser.metadataId,
-      channelMetadataId: testChannel3.metadataId,
-      user: testUser,
-      channel: testChannel3
-    )
-    
-    // First set up initial memberships
-    client.setUserMetadata(testUser) { [unowned client] _ in
-      client.setChannelMetadata(testChannel1) { _ in
-        client.setChannelMetadata(testChannel2) { _ in
-          client.setChannelMetadata(testChannel3) { _ in
-            client.setMemberships(userId: testUser.metadataId, channels: [membership1, membership2]) { _ in
-              client.manageMemberships(
-                userId: testUser.metadataId,
-                setting: [membership3],
-                removing: [membership1]
-              ) { result in
-                switch result {
-                case let .success((memberships, _)):
-                  XCTAssertEqual(memberships.count, 2)
-                  XCTAssertTrue(memberships.contains { $0.channelMetadataId == testChannel2.metadataId })
-                  XCTAssertTrue(memberships.contains { $0.channelMetadataId == testChannel3.metadataId })
-                  XCTAssertFalse(memberships.contains { $0.channelMetadataId == testChannel1.metadataId })
-                case let .failure(error):
-                  XCTFail("Failed due to error: \(error)")
-                }
-                manageMembershipExpect.fulfill()
-              }
-            }
-          }
-        }
-      }
-    }
-    
-    defer {
-      waitForCompletion {
-        client.removeMemberships(
-          userId: testUser.metadataId,
-          channels: [membership1, membership2, membership3],
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeUserMetadata(
-          testUser.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel1.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel2.metadataId,
-          completion: $0
-        )
-      }
-      waitForCompletion {
-        client.removeChannelMetadata(
-          testChannel3.metadataId,
-          completion: $0
-        )
-      }
-    }
-    
-    wait(for: [manageMembershipExpect], timeout: 10.0)
-  }
+  }  
 }
 
 private extension UserObjectsEndpointIntegrationTests {
@@ -472,36 +265,42 @@ private extension UserObjectsEndpointIntegrationTests {
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User One",
+        status: "online",
         profileURL: "https://example.com/user1",
         custom: ["role": "admin", "department": "engineering"]
       ),
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User Two",
+        status: "online",
         profileURL: "https://example.com/user2",
         custom: ["role": "user", "department": "marketing"]
       ),
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User Three",
+        status: "offline",
         profileURL: "https://example.com/user3",
         custom: ["role": "manager", "department": "sales"]
       ),
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User Four",
+        status: "archived",
         profileURL: "https://example.com/user4",
         custom: ["role": "developer", "department": "mobile"]
       ),
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User Five",
+        status: "offline",
         profileURL: "https://example.com/user5",
         custom: ["role": "designer", "department": "ux"]
       ),
       PubNubUserMetadataBase(
         metadataId: randomString(),
         name: "Test User Six",
+        status: "archived",
         profileURL: "https://example.com/user6",
         custom: ["role": "qa", "department": "testing"]
       )
@@ -511,22 +310,27 @@ private extension UserObjectsEndpointIntegrationTests {
   func setupTestUsers(client: PubNub) -> [PubNubUserMetadata] {
     let setupExpect = expectation(description: "Setup Test Users Expectation")
     let testUsers = userStubs()
+    setupExpect.expectedFulfillmentCount = testUsers.count
+    setupExpect.assertForOverFulfill = true
     
-    testUsers.enumerated().forEach { index, user in
-      client.setUserMetadata(user) { result in
-        if case let .failure(error) = result {
-          XCTFail("Failed to setup test user \(user.metadataId): \(error)")
-        }
-        if index == testUsers.count - 1 {
+    func setupNext(_ remainingUsers: [PubNubUserMetadataBase]) {
+      if let user = remainingUsers.first {
+        client.setUserMetadata(user) { result in
+          switch result {
+          case .success:
+            setupNext(Array(remainingUsers.dropFirst()))
+          case let .failure(error):
+            XCTFail("Failed to setup test user \(user.metadataId): \(error)")
+          }
           setupExpect.fulfill()
         }
       }
     }
     
-    wait(
-      for: [setupExpect],
-      timeout: 10.0
-    )
+    // Start the setup process
+    setupNext(testUsers)
+    // Wait for all users to be set up
+    wait(for: [setupExpect], timeout: 10.0)
     
     return testUsers
   }

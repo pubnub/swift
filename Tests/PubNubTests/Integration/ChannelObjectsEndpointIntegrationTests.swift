@@ -45,6 +45,93 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
   
+  func testFetchAllEndpointWithSortParameter() {
+    let fetchAllExpect = expectation(description: "Fetch All Expectation")
+    let client = PubNub(configuration: config)
+    let expectedChannels = setupTestChannels(client: client)
+    
+    client.allChannelMetadata(
+      filter: "id LIKE 'swift-*'",
+      sort: [.init(property: .name, ascending: false)]
+    ) { result in
+      switch result {
+      case let .success((channels, _)):
+        let expSortedChannels = expectedChannels.sorted { $0.name ?? "" > $1.name ?? "" }
+        let actualSortedChannels = channels
+        XCTAssertEqual(expSortedChannels.map { $0.metadataId }, actualSortedChannels.map { $0.metadataId })
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      fetchAllExpect.fulfill()
+    }
+    
+    defer {
+      for channel in expectedChannels {
+        waitForCompletion {
+          client.removeChannelMetadata(
+            channel.metadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchAllExpect], timeout: 10.0)
+  }
+  
+  func testFetchAllEndpointWithLimitAndPagination() {
+    let fetchAllExpect = expectation(description: "Fetch All with Limit Expectation")
+    let client = PubNub(configuration: config)
+    let expectedChannels = setupTestChannels(client: client)
+    let limit = 3
+    
+    // First page
+    client.allChannelMetadata(
+      filter: "id LIKE 'swift-*'",
+      limit: limit
+    ) { [unowned client] firstCallResult in
+      switch firstCallResult {
+      case let .success((channels, page)):
+        // Verify first page contains expected number of channels
+        XCTAssertEqual(channels.count, limit)
+        client.allChannelMetadata(
+          filter: "id LIKE 'swift-*'",
+          page: page
+        ) { secondCallResult in
+          switch secondCallResult {
+          case let .success((secondChannelArray, _)):
+            XCTAssertEqual(secondChannelArray.count, expectedChannels.count - limit)
+            // Combine identifiers from both pages
+            let firstPageIds = Set(channels.map { $0.metadataId })
+            let secondPageIds = Set(secondChannelArray.map { $0.metadataId })
+            let allFetchedIds = firstPageIds.union(secondPageIds)
+            // Compare with expected channel identifiers
+            XCTAssertEqual(allFetchedIds, Set(expectedChannels.map { $0.metadataId }), "Fetched channel IDs should match expected channel IDs")
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          fetchAllExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+        fetchAllExpect.fulfill()
+      }
+    }
+    
+    defer {
+      for channel in expectedChannels {
+        waitForCompletion {
+          client.removeChannelMetadata(
+            channel.metadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchAllExpect], timeout: 15.0)
+  }
+  
   func testCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch Expectation")
     let client = PubNub(configuration: config)
@@ -515,22 +602,27 @@ private extension ChannelObjectsEndpointIntegrationTests {
   func setupTestChannels(client: PubNub) -> [PubNubChannelMetadata] {
     let setupExpect = expectation(description: "Setup Test Channels Expectation")
     let testChannels = channelStubs()
+    setupExpect.expectedFulfillmentCount = testChannels.count
+    setupExpect.assertForOverFulfill = true
     
-    testChannels.enumerated().forEach { index, channel in
-      client.setChannelMetadata(channel) { result in
-        if case let .failure(error) = result {
-          XCTFail("Failed to setup test channel \(channel.metadataId): \(error)")
-        }
-        if index == testChannels.count - 1 {
+    func setupNext(_ remainingChannels: [PubNubChannelMetadataBase]) {
+      if let channel = remainingChannels.first {
+        client.setChannelMetadata(channel) { result in
+          switch result {
+          case .success:
+            setupNext(Array(remainingChannels.dropFirst()))
+          case let .failure(error):
+            XCTFail("Failed to setup test channel \(channel.metadataId): \(error)")
+          }
           setupExpect.fulfill()
         }
       }
     }
     
-    wait(
-      for: [setupExpect],
-      timeout: 10.0
-    )
+    // Start the setup process
+    setupNext(testChannels)
+    // Wait for all channels to be set up
+    wait(for: [setupExpect], timeout: 10.0)
     
     return testChannels
   }

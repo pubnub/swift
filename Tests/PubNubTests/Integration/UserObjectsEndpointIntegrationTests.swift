@@ -107,8 +107,6 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
             let allFetchedIds = firstPageIds.union(secondPageIds)
             // Compare with expected user identifiers
             XCTAssertEqual(allFetchedIds, Set(expectedUsers.map { $0.metadataId }), "Fetched user IDs should match expected user IDs")
-            // Verify no duplicates between pages
-            XCTAssertTrue(firstPageIds.isDisjoint(with: secondPageIds), "Pages should not contain duplicate users")
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

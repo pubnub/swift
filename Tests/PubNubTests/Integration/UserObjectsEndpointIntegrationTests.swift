@@ -101,12 +101,10 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
           switch secondCallResult {
           case let .success((secondUserArray, _)):
             XCTAssertEqual(secondUserArray.count, expectedUsers.count - limit)
-            // Combine identifiers from both pages
             let firstPageIds = Set(users.map { $0.metadataId })
             let secondPageIds = Set(secondUserArray.map { $0.metadataId })
             let allFetchedIds = firstPageIds.union(secondPageIds)
-            // Compare with expected user identifiers
-            XCTAssertEqual(allFetchedIds, Set(expectedUsers.map { $0.metadataId }), "Fetched user IDs should match expected user IDs")
+            XCTAssertEqual(allFetchedIds, Set(expectedUsers.map { $0.metadataId }))
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }
@@ -134,7 +132,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
-    let testUser = PubNubUserMetadataBase(metadataId: "testUserCreateAndFetchEndpoint", name: "Swift ITest")
+    let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
     client.setUserMetadata(testUser) { [unowned client] setResult in
       client.fetchUserMetadata(testUser.metadataId) { result in
@@ -164,7 +162,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testUserCreateAndDeleteEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
-    let testUser = PubNubUserMetadataBase(metadataId: "testUserCreateAndDeleteEndpoint", name: "Swift ITest")
+    let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
     client.setUserMetadata(testUser) { [unowned client] _ in
       client.removeUserMetadata(testUser.metadataId) { result in
@@ -193,7 +191,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchNotExistingUser() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
-    let testUser = PubNubUserMetadataBase(metadataId: "testFetchNotExistingUser", name: "Swift ITest")
+    let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
     client.fetchUserMetadata(testUser.metadataId) { result in
       switch result {

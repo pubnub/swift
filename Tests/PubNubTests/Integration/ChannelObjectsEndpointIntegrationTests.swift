@@ -101,12 +101,10 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
           switch secondCallResult {
           case let .success((secondChannelArray, _)):
             XCTAssertEqual(secondChannelArray.count, expectedChannels.count - limit)
-            // Combine identifiers from both pages
             let firstPageIds = Set(channels.map { $0.metadataId })
             let secondPageIds = Set(secondChannelArray.map { $0.metadataId })
             let allFetchedIds = firstPageIds.union(secondPageIds)
-            // Compare with expected channel identifiers
-            XCTAssertEqual(allFetchedIds, Set(expectedChannels.map { $0.metadataId }), "Fetched channel IDs should match expected channel IDs")
+            XCTAssertEqual(allFetchedIds, Set(expectedChannels.map { $0.metadataId }))
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }
@@ -135,7 +133,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
   func testCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch Expectation")
     let client = PubNub(configuration: config)
-    let testChannel = PubNubChannelMetadataBase(metadataId: "testCreateAndFetchEndpoint", name: "Swift ITest")
+    let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
     
     client.setChannelMetadata(testChannel) { [unowned client] _ in
       client.fetchChannelMetadata(testChannel.metadataId) { result in

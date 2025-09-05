@@ -12,8 +12,8 @@ import Foundation
 import PubNubSDK
 import XCTest
 
-class MembershipEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: MembershipEndpointIntegrationTests.self))
+class MembershipsEndpointIntegrationTests: XCTestCase {
+  let config = PubNubConfiguration(from: Bundle(for: MembershipsEndpointIntegrationTests.self))
   
   func testFetchMemberships() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")
@@ -285,7 +285,7 @@ class MembershipEndpointIntegrationTests: XCTestCase {
   }
 }
 
-private extension MembershipEndpointIntegrationTests {
+private extension MembershipsEndpointIntegrationTests {
   func setUpMembershipTestData(client: PubNub, userId: String, channelIds: [String]) -> [PubNubMembershipMetadata] {
     let setupExpect = expectation(description: "Setup Membership Test Data")
     setupExpect.expectedFulfillmentCount = 1

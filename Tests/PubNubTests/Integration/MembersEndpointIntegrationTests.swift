@@ -91,11 +91,11 @@ class MembersEndpointIntegrationTests: XCTestCase {
           case let .success((membersFromSecondPage, _)):
             XCTAssertEqual(membersFromSecondPage.count, expectedMembers.count - membersFromFirstPage.count)
             XCTAssertTrue(membersFromSecondPage.allSatisfy { Set(userIds).contains($0.userMetadataId) && $0.channelMetadataId == channelId })
-            // Verify that all expected member IDs are present in the fetched results            
+            // Verify that all expected member IDs are present in the fetched results
             let allFetchedMembers = membersFromFirstPage + membersFromSecondPage
             let fetchedMemberIds = Set(allFetchedMembers.map { $0.userMetadataId })
             let expectedMemberIds = Set(expectedMembers.map { $0.userMetadataId })
-            XCTAssertEqual(fetchedMemberIds, expectedMemberIds)            
+            XCTAssertEqual(fetchedMemberIds, expectedMemberIds)
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }
@@ -133,14 +133,14 @@ class MembersEndpointIntegrationTests: XCTestCase {
     
     wait(for: [fetchMembershipExpect], timeout: 10.0)
   }
-
+  
   func testFetchMembersWithFilterParameter() {
     let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let channelId = randomString()
     let userIds = [randomString(), randomString()]
     let members = setUpMembersTestData(client: client, channelId: channelId, userIds: userIds)
-
+    
     client.fetchMembers(
       channel: channelId,
       include: .init(uuidFields: true, uuidCustomFields: true),
@@ -284,64 +284,108 @@ class MembersEndpointIntegrationTests: XCTestCase {
   func testManageMembers() {
     let manageMembersExpect = expectation(description: "Manage Members Expectation")
     let client = PubNub(configuration: config)
-    let channelId = randomString()
     
-    // Set up initial members (user1 and user2)
-    let initialUserIds = [randomString(), randomString()]
-    let initialMembers = setUpMembersTestData(client: client, channelId: channelId, userIds: initialUserIds)
+    let testUser1 = PubNubUserMetadataBase(
+      metadataId: randomString(),
+      name: "Swift ITest User 1"
+    )
+    let testUser2 = PubNubUserMetadataBase(
+      metadataId: randomString(),
+      name: "Swift ITest User 2"
+    )
+    let testUser3 = PubNubUserMetadataBase(
+      metadataId: randomString(),
+      name: "Swift ITest User 3"
+    )
+    let testChannel = PubNubChannelMetadataBase(
+      metadataId: randomString(),
+      name: "Swift ITest Channel"
+    )
     
-    // Create a third user to add during manage operation
-    let newUserId = randomString()
-    let newUser = PubNubUserMetadataBase(metadataId: newUserId, name: newUserId)
+    let membership1 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser1.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      user: testUser1,
+      channel: testChannel
+    )
+    let membership2 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser2.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      user: testUser2,
+      channel: testChannel
+    )
+    let membership3 = PubNubMembershipMetadataBase(
+      userMetadataId: testUser3.metadataId,
+      channelMetadataId: testChannel.metadataId,
+      user: testUser3,
+      channel: testChannel
+    )
     
-    // Set up the new user
-    client.setUserMetadata(newUser) { [unowned client] _ in      
-      client.manageMembers(
-        channel: channelId,
-        setting: [PubNubMembershipMetadataBase(userMetadataId: newUserId, channelMetadataId: channelId)],
-        removing: [initialMembers[0]]
-      ) { result in
-        switch result {
-        case let .success((memberships, _)):
-          XCTAssertEqual(memberships.count, 2)
-          // First user should be removed
-          XCTAssertFalse(memberships.contains { $0.userMetadataId == initialUserIds[0] })
-          // Second user should remain
-          XCTAssertTrue(memberships.contains { $0.userMetadataId == initialUserIds[1] })
-          // New user should be added
-          XCTAssertTrue(memberships.contains { $0.userMetadataId == newUserId }) 
-        case let .failure(error):
-          XCTFail("Failed due to error: \(error)")
+    // First set up initial members
+    client.setUserMetadata(testUser1) { [unowned client] _ in
+      client.setUserMetadata(testUser2) { _ in
+        client.setUserMetadata(testUser3) { _ in
+          client.setChannelMetadata(testChannel) { _ in
+            client.setMembers(channel: testChannel.metadataId, users: [membership1, membership2]) { _ in
+              client.manageMembers(
+                channel: testChannel.metadataId,
+                setting: [membership3],
+                removing: [membership1]
+              ) { result in
+                switch result {
+                case let .success((memberships, _)):
+                  XCTAssertEqual(memberships.count, 2)
+                  XCTAssertTrue(memberships.contains { $0.userMetadataId == testUser2.metadataId })
+                  XCTAssertTrue(memberships.contains { $0.userMetadataId == testUser3.metadataId })
+                  XCTAssertFalse(memberships.contains { $0.userMetadataId == testUser1.metadataId })
+                case let .failure(error):
+                  XCTFail("Failed due to error: \(error)")
+                }
+                manageMembersExpect.fulfill()
+              }
+            }
+          }
         }
-        manageMembersExpect.fulfill()
       }
     }
     
     defer {
-      let allMembers = initialMembers + [PubNubMembershipMetadataBase(userMetadataId: newUserId, channelMetadataId: channelId)]
-      let allUserIds: [String] = initialUserIds + [newUserId]
-
       waitForCompletion {
         client.removeMembers(
-          channel: channelId,
-          users: allMembers,
+          channel: testChannel.metadataId,
+          users: [membership1, membership2, membership3],
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser1.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser2.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser3.metadataId,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          testUser3.metadataId,
           completion: $0
         )
       }
       waitForCompletion {
         client.removeChannelMetadata(
-          channelId,
+          testChannel.metadataId,
           completion: $0
         )
-      }
-      
-      for userId in allUserIds {
-        waitForCompletion {
-          client.removeUserMetadata(
-            userId,
-            completion: $0
-          )
-        }
       }
     }
     

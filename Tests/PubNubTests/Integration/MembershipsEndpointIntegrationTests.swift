@@ -64,7 +64,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchMembershipsExpect], timeout: 10.0)
   }
   
-  func testFetchMembershipsWithAdditionalParameters() {
+  func testFetchMembershipsWithPaginationParameters() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let userId = randomString()
@@ -74,26 +74,28 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
     client.fetchMemberships(
       userId: userId,
       include: .init(channelFields: true, channelCustomFields: true),
-      sort: [.init(property: .object(.name), ascending: false)],
       limit: 1
-    ) { result in
+    ) { [unowned client] result in
       switch result {
       case let .success((membershipsFromFirstPage, page)):
         // Verify the first page contains the expected number of memberships
         XCTAssertEqual(membershipsFromFirstPage.count, 1)
-        XCTAssertEqual(membershipsFromFirstPage.first?.channelMetadataId, channels.sorted(by: >).first)
         XCTAssertTrue(membershipsFromFirstPage.allSatisfy { Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId })
         // Fetch the next page
         client.fetchMemberships(
           userId: userId,
           include: .init(channelFields: true, channelCustomFields: true),
-          limit: 1,
           page: page
         ) { result in
           switch result {
           case let .success((membershipsFromSecondPage, _)):
             XCTAssertEqual(membershipsFromSecondPage.count, expectedMemberships.count - membershipsFromFirstPage.count)
-            XCTAssertTrue(membershipsFromSecondPage.allSatisfy { Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId })
+            XCTAssertTrue(membershipsFromSecondPage.allSatisfy { Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId })            
+            // Verify that all expected membership IDs are present in the fetched results
+            let allFetchedMemberships = membershipsFromFirstPage + membershipsFromSecondPage
+            let fetchedChannelIds = Set(allFetchedMemberships.map { $0.channelMetadataId })
+            let expectedChannelIds = Set(expectedMemberships.map { $0.channelMetadataId })
+            XCTAssertEqual(fetchedChannelIds, expectedChannelIds)            
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

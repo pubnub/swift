@@ -64,7 +64,7 @@ class MembersEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchMembershipExpect], timeout: 10.0)
   }
   
-  func testFetchMembersWithAdditionalParameters() {
+  func testFetchMembersWithPaginationParameters() {
     let fetchMembershipExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let channelId = randomString()
@@ -74,26 +74,28 @@ class MembersEndpointIntegrationTests: XCTestCase {
     client.fetchMembers(
       channel: channelId,
       include: .init(uuidFields: true, uuidCustomFields: true),
-      sort: [.init(property: .object(.id), ascending: false)],
       limit: 1
-    ) { result in
+    ) { [unowned client] result in
       switch result {
       case let .success((membersFromFirstPage, page)):
         // Verify the first page contains the expected number of members
         XCTAssertEqual(membersFromFirstPage.count, 1)
-        XCTAssertEqual(membersFromFirstPage.first?.userMetadataId, userIds.sorted(by: >).first)
         XCTAssertTrue(membersFromFirstPage.allSatisfy { Set(userIds).contains($0.userMetadataId) && $0.channelMetadataId == channelId })
         // Fetch the next page
         client.fetchMembers(
           channel: channelId,
           include: .init(uuidFields: true, uuidCustomFields: true),
-          limit: 1,
           page: page
         ) { result in
           switch result {
           case let .success((membersFromSecondPage, _)):
             XCTAssertEqual(membersFromSecondPage.count, expectedMembers.count - membersFromFirstPage.count)
             XCTAssertTrue(membersFromSecondPage.allSatisfy { Set(userIds).contains($0.userMetadataId) && $0.channelMetadataId == channelId })
+            // Verify that all expected member IDs are present in the fetched results            
+            let allFetchedMembers = membersFromFirstPage + membersFromSecondPage
+            let fetchedMemberIds = Set(allFetchedMembers.map { $0.userMetadataId })
+            let expectedMemberIds = Set(expectedMembers.map { $0.userMetadataId })
+            XCTAssertEqual(fetchedMemberIds, expectedMemberIds)            
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
           }

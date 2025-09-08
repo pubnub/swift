@@ -17,7 +17,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
-    let expectedUsers = setupTestUsers(client: client)
+    let expectedUsers = createTestUsers(client: client)
     
     client.allUserMetadata(filter: "id LIKE 'swift-*'") { result in
       switch result {
@@ -48,7 +48,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchAllEndpointWithSortParameter() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
-    let expectedUsers = setupTestUsers(client: client)
+    let expectedUsers = createTestUsers(client: client)
     
     client.allUserMetadata(
       filter: "id LIKE 'swift-*'",
@@ -81,7 +81,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   func testFetchAllEndpointWithPaginationParameters() {
     let fetchAllExpect = expectation(description: "Fetch All with Limit Expectation")
     let client = PubNub(configuration: config)
-    let expectedUsers = setupTestUsers(client: client)
+    let expectedUsers = createTestUsers(client: client)
     let limit = 3
     
     // First page
@@ -255,7 +255,35 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
   }  
 }
 
-private extension UserObjectsEndpointIntegrationTests {
+private extension UserObjectsEndpointIntegrationTests {  
+  func createTestUsers(client: PubNub) -> [PubNubUserMetadata] {
+    let setupExpect = expectation(description: "Create Test Users Expectation")
+    let testUsers = userStubs()
+
+    setupExpect.expectedFulfillmentCount = testUsers.count
+    setupExpect.assertForOverFulfill = true
+    
+    func createNext(_ remainingUsers: [PubNubUserMetadataBase]) {
+      if let user = remainingUsers.first {
+        client.setUserMetadata(user) { result in
+          switch result {
+          case .success:
+            createNext(Array(remainingUsers.dropFirst()))
+          case let .failure(error):
+            XCTFail("Failed to setup test user \(user.metadataId): \(error)")
+          }
+          setupExpect.fulfill()
+        }
+      }
+    }
+    
+    createNext(testUsers)
+    // Wait for all users to be created
+    wait(for: [setupExpect], timeout: 10.0)
+    
+    return testUsers
+  }
+
   func userStubs() -> [PubNubUserMetadataBase] {
     [
       PubNubUserMetadataBase(
@@ -301,33 +329,5 @@ private extension UserObjectsEndpointIntegrationTests {
         custom: ["role": "qa", "department": "testing"]
       )
     ]
-  }
-  
-  func setupTestUsers(client: PubNub) -> [PubNubUserMetadata] {
-    let setupExpect = expectation(description: "Setup Test Users Expectation")
-    let testUsers = userStubs()
-    setupExpect.expectedFulfillmentCount = testUsers.count
-    setupExpect.assertForOverFulfill = true
-    
-    func setupNext(_ remainingUsers: [PubNubUserMetadataBase]) {
-      if let user = remainingUsers.first {
-        client.setUserMetadata(user) { result in
-          switch result {
-          case .success:
-            setupNext(Array(remainingUsers.dropFirst()))
-          case let .failure(error):
-            XCTFail("Failed to setup test user \(user.metadataId): \(error)")
-          }
-          setupExpect.fulfill()
-        }
-      }
-    }
-    
-    // Start the setup process
-    setupNext(testUsers)
-    // Wait for all users to be set up
-    wait(for: [setupExpect], timeout: 10.0)
-    
-    return testUsers
   }
 }

@@ -184,6 +184,59 @@ class MembersEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchMembershipExpect], timeout: 10.0)
   }
   
+  func testFetchMembersWithSortParameter() {
+    let fetchMembersExpect = expectation(description: "Fetch Members with Sort Expectation")
+    let client = PubNub(configuration: config)
+    let channelId = randomString()
+    let userIds = [randomString(), randomString(), randomString()]
+    let expectedMembers = setUpMembersTestData(client: client, channelId: channelId, userIds: userIds)
+    
+    client.fetchMembers(
+      channel: channelId,
+      include: .init(uuidFields: true, uuidCustomFields: true),
+      sort: [.init(property: .object(.name), ascending: false)]
+    ) { result in
+      switch result {
+      case let .success((members, _)):
+        XCTAssertEqual(members.count, expectedMembers.count)
+        XCTAssertTrue(members.allSatisfy { Set(userIds).contains($0.userMetadataId) && $0.channelMetadataId == channelId })        
+        let sortedMembers = expectedMembers.compactMap { $0.user?.name }.sorted(by: >)
+        let actualMembers = members.compactMap { $0.user?.name }
+        XCTAssertEqual(sortedMembers, actualMembers)
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      fetchMembersExpect.fulfill()
+    }
+    
+    defer {
+      waitForCompletion {
+        client.removeMembers(
+          channel: channelId,
+          users: expectedMembers,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeChannelMetadata(
+          channelId,
+          completion: $0
+        )
+      }
+      
+      for member in expectedMembers {
+        waitForCompletion {
+          client.removeUserMetadata(
+            member.userMetadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchMembersExpect], timeout: 10.0)
+  }
+  
   func testSetMembers() {
     let setMembersExpect = expectation(description: "Set Members Expectation")
     let client = PubNub(configuration: config)
@@ -304,12 +357,12 @@ class MembersEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success((memberships, _)):
           XCTAssertEqual(memberships.count, 2)
+          // First user should be removed
+          XCTAssertFalse(memberships.contains { $0.userMetadataId == initialUserIds[0] })
           // Second user should remain
-          XCTAssertTrue(memberships.contains { $0.userMetadataId == initialUserIds[1] }) 
+          XCTAssertTrue(memberships.contains { $0.userMetadataId == initialUserIds[1] })
           // New user should be added
           XCTAssertTrue(memberships.contains { $0.userMetadataId == newUserId }) 
-          // First user should be removed
-          XCTAssertFalse(memberships.contains { $0.userMetadataId == initialUserIds[0] }) 
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -364,7 +417,11 @@ private extension MembersEndpointIntegrationTests {
       // Step 2: Create users
       setupUsers(client: client, users: userMetadataArray) {
         // Step 3: Create members
-        client.setMembers(channel: channelId, users: userMetadataArray.map { PubNubMembershipMetadataBase(userMetadataId: $0.metadataId, channelMetadataId: channelId) }) {
+        client.setMembers(
+          channel: channelId,
+          users: userMetadataArray.map { PubNubMembershipMetadataBase(userMetadataId: $0.metadataId, channelMetadataId: channelId) },
+          include: .init(uuidFields: true, uuidCustomFields: true)
+        ) {
           switch $0 {
           case let .success((members, _)):
             membersToReturn = members

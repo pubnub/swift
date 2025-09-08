@@ -183,6 +183,61 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchMembershipsExpect], timeout: 10.0)
   }
   
+  func testFetchMembershipsWithSortParameter() {
+    let fetchMembershipsExpect = expectation(description: "Fetch Memberships with Sort Expectation")
+    let client = PubNub(configuration: config)
+    let userId = randomString()
+    
+    // Create channel IDs that will sort differently when descending (names will be same as IDs)
+    let channelIds = [randomString(), randomString(), randomString()]
+    let expectedMemberships = setUpMembershipTestData(client: client, userId: userId, channelIds: channelIds)
+    
+    client.fetchMemberships(
+      userId: userId,
+      include: .init(channelFields: true, channelCustomFields: true),
+      sort: [.init(property: .object(.name), ascending: false)]
+    ) { result in
+      switch result {
+      case let .success((memberships, _)):
+        XCTAssertEqual(memberships.count, expectedMemberships.count)
+        XCTAssertTrue(memberships.allSatisfy { Set(channelIds).contains($0.channelMetadataId) && $0.userMetadataId == userId })
+        let sortedMemberships = expectedMemberships.compactMap { $0.channel?.name }.sorted(by: >)
+        let actualMemberships = memberships.compactMap { $0.channel?.name }
+        XCTAssertEqual(sortedMemberships, actualMemberships)
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      fetchMembershipsExpect.fulfill()
+    }
+    
+    defer {
+      waitForCompletion {
+        client.removeMemberships(
+          userId: userId,
+          channels: expectedMemberships,
+          completion: $0
+        )
+      }
+      waitForCompletion {
+        client.removeUserMetadata(
+          userId,
+          completion: $0
+        )
+      }
+      
+      for membership in expectedMemberships {
+        waitForCompletion {
+          client.removeChannelMetadata(
+            membership.channelMetadataId,
+            completion: $0
+          )
+        }
+      }
+    }
+    
+    wait(for: [fetchMembershipsExpect], timeout: 10.0)
+  }
+  
   func testRemoveMembership() {
     let removeMembershipExpect = expectation(description: "Remove Membership Expectation")
     let client = PubNub(configuration: config)
@@ -302,7 +357,11 @@ private extension MembershipsEndpointIntegrationTests {
       // Step 2: Create channels
       setupChannels(client: client, channels: channelMetadataArray) {
         // Step 3: Create memberships
-        client.setMemberships(userId: userId, channels: channelMetadataArray.map { PubNubMembershipMetadataBase(userMetadataId: userId, channelMetadataId: $0.metadataId) }) {
+        client.setMemberships(
+          userId: userId,
+          channels: channelMetadataArray.map { PubNubMembershipMetadataBase(userMetadataId: userId, channelMetadataId: $0.metadataId) },
+          include: .init(channelFields: true, channelCustomFields: true)
+        ) {
           switch $0 {
           case let .success((memberships, _)):
             membershipsToReturn = memberships

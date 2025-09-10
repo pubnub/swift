@@ -51,7 +51,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
     let expectedChannels = createTestChannels(client: client)
     
     client.allChannelMetadata(
-      filter: "id LIKE 'swift-*'",
+      filter: "id LIKE '\(Constants.prefix)*'",
       sort: [.init(property: .name, ascending: false)]
     ) { result in
       switch result {
@@ -95,7 +95,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         // Verify first page contains expected number of channels
         XCTAssertEqual(channels.count, limit)
         client.allChannelMetadata(
-          filter: "id LIKE 'swift-*'",
+          filter: "id LIKE '\(Constants.prefix)*'",
           page: page
         ) { secondCallResult in
           switch secondCallResult {

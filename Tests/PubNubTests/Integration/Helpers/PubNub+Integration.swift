@@ -84,5 +84,11 @@ extension PubNub {
 
 func randomString(length: Int = 6) -> String {
   let characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  return "swift-" + String((0..<length).compactMap { _ in characters.randomElement() })
+  return Constants.prefix + String((0..<length).compactMap { _ in characters.randomElement() })
+}
+
+// MARK: - Constants 
+
+enum Constants {
+  static let prefix = "swift-"
 }

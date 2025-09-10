@@ -51,7 +51,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let expectedUsers = createTestUsers(client: client)
     
     client.allUserMetadata(
-      filter: "id LIKE 'swift-*'",
+      filter: "id LIKE '\(Constants.prefix)*'",
       sort: [.init(property: .name, ascending: false)]
     ) { result in
       switch result {
@@ -86,7 +86,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     
     // First page
     client.allUserMetadata(
-      filter: "id LIKE 'swift-*'",
+      filter: "id LIKE '\(Constants.prefix)*'",
       limit: limit
     ) { [unowned client] firstCallResult in
       switch firstCallResult {
@@ -95,7 +95,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(users.count, limit)
         // Fetch second page using the next cursor
         client.allUserMetadata(
-          filter: "id LIKE 'swift-*'",
+          filter: "id LIKE '\(Constants.prefix)*'",
           page: page
         ) { secondCallResult in
           switch secondCallResult {

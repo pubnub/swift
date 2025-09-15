@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.3.3"
+version: "9.3.4"
 schema: 1
 changelog:
+  - date: 2025-09-15
+    version: 9.3.4
+    changes:
+      - type: bug
+        text: "Handle missing `limit` and `next` parameters in the `listFiles(channel:limit:next:custom:completion:)` method."
   - date: 2025-08-07
     version: 9.3.3
     changes:
@@ -723,7 +728,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.4.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

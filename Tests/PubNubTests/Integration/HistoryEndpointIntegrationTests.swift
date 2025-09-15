@@ -17,10 +17,10 @@ class HistoryEndpointIntegrationTests: XCTestCase {
   
   func testFetchMessageHistory() throws {
     let channel = randomString()
-    let messagesToSend = ["Message 1", "Message 2", "Message 3"]
+    let messagesToSend = ["A", "B", "C"]
     
     // Populate the channel with test messages
-    populateChannel(channel, with: messagesToSend)
+    populate(channel: channel, with: messagesToSend)
     
     let historyExpect = expectation(description: "History Response")
     let client = PubNub(configuration: config)
@@ -30,8 +30,8 @@ class HistoryEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success(response):
           XCTAssertEqual(response.messagesByChannel.count, 1)
-          XCTAssertEqual(response.messagesByChannel[channel]?.count, 3)
-          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, ["Message 1", "Message 2", "Message 3"])
+          XCTAssertEqual(response.messagesByChannel[channel]?.count, messagesToSend.count)
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, messagesToSend)
         case let .failure(error):
           XCTFail("Failed to fetch history: \(error)")
         }
@@ -53,11 +53,11 @@ class HistoryEndpointIntegrationTests: XCTestCase {
   
   func testDeleteMessageHistory() throws {
     let channel = randomString()
-    let messagesToSend = ["Message 1", "Message 2", "Message 3"]
+    let messagesToSend = ["A", "B", "C"]
     
     // Populate the channel with test messages
-    populateChannel(channel, with: messagesToSend)
-    
+    populate(channel: channel, with: messagesToSend)
+
     let deleteHistoryExpect = expectation(description: "History Response")
     let client = PubNub(configuration: config)
     
@@ -84,18 +84,61 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     
     wait(for: [deleteHistoryExpect], timeout: 10.0)
   }
+
+  func testFetchMessageHistoryWithWithStartAndEnd() throws {
+    let channel = randomString()
+    let messagesToSend = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
+    
+    // Populate the channel with test messages
+    let timetokens = populate(channel: channel, with: messagesToSend)
+    let startIndex = 2
+    let endIndex = 7
+    
+    let startTimetoken = timetokens[startIndex]
+    let endTimetoken = timetokens[endIndex]
+    let historyExpect = expectation(description: "History Response")
+    let client = PubNub(configuration: config)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [unowned client] in
+      client.fetchMessageHistory(
+        for: [channel],
+        page: PubNubBoundedPageBase(start: startTimetoken, end: endTimetoken)
+      ) { result in
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.messagesByChannel.count, 1)
+          XCTAssertEqual(response.messagesByChannel[channel]?.count, (startIndex.advanced(by: 1)...endIndex).count)
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, Array(messagesToSend[startIndex.advanced(by: 1)...endIndex]))
+        case let .failure(error):
+          XCTFail("Failed to fetch history: \(error)")
+        }
+        historyExpect.fulfill()
+      }
+    }
+    
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channel,
+          completion: $0
+        )
+      }
+    }
+    
+    wait(for: [historyExpect], timeout: 15.0)
+  }
   
   func testMessageCounts() throws {
     let channel1 = randomString()
     let channel2 = randomString()
     let channel3 = randomString()
     
-    let messagesToSend = ["Message 1", "Message 2", "Message 3"]
+    let messagesToSend = ["A", "B", "C"]
     
     // Populate both channels with test messages
-    populateChannel(channel1, with: messagesToSend)
-    populateChannel(channel2, with: messagesToSend)
-    
+    populate(channel: channel1, with: messagesToSend)
+    populate(channel: channel2, with: messagesToSend)
+
     let messageCountsExpect = expectation(description: "Message Counts Response")
     let client = PubNub(configuration: config)
     
@@ -103,8 +146,8 @@ class HistoryEndpointIntegrationTests: XCTestCase {
       switch result {
       case let .success(response):
         XCTAssertEqual(response.count, 3)
-        XCTAssertEqual(response[channel1], 3)
-        XCTAssertEqual(response[channel2], 3)
+        XCTAssertEqual(response[channel1], messagesToSend.count)
+        XCTAssertEqual(response[channel2], messagesToSend.count)
         XCTAssertEqual(response[channel3], 0)
       case let .failure(error):
         XCTFail("Failed to get message counts: \(error)")
@@ -135,23 +178,77 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     
     wait(for: [messageCountsExpect], timeout: 10.0)
   }
+
+  func testFetchMessageHistoryWithOtherOptions() throws {
+    let channel = randomString()
+    let messagesToSend = ["A", "B", "C"]
+    
+    // Populate the channel with test messages
+    populate(channel: channel, with: messagesToSend)
+
+    let historyExpect = expectation(description: "History Response")
+    let client = PubNub(configuration: config)
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [unowned client] in
+      client.fetchMessageHistory(
+        for: [channel],
+        includeMeta: true,
+        includeUUID: true,
+        includeMessageType: true,
+        includeCustomMessageType: true
+      ) { result in
+        switch result {
+        case let .success(response):
+          XCTAssertEqual(response.messagesByChannel.count, 1)
+          XCTAssertEqual(response.messagesByChannel[channel]?.count, messagesToSend.count)
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.payload.stringOptional }, messagesToSend)
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.metadata?.stringOptional }, messagesToSend.map { $0 + "meta" })
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.customMessageType?.stringOptional }, messagesToSend.map { $0 + "type" })
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.publisher?.stringOptional }, messagesToSend.map { _ in client.configuration.userId })
+          XCTAssertEqual(response.messagesByChannel[channel]?.compactMap { $0.messageType.rawValue }, messagesToSend.map { _ in PubNubMessageType.message.rawValue })
+        case let .failure(error):
+          XCTFail("Failed to fetch history: \(error)")
+        }
+        historyExpect.fulfill()
+      }
+    }
+    
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channel,
+          completion: $0
+        )
+      }
+    }
+    
+    wait(for: [historyExpect], timeout: 15.0)
+  }
 }
 
 // MARK: - Channel Population
 
 private extension HistoryEndpointIntegrationTests {
-  func populateChannel(_ channel: String, with messages: [String]) {
+  @discardableResult
+  func populate(channel: String, with messages: [String]) -> [Timetoken] {
     let publishExpect = expectation(description: "Publish Messages")
     publishExpect.expectedFulfillmentCount = messages.count
     publishExpect.assertForOverFulfill = true
     
     let client = PubNub(configuration: config)
+    var timetokens: [Timetoken] = []
     
     func publishNext(_ remainingMessages: [String]) {
       if let message = remainingMessages.first {
-        client.publish(channel: channel, message: message) { result in
+        client.publish(
+          channel: channel,
+          message: message,
+          customMessageType: message + "type",
+          meta: message + "meta"
+        ) { result in
           switch result {
-          case .success:
+          case let .success(timetoken):
+            timetokens.append(timetoken)
             publishNext(Array(remainingMessages.dropFirst()))
           case let .failure(error):
             XCTFail("Failed to publish message: \(error)")
@@ -165,5 +262,7 @@ private extension HistoryEndpointIntegrationTests {
     publishNext(messages)
     // Wait for all messages to be published
     wait(for: [publishExpect], timeout: 10.0)
+    
+    return timetokens
   }
 }

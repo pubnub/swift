@@ -333,4 +333,140 @@ class FilesEndpointIntegrationTests: XCTestCase {
     
     wait(for: [downloadContentExpect, removeFileExpect], timeout: 30.0)
   }
+
+  func testListFilesWithLimitParameter() throws {
+    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let testChannel = randomString()
+    let listFilesExpect = expectation(description: "List Files Response")
+    
+    let removeFileExpect = expectation(description: "Remove File Response")
+    removeFileExpect.assertForOverFulfill = true
+    removeFileExpect.expectedFulfillmentCount = 2
+    
+    let performDeleteFile = { (file: PubNubFile?) in
+      if let file {
+        client.remove(
+          fileId: file.fileId,
+          filename: file.filename,
+          channel: testChannel
+        ) { result in
+          switch result {
+          case .success:
+            removeFileExpect.fulfill()
+          case let .failure(error):
+            XCTFail("Unexpected condition: \(error)")
+          }
+        }
+      }
+    }
+
+    let firstData = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
+    let firstRemoteFileId = "firstRemoteFileId"
+    let secondData = try XCTUnwrap("Nunc finibus enim in congue dictum".data(using: .utf8))
+    let secondRemoteFileId = "secondRemoteFileId"
+
+    client.send(
+      .data(firstData, contentType: "text/plain"),
+      channel: testChannel,
+      remoteFilename: firstRemoteFileId
+    ) { [unowned client] firstSendFileRes in
+      client.send(
+        .data(secondData, contentType: "text/plain"),
+        channel: testChannel,
+        remoteFilename: secondRemoteFileId
+      ) { secondSendFileRes in
+        client.listFiles(
+          channel: testChannel,
+          limit: 1
+        ) { result in
+          switch result {
+          case let .success(listFilesResponse):
+            XCTAssertEqual(listFilesResponse.files.count, 1)
+            XCTAssertTrue(Set([firstRemoteFileId, secondRemoteFileId]).contains(listFilesResponse.files[0].filename))
+            listFilesExpect.fulfill()
+            performDeleteFile(try? firstSendFileRes.get().file)
+            performDeleteFile(try? secondSendFileRes.get().file)
+          case let .failure(error):
+            XCTFail("Unexpected error: \(error)")
+          }
+        }
+      }
+    }
+    
+    wait(for: [listFilesExpect, removeFileExpect], timeout: 30.0)
+  }
+
+  func testListFilesWithNextParameter() throws {
+    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let testChannel = randomString()
+    let listFilesExpect = expectation(description: "List Files Response")
+    
+    let removeFileExpect = expectation(description: "Remove File Response")
+    removeFileExpect.assertForOverFulfill = true
+    removeFileExpect.expectedFulfillmentCount = 2
+    
+    let performDeleteFile = { (file: PubNubFile?) in
+      if let file {
+        client.remove(
+          fileId: file.fileId,
+          filename: file.filename,
+          channel: testChannel
+        ) { result in
+          switch result {
+          case .success:
+            removeFileExpect.fulfill()
+          case let .failure(error):
+            XCTFail("Unexpected condition: \(error)")
+          }
+        }
+      }
+    }
+
+    let firstData = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
+    let firstRemoteFileId = "firstRemoteFileId"
+    let secondData = try XCTUnwrap("Nunc finibus enim in congue dictum".data(using: .utf8))
+    let secondRemoteFileId = "secondRemoteFileId"
+
+    client.send(
+      .data(firstData, contentType: "text/plain"),
+      channel: testChannel,
+      remoteFilename: firstRemoteFileId
+    ) { [unowned client] firstSendFileRes in
+      client.send(
+        .data(secondData, contentType: "text/plain"),
+        channel: testChannel,
+        remoteFilename: secondRemoteFileId
+      ) { secondSendFileRes in
+        client.listFiles(
+          channel: testChannel,
+          limit: 1
+        ) { result in
+          switch result {
+          case let .success(listFilesResponse):
+            client.listFiles(
+              channel: testChannel,
+              limit: 1,
+              next: listFilesResponse.next
+            ) { result in
+              switch result {
+              case let .success(secondListFilesResponse):
+                XCTAssertEqual(secondListFilesResponse.files.count, 1)
+                XCTAssertTrue(Set([firstRemoteFileId, secondRemoteFileId]).contains(secondListFilesResponse.files[0].filename))
+                XCTAssertTrue(listFilesResponse.files.first?.fileId != secondListFilesResponse.files.first?.fileId)
+                listFilesExpect.fulfill()
+                performDeleteFile(try? firstSendFileRes.get().file)
+                performDeleteFile(try? secondSendFileRes.get().file)
+              case let .failure(error):
+                XCTFail("Unexpected error: \(error)")
+              }
+            }
+          case let .failure(error):
+            XCTFail("Unexpected error: \(error)")
+          }
+        }
+      }
+    }
+    
+    wait(for: [listFilesExpect, removeFileExpect], timeout: 30.0)
+  }
 }

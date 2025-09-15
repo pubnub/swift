@@ -123,7 +123,8 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
           client.publishWithMessageAction(
             channel: self.testChannel,
             message: "Hello!",
-            actionType: actionType, actionValue: actionValue
+            actionType: actionType,
+            actionValue: actionValue
           ) { [unowned self] publishResult in
             switch publishResult {
             case let .success(messageAction):

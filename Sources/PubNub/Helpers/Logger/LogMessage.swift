@@ -281,27 +281,25 @@ extension LogMessageContent {
 
     public var description: String {
       let prefix = if isCancelled {
-        "Cancelled network request"
+        "Cancelled network request:"
       } else if isFailed {
-        "Failed network request"
+        "Failed network request:"
       } else {
-        "Executing network request"
+        "Executing network request:"
       }
 
-      return String.formattedDescription(
-        prefix,
-        arguments: [
-          ("id", id),
-          ("origin", origin),
-          ("path", path),
-          ("method", method),
-          ("headers", headers),
-          ("body", body ?? "nil"),
-          ("details", details ?? "nil"),
-          ("isCancelled", isCancelled),
-          ("isFailed", isFailed)
-        ]
-      )
+      return """
+      \(prefix)
+
+      "id: \(id)
+      "origin: \(origin)
+      "path: \(path)
+      "method: \(method)
+      "headers: \(headers)
+      "body: \(String(describing: body))
+      "isCancelled: \(isCancelled)
+      "isFailed: \(isFailed)
+      """
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -359,17 +357,16 @@ extension LogMessageContent {
     }
 
     public var description: String {
-      String.formattedDescription(
-        "Network response",
-        arguments: [
-          ("id", id),
-          ("url", url),
-          ("status", status),
-          ("headers", headers),
-          ("body", body ?? "nil"),
-          ("details", details ?? "nil")
-        ]
-      )
+      """
+      Received network response:
+
+      "requestId: \(id),
+      "url: \(url),
+      "status: \(status),
+      "headers: \(headers),
+      "body: \(String(describing: body)),
+      "details: \(String(describing: details))
+      """
     }
 
     public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
@@ -412,11 +409,15 @@ extension LogMessageContent {
     }
 
     public var description: String {
-      if let details {
-        return String.formattedDescription(details, arguments: arguments)
-      } else {
-        return String.formattedDescription("Custom object", arguments: arguments)
-      }
+      let argsStr = arguments.map {
+        "\($0.0): \($0.1)"
+      }.joined(separator: "\n")
+
+      return """
+      \(String(describing: details))
+
+      \(argsStr)
+      """
     }
 
     public func encode(to encoder: any Encoder) throws {

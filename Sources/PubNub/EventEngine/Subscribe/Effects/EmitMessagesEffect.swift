@@ -41,8 +41,8 @@ struct EmitMessagesEffect: EffectHandler, CustomStringConvertible {
   let messageCache: MessageCache
 
   var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("messages", messages),
         ("cursor", cursor),

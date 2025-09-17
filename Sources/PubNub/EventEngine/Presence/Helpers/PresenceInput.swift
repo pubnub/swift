@@ -59,6 +59,6 @@ struct PresenceInput: Equatable {
 
 extension PresenceInput: CustomStringConvertible {
   var description: String {
-    String.formattedDescription(self, arguments: [("channels", channelsSet), ("groups", groups)])
+    String.logDescription(of: self, arguments: [("channels", channelsSet), ("groups", groups)])
   }
 }

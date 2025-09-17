@@ -11,7 +11,7 @@
 import Foundation
 
 /// Reconnection policy which will be used if/when a request fails
-public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible {
+public struct AutomaticRetry: RequestOperator, Hashable {
   /// Exponential backoff twice for any 500 response code or `URLError` contained in `defaultRetryableURLErrorCodes`
   public static var `default` = AutomaticRetry()
   /// No retry will be performed
@@ -27,7 +27,7 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
   static let maxDelay: UInt = 150
 
   /// Provides the action taken when a retry is to be performed
-  public enum ReconnectionPolicy: Hashable, Equatable, CustomStringConvertible {
+  public enum ReconnectionPolicy: Hashable, Equatable {
     /// Exponential backoff with base/scale factor of 2, and a 150s max delay
     public static let defaultExponential: ReconnectionPolicy = .exponential(minDelay: minDelay, maxDelay: maxDelay)
     /// Linear reconnect every 3 seconds
@@ -57,21 +57,6 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
         return 10
       case .exponential:
         return 6
-      }
-    }
-
-    public var description: String {
-      switch self {
-      case let .exponential(minDelay, maxDelay):
-        return String.formattedDescription(
-          "AutomaticRetry.ReconnectionPolicy.Exponential",
-          arguments: [("minDelay", minDelay), ("maxDelay", maxDelay)]
-        )
-      case let .linear(delay):
-        return String.formattedDescription(
-          "AutomaticRetry.ReconnectionPolicy.Linear",
-          arguments: [("delay", delay)]
-        )
       }
     }
   }
@@ -145,20 +130,6 @@ public struct AutomaticRetry: RequestOperator, Hashable, CustomStringConvertible
     .appContext,
     .messageActions
   ]
-
-  /// Conformance to `CustomStringConvertible` protocol
-  public var description: String {
-    return String.formattedDescription(
-      self,
-      arguments: [
-        ("retryLimit", retryLimit),
-        ("policy", policy),
-        ("retryableHTTPStatusCodes", retryableHTTPStatusCodes.map { $0.rawValue }),
-        ("retryableURLErrorCodes", retryableURLErrorCodes.map { $0.rawValue }),
-        ("excluded", excluded)
-      ]
-    )
-  }
 
   public init(
     retryLimit: UInt = 6,

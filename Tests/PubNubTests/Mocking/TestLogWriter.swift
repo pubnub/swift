@@ -16,7 +16,7 @@ class TestSyncLogWriter: LogWriter {
   var prefix: LogPrefix = [.all]
   var logClosure: ((String) -> Void)?
 
-  func send(message: @autoclosure @escaping () -> LogMessage, level: LogLevel, category: LogCategory) {}
+  func send(message: @autoclosure @escaping () -> LogMessage, metadata: LogMetadata) {}
 }
 
 class TestAsyncLogWriter: LogWriter {
@@ -24,5 +24,5 @@ class TestAsyncLogWriter: LogWriter {
   var prefix: LogPrefix = [.all]
   var logClosure: ((String) -> Void)?
 
-  func send(message: @autoclosure @escaping () -> LogMessage, level: LogLevel, category: LogCategory) {}
+  func send(message: @autoclosure @escaping () -> LogMessage, metadata: LogMetadata) {}
 }

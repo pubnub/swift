@@ -423,8 +423,8 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
   }
 
   public var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("shard", shard),
         ("subscription", subscription?.description ?? "nil"),

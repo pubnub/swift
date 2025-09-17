@@ -85,7 +85,7 @@ public struct CryptoModule {
           .init(
             operation: "encrypt-data-failure",
             details: "Encryption of Data failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -141,7 +141,7 @@ public struct CryptoModule {
           .init(
             operation: "decrypt-data-failure",
             details: "Decryption of Data failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -247,7 +247,7 @@ public struct CryptoModule {
           .init(
             operation: "encrypt-stream-failure",
             details: "Encryption of File failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -297,7 +297,7 @@ public struct CryptoModule {
           .init(
             operation: "encrypt-stream-failure",
             details: "Encryption of File failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -387,7 +387,7 @@ public struct CryptoModule {
           .init(
             operation: "decrypt-stream-failure",
             details: "Decryption of File failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -450,7 +450,7 @@ public struct CryptoModule {
           .init(
             operation: "decrypt-stream-failure",
             details: "Decryption of File failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto
@@ -565,8 +565,8 @@ extension CryptoModule: Hashable {
 
 extension CryptoModule: CustomStringConvertible {
   public var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("defaultCryptor", defaultCryptor.id),
         ("cryptors", defaultCryptor.id)
@@ -606,7 +606,7 @@ extension CryptoModule {
           .init(
             operation: "encrypt-string-failure",
             details: "Encryption of String failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto

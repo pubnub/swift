@@ -76,7 +76,8 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
       .customObject(
         .init(
           operation: "ee-transition",
-          details: "Exiting \(String(describing: currentState))"
+          details: "Exiting EE state",
+          arguments: [("state", currentState)]
         )
       ),
       category: .eventEngine
@@ -86,7 +87,8 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
       .customObject(
         .init(
           operation: "ee-transition",
-          details: "Entering \(String(describing: newState))"
+          details: "Entering EE state",
+          arguments: [("state", newState)]
         )
       ),
       category: .eventEngine

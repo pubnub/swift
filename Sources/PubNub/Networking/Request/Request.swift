@@ -102,7 +102,7 @@ final class Request {
     self.logger = logger
     self.delegate = delegate
 
-    logger.info(
+    logger.debug(
       .customObject(
         .init(
           operation: "request-init",
@@ -114,7 +114,7 @@ final class Request {
   }
 
   deinit {
-    logger.info(
+    logger.debug(
       .customObject(
         .init(
           operation: "request-deinit",

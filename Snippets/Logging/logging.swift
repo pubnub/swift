@@ -85,8 +85,7 @@ class CustomLogWriter: LogWriter {
   // Required by LogWriter protocol. Put your custom logging logic here.
   public func send(
     message: @escaping @autoclosure () -> LogMessage,
-    level: LogLevel,
-    category: LogCategory
+    metadata: LogMetadata
   ) {
     // Custom logging logic here
   }

@@ -287,7 +287,7 @@ extension HTTPSession: RequestDelegate {
       return
     }
 
-    logger.info(
+    logger.debug(
       .customObject(
         .init(
           operation: "session-retry",

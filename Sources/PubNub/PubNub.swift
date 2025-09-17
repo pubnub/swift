@@ -70,7 +70,26 @@ public class PubNub {
         details: "Initialize a new PubNub instance",
         arguments: [
           ("instanceID", self.instanceID.uuidString),
-          ("configuration", String(describing: self.configuration))
+          ("configuration.publishKey", String(describing: self.configuration.publishKey)),
+          ("configuration.subscribeKey", String(describing: self.configuration.subscribeKey)),
+          ("configuration.userId", String(describing: self.configuration.userId)),
+          ("configuration.cryptoModule", String(describing: self.configuration.cryptoModule)),
+          ("configuration.authKey", String(describing: self.configuration.authKey)),
+          ("configuration.authToken", String(describing: self.configuration.authToken)),
+          ("configuration.useSecureConnections", String(describing: self.configuration.useSecureConnections)),
+          ("configuration.origin", String(describing: self.configuration.origin)),
+          ("configuration.useInstanceId", String(describing: self.configuration.useInstanceId)),
+          ("configuration.useRequestId", String(describing: self.configuration.useRequestId)),
+          ("configuration.automaticRetry.policy", String(describing: self.configuration.automaticRetry?.policy)),
+          ("configuration.automaticRetry.retryLimit", String(describing: self.configuration.automaticRetry?.retryLimit)),
+          ("configuration.automaticRetry.excluded", String(describing: self.configuration.automaticRetry?.excluded)),
+          ("configuration.durationUntilTimeout", String(describing: self.configuration.durationUntilTimeout)),
+          ("configuration.heartbeatInterval", String(describing: self.configuration.heartbeatInterval)),
+          ("configuration.supressLeaveEvents", String(describing: self.configuration.supressLeaveEvents)),
+          ("configuration.requestMessageCountThreshold", String(describing: self.configuration.requestMessageCountThreshold)),
+          ("configuration.filterExpression", String(describing: self.configuration.filterExpression)),
+          ("configuration.enableEventEngine", String(describing: self.configuration.enableEventEngine)),
+          ("configuration.maintainPresenceState", String(describing: self.configuration.maintainPresenceState))
         ]
       )), category: .pubNub
     )
@@ -1868,7 +1887,7 @@ public extension PubNub {
     }
 
     guard let dataMessage = message.data(using: .utf8) else {
-      logger.error(
+      logger.debug(
         .customObject(
           .init(
             operation: "encrypt",
@@ -1892,7 +1911,7 @@ public extension PubNub {
           .init(
             operation: "encrypt",
             details: "Encryption of a String message failed due to \(error)",
-            arguments: [("message", message)]
+            arguments: [("message", message), ("error", error)]
           )
         ), category: .pubNub
       )
@@ -1909,7 +1928,7 @@ public extension PubNub {
       .customObject(.init(
         operation: "decrypt",
         details: "Decrypt a Data message",
-        arguments: [("data", data)]
+        arguments: [("data.count", data.count)]
       )), category: .pubNub
     )
 
@@ -1919,7 +1938,7 @@ public extension PubNub {
           .init(
             operation: "decrypt",
             details: "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
-            arguments: [("data", data)]
+            arguments: [("data.count", data.count)]
           )
         ), category: .pubNub
       )
@@ -1927,12 +1946,12 @@ public extension PubNub {
       return .failure(CryptoError.invalidKey)
     }
     guard let base64EncodedData = Data(base64Encoded: data) else {
-      logger.error(
+      logger.debug(
         .customObject(
           .init(
             operation: "decrypt",
             details: "Decryption of Data failed due to \("invalid Base64-encoded Data")",
-            arguments: [("data", data)]
+            arguments: [("data.count", data.count)]
           )
         ), category: .pubNub
       )
@@ -1956,7 +1975,7 @@ public extension PubNub {
           .init(
             operation: "decrypt",
             details: "Decryption of Data failed due to \(error)",
-            arguments: [("data", data)]
+            arguments: [("data.count", data.count), ("error", error)]
           )
         ), category: .pubNub
       )
@@ -1977,41 +1996,45 @@ public extension PubNub {
     do {
       return try PAMToken.token(from: token)
     } catch PAMToken.PAMTokenError.invalidEscapedToken {
-      logger.warn(
+      logger.debug(
         .customObject(
           .init(
             operation: "parse",
-            details: "PAM Token `\(token)` was not able to be properly escaped."
+            details: "PAM Token was not able to be properly escaped.",
+            arguments: [("token", token)]
           )
         ), category: .pubNub
       )
       return nil
     } catch PAMToken.PAMTokenError.invalidBase64EncodedToken {
-      logger.warn(
+      logger.debug(
         .customObject(
           .init(
             operation: "parse",
-            details: "PAM Token `\(token)` was not a valid Base64-encoded string"
+            details: "PAM Token was not a valid Base64-encoded string",
+            arguments: [("token", token)]
           )
         ), category: .pubNub
       )
       return nil
     } catch PAMToken.PAMTokenError.invalidCBOR(let error) {
-      logger.warn(
+      logger.debug(
         .customObject(
           .init(
             operation: "parse",
-            details: "PAM Token `\(token)` was not valid CBOR due to: \(error.localizedDescription)"
+            details: "PAM Token was not valid CBOR due to error",
+            arguments: [("token", token), ("error", error)]
           )
         ), category: .pubNub
       )
       return nil
     } catch {
-      logger.warn(
+      logger.debug(
         .customObject(
           .init(
             operation: "parse",
-            details: "PAM Token `\(token)` was not valid due to: \(error.localizedDescription)"
+            details: "PAM Token was not valid due to error",
+            arguments: [("token", token), ("error", error)]
           )
         ), category: .pubNub
       )
@@ -2027,7 +2050,8 @@ public extension PubNub {
       .customObject(
         .init(
           operation: "set",
-          details: "Set auth token"
+          details: "Set auth token",
+          arguments: [("token", token)]
         )
       ), category: .pubNub
     )

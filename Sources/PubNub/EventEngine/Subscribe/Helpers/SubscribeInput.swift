@@ -104,8 +104,8 @@ struct SubscribeInput: Equatable {
 
 extension SubscribeInput: CustomStringConvertible {
   var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("channels", channelNames(withPresence: true)),
         ("groups", channelGroupNames(withPresence: true))

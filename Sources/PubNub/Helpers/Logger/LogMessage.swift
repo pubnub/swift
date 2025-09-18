@@ -109,6 +109,20 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
     )
   }
 
+  public func encode(to encoder: any Encoder) throws {
+    switch self {
+    case let .text(string):
+      var container = encoder.singleValueContainer()
+      try container.encode(string)
+    case let .networkRequest(networkRequest):
+      try networkRequest.encode(to: encoder)
+    case let .networkResponse(networkResponse):
+      try networkResponse.encode(to: encoder)
+    case let .customObject(customObject):
+      try customObject.encode(to: encoder)
+    }
+  }
+
   public init(stringLiteral value: String) {
     self = .text(value)
   }

@@ -85,7 +85,7 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
     }
   }
 
-  var additionalFields: [String: AnyJSON] {
+  private var additionalFields: [String: AnyJSON] {
     if case let .networkRequest(networkRequest) = self {
       return [
         "cancelled": AnyJSON(networkRequest.isCancelled),
@@ -294,6 +294,7 @@ extension LogMessageContent {
       id: \(id)
       origin: \(origin)
       path: \(path)
+      query: \(query)
       method: \(method)
       headers: \(headers)
       body: \(body ?? "nil")

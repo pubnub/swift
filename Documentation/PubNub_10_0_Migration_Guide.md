@@ -22,6 +22,8 @@ func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadat
 
 Key changes:
 
+- `LogType` has been renamed to `LogLevel`
+
 - A log message is now a structured `LogMessage` object. Its `message` property represents what's actually being logged:
 
   - `.text(String)` - Simple text messages
@@ -39,8 +41,22 @@ The way to attach a logger to PubNub has changed:
 // Before (9.0):
 PubNub.log.levels = [.all]
 
-// Now (10.0) - attach logger via constructor:
+// Now (10.0):
 let config = PubNubConfiguration(publishKey: "your-key", subscribeKey: "your-key", userId: "user-id")
 let logger = PubNubLogger(levels: .all)
 let pubnub = PubNub(configuration: config, logger: logger)
+```
+
+#### 3. PubNubLogger Methods No Longer Public
+
+The logging methods (`debug`, `info`, `warn`, `error`, etc.) on `PubNubLogger` are no longer public. This change ensures the SDK maintains control over its internal logging mechanism. The SDK's logging system is now properly encapsulated and designed exclusively for internal SDK operations. This ensures better separation of concerns and maintains SDK control over its logging behavior.
+
+```swift
+// Before (9.0):
+let logger = PubNubLogger(levels: .all)
+logger.debug("Custom debug message") // This worked
+
+// Now (10.0):
+let logger = PubNubLogger(levels: .all)
+logger.debug("Custom debug message") // ❌ No longer available
 ```

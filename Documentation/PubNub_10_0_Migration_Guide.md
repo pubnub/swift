@@ -35,19 +35,17 @@ Key changes:
 
 #### 2. Logger Configuration
 
-The way to attach a logger to PubNub has changed:
+The way to attach a logger to PubNub has changed. The static `log` and `logLog` properties have been removed. As an example, the snippets below show how to configure a logger for troubleshooting: 
 
 ```swift
 // Before (9.0):
 PubNub.log.levels = [.all]
 
 // Now (10.0):
-let config = PubNubConfiguration(publishKey: "your-key", subscribeKey: "your-key", userId: "user-id")
-let logger = PubNubLogger(levels: .all)
-let pubnub = PubNub(configuration: config, logger: logger)
+let pubnub = PubNub(configuration: ..., logger: PubNubLogger(levels: .all))
 ```
 
-#### 3. PubNubLogger Methods No Longer Public
+#### 3. `PubNubLogger` Methods No Longer Public
 
 The logging methods (`debug`, `info`, `warn`, `error`, etc.) on `PubNubLogger` are no longer public. This change ensures the SDK maintains control over its internal logging mechanism. The SDK's logging system is now properly encapsulated and designed exclusively for internal SDK operations. This ensures better separation of concerns and maintains SDK control over its logging behavior.
 

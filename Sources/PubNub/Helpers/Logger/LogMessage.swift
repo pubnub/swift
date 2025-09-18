@@ -36,7 +36,7 @@ public protocol LogMessage: JSONCodable, CustomStringConvertible {
 // MARK: - LogMessageContent
 
 /// An enum representing different types of log message content
-public enum LogMessageContent: JSONCodable, CustomStringConvertible, ExpressibleByStringLiteral, ExpressibleByStringInterpolation, LogMessageConvertible {
+public enum LogMessageContent: JSONCodable, ExpressibleByStringInterpolation {
   /// A simple text message
   case text(String)
   /// A network request
@@ -45,19 +45,6 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
   case networkResponse(NetworkResponse)
   /// A custom object or method call
   case customObject(CustomObject)
-
-  public var description: String {
-    switch self {
-    case let .text(textValue):
-      textValue
-    case let .networkRequest(networkRequest):
-      networkRequest.description
-    case let .networkResponse(networkResponse):
-      networkResponse.description
-    case let .customObject(customObject):
-      customObject.description
-    }
-  }
 
   var logMessageType: String {
     switch self {
@@ -96,19 +83,6 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
     return [:]
   }
 
-  public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> any LogMessage {
-    BaseLogMessage(
-      pubNubId: pubNubId,
-      logLevel: logLevel,
-      category: category,
-      location: location,
-      type: logMessageType,
-      message: self,
-      details: details,
-      additionalFields: additionalFields
-    )
-  }
-
   public func encode(to encoder: any Encoder) throws {
     switch self {
     case let .text(string):
@@ -123,12 +97,44 @@ public enum LogMessageContent: JSONCodable, CustomStringConvertible, Expressible
     }
   }
 
+  public init(stringInterpolation value: String) {
+    self = .text(value)
+  }
+}
+
+extension LogMessageContent: ExpressibleByStringLiteral {
   public init(stringLiteral value: String) {
     self = .text(value)
   }
+}
 
-  public init(stringInterpolation value: String) {
-    self = .text(value)
+extension LogMessageContent: LogMessageConvertible {
+  public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> any LogMessage {
+    BaseLogMessage(
+      pubNubId: pubNubId,
+      logLevel: logLevel,
+      category: category,
+      location: location,
+      type: logMessageType,
+      message: self,
+      details: details,
+      additionalFields: additionalFields
+    )
+  }
+}
+
+extension LogMessageContent: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case let .text(textValue):
+      textValue
+    case let .networkRequest(networkRequest):
+      networkRequest.description
+    case let .networkResponse(networkResponse):
+      networkResponse.description
+    case let .customObject(customObject):
+      customObject.description
+    }
   }
 }
 

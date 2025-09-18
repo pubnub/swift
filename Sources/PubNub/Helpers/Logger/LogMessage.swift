@@ -291,14 +291,14 @@ extension LogMessageContent {
       return """
       \(prefix)
 
-      "id: \(id)
-      "origin: \(origin)
-      "path: \(path)
-      "method: \(method)
-      "headers: \(headers)
-      "body: \(String(describing: body))
-      "isCancelled: \(isCancelled)
-      "isFailed: \(isFailed)
+      id: \(id)
+      origin: \(origin)
+      path: \(path)
+      method: \(method)
+      headers: \(headers)
+      body: \(body ?? "nil")
+      isCancelled: \(isCancelled)
+      isFailed: \(isFailed)
       """
     }
 
@@ -360,12 +360,12 @@ extension LogMessageContent {
       """
       Received network response:
 
-      "requestId: \(id),
-      "url: \(url),
-      "status: \(status),
-      "headers: \(headers),
-      "body: \(String(describing: body)),
-      "details: \(String(describing: details))
+      requestId: \(id),
+      url: \(url),
+      status: \(status),
+      headers: \(headers),
+      body: \(body ?? "nil"),
+      details: \(details ?? "nil")
       """
     }
 
@@ -394,7 +394,7 @@ extension LogMessageContent {
     /// The arguments of the operation
     var arguments: [(String, String)]
     /// Additional details about the operation
-    var details: String?
+    var details: String
 
     enum CodingKeys: String, CodingKey {
       case operation
@@ -402,21 +402,19 @@ extension LogMessageContent {
       case details
     }
 
-    init(operation: String = "", details: String? = nil, arguments: [(String, Any)] = []) {
+    init(operation: String, details: String, arguments: [(String, Any)] = []) {
       self.operation = operation
       self.arguments = arguments.map { ($0.0, String(describing: $0.1)) }
       self.details = details
     }
 
     public var description: String {
-      let argsStr = arguments.map {
+      """
+      \(details)
+
+      \(arguments.map {
         "\($0.0): \($0.1)"
-      }.joined(separator: "\n")
-
-      return """
-      \(String(describing: details))
-
-      \(argsStr)
+      }.joined(separator: "\n"))
       """
     }
 
@@ -444,7 +442,7 @@ extension LogMessageContent {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       operation = try container.decode(String.self, forKey: .operation)
       arguments = try container.decode([String: String].self, forKey: .arguments).map { ($0.key, $0.value) }
-      details = try container.decodeIfPresent(String.self, forKey: .details)
+      details = try container.decode(String.self, forKey: .details)
     }
   }
 }

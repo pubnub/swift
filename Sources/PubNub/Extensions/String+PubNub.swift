@@ -73,10 +73,8 @@ extension String {
 
 extension String {
   static func logDescription(of instance: Any, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
-    logDescription(String(describing: type(of: instance)), arguments: arguments())
-  }
+    let prefix = String(describing: type(of: instance))
 
-  private static func logDescription(_ prefix: String, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
     if arguments().isEmpty {
       return "\(prefix)"
     } else {

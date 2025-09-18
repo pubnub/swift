@@ -52,16 +52,6 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     notify listener: DispatcherListener<Event>
   ) {
     invocations.forEach {
-      logger.debug(
-        .customObject(
-          .init(
-            operation: "dispatch",
-            details: "Received invocation",
-            arguments: [("invocation", $0)]
-          )
-        ),
-        category: .eventEngine
-      )
       switch $0 {
       case .managed(let invocation):
         executeEffect(

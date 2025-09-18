@@ -45,8 +45,7 @@ struct EmitMessagesEffect: EffectHandler, CustomStringConvertible {
       of: self,
       arguments: [
         ("messages", messages),
-        ("cursor", cursor),
-        ("subscriptions", subscriptions)
+        ("cursor", cursor)
       ]
     )
   }

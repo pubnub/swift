@@ -9,6 +9,7 @@
 //
 
 import Foundation
+import os
 
 /// An object that coordinates a group of related PubNub pub/sub network events
 public class PubNub {

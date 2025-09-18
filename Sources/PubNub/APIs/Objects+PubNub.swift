@@ -421,6 +421,23 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(users: [PubNubUserMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "allUserMetadata",
+          details: "Get all User metadata",
+          arguments: [
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsUserRouter(
       .all(
         include: include.includeFields,
@@ -491,6 +508,20 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "fetchUserMetadata",
+          details: "Get User metadata",
+          arguments: [
+            ("metadataId", metadataId ?? "nil"),
+            ("include", include),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsUserRouter(
       .fetch(
         metadataId: metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
@@ -551,6 +582,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubUserMetadata, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "setUserMetadata",
+          details: "Set User metadata",
+          arguments: [
+            ("metadata", metadata),
+            ("ifMatchesEtag", ifMatchesEtag ?? "nil"),
+            ("include", include),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let customHeadersIfAny = if let entityTag = ifMatchesEtag {
       [Constant.ifMatchHeaderKey: entityTag]
     } else {
@@ -605,6 +651,19 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
+     logger.debug(
+      .customObject(
+        .init(
+          operation: "removeUserMetadata",
+          details: "Remove User metadata",
+          arguments: [
+            ("metadataId", metadataId ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     // Capture the response or current configuration uuid
     let metadataId = metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
@@ -648,6 +707,23 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(channels: [PubNubChannelMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "allChannelMetadata",
+          details: "Get all Channel metadata",
+          arguments: [
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let channelIncludeFields = ChannelIncludeFields(
       custom: include.customFields,
       type: include.typeField,
@@ -720,6 +796,20 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "fetchChannelMetadata",
+          details: "Get Channel metadata",
+          arguments: [
+            ("metadataId", metadataId),
+            ("include", include),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsChannelRouter(
       .fetch(
         metadataId: metadataId,
@@ -778,6 +868,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<PubNubChannelMetadata, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "setChannelMetadata",
+          details: "Set Channel metadata",
+          arguments: [
+            ("metadata", metadata),
+            ("ifMatchesEtag", ifMatchesEtag ?? "nil"),
+            ("include", include),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let customHeadersIfAny = if let entityTag = ifMatchesEtag {
       [Constant.ifMatchHeaderKey: entityTag]
     } else {
@@ -832,6 +937,19 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<String, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "removeChannelMetadata",
+          details: "Remove Channel metadata",
+          arguments: [
+            ("metadataId", metadataId),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsChannelRouter(
       .remove(metadataId: metadataId),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -913,6 +1031,24 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "fetchMemberships",
+          details: "Get Channel memberships",
+          arguments: [
+            ("userId", userId ?? "nil"),
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsMembershipsRouter(
@@ -965,6 +1101,24 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "fetchMembers",
+          details: "Get Channel members",
+          arguments: [
+            ("metadataId", metadataId),
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsMembershipsRouter(.fetchMembers(
       channelMetadataId: metadataId, customFields: include.includeFields,
       totalCount: include.totalCount, filter: filter,
@@ -1199,6 +1353,26 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "manageMemberships",
+          details: "Manage Channel memberships",
+          arguments: [
+            ("userId", userId ?? "nil"),
+            ("setting", channelMembershipSets),
+            ("removing", channelMembershipDeletes),
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
 
     let router = ObjectsMembershipsRouter(.setMemberships(
@@ -1398,6 +1572,26 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubMembershipMetadata], next: PubNubHashedPage?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "manageMembers",
+          details: "Manage Channel members",
+          arguments: [
+            ("metadataId", metadataId),
+            ("setting", userMembershipSets),
+            ("removing", userMembershipDeletes),
+            ("include", include),
+            ("filter", filter ?? "nil"),
+            ("sort", sort),
+            ("limit", limit ?? "nil"),
+            ("page", page ?? "nil"),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let router = ObjectsMembershipsRouter(.setMembers(
       channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
       changes: .init(

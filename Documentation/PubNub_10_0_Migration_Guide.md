@@ -53,10 +53,8 @@ The logging methods (`debug`, `info`, `warn`, `error`, etc.) on `PubNubLogger` a
 
 ```swift
 // Before (9.0):
-let logger = PubNubLogger(levels: .all)
-logger.debug("Custom debug message") // This worked
+PubNub.log.debug("Custom debug message") // This worked
 
 // Now (10.0):
-let logger = PubNubLogger(levels: .all)
-logger.debug("Custom debug message") // ❌ No longer available
+pubNub.logger.debug("Custom debug message") // ❌ No longer available
 ```

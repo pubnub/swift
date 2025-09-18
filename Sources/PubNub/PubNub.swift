@@ -23,12 +23,13 @@ public class PubNub {
   public var fileURLSession: URLSessionReplaceable
   /// The URLSessionDelegate used by the `fileSession` to handle file responses
   public var fileSessionManager: FileSessionManager? { fileURLSession.delegate as? FileSessionManager }
+  /// The logger to be used for the current PubNub SDK instance
+  public let logger: PubNubLogger
+
   /// Session used for performing subscription calls
   let subscription: SubscriptionSession
   // Container that holds current Presence states for given channels/channel groups
   let presenceStateContainer: PubNubPresenceStateContainer
-  /// The logger to be used for the current PubNub SDK instance
-  let logger: PubNubLogger
 
   /// Creates a PubNub session with the specified configuration
   ///

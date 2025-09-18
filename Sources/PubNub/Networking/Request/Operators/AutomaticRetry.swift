@@ -117,7 +117,7 @@ public struct AutomaticRetry: RequestOperator, Hashable {
   /// The list of endpoints excluded from retrying
   public let excluded: [AutomaticRetry.Endpoint]
   /// Collection of validation warnings generated during initialization
-  public let validationWarnings: [String]
+  let validationWarnings: [String]
 
   /// The list of endpoints excluded from retrying by default
   public static let defaultExcludedEndpoints: [AutomaticRetry.Endpoint] = [
@@ -211,7 +211,6 @@ private extension AutomaticRetry {
         warningMessage: "The `minDelay` (\(minDelay)) must be at least \(Self.minDelay) seconds. Using \(Self.minDelay) instead.",
         warnings: &warnings
       )
-
       let validatedMaxDelay = Self.validate(
         value: maxDelay,
         using: maxDelay >= validatedMinDelay && maxDelay <= Self.maxDelay,
@@ -219,9 +218,10 @@ private extension AutomaticRetry {
         warningMessage: "AutomaticRetry: `maxDelay` (\(maxDelay)) must be between \(validatedMinDelay) and \(Self.maxDelay) seconds. Using \(max(validatedMinDelay, min(maxDelay, Self.maxDelay))) instead.",
         warnings: &warnings
       )
-
-      return .exponential(minDelay: validatedMinDelay, maxDelay: validatedMaxDelay)
-
+      return .exponential(
+        minDelay: validatedMinDelay,
+        maxDelay: validatedMaxDelay
+      )
     case let .linear(delay):
       let validatedDelay = Self.validate(
         value: delay,
@@ -230,7 +230,6 @@ private extension AutomaticRetry {
         warningMessage: "AutomaticRetry: `linear.delay` (\(delay)) must be between \(Self.minDelay) and \(Self.maxDelay) seconds. Using \(max(Double(Self.minDelay), min(delay, Double(Self.maxDelay)))) instead.",
         warnings: &warnings
       )
-
       return .linear(delay: validatedDelay)
     }
   }
@@ -253,7 +252,7 @@ private extension AutomaticRetry {
       value: minValidatedRetryLimit,
       using: minValidatedRetryLimit <= maxRetryLimit,
       replaceOnFailure: maxRetryLimit,
-      warningMessage: "The`retryLimit` (\(minValidatedRetryLimit)) exceeds maximum allowed for \(policy) policy (\(maxRetryLimit)). Using \(maxRetryLimit) instead.",
+      warningMessage: "The`retryLimit` (\(minValidatedRetryLimit)) exceeds maximum allowed for \(policy) policy: (\(maxRetryLimit)). Using \(maxRetryLimit) instead.",
       warnings: &warnings
     )
 

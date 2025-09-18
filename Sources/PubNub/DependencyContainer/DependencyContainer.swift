@@ -207,9 +207,7 @@ extension DependencyKey where Value == SessionReplaceable {
       MultiplexRequestOperator(operators: operators)
     }
 
-    return session
-      .usingDefault(requestOperator: requestOperator)
-      .usingDefault(logger: logger)
+    return session.usingDefault(requestOperator: requestOperator).usingDefault(logger: logger)
   }
 }
 

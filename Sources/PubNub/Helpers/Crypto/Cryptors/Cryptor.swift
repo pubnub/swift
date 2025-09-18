@@ -90,9 +90,6 @@ public protocol Cryptor: Hashable {
 
   /// Clones the cryptor with a new logger
   ///
-  /// - Important: You don't need to implement this method for your custom cryptors.
-  /// A default implementation is provided. This method is used internally by PubNub's built-in cryptors.
-  ///
   /// - Parameters:
   ///   - logger: The logger to use for logging events
   /// - Returns: A new `Cryptor` instance with the same configuration but a new logger

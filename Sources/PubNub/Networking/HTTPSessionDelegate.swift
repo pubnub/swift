@@ -23,7 +23,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
-    logger?.warn(
+    logger?.debug(
       .customObject(
         .init(
           operation: "session-invalidated",
@@ -46,7 +46,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
-      logger?.warn("Cannot find matching RequestReplaceable for URLSessionTask", category: .networking)
+      logger?.debug("Cannot find matching RequestReplaceable for URLSessionTask", category: .networking)
       return
     }
 

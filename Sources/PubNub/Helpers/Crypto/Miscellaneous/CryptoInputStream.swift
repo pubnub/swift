@@ -162,11 +162,11 @@ public class CryptoInputStream: InputStream {
   /// Creates a new `CryptoInputStream` instance with the specified operation, URL, crypto configuration, and logger.
   ///
   /// - Parameters:
-  ///   - operation: The operation to perform on the input stream.
-  ///   - url: The URL of the content to be processed.
-  ///   - crypto: The data source for the crypto operation like key, iv, etc.
-  ///   - logger: The logger to use for logging events.
-  /// - Returns: A new `CryptoInputStream` instance, or `nil` if the stream cannot be created.
+  ///   - operation: The operation to perform on the input stream
+  ///   - url: The URL of the content to be processed
+  ///   - crypto: The data source for the crypto operation like key, iv, etc
+  ///   - logger: The logger to use for logging events
+  /// - Returns: A new `CryptoInputStream` instance, or `nil` if the stream cannot be created
   public convenience init?(
     operation: CryptoInputStream.Operation,
     url: URL,

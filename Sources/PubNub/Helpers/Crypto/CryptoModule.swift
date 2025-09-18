@@ -54,7 +54,7 @@ public struct CryptoModule {
     self.logger = logger
   }
 
-  // Creates a clone of the `CryptoModule` with a new logger
+  /// Creates a clone of the `CryptoModule` with a new logger
   func clone(with logger: PubNubLogger) -> CryptoModule {
     CryptoModule(default: defaultCryptor, cryptors: cryptors, logger: logger)
   }
@@ -645,7 +645,7 @@ extension CryptoModule {
           .init(
             operation: "decrypt-data-failure",
             details: "Decryption of Data failed",
-            arguments: [("error", error.localizedDescription)]
+            arguments: [("error", error)]
           )
         ),
         category: .crypto

@@ -159,29 +159,29 @@ class BaseLogMessage: LogMessage {
 
     var stringValue: String {
       switch self {
-        case .timestamp: return "timestamp"
-        case .pubNubId: return "pubNubId"
-        case .logLevel: return "logLevel"
-        case .category: return "category"
-        case .location: return "location"
-        case .type: return "type"
-        case .message: return "message"
-        case .details: return "details"
-        case .dynamic(let key): return key
+      case .timestamp: return "timestamp"
+      case .pubNubId: return "pubNubId"
+      case .logLevel: return "logLevel"
+      case .category: return "category"
+      case .location: return "location"
+      case .type: return "type"
+      case .message: return "message"
+      case .details: return "details"
+      case .dynamic(let key): return key
       }
     }
 
     init?(stringValue: String) {
       switch stringValue {
-        case "timestamp": self = .timestamp
-        case "pubNubId": self = .pubNubId
-        case "logLevel": self = .logLevel
-        case "category": self = .category
-        case "location": self = .location
-        case "type": self = .type
-        case "message": self = .message
-        case "details": self = .details
-        default: self = .dynamic(stringValue)
+      case "timestamp": self = .timestamp
+      case "pubNubId": self = .pubNubId
+      case "logLevel": self = .logLevel
+      case "category": self = .category
+      case "location": self = .location
+      case "type": self = .type
+      case "message": self = .message
+      case "details": self = .details
+      default: self = .dynamic(stringValue)
       }
     }
 
@@ -235,7 +235,12 @@ class BaseLogMessage: LogMessage {
   }
 
   public var description: String {
-    [timestamp.description, "PubNub-\(pubNubId)", logLevel.description, location ?? "", message.description].joined(separator: " ")
+    [
+      timestamp.description,
+      "PubNub-\(pubNubId)",
+      logLevel.description, location ?? "",
+      message.description
+    ].joined(separator: " ")
   }
 }
 
@@ -411,6 +416,7 @@ extension LogMessageContent {
     /// Additional details about the operation
     var details: String
 
+    // swiftlint:disable:next nesting
     enum CodingKeys: String, CodingKey {
       case operation
       case arguments
@@ -461,3 +467,5 @@ extension LogMessageContent {
     }
   }
 }
+
+// swiftlint:disable:this file_length

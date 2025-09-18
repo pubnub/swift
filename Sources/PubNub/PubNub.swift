@@ -85,7 +85,7 @@ public class PubNub {
           ("configuration.automaticRetry.policy", String(describing: self.configuration.automaticRetry?.policy)),
           ("configuration.automaticRetry.retryLimit", String(describing: self.configuration.automaticRetry?.retryLimit)),
           ("configuration.automaticRetry.excluded", String(describing: self.configuration.automaticRetry?.excluded)),
-          ("configuration.automaticRetry.warningsIfAny", String(describing: self.configuration.automaticRetry?.validationWarnings)),
+          ("configuration.automaticRetry.validations", String(describing: self.configuration.automaticRetry?.validationWarnings)),
           ("configuration.durationUntilTimeout", String(describing: self.configuration.durationUntilTimeout)),
           ("configuration.heartbeatInterval", String(describing: self.configuration.heartbeatInterval)),
           ("configuration.supressLeaveEvents", String(describing: self.configuration.supressLeaveEvents)),

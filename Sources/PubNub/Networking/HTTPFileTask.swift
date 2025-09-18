@@ -232,7 +232,13 @@ public class HTTPFileDownloadTask: HTTPFileTask {
     (urlSessionTask as? URLSessionDownloadTask)?.cancel(byProducingResumeData: byProducingResumeData)
   }
 
-  init(task: URLSessionDownloadTask, session identifier: String?, downloadTo url: URL, cryptoModule: CryptoModule?, logger: PubNubLogger) {
+  init(
+    task: URLSessionDownloadTask,
+    session identifier: String?,
+    downloadTo url: URL,
+    cryptoModule: CryptoModule?,
+    logger: PubNubLogger
+  ) {
     self.destinationURL = url
     self.cryptoModule = cryptoModule
     self.logger = logger
@@ -321,7 +327,10 @@ public class HTTPFileDownloadTask: HTTPFileTask {
 
       completionBlock?(.success(destinationURL))
     } catch {
-      logger?.debug("Could not move file to \(self.destinationURL.absoluteString) due to \(error.localizedDescription)", category: .networking)
+      logger?.debug(
+        "Could not move file to \(self.destinationURL.absoluteString) due to \(error.localizedDescription)",
+        category: .networking
+      )
       // Set the error to alert that even though a file was retrieved the destination is wrong
       responseError = error
       // Return the temporary file
@@ -420,7 +429,10 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       didDownload?(session, downloadTask, temporaryURL)
       (tasksByIdentifier[downloadTask.taskIdentifier] as? HTTPFileDownloadTask)?.didDownload(to: temporaryURL)
     } catch {
-      logger?.debug("Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)", category: .networking)
+      logger?.debug(
+        "Could not move file to \(temporaryURL.absoluteString) due to \(error.localizedDescription)",
+        category: .networking
+      )
       didError?(session, downloadTask, error)
       tasksByIdentifier[downloadTask.taskIdentifier]?.didError(error)
     }

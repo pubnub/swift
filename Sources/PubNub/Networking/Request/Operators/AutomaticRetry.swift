@@ -208,14 +208,14 @@ private extension AutomaticRetry {
         value: minDelay,
         using: minDelay >= Self.minDelay,
         replaceOnFailure: Self.minDelay,
-        warningMessage: "The `minDelay` (\(minDelay)) must be at least \(Self.minDelay) seconds. Using \(Self.minDelay) instead.",
+        warningMessage: "minDelay too low, using \(Self.minDelay)s",
         warnings: &warnings
       )
       let validatedMaxDelay = Self.validate(
         value: maxDelay,
         using: maxDelay >= validatedMinDelay && maxDelay <= Self.maxDelay,
         replaceOnFailure: max(validatedMinDelay, min(maxDelay, Self.maxDelay)),
-        warningMessage: "AutomaticRetry: `maxDelay` (\(maxDelay)) must be between \(validatedMinDelay) and \(Self.maxDelay) seconds. Using \(max(validatedMinDelay, min(maxDelay, Self.maxDelay))) instead.",
+        warningMessage: "maxDelay out of range, using \(max(validatedMinDelay, min(maxDelay, Self.maxDelay)))s",
         warnings: &warnings
       )
       return .exponential(
@@ -227,7 +227,7 @@ private extension AutomaticRetry {
         value: delay,
         using: delay >= Double(Self.minDelay) && delay <= Double(Self.maxDelay),
         replaceOnFailure: max(Double(Self.minDelay), min(delay, Double(Self.maxDelay))),
-        warningMessage: "AutomaticRetry: `linear.delay` (\(delay)) must be between \(Self.minDelay) and \(Self.maxDelay) seconds. Using \(max(Double(Self.minDelay), min(delay, Double(Self.maxDelay)))) instead.",
+        warningMessage: "delay out of range, using \(max(Double(Self.minDelay), min(delay, Double(Self.maxDelay))))s",
         warnings: &warnings
       )
       return .linear(delay: validatedDelay)
@@ -239,20 +239,20 @@ private extension AutomaticRetry {
     let maxRetryLimit = UInt(policy.maximumRetryLimit())
 
     // Validate minimum retry limit (must be at least 1)
-    let minValidatedRetryLimit = Self.validate(
+    let minLimit = Self.validate(
       value: retryLimit,
       using: retryLimit >= 1,
       replaceOnFailure: 1,
-      warningMessage: "The `retryLimit` must be at least 1. Using 1 instead.",
+      warningMessage: "retryLimit must be at least 1, using 1",
       warnings: &warnings
     )
 
     // Validate maximum retry limit against policy
     let validatedRetryLimit = Self.validate(
-      value: minValidatedRetryLimit,
-      using: minValidatedRetryLimit <= maxRetryLimit,
+      value: minLimit,
+      using: minLimit <= maxRetryLimit,
       replaceOnFailure: maxRetryLimit,
-      warningMessage: "The`retryLimit` (\(minValidatedRetryLimit)) exceeds maximum allowed for \(policy) policy: (\(maxRetryLimit)). Using \(maxRetryLimit) instead.",
+      warningMessage: "retryLimit (\(minLimit)) exceeds maximum allowed for \(policy) policy, using \(maxRetryLimit)",
       warnings: &warnings
     )
 

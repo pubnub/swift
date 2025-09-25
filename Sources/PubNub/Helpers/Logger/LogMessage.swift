@@ -227,7 +227,7 @@ class BaseLogMessage: LogMessage {
 
     try container.encode(timestamp, forKey: .timestamp)
     try container.encode(pubNubId, forKey: .pubNubId)
-    try container.encode(logLevel, forKey: .logLevel)
+    try container.encode(logLevel.description, forKey: .logLevel)
     try container.encode(category, forKey: .category)
     try container.encode(location, forKey: .location)
     try container.encode(type, forKey: .type)
@@ -254,7 +254,7 @@ class BaseLogMessage: LogMessage {
 
 extension LogMessageContent {
   /// A struct representing a network request
-  public struct NetworkRequest: JSONCodable, CustomStringConvertible, LogMessageConvertible {
+  public struct NetworkRequest: JSONCodable, CustomStringConvertible {
     /// The unique identifier of the network request
     var id: String
     /// The origin of the network request
@@ -339,19 +339,6 @@ extension LogMessageContent {
       try container.encode(self.headers, forKey: .headers)
       try container.encode(self.body, forKey: .body)
     }
-
-    public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
-      BaseLogMessage(
-        pubNubId: pubNubId,
-        logLevel: logLevel,
-        category: category,
-        location: location,
-        type: "network-request",
-        message: .networkRequest(self),
-        details: nil,
-        additionalFields: ["cancelled": AnyJSON(isCancelled), "failed": AnyJSON(isFailed)]
-      )
-    }
   }
 }
 
@@ -359,7 +346,7 @@ extension LogMessageContent {
 
 extension LogMessageContent {
   /// A struct representing a network response
-  public struct NetworkResponse: JSONCodable, CustomStringConvertible, LogMessageConvertible {
+  public struct NetworkResponse: JSONCodable, CustomStringConvertible {
     /// The id of the network request that this response is associated with
     var id: String
     /// The URL of the network response
@@ -394,19 +381,6 @@ extension LogMessageContent {
       details: \(details ?? "nil")
       """
     }
-
-    public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
-      BaseLogMessage(
-        pubNubId: pubNubId,
-        logLevel: logLevel,
-        category: category,
-        location: location,
-        type: "network-response",
-        message: .networkResponse(self),
-        details: details,
-        additionalFields: [:]
-      )
-    }
   }
 }
 
@@ -414,7 +388,7 @@ extension LogMessageContent {
 
 extension LogMessageContent {
   /// A struct representing a method call
-  public struct CustomObject: JSONCodable, CustomStringConvertible, LogMessageConvertible {
+  public struct CustomObject: JSONCodable, CustomStringConvertible {
     /// The name of the operation
     var operation: String
     /// The arguments of the operation
@@ -448,19 +422,6 @@ extension LogMessageContent {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(operation, forKey: .operation)
       try container.encode(arguments.reduce(into: [String: String]()) { $0[$1.0] = $1.1 }, forKey: .arguments)
-    }
-
-    public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
-      BaseLogMessage(
-        pubNubId: pubNubId,
-        logLevel: logLevel,
-        category: category,
-        location: location,
-        type: "object",
-        message: .customObject(self),
-        details: details,
-        additionalFields: [:]
-      )
     }
 
     public init(from decoder: Decoder) throws {

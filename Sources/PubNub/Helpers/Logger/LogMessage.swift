@@ -392,7 +392,7 @@ extension LogMessageContent {
     /// The name of the operation
     var operation: String
     /// The arguments of the operation
-    var arguments: [(String, String)]
+    var arguments: [(String, AnyJSON)]
     /// Additional details about the operation
     var details: String
 
@@ -404,7 +404,7 @@ extension LogMessageContent {
 
     init(operation: String, details: String, arguments: [(String, Any)] = []) {
       self.operation = operation
-      self.arguments = arguments.map { ($0.0, String(describing: $0.1)) }
+      self.arguments = arguments.map { ($0.0, AnyJSON($0.1)) }
       self.details = details
     }
 
@@ -421,7 +421,7 @@ extension LogMessageContent {
     public func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(operation, forKey: .operation)
-      try container.encode(arguments.reduce(into: [String: String]()) { $0[$1.0] = $1.1 }, forKey: .arguments)
+      try container.encode(arguments.reduce(into: [String: AnyJSON]()) { $0[$1.0] = AnyJSON($1.1) }, forKey: .arguments)
     }
 
     public init(from decoder: Decoder) throws {

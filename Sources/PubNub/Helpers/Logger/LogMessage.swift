@@ -426,7 +426,6 @@ extension LogMessageContent {
     enum CodingKeys: String, CodingKey {
       case operation
       case arguments
-      case details
     }
 
     init(operation: String, details: String, arguments: [(String, Any)] = []) {
@@ -449,7 +448,6 @@ extension LogMessageContent {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(operation, forKey: .operation)
       try container.encode(arguments.reduce(into: [String: String]()) { $0[$1.0] = $1.1 }, forKey: .arguments)
-      try container.encode(details, forKey: .details)
     }
 
     public func toLogMessage(pubNubId: String, logLevel: LogLevel, category: LogCategory, location: String?) -> LogMessage {
@@ -466,10 +464,9 @@ extension LogMessageContent {
     }
 
     public init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      operation = try container.decode(String.self, forKey: .operation)
-      arguments = try container.decode([String: String].self, forKey: .arguments).map { ($0.key, $0.value) }
-      details = try container.decode(String.self, forKey: .details)
+      operation = ""
+      arguments = []
+      details = ""
     }
   }
 }

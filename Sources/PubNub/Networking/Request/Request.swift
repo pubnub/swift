@@ -67,14 +67,6 @@ final class Request {
   private(set) weak var delegate: RequestDelegate?
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
 
-  private var dataDescription: String {
-    if let data {
-      return String(data: data, encoding: .utf8) ?? "Cannot decode into UTF-8 string"
-    } else {
-      return "Empty data"
-    }
-  }
-
   init(
     with router: HTTPRouter,
     requestQueue: DispatchQueue,
@@ -211,11 +203,23 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
+    logger.error(
+      .customObject(
+        .init(
+          operation: "request-mutate-fail",
+          details: "Failed to mutate URL request",
+          arguments: [
+            ("requestID", self.requestID),
+            ("error.reason", (mutatorError as? PubNubError)?.reason ?? "Unknown reason")
+          ]
+        )
+      ), category: .networking
+    )
     logger.debug(
       .customObject(
         .init(
           operation: "request-mutate-fail",
-          details: "Did fail to mutate URL request",
+          details: "Failed to mutate URL request",
           arguments: [
             ("requestID", self.requestID),
             ("error", mutatorError)
@@ -243,11 +247,21 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
+    logger.error(
+      .customObject(
+        .init(
+          operation: "request-create-fail",
+          details: "Failed to create URLRequest",
+          arguments: [("requestID", self.requestID)]
+        )
+      ), category: .networking
+    )
+
     logger.debug(
       .customObject(
         .init(
           operation: "request-create-fail",
-          details: "Did fail to create URLRequest",
+          details: "Failed to create URLRequest",
           arguments: [("requestID", self.requestID), ("error", error)]
         )
       ), category: .networking
@@ -309,6 +323,7 @@ final class Request {
           headers: request?.allHTTPHeaderFields ?? [:],
           body: request?.httpBody,
           details: nil,
+          isCompleted: false,
           isCancelled: false,
           isFailed: false
         )
@@ -326,22 +341,8 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask) {
-    let request = task.currentRequest
-
-    logger.debug(
-      .networkResponse(
-        .init(
-          id: self.requestID.uuidString,
-          url: request?.url,
-          status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
-          headers: request?.allHTTPHeaderFields ?? [:],
-          body: self.data,
-          details: nil
-        )
-      ),
-      category: .networking
-    )
-
+    // Log the request completion
+    logRequestCompletion(task: task, error: nil)
     // Process the Validators for any additional errors
     atomicValidators.lockedRead { $0.forEach { $0() } }
 
@@ -355,7 +356,33 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
+    logRequestCompletion(task: task, error: error)
+
+    self.error = PubNubError.sessionDelegate(error, router: router)
+    sessionStream?.emitRequest(self, didComplete: task, with: error)
+    retryOrFinish(with: error)
+  }
+
+  private func logRequestCompletion(task: URLSessionTask, error: Error?) {
     let request = task.currentRequest
+    let response = task.response as? HTTPURLResponse
+
+    if let error = error, !error.isCancellationError {
+      logger.error(
+        .customObject(
+          .init(
+            operation: "network-request-failed",
+            details: "Network request completed with error",
+            arguments: [
+              ("requestID", self.requestID.uuidString),
+              ("host", request?.url?.host ?? "unknown"),
+              ("method", request?.httpMethod ?? "unknown"),
+              ("statusCode", response?.statusCode ?? 0)
+            ]
+          )
+        ), category: .networking
+      )
+    }
 
     logger.debug(
       .networkRequest(
@@ -367,9 +394,10 @@ final class Request {
           method: request?.httpMethod ?? "Unknown HTTP method",
           headers: request?.allHTTPHeaderFields ?? [:],
           body: request?.httpBody,
-          details: error.localizedDescription,
-          isCancelled: error.isCancellationError,
-          isFailed: true
+          details: error?.localizedDescription,
+          isCompleted: false,
+          isCancelled: error?.isCancellationError ?? false,
+          isFailed: error != nil
         )
       ), category: .networking
     )
@@ -379,17 +407,13 @@ final class Request {
         .init(
           id: self.requestID.uuidString,
           url: request?.url,
-          status: (task.response as? HTTPURLResponse)?.statusCode ?? 0,
+          status: response?.statusCode ?? 0,
           headers: request?.allHTTPHeaderFields ?? [:],
           body: self.data,
           details: nil
         )
       ), category: .networking
     )
-
-    self.error = PubNubError.sessionDelegate(error, router: router)
-    sessionStream?.emitRequest(self, didComplete: task, with: error)
-    retryOrFinish(with: error)
   }
 
   // MARK: - SessionDelegate Events
@@ -428,15 +452,15 @@ final class Request {
         "No response available"
       }
 
-      logger.debug(
+      logger.error(
         .customObject(
           .init(
             operation: "request-failed",
             details: "Request failed",
             arguments: [
-              ("requestID", self.requestID),
-              ("error", error),
-              ("responseMessage", responseMessage)
+              ("requestID", self.requestID.uuidString),
+              ("hasResponse", self.urlResponse != nil),
+              ("statusCode", self.urlResponse?.statusCode ?? 0)
             ]
           )
         ), category: .networking

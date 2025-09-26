@@ -12,6 +12,7 @@ import Foundation
 
 /// Object capable of encryption/decryption
 public struct CryptoModule {
+  // swiftlint:disable:previous type_body_length
   private let defaultCryptor: any Cryptor
   private let cryptors: [any Cryptor]
   private let legacyCryptorId: CryptorId = []
@@ -80,11 +81,24 @@ public struct CryptoModule {
     let encryptionResult = performDataEncryption(data: data)
 
     if case let .failure(error) = encryptionResult {
-      logger?.debug(
+      logger?.error(
         .customObject(
           .init(
             operation: "encrypt-data-failure",
-            details: "Encryption of Data failed",
+            details: "Data encryption failed",
+            arguments: [
+              ("errorReason", error.reason),
+              ("dataSize", data.count)
+            ]
+          )
+        ),
+        category: .crypto
+      )
+      logger?.debug(
+        .customObject(
+          .init(
+            operation: "encrypt-data-failure-details",
+            details: "Detailed encryption failure information",
             arguments: [("error", error)]
           )
         ),
@@ -136,11 +150,25 @@ public struct CryptoModule {
     let decryptionResult = performDataDecryption(data: data)
 
     if case let .failure(error) = decryptionResult {
-      logger?.debug(
+      logger?.error(
         .customObject(
           .init(
             operation: "decrypt-data-failure",
-            details: "Decryption of Data failed",
+            details: "Data decryption failed",
+            arguments: [
+              ("errorReason", error.reason),
+              ("dataSize", data.count)
+            ]
+          )
+        ),
+        category: .crypto
+      )
+
+      logger?.debug(
+        .customObject(
+          .init(
+            operation: "decrypt-data-failure-details",
+            details: "Detailed decryption failure information",
             arguments: [("error", error)]
           )
         ),
@@ -162,13 +190,27 @@ public struct CryptoModule {
       let header = try CryptorHeader.from(data: data)
 
       guard let cryptor = cryptor(matching: header) else {
-        return .failure(PubNubError(
+        let error = PubNubError(
           .unknownCryptorFailure,
-          additional: [
-            "Could not find matching Cryptor for \(header.cryptorId()) while decrypting Data. " +
-              "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
-          ]
-        ))
+          additional: ["No matching Cryptor for ID: \(header.cryptorId())"]
+        )
+
+        logger?.error(
+          .customObject(
+            .init(
+              operation: "unknown-cryptor-failure",
+              details: "No matching Cryptor found for decryption",
+              arguments: [
+                ("cryptorId", header.cryptorId()),
+                ("availableCryptors", cryptors.map { $0.id }),
+                ("defaultCryptorId", defaultCryptor.id)
+              ]
+            )
+          ),
+          category: .crypto
+        )
+
+        return .failure(error)
       }
 
       let metadata: Data
@@ -478,13 +520,27 @@ public struct CryptoModule {
       let cryptorDefinedData = readHeaderResp.cryptorDefinedData
 
       guard let cryptor = cryptor(matching: readHeaderResp.header) else {
-        return .failure(PubNubError(
+        let error = PubNubError(
           .unknownCryptorFailure,
-          additional: [
-            "Could not find matching Cryptor for \(readHeaderResp.header.cryptorId()) while decrypting InputStream. " +
-              "Ensure the corresponding instance is registered in \(String(describing: Self.self))"
-          ]
-        ))
+          additional: ["No matching Cryptor for ID: \(readHeaderResp.header.cryptorId())"]
+        )
+
+        logger?.error(
+          .customObject(
+            .init(
+              operation: "unknown-cryptor-failure",
+              details: "No matching cryptor found for stream decryption",
+              arguments: [
+                ("cryptorId", readHeaderResp.header.cryptorId()),
+                ("availableCryptors", cryptors.map { $0.id }),
+                ("defaultCryptorId", defaultCryptor.id)
+              ]
+            )
+          ),
+          category: .crypto
+        )
+
+        return .failure(error)
       }
       return cryptor.decrypt(
         data: EncryptedStreamData(
@@ -640,11 +696,25 @@ extension CryptoModule {
     }
 
     if case let .failure(error) = decryptionResult {
+      logger?.error(
+        .customObject(
+          .init(
+            operation: "decrypt-string-failure",
+            details: "String decryption failed",
+            arguments: [
+              ("errorReason", error.reason),
+              ("dataSize", data.count)
+            ]
+          )
+        ),
+        category: .crypto
+      )
+
       logger?.debug(
         .customObject(
           .init(
-            operation: "decrypt-data-failure",
-            details: "Decryption of Data failed",
+            operation: "decrypt-string-failure-details",
+            details: "Detailed string decryption failure information",
             arguments: [("error", error)]
           )
         ),

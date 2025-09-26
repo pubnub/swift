@@ -1999,50 +1999,71 @@ public extension PubNub {
     do {
       return try PAMToken.token(from: token)
     } catch PAMToken.PAMTokenError.invalidEscapedToken {
-      logger.debug(
+      logger.error(
         .customObject(
           .init(
-            operation: "parse",
-            details: "PAM Token was not able to be properly escaped.",
-            arguments: [("token", token)]
+            operation: "pam-token-parse-failure",
+            details: "PAM token parsing failed - invalid escaped token",
+            arguments: [
+              ("errorType", "invalidEscapedToken"),
+              ("tokenLength", token.count)
+            ]
           )
         ), category: .pubNub
       )
-      return nil
     } catch PAMToken.PAMTokenError.invalidBase64EncodedToken {
-      logger.debug(
+      logger.error(
         .customObject(
           .init(
-            operation: "parse",
-            details: "PAM Token was not a valid Base64-encoded string",
-            arguments: [("token", token)]
+            operation: "pam-token-parse-failure",
+            details: "PAM token parsing failed - invalid Base64 encoding",
+            arguments: [
+              ("errorType", "invalidBase64EncodedToken"),
+              ("tokenLength", token.count)
+            ]
           )
         ), category: .pubNub
       )
-      return nil
     } catch PAMToken.PAMTokenError.invalidCBOR(let error) {
-      logger.debug(
+      logger.error(
         .customObject(
           .init(
-            operation: "parse",
-            details: "PAM Token was not valid CBOR due to error",
-            arguments: [("token", token), ("error", error)]
+            operation: "pam-token-parse-failure",
+            details: "PAM token parsing failed - invalid CBOR format",
+            arguments: [
+              ("errorType", "invalidCBOR"),
+              ("tokenLength", token.count)
+            ]
           )
         ), category: .pubNub
       )
-      return nil
     } catch {
-      logger.debug(
+      logger.error(
         .customObject(
           .init(
-            operation: "parse",
-            details: "PAM Token was not valid due to error",
-            arguments: [("token", token), ("error", error)]
+            operation: "pam-token-parse-failure",
+            details: "PAM token parsing failed - unknown error",
+            arguments: [
+              ("errorType", "unknown"),
+              ("tokenLength", token.count)
+            ]
           )
         ), category: .pubNub
       )
-      return nil
     }
+
+    // Single debug log for all PAM token parsing failures
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "pam-token-parse-failure-details",
+          details: "PAM token parsing failed (debug details)",
+          arguments: [("token", token)]
+        )
+      ), category: .pubNub
+    )
+
+    return nil
   }
 
   /// Stores token for use in API calls.

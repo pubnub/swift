@@ -271,6 +271,8 @@ extension LogMessageContent {
     var body: String?
     /// Additional details about the network request
     var details: String?
+    /// Whether the network request was completed
+    var isCompleted: Bool
     /// Whether the network request was cancelled
     var isCancelled: Bool
     /// Whether the network request failed
@@ -285,8 +287,9 @@ extension LogMessageContent {
       headers: [String: String],
       body: Data?,
       details: String?,
+      isCompleted: Bool,
       isCancelled: Bool,
-      isFailed: Bool
+      isFailed: Bool,
     ) {
       self.id = id
       self.origin = origin
@@ -295,6 +298,7 @@ extension LogMessageContent {
       self.method = method
       self.headers = headers
       self.details = details
+      self.isCompleted = isCompleted
       self.isCancelled = isCancelled
       self.isFailed = isFailed
       self.body = if let body {
@@ -309,6 +313,8 @@ extension LogMessageContent {
         "Cancelled network request:"
       } else if isFailed {
         "Failed network request:"
+      } else if isCompleted {
+        "Completed network request:"
       } else {
         "Executing network request:"
       }
@@ -323,6 +329,7 @@ extension LogMessageContent {
       method: \(method)
       headers: \(headers)
       body: \(body ?? "nil")
+      isCompleted: \(isCompleted)
       isCancelled: \(isCancelled)
       isFailed: \(isFailed)
       """
@@ -413,7 +420,7 @@ extension LogMessageContent {
       \(details)
 
       \(arguments.map {
-        "\($0.0): \($0.1)"
+        "\($0.0): \($0.1.rawValue)"
       }.joined(separator: "\n"))
       """
     }
@@ -421,7 +428,15 @@ extension LogMessageContent {
     public func encode(to encoder: any Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(operation, forKey: .operation)
-      try container.encode(arguments.reduce(into: [String: AnyJSON]()) { $0[$1.0] = AnyJSON($1.1) }, forKey: .arguments)
+
+      // Encode arguments, converting unknown types to their string descriptions for JSON compatibility
+      try container.encode(arguments.reduce(into: [String: AnyJSON]()) { result, argument in
+        if case let .unknown(originalValue) = argument.1.value {
+          result[argument.0] = AnyJSON(String(describing: originalValue))
+        } else {
+          result[argument.0] = argument.1
+        }
+      }, forKey: .arguments)
     }
 
     public init(from decoder: Decoder) throws {

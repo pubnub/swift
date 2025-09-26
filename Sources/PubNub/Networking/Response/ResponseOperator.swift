@@ -118,7 +118,7 @@ extension Request {
           .customObject(
             .init(
               operation: "deserializing-response",
-              details: "Deserializing response",
+              details: "Deserialisating response",
               arguments: [("requestID", requestID)]
             )
           ), category: .networking
@@ -133,15 +133,21 @@ extension Request {
         }
 
         if case let .failure(error) = deserializationResult {
+          logger.error(
+            .customObject(
+              .init(
+                operation: "deserialization-failed",
+                details: "Deserialization failed",
+                arguments: [("requestID", requestID), ("error.reason", (error as? PubNubError)?.reason ?? "Unknown reason")]
+              )
+            ), category: .networking
+          )
           logger.debug(
             .customObject(
               .init(
                 operation: "deserialization-failed",
                 details: "Deserialization failed",
-                arguments: [
-                  ("requestID", requestID),
-                  ("error", error)
-                ]
+                arguments: [("requestID", requestID), ("error", error)]
               )
             ),
             category: .networking

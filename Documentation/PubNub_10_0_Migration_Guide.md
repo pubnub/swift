@@ -22,7 +22,7 @@ func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadat
 
 Key changes:
 
-- `LogType` has been renamed to `LogLevel`
+- `LogType` has been renamed to `LogLevel`, and a new `trace` log level has been added
 
 - A log message is now a structured `LogMessage` object. Its `message` property represents what's actually being logged:
 

@@ -289,7 +289,7 @@ extension LogMessageContent {
       details: String?,
       isCompleted: Bool,
       isCancelled: Bool,
-      isFailed: Bool,
+      isFailed: Bool
     ) {
       self.id = id
       self.origin = origin

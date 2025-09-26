@@ -614,6 +614,20 @@ extension PubNub {
     and groups: [Subscription],
     at timetoken: Timetoken?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "internalSubscribe",
+          details: "Triggering subscribe operation from Subscription objects",
+          arguments: [
+            ("channels", channels.flatMap { $0.subscriptionNames.joined(separator: ", ") }),
+            ("channelGroups", groups.flatMap { $0.subscriptionNames.joined(separator: ", ") }),
+            ("timetoken", timetoken)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     subscription.internalSubscribe(
       with: channels,
       and: groups,

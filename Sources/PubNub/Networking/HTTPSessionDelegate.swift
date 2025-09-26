@@ -23,6 +23,22 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
 
   // Task was invalidated by the session directly
   public func urlSession(_: URLSession, didBecomeInvalidWithError error: Error?) {
+    logger?.info(
+      .customObject(
+        .init(
+          operation: "session-invalidated",
+          details: "URLSession invalidated",
+          arguments: [
+            ("sessionID", String(describing: self.sessionBridge?.sessionID)),
+            ("hasError", error != nil),
+            ("errorDomain", (error as NSError?)?.domain ?? "No error domain"),
+            ("errorCode", (error as NSError?)?.code ?? 0)
+          ]
+        )
+      ),
+      category: .networking
+    )
+
     logger?.debug(
       .customObject(
         .init(
@@ -46,7 +62,15 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
   public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     // Lookup the request
     guard let request = sessionBridge?.request(for: task) else {
-      logger?.debug("Cannot find matching RequestReplaceable for URLSessionTask", category: .networking)
+      logger?.warn(
+        .customObject(
+          .init(
+            operation: "orphaned-task-completion",
+            details: "URLSessionTask completed without matching request",
+            arguments: [("taskIdentifier", task.taskIdentifier)]
+          )
+        ), category: .networking
+      )
       return
     }
 

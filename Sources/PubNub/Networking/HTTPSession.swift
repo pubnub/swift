@@ -93,7 +93,7 @@ public final class HTTPSession {
   }
 
   deinit {
-    logger.debug(
+    logger.info(
       .customObject(
         .init(
           operation: "session-deinit",

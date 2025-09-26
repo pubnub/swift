@@ -73,7 +73,7 @@ public struct CryptoModule {
         .init(
           operation: "encrypt-data",
           details: "Execute encrypt",
-          arguments: [("data", data.asUTF8String())]
+          arguments: [("data", data.utf8String)]
         )
       ), category: .crypto
     )
@@ -678,7 +678,7 @@ extension CryptoModule {
         .init(
           operation: "decrypt-data",
           details: "Decrypt Data",
-          arguments: [("data", data.asUTF8String())]
+          arguments: [("data", data.utf8String)]
         )
       ),
       category: .crypto

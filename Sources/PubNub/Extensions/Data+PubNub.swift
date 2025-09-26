@@ -82,7 +82,17 @@ extension Data {
     }
   }
 
-  func asUTF8String() -> String {
+  /// Returns a pretty-printed JSON string if the data contains valid JSON, otherwise returns a UTF-8 string representation
+  var prettyPrintedString: String {
+    guard !isEmpty else { return "nil" }
+
+    return (try? JSONSerialization.jsonObject(with: self))
+      .flatMap { try? JSONSerialization.data(withJSONObject: $0, options: [.prettyPrinted, .sortedKeys]) }
+      .flatMap { String(data: $0, encoding: .utf8) }
+      ?? (String(data: self, encoding: .utf8) ?? "Invalid UTF-8 data")
+  }
+
+  var utf8String: String {
     String(data: self, encoding: .utf8) ?? String("Cannot represent as UTF-8 string")
   }
 }

@@ -268,7 +268,7 @@ extension LogMessageContent {
     /// The headers of the network request
     var headers: [String: String]
     /// The body of the network request
-    var body: String?
+    var body: Data?
     /// Additional details about the network request
     var details: String?
     /// Whether the network request was completed
@@ -301,11 +301,7 @@ extension LogMessageContent {
       self.isCompleted = isCompleted
       self.isCancelled = isCancelled
       self.isFailed = isFailed
-      self.body = if let body {
-        String(data: body, encoding: .utf8) ?? "Invalid UTF-8 encoded data"
-      } else {
-        "nil"
-      }
+      self.body = body
     }
 
     public var description: String {
@@ -328,7 +324,7 @@ extension LogMessageContent {
       query: \(query)
       method: \(method)
       headers: \(headers)
-      body: \(body ?? "nil")
+      body: \(body?.prettyPrintedString ?? "nil")
       isCompleted: \(isCompleted)
       isCancelled: \(isCancelled)
       isFailed: \(isFailed)
@@ -363,7 +359,7 @@ extension LogMessageContent {
     /// The headers of the network response
     var headers: [String: String]
     /// The body of the network response
-    var body: String?
+    var body: Data?
     /// Additional details about the network response
     var details: String?
 
@@ -372,20 +368,20 @@ extension LogMessageContent {
       self.url = url?.absoluteString ?? "Unknown URL"
       self.status = status
       self.headers = headers
-      self.body = String(data: body ?? Data(), encoding: .utf8)
+      self.body = body
       self.details = details
     }
 
     public var description: String {
-      """
+      return """
       Received network response:
 
-      requestId: \(id),
-      url: \(url),
-      status: \(status),
-      headers: \(headers),
-      body: \(body),
-      details: \(details)
+      requestId: \(id)
+      url: \(url)
+      headers: \(headers)
+      status: \(status)
+      body: \(body?.prettyPrintedString ?? "nil")
+      details: \(details ?? "nil")
       """
     }
   }

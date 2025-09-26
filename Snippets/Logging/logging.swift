@@ -126,7 +126,7 @@ PubNubLogger(levels: [.error])
 // - .warn: Warning messages
 // - .event: Significant event notifications
 // - .info: Informational messages
-PubNubLogger(levels: [.log, .error, .warn, .event, .info])
+PubNubLogger(levels: [.error, .warn, .event, .info])
 // snippet.end
 
 // snippet.disable-logging

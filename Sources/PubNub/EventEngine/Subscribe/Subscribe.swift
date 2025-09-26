@@ -162,7 +162,7 @@ extension Subscribe {
         arguments: [
           ("oldStatus", oldStatus),
           ("newStatus", newStatus),
-          ("erorr", error?.reason)
+          ("erorr", error)
         ]
       )
     }

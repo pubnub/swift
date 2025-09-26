@@ -72,13 +72,18 @@ extension String {
 }
 
 extension String {
-  static func logDescription(of instance: Any, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
+  /// Creates a structured log description for an object with optional arguments
+  /// - Parameters:
+  ///   - instance: The object to describe
+  ///   - arguments: Optional key-value pairs to include in the description
+  /// - Returns: A formatted string like "ClassName(arg1: value1, arg2: nil, arg3: value3)"
+  static func logDescription(of instance: Any, arguments: @autoclosure () -> [(String, Any?)] = []) -> String {
     let prefix = String(describing: type(of: instance))
 
     if arguments().isEmpty {
       return "\(prefix)"
     } else {
-      return "\(prefix)(\(arguments().map { "\($0.0): \(String(describing: $0.1))" }.joined(separator: ", ")))"
+      return "\(prefix)(\(arguments().map { "\($0.0): \($0.1.map(String.init(describing:)) ?? "nil")" }.joined(separator: ", ")))"
     }
   }
 }

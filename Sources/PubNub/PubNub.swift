@@ -72,27 +72,27 @@ public class PubNub {
         details: "Initialize a new PubNub instance",
         arguments: [
           ("instanceID", self.instanceID.uuidString),
-          ("configuration.publishKey", String(describing: self.configuration.publishKey)),
-          ("configuration.subscribeKey", String(describing: self.configuration.subscribeKey)),
-          ("configuration.userId", String(describing: self.configuration.userId)),
-          ("configuration.cryptoModule", String(describing: self.configuration.cryptoModule)),
-          ("configuration.authKey", String(describing: self.configuration.authKey)),
-          ("configuration.authToken", String(describing: self.configuration.authToken)),
-          ("configuration.useSecureConnections", String(describing: self.configuration.useSecureConnections)),
-          ("configuration.origin", String(describing: self.configuration.origin)),
-          ("configuration.useInstanceId", String(describing: self.configuration.useInstanceId)),
-          ("configuration.useRequestId", String(describing: self.configuration.useRequestId)),
-          ("configuration.automaticRetry.policy", String(describing: self.configuration.automaticRetry?.policy)),
-          ("configuration.automaticRetry.retryLimit", String(describing: self.configuration.automaticRetry?.retryLimit)),
-          ("configuration.automaticRetry.excluded", String(describing: self.configuration.automaticRetry?.excluded)),
-          ("configuration.automaticRetry.validations", String(describing: self.configuration.automaticRetry?.validationWarnings)),
-          ("configuration.durationUntilTimeout", String(describing: self.configuration.durationUntilTimeout)),
-          ("configuration.heartbeatInterval", String(describing: self.configuration.heartbeatInterval)),
-          ("configuration.supressLeaveEvents", String(describing: self.configuration.supressLeaveEvents)),
-          ("configuration.requestMessageCountThreshold", String(describing: self.configuration.requestMessageCountThreshold)),
-          ("configuration.filterExpression", String(describing: self.configuration.filterExpression)),
-          ("configuration.enableEventEngine", String(describing: self.configuration.enableEventEngine)),
-          ("configuration.maintainPresenceState", String(describing: self.configuration.maintainPresenceState))
+          ("configuration.publishKey", self.configuration.publishKey),
+          ("configuration.subscribeKey", self.configuration.subscribeKey),
+          ("configuration.userId", self.configuration.userId),
+          ("configuration.cryptoModule", self.configuration.cryptoModule),
+          ("configuration.authKey", self.configuration.authKey),
+          ("configuration.authToken", self.configuration.authToken),
+          ("configuration.useSecureConnections", self.configuration.useSecureConnections),
+          ("configuration.origin", self.configuration.origin),
+          ("configuration.useInstanceId", self.configuration.useInstanceId),
+          ("configuration.useRequestId", self.configuration.useRequestId),
+          ("configuration.automaticRetry.policy", self.configuration.automaticRetry?.policy),
+          ("configuration.automaticRetry.retryLimit", self.configuration.automaticRetry?.retryLimit),
+          ("configuration.automaticRetry.excluded", self.configuration.automaticRetry?.excluded),
+          ("configuration.automaticRetry.validations", self.configuration.automaticRetry?.validationWarnings),
+          ("configuration.durationUntilTimeout", self.configuration.durationUntilTimeout),
+          ("configuration.heartbeatInterval", self.configuration.heartbeatInterval),
+          ("configuration.supressLeaveEvents", self.configuration.supressLeaveEvents),
+          ("configuration.requestMessageCountThreshold", self.configuration.requestMessageCountThreshold),
+          ("configuration.filterExpression", self.configuration.filterExpression),
+          ("configuration.enableEventEngine", self.configuration.enableEventEngine),
+          ("configuration.maintainPresenceState", self.configuration.maintainPresenceState)
         ]
       )), category: .pubNub
     )
@@ -284,10 +284,10 @@ public extension PubNub {
           details: "Execute publish",
           arguments: [
             ("channel", channel),
-            ("message", message.jsonStringify ?? "nil"),
-            ("customMessageType", customMessageType ?? "nil"),
-            ("storeTTL", storeTTL ?? "nil"),
-            ("meta", meta?.jsonStringify ?? "nil"),
+            ("message", message.jsonStringify),
+            ("customMessageType", customMessageType),
+            ("storeTTL", storeTTL),
+            ("meta", meta?.jsonStringify),
             ("shouldCompress", shouldCompress),
             ("custom", requestConfig)
           ]
@@ -367,8 +367,8 @@ public extension PubNub {
           details: "Execute fire",
           arguments: [
             ("channel", channel),
-            ("message", message.jsonStringify ?? "nil"),
-            ("meta", meta?.jsonStringify ?? "nil"),
+            ("message", message.jsonStringify),
+            ("meta", meta?.jsonStringify),
             ("custom", requestConfig)
           ]
         )
@@ -412,8 +412,8 @@ public extension PubNub {
           details: "Execute signal",
           arguments: [
             ("channel", channel),
-            ("message", message.jsonStringify ?? "nil"),
-            ("customMessageType", customMessageType ?? "nil"),
+            ("message", message.jsonStringify),
+            ("customMessageType", customMessageType),
             ("custom", requestConfig)
           ]
         )
@@ -458,7 +458,7 @@ public extension PubNub {
           arguments: [
             ("to", channels),
             ("and", channelGroups),
-            ("at", timetoken ?? "nil"),
+            ("at", timetoken),
             ("withPresence", withPresence)
           ]
         )
@@ -549,7 +549,7 @@ public extension PubNub {
         .init(
           operation: "reconnect",
           details: "Execute reconnect",
-          arguments: [("at", timetoken ?? "nil")]
+          arguments: [("at", timetoken)]
         )
       ), category: .pubNub
     )
@@ -1494,7 +1494,7 @@ public extension PubNub {
             ("includeUUID", includeUUID),
             ("includeMessageType", includeMessageType),
             ("includeCustomMessageType", includeCustomMessageType),
-            ("page", page ?? "nil"),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -1575,8 +1575,8 @@ public extension PubNub {
           details: "Execute deleteMessageHistory",
           arguments: [
             ("from", channel),
-            ("start", start ?? "nil"),
-            ("end", end ?? "nil"),
+            ("start", start),
+            ("end", end),
             ("custom", requestConfig)
           ]
         )
@@ -1706,7 +1706,7 @@ public extension PubNub {
           details: "Execute fetchMessageActions",
           arguments: [
             ("channel", channel),
-            ("page", page ?? "nil"),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -1874,7 +1874,7 @@ public extension PubNub {
           details: "Execute encrypt",
           arguments: [("message", message)]
         )
-      ), category: .pubNub
+      ), category: .crypto
     )
 
     guard let cryptoModule = configuration.cryptoModule else {
@@ -1884,7 +1884,7 @@ public extension PubNub {
             operation: "encrypt",
             details: "Encryption of a String message failed due to \(ErrorDescription.missingCryptoKey)"
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
       return .failure(CryptoError.invalidKey)
     }
@@ -1897,7 +1897,7 @@ public extension PubNub {
             details: "Encryption of a String message failed due to \("invalid UTF-8 encoded String")",
             arguments: [("message", message)]
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
       return .failure(CryptoError.decodeError)
     }
@@ -1916,7 +1916,7 @@ public extension PubNub {
             details: "Encryption of a String message failed due to \(error)",
             arguments: [("message", message), ("error", error)]
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
     }
 
@@ -1932,7 +1932,7 @@ public extension PubNub {
         operation: "decrypt",
         details: "Decrypt a Data message",
         arguments: [("data.count", data.count)]
-      )), category: .pubNub
+      )), category: .crypto
     )
 
     guard let cryptoModule = configuration.cryptoModule else {
@@ -1943,7 +1943,7 @@ public extension PubNub {
             details: "Decryption of Data failed due to \(ErrorDescription.missingCryptoKey)",
             arguments: [("data.count", data.count)]
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
 
       return .failure(CryptoError.invalidKey)
@@ -1956,7 +1956,7 @@ public extension PubNub {
             details: "Decryption of Data failed due to \("invalid Base64-encoded Data")",
             arguments: [("data.count", data.count)]
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
       return .failure(CryptoError.decodeError)
     }
@@ -1980,7 +1980,7 @@ public extension PubNub {
             details: "Decryption of Data failed due to \(error)",
             arguments: [("data.count", data.count), ("error", error)]
           )
-        ), category: .pubNub
+        ), category: .crypto
       )
     }
 

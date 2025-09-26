@@ -37,7 +37,7 @@ public extension PubNub {
           arguments: [
             ("channel", channel),
             ("limit", limit),
-            ("next", next ?? "nil"),
+            ("next", next),
             ("custom", requestConfig)
           ]
         )
@@ -601,7 +601,7 @@ public extension PubNub {
         .init(
           operation: "downloadFile",
           details: "Download File",
-          arguments: [("file", file), ("localFileURL", localFileURL), ("resumeData", resumeData ?? "nil")]
+          arguments: [("file", file), ("localFileURL", localFileURL), ("resumeData", resumeData)]
         )
       ), category: .pubNub
     )

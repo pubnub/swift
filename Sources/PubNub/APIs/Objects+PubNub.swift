@@ -428,10 +428,10 @@ public extension PubNub {
           details: "Get all User metadata",
           arguments: [
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -514,7 +514,7 @@ public extension PubNub {
           operation: "fetchUserMetadata",
           details: "Get User metadata",
           arguments: [
-            ("metadataId", metadataId ?? "nil"),
+            ("metadataId", metadataId),
             ("include", include),
             ("custom", requestConfig)
           ]
@@ -589,7 +589,7 @@ public extension PubNub {
           details: "Set User metadata",
           arguments: [
             ("metadata", metadata),
-            ("ifMatchesEtag", ifMatchesEtag ?? "nil"),
+            ("ifMatchesEtag", ifMatchesEtag),
             ("include", include),
             ("custom", requestConfig)
           ]
@@ -657,7 +657,7 @@ public extension PubNub {
           operation: "removeUserMetadata",
           details: "Remove User metadata",
           arguments: [
-            ("metadataId", metadataId ?? "nil"),
+            ("metadataId", metadataId),
             ("custom", requestConfig)
           ]
         )
@@ -714,10 +714,10 @@ public extension PubNub {
           details: "Get all Channel metadata",
           arguments: [
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -875,7 +875,7 @@ public extension PubNub {
           details: "Set Channel metadata",
           arguments: [
             ("metadata", metadata),
-            ("ifMatchesEtag", ifMatchesEtag ?? "nil"),
+            ("ifMatchesEtag", ifMatchesEtag),
             ("include", include),
             ("custom", requestConfig)
           ]
@@ -1037,12 +1037,12 @@ public extension PubNub {
           operation: "fetchMemberships",
           details: "Get Channel memberships",
           arguments: [
-            ("userId", userId ?? "nil"),
+            ("userId", userId),
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -1109,10 +1109,10 @@ public extension PubNub {
           arguments: [
             ("metadataId", metadataId),
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -1359,14 +1359,14 @@ public extension PubNub {
           operation: "manageMemberships",
           details: "Manage Channel memberships",
           arguments: [
-            ("userId", userId ?? "nil"),
+            ("userId", userId),
             ("setting", channelMembershipSets),
             ("removing", channelMembershipDeletes),
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )
@@ -1582,10 +1582,10 @@ public extension PubNub {
             ("setting", userMembershipSets),
             ("removing", userMembershipDeletes),
             ("include", include),
-            ("filter", filter ?? "nil"),
+            ("filter", filter),
             ("sort", sort),
-            ("limit", limit ?? "nil"),
-            ("page", page ?? "nil"),
+            ("limit", limit),
+            ("page", page),
             ("custom", requestConfig)
           ]
         )

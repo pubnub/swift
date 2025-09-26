@@ -72,7 +72,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     let newState = transitionResult.state
     let invocations = transitionResult.invocations
 
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "ee-transition",
@@ -83,7 +83,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
       category: .eventEngine
     )
 
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "ee-transition",

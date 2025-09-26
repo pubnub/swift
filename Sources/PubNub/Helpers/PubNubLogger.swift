@@ -37,14 +37,13 @@ public struct LogPrefix: OptionSet, Equatable, Hashable {
 public struct LogLevel: OptionSet, Equatable, Hashable, JSONCodable {
   public let rawValue: UInt32
 
-  // Reserverd Log Types
   public static let none = LogLevel([])
-  public static let debug = LogLevel(rawValue: 1 << 0)
-  public static let info = LogLevel(rawValue: 1 << 1)
-  public static let event = LogLevel(rawValue: 1 << 2)
-  public static let warn = LogLevel(rawValue: 1 << 3)
-  public static let error = LogLevel(rawValue: 1 << 4)
-  public static let log = LogLevel(rawValue: 1 << 31)
+  public static let trace = LogLevel(rawValue: 1 << 0)
+  public static let debug = LogLevel(rawValue: 1 << 1)
+  public static let info = LogLevel(rawValue: 1 << 2)
+  public static let event = LogLevel(rawValue: 1 << 3)
+  public static let warn = LogLevel(rawValue: 1 << 4)
+  public static let error = LogLevel(rawValue: 1 << 5)
   public static let all = LogLevel(rawValue: UInt32.max)
 
   public init(rawValue: UInt32) {
@@ -55,6 +54,8 @@ public struct LogLevel: OptionSet, Equatable, Hashable, JSONCodable {
 extension LogLevel: CustomStringConvertible {
   public var description: String {
     switch self {
+    case LogLevel.trace:
+      return "Trace"
     case LogLevel.debug:
       return "Debug"
     case LogLevel.info:
@@ -65,8 +66,6 @@ extension LogLevel: CustomStringConvertible {
       return "Warn"
     case LogLevel.error:
       return "Error"
-    case LogLevel.log:
-      return "Logger Event"
     case LogLevel.all:
       return "All"
     default:
@@ -79,6 +78,7 @@ extension LogLevel: CustomStringConvertible {
 
 /// Provides a custom logger for handling log messages from the PubNub SDK.
 public struct PubNubLogger {
+  // swiftlint:disable:previous type_body_length
   /// An array of `LogWriter` instances responsible for processing log messages.
   public var writers: [LogWriter]
   /// The current log level, determining the severity of messages to be logged.
@@ -118,6 +118,29 @@ public struct PubNubLogger {
     } else {
       [ConsoleLogWriter(), FileLogWriter()]
     }
+  }
+
+  func trace(
+    _ message: @escaping @autoclosure () -> LogMessageContent,
+    category: LogCategory = .none,
+    date: Date = Date(),
+    queue: String = DispatchQueue.currentLabel,
+    thread: String = Thread.currentName,
+    file: String = #file,
+    function: String = #function,
+    line: Int = #line
+  ) {
+    send(
+      .trace,
+      category: category,
+      message: message(),
+      date: date,
+      queue: queue,
+      thread: thread,
+      file: file,
+      function: function,
+      line: line
+    )
   }
 
   func debug(

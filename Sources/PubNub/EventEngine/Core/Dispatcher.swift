@@ -81,7 +81,7 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       effect: effect,
       with: id
     )
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "executeEffect",

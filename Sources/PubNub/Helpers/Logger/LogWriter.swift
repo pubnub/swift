@@ -267,6 +267,7 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
+  // swiftlint:disable:next cyclomatic_complexity
   public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     // Select the appropriate logger based on category (without evaluating message)
     let finalLogger = switch metadata.category {
@@ -284,9 +285,13 @@ public struct OSLogWriter: LogWriter {
 
     // Now evaluate the message only once, when we actually need to log it
     switch metadata.level {
-    case .debug, .all:
+    case .trace:
+      finalLogger.trace("\(message().description)")
+    case .debug:
       finalLogger.debug("\(message().description)")
-    case .log, .info, .event:
+    case .info:
+      finalLogger.info("\(message().description)")
+    case .event:
       finalLogger.info("\(message().description)")
     case .warn:
       finalLogger.warning("\(message().description)")

@@ -384,8 +384,8 @@ extension LogMessageContent {
       url: \(url),
       status: \(status),
       headers: \(headers),
-      body: \(body ?? "nil"),
-      details: \(details ?? "nil")
+      body: \(body),
+      details: \(details)
       """
     }
   }
@@ -399,7 +399,7 @@ extension LogMessageContent {
     /// The name of the operation
     var operation: String
     /// The arguments of the operation
-    var arguments: [(String, AnyJSON)]
+    var arguments: [(String, AnyJSON?)]
     /// Additional details about the operation
     var details: String
 
@@ -409,9 +409,15 @@ extension LogMessageContent {
       case arguments
     }
 
-    init(operation: String, details: String, arguments: [(String, Any)] = []) {
+    init(operation: String, details: String, arguments: [(String, Any?)] = []) {
       self.operation = operation
-      self.arguments = arguments.map { ($0.0, AnyJSON($0.1)) }
+      self.arguments = arguments.map {
+        if let value = $0.1 {
+          return ($0.0, AnyJSON(value))
+        } else {
+          return ($0.0, nil)
+        }
+      }
       self.details = details
     }
 
@@ -420,7 +426,11 @@ extension LogMessageContent {
       \(details)
 
       \(arguments.map {
-        "\($0.0): \($0.1.rawValue)"
+        if let value = $0.1?.rawValue {
+          return "\($0.0): \(value)"
+        } else {
+          return "\($0.0): nil"
+        }
       }.joined(separator: "\n"))
       """
     }
@@ -431,7 +441,7 @@ extension LogMessageContent {
 
       // Encode arguments, converting unknown types to their string descriptions for JSON compatibility
       try container.encode(arguments.reduce(into: [String: AnyJSON]()) { result, argument in
-        if case let .unknown(originalValue) = argument.1.value {
+        if case let .unknown(originalValue) = argument.1?.value {
           result[argument.0] = AnyJSON(String(describing: originalValue))
         } else {
           result[argument.0] = argument.1

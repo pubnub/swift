@@ -400,21 +400,53 @@ extension LogMessageContent {
     var details: String
 
     // swiftlint:disable:next nesting
-    enum CodingKeys: String, CodingKey {
+    enum DynamicCodingKeys: CodingKey {
       case operation
-      case arguments
+      case dynamic(String)
+
+      var stringValue: String {
+        switch self {
+        case .operation: return "operation"
+        case .dynamic(let key): return key
+        }
+      }
+
+      init?(stringValue: String) {
+        switch stringValue {
+        case "operation": self = .operation
+        default: self = .dynamic(stringValue)
+        }
+      }
+
+      var intValue: Int? {
+        nil
+      }
+
+      init?(intValue: Int) {
+        nil
+      }
     }
 
     init(operation: String, details: String, arguments: [(String, Any?)] = []) {
       self.operation = operation
-      self.arguments = arguments.map {
-        if let value = $0.1 {
-          return ($0.0, AnyJSON(value))
-        } else {
-          return ($0.0, nil)
-        }
-      }
       self.details = details
+      self.arguments = arguments.map { name, value in
+        guard let value = value else { return (name, nil) }
+        return (name, Self.convertUnknownToString(AnyJSON(value)))
+      }
+    }
+
+    private static func convertUnknownToString(_ anyJSON: AnyJSON) -> AnyJSON {
+      switch anyJSON.value {
+      case .unknown:
+        return AnyJSON(String(describing: anyJSON.rawValue))
+      case let .array(arrayValues):
+        return AnyJSON(arrayValues.map { convertUnknownToString(AnyJSON($0.rawValue)) }.map { $0.rawValue })
+      case let .dictionary(dictValues):
+        return AnyJSON(dictValues.mapValues { convertUnknownToString(AnyJSON($0.rawValue)) }.mapValues { $0.rawValue })
+      default:
+        return anyJSON
+      }
     }
 
     public var description: String {
@@ -432,17 +464,17 @@ extension LogMessageContent {
     }
 
     public func encode(to encoder: any Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
+      var container = encoder.container(keyedBy: DynamicCodingKeys.self)
       try container.encode(operation, forKey: .operation)
 
-      // Encode arguments, converting unknown types to their string descriptions for JSON compatibility
-      try container.encode(arguments.reduce(into: [String: AnyJSON]()) { result, argument in
-        if case let .unknown(originalValue) = argument.1?.value {
-          result[argument.0] = AnyJSON(String(describing: originalValue))
+      // Encode arguments as separate keys
+      for (name, value) in arguments {
+        if let value = value {
+          try container.encode(value, forKey: .dynamic(name))
         } else {
-          result[argument.0] = argument.1
+          try container.encodeNil(forKey: .dynamic(name))
         }
-      }, forKey: .arguments)
+      }
     }
 
     public init(from decoder: Decoder) throws {

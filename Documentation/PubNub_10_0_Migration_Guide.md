@@ -31,7 +31,7 @@ Key changes:
   - `.networkResponse(NetworkResponse)` - HTTP response details  
   - `.customObject(CustomObject)` - A method call or an event 
 
-- `LogMetadata` provides data you can use for routing decisions in your custom `LogWriter` implementation, enabling efficient filtering without evaluating expensive log content
+- `LogMetadata` provides data you can use for routing decisions in your custom `LogWriter` implementation, enabling efficient filtering without evaluating log content
 
 #### 2. Logger Configuration
 

@@ -77,14 +77,13 @@ extension LogLevel: CustomStringConvertible {
 // MARK: - PubNub Logger
 
 /// Provides a custom logger for handling log messages from the PubNub SDK.
-public struct PubNubLogger {
+public class PubNubLogger {
   // swiftlint:disable:previous type_body_length
   /// An array of `LogWriter` instances responsible for processing log messages.
-  public var writers: [LogWriter]
-  /// The current log level, determining the severity of messages to be logged.
-  public var levels: LogLevel
-  /// A unique identifier for the PubNub instance this logger is associated with
-  private var pubNubInstanceId: UUID?
+  public let writers: [LogWriter]
+
+  private let levelsContainer: Atomic<LogLevel>
+  private let pubNubInstanceId: UUID?
 
   /// Initializes a new `PubNubLogger` instance with the specified log levels and writers.
   ///
@@ -93,22 +92,32 @@ public struct PubNubLogger {
   ///   - writers: The writers to be used for logging. Defaults to the default log writers.
   public init(levels: LogLevel = .all, writers: [LogWriter] = PubNubLogger.defaultLogWriters()) {
     self.writers = writers
-    self.levels = levels
+    self.levelsContainer = Atomic(levels)
+    self.pubNubInstanceId = nil
   }
 
   init(levels: LogLevel = .all, writers: [LogWriter], pubNubInstanceId: UUID) {
     self.writers = writers
-    self.levels = levels
+    self.levelsContainer = Atomic(levels)
     self.pubNubInstanceId = pubNubInstanceId
   }
 
   func clone(withPubNubInstanceId id: UUID) -> PubNubLogger {
-    PubNubLogger(levels: levels, writers: writers, pubNubInstanceId: id)
+    PubNubLogger(levels: levelsContainer.lockedRead { $0 }, writers: writers, pubNubInstanceId: id)
   }
 
   /// Returns a default logger with the default log levels and writers
   public static func defaultLogger() -> PubNubLogger {
-    PubNubLogger(levels: [.event, .warn, .error], writers: defaultLogWriters())
+    PubNubLogger(levels: .none, writers: defaultLogWriters())
+  }
+
+  /// The current log level, determining the severity of messages to be logged.
+  public var levels: LogLevel {
+    get {
+      levelsContainer.lockedRead { $0 }
+    } set {
+      levelsContainer.lockedWrite { $0 = newValue }
+    }
   }
 
   /// Returns the default log writers for the SDK
@@ -319,13 +328,13 @@ public struct PubNubLogger {
     function: String,
     line: Int
   ) {
-    guard enabled, levels.contains(level) else {
+    guard enabled, self.levels.contains(level) else {
       return
     }
 
     for writer in writers {
       var fullMessage = {
-        let additionalDetails = format(
+        let additionalDetails = self.format(
           prefix: writer.prefix,
           category: category,
           level: level,
@@ -337,7 +346,7 @@ public struct PubNubLogger {
           line: line
         )
         let finalMessage = message().toLogMessage(
-          pubNubId: pubNubInstanceId?.uuidString ?? "",
+          pubNubId: self.pubNubInstanceId?.uuidString ?? "",
           logLevel: level,
           category: category,
           location: additionalDetails

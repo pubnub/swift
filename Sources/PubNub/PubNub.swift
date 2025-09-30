@@ -23,9 +23,9 @@ public class PubNub {
   public var fileURLSession: URLSessionReplaceable
   /// The URLSessionDelegate used by the `fileSession` to handle file responses
   public var fileSessionManager: FileSessionManager? { fileURLSession.delegate as? FileSessionManager }
-  /// The logger to be used for the current PubNub SDK instance
-  public let logger: PubNubLogger
 
+  /// The logger to be used for the current PubNub SDK instance
+  let logger: PubNubLogger
   /// Session used for performing subscription calls
   let subscription: SubscriptionSession
   // Container that holds current Presence states for given channels/channel groups
@@ -2204,6 +2204,18 @@ extension PubNub: EventListenerHandler {
 
   public func removeAllListeners() {
     subscription.removeAllListeners()
+  }
+}
+
+public extension PubNub {
+  /// The current log level, determining the severity of messages to be logged
+  var logLevel: LogLevel {
+    get {
+      logger.levels
+    }
+    set {
+      logger.levels = newValue
+    }
   }
 }
 

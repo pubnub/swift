@@ -114,7 +114,7 @@ extension Request {
   ) {
     appendResponseCompletion { [requestID, logger] result in
       queue.async {
-        logger.debug(
+        logger.trace(
           .customObject(
             .init(
               operation: "deserializing-response",
@@ -142,7 +142,7 @@ extension Request {
               )
             ), category: .networking
           )
-          logger.debug(
+          logger.trace(
             .customObject(
               .init(
                 operation: "deserialization-failed",

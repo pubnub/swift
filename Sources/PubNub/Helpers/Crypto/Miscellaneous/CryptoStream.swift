@@ -108,7 +108,7 @@ public class CryptoStream {
     let rawStatus = CCCryptorRelease(context.pointee)
 
     if rawStatus != kCCSuccess {
-      logger?.debug(
+      logger?.trace(
         "CryptoStream CCCryptoRelease failed with status \(rawStatus)",
         category: .crypto
       )

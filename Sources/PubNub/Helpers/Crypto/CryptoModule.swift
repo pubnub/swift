@@ -68,11 +68,11 @@ public struct CryptoModule {
   ///   - **Success**: An encrypted `Data` object
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
-    logger?.debug(
+    logger?.trace(
       .customObject(
         .init(
           operation: "encrypt-data",
-          details: "Execute encrypt",
+          details: "Encrypting Data",
           arguments: [("data", data.utf8String)]
         )
       ), category: .crypto
@@ -81,7 +81,7 @@ public struct CryptoModule {
     let encryptionResult = performDataEncryption(data: data)
 
     if case let .failure(error) = encryptionResult {
-      logger?.error(
+      logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-data-failure",
@@ -94,7 +94,7 @@ public struct CryptoModule {
         ),
         category: .crypto
       )
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-data-failure-details",
@@ -164,7 +164,7 @@ public struct CryptoModule {
         category: .crypto
       )
 
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "decrypt-data-failure-details",
@@ -268,7 +268,7 @@ public struct CryptoModule {
       .customObject(
         .init(
           operation: "encrypt-stream",
-          details: "Execute encrypt",
+          details: "Encrypting InputStream",
           arguments: [
             ("stream", stream.description),
             ("contentLength", contentLength)
@@ -284,7 +284,7 @@ public struct CryptoModule {
     )
 
     if case let .failure(error) = streamEncryptionResult {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-stream-failure",
@@ -313,7 +313,7 @@ public struct CryptoModule {
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encryptStream(from localFileURL: URL) -> Result<EncryptedStreamResult, PubNubError> {
     guard let inputStream = InputStream(url: localFileURL) else {
-      logger?.debug(
+        logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-stream-failure",
@@ -334,7 +334,7 @@ public struct CryptoModule {
     )
 
     if case let .failure(error) = streamEncryptionResult {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-stream-failure",
@@ -406,7 +406,7 @@ public struct CryptoModule {
       .customObject(
         .init(
           operation: "decrypt-stream",
-          details: "Execute decrypt",
+          details: "Decrypting InputStream",
           arguments: [
             ("stream", stream.description),
             ("contentLength", contentLength),
@@ -424,7 +424,7 @@ public struct CryptoModule {
     )
 
     if case let .failure(error) = streamDecryptionResult {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "decrypt-stream-failure",
@@ -453,7 +453,7 @@ public struct CryptoModule {
       .customObject(
         .init(
           operation: "decrypt-stream",
-          details: "Execute decryptStream",
+          details: "Decrypting InputStream",
           arguments: [
             ("from", localFileURL.absoluteString),
             ("to", outputPath.absoluteString)
@@ -464,7 +464,7 @@ public struct CryptoModule {
     )
 
     guard let inputStream = InputStream(url: localFileURL) else {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "decrypt-stream-failure",
@@ -487,7 +487,7 @@ public struct CryptoModule {
     )
 
     if case let .failure(error) = streamDecryptionResult {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "decrypt-stream-failure",
@@ -637,7 +637,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "encrypt-string",
-          details: "Execute encrypt",
+          details: "Encrypting String",
           arguments: [("string", string)]
         )
       ), category: .crypto
@@ -657,7 +657,7 @@ extension CryptoModule {
     }
 
     if case let .failure(error) = encryptionResult {
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "encrypt-string-failure",
@@ -677,7 +677,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "decrypt-data",
-          details: "Decrypt Data",
+          details: "Decrypting Data",
           arguments: [("data", data.utf8String)]
         )
       ),
@@ -710,7 +710,7 @@ extension CryptoModule {
         category: .crypto
       )
 
-      logger?.debug(
+      logger?.trace(
         .customObject(
           .init(
             operation: "decrypt-string-failure-details",

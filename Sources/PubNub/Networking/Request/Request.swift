@@ -94,7 +94,7 @@ final class Request {
     self.logger = logger
     self.delegate = delegate
 
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "request-init",
@@ -106,7 +106,7 @@ final class Request {
   }
 
   deinit {
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "request-deinit",
@@ -215,7 +215,7 @@ final class Request {
         )
       ), category: .networking
     )
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "request-mutate-fail",
@@ -257,7 +257,7 @@ final class Request {
       ), category: .networking
     )
 
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "request-create-fail",
@@ -312,7 +312,7 @@ final class Request {
   func didResume(_ task: URLSessionTask) {
     let request: URLRequest? = task.currentRequest
 
-    logger.debug(
+    logger.trace(
       .networkRequest(
         .init(
           id: self.requestID.uuidString,
@@ -384,7 +384,7 @@ final class Request {
       )
     }
 
-    logger.debug(
+    logger.trace(
       .networkRequest(
         .init(
           id: self.requestID.uuidString,
@@ -402,7 +402,7 @@ final class Request {
       ), category: .networking
     )
 
-    logger.debug(
+    logger.trace(
       .networkResponse(
         .init(
           id: self.requestID.uuidString,

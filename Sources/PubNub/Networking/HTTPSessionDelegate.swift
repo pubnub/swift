@@ -39,7 +39,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
       category: .networking
     )
 
-    logger?.debug(
+    logger?.trace(
       .customObject(
         .init(
           operation: "session-invalidated",

@@ -6,36 +6,40 @@ This guide is meant to ease the transition to the 10.0 version of the SDK. To re
 
 ## Breaking API Changes
 
-### Logging System
+### 1. Logging System
 
-#### 1. `LogWriter` Protocol Changes
+#### 1.1 LogWriter Protocol Changes
 
 The `LogWriter` protocol method signature has changed. You must update your custom `LogWriter` implementations (if any):
 
 ```swift
 // Before (9.0):
-func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory)
+func send(
+  message: @escaping @autoclosure () -> String,
+  withType logType: LogType, 
+  withCategory category: LogCategory
+)
 
 // Now (10.0):
-func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata)
+func send(
+  message: @escaping @autoclosure () -> LogMessage,
+  metadata: LogMetadata
+)
 ```
 
-**Key changes:**
+**Key Changes:**
 
-- `LogType` has been renamed to `LogLevel`, and a new `trace` log level has been added
+1. **`LogType` → `LogLevel`** - Renamed with new `trace` level added
+2. **Structured Messages** - `LogMessage` objects replace simple strings with rich data:
+   - `.text(String)` - Simple text messages
+   - `.networkRequest(NetworkRequest)` - HTTP request details with ID, URL, headers, body, and status
+   - `.networkResponse(NetworkResponse)` - HTTP response details with status code, headers, and body
+   - `.customObject(CustomObject)` - Method calls/events with operation name and arguments
+3. **Efficient Filtering** - `LogMetadata` enables logging decisions without evaluating message content
 
-- A log message is now a structured `LogMessage` object. Its `message` property represents what's actually being logged:
+#### 1.2 Logger Configuration
 
-  - `.text(String)` - Simple text messages
-  - `.networkRequest(NetworkRequest)` - HTTP request details
-  - `.networkResponse(NetworkResponse)` - HTTP response details  
-  - `.customObject(CustomObject)` - A method call or an event 
-
-- `LogMetadata` provides data you can use for routing decisions in your custom `LogWriter` implementation, enabling efficient filtering without evaluating log content
-
-#### 2. Logger Configuration
-
-The way to attach a logger to PubNub has changed. The static `log` and `logLog` properties have been removed. **Logging is now disabled by default**, so you must explicitly enable it.
+The way to attach a logger to PubNub has changed. The static `log` and `logLog` properties have been removed. **Logging is now disabled by default**, so you must explicitly enable it:
 
 ```swift
 // Before (9.0):
@@ -49,10 +53,10 @@ You can also change log levels during runtime:
 
 ```swift
 // Change log levels at runtime
-pubnub.logger.levels = [.error, .warn] // Only show errors and warnings
+pubnub.logLevel = [.error, .warn]
 ```
 
-#### 3. `PubNubLogger` Methods No Longer Public
+#### 1.3 PubNubLogger Methods No Longer Public
 
 The logging methods (`debug`, `info`, `warn`, `error`, etc.) on `PubNubLogger` are no longer public. This change ensures the SDK maintains control over its internal logging mechanism. The SDK's logging system is now properly encapsulated and designed exclusively for internal SDK operations. This ensures better separation of concerns and maintains SDK control over its logging behavior.
 
@@ -64,11 +68,17 @@ PubNub.log.debug("Custom debug message") // This worked
 pubNub.logger.debug("Custom debug message") // ❌ No longer available
 ```
 
-### Presence API Changes
+### 2. Presence API Changes
 
-#### HereNow Method Pagination Added
+#### 2.1 HereNow Method Pagination
 
-The `hereNow` method now includes pagination support with new `limit` and `offset` parameters:
+**Key Changes:**
+
+1. **New Parameters** - Two pagination parameters added:
+   - `limit: Int` (default: 1000) - Maximum occupants per request
+   - `offset: Int?` (default: 0) - Starting position for pagination
+2. **Response Format** - Changed from `[String: PubNubPresence]` to tuple `(presenceByChannel: [String: PubNubPresence], nextOffset: Int?)`
+3. **Pagination Control** - `nextOffset` provides the exact value for subsequent calls; `nil` means no more data
 
 ```swift
 // Before (9.0) - no pagination support:
@@ -95,7 +105,7 @@ pubnub.hereNow(
   and: ["group1"],
   includeUUIDs: true,
   includeState: false,
-  limit: 1000, // Maximum number of occupants to return per request (maximum = 1000)
+  limit: 1000, // Maximum number of occupants to return per request
   offset: 0 // Starting position for pagination (0 = first page)
 ) { result in
   switch result {
@@ -115,9 +125,3 @@ pubnub.hereNow(
   }
 }
 ```
-
-**Key changes:**
-
-- **New `limit: Int` parameter** (default: 1000) - Maximum number of occupants returned per request
-- **New `offset: Int?` parameter** (default: 0) - Starting position for pagination (use `nextOffset` from response for subsequent pages)
-- **Response format change** - Returns tuple `(presenceByChannel: [String: PubNubPresence], nextOffset: Int?)` instead of direct `[String: PubNubPresence]` dictionary

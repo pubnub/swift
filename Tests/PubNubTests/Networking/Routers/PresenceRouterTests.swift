@@ -24,7 +24,7 @@ final class PresenceRouterTests: XCTestCase {
 extension PresenceRouterTests {
   func testHereNow_Router() {
     let router = PresenceRouter(
-      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true),
+      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
     
@@ -35,7 +35,7 @@ extension PresenceRouterTests {
 
   func testHereNow_Router_ValidationError() {
     let router = PresenceRouter(
-      .hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true),
+      .hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
     
@@ -47,7 +47,7 @@ extension PresenceRouterTests {
 
   func testHereNow_Router_Channels() {
     let router = PresenceRouter(
-      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true),
+      .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
     
@@ -56,7 +56,7 @@ extension PresenceRouterTests {
 
   func testHereNow_Router_Groups() {
     let router = PresenceRouter(
-      .hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true),
+      .hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
     
@@ -78,7 +78,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [testChannel]) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, [testChannel: presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -105,7 +105,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, [testChannel: presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -131,7 +131,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, [testChannel: presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, [testChannel: presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -156,7 +156,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -182,7 +182,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -203,9 +203,9 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertTrue(payload.isEmpty)
-        XCTAssertEqual(payload.totalChannels, 0)
-        XCTAssertEqual(payload.totalOccupancy, 0)
+        XCTAssertTrue(payload.presenceByChannel.isEmpty)
+        XCTAssertEqual(payload.presenceByChannel.totalChannels, 0)
+        XCTAssertEqual(payload.presenceByChannel.totalOccupancy, 0)
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -233,9 +233,9 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: false, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
-        XCTAssertEqual(payload.totalChannels, 1)
-        XCTAssertEqual(payload.totalOccupancy, 2)
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
+        XCTAssertEqual(payload.presenceByChannel.totalChannels, 1)
+        XCTAssertEqual(payload.presenceByChannel.totalOccupancy, 2)
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }
@@ -288,7 +288,7 @@ extension PresenceRouterTests {
     pubnub.hereNow(on: [], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(payload):
-        XCTAssertEqual(payload.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
+        XCTAssertEqual(payload.presenceByChannel.compactMapValues { try? $0.transcode() }, ["TestChannel": presence])
       case let .failure(error):
         XCTFail("Here Now request failed with error: \(error.localizedDescription)")
       }

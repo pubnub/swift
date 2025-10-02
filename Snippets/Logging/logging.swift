@@ -55,8 +55,6 @@ class CustomLogWriter: LogWriter {
   /// - .sync(lock: NSLocking): Processes logs synchronously with thread safety using a lock
   /// - .async(queue: DispatchQueue): Processes logs asynchronously in a background queue
   /// - .none: No special execution strategy; logs are processed directly (assuming your custom writer can send log messages thread-safely)
-  ///
-  /// Example: self.executor = LogExecutionType.sync(lock: NSRecursiveLock())
   public let executor: LogExecutable
 
   /// Required by LogWriter protocol. LogPrefix controls various details included in square brackets [] before the message:
@@ -72,9 +70,7 @@ class CustomLogWriter: LogWriter {
   /// - .category: Log category (e.g., Networking, Crypto)
   /// - .all: Includes all prefixes
   ///
-  /// We recommend using .all for better troubleshooting as it provides complete context for each log message.
-  ///
-  /// Example: self.prefix = [.date, .level, .category]
+  /// We recommend using .all for troubleshooting as it provides complete context for each log message.
   public let prefix: LogPrefix
 
   init(prefix: LogPrefix = .all) {
@@ -131,7 +127,7 @@ PubNubLogger(levels: [.error, .warn, .event, .info])
 
 // snippet.disable-logging
 // Method 1: Set to .none explicitly
-PubNubLogger(levels: [.none])
+pubnub.logLevel = [.none]
 // Method 2: Use an empty set to disable all logging
-PubNubLogger(levels: [])
+pubnub.logLevel = []
 // snippet.end

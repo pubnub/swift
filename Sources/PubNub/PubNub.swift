@@ -776,10 +776,12 @@ public extension PubNub {
   /// then this method will make a global call to return data for all channels
   ///
   /// - Parameters:
-  ///   - on: The list of channels to return occupancy results from.
-  ///   - and: The list of channel groups to return occupancy results from.
+  ///   - on: The list of channels to return occupancy results from
+  ///   - and: The list of channel groups to return occupancy results from
   ///   - includeUUIDs: `true` will include the UUIDs of those present on the channel
   ///   - includeState: `true` will return the presence channel state information if available
+  ///   - limit: The number of channels to return occupancy results from
+  ///   - page: The current page number
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Dictionary` of channels mapped to their respective `PubNubPresence`
@@ -789,8 +791,10 @@ public extension PubNub {
     and groups: [String] = [],
     includeUUIDs: Bool = true,
     includeState: Bool = false,
+    limit: Int = 1000,
+    offset: Int? = 0,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
+    completion: ((Result<(presenceByChannel: [String: PubNubPresence], nextOffset: Int?), Error>) -> Void)?
   ) {
     logger.debug(
       .customObject(
@@ -802,6 +806,8 @@ public extension PubNub {
             ("and", groups),
             ("includeUUIDs", includeUUIDs),
             ("includeState", includeState),
+            ("limit", limit),
+            ("offset", offset),
             ("custom", requestConfig)
           ]
         )
@@ -809,15 +815,27 @@ public extension PubNub {
     )
 
     let router: PresenceRouter
+    let currentOffset = offset ?? 0
+    let finalLimit = limit > 1000 ? 1000 : limit
 
     if channels.isEmpty, groups.isEmpty {
       router = PresenceRouter(
-        .hereNowGlobal(includeUUIDs: includeUUIDs, includeState: includeState),
+        .hereNowGlobal(
+          includeUUIDs: includeUUIDs,
+          includeState: includeState
+        ),
         configuration: requestConfig.customConfiguration ?? configuration
       )
     } else {
       router = PresenceRouter(
-        .hereNow(channels: channels, groups: groups, includeUUIDs: includeUUIDs, includeState: includeState),
+        .hereNow(
+          channels: channels,
+          groups: groups,
+          includeUUIDs: includeUUIDs,
+          includeState: includeState,
+          limit: finalLimit,
+          offset: currentOffset
+        ),
         configuration: requestConfig.customConfiguration ?? configuration
       )
     }
@@ -830,7 +848,22 @@ public extension PubNub {
       responseDecoder: decoder,
       custom: requestConfig
     ) { result in
-      completion?(result.map { $0.payload.asPubNubPresenceBase })
+      completion?(result.map { response in
+        let presenceByChannel: [String: PubNubPresence] = response.payload.asPubNubPresenceBase
+        let totalOccupancy = presenceByChannel.totalOccupancy
+        let numberOfFetchedOccupants = presenceByChannel.reduce(0) { $0 + $1.value.occupants.count }
+
+        let nextOffset: Int? = if currentOffset + numberOfFetchedOccupants < totalOccupancy {
+          currentOffset + (totalOccupancy - numberOfFetchedOccupants)
+        } else {
+          nil
+        }
+
+        return (
+          presenceByChannel: presenceByChannel,
+          nextOffset: nextOffset
+        )
+      })
     }
   }
 
@@ -2038,7 +2071,7 @@ public extension PubNub {
           )
         ), category: .pubNub
       )
-    } catch PAMToken.PAMTokenError.invalidCBOR(let error) {
+    } catch PAMToken.PAMTokenError.invalidCBOR(let cborError) {
       logger.error(
         .customObject(
           .init(
@@ -2046,10 +2079,22 @@ public extension PubNub {
             details: "PAM token parsing failed - invalid CBOR format",
             arguments: [
               ("errorType", "invalidCBOR"),
-              ("tokenLength", token.count)
+              ("tokenLength", cborError)
             ]
           )
         ), category: .pubNub
+      )
+      logger.trace(
+        .customObject(
+          .init(
+            operation: "pam-token-parse-failure",
+            details: "CBOR error details",
+            arguments: [
+              ("errorType", "invalidCBOR"),
+              ("tokenLength", token.count)
+            ]
+          )
+        )
       )
     } catch {
       logger.error(

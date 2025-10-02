@@ -17,7 +17,7 @@ struct PresenceRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case heartbeat(channels: [String], groups: [String], channelStates: [String: JSONCodable], presenceTimeout: UInt?)
     case leave(channels: [String], groups: [String])
-    case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool)
+    case hereNow(channels: [String], groups: [String], includeUUIDs: Bool, includeState: Bool, limit: Int, offset: Int)
     case hereNowGlobal(includeUUIDs: Bool, includeState: Bool)
     case whereNow(uuid: String)
     case getState(uuid: String, channels: [String], groups: [String])
@@ -48,7 +48,7 @@ struct PresenceRouter: HTTPRouter {
         return channels
       case let .leave(channels, _):
         return channels
-      case let .hereNow(channels, _, _, _):
+      case let .hereNow(channels, _, _, _, _, _):
         return channels
       case let .getState(_, channels, _):
         return channels
@@ -65,7 +65,7 @@ struct PresenceRouter: HTTPRouter {
         return groups
       case let .leave(_, groups):
         return groups
-      case let .hereNow(_, groups, _, _):
+      case let .hereNow(_, groups, _, _, _, _):
         return groups
       case let .getState(_, _, groups):
         return groups
@@ -103,7 +103,7 @@ struct PresenceRouter: HTTPRouter {
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/heartbeat"
     case let .leave(channels, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)/leave"
-    case let .hereNow(channels, _, _, _):
+    case let .hereNow(channels, _, _, _, _, _):
       path = "/v2/presence/sub-key/\(subscribeKey)/channel/\(channels.commaOrCSVString.urlEncodeSlash)"
     case .hereNowGlobal:
       path = "/v2/presence/sub-key/\(subscribeKey)"
@@ -145,10 +145,12 @@ struct PresenceRouter: HTTPRouter {
     case let .leave(_, groups):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.append(key: .eventEngine, value: nil, when: configuration.enableEventEngine)
-    case let .hereNow(_, groups, includeUUIDs, includeState):
+    case let .hereNow(_, groups, includeUUIDs, includeState, limit, offset):
       query.appendIfNotEmpty(key: .channelGroup, value: groups)
       query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
       query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
+      query.append(URLQueryItem(key: .limit, value: limit.description))
+      query.append(URLQueryItem(key: .offset, value: offset.description))
     case let .hereNowGlobal(includeUUIDs, includeState):
       query.append(URLQueryItem(key: .disableUUIDs, value: (!includeUUIDs).stringNumber))
       query.append(URLQueryItem(key: .state, value: includeState.stringNumber))
@@ -180,7 +182,7 @@ struct PresenceRouter: HTTPRouter {
     case let .leave(channels, groups):
       return isInvalidForReason(
         (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
-    case let .hereNow(channels, groups, _, _):
+    case let .hereNow(channels, groups, _, _, _, _):
       return isInvalidForReason(
         (channels.isEmpty && groups.isEmpty, ErrorDescription.missingChannelsAnyGroups))
     case .hereNowGlobal:

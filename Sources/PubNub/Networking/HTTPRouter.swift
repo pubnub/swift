@@ -118,6 +118,7 @@ enum QueryKey: String {
   case channelsTimetoken
   case include
   case limit
+  case offset
   case topic
   case environment
   case filter

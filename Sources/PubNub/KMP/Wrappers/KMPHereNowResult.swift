@@ -22,11 +22,13 @@ public class KMPHereNowResult: NSObject {
   @objc public let totalChannels: Int
   @objc public let totalOccupancy: Int
   @objc public let channels: [String: KMPHereNowChannelData]
+  @objc public let nextOffset: NSNumber?
 
-  init(totalChannels: Int, totalOccupancy: Int, channels: [String: KMPHereNowChannelData]) {
+  init(totalChannels: Int, totalOccupancy: Int, channels: [String: KMPHereNowChannelData], nextOffset: NSNumber?) {
     self.totalChannels = totalChannels
     self.totalOccupancy = totalOccupancy
     self.channels = channels
+    self.nextOffset = nextOffset
   }
 }
 

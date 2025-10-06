@@ -14,8 +14,6 @@ import XCTest
 class PresenceEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: PresenceEndpointIntegrationTests.self)
 
-  // MARK: - Here Now Single Channel
-
   func testHereNow_SingleChannel_Stateless() {
     let hereNowExpect = expectation(description: "Here Now Response")
     let testChannel = "testHereNow_SingleChannel_Statelesssss"
@@ -112,8 +110,6 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     wait(for: [hereNowExpect], timeout: 10.0)
   }
-
-  // MARK: - Here Now Mutlti Channel
 
   func testHereNow_MultiChannel_Stateless() {
     let hereNowExpect = expectation(description: "Here Now Response")
@@ -214,28 +210,68 @@ class PresenceEndpointIntegrationTests: XCTestCase {
     wait(for: [hereNowExpect], timeout: 10.0)
   }
 
-  func testHereNow_WithOffsetAndLimit() {
+  func testHereNow_MultiChannel_OffsetAndLimit() {
     let hereNowExpect = expectation(description: "Here Now Pagination Response")
-    let testChannel = "testHereNow_WithPageAndLimit"
-    
-    let client = PubNub(configuration: presenceConfiguration())
-    let anotherClient = PubNub(configuration: presenceConfiguration())
-    let expectedUsers = Set([client.configuration.userId, anotherClient.configuration.userId])
+    let lobbyChannel = "lobby"
+    let generalChannel = "general"
+    let vipChannel = "vip"
+
+    // Create 5 clients
+    let clientA = PubNub(configuration: presenceConfiguration())
+    let clientB = PubNub(configuration: presenceConfiguration())
+    let clientC = PubNub(configuration: presenceConfiguration())
+    let clientD = PubNub(configuration: presenceConfiguration())
+
+    // Expected users per channel
+    let lobbyUsers = Set([clientA.configuration.userId, clientB.configuration.userId, clientC.configuration.userId, clientD.configuration.userId])
+    let generalUsers = Set([clientA.configuration.userId, clientB.configuration.userId, clientC.configuration.userId])
+    let vipUsers = Set([clientA.configuration.userId, clientB.configuration.userId])
 
     let performHereNow = {
-      client.hereNow(on: [testChannel], includeState: true, limit: 1) { result in
+      clientA.hereNow(on: [lobbyChannel, generalChannel, vipChannel], limit: 2) { [unowned clientA] result in
         switch result {
-        case let .success(firstResponse):
-          XCTAssertEqual(firstResponse.presenceByChannel.totalChannels, 1)
-          XCTAssertEqual(firstResponse.presenceByChannel.totalOccupancy, 2)
-          client.hereNow(on: [testChannel], includeState: true, offset: firstResponse.nextOffset) { secondResult in
+        case let .success(firstPage):
+          // Verify total channels matches the number of channels and total occupancy matches the number of users
+          XCTAssertEqual(firstPage.presenceByChannel.totalChannels, 3)
+          XCTAssertEqual(firstPage.presenceByChannel.totalOccupancy, 9)
+          
+          // Verify occupancy for each provided channel
+          XCTAssertEqual(firstPage.presenceByChannel[lobbyChannel]?.occupancy, 4)
+          XCTAssertEqual(firstPage.presenceByChannel[generalChannel]?.occupancy, 3)
+          XCTAssertEqual(firstPage.presenceByChannel[vipChannel]?.occupancy, 2)
+
+          let firstPageLobby = firstPage.presenceByChannel[lobbyChannel]?.occupants ?? []
+          let firstPageGeneral = firstPage.presenceByChannel[generalChannel]?.occupants ?? []
+          let firstPageVip = firstPage.presenceByChannel[vipChannel]?.occupants ?? []
+
+          // Verify channel occupants don't exceed the limit
+          XCTAssertEqual(firstPageLobby.count, 2)
+          XCTAssertEqual(firstPageGeneral.count, 2)
+          XCTAssertEqual(firstPageVip.count, 2)
+
+          // Fetch second page using offset
+          clientA.hereNow(on: [lobbyChannel, generalChannel, vipChannel], offset: firstPage.nextOffset) { secondResult in
             switch secondResult {
-            case let .success(secondResponse):
-              XCTAssertEqual(secondResponse.presenceByChannel.totalChannels, 1)
-              XCTAssertEqual(secondResponse.presenceByChannel.totalOccupancy, 2)
-              let firstPageOccupants = firstResponse.presenceByChannel.values.map(\.occupants).flatMap { $0 }
-              let secondPageOccupants = secondResponse.presenceByChannel.values.map(\.occupants).flatMap { $0 }
-              XCTAssertEqual(expectedUsers, Set(firstPageOccupants + secondPageOccupants))
+            case let .success(secondPage):
+              let secondPageLobby = secondPage.presenceByChannel[lobbyChannel]?.occupants ?? []
+              let secondPageGeneral = secondPage.presenceByChannel[generalChannel]?.occupants ?? []
+              let secondPageVip = secondPage.presenceByChannel[vipChannel]?.occupants ?? []
+
+              // Verify pagination - lobby channel should have 2 more users (4 total)
+              let allLobbyUsers = Set(firstPageLobby + secondPageLobby)
+              XCTAssertEqual(secondPageLobby.count, 2)
+              XCTAssertEqual(allLobbyUsers, lobbyUsers)
+
+              // Verify pagination - general channel should have 1 more user (3 total)
+              let allGeneralUsers = Set(firstPageGeneral + secondPageGeneral)
+              XCTAssertEqual(secondPageGeneral.count, 1)
+              XCTAssertEqual(allGeneralUsers, generalUsers)
+
+              // Verify pagination - vip channel should have 0 more users (2 total from first page)
+              let allVipUsers = Set(firstPageVip + secondPageVip)
+              XCTAssertEqual(secondPageVip.count, 0)
+              XCTAssertEqual(allVipUsers, vipUsers)
+
             case let .failure(error):
               XCTFail("Failed due to error: \(error)")
             }
@@ -246,25 +282,20 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
-    let listener = waitOnPresence(
-      client: client,
-      channel: testChannel,
-      userIds: expectedUsers,
+
+    let listener = waitOnMultiChannelPresence(
+      client: clientA,
+      channelUsers: [lobbyChannel: lobbyUsers, generalChannel: generalUsers, vipChannel: vipUsers],
       completion: performHereNow
     )
-
-    client.subscribe(
-      to: [testChannel],
-      withPresence: true
-    )
-    anotherClient.subscribe(
-      to: [testChannel],
-      withPresence: true
-    )
+    
+    clientA.subscribe(to: [lobbyChannel, generalChannel, vipChannel], withPresence: true)
+    clientB.subscribe(to: [lobbyChannel, generalChannel, vipChannel], withPresence: true)
+    clientC.subscribe(to: [lobbyChannel, generalChannel], withPresence: true)
+    clientD.subscribe(to: [lobbyChannel], withPresence: true)
 
     defer { listener.cancel() }
-    wait(for: [hereNowExpect], timeout: 125.0)
+    wait(for: [hereNowExpect], timeout: 30.0)
   }
 
   func testWhereNow() {
@@ -302,8 +333,10 @@ class PresenceEndpointIntegrationTests: XCTestCase {
   }
 }
 
+// MARK: - Presence Helper Methods
+
 private extension PresenceEndpointIntegrationTests {
-  func presenceConfiguration() -> PubNubConfiguration {
+  func presenceConfiguration(userId: String = randomString()) -> PubNubConfiguration {
     PubNubConfiguration(
       publishKey: PubNubConfiguration(from: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
@@ -313,38 +346,50 @@ private extension PresenceEndpointIntegrationTests {
   }
 }
 
-// MARK: - Presence Helper Methods
-
 private extension PresenceEndpointIntegrationTests {
-  func waitOnPresence(client: PubNub, channel: String, userIds: Set<String>? = nil, completion: @escaping () -> Void) -> SubscriptionListener {
+  func waitOnMultiChannelPresence(
+    client: PubNub,
+    channelUsers: [String: Set<String>],
+    completion: @escaping () -> Void
+  ) -> SubscriptionListener {
     let listener = SubscriptionListener()
-    let expectedUsers = userIds ?? Set([client.configuration.userId])
-    var joinedUsers = Set<String>()
+    var joinedUsersByChannel: [String: Set<String>] = channelUsers.mapValues { _ in Set<String>() }
     var hasCompleted = false
-    
+
     listener.didReceivePresence = { event in
-      if event.channel == channel && !hasCompleted {
-        // Extract user IDs from join actions
-        for action in event.actions {
-          if case let .join(uuids) = action {
-            for userId in uuids {
-              if expectedUsers.contains(userId) {
-                joinedUsers.insert(userId)
-              }
-            }
-          }
-        }
-        
-        // Call completion when all expected users have joined
-        if joinedUsers == expectedUsers {
-          hasCompleted = true
-          completion()
+      guard !hasCompleted, let expectedUsers = channelUsers[event.channel] else {
+        return
+      }
+      
+      for action in event.actions {
+        if case let .join(uuids) = action {
+          joinedUsersByChannel[event.channel]?.formUnion(uuids.filter { expectedUsers.contains($0) })
         }
       }
+
+      // Check if all expected users have joined all channels
+      let allJoined = channelUsers.allSatisfy { channel, expectedUsers in
+        joinedUsersByChannel[channel] == expectedUsers
+      }
+
+      if allJoined {
+        hasCompleted = true
+        completion()
+      }
     }
-    
+
+    // Add listener to client
     client.add(listener)
-    // Return the listener to be able to cancel the subscription
+    
+    // Return listener to be able to cancel it when the test is done
     return listener
+  }
+
+  func waitOnPresence(client: PubNub, channel: String, userIds: Set<String>? = nil, completion: @escaping () -> Void) -> SubscriptionListener {
+    waitOnMultiChannelPresence(
+      client: client,
+      channelUsers: [channel: userIds ?? Set([client.configuration.userId])],
+      completion: completion
+    )
   }
 }

@@ -854,7 +854,7 @@ public extension PubNub {
         let numberOfFetchedOccupants = presenceByChannel.reduce(0) { $0 + $1.value.occupants.count }
 
         let nextOffset: Int? = if currentOffset + numberOfFetchedOccupants < totalOccupancy {
-          currentOffset + (totalOccupancy - numberOfFetchedOccupants)
+          currentOffset + finalLimit
         } else {
           nil
         }

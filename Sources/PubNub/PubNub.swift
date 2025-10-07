@@ -850,14 +850,8 @@ public extension PubNub {
     ) { result in
       completion?(result.map { response in
         let presenceByChannel: [String: PubNubPresence] = response.payload.asPubNubPresenceBase
-        let totalOccupancy = presenceByChannel.totalOccupancy
-        let numberOfFetchedOccupants = presenceByChannel.reduce(0) { $0 + $1.value.occupants.count }
-
-        let nextOffset: Int? = if currentOffset + numberOfFetchedOccupants < totalOccupancy {
-          currentOffset + finalLimit
-        } else {
-          nil
-        }
+        let moreDataAvailable = presenceByChannel.values.contains { $0.occupants.count >= finalLimit }
+        let nextOffset: Int? = moreDataAvailable ? currentOffset + finalLimit : nil
 
         return (
           presenceByChannel: presenceByChannel,

@@ -29,13 +29,13 @@ func send(
 
 **Key Changes:**
 
-1. **`LogType` → `LogLevel`** - Renamed with new `trace` level added
+1. **`LogType` renamed to `LogLevel`** - A new `trace` level has been added as the lowest severity level for detailed debugging
 2. **Structured Messages** - `LogMessage` objects replace simple strings with rich data:
    - `.text(String)` - Simple text messages
    - `.networkRequest(NetworkRequest)` - HTTP request details with ID, URL, headers, body, and status
    - `.networkResponse(NetworkResponse)` - HTTP response details with status code, headers, and body
    - `.customObject(CustomObject)` - Method calls/events with operation name and arguments
-3. **Efficient Filtering** - `LogMetadata` enables logging decisions without evaluating message content
+3. **Efficient Filtering** - `LogMetadata` (containing level and category) lets log writers check whether to log before evaluating the `@autoclosure` message parameter, avoiding expensive message construction for filtered logs
 
 #### 1.2 Logger Configuration
 
@@ -58,11 +58,11 @@ pubnub.logLevel = [.error, .warn]
 
 #### 1.3 PubNubLogger Methods No Longer Public
 
-The logging methods (`debug`, `info`, `warn`, `error`, etc.) on `PubNubLogger` are no longer public. This change ensures the SDK maintains control over its internal logging mechanism. The SDK's logging system is now properly encapsulated and designed exclusively for internal SDK operations. This ensures better separation of concerns and maintains SDK control over its logging behavior.
+The logging methods (`debug`, `info`, `event`, `warn`, `error`, `custom`) on `PubNubLogger` are no longer public. The SDK's logging system is designed exclusively for internal SDK operations. If you were using these methods for custom application logging, use your own logging solution instead.
 
 ```swift
 // Before (9.0):
-PubNub.log.debug("Custom debug message") // This worked
+PubNub.log.debug("Custom debug message") // ✅ This worked
 
 // Now (10.0):
 pubNub.logger.debug("Custom debug message") // ❌ No longer available

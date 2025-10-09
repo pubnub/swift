@@ -849,13 +849,22 @@ public extension PubNub {
       custom: requestConfig
     ) { result in
       completion?(result.map { response in
+        // Convert the response to a dictionary of PubNubPresence objects
         let presenceByChannel: [String: PubNubPresence] = response.payload.asPubNubPresenceBase
-        let moreDataAvailable = presenceByChannel.values.contains { $0.occupants.count >= finalLimit }
-        let nextOffset: Int? = moreDataAvailable ? currentOffset + finalLimit : nil
+        // Find the channel with the maximum number of fetched occupants and calculate next offset
+        if let channelWithMaxOccupants = presenceByChannel.values.max(by: { $0.occupants.count < $1.occupants.count }) {
+          let maxOccupantsCount = channelWithMaxOccupants.occupants.count
+          let totalOccupancyForMaxChannel = channelWithMaxOccupants.occupancy
+          let moreDataAvailable = currentOffset + maxOccupantsCount < totalOccupancyForMaxChannel
 
+          return (
+            presenceByChannel: presenceByChannel,
+            nextOffset: moreDataAvailable ? currentOffset + maxOccupantsCount : nil
+          )
+        }
         return (
           presenceByChannel: presenceByChannel,
-          nextOffset: nextOffset
+          nextOffset: nil
         )
       })
     }

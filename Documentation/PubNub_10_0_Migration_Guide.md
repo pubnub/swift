@@ -10,7 +10,9 @@ This guide is meant to ease the transition to the 10.0 version of the SDK. To re
 
 #### 1.1 LogWriter Protocol Changes
 
-The `LogWriter` protocol method signature has changed. You must update your custom `LogWriter` implementations (if any):
+> **Note:** Skip this point if you haven't implemented a custom `LogWriter`.
+
+The `LogWriter` protocol method signature has changed. You must update your custom `LogWriter` implementations:
 
 ```swift
 // Before (9.0):
@@ -29,17 +31,19 @@ func send(
 
 **Key Changes:**
 
-1. **`LogType` renamed to `LogLevel`** - A new `trace` level has been added as the lowest severity level for detailed debugging
-2. **Structured Messages** - `LogMessage` objects replace simple strings with rich data:
+1. **`LogType` renamed to `LogLevel`**:
+   - **Type name change**: `LogType` is now `LogLevel`
+   - **New level added**: `trace` level as the lowest severity for detailed debugging
+2. **Structured Messages** - `LogMessage` objects replace simple strings. Its `message` property contains rich data:
    - `.text(String)` - Simple text messages
    - `.networkRequest(NetworkRequest)` - HTTP request details with ID, URL, headers, body, and status
    - `.networkResponse(NetworkResponse)` - HTTP response details with status code, headers, and body
    - `.customObject(CustomObject)` - Method calls/events with operation name and arguments
-3. **Efficient Filtering** - `LogMetadata` (containing level and category) lets log writers check whether to log before evaluating the `@autoclosure` message parameter, avoiding expensive message construction for filtered logs
+3. **New `metadata` parameter** - The `LogMetadata` type contains the `level` and `category` of the message being logged. This allows your log writer to inspect these properties for filtering specific log messages without evaluating the potentially expensive `LogMessage`:
 
 #### 1.2 Logger Configuration
 
-The way to attach a logger to PubNub has changed. The static `log` and `logLog` properties have been removed. **Logging is now disabled by default**, so you must explicitly enable it:
+The way to attach a logger to PubNub has changed. The static `log` and `logLog` properties have been removed. **Logging is now disabled by default** and must be configured through the PubNub initializer:
 
 ```swift
 // Before (9.0):
@@ -58,24 +62,25 @@ pubnub.logLevel = [.error, .warn]
 
 #### 1.3 PubNubLogger Methods No Longer Public
 
-The logging methods (`debug`, `info`, `event`, `warn`, `error`, `custom`) on `PubNubLogger` are no longer public. The SDK's logging system is designed exclusively for internal SDK operations. If you were using these methods for custom application logging, use your own logging solution instead.
+The logging methods (`debug`, `info`, `event`, `warn`, `error`) on `PubNubLogger` are no longer public API. You can no longer use `PubNubLogger` to log your own application messages. The SDK's logging system is designed exclusively for internal SDK operations.
 
 ```swift
 // Before (9.0):
 PubNub.log.debug("Custom debug message") // ✅ This worked
 
 // Now (10.0):
-pubNub.logger.debug("Custom debug message") // ❌ No longer available
+pubnub.logger.debug("Custom debug message") // ❌ No longer available
 ```
+___
 
 ### 2. Presence API Changes
 
-#### 2.1 HereNow Method Pagination
+#### 2.1 HereNow Changes
 
 **Key Changes:**
 
 1. **New Parameters** - Two pagination parameters added:
-   - `limit: Int` (default: 1000) - Maximum occupants per request
+   - `limit: Int` (default: 1000) - Maximum occupants per channel
    - `offset: Int?` (default: 0) - Starting position for pagination
 
 ```swift

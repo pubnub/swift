@@ -794,7 +794,7 @@ public extension PubNub {
     limit: Int = 1000,
     offset: Int? = 0,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
-    completion: ((Result<(presenceByChannel: [String: PubNubPresence], nextOffset: Int?), Error>) -> Void)?
+    completion: ((Result<[String: PubNubPresence], Error>) -> Void)?
   ) {
     logger.debug(
       .customObject(
@@ -848,25 +848,7 @@ public extension PubNub {
       responseDecoder: decoder,
       custom: requestConfig
     ) { result in
-      completion?(result.map { response in
-        // Convert the response to a dictionary of PubNubPresence objects
-        let presenceByChannel: [String: PubNubPresence] = response.payload.asPubNubPresenceBase
-        // Find the channel with the maximum number of fetched occupants and calculate next offset
-        if let channelWithMaxOccupants = presenceByChannel.values.max(by: { $0.occupants.count < $1.occupants.count }) {
-          let maxOccupantsCount = channelWithMaxOccupants.occupants.count
-          let totalOccupancyForMaxChannel = channelWithMaxOccupants.occupancy
-          let moreDataAvailable = currentOffset + maxOccupantsCount < totalOccupancyForMaxChannel
-
-          return (
-            presenceByChannel: presenceByChannel,
-            nextOffset: moreDataAvailable ? currentOffset + maxOccupantsCount : nil
-          )
-        }
-        return (
-          presenceByChannel: presenceByChannel,
-          nextOffset: nil
-        )
-      })
+        completion?(result.map { $0.payload.asPubNubPresenceBase })
     }
   }
 
@@ -1427,6 +1409,7 @@ public extension PubNub {
   }
 
   /// Disables APNS2 push notifications on provided set of channels.
+  /// 
   /// - Parameters:
   ///   - removals: The list of channels to disable registration
   ///   - device: The device to add/remove from the channels

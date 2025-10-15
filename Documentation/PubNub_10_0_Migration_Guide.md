@@ -77,8 +77,6 @@ pubNub.logger.debug("Custom debug message") // ❌ No longer available
 1. **New Parameters** - Two pagination parameters added:
    - `limit: Int` (default: 1000) - Maximum occupants per request
    - `offset: Int?` (default: 0) - Starting position for pagination
-2. **Response Format** - Changed from `[String: PubNubPresence]` to tuple `(presenceByChannel: [String: PubNubPresence], nextOffset: Int?)`
-3. **Pagination Control** - `nextOffset` provides the exact value for subsequent calls; `nil` means no more data
 
 ```swift
 // Before (9.0) - no pagination support:
@@ -90,7 +88,6 @@ pubnub.hereNow(
 ) { result in
   switch result {
   case let .success(presenceByChannel):
-    // Direct dictionary access - [String: PubNubPresence]
     for (channel, presence) in presenceByChannel {
       print("Channel: \(channel), Occupancy: \(presence.occupancy)")
     }
@@ -105,22 +102,15 @@ pubnub.hereNow(
   and: ["group1"],
   includeUUIDs: true,
   includeState: false,
-  limit: 1000, // Maximum number of occupants to return per request
-  offset: 0 // Starting position for pagination (0 = first page)
+  limit: 1000, // Maximum number of occupants to return (per channel)
+  offset: 0 // Starting position for pagination
 ) { result in
   switch result {
-  case let .success(response):
-    // Tuple response with pagination info
-    let presenceByChannel = response.presenceByChannel // [String: PubNubPresence]
-    let nextOffset = response.nextOffset // Int? - offset for next page
-    
+  case let .success(presenceByChannel):
     for (channel, presence) in presenceByChannel {
       print("Channel: \(channel), Occupancy: \(presence.occupancy)")
-    }    
-    if let nextOffset = nextOffset {
-      print("More results available at offset: \(nextOffset)")
     }
-  case .failure(let error):
+  case let .failure(error):
     print("Error: \(error)")
   }
 }

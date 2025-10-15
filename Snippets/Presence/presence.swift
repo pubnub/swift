@@ -29,11 +29,12 @@ let pubnub = PubNub(
 // Get presence information for a channel
 pubnub.hereNow(on: ["my_channel"]) { result in
   switch result {
-  case let .success(response):
-    print("Total channels: \(response.presenceByChannel.count)")
-    print("Total occupancy across all channels: \(response.presenceByChannel.totalOccupancy)")
+  case let .success(presenceByChannel):
+    print("Total channels: \(presenceByChannel.count)")
+    print("Total occupancy across all channels: \(presenceByChannel.totalOccupancy)")
 
-    if let myChannelPresence = response.presenceByChannel["my_channel"] {
+    if let myChannelPresence = presenceByChannel["my_channel"] {
+      // Print the occupancy for the channel
       print("The occupancy for `my_channel` is \(myChannelPresence.occupancy)")
       // Iterating over each occupant in the channel and printing their UUID
       myChannelPresence.occupants.forEach { occupant in

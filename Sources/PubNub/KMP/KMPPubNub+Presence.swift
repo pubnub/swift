@@ -39,9 +39,9 @@ public extension KMPPubNub {
       case let .success(response):
         onSuccess(
           KMPHereNowResult(
-            totalChannels: response.presenceByChannel.count,
-            totalOccupancy: response.presenceByChannel.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
-            channels: response.presenceByChannel.mapValues { value in
+            totalChannels: response.count,
+            totalOccupancy: response.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
+            channels: response.mapValues { value in
               KMPHereNowChannelData(
                 channelName: value.channel,
                 occupancy: value.occupancy,
@@ -57,8 +57,7 @@ public extension KMPPubNub {
                   )
                 }
               )
-            },
-            nextOffset: response.nextOffset?.asNumber
+            }
           )
         )
       case let .failure(error):

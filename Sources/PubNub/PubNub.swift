@@ -113,8 +113,10 @@ public extension PubNub {
 
     func stringValue() -> String {
       switch self {
-      case .gcm, .fcm:
+      case .gcm:
         return "gcm"
+      case .fcm:
+        return "fcm"
       case .apns:
         return "apns"
       case .mpns:

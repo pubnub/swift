@@ -22,6 +22,8 @@ extension KMPPubNub {
     switch rawString {
     case "gcm":
       return .fcm
+    case "fcm":
+      return .fcm
     case "apns", "apns2":
       return .apns
     case "mpns":

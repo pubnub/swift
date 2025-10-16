@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "9.3.4"
+version: "9.3.5"
 schema: 1
 changelog:
+  - date: 2025-10-16
+    version: 9.3.5
+    changes:
+      - type: bug
+        text: "Update underlying string values for `PubNub.PushService`. This change updates .fcm to return \"fcm\" instead of \"gcm\", while the deprecated .gcm continues to return \"gcm\" for backward compatibility."
   - date: 2025-09-15
     version: 9.3.4
     changes:
@@ -728,7 +733,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.4.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/9.3.5.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

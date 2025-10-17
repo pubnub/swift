@@ -123,3 +123,78 @@ pubnub.hereNow(
   }
 }
 ```
+___
+
+## Deprecations (Non-Breaking Changes)
+
+The following APIs are deprecated but still functional. They will continue to work in 10.0 but will be removed in the future. You should migrate to the recommended alternatives at your convenience.
+
+### 1. Configuration Changes
+
+#### 1.1 PubNubConfiguration: UUID Parameter Renamed to UserID
+
+The `uuid` parameter in `PubNubConfiguration` has been deprecated in favor of `userId` to better reflect PubNub's terminology.
+
+**Configuration Initializers:**
+
+```swift
+// Deprecated (still works):
+let config = PubNubConfiguration(
+  publishKey: "pub-key",
+  subscribeKey: "sub-key",
+  uuid: "my-user-id"
+)
+
+// Recommended:
+let config = PubNubConfiguration(
+  publishKey: "pub-key",
+  subscribeKey: "sub-key",
+  userId: "my-user-id"
+)
+```
+
+**Bundle-based Configuration:**
+
+```swift
+// Deprecated (still works):
+let config = PubNubConfiguration(from: .main)
+
+// Recommended:
+let config = PubNubConfiguration(bundle: .main)
+```
+
+> **Note:** If using Info.plist configuration, the default key name remains `PubNubUuid` for backward compatibility. You can continue using this key, or optionally migrate to `PubNubUserId` by passing `userIdAt: "PubNubUserId"` parameter.
+
+**Configuration Properties:**
+
+```swift
+// Deprecated (still works):
+let userId = config.uuid
+
+// Recommended:
+let userId = config.userId
+```
+
+#### 1.2 CipherKey Parameter Deprecated
+
+The `cipherKey` parameter is deprecated in favor of `cryptoModule`.
+
+> **⚠️ Security Warning:** The legacy encryption method used by `cipherKey` has known security flaws. We **strongly recommend** migrating to the new `cryptoModule` API with AES-CBC encryption for enhanced security.
+
+```swift
+// Deprecated (still works, but not recommended due to security concerns):
+let config = PubNubConfiguration(
+  publishKey: "pub-key",
+  subscribeKey: "sub-key",
+  userId: "my-user-id",
+  cipherKey: Crypto(key: "my-cipher-key")
+)
+
+// Recommended - Secure encryption with backward compatibility:
+let config = PubNubConfiguration(
+  publishKey: "pub-key",
+  subscribeKey: "sub-key",
+  userId: "my-user-id",
+  cryptoModule: CryptoModule.aesCbcCryptoModule(with: "my-cipher-key")
+)
+```

@@ -16,7 +16,7 @@ public protocol RouterConfiguration {
   var publishKey: String? { get }
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   var subscribeKey: String { get }
-  // UUID to be used as a device identifier
+  /// UUID to be used as a device identifier
   var uuid: String { get }
   /// If true, requests will be made over `https`, otherwise they will use `http`
   var useSecureConnections: Bool { get }

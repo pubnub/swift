@@ -77,14 +77,16 @@ ___
 
 #### 2.1 HereNow Changes
 
+The `hereNow` method now returns a **maximum of 1,000 occupants per channel** by default. Previously, it would return all occupants regardless of count. If you have channels with more than 1,000 occupants, you must use pagination to retrieve the complete list.
+
 **Key Changes:**
 
 1. **New Parameters** - Two pagination parameters added:
-   - `limit: Int` (default: 1000) - Maximum occupants per channel
+   - `limit: Int` (default: 1000, maximum: 1000) - Maximum occupants per channel
    - `offset: Int?` (default: 0) - Starting position for pagination
 
 ```swift
-// Before (9.0) - no pagination support:
+// Before (9.0) - returned ALL occupants:
 pubnub.hereNow(
   on: ["channel1", "channel2"],
   and: ["group1"],
@@ -95,13 +97,14 @@ pubnub.hereNow(
   case let .success(presenceByChannel):
     for (channel, presence) in presenceByChannel {
       print("Channel: \(channel), Occupancy: \(presence.occupancy)")
+      print("All occupants: \(presence.occupants.count)") // Could be > 1000
     }
   case let .failure(error):
     print("Error: \(error)")
   }
 }
 
-// Now (10.0) - with pagination support:
+// Now (10.0) - returns up to 1,000 occupants (per channel):
 pubnub.hereNow(
   on: ["channel1", "channel2"],
   and: ["group1"],

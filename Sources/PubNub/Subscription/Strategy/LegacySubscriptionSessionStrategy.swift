@@ -335,7 +335,7 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       switch subscribeChange {
       case let .unsubscribed(channels, groups):
         presenceLeave(
-          for: configuration.uuid,
+          for: configuration.userId,
           on: channels.map { $0.id },
           and: groups.map { $0.id }
         ) { [weak self] result in

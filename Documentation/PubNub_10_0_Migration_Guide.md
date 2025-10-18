@@ -177,9 +177,7 @@ let userId = config.userId
 
 #### 1.2 CipherKey Parameter Deprecated
 
-The `cipherKey` parameter is deprecated in favor of `cryptoModule`.
-
-> **⚠️ Security Warning:** The legacy encryption method used by `cipherKey` has known security flaws. We **strongly recommend** migrating to the new `cryptoModule` API with AES-CBC encryption for enhanced security.
+The `cipherKey` parameter in `PubNubConfiguration` is deprecated in favor of `cryptoModule`.
 
 ```swift
 // Deprecated (still works, but not recommended due to security concerns):

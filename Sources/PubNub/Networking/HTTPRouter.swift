@@ -17,6 +17,7 @@ public protocol RouterConfiguration {
   /// Specifies the PubNub Subscribe Key to be used when subscribing to a channel
   var subscribeKey: String { get }
   /// UUID to be used as a device identifier
+  @available(*, deprecated, message: "uuid is deprecated. Use userId instead")
   var uuid: String { get }
   /// If true, requests will be made over `https`, otherwise they will use `http`
   var useSecureConnections: Bool { get }
@@ -39,6 +40,9 @@ public protocol RouterConfiguration {
 }
 
 public extension RouterConfiguration {
+  /// UserId to be used as a device identifier
+  var userId: String { uuid }
+
   /// The scheme used when creating the URL for the request
   var urlScheme: String {
     return useSecureConnections ? "https" : "http"
@@ -209,7 +213,7 @@ public extension HTTPRouter {
 
     var queryItems = [
       pnSDKURLQueryItem,
-      URLQueryItem(name: "uuid", value: configuration.uuid)
+      URLQueryItem(name: "uuid", value: configuration.userId)
     ]
     // Add PAM key if needed
     if pamVersion != .none, let authKey = configuration.authToken ?? configuration.authKey {

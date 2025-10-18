@@ -524,7 +524,7 @@ public extension PubNub {
 
     let router = ObjectsUserRouter(
       .fetch(
-        metadataId: metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid),
+        metadataId: metadataId ?? (requestConfig.customConfiguration?.userId ?? configuration.userId),
         include: include.includeFields
       ),
       configuration: requestConfig.customConfiguration ?? configuration
@@ -665,7 +665,7 @@ public extension PubNub {
     )
 
     // Capture the response or current configuration uuid
-    let metadataId = metadataId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+    let metadataId = metadataId ?? (requestConfig.customConfiguration?.userId ?? configuration.userId)
 
     let router = ObjectsUserRouter(
       .remove(metadataId: metadataId),
@@ -1049,7 +1049,7 @@ public extension PubNub {
       ), category: .pubNub
     )
 
-    let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+    let metadataId = userId ?? (requestConfig.customConfiguration?.userId ?? configuration.userId)
 
     let router = ObjectsMembershipsRouter(
       .fetchMemberships(
@@ -1373,7 +1373,7 @@ public extension PubNub {
       ), category: .pubNub
     )
 
-    let metadataId = userId ?? (requestConfig.customConfiguration?.uuid ?? configuration.uuid)
+    let metadataId = userId ?? (requestConfig.customConfiguration?.userId ?? configuration.userId)
 
     let router = ObjectsMembershipsRouter(.setMemberships(
       uuidMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,

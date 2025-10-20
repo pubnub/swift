@@ -54,8 +54,8 @@ pubnub.hereNow(
   includeUUIDs: false
 ) { result in
   switch result {
-  case let .success(response):
-    if let myChannelPresence = response.presenceByChannel["my_channel"] {
+  case let .success(presenceByChannel):
+    if let myChannelPresence = presenceByChannel["my_channel"] {
       print("The occupancy for `my_channel` is \(myChannelPresence.occupancy)")
     }
   case let .failure(error):
@@ -71,8 +71,8 @@ pubnub.hereNow(
   and: ["my-channel-group"]
 ) { result in
   switch result {
-  case let .success(response):
-    print("The `Dictionary` of channels mapped to their respective `PubNubPresence`: \(response.presenceByChannel)")
+  case let .success(presenceByChannel):
+    print("The `Dictionary` of channels mapped to their respective `PubNubPresence`: \(presenceByChannel)")
   case let .failure(error):
     print("Failed hereNow Response: \(error.localizedDescription)")
   }

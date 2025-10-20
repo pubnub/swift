@@ -780,8 +780,8 @@ public extension PubNub {
   ///   - and: The list of channel groups to return occupancy results from
   ///   - includeUUIDs: `true` will include the UUIDs of those present on the channel
   ///   - includeState: `true` will return the presence channel state information if available
-  ///   - limit: The number of channels to return occupancy results from
-  ///   - page: The current page number
+  ///   - limit: The number of occupants to fetch per channel. The maximum value is 1000.
+  ///   - offset: The offset to return occupancy results from.
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Dictionary` of channels mapped to their respective `PubNubPresence`

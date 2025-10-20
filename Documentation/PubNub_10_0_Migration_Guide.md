@@ -77,7 +77,7 @@ ___
 
 #### 2.1 HereNow Changes
 
-The `hereNow` method now returns a **maximum of 1,000 occupants per channel** by default. Previously, it would return all occupants regardless of count. If you have channels with more than 1,000 occupants, you must use pagination to retrieve the complete list.
+The `hereNow` method now returns a **maximum of 1,000 occupants per channel**. Previously, it would return all occupants regardless of count. If you have channels with more than 1,000 occupants, you must use pagination to retrieve the complete list.
 
 **Key Changes:**
 

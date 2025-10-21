@@ -55,6 +55,7 @@ class DependencyContainer {
     register(value: configuration, forKey: PubNubConfigurationDependencyKey.self)
     register(value: instanceID, forKey: PubNubInstanceIDDependencyKey.self)
     register(key: PubNubLoggerDependencyKey.self, scope: .weak)
+    register(key: FileURLSessionManagerDependencyKey.self, scope: .weak)
     register(key: FileURLSessionDependencyKey.self, scope: .weak)
     register(key: DefaultHTTPSessionDependencyKey.self, scope: .weak)
     register(key: HTTPSubscribeSessionDependencyKey.self, scope: .weak)
@@ -176,6 +177,10 @@ extension DependencyContainer {
   fileprivate var presenceEngine: PresenceEngine {
     self[PresenceEventEngineDependencyKey.self]
   }
+
+  fileprivate var fileURLSessionManager: FileSessionManager {
+    self[FileURLSessionManagerDependencyKey.self]
+  }
 }
 
 // - MARK: PubNubConfiguration
@@ -260,7 +265,7 @@ struct FileURLSessionDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> URLSessionReplaceable {
     URLSession(
       configuration: .pubnubBackground,
-      delegate: FileSessionManager(),
+      delegate: container.fileURLSessionManager,
       delegateQueue: .main
     )
   }

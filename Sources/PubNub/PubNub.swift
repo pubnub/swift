@@ -2067,7 +2067,7 @@ public extension PubNub {
             details: "PAM token parsing failed - invalid CBOR format",
             arguments: [
               ("errorType", "invalidCBOR"),
-              ("tokenLength", cborError)
+              ("tokenLength", token.count)
             ]
           )
         ), category: .pubNub
@@ -2079,7 +2079,7 @@ public extension PubNub {
             details: "CBOR error details",
             arguments: [
               ("errorType", "invalidCBOR"),
-              ("tokenLength", token.count)
+              ("cborError", cborError)
             ]
           )
         )
@@ -2100,7 +2100,7 @@ public extension PubNub {
     }
 
     // Single debug log for all PAM token parsing failures
-    logger.debug(
+    logger.trace(
       .customObject(
         .init(
           operation: "pam-token-parse-failure-details",

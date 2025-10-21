@@ -210,7 +210,7 @@ final class Request {
           details: "Failed to mutate URL request",
           arguments: [
             ("requestID", self.requestID),
-            ("error.reason", (mutatorError as? PubNubError)?.reason ?? "Unknown reason")
+            ("errorReason", mutatorError.pubNubError?.reason ?? "Unknown reason")
           ]
         )
       ), category: .networking
@@ -252,7 +252,7 @@ final class Request {
         .init(
           operation: "request-create-fail",
           details: "Failed to create URLRequest",
-          arguments: [("requestID", self.requestID)]
+          arguments: [("requestID", self.requestID), ("errorReason", error.pubNubError?.reason ?? "Unknown reason")]
         )
       ), category: .networking
     )
@@ -395,7 +395,7 @@ final class Request {
           headers: request?.allHTTPHeaderFields ?? [:],
           body: request?.httpBody,
           details: error?.localizedDescription,
-          isCompleted: false,
+          isCompleted: true,
           isCancelled: error?.isCancellationError ?? false,
           isFailed: error != nil
         )

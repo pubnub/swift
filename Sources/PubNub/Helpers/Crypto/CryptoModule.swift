@@ -68,7 +68,7 @@ public struct CryptoModule {
   ///   - **Success**: An encrypted `Data` object
   ///   - **Failure**: `PubNubError` describing the reason of failure
   public func encrypt(data: Data) -> Result<Data, PubNubError> {
-    logger?.trace(
+    logger?.debug(
       .customObject(
         .init(
           operation: "encrypt-data",
@@ -81,7 +81,7 @@ public struct CryptoModule {
     let encryptionResult = performDataEncryption(data: data)
 
     if case let .failure(error) = encryptionResult {
-      logger?.trace(
+      logger?.error(
         .customObject(
           .init(
             operation: "encrypt-data-failure",

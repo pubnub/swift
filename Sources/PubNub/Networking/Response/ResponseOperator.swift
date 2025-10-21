@@ -138,7 +138,7 @@ extension Request {
               .init(
                 operation: "deserialization-failed",
                 details: "Deserialization failed",
-                arguments: [("requestID", requestID), ("error.reason", (error as? PubNubError)?.reason ?? "Unknown reason")]
+                arguments: [("requestID", requestID), ("errorReason", error.pubNubError?.reason ?? "Unknown reason")]
               )
             ), category: .networking
           )

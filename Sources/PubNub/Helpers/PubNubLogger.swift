@@ -333,7 +333,7 @@ public final class PubNubLogger {
     }
 
     for writer in writers {
-      var fullMessage = {
+      let fullMessage = {
         let additionalDetails = self.format(
           prefix: writer.prefix,
           category: category,
@@ -358,19 +358,6 @@ public final class PubNubLogger {
         writer.send(
           message: fullMessage(),
           metadata: .init(level: level, category: category)
-        )
-      }
-
-      fullMessage = {
-        BaseLogMessage(
-          pubNubId: "",
-          logLevel: .debug,
-          category: .none,
-          location: nil,
-          type: "",
-          message: .text(""),
-          details: nil,
-          additionalFields: [:]
         )
       }
     }

@@ -446,12 +446,6 @@ final class Request {
 
   func finish(error _: Error? = nil) {
     if let error = error, !error.isCancellationError {
-      let responseMessage = if let response = urlResponse {
-        response.description
-      } else {
-        "No response available"
-      }
-
       logger.error(
         .customObject(
           .init(

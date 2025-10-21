@@ -13,7 +13,7 @@ import XCTest
 import PubNubSDK
 
 class HistoryEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: FilesEndpointIntegrationTests.self))
+  let config = PubNubConfiguration(bundle: Bundle(for: FilesEndpointIntegrationTests.self))
   
   func testFetchMessageHistory() throws {
     let channel = randomString()

@@ -16,7 +16,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPublishEndpoint() {
     let publishExpect = expectation(description: "Publish Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
     
@@ -44,7 +44,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testSignalTooLong() {
     let publishExpect = expectation(description: "Publish Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let testChannel = randomString()
     
@@ -66,7 +66,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testCompressedPublishEndpoint() {
     let compressedPublishExpect = expectation(description: "Compressed Publish Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
     
@@ -98,7 +98,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testFireEndpoint() {
     let fireExpect = expectation(description: "Fire Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
 
@@ -117,7 +117,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testSignalEndpoint() {
     let signalExpect = expectation(description: "Signal Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
 
@@ -137,7 +137,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
   func testPublishEscapedString() {
     let message = "{\"text\": \"bob\", \"duckName\": \"swiftduck\"}"
     let publishExpect = expectation(description: "Publish Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
 
@@ -165,7 +165,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPublishPushPayload() {
     let publishExpect = expectation(description: "Publish Response")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
 
@@ -208,15 +208,15 @@ class PublishEndpointIntegrationTests: XCTestCase {
 
   func testPublishWithCryptoModulesFromDifferentClients() {
     let firstClient = PubNub(configuration: PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(bundle: testsBundle).userId,
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
     ))
     let secondClient = PubNub(configuration: PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(bundle: testsBundle).userId,
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
     ))
 

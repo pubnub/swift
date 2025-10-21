@@ -221,7 +221,7 @@ extension FileManagementRouterTests {
     testURL.path = "/v1/files/\(config.subscribeKey)/channels/\(testChannel.urlEncodeSlash)/files/\(testFileId.urlEncodeSlash)/\(testFilename.urlEncodeSlash)"
     testURL.queryItems = [
       Constant.pnSDKURLQueryItem,
-      URLQueryItem(name: "uuid", value: config.uuid)
+      URLQueryItem(name: "uuid", value: config.userId)
     ]
 
     do {

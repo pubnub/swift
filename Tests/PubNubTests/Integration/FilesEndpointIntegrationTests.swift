@@ -13,7 +13,7 @@ import XCTest
 import PubNubSDK
 
 class FilesEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: FilesEndpointIntegrationTests.self))
+  let config = PubNubConfiguration(bundle: Bundle(for: FilesEndpointIntegrationTests.self))
   
   func testUploadFile() throws {
     let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))

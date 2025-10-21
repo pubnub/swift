@@ -296,8 +296,8 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 private extension PresenceEndpointIntegrationTests {
   func presenceConfiguration(userId: String = randomString()) -> PubNubConfiguration {
     PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
       userId: randomString(),
       durationUntilTimeout: 11
     )

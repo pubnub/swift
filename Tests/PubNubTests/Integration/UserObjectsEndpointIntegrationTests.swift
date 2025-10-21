@@ -12,7 +12,7 @@ import PubNubSDK
 import XCTest
 
 class UserObjectsEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: UserObjectsEndpointIntegrationTests.self))
+  let config = PubNubConfiguration(bundle: Bundle(for: UserObjectsEndpointIntegrationTests.self))
   
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")

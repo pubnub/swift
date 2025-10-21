@@ -31,7 +31,7 @@ class PubNubConfigurationTests: XCTestCase {
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
     XCTAssertNil(config.cryptoModule)
     XCTAssertNil(config.authKey)
-    XCTAssertNotNil(config.uuid)
+    XCTAssertNotNil(config.userId)
     XCTAssertEqual(config.useSecureConnections, true)
     XCTAssertEqual(config.origin, "ps.pndsn.com")
     XCTAssertEqual(config.durationUntilTimeout, 300)
@@ -48,7 +48,7 @@ class PubNubConfigurationTests: XCTestCase {
   }
 
   func testInit_Bundle() {
-    let config = PubNubConfiguration(from: testsBundle)
+    let config = PubNubConfiguration(bundle: testsBundle)
 
     XCTAssertEqual(config.publishKey, plistPublishKeyValue)
     XCTAssertEqual(config.subscribeKey, plistSubscribeKeyValue)
@@ -67,15 +67,15 @@ class PubNubConfigurationTests: XCTestCase {
 
   func testConfigurations_DifferentCryptoModules() {
     let firstConfig = PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(bundle: testsBundle).userId,
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
     )
     let secondConfig = PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
-      userId: PubNubConfiguration(from: testsBundle).userId,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
+      userId: PubNubConfiguration(bundle: testsBundle).userId,
       cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
     )
 

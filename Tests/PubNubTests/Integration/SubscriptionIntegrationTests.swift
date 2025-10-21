@@ -86,7 +86,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     // Stores the current number of times the client has connected
     var connectedCount = 0
     
-    let pubnub = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
     let listener = SubscriptionListener()
     
     listener.didReceiveSubscription = { [unowned pubnub] event in
@@ -154,7 +154,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     disconnectedStatusExpect.assertForOverFulfill = true
     disconnectedStatusExpect.expectedFulfillmentCount = 1
 
-    let pubnub = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
     let listener = SubscriptionListener()
     let testChannelName = randomString()
     
@@ -216,7 +216,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     statusExpect.assertForOverFulfill = true
     statusExpect.expectedFulfillmentCount = 2
 
-    let pubnub = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
     let testChannelName = randomString()
     
     // Tracks the number of times the status has changed
@@ -251,7 +251,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = 4
             
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let customTimetoken = Timetoken(Int(Date().timeIntervalSince1970 * 10000000))
     
     let testChannelName = randomString()
@@ -295,7 +295,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = 1
     
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let testChannelName = randomString()
     
     // We expect the long-polling connection won't be interrupted by the second subscription, which is 
@@ -321,7 +321,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = 2
 
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let listener = SubscriptionListener()
     let secondListener = SubscriptionListener()
     let testChannelName = randomString()
@@ -352,7 +352,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     expectation.expectedFulfillmentCount = 2
 
     let testChannelName = randomString()
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     
     let firstSubscription = pubnub.channel(testChannelName).subscription()
     let secondSubscription = pubnub.channel(testChannelName).subscription()
@@ -420,7 +420,7 @@ class SubscriptionIntegrationTests: XCTestCase {
   }
   
   func testSubscribedChannels() {
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let channelA = "A"
     let channelB = "B"
     
@@ -444,7 +444,7 @@ class SubscriptionIntegrationTests: XCTestCase {
   }
   
   func testUnsubscribingPresenceOnly() {
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     pubnub.subscribe(to: ["A"], withPresence: true)
     XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
     pubnub.unsubscribe(from: ["A-pnpres"])
@@ -452,7 +452,7 @@ class SubscriptionIntegrationTests: XCTestCase {
   }
   
   func testUnsubscribe() {
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     pubnub.subscribe(to: ["A"], withPresence: true)
     XCTAssertEqual(pubnub.subscribedChannels.sorted(by: <), ["A", "A-pnpres"])
     pubnub.subscribe(to: ["B"], withPresence: true)
@@ -466,7 +466,7 @@ class SubscriptionIntegrationTests: XCTestCase {
   
   func testSubscriptionSetDispose() {
     let expectation = expectation(description: "Test")
-    let pubnub = PubNub(configuration: .init(from: testsBundle))
+    let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let channel = pubnub.channel("test-channel")
     let channel2 = pubnub.channel("test-channel2")
     let subscriptionSet = pubnub.subscription(entities: [channel, channel2])
@@ -491,8 +491,8 @@ class SubscriptionIntegrationTests: XCTestCase {
 private extension SubscriptionIntegrationTests {
   func presenceConfiguration() -> PubNubConfiguration {
     PubNubConfiguration(
-      publishKey: PubNubConfiguration(from: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(from: testsBundle).subscribeKey,
+      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
+      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
       userId: randomString(),
       durationUntilTimeout: 11
     )

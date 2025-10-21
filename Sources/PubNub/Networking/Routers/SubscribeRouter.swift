@@ -163,16 +163,16 @@ struct SubscribeDecoder: ResponseDecoder {
       case .success(let decodedString):
         // Create mutable copy of payload
         message.payload = AnyJSON(reverse: decodedString)
+        // Return the decrypted message
         return message
       case .failure(let error):
-        PubNub.log.warn(
-          "Subscribe message failed to decrypt due to \(error)",
-          category: .crypto
-        )
+        // Set the error on the message
         message.error = error
+        // Return the message with the error set
         return message
       }
     }
+
     message.error = PubNubError(
       .decryptionFailure,
       additional: ["Cannot decrypt message due to invalid Base-64 input"]
@@ -423,22 +423,22 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
   }
 
   public var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("shard", shard),
-        ("subscription", subscription?.description ?? "nil"),
+        ("subscription", subscription?.description),
         ("channel", channel),
         ("messageType", messageType),
-        ("customMessageType", customMessageType ?? "nil"),
+        ("customMessageType", customMessageType),
         ("payload", payload.jsonStringify ?? ""),
         ("flags", flags),
-        ("publisher", publisher ?? "nil"),
+        ("publisher", publisher),
         ("subscribeKey", subscribeKey),
-        ("originTimetoken", originTimetoken ?? "nil"),
+        ("originTimetoken", originTimetoken),
         ("publishTimetoken", publishTimetoken),
-        ("metadata", metadata?.jsonStringify ?? "nil"),
-        ("error", error?.reason ?? "nil")
+        ("metadata", metadata?.jsonStringify),
+        ("error", error?.reason)
       ]
     )
   }

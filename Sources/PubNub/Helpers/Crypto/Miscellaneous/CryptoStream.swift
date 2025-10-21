@@ -15,6 +15,7 @@ import Foundation
 public class CryptoStream {
   /// A pointer to the returned CCCryptorRef.
   private var context = UnsafeMutablePointer<CCCryptorRef?>.allocate(capacity: 1)
+  private var logger: PubNubLogger?
 
   /// Create a cryptographic context.
   ///
@@ -26,8 +27,13 @@ public class CryptoStream {
   ///   - keyLength: Length of key material.
   ///   - ivBuffer: Initialization vector material
   public init(
-    operation: CCOperation, algorithm: CCAlgorithm, options: CCOptions,
-    keyBuffer: UnsafeRawPointer, keyLength: Int, ivBuffer: UnsafeRawPointer
+    operation: CCOperation,
+    algorithm: CCAlgorithm,
+    options: CCOptions,
+    keyBuffer: UnsafeRawPointer,
+    keyLength: Int,
+    ivBuffer: UnsafeRawPointer,
+    logger: PubNubLogger?
   ) throws {
     let status = CCCryptorCreate(
       operation,
@@ -102,7 +108,7 @@ public class CryptoStream {
     let rawStatus = CCCryptorRelease(context.pointee)
 
     if rawStatus != kCCSuccess {
-      PubNub.log.error(
+      logger?.trace(
         "CryptoStream CCCryptoRelease failed with status \(rawStatus)",
         category: .crypto
       )

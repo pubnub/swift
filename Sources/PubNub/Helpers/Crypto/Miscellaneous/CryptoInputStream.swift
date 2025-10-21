@@ -59,17 +59,21 @@ public class CryptoInputStream: InputStream {
 
   // A flag describing whether an IV vector is included at the beginning of encoded/decoded content
   private let includeInitializationVectorInContent: Bool
+  // A logger used to log events
+  private let logger: PubNubLogger?
 
   public init(
     operation: CryptoInputStream.Operation,
     input: InputStream,
     contentLength: Int,
     with crypto: CryptoInputStream.DataSource,
-    includeInitializationVectorInContent: Bool = false
+    includeInitializationVectorInContent: Bool = false,
+    logger: PubNubLogger? = nil
   ) {
     self.operation = operation
     self.crypto = crypto
     self.includeInitializationVectorInContent = includeInitializationVectorInContent
+    self.logger = logger
 
     if operation == .encrypt {
       do {
@@ -82,7 +86,8 @@ public class CryptoInputStream: InputStream {
           options: crypto.options,
           keyBuffer: crypto.key.map { $0 },
           keyLength: crypto.key.count,
-          ivBuffer: ivBuffer
+          ivBuffer: ivBuffer,
+          logger: logger
         )
         if includeInitializationVectorInContent {
           cryptedBuffer = ivBuffer
@@ -125,7 +130,8 @@ public class CryptoInputStream: InputStream {
           options: crypto.options,
           keyBuffer: crypto.key.map { $0 },
           keyLength: crypto.key.count,
-          ivBuffer: initializationVectorBuffer
+          ivBuffer: initializationVectorBuffer,
+          logger: logger
         )
 
         if includeInitializationVectorInContent {
@@ -153,37 +159,61 @@ public class CryptoInputStream: InputStream {
     super.init(data: Data())
   }
 
+  /// Creates a new `CryptoInputStream` instance with the specified operation, URL, crypto configuration, and logger.
+  ///
+  /// - Parameters:
+  ///   - operation: The operation to perform on the input stream
+  ///   - url: The URL of the content to be processed
+  ///   - crypto: The data source for the crypto operation like key, iv, etc
+  ///   - logger: The logger to use for logging events
+  /// - Returns: A new `CryptoInputStream` instance, or `nil` if the stream cannot be created
   public convenience init?(
     operation: CryptoInputStream.Operation,
     url: URL,
-    with crypto: CryptoInputStream.DataSource
+    with crypto: CryptoInputStream.DataSource,
+    logger: PubNubLogger
   ) {
     // Create a stream from the content source
-    guard let plaintextStream = InputStream(url: url) else {
-      PubNub.log.error(
-        "Could not create `SecureInputStream` due to underlying InputStream(url:) failing for \(url)",
-        category: .crypto
-      )
+    guard let plainTextStream = InputStream(url: url) else {
       return nil
     }
 
-    self.init(operation: operation, input: plaintextStream, contentLength: url.sizeOf, with: crypto)
+    self.init(
+      operation: operation,
+      input: plainTextStream,
+      contentLength: url.sizeOf,
+      with: crypto,
+      logger: logger
+    )
   }
 
   public convenience init(
     operation: CryptoInputStream.Operation,
     data: Data,
-    with crypto: CryptoInputStream.DataSource
+    with crypto: CryptoInputStream.DataSource,
+    logger: PubNubLogger
   ) {
-    self.init(operation: operation, input: InputStream(data: data), contentLength: data.count, with: crypto)
+    self.init(
+      operation: operation,
+      input: InputStream(data: data),
+      contentLength: data.count,
+      with: crypto,
+      logger: logger
+    )
   }
 
   public convenience init?(
     operation: CryptoInputStream.Operation,
     fileAtPath path: String,
-    with crypto: DataSource
+    with crypto: DataSource,
+    logger: PubNubLogger
   ) {
-    self.init(operation: operation, url: URL(fileURLWithPath: path), with: crypto)
+    self.init(
+      operation: operation,
+      url: URL(fileURLWithPath: path),
+      with: crypto,
+      logger: logger
+    )
   }
 
   deinit {

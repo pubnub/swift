@@ -20,7 +20,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let fetchExpect = expectation(description: "Fetch Message Action Expectation")
     let addedEventExcept = expectation(description: "Add Message Action Event Expectation")
 
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let actionType = "reaction"
     let actionValue = "smiley_face"
@@ -49,7 +49,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
           ) { [unowned self] publishResult in
             switch publishResult {
             case let .success(messageAction):
-              XCTAssertEqual(messageAction.publisher, configuration.uuid)
+              XCTAssertEqual(messageAction.publisher, configuration.userId)
               XCTAssertEqual(messageAction.actionType, actionType)
               XCTAssertEqual(messageAction.actionValue, actionValue)
 
@@ -97,7 +97,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     removedEventExcept.assertForOverFulfill = true
     removedEventExcept.expectedFulfillmentCount = 1
     
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let actionType = "reaction"
     let actionValue = "smiley_face"
@@ -166,7 +166,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
 
   func testFetchMessageActionsEndpoint() {
     let fetchExpect = expectation(description: "Fetch Message Actions Expectation")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
 
     client.publish(channel: testChannel, message: "This is a message") { [unowned self, unowned client] result in
@@ -208,7 +208,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
   func testHistoryWithMessageActions() {
     let addExpect = expectation(description: "Add Message Action Expectation")
     let historyExpect = expectation(description: "Fetch Message Action Expectation")
-    let configuration = PubNubConfiguration(from: testsBundle)
+    let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let actionType = "reaction"
     let actionValue = "smiley_face"
@@ -220,7 +220,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     ) { [unowned self, unowned client] publishResult in
       switch publishResult {
       case let .success(messageAction):
-        XCTAssertEqual(messageAction.publisher, configuration.uuid)
+        XCTAssertEqual(messageAction.publisher, configuration.userId)
         XCTAssertEqual(messageAction.actionType, actionType)
         XCTAssertEqual(messageAction.actionValue, actionValue)
 

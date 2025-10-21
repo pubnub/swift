@@ -17,6 +17,7 @@ import CommonCrypto
 public struct LegacyCryptor: Cryptor {
   private let key: Data
   private let withRandomIV: Bool
+  private let logger: PubNubLogger?
 
   static let ID: CryptorId = [0x00, 0x00, 0x00, 0x00]
 
@@ -25,6 +26,13 @@ public struct LegacyCryptor: Cryptor {
     let hexStrData = CryptorUtils.hexFrom(hash).lowercased(with: .current).data(using: .utf8) ?? Data()
     self.key = hexStrData
     self.withRandomIV = withRandomIV
+    self.logger = nil
+  }
+
+  init(key: Data, withRandomIV: Bool, logger: PubNubLogger?) {
+    self.key = key
+    self.withRandomIV = withRandomIV
+    self.logger = logger
   }
 
   public var id: CryptorId {
@@ -170,12 +178,20 @@ public struct LegacyCryptor: Cryptor {
       ))
     }
   }
+
+  public func clone(with logger: PubNubLogger) -> LegacyCryptor {
+    LegacyCryptor(key: key, withRandomIV: withRandomIV, logger: logger)
+  }
 }
 
 extension LegacyCryptor: Hashable {
+  public static func == (lhs: LegacyCryptor, rhs: LegacyCryptor) -> Bool {
+    lhs.id == rhs.id && lhs.withRandomIV == rhs.withRandomIV && lhs.key == rhs.key
+  }
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(key)
     hasher.combine(withRandomIV)
-    hasher.combine(LegacyCryptor.ID)
+    hasher.combine(id)
   }
 }

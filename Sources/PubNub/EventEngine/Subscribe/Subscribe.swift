@@ -23,7 +23,7 @@ extension SubscribeState {
     cursor.timetoken != 0
   }
   var description: String {
-    String.formattedDescription(self, arguments: [("input", input), ("cursor", cursor)])
+    String.logDescription(of: self, arguments: [("input", input), ("cursor", cursor)])
   }
 }
 
@@ -70,8 +70,8 @@ extension Subscribe {
 
 extension Subscribe.HandshakeFailedState {
   var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("input", input),
         ("cursor", cursor),
@@ -115,8 +115,8 @@ extension Subscribe {
 
 extension Subscribe.ReceiveFailedState {
   var description: String {
-    String.formattedDescription(
-      self,
+    String.logDescription(
+      of: self,
       arguments: [
         ("input", input),
         ("cursor", cursor),
@@ -131,12 +131,6 @@ extension Subscribe {
     let cursor: SubscribeCursor = .init(timetoken: 0, region: 0)
     let input: SubscribeInput = .init(channels: [], channelGroups: [])
     let connectionStatus = ConnectionStatus.disconnected
-  }
-}
-
-extension Subscribe.UnsubscribedState {
-  var description: String {
-    String.formattedDescription(self)
   }
 }
 
@@ -163,12 +157,12 @@ extension Subscribe {
     let error: PubNubError?
 
     var description: String {
-      String.formattedDescription(
-        self,
+      String.logDescription(
+        of: self,
         arguments: [
           ("oldStatus", oldStatus),
           ("newStatus", newStatus),
-          ("erorr", error?.reason ?? "nil")
+          ("erorr", error)
         ]
       )
     }
@@ -236,23 +230,23 @@ extension Subscribe {
     var description: String {
       switch self {
       case let .handshakeRequest(channels, groups):
-        return String.formattedDescription(
-          "Subscribe.Invocation.HandshakeRequest",
+        return String.logDescription(
+          of: self,
           arguments: [("channels", channels), ("groups", groups)]
         )
       case let .receiveMessages(channels, groups, cursor):
-        return String.formattedDescription(
-          "Subscribe.Invocation.ReceiveMessages",
+        return String.logDescription(
+          of: self,
           arguments: [("channels", channels), ("groups", groups), ("cursor", cursor)]
         )
       case let .emitStatus(change):
-        return String.formattedDescription(
-          "Subscribe.Invocation.EmitStatus",
+        return String.logDescription(
+          of: self,
           arguments: [("change", change)]
         )
       case let .emitMessages(messages, cursor):
-        return String.formattedDescription(
-          "Subscribe.Invocation.EmitMessages",
+        return String.logDescription(
+          of: self,
           arguments: [("messages", messages), ("cursor", cursor)]
         )
       }

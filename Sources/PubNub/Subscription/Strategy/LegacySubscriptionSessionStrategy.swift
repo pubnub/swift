@@ -87,7 +87,6 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   }
 
   deinit {
-    PubNub.log.debug("SubscriptionSession Destroyed")
     longPollingSession.invalidateAndCancel()
     nonSubscribeSession.invalidateAndCancel()
   }
@@ -336,25 +335,11 @@ class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
       switch subscribeChange {
       case let .unsubscribed(channels, groups):
         presenceLeave(
-          for: configuration.uuid,
+          for: configuration.userId,
           on: channels.map { $0.id },
           and: groups.map { $0.id }
         ) { [weak self] result in
-          switch result {
-          case .success:
-            if !channels.isEmpty {
-              PubNub.log.info(
-                "Presence Leave Successful on channels \(channels.map { $0.id })",
-                category: .pubNub
-              )
-            }
-            if !groups.isEmpty {
-              PubNub.log.info(
-                "Presence Leave Successful on groups \(groups.map { $0.id })",
-                category: .pubNub
-              )
-            }
-          case let .failure(error):
+          if case let .failure(error) = result {
             self?.notify {
               $0.emit(subscribe: .errorReceived(PubNubError.event(error, router: nil)))
             }

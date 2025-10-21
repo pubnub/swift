@@ -35,9 +35,11 @@ protocol Dispatcher<Invocation, Event, Dependencies> {
 class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Dispatcher {
   private let factory: any EffectHandlerFactory<Invocation, Event, Dependencies>
   private let effectsCache = EffectsCache<Event>()
+  private let logger: PubNubLogger
 
-  init(factory: some EffectHandlerFactory<Invocation, Event, Dependencies>) {
+  init(factory: some EffectHandlerFactory<Invocation, Event, Dependencies>, logger: PubNubLogger) {
     self.factory = factory
+    self.logger = logger
   }
 
   func hasPendingInvocation(_ invocation: Invocation) -> Bool {
@@ -50,10 +52,6 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
     notify listener: DispatcherListener<Event>
   ) {
     invocations.forEach {
-      PubNub.log.debug(
-        "Received invocation \($0)",
-        category: .eventEngine
-      )
       switch $0 {
       case .managed(let invocation):
         executeEffect(
@@ -83,8 +81,14 @@ class EffectDispatcher<Invocation: AnyEffectInvocation, Event, Dependencies>: Di
       effect: effect,
       with: id
     )
-    PubNub.log.debug(
-      "Dispatching effect \(effect)",
+    logger.trace(
+      .customObject(
+        .init(
+          operation: "executeEffect",
+          details: "Dispatching effect",
+          arguments: [("effect", effect)]
+        )
+      ),
       category: .eventEngine
     )
     effect.performTask { [weak effectsCache] results in

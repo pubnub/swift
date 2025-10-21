@@ -55,6 +55,11 @@ extension String {
     return self
   }
 
+  /// Returns filename with extension
+  var fileNameWithExtension: String {
+    return components(separatedBy: "/").last ?? self
+  }
+
   /// The value of this `String` formatted for use inside a JSON payload
   public var jsonDescription: String {
     return "\"\(description)\""
@@ -66,19 +71,19 @@ extension String {
   }
 }
 
-/// Creates a formatted description of an instance and its key-value attributes
-/// and returns a formatted string in the form of `TypeName(key: value, key: value)`
 extension String {
-  static func formattedDescription(_ instance: Any, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
-    formattedDescription(String(describing: type(of: instance)), arguments: arguments())
-  }
+  /// Creates a structured log description for an object with optional arguments
+  /// - Parameters:
+  ///   - instance: The object to describe
+  ///   - arguments: Optional key-value pairs to include in the description
+  /// - Returns: A formatted string like "ClassName(arg1: value1, arg2: nil, arg3: value3)"
+  static func logDescription(of instance: Any, arguments: @autoclosure () -> [(String, Any?)] = []) -> String {
+    let prefix = String(describing: type(of: instance))
 
-  static func formattedDescription(_ prefix: String, arguments: @autoclosure () -> [(String, Any)] = []) -> String {
-    "\(prefix)(\(arguments().map { "\($0.0): \(String(describing: $0.1))" }.joined(separator: ", ")))"
-  }
-
-  func getLastCharacters(_ count: Int) -> String? {
-    guard self.count >= count else { return nil }
-    return String(suffix(count))
+    if arguments().isEmpty {
+      return "\(prefix)"
+    } else {
+      return "\(prefix)(\(arguments().map { "\($0.0): \($0.1.map(String.init(describing:)) ?? "nil")" }.joined(separator: ", ")))"
+    }
   }
 }

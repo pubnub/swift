@@ -19,7 +19,7 @@ class DispatcherTests: XCTestCase {
     onResultReceivedExpectation.expectedFulfillmentCount = 4
     onResultReceivedExpectation.assertForOverFulfill = true
         
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
@@ -43,7 +43,7 @@ class DispatcherTests: XCTestCase {
     onResultReceivedExpectation.expectedFulfillmentCount = 2
     onResultReceivedExpectation.assertForOverFulfill = true
     
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
@@ -63,7 +63,7 @@ class DispatcherTests: XCTestCase {
   }
   
   func testDispatcher_NotifiesListenerWithExpectedEvents() {
-    let dispatcher = EffectDispatcher(factory: StubEffectHandlerFactory())
+    let dispatcher = EffectDispatcher(factory: StubEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { events in
       XCTAssertEqual(events, [.event1, .event3])
     })
@@ -80,7 +80,7 @@ class DispatcherTests: XCTestCase {
     onResultReceivedExpectation.expectedFulfillmentCount = 3
     onResultReceivedExpectation.assertForOverFulfill = true
 
-    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory())
+    let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { results in
       onResultReceivedExpectation.fulfill()
     })

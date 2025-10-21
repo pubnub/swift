@@ -1,4 +1,5 @@
 # PubNub 8.0 Migration Guide
+
 PubNub Native Swift SDK v8.0 is the latest major release of the PubNub SDK for iOS, tvOS, macOS and watchOS written in Swift. As a major release, following [Semantic Versioning](https://semver.org/) conventions, 8.0 introduces API-breaking changes.
 
 This guide is meant to ease the transition to the 8.0 version of the SDK. To read the full set of documentation, please head over to our official [docs page](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk)

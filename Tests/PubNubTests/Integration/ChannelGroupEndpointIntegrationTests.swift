@@ -13,7 +13,7 @@ import XCTest
 import PubNubSDK
 
 final class ChannelGroupEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: ChannelGroupEndpointIntegrationTests.self))
+  let config = PubNubConfiguration(bundle: Bundle(for: ChannelGroupEndpointIntegrationTests.self))
   
   func testListChannelsInGroup() {
     let listChannelsExpect = expectation(description: "List Channels Response")

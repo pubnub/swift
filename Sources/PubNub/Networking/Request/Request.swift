@@ -62,17 +62,10 @@ final class Request {
   let requestOperator: RequestOperator?
   let sessionStream: SessionStream?
   let atomicState: Atomic<InternalState> = Atomic(InternalState())
+  let logger: PubNubLogger
 
   private(set) weak var delegate: RequestDelegate?
   private var atomicValidators: Atomic<[() -> Void]> = Atomic([])
-
-  private var dataDescription: String {
-    if let data {
-      return String(data: data, encoding: .utf8) ?? "Cannot decode into UTF-8 string"
-    } else {
-      return "Empty data"
-    }
-  }
 
   init(
     with router: HTTPRouter,
@@ -80,7 +73,8 @@ final class Request {
     sessionStream: SessionStream?,
     requestOperator: RequestOperator? = nil,
     delegate: RequestDelegate,
-    createdBy sessionID: UUID
+    createdBy sessionID: UUID,
+    logger: PubNubLogger
   ) {
     self.router = router
     self.requestQueue = requestQueue
@@ -95,19 +89,31 @@ final class Request {
       let requestIdOperator = RequestIdOperator(requestID: requestID.description)
       operators.append(requestIdOperator)
     }
+
     self.requestOperator = MultiplexRequestOperator(operators: operators)
+    self.logger = logger
     self.delegate = delegate
 
-    PubNub.log.info(
-      "Request Created \(self.requestID) on \(router)",
-      category: .networking
+    logger.trace(
+      .customObject(
+        .init(
+          operation: "request-init",
+          details: "Request Created",
+          arguments: [("requestID", self.requestID), ("router", router)]
+        )
+      ), category: .networking
     )
   }
 
   deinit {
-    PubNub.log.info(
-      "Request Destroyed \(self.requestID)",
-      category: .networking
+    logger.trace(
+      .customObject(
+        .init(
+          operation: "request-deinit",
+          details: "Request Destroyed",
+          arguments: [("requestID", self.requestID)]
+        )
+      ), category: .networking
     )
 
     let currentState = atomicState.lockedRead { $0 }
@@ -197,9 +203,29 @@ final class Request {
   }
 
   func didFailToMutate(_ urlRequest: URLRequest, with mutatorError: Error) {
-    PubNub.log.debug(
-      "Did fail to mutate URL request for \(self.requestID) due to \(mutatorError)",
-      category: .networking
+    logger.error(
+      .customObject(
+        .init(
+          operation: "request-mutate-fail",
+          details: "Failed to mutate URL request",
+          arguments: [
+            ("requestID", self.requestID),
+            ("errorReason", mutatorError.pubNubError?.reason ?? "Unknown reason")
+          ]
+        )
+      ), category: .networking
+    )
+    logger.trace(
+      .customObject(
+        .init(
+          operation: "request-mutate-fail",
+          details: "Failed to mutate URL request",
+          arguments: [
+            ("requestID", self.requestID),
+            ("error", mutatorError)
+          ]
+        )
+      ), category: .networking
     )
 
     error = mutatorError
@@ -221,7 +247,25 @@ final class Request {
   }
 
   func didFailToCreateURLRequest(with error: Error) {
-    PubNub.log.debug("Did fail to create URLRequest for \(self.requestID) due to \(error)")
+    logger.error(
+      .customObject(
+        .init(
+          operation: "request-create-fail",
+          details: "Failed to create URLRequest",
+          arguments: [("requestID", self.requestID), ("errorReason", error.pubNubError?.reason ?? "Unknown reason")]
+        )
+      ), category: .networking
+    )
+
+    logger.trace(
+      .customObject(
+        .init(
+          operation: "request-create-fail",
+          details: "Failed to create URLRequest",
+          arguments: [("requestID", self.requestID), ("error", error)]
+        )
+      ), category: .networking
+    )
 
     let pubnubError = PubNubError.urlCreation(error, router: router)
     self.error = pubnubError
@@ -266,10 +310,26 @@ final class Request {
   }
 
   func didResume(_ task: URLSessionTask) {
-    PubNub.log.debug(
-      "Sending HTTP request \(task.requestDescr()) for \(self.requestID)",
-      category: .networking
+    let request: URLRequest? = task.currentRequest
+
+    logger.trace(
+      .networkRequest(
+        .init(
+          id: self.requestID.uuidString,
+          origin: request?.url?.host ?? "Unknown origin",
+          path: request?.url?.path ?? "Unknown path",
+          query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+          method: request?.httpMethod ?? "Unknown HTTP method",
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: request?.httpBody,
+          details: nil,
+          isCompleted: false,
+          isCancelled: false,
+          isFailed: false
+        )
+      ), category: .networking
     )
+
     sessionStream?.emitRequest(
       self,
       didResume: task
@@ -277,18 +337,12 @@ final class Request {
   }
 
   func didCancel(_ task: URLSessionTask) {
-    PubNub.log.debug("Did cancel URLSessionTask task for \(self.requestID)", category: .networking)
     sessionStream?.emitRequest(self, didCancel: task)
   }
 
   func didComplete(_ task: URLSessionTask) {
-    PubNub.log.debug(
-      "Received response for \(self.requestID) with \(task.statusCodeDescr()) " +
-      "content \(self.dataDescription) " +
-      "for request URL \(task.currentRequestUrl()))",
-      category: .networking
-    )
-
+    // Log the request completion
+    logRequestCompletion(task: task, error: nil)
     // Process the Validators for any additional errors
     atomicValidators.lockedRead { $0.forEach { $0() } }
 
@@ -302,16 +356,64 @@ final class Request {
   }
 
   func didComplete(_ task: URLSessionTask, with error: Error) {
-    PubNub.log.debug(
-      "Received response for \(self.requestID) with \(task.statusCodeDescr()), " +
-      "content: \(self.dataDescription) " +
-      "for request URL \(task.currentRequestUrl()))",
-      category: .networking
-    )
+    logRequestCompletion(task: task, error: error)
 
     self.error = PubNubError.sessionDelegate(error, router: router)
     sessionStream?.emitRequest(self, didComplete: task, with: error)
     retryOrFinish(with: error)
+  }
+
+  private func logRequestCompletion(task: URLSessionTask, error: Error?) {
+    let request = task.currentRequest
+    let response = task.response as? HTTPURLResponse
+
+    if let error = error, !error.isCancellationError {
+      logger.error(
+        .customObject(
+          .init(
+            operation: "network-request-failed",
+            details: "Network request completed with error",
+            arguments: [
+              ("requestID", self.requestID.uuidString),
+              ("host", request?.url?.host ?? "unknown"),
+              ("method", request?.httpMethod ?? "unknown"),
+              ("statusCode", response?.statusCode ?? 0)
+            ]
+          )
+        ), category: .networking
+      )
+    }
+
+    logger.trace(
+      .networkRequest(
+        .init(
+          id: self.requestID.uuidString,
+          origin: request?.url?.host ?? "Unknown origin",
+          path: request?.url?.path ?? "Unknown path",
+          query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
+          method: request?.httpMethod ?? "Unknown HTTP method",
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: request?.httpBody,
+          details: error?.localizedDescription,
+          isCompleted: true,
+          isCancelled: error?.isCancellationError ?? false,
+          isFailed: error != nil
+        )
+      ), category: .networking
+    )
+
+    logger.trace(
+      .networkResponse(
+        .init(
+          id: self.requestID.uuidString,
+          url: request?.url,
+          status: response?.statusCode ?? 0,
+          headers: request?.allHTTPHeaderFields ?? [:],
+          body: self.data,
+          details: nil
+        )
+      ), category: .networking
+    )
   }
 
   // MARK: - SessionDelegate Events
@@ -344,14 +446,18 @@ final class Request {
 
   func finish(error _: Error? = nil) {
     if let error = error, !error.isCancellationError {
-      let responseMessage = if let response = urlResponse {
-        "for response \(response.description)"
-      } else {
-        "without response."
-      }
-      PubNub.log.error(
-        "Request \(self.requestID) failed with error \(error) \(responseMessage)",
-        category: .networking
+      logger.error(
+        .customObject(
+          .init(
+            operation: "request-failed",
+            details: "Request failed",
+            arguments: [
+              ("requestID", self.requestID.uuidString),
+              ("hasResponse", self.urlResponse != nil),
+              ("statusCode", self.urlResponse?.statusCode ?? 0)
+            ]
+          )
+        ), category: .networking
       )
     }
 
@@ -506,14 +612,14 @@ protocol RequestDelegate: AnyObject {
 // MARK: - Private Extensions
 
 private extension URLSessionTask {
-  func requestDescr() -> String {
-    currentRequest?.formattedDescription() ?? "Missing request description"
-  }
-  func statusCodeDescr() -> String {
-    httpResponse?.statusCode.description ?? "Unknown HTTP status"
-  }
-  func currentRequestUrl() -> String {
-    currentRequest?.url?.absoluteString ?? "Missing URL details"
+  func getURLQueryItems() -> [URLQueryItem] {
+    let components: URLComponents? = if let url = self.currentRequest?.url {
+      URLComponents(url: url, resolvingAgainstBaseURL: false)
+    } else {
+      nil
+    }
+
+    return components?.queryItems ?? []
   }
 }
 

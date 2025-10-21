@@ -670,7 +670,7 @@ extension ObjectsUserRouterTests {
     pubnub.removeUserMetadata(nil) { [weak self] result in
       switch result {
       case let .success(metadataId):
-        XCTAssertEqual(metadataId, self?.config.uuid)
+        XCTAssertEqual(metadataId, self?.config.userId)
       case let .failure(error):
         XCTFail("Delete request failed with error: \(error.localizedDescription)")
       }

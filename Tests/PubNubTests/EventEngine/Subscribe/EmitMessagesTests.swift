@@ -65,9 +65,7 @@ class EmitMessagesTests: XCTestCase {
       }
     }
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitMessages effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     wait(for: [expectation], timeout: 0.35)
   }
@@ -99,9 +97,7 @@ class EmitMessagesTests: XCTestCase {
       }
     }
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitMessages effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     wait(for: [expectation], timeout: 0.1)
   }
@@ -132,9 +128,7 @@ class EmitMessagesTests: XCTestCase {
       }
     }
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitMessages effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     wait(for: [expectation], timeout: 0.1)
   }
@@ -162,9 +156,7 @@ class EmitMessagesTests: XCTestCase {
       messageCache: cache
     )
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitMessages effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     let allCachedMessages = cache.messagesArray.compactMap { $0 }
     let expectedDroppedMssgs = Array(initialMessages[0...9])

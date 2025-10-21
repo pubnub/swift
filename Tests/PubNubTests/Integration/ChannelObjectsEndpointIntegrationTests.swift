@@ -12,7 +12,7 @@ import PubNubSDK
 import XCTest
 
 class ChannelObjectsEndpointIntegrationTests: XCTestCase {
-  let config: PubNubConfiguration = PubNubConfiguration(from: Bundle(for: ChannelObjectsEndpointIntegrationTests.self))
+  let config: PubNubConfiguration = PubNubConfiguration(bundle: Bundle(for: ChannelObjectsEndpointIntegrationTests.self))
   
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")

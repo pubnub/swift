@@ -374,6 +374,4 @@ extension SubscriptionSession {
   func removeAllStatusListeners() {
     listenersContainer.removeAllStatusListeners()
   }
-
-  // swiftlint:disable:next file_length
 }

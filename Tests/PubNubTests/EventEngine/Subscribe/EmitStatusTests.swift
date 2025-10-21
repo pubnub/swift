@@ -60,9 +60,7 @@ class EmitStatusTests: XCTestCase {
       }
     }
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitStatus effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     wait(for: [expectation], timeout: 0.1)
   }
@@ -99,9 +97,7 @@ class EmitStatusTests: XCTestCase {
       }
     }
     
-    effect.performTask(completionBlock: { _ in
-      PubNub.log.debug("Did finish performing EmitStatus effect")
-    })
+    effect.performTask(completionBlock: { _ in })
     
     wait(for: [expectation, errorExpectation], timeout: 0.1)    
   }

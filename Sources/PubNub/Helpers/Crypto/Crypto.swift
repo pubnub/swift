@@ -12,8 +12,7 @@ import CommonCrypto
 import Foundation
 
 /// Object capable of encryption/decryption
-///
-/// - Warning: This struct is deprecated. Use ``CryptoModule`` instead.
+@available(*, deprecated, message: "Use CryptoModule instead")
 public struct Crypto: Hashable {
   /// Key initially provided by the user
   let key: String

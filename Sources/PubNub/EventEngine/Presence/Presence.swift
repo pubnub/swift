@@ -26,7 +26,7 @@ extension PresenceState {
   }
 
   var description: String {
-    String.formattedDescription(self, arguments: [("input", input)])
+    String.logDescription(of: self, arguments: [("input", input)])
   }
 }
 
@@ -58,7 +58,7 @@ extension Presence {
 
 extension Presence.HeartbeatFailed {
   var description: String {
-    String.formattedDescription(self, arguments: [("input", input), ("error", error.reason)])
+    String.logDescription(of: self, arguments: [("input", input), ("error", error.reason)])
   }
 }
 
@@ -76,7 +76,7 @@ extension Presence {
 
 extension Presence.HeartbeatInactive {
   var description: String {
-    String.formattedDescription(self)
+    String.logDescription(of: self)
   }
 }
 
@@ -141,13 +141,13 @@ extension Presence {
     var description: String {
       switch self {
       case let .heartbeat(channels, groups):
-        return String.formattedDescription(
-          "Presence.Invocation.Heartbeat",
+        return String.logDescription(
+          of: self,
           arguments: [("channels", channels), ("groups", groups)]
         )
       case let .leave(channels, groups):
-        return String.formattedDescription(
-          "Presence.Invocation.Leave",
+        return String.logDescription(
+          of: self,
           arguments: [("channels", channels), ("groups", groups)]
         )
       case .wait:

@@ -19,7 +19,7 @@ class PushIntegrationTests: XCTestCase {
 
   func testModifyChannels() {
     let addExpect = expectation(description: "Adding Channel")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
     
     client.managePushChannelRegistrations(
       byRemoving: [],
@@ -50,7 +50,7 @@ class PushIntegrationTests: XCTestCase {
   func testListAPNSChannels() {
     let addExpect = expectation(description: "Adding Channel")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // Add a channel
     client.manageAPNSDevicesOnChannels(
@@ -88,7 +88,7 @@ class PushIntegrationTests: XCTestCase {
   func testAddAPNSDevicesOnChannels() {
     let addExpect = expectation(description: "Adding Channel")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // Add a channel
     client.addAPNSDevicesOnChannels(
@@ -126,7 +126,7 @@ class PushIntegrationTests: XCTestCase {
     let addExpect = expectation(description: "Adding Channel")
     let removeAll = expectation(description: "Remove All Channel")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // Add a channel
     client.manageAPNSDevicesOnChannels(
@@ -156,7 +156,7 @@ class PushIntegrationTests: XCTestCase {
   func testListPushChannelRegistrations() {
     let addExpect = expectation(description: "Adding Channel")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // Add a channel
     client.managePushChannelRegistrations(
@@ -193,7 +193,7 @@ class PushIntegrationTests: XCTestCase {
     let initialAddExpect = expectation(description: "Initial Channel Addition")
     let manageExpect = expectation(description: "Managing Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // First add initial channels
     client.managePushChannelRegistrations(
@@ -238,7 +238,7 @@ class PushIntegrationTests: XCTestCase {
     let initialAddExpect = expectation(description: "Initial Channel Addition")
     let manageExpect = expectation(description: "Managing Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // First add initial channels
     client.manageAPNSDevicesOnChannels(
@@ -286,7 +286,7 @@ class PushIntegrationTests: XCTestCase {
     let addExpect = expectation(description: "Adding Channels")
     let removeExpect = expectation(description: "Removing Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // First add channels
     client.managePushChannelRegistrations(
@@ -326,7 +326,7 @@ class PushIntegrationTests: XCTestCase {
   func testAddPushChannelRegistrations() {
     let addExpect = expectation(description: "Adding Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // Add multiple channels at once
     client.addPushChannelRegistrations(["c1", "c2", "c3"], for: pushToken) { [unowned self, unowned client] result in
@@ -359,7 +359,7 @@ class PushIntegrationTests: XCTestCase {
     let addExpect = expectation(description: "Adding Channels")
     let removeAllExpect = expectation(description: "Removing All Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // First add some channels
     client.managePushChannelRegistrations(
@@ -391,7 +391,7 @@ class PushIntegrationTests: XCTestCase {
     let addExpect = expectation(description: "Adding Channels")
     let removeExpect = expectation(description: "Removing Channels")
     let listExpect = expectation(description: "Listing Channels")
-    let client = PubNub(configuration: PubNubConfiguration(from: testsBundle))
+    let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
 
     // First add some channels
     client.manageAPNSDevicesOnChannels(

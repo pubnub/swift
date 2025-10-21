@@ -428,6 +428,7 @@ extension MockURLSession {
 
     return (HTTPSession(session: urlSession,
                         delegate: delegate,
+                        logger: PubNubLogger.defaultLogger(),
                         sessionQueue: delegateQueue,
                         sessionStream: stream).usingDefault(requestOperator: operators),
             urlSession)

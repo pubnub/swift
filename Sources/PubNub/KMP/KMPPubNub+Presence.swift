@@ -24,6 +24,8 @@ public extension KMPPubNub {
     channelGroups: [String],
     includeState: Bool,
     includeUUIDs: Bool,
+    limit: Int,
+    offset: NSNumber?,
     onSuccess: @escaping ((KMPHereNowResult) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
@@ -34,12 +36,12 @@ public extension KMPPubNub {
       includeState: includeState
     ) {
       switch $0 {
-      case let .success(map):
+      case let .success(response):
         onSuccess(
           KMPHereNowResult(
-            totalChannels: map.count,
-            totalOccupancy: map.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
-            channels: map.mapValues { value in
+            totalChannels: response.count,
+            totalOccupancy: response.values.reduce(0, { accResult, channel in accResult + channel.occupancy }),
+            channels: response.mapValues { value in
               KMPHereNowChannelData(
                 channelName: value.channel,
                 occupancy: value.occupancy,

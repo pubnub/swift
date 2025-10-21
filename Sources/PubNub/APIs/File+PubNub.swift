@@ -23,10 +23,27 @@ public extension PubNub {
   ///     - **Success**: A `Tuple` containing the list of Files for the channel, and the cursor for the `next` page if the list count exceeded the requested limit
   ///     - **Failure**: An `Error` describing the failure
   func listFiles(
-    channel: String, limit: UInt = 100, next: String? = nil,
+    channel: String,
+    limit: UInt = 100,
+    next: String? = nil,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(files: [PubNubFile], next: String?), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "listFiles",
+          details: "List Files",
+          arguments: [
+            ("channel", channel),
+            ("limit", limit),
+            ("next", next),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     route(
       FileManagementRouter(.list(channel: channel, limit: limit, next: next), configuration: configuration),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
@@ -55,10 +72,27 @@ public extension PubNub {
   ///     - **Success**: A `Tuple` containing the `channel` and `fileId` of the removed file
   ///     - **Failure**: An `Error` describing the failure
   func remove(
-    fileId: String, filename: String, channel: String,
+    fileId: String,
+    filename: String,
+    channel: String,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(channel: String, fileId: String), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "removeFile",
+          details: "Remove File",
+          arguments: [
+            ("fileId", fileId),
+            ("filename", filename),
+            ("channel", channel),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     route(
       FileManagementRouter(.delete(channel: channel, fileId: fileId, filename: filename), configuration: configuration),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .files),
@@ -139,6 +173,21 @@ public extension PubNub {
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<FileUploadTuple, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "generateFileUploadURLRequest",
+          details: "Generate File Upload URL Request",
+          arguments: [
+            ("content", content),
+            ("channel", channel),
+            ("remoteFilename", remoteFilename),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     route(
       FileManagementRouter(
         .generateURL(channel: channel, body: .init(name: remoteFilename)),
@@ -185,6 +234,20 @@ public extension PubNub {
     session: URLSessionReplaceable,
     backgroundFileCacheIdentifier: String
   ) throws -> HTTPFileUploadTask {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "createFileURLSessionUploadTask",
+          details: "Create File URL Session Upload Task",
+          arguments: [
+            ("request", request),
+            ("session", session),
+            ("backgroundFileCacheIdentifier", backgroundFileCacheIdentifier)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     let urlSessionTask: URLSessionUploadTask
     // If the session is background we need to save body to a file
     if !session.makesBackgroundRequests {
@@ -223,7 +286,23 @@ public extension PubNub {
     request: PublishFileRequest,
     completion: ((Result<Timetoken, Error>) -> Void)?
   ) {
-    let fileMessage = FilePublishPayload(from: file, additional: request.additionalMessage)
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "publishFile",
+          details: "Publish File",
+          arguments: [
+            ("file", file),
+            ("request", request)
+          ]
+        )
+      ), category: .pubNub
+    )
+
+    let fileMessage = FilePublishPayload(
+      from: file,
+      additional: request.additionalMessage
+    )
 
     let router = PublishRouter(
       .file(
@@ -344,6 +423,22 @@ public extension PubNub {
     uploadTask: @escaping (HTTPFileUploadTask) -> Void = { _ in },
     completion: ((Result<FileUploadSendSuccess, Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "sendFile",
+          details: "Send File",
+          arguments: [
+            ("content", content),
+            ("channel", channel),
+            ("remoteFilename", remoteFilename),
+            ("publishRequest", publishRequest),
+            ("custom", requestConfig)
+          ]
+        )
+      ), category: .pubNub
+    )
+
     // Generate a File Upload URL from PubNub
     generateFileUploadURLRequest(
       content, channel: channel, remoteFilename: remoteFilename, custom: requestConfig
@@ -413,6 +508,7 @@ public extension PubNub {
   /// - Note:The returned URL is used to download a file independent of the `PubNub` instance, and not to be used with the PubNub `download(file:downloadTo:resumeData:completion:)` function.
   ///
   /// This method doesn't make any API calls, but the URL construction might change and should not be cached
+  /// 
   /// - Parameters:
   ///   - channel: The `PubNubFile` representing the uploaded File
   ///   - fileId: Unique file identifier which has been assigned during file upload.
@@ -420,6 +516,16 @@ public extension PubNub {
   /// - Returns:The URL where the file can be downloaded
   /// - Throws: An error if the URL could be created
   func generateFileDownloadURL(channel: String, fileId: String, filename: String) throws -> URL {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "generateFileDownloadURL",
+          details: "Generate File Download URL",
+          arguments: [("channel", channel), ("fileId", fileId), ("filename", filename)]
+        )
+      ), category: .pubNub
+    )
+
     return try FileManagementRouter(
       .fetchURL(channel: channel, fileId: fileId, filename: filename),
       configuration: configuration
@@ -458,7 +564,8 @@ public extension PubNub {
       task: downloadTask,
       session: session.configuration.identifier,
       downloadTo: url,
-      cryptoModule: decrypt ?? configuration.cryptoModule
+      cryptoModule: decrypt ?? configuration.cryptoModule,
+      logger: logger
     )
 
     // Create task map inside Delegate
@@ -489,6 +596,16 @@ public extension PubNub {
     downloadTask: @escaping (HTTPFileDownloadTask) -> Void = { _ in },
     completion: ((Result<(task: HTTPFileDownloadTask, file: PubNubLocalFile), Error>) -> Void)?
   ) {
+    logger.debug(
+      .customObject(
+        .init(
+          operation: "downloadFile",
+          details: "Download File",
+          arguments: [("file", file), ("localFileURL", localFileURL), ("resumeData", resumeData)]
+        )
+      ), category: .pubNub
+    )
+
     let task: HTTPFileDownloadTask
     if let resumeData = resumeData {
       task = createFileURLSessionDownloadTask(

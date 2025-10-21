@@ -53,7 +53,8 @@ class EventEngineTests: XCTestCase {
       state: initialState,
       transition: StubTransition(),
       dispatcher: StubDispatcher(),
-      dependencies: EventEngineDependencies(value: Void())
+      dependencies: EventEngineDependencies(value: Void()),
+      logger: PubNubLogger.defaultLogger()
     )
     
     eventEngine.send(event: .event2)

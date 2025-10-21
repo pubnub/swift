@@ -112,12 +112,18 @@ extension Request {
     decoder responseDecoder: D,
     completion: @escaping (Result<EndpointResponse<D.Payload>, Error>) -> Void
   ) {
-    appendResponseCompletion { [requestID] result in
+    appendResponseCompletion { [requestID, logger] result in
       queue.async {
-        PubNub.log.debug(
-          "Deserializing response for \(requestID)",
-          category: .networking
+        logger.trace(
+          .customObject(
+            .init(
+              operation: "deserializing-response",
+              details: "Deserialisating response",
+              arguments: [("requestID", requestID)]
+            )
+          ), category: .networking
         )
+
         let deserializationResult = result.flatMap { response in
           // Decode the data response into the correct data type
           responseDecoder.decode(response: response).flatMap { decoded in
@@ -125,18 +131,29 @@ extension Request {
             responseDecoder.decrypt(response: decoded)
           }
         }
-        switch deserializationResult {
-        case .success:
-          PubNub.log.debug(
-            "Response deserialized successfully for \(requestID)",
-            category: .networking
+
+        if case let .failure(error) = deserializationResult {
+          logger.error(
+            .customObject(
+              .init(
+                operation: "deserialization-failed",
+                details: "Deserialization failed",
+                arguments: [("requestID", requestID), ("errorReason", error.pubNubError?.reason ?? "Unknown reason")]
+              )
+            ), category: .networking
           )
-        case let .failure(error):
-          PubNub.log.debug(
-            "Deserialization of content for \(requestID) failed due to \(error)",
+          logger.trace(
+            .customObject(
+              .init(
+                operation: "deserialization-failed",
+                details: "Deserialization failed",
+                arguments: [("requestID", requestID), ("error", error)]
+              )
+            ),
             category: .networking
           )
         }
+
         completion(deserializationResult)
       }
     }

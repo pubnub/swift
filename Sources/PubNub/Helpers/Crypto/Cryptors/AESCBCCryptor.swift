@@ -14,9 +14,16 @@ import CommonCrypto
 /// Provides PubNub's **recommended** ``Cryptor`` for encryption/decryption
 public struct AESCBCCryptor: Cryptor {
   private let key: Data
+  private let logger: PubNubLogger?
 
   public init(key: String) {
     self.key = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
+    self.logger = nil
+  }
+
+  init(key: Data, logger: PubNubLogger?) {
+    self.key = key
+    self.logger = logger
   }
 
   public var id: CryptorId {
@@ -96,7 +103,8 @@ public struct AESCBCCryptor: Cryptor {
         operation: .encrypt,
         input: stream,
         contentLength: contentLength,
-        with: dataForCryptoInputStream
+        with: dataForCryptoInputStream,
+        logger: logger
       )
       return .success(EncryptedStreamData(
         stream: cryptoInputStream,
@@ -146,9 +154,17 @@ public struct AESCBCCryptor: Cryptor {
       ))
     }
   }
+
+  public func clone(with logger: PubNubLogger) -> AESCBCCryptor {
+    AESCBCCryptor(key: key, logger: logger)
+  }
 }
 
 extension AESCBCCryptor: Hashable {
+  public static func == (lhs: AESCBCCryptor, rhs: AESCBCCryptor) -> Bool {
+    lhs.id == rhs.id && lhs.key == rhs.key
+  }
+
   public func hash(into hasher: inout Hasher) {
     hasher.combine(key)
     hasher.combine(id)

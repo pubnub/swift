@@ -13,7 +13,7 @@ import PubNubSDK
 import XCTest
 
 class MembershipsEndpointIntegrationTests: XCTestCase {
-  let config = PubNubConfiguration(from: Bundle(for: MembershipsEndpointIntegrationTests.self))
+  let config = PubNubConfiguration(bundle: Bundle(for: MembershipsEndpointIntegrationTests.self))
   
   func testFetchMemberships() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")

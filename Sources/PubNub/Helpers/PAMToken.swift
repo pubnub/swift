@@ -35,35 +35,24 @@ public struct PAMToken: Codable, Equatable, Hashable {
     case signature = "sig"
   }
 
-  static func token(from token: String) -> PAMToken? {
-    guard let unescapedToken = token.unescapedPAMToken else {
-      PubNub.log.warn(
-        "PAM Token `\(token)` was not able to be properly escaped.",
-        category: .pubNub
-      )
-      return nil
-    }
-
-    guard let tokenData = Data(base64Encoded: unescapedToken) else {
-      PubNub.log.warn(
-        "PAM Token `\(token)` was not a valid Base64-encoded string",
-        category: .pubNub
-      )
-      return nil
-    }
-
-    return process(tokenData)
+  enum PAMTokenError: Error {
+    case invalidEscapedToken
+    case invalidBase64EncodedToken
+    case invalidCBOR(Error)
   }
 
-  internal static func process(_ token: Data) -> PAMToken? {
+  static func token(from token: String) throws -> PAMToken {
+    guard let unescapedToken = token.unescapedPAMToken else {
+      throw PAMTokenError.invalidEscapedToken
+    }
+    guard let tokenData = Data(base64Encoded: unescapedToken) else {
+      throw PAMTokenError.invalidBase64EncodedToken
+    }
+
     do {
-      return try CBORDecoder().decode(PAMToken.self, from: token)
+      return try CBORDecoder().decode(PAMToken.self, from: tokenData)
     } catch {
-      PubNub.log.error(
-        "PAM Token `\(token.hexEncodedString)` was not valid CBOR due to: \(error.localizedDescription)",
-        category: .pubNub
-      )
-      return nil
+      throw PAMTokenError.invalidCBOR(error)
     }
   }
 }

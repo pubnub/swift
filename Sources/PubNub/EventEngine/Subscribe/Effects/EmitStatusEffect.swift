@@ -9,7 +9,7 @@
 //
 import Foundation
 
-struct EmitStatusEffect: EffectHandler {
+struct EmitStatusEffect: EffectHandler, CustomStringConvertible {
   let statusChange: Subscribe.ConnectionStatusChange
   let subscriptions: WeakSet<BaseSubscriptionListener>
 
@@ -23,5 +23,9 @@ struct EmitStatusEffect: EffectHandler {
       $0.emit(subscribe: .connectionChanged(statusChange.newStatus))
     }
     completionBlock([])
+  }
+
+  var description: String {
+    String.logDescription(of: self, arguments: [("statusChange", statusChange)])
   }
 }

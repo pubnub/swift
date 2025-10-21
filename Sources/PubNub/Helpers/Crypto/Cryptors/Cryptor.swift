@@ -87,4 +87,18 @@ public protocol Cryptor: Hashable {
   ///   - **Success**: ``InputStream`` representing decrypted content
   ///   - **Failure**: `Error` describing the reason of failure
   func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error>
+
+  /// Clones the cryptor with a new logger
+  ///
+  /// - Parameters:
+  ///   - logger: The logger to use for logging events
+  /// - Returns: A new `Cryptor` instance with the same configuration but a new logger
+  func clone(with logger: PubNubLogger) -> Self
+}
+
+/// Default implementation for `Cryptor` protocol
+public extension Cryptor {
+  func clone(with logger: PubNubLogger) -> Self {
+    self
+  }
 }

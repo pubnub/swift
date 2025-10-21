@@ -204,10 +204,6 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               customMessageType: message.customMessageType,
               error: error
             )
-            PubNub.log.warn(
-              "History message failed to decrypt due to \(error)",
-              category: .crypto
-            )
           }
         } else {
           let error = PubNubError(
@@ -222,10 +218,6 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
             messageType: message.messageType,
             customMessageType: message.customMessageType,
             error: error
-          )
-          PubNub.log.warn(
-            "History message failed to decrypt due to \(error)",
-            category: .crypto
           )
         }
       }

@@ -11,10 +11,20 @@
 import Foundation
 import os
 
-// MARK: - Log Category
+// MARK: - LogMetadata
+
+/// Lightweight routing metadata used by ``LogWriter/send(message:metadata:)`` to enable log filtering without evaluating the log message content
+public struct LogMetadata {
+  /// The severity level of the log (e.g., debug, info, warning, error)
+  public let level: LogLevel
+  /// The category to classify the log message  
+  public let category: LogCategory
+}
+
+// MARK: - LogCategory
 
 /// Reserverd PubNub log category types
-public enum LogCategory: String {
+public enum LogCategory: String, JSONCodable {
   case none = "None"
   case eventEngine = "EventEngine"
   case networking = "Networking"
@@ -22,7 +32,7 @@ public enum LogCategory: String {
   case pubNub = "PubNub"
 }
 
-// MARK: - Log Writer
+// MARK: - LogWriter
 
 /// A protocol that defines a log writer, which handles logging messages to a specific output
 public protocol LogWriter {
@@ -31,10 +41,9 @@ public protocol LogWriter {
   /// Returns the details included in a log message
   var prefix: LogPrefix { get }
 
-  /// Logs a message with the specified log type and category. 
+  /// Logs a given message
   ///
-  /// - Note: The ``PubNubLogger`` instance that contains this object will only call this method if` logType` is greater than or equal
-  ///  to its configured minimum log level.
+  /// - Note: This method is called only if the  log message's ``LogMessage/logLevel`` is not lower than the parent ``PubNubLogger`` instance's log level.
   ///
   /// - Warning: Debug-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, or internal system details.
   /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
@@ -42,9 +51,8 @@ public protocol LogWriter {
   ///
   /// - Parameters:
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.
-  ///   - logType: The severity level of the log (e.g., debug, info, warning, error).
-  ///   - category: A category to classify the log message
-  func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory: LogCategory)
+  ///   - metadata: Lightweight routing metadata for filtering and dispatching decisions
+  func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata)
 }
 
 /// A protocol responsible for dispatching a log message
@@ -78,7 +86,10 @@ public enum LogExecutionType: LogExecutable {
 // MARK: - Console Logger
 
 /// The concrete ``LogWriter`` implementation responsible for writing log messages to the console
-@available(*, deprecated, message: "Use `OSLogWriter` instead")
+@available(iOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(macOS, deprecated: 11.0, message: "Use `OSLogWriter` instead.")
+@available(tvOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(watchOS, deprecated: 6.0, message: "Use `OSLogWriter` instead.")
 public struct ConsoleLogWriter: LogWriter {
   public var sendToNSLog: Bool
   public var executor: LogExecutable
@@ -94,11 +105,11 @@ public struct ConsoleLogWriter: LogWriter {
     self.executor = executor
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     if sendToNSLog {
-      NSLog("%@", message())
+      NSLog("%@", message().description)
     } else {
-      print(message())
+      print(message().description)
     }
   }
 }
@@ -107,8 +118,13 @@ public struct ConsoleLogWriter: LogWriter {
 
 /// The concrete ``LogWriter`` implementation responsible for writing log messages to a file.
 ///
-/// - Warning: This file-based logger is designed for debugging and troubleshooting only. Avoid using it in production,  as it does not provide built-in security measures.
-/// Be aware that logs may include sensitive information (e.g., user data, API responses) when debug-level logging is enabled. If possible, prefer ``OSLogWriter`` for better performance and system integration.
+/// - Warning: This file-based logger is designed for debugging and troubleshooting only. Avoid using it in production, as it does not provide built-in security measures.
+/// Be aware that logs may include sensitive information (e.g., user data, API responses) when debug-level logging is enabled. If possible, prefer ``OSLogWriter`` for better
+/// performance and system integration.
+@available(iOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(macOS, deprecated: 11.0, message: "Use `OSLogWriter` instead.")
+@available(tvOS, deprecated: 14.0, message: "Use `OSLogWriter` instead.")
+@available(watchOS, deprecated: 6.0, message: "Use `OSLogWriter` instead.")
 open class FileLogWriter: LogWriter {
   public var executor: LogExecutable
   public var prefix: LogPrefix
@@ -150,24 +166,23 @@ open class FileLogWriter: LogWriter {
   ) {
     do {
       guard let parentDir = FileManager.default.urls(for: directory, in: domain).first else {
-        PubNub.logLog.custom(.log, "Error: Nothing found at the intersection of the domain and parent directory")
+        debugPrint("Error: Nothing found at the intersection of the domain and parent directory")
         preconditionFailure("Nothing found at the intersection of the domain and parent directory")
       }
       let logDir = parentDir.appendingPathComponent(name, isDirectory: true)
       try FileManager.default.createDirectory(at: logDir, withIntermediateDirectories: true, attributes: nil)
 
-      PubNub.logLog.custom(.log, "File log writer will output logs to: `\(logDir)`")
+      debugPrint("File log writer will output logs to: `\(logDir)`")
       self.init(logDirectory: logDir, executor: executor, prefix: prefix)
     } catch {
-      PubNub.logLog.custom(.log, "Error: Could not create logging files at location provided due to \(error)")
+      debugPrint("Error: Could not create logging files at location provided due to \(error)")
       preconditionFailure("Could not create logging files at location provided due to \(error)")
     }
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
     // If we have a cached URL then we should use it otherwise create a new file
     currentFile = createOrUpdateFile(with: "\(message()))\n")
-
     // Ensure that the max number of log files hasn't been reached
     if FileManager.default.files(in: directoryURL).count > maxLogFiles {
       if let oldest = FileManager.default.oldestFile(directoryURL) {
@@ -193,9 +208,9 @@ open class FileLogWriter: LogWriter {
     )
 
     if !create(fileURL, with: contents) {
-      PubNub.logLog.custom(.log, "Error: Failed to create log file at \(fileURL.absoluteString)")
+      debugPrint("Error: Failed to create log file at \(fileURL.absoluteString)")
     } else {
-      PubNub.logLog.custom(.log, "Created new log file at \(fileURL.absoluteString)")
+      debugPrint("Created new log file at \(fileURL.absoluteString)")
     }
 
     return fileURL
@@ -221,7 +236,7 @@ open class FileLogWriter: LogWriter {
       if stream.hasSpaceAvailable {
         let dataWritten = stream.write(dataArray, maxLength: dataArray.count)
         if dataWritten != dataArray.count {
-          PubNub.logLog.custom(.log, "Error: Data remainig to be written")
+          debugPrint("Error: Data remainig to be written")
         }
       }
     }
@@ -235,7 +250,7 @@ open class FileLogWriter: LogWriter {
     do {
       try FileManager.default.removeItem(at: file)
     } catch {
-      PubNub.logLog.custom(.log, "Error: Could not delete file at \(file) due to: \(error)")
+      debugPrint("Error: Could not delete file at \(file) due to: \(error)")
     }
   }
 }
@@ -252,29 +267,38 @@ public struct OSLogWriter: LogWriter {
     self.prefix = prefix
   }
 
-  public func send(message: @escaping @autoclosure () -> String, withType logType: LogType, withCategory category: LogCategory) {
-    let finalLogger = switch category {
+  // swiftlint:disable:next cyclomatic_complexity
+  public func send(message: @escaping @autoclosure () -> LogMessage, metadata: LogMetadata) {
+    // Select the appropriate logger based on category (without evaluating message)
+    let finalLogger = switch metadata.category {
     case .eventEngine:
       Logger.eventEngine
     case .networking:
       Logger.network
     case .pubNub:
       Logger.pubNub
+    case .crypto:
+      Logger.crypto
     default:
       Logger.defaultLogger
     }
 
-    switch logType {
-    case .debug, .all:
-      finalLogger.debug("\(message())")
-    case .log, .info, .event:
-      finalLogger.info("\(message())")
+    // Now evaluate the message only once, when we actually need to log it
+    switch metadata.level {
+    case .trace:
+      finalLogger.trace("\(message().description)")
+    case .debug:
+      finalLogger.debug("\(message().description)")
+    case .info:
+      finalLogger.info("\(message().description)")
+    case .event:
+      finalLogger.info("\(message().description)")
     case .warn:
-      finalLogger.warning("\(message())")
+      finalLogger.warning("\(message().description)")
     case .error:
-      finalLogger.error("\(message())")
+      finalLogger.error("\(message().description)")
     default:
-      finalLogger.debug("\(message())")
+      finalLogger.debug("\(message().description)")
     }
   }
 }

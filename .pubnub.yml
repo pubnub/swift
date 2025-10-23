@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.0.0"
+version: "10.0.1"
 schema: 1
 changelog:
+  - date: 2025-10-23
+    version: 10.0.1
+    changes:
+      - type: bug
+        text: "Remove redundant string joining in subscription logging."
   - date: 2025-10-21
     version: 10.0.0
     changes:
@@ -744,7 +749,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.0.0.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.0.1.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

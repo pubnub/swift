@@ -622,8 +622,8 @@ extension PubNub {
           operation: "internalSubscribe",
           details: "Triggering subscribe operation from Subscription objects",
           arguments: [
-            ("channels", channels.flatMap { $0.subscriptionNames.joined(separator: ", ") }),
-            ("channelGroups", groups.flatMap { $0.subscriptionNames.joined(separator: ", ") }),
+            ("channels", channels.flatMap { $0.subscriptionNames }),
+            ("channelGroups", groups.flatMap { $0.subscriptionNames }),
             ("timetoken", timetoken)
           ]
         )

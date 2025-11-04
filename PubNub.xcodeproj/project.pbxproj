@@ -445,6 +445,7 @@
 		3D867D1D2E422E6E00B03EEE /* KMPPAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */; };
 		3D8BAC102B8C96D70059A5C3 /* DependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */; };
 		3D9134972A1216F7000A5124 /* PubNubPushTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */; };
+		3DA04F2A2EA8C271007F5733 /* PresenceInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA04F292EA8C271007F5733 /* PresenceInputTests.swift */; };
 		3DA0C7C92BFDF538000FFE6C /* KMPPubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */; };
 		3DA0C7D02BFE59AC000FFE6C /* SubscriptionListenersContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */; };
 		3DA24A312C2AA972005B959B /* KMPPubNub+Listeners.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA24A302C2AA972005B959B /* KMPPubNub+Listeners.swift */; };
@@ -1076,6 +1077,7 @@
 		3D867D1C2E422E6E00B03EEE /* KMPPAMToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPPAMToken.swift; sourceTree = "<group>"; };
 		3D8BAC0F2B8C96D70059A5C3 /* DependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DependencyContainer.swift; sourceTree = "<group>"; };
 		3D9134962A1216F7000A5124 /* PubNubPushTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPushTargetTests.swift; sourceTree = "<group>"; };
+		3DA04F292EA8C271007F5733 /* PresenceInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceInputTests.swift; sourceTree = "<group>"; };
 		3DA0C7C82BFDF538000FFE6C /* KMPPubNub.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KMPPubNub.swift; sourceTree = "<group>"; };
 		3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionListenersContainer.swift; sourceTree = "<group>"; };
 		3DA24A302C2AA972005B959B /* KMPPubNub+Listeners.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Listeners.swift"; sourceTree = "<group>"; };
@@ -2225,6 +2227,7 @@
 				3D38A0042B35AF6A006928E7 /* HeartbeatEffectTests.swift */,
 				3D38A0052B35AF6A006928E7 /* PresenceTransitionTests.swift */,
 				3D38A0062B35AF6A006928E7 /* LeaveEffectTests.swift */,
+				3DA04F292EA8C271007F5733 /* PresenceInputTests.swift */,
 			);
 			path = Presence;
 			sourceTree = "<group>";
@@ -3317,9 +3320,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3356,9 +3363,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3803,6 +3814,7 @@
 				359152AB22BAA6730048842D /* PubNubConfigurationTests.swift in Sources */,
 				3D38A00D2B35AF6A006928E7 /* EmitMessagesTests.swift in Sources */,
 				35FE93C322EF57FA0051C455 /* Session+URLErrorTests.swift in Sources */,
+				3DA04F2A2EA8C271007F5733 /* PresenceInputTests.swift in Sources */,
 				35FE940122EF983A0051C455 /* Session+EndpointErrorTests.swift in Sources */,
 				357AEB8422E6954600C18250 /* Collection+PubNubTests.swift in Sources */,
 				35D0615223035E4300FDB2F9 /* CryptoTests.swift in Sources */,

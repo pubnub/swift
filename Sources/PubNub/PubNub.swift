@@ -140,8 +140,6 @@ public extension PubNub {
     case apns
     /// Firebase Cloud Messaging
     case fcm
-    /// Microsoft Push Notification Service
-    case mpns
 
     func stringValue() -> String {
       switch self {
@@ -151,8 +149,6 @@ public extension PubNub {
         return "fcm"
       case .apns:
         return "apns"
-      case .mpns:
-        return "mpns"
       }
     }
   }

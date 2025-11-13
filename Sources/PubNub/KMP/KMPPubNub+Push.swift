@@ -26,8 +26,6 @@ extension KMPPubNub {
       return .fcm
     case "apns", "apns2":
       return .apns
-    case "mpns":
-      return .mpns
     default:
       return nil
     }

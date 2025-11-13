@@ -15,17 +15,14 @@ import Foundation
 // snippet.end
 
 // snippet.configure-logging
-// Configure PubNub logging system
-func configureLoggingExample() {
-  let pubnub = PubNub(
-    configuration: .init(
-      publishKey: "demo",
-      subscribeKey: "demo",
-      userId: "myUniqueUserId"
-    ),
-    logger: PubNubLogger(levels: [.all])
-  )
-}
+let pubnub = PubNub(
+  configuration: .init(
+    publishKey: "demo",
+    subscribeKey: "demo",
+    userId: "myUniqueUserId"
+  ),
+  logger: PubNubLogger(levels: [.all])
+)
 // snippet.end
 
 func osLogWriterExample() {
@@ -88,19 +85,42 @@ class CustomLogWriter: LogWriter {
 }
 // snippet.end
 
-// snippet.custom-log-writer-usage
-let pubnub = PubNub(
-  configuration: .init(
-    publishKey: "demo",
-    subscribeKey: "demo",
-    userId: "myUniqueUserId"
-  ),
-  logger: PubNubLogger(
-    levels: [.all],
-    writers: [CustomLogWriter()]
+func customLogWriterUsageExample() {
+  // snippet.custom-log-writer-usage
+  let pubnub = PubNub(
+    configuration: .init(
+      publishKey: "demo",
+      subscribeKey: "demo",
+      userId: "myUniqueUserId"
+    ),
+    logger: PubNubLogger(
+      levels: [.all],
+      writers: [CustomLogWriter()]
+    )
   )
-)
-// snippet.end
+  // snippet.end
+}
+
+func combinedLogWritersUsageExample() {
+  if #available(iOS 14.0, macOS 11.0, watchOS 7.0, tvOS 14.0, *) {
+    // snippet.combined-log-writers
+    let pubnub = PubNub(
+      configuration: .init(
+        publishKey: "demo",
+        subscribeKey: "demo",
+        userId: "myUniqueUserId"
+      ),
+      logger: PubNubLogger(
+        levels: [.all],
+        writers: [
+          OSLogWriter(),     // Apple's native logging
+          CustomLogWriter()  // Your custom logger
+        ]
+      )
+    )
+    // snippet.end
+  }
+}
 
 // snippet.log-levels-all
 // Enable all logging levels - this captures everything including debug information

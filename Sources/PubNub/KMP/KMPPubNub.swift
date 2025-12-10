@@ -104,6 +104,35 @@ public extension KMPPubNub {
   }
 }
 
+// MARK: - LogLevel
+
+@objc public extension KMPPubNub {
+  var logLevel: KMPLogLevel {
+    get {
+      switch pubnub.logLevel {
+      case .none:
+        return .none
+      case .trace:
+        return KMPLogLevel.trace
+      case .debug:
+        return KMPLogLevel.debug
+      case .info:
+        return KMPLogLevel.info
+      case .event:
+        return KMPLogLevel.event
+      case .error:
+        return KMPLogLevel.error
+      case .all:
+        return KMPLogLevel.all
+      default:
+        return KMPLogLevel.none
+      }
+    } set {
+      pubnub.logLevel = LogLevel(rawValue: newValue.rawValue)
+    }
+  }
+}
+
 // MARK: - Configuration
 
 @objc
@@ -122,5 +151,15 @@ public class KMPPubNubConfiguration: NSObject {
   @objc
   public var authKey: String? {
     configuration.authKey
+  }
+
+  @objc
+  public var subscribeKey: String {
+    configuration.subscribeKey
+  }
+
+  @objc
+  public var publishKey: String? {
+    configuration.publishKey
   }
 }

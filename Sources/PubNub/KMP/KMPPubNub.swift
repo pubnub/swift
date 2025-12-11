@@ -31,15 +31,14 @@ public class KMPPubNub: NSObject {
   }
 
   @objc
-  public init(user: String, subKey: String, pubKey: String) {
+  public init(user: String, subKey: String, pubKey: String, logLevel: KMPLogLevel) {
     self.pubnub = PubNub(
-      configuration: PubNubConfiguration(
-        publishKey: pubKey,
-        subscribeKey: subKey,
-        userId: user
-      )
+      configuration: .init(publishKey: pubKey, subscribeKey: subKey, userId: user),
+      logger: .init(levels: LogLevel(rawValue: logLevel.rawValue))
     )
-    self.configObjC = KMPPubNubConfiguration(configuration: self.pubnub.configuration)
+    self.configObjC = KMPPubNubConfiguration(
+      configuration: pubnub.configuration
+    )
     super.init()
   }
 }
@@ -104,6 +103,18 @@ public extension KMPPubNub {
   }
 }
 
+// MARK: - LogLevel
+
+@objc public extension KMPPubNub {
+  var logLevel: KMPLogLevel {
+    get {
+      KMPLogLevel(rawValue: pubnub.logLevel.rawValue)
+    } set {
+      pubnub.logLevel = LogLevel(rawValue: newValue.rawValue)
+    }
+  }
+}
+
 // MARK: - Configuration
 
 @objc
@@ -122,5 +133,15 @@ public class KMPPubNubConfiguration: NSObject {
   @objc
   public var authKey: String? {
     configuration.authKey
+  }
+
+  @objc
+  public var subscribeKey: String {
+    configuration.subscribeKey
+  }
+
+  @objc
+  public var publishKey: String? {
+    configuration.publishKey
   }
 }

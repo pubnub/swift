@@ -31,10 +31,14 @@ public class KMPPubNub: NSObject {
   }
 
   @objc
-  public init(user: String, subKey: String, pubKey: String, logLevel: KMPLogLevel = .none) {
-    self.pubnub = PubNub(configuration: .init(publishKey: pubKey, subscribeKey: subKey, userId: user))
-    self.pubnub.logLevel = logLevel.toLogLevel()
-    self.configObjC = KMPPubNubConfiguration(configuration: self.pubnub.configuration)
+  public init(user: String, subKey: String, pubKey: String, logLevel: KMPLogLevel) {
+    self.pubnub = PubNub(
+      configuration: .init(publishKey: pubKey, subscribeKey: subKey, userId: user),
+      logger: .init(levels: LogLevel(rawValue: logLevel.rawValue))
+    )
+    self.configObjC = KMPPubNubConfiguration(
+      configuration: pubnub.configuration
+    )
     super.init()
   }
 }

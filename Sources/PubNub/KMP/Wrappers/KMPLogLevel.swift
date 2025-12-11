@@ -19,7 +19,7 @@ import Foundation
 
 @objc public class KMPLogLevel: NSObject {
   @objc public static let none: KMPLogLevel = .init(rawValue: LogLevel.none.rawValue)
-  @objc public static let trace: KMPLogLevel = .init(rawValue: LogLevel.info.rawValue)
+  @objc public static let trace: KMPLogLevel = .init(rawValue: LogLevel.trace.rawValue)
   @objc public static let debug: KMPLogLevel = .init(rawValue: LogLevel.debug.rawValue)
   @objc public static let info: KMPLogLevel = .init(rawValue: LogLevel.info.rawValue)
   @objc public static let event: KMPLogLevel = .init(rawValue: LogLevel.event.rawValue)

@@ -18,14 +18,14 @@
 import Foundation
 
 @objc public class KMPLogLevel: NSObject {
-  @objc public static let none: KMPLogLevel = .init(rawValue: 0)
-  @objc public static let trace: KMPLogLevel = .init(rawValue: 1 << 0)
-  @objc public static let debug: KMPLogLevel = .init(rawValue: 1 << 1)
-  @objc public static let info: KMPLogLevel = .init(rawValue: 1 << 2)
-  @objc public static let event: KMPLogLevel = .init(rawValue: 1 << 3)
-  @objc public static let warn: KMPLogLevel = .init(rawValue: 1 << 4)
-  @objc public static let error: KMPLogLevel = .init(rawValue: 1 << 5)
-  @objc public static let all: KMPLogLevel = .init(rawValue: UInt32.max)
+  @objc public static let none: KMPLogLevel = .init(rawValue: LogLevel.none.rawValue)
+  @objc public static let trace: KMPLogLevel = .init(rawValue: LogLevel.info.rawValue)
+  @objc public static let debug: KMPLogLevel = .init(rawValue: LogLevel.debug.rawValue)
+  @objc public static let info: KMPLogLevel = .init(rawValue: LogLevel.info.rawValue)
+  @objc public static let event: KMPLogLevel = .init(rawValue: LogLevel.event.rawValue)
+  @objc public static let warn: KMPLogLevel = .init(rawValue: LogLevel.warn.rawValue)
+  @objc public static let error: KMPLogLevel = .init(rawValue: LogLevel.error.rawValue)
+  @objc public static let all: KMPLogLevel = .init(rawValue: LogLevel.all.rawValue)
 
   @objc public private(set) var rawValue: UInt32
 

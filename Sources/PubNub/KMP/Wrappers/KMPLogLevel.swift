@@ -18,14 +18,14 @@
 import Foundation
 
 @objc public class KMPLogLevel: NSObject {
-  static let none: KMPLogLevel = .init(rawValue: 0)
-  static let trace: KMPLogLevel = .init(rawValue: 1 << 0)
-  static let debug: KMPLogLevel = .init(rawValue: 1 << 1)
-  static let info: KMPLogLevel = .init(rawValue: 1 << 2)
-  static let event: KMPLogLevel = .init(rawValue: 1 << 3)
-  static let warn: KMPLogLevel = .init(rawValue: 1 << 4)
-  static let error: KMPLogLevel = .init(rawValue: 1 << 5)
-  static let all: KMPLogLevel = .init(rawValue: UInt32.max)
+  @objc static let none: KMPLogLevel = .init(rawValue: 0)
+  @objc static let trace: KMPLogLevel = .init(rawValue: 1 << 0)
+  @objc static let debug: KMPLogLevel = .init(rawValue: 1 << 1)
+  @objc static let info: KMPLogLevel = .init(rawValue: 1 << 2)
+  @objc static let event: KMPLogLevel = .init(rawValue: 1 << 3)
+  @objc static let warn: KMPLogLevel = .init(rawValue: 1 << 4)
+  @objc static let error: KMPLogLevel = .init(rawValue: 1 << 5)
+  @objc static let all: KMPLogLevel = .init(rawValue: UInt32.max)
 
   var rawValue: UInt32
 

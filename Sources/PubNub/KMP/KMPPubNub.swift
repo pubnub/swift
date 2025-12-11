@@ -109,24 +109,7 @@ public extension KMPPubNub {
 @objc public extension KMPPubNub {
   var logLevel: KMPLogLevel {
     get {
-      switch pubnub.logLevel {
-      case .none:
-        return .none
-      case .trace:
-        return KMPLogLevel.trace
-      case .debug:
-        return KMPLogLevel.debug
-      case .info:
-        return KMPLogLevel.info
-      case .event:
-        return KMPLogLevel.event
-      case .error:
-        return KMPLogLevel.error
-      case .all:
-        return KMPLogLevel.all
-      default:
-        return KMPLogLevel.none
-      }
+      KMPLogLevel(rawValue: pubnub.logLevel.rawValue)
     } set {
       pubnub.logLevel = LogLevel(rawValue: newValue.rawValue)
     }

@@ -33,7 +33,9 @@ public extension KMPPubNub {
       on: channels,
       and: channelGroups,
       includeUUIDs: includeUUIDs,
-      includeState: includeState
+      includeState: includeState,
+      limit: limit,
+      offset: offset?.intValue
     ) {
       switch $0 {
       case let .success(response):

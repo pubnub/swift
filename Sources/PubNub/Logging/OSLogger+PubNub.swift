@@ -1,5 +1,5 @@
 //
-//  Logger.swift
+//  OSLogger+PubNub.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.

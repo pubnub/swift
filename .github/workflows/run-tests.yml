@@ -160,7 +160,7 @@ jobs:
         uses: ./.github/.release/actions/actions/mock-server
         with:
           token: ${{ secrets.GH_TOKEN }}
-          features-path: Tests/PubNubContractTest/Features/
+          features-path: Tests/PubNubContractTests/Features/
       - name: Preapre Xcode environment
         run: |
           bundle install --jobs=3 --retry=3

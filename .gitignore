@@ -9,7 +9,7 @@ DerivedData/
 .idea/
 
 ## Tests
-Tests/PubNubContractTest/Features/
+Tests/PubNubContractTests/Features/
 Results/
 
 ## Config files containing secret keys

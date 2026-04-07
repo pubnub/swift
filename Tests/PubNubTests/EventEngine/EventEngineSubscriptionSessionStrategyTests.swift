@@ -43,6 +43,12 @@ class EventEngineSubscriptionSessionStrategyTests: XCTestCase {
       presenceEngine: presenceEngine,
       presenceStateContainer: .shared
     )
+    
+    // Verify initial state
+    XCTAssertEqual(
+      strategy.subscribeEngine.dependencies.value.configuration.authToken,
+      "initial-token"
+    )
 
     // Simulate what PubNub.set(token:) does
     strategy.configuration.authToken = "refreshed-token"

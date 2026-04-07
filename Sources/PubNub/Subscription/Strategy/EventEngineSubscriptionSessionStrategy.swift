@@ -15,8 +15,15 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let subscribeEngine: SubscribeEngine
   let presenceEngine: PresenceEngine
   let presenceStateContainer: PubNubPresenceStateContainer
-  var configuration: PubNubConfiguration
+
   var previousTokenResponse: SubscribeCursor?
+
+  var configuration: PubNubConfiguration {
+    didSet {
+      updateSubscribeEngineDependencies()
+      updatePresenceEngineDependencies()
+    }
+  }
 
   var listeners: WeakSet<BaseSubscriptionListener> = WeakSet([]) {
     didSet {
@@ -24,6 +31,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
       updatePresenceEngineDependencies()
     }
   }
+
   var filterExpression: String? {
     didSet {
       onFilterExpressionChanged()

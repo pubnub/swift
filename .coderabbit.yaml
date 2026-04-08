@@ -25,7 +25,7 @@ reviews:
     # Review PRs automatically. Defaults to true.
     enabled: true
     # Include draft PRs. Defaults to false.
-    drafts: false
+    drafts: true
   # Configuration for finishing touches. Defaults to {}
   finishing_touches:
     # Configure docstring generation

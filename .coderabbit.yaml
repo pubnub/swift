@@ -15,7 +15,8 @@ reviews:
     - keep the summary easy to scan
 
   # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false
-  request_changes_workflow: true
+  # request_changes_workflow: true
+  
   # Include the high-level summary in the walkthrough comment. Defaults to false
   high_level_summary_in_walkthrough: true
   # Generate a poem in the walkthrough comment. Defaults to true
@@ -46,4 +47,3 @@ reviews:
     # SwiftLint integration configuration object. Defaults to {}
     swiftlint:
       enabled: true
-      config_file: .swiftlint.yml

@@ -3,17 +3,16 @@ language: "en-US"
 # Settings related to reviews:
 reviews:
   high_level_summary_instructions: |
-  
     Write a reviewer-friendly PR summary.
-	
-      - start with 1-2 short sentences describing the purpose of the PR and its net effect
-      - then provide a short bullet list covering the main behavior changes, API impact, and risks
-      - group related changes together
-      - focus on what changed and why it matters
-      - avoid low-level implementation detail
-      - omit trivial cleanup unless it affects correctness
-      - mention breaking changes explicitly
-      - keep the summary easy to scan
+
+    - start with 1-2 short sentences describing the purpose of the PR and its net effect
+    - then provide a short bullet list covering the main behavior changes, API impact, and risks
+    - group related changes together
+    - focus on what changed and why it matters
+    - avoid low-level implementation detail
+    - omit trivial cleanup unless it affects correctness
+    - mention breaking changes explicitly
+    - keep the summary easy to scan
 
   # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false
   request_changes_workflow: true

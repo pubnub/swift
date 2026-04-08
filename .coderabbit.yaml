@@ -1,30 +1,22 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
-# Enable early-access features. Defaults to false.
-early_access: false
 # Settings related to reviews:
 reviews:
-  # Set the review profile: "chill" for lighter feedback, "assertive" for more feedback. Defaults to "chill".
-  profile: "chill"
-  # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false.
-  request_changes_workflow: false
-  # Generate a high-level summary of the changes in the PR description or walkthrough. Defaults to true.
-  high_level_summary: true
-  # Include the high-level summary in the walkthrough comment. Defaults to false.
+  # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false
+  request_changes_workflow: true
+  # Include the high-level summary in the walkthrough comment. Defaults to false
   high_level_summary_in_walkthrough: true
   # Generate a poem in the walkthrough comment. Defaults to true
   poem: false
-  # Post review status messages (e.g., when a review is skipped) in the walkthrough summary comment. Defaults to true.
-  review_status: false
-  # Post review details (ignored files, extra context used, suppressed comments, etc.). Defaults to false.
-  review_details: false
-  # Include a summary of the changed files in the walkthrough. Defaults to true.
-  changed_files_summary: true
-  # Configuration for auto review. Defaults to {}.
+  # Include an estimated code review effort in the walkthrough. Defaults to true
+  estimate_code_review_effort: false
+  # Include sequence diagrams in the walkthrough. Defaults to true
+  sequence_diagrams: false
+  # Include a summary of the changed files in the walkthrough. Defaults to true
+  changed_files_summary: false
+  # Configuration for auto review. Defaults to {}
   auto_review:
-    # Review PRs automatically. Defaults to true.
-    enabled: true
-    # Include draft PRs. Defaults to false.
+    # Include draft PRs. Defaults to false
     drafts: true
   # Configuration for finishing touches. Defaults to {}
   finishing_touches:
@@ -43,6 +35,3 @@ reviews:
     swiftlint:
       enabled: true
       config_file: .swiftlint.yml
-chat:
-  # Let CodeRabbit reply automatically without requiring a mention/tag. Defaults to true.
-  auto_reply: true

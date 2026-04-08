@@ -599,17 +599,16 @@ public extension PubNub {
 }
 
 extension PubNub {
-  func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
-    subscription.registerAdapter(adapter)
+  func registerSubscription(_ sub: any SubscriptionInterface) {
+    subscription.registerSubscription(sub)
   }
 
-  func hasRegisteredAdapter(with uuid: UUID) -> Bool {
-    subscription.hasRegisteredAdapter(with: uuid)
+  func hasRegisteredSubscription(with uuid: UUID) -> Bool {
+    subscription.hasRegisteredSubscription(with: uuid)
   }
 
   func internalSubscribe(
-    with channels: [Subscription],
-    and groups: [Subscription],
+    with sub: any SubscriptionInterface,
     at timetoken: Timetoken?
   ) {
     logger.debug(
@@ -618,8 +617,8 @@ extension PubNub {
           operation: "internalSubscribe",
           details: "Triggering subscribe operation from Subscription objects",
           arguments: [
-            ("channels", channels.flatMap { $0.subscriptionNames }),
-            ("channelGroups", groups.flatMap { $0.subscriptionNames }),
+            ("channels", sub.channelNames),
+            ("channelGroups", sub.channelGroupNames),
             ("timetoken", timetoken)
           ]
         )
@@ -627,20 +626,13 @@ extension PubNub {
     )
 
     subscription.internalSubscribe(
-      with: channels,
-      and: groups,
+      with: sub,
       at: timetoken
     )
   }
 
-  func internalUnsubscribe(
-    from channels: [Subscription],
-    and groups: [Subscription]
-  ) {
-    subscription.internalUnsubscribe(
-      from: channels,
-      and: groups
-    )
+  func internalUnsubscribe(from sub: any SubscriptionInterface) {
+    subscription.internalUnsubscribe(from: sub)
   }
 }
 

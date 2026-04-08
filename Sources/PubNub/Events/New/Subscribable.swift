@@ -73,10 +73,7 @@ public extension Subscriber where Self: Subscribable {
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
   ///   - options: Additional options for configuring the subscription
-  func subscription(
-    queue: DispatchQueue = .main,
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) -> Subscription {
+  func subscription(queue: DispatchQueue = .main, options: SubscriptionOptions = .empty()) -> Subscription {
     Subscription(
       queue: queue,
       entity: self,
@@ -85,11 +82,22 @@ public extension Subscriber where Self: Subscribable {
   }
 }
 
-/// A typealias representing an interface for PubNub subscriptions.
+/// A protocol representing an interface for PubNub subscriptions.
 ///
-/// This alias combines the conformance of `EventListenerInterface` and `SubscribeCapable`.
-/// Thus, objects conforming to this type can both emit PubNub events and perform subscription-related actions.
-public typealias SubscriptionInterface = EventListenerInterface & SubscriptionDisposable & SubscribeCapable
+/// Combines the conformance of `EventListenerInterface`, `SubscribeCapable`, and `EventListenerHandler`.
+/// Objects conforming to this protocol can both emit PubNub events and perform subscription-related actions.
+public protocol SubscriptionInterface: EventListenerInterface, SubscribeCapable, EventListenerHandler {
+  /// Names of channels this subscription is listening to
+  var channelNames: [String] { get }
+  /// Names of channel groups this subscription is listening to
+  var channelGroupNames: [String] { get }
+  /// Determines whether current subscription is disposed
+  var isDisposed: Bool { get }
+  /// Stops listening to incoming events and disposes current subscription
+  func dispose()
+  /// Creates a clone of the current subscription
+  func clone() -> Self
+}
 
 /// A class representing subscription options for PubNub subscriptions.
 ///

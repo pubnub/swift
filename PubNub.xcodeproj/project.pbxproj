@@ -115,6 +115,7 @@
 		354ADA9422DCBC360093EFFB /* ResponseOperator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354ADA9322DCBC350093EFFB /* ResponseOperator.swift */; };
 		354FC4C122D04D3600318932 /* DispatchQueue+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */; };
 		3556E370248023B2004FDC25 /* BoundedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3556E36F248023B2004FDC25 /* BoundedValue.swift */; };
+		AA00000000000001AAAAAA01 /* AtomicWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000001AAAAAA02 /* AtomicWrapper.swift */; };
 		3556E37224806E33004FDC25 /* CaseAccessible.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3556E37124806E33004FDC25 /* CaseAccessible.swift */; };
 		3556E3762485936B004FDC25 /* SubscribePresencePayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3556E3752485936B004FDC25 /* SubscribePresencePayload.swift */; };
 		3557CDF6237F189E004BBACC /* ChannelGroupEndpointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35A6C79222FB93FD00E97CC5 /* ChannelGroupEndpointTests.swift */; };
@@ -477,6 +478,7 @@
 		3DB9257F2B7AA75F001B7E90 /* SubscriptionSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */; };
 		3DB925802B7AA75F001B7E90 /* PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */; };
 		3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */; };
+		3DB925A12B7AA75F001B7E90 /* BaseSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925A02B7AA75F001B7E90 /* BaseSubscription.swift */; };
 		3DB925822B7AA75F001B7E90 /* Subscribable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925742B7AA75F001B7E90 /* Subscribable.swift */; };
 		3DB925832B7AA75F001B7E90 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925752B7AA75F001B7E90 /* Subscription.swift */; };
 		3DB925842B7AA75F001B7E90 /* EventListenerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */; };
@@ -742,6 +744,7 @@
 		354D537028403B560043D61F /* Space+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Space+PubNub.swift"; sourceTree = "<group>"; };
 		354FC4C022D04D3600318932 /* DispatchQueue+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+PubNub.swift"; sourceTree = "<group>"; };
 		3556E36F248023B2004FDC25 /* BoundedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoundedValue.swift; sourceTree = "<group>"; };
+		AA00000000000001AAAAAA02 /* AtomicWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtomicWrapper.swift; sourceTree = "<group>"; };
 		3556E37124806E33004FDC25 /* CaseAccessible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseAccessible.swift; sourceTree = "<group>"; };
 		3556E373248578FE004FDC25 /* signal_message_too_large.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = signal_message_too_large.json; sourceTree = "<group>"; };
 		3556E3752485936B004FDC25 /* SubscribePresencePayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribePresencePayload.swift; sourceTree = "<group>"; };
@@ -1110,6 +1113,7 @@
 		3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSet.swift; sourceTree = "<group>"; };
 		3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEvent.swift; sourceTree = "<group>"; };
 		3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SubscribeMessagePayload+PubNubEvent.swift"; sourceTree = "<group>"; };
+		3DB925A02B7AA75F001B7E90 /* BaseSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseSubscription.swift; sourceTree = "<group>"; };
 		3DB925742B7AA75F001B7E90 /* Subscribable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribable.swift; sourceTree = "<group>"; };
 		3DB925752B7AA75F001B7E90 /* Subscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
 		3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventListenerInterface.swift; sourceTree = "<group>"; };
@@ -1373,6 +1377,7 @@
 		3556E36E24802392004FDC25 /* Property Wrappers */ = {
 			isa = PBXGroup;
 			children = (
+				AA00000000000001AAAAAA02 /* AtomicWrapper.swift */,
 				3556E36F248023B2004FDC25 /* BoundedValue.swift */,
 			);
 			path = "Property Wrappers";
@@ -2430,6 +2435,7 @@
 				3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */,
 				3DB925762B7AA75F001B7E90 /* EventListenerInterface.swift */,
 				3DB925742B7AA75F001B7E90 /* Subscribable.swift */,
+				3DB925A02B7AA75F001B7E90 /* BaseSubscription.swift */,
 				3DB925752B7AA75F001B7E90 /* Subscription.swift */,
 				3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */,
 				3DA0C7CF2BFE59AC000FFE6C /* SubscriptionListenersContainer.swift */,
@@ -3670,6 +3676,7 @@
 				3D389FE42B35AF4A006928E7 /* EventEngine.swift in Sources */,
 				35C6B6E322F515760054F242 /* SubscribeRouter.swift in Sources */,
 				3DB9257C2B7AA75F001B7E90 /* EventStream.swift in Sources */,
+				3DB925A12B7AA75F001B7E90 /* BaseSubscription.swift in Sources */,
 				3DB925832B7AA75F001B7E90 /* Subscription.swift in Sources */,
 				3D8102AA2C009AA5005E3607 /* KMPAppContextEventResult.swift in Sources */,
 				3D452B252C05DF6D008987D4 /* KMPHereNowResult.swift in Sources */,
@@ -3776,6 +3783,7 @@
 				3DA24A3B2C2AAA59005B959B /* KMPPubNub+Time.swift in Sources */,
 				35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */,
 				3556E370248023B2004FDC25 /* BoundedValue.swift in Sources */,
+				AA00000000000001AAAAAA01 /* AtomicWrapper.swift in Sources */,
 				3D1C4FF62C074BDB0030B3D6 /* KMPHashedPage.swift in Sources */,
 				35270C0323AC124800501388 /* CBORDecoder.swift in Sources */,
 				3D389FE82B35AF4A006928E7 /* SubscribeEffects.swift in Sources */,

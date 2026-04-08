@@ -47,10 +47,10 @@ class SubscriptionSetTests: XCTestCase {
 
     let allEventsExpectation = XCTestExpectation(description: "All Events")
     allEventsExpectation.assertForOverFulfill = true
-    allEventsExpectation.expectedFulfillmentCount = 2
-    
+    allEventsExpectation.expectedFulfillmentCount = 1
+
     let singleEventExpectation = XCTestExpectation(description: "Single Event")
-    singleEventExpectation.expectedFulfillmentCount = 12
+    singleEventExpectation.expectedFulfillmentCount = 11
     singleEventExpectation.assertForOverFulfill = true
     
     let subscription = pubnub.subscription(entities: [
@@ -111,18 +111,13 @@ class SubscriptionSetTests: XCTestCase {
         pubnub.channelGroup("g1"),
       ], options: ReceivePresenceEvents()
     )
-    let expectedTopology: [SubscribableType: [String]] = [
-      .channel : ["c1", "c1-pnpres", "c2", "c2-pnpres"],
-      .channelGroup: ["g1", "g1-pnpres"]
-    ]
-        
     XCTAssertEqual(
-      subscriptionSet.subscriptionTopology[.channel]!.sorted(by: <),
-      expectedTopology[.channel]!.sorted(by: <)
+      subscriptionSet.channelNames.sorted(by: <),
+      ["c1", "c1-pnpres", "c2", "c2-pnpres"].sorted(by: <)
     )
     XCTAssertEqual(
-      subscriptionSet.subscriptionTopology[.channelGroup]!.sorted(by: <),
-      expectedTopology[.channelGroup]!.sorted(by: <)
+      subscriptionSet.channelGroupNames.sorted(by: <),
+      ["g1", "g1-pnpres"].sorted(by: <)
     )
   }
   

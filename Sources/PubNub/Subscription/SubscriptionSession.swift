@@ -13,13 +13,19 @@ import Foundation
 class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   // An underlying queue to dispatch events
   let queue: DispatchQueue
-  // A unique identifier for subscription session
-  var uuid: UUID { strategy.uuid }
-  // The `Timetoken` used for the last successful subscription request
-  var previousTokenResponse: SubscribeCursor? { strategy.previousTokenResponse }
   // Additional listeners for global subscriptions
-  private let listenersContainer: SubscriptionListenersContainer = .init()
+  let listenersContainer: SubscriptionListenersContainer = .init()
 
+  // A unique identifier for subscription session
+  var uuid: UUID {
+    strategy.uuid
+  }
+  
+  // The `Timetoken` used for the last successful subscription request
+  var previousTokenResponse: SubscribeCursor? {
+    strategy.previousTokenResponse
+  }
+  
   // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {
@@ -71,6 +77,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     return statusListener
   }()
 
+  private let adapterMap: Atomic<[UUID: BaseSubscriptionListenerAdapter]> = Atomic([:])
   private let globalChannelSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
   private let globalGroupSubscriptions: Atomic<[String: Subscription]> = Atomic([:])
   private let strategy: any SubscriptionSessionStrategy
@@ -114,11 +121,23 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     and channelGroupSubscriptions: [Subscription] = [],
     at cursor: SubscribeCursor? = nil
   ) {
-    internalSubscribe(
-      with: channelSubscriptions,
-      and: channelGroupSubscriptions,
-      at: cursor?.timetoken
-    )
+    // Register adapters for all subscriptions
+    let allSubscriptions = channelSubscriptions + channelGroupSubscriptions
+    for sub in allSubscriptions {
+      registerSubscription(sub)
+    }
+
+    // Batch the strategy subscribe call with all channels/groups at once
+    let channels = channelSubscriptions.flatMap { $0.channelNames }
+    let groups = channelGroupSubscriptions.flatMap { $0.channelGroupNames }
+
+    if !channels.isEmpty || !groups.isEmpty {
+      strategy.subscribe(
+        to: channels,
+        and: groups,
+        at: SubscribeCursor(timetoken: cursor?.timetoken)
+      )
+    }
 
     let channelSubsToMerge = channelSubscriptions.reduce(
       into: [String: Subscription]()
@@ -176,10 +195,20 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
       }
     }
 
-    internalUnsubscribe(
-      from: matchingChannelsToUnsubscribe,
-      and: matchingChannelGroupsToUnsubscribe
-    )
+    // Resolve which names to unsubscribe, then deregister and batch unsubscribe
+    let allSubscriptions = matchingChannelsToUnsubscribe + matchingChannelGroupsToUnsubscribe
+    var resolvedChannels: [String] = []
+    var resolvedGroups: [String] = []
+
+    for sub in allSubscriptions {
+      resolvedChannels.append(contentsOf: resolveNamesToUnsubscribe(from: sub, type: .channel))
+      resolvedGroups.append(contentsOf: resolveNamesToUnsubscribe(from: sub, type: .channelGroup))
+      deregisterSubscription(with: sub.uuid)
+    }
+
+    if !resolvedChannels.isEmpty || !resolvedGroups.isEmpty {
+      strategy.unsubscribe(from: resolvedChannels, and: resolvedGroups)
+    }
 
     globalChannelSubscriptions.lockedWrite { currentContainer in
       channelsToUnsubscribe.forEach {
@@ -200,90 +229,87 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
 }
 
 extension SubscriptionSession {
-  func hasRegisteredAdapter(with uuid: UUID) -> Bool {
-    strategy.listeners.contains { $0?.uuid == uuid }
+  // MARK: - Adapter Management
+
+  func hasRegisteredSubscription(with uuid: UUID) -> Bool {
+    adapterMap.lockedRead { $0[uuid] != nil }
   }
 
-  // Registers a subscription adapter to translate events from a legacy listener
-  // into the new Listeners API.
-  //
-  // The provided adapter is responsible for translating events received from a legacy listener
-  // into the new Listeners API, allowing seamless integration with both new and old codebases.
-  func registerAdapter(_ adapter: BaseSubscriptionListenerAdapter) {
+  func registerSubscription(_ subscription: any SubscriptionInterface) {
+    let existingAdapter = adapterMap.lockedRead { $0[subscription.uuid] }
+    if existingAdapter != nil { return }
+
+    guard let receiver = subscription as? SubscribeMessagesReceiver else { return }
+
+    let adapter = BaseSubscriptionListenerAdapter(
+      receiver: receiver,
+      uuid: subscription.uuid,
+      queue: subscription.queue
+    )
+    adapterMap.lockedWrite { $0[subscription.uuid] = adapter }
     add(adapter)
   }
 
-  // Composes final PubNubChannel lists the user should subscribe to
-  // according to provided raw input and forwards the result to the underlying Subscription strategy.
+  func deregisterSubscription(with uuid: UUID) {
+    if let adapter = adapterMap.lockedWrite({ $0.removeValue(forKey: uuid) }) {
+      remove(adapter)
+    }
+  }
+
+  // MARK: - Internal Subscribe / Unsubscribe (new single-parameter API)
+
   func internalSubscribe(
-    with channels: [Subscription],
-    and channelGroups: [Subscription],
+    with subscription: any SubscriptionInterface,
     at timetoken: Timetoken?
   ) {
-    if channels.isEmpty, channelGroups.isEmpty {
-      return
-    }
-    for channelSubscription in channels {
-      registerAdapter(channelSubscription.adapter)
-    }
-    for groupSubscription in channelGroups {
-      registerAdapter(groupSubscription.adapter)
-    }
+    registerSubscription(subscription)
+
+    let channels = subscription.channelNames
+    let groups = subscription.channelGroupNames
+
+    if channels.isEmpty, groups.isEmpty { return }
 
     strategy.subscribe(
-      to: channels.flatMap { $0.subscriptionNames },
-      and: channelGroups.flatMap { $0.subscriptionNames },
+      to: channels,
+      and: groups,
       at: SubscribeCursor(timetoken: timetoken)
     )
   }
 
-  func internalUnsubscribe(
-    from channels: [Subscription],
-    and channelGroups: [Subscription]
-  ) {
-    let channelsToUnsubscribe = resolveItemsToUnsubscribe(from: channels)
-    let channelGroupsToUnsubscribe = resolveItemsToUnsubscribe(from: channelGroups)
+  func internalUnsubscribe(from subscription: any SubscriptionInterface) {
+    let channelsToUnsubscribe = resolveNamesToUnsubscribe(from: subscription, type: .channel)
+    let groupsToUnsubscribe = resolveNamesToUnsubscribe(from: subscription, type: .channelGroup)
 
-    for channelSubscription in channels {
-      remove(channelSubscription.adapter)
-    }
-    for channelGroupSubscription in channelGroups {
-      remove(channelGroupSubscription.adapter)
-    }
+    deregisterSubscription(with: subscription.uuid)
 
-    strategy.unsubscribe(
-      from: channelsToUnsubscribe,
-      and: channelGroupsToUnsubscribe
-    )
+    strategy.unsubscribe(from: channelsToUnsubscribe, and: groupsToUnsubscribe)
   }
 
   // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name
   // in common with the given subscription
-  func hasOverlappingSubscriptions(for subscription: Subscription) -> Bool {
-    let remainingSubscriptions = strategy.listeners.allObjects.compactMap {
-      $0 as? BaseSubscriptionListenerAdapter
-    }.filter {
-      // Exclude the subscription being checked and the internal global events listener
-      // since the global listener is not a user-triggered subscription
-      $0.uuid != subscription.uuid && $0.uuid != globalEventsListener.uuid
-    }
-    let matchingSubscriptions = remainingSubscriptions.compactMap {
-     $0.receiver
-    }.filter {
-      !Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: subscription.subscriptionNames)
+  func hasOverlappingSubscriptions(for subscription: any SubscriptionInterface) -> Bool {
+    let allNames = Set(subscription.channelNames + subscription.channelGroupNames)
+
+    let remainingAdapters = adapterMap.lockedRead { map in
+      map.filter { $0.key != subscription.uuid && $0.key != globalEventsListener.uuid }
     }
 
-    return !matchingSubscriptions.isEmpty
+    return remainingAdapters.values
+      .compactMap { $0.receiver as? (any SubscriptionInterface) }
+      .contains { receiver in
+        let receiverNames = Set(receiver.channelNames + receiver.channelGroupNames)
+        return !receiverNames.isDisjoint(with: allNames)
+      }
   }
 
-  private func resolveItemsToUnsubscribe(from subscriptions: [Subscription]) -> [String] {
-    return subscriptions.flatMap {
-      if !hasOverlappingSubscriptions(for: $0) {
-        return $0.subscriptionNames
-      } else {
-        return []
-      }
-    }
+  private func resolveNamesToUnsubscribe(
+    from subscription: any SubscriptionInterface,
+    type: SubscribableType
+  ) -> [String] {
+    let names = type == .channel ? subscription.channelNames : subscription.channelGroupNames
+    if names.isEmpty { return [] }
+    if hasOverlappingSubscriptions(for: subscription) { return [] }
+    return names
   }
 }
 
@@ -332,10 +358,6 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
-    [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
-  }
-
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     // Translates payloads into PubNub Subscibe Loop events
     let events = payloads.map { $0.asPubNubEvent() }

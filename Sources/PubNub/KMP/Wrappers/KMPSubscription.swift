@@ -64,7 +64,7 @@ public class KMPSubscription: NSObject {
       listener.onMessageAction?(KMPMessageAction(action: $0))
     }
     eventListener.onFileEvent = { [weak self] in
-      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.entity.pubnub))
+      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.pubnub))
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
@@ -156,7 +156,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func addListener(_ listener: KMPEventListener) {
-    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.entity.pubnub
+    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0 }.first?.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
 
     eventListener.onMessage = {

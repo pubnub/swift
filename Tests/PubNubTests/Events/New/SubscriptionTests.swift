@@ -224,8 +224,9 @@ class SubscriptionTests: XCTestCase {
     let subscription = channel.subscription(options: ReceivePresenceEvents())
     
     XCTAssertEqual(subscription.subscriptionNames, ["c", "c-pnpres"])
-    XCTAssertEqual(subscription.subscriptionType, .channel)
-    XCTAssertEqual(subscription.subscriptionTopology, [.channel: ["c", "c-pnpres"]])
+    XCTAssertEqual(subscription.entity.subscriptionType, .channel)
+    XCTAssertEqual(subscription.channelNames, ["c", "c-pnpres"])
+    XCTAssertEqual(subscription.channelGroupNames, [])
   }
   
   func testSubscription_ReceivePresenceEventsForChannelGroup() {
@@ -233,8 +234,9 @@ class SubscriptionTests: XCTestCase {
     let subscription = channel.subscription(options: ReceivePresenceEvents())
     
     XCTAssertEqual(subscription.subscriptionNames, ["g", "g-pnpres"])
-    XCTAssertEqual(subscription.subscriptionType, .channelGroup)
-    XCTAssertEqual(subscription.subscriptionTopology, [.channelGroup: ["g", "g-pnpres"]])
+    XCTAssertEqual(subscription.entity.subscriptionType, .channelGroup)
+    XCTAssertEqual(subscription.channelNames, [])
+    XCTAssertEqual(subscription.channelGroupNames, ["g", "g-pnpres"])
   }
   
   func testSubscription_WithListeners() {

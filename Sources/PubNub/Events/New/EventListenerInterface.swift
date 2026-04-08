@@ -155,20 +155,9 @@ public protocol EventListenerHandler {
   func removeAllListeners()
 }
 
-/// A protocol representing a type that can be utilized to dispose of a conforming object.
-public protocol SubscriptionDisposable {
-  /// Determines whether current emitter is disposed
-  var isDisposed: Bool { get }
-  /// Stops listening to incoming events and disposes current emitter
-  func dispose()
-}
-
-// `SubscribeMessagesReceiver` is an internal protocol defining a receiver for subscription messages.
-// Types that conform to this protocol are responsible for handling and processing these payloads
-// into concrete events for the user.
+/// `SubscribeMessagesReceiver` is an internal protocol defining a receiver for subscription messages. Types that
+/// conform to this protocol are responsible for handling and processing these payload iinto concrete events for the user.
 protocol SubscribeMessagesReceiver: AnyObject {
-  // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribableType: [String]] { get }
   // This method should return an array of `PubNubEvent` instances,
   // representing the concrete events for the user.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]

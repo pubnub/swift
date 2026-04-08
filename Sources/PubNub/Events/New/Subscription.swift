@@ -15,62 +15,31 @@ import Foundation
 /// Use this class to create and manage subscriptions for a specific `Subscribable` entity.
 /// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
 /// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
-public final class Subscription: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
+public final class Subscription: BaseSubscription {
+  public let entity: Subscribable
+
+  @AtomicWrapper private var timetoken: Timetoken?
+
   /// Initializes a `Subscription` object.
   ///
   /// - Parameters:
   ///   - queue: An underlying queue to dispatch events
   ///   - entity: An object that should be added to the Subscribe loop.
   ///   - options: Additional subscription options
-  public init(
-    queue: DispatchQueue = .main,
-    entity: Subscribable,
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) {
-    self.queue = queue
+  public init(queue: DispatchQueue = .main, entity: Subscribable, options: SubscriptionOptions = .empty()) {
     self.entity = entity
-    self.options = SubscriptionOptions.empty() + options
+    super.init(queue: queue, options: SubscriptionOptions.empty() + options)
   }
 
-  public let queue: DispatchQueue
-  /// A unique identifier for `Subscription`
-  public let uuid: UUID = UUID()
-  /// An underlying entity that should be added to the Subscribe loop
-  public let entity: Subscribable
-  /// Attached options
-  public let options: SubscriptionOptions
-  /// Whether current subscription is disposed or not
-  public private(set) var isDisposed = false
-  // Stores the timetoken the user subscribed with
-  private(set) var timetoken: Timetoken?
-  // Stores additional listeners
-  private let listenersContainer: SubscriptionListenersContainer = .init()
+  override func onDispose() {
+    unsubscribe()
+  }
 
-  public var onEvent: ((PubNubEvent) -> Void)?
-  public var onEvents: (([PubNubEvent]) -> Void)?
-  public var onMessage: ((PubNubMessage) -> Void)?
-  public var onSignal: ((PubNubMessage) -> Void)?
-  public var onPresence: ((PubNubPresenceChange) -> Void)?
-  public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
-  public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
-  public var onAppContext: ((PubNubAppContextEvent) -> Void)?
-
-  // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
-  lazy var adapter = BaseSubscriptionListenerAdapter(
-    receiver: self,
-    uuid: uuid,
-    queue: queue
-  )
-
-  internal var pubnub: PubNub? {
+  var pubnub: PubNub? {
     entity.pubnub
   }
 
-  internal var subscriptionType: SubscribableType {
-    entity.subscriptionType
-  }
-
-  internal var subscriptionNames: [String] {
+  var subscriptionNames: [String] {
     let hasPresenceOption = options.hasPresenceOption()
     let name = entity.name
 
@@ -83,6 +52,18 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
       return [entity.name]
     }
   }
+}
+
+// MARK: - SubscriptionInterface
+
+extension Subscription: SubscriptionInterface {
+  public var channelNames: [String] {
+    entity.subscriptionType == .channel ? subscriptionNames : []
+  }
+
+  public var channelGroupNames: [String] {
+    entity.subscriptionType == .channelGroup ? subscriptionNames : []
+  }
 
   /// Creates a clone of the current instance of `Subscription`.
   ///
@@ -94,44 +75,12 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
       entity: entity,
       options: options
     )
-    if pubnub?.hasRegisteredAdapter(with: uuid) ?? false {
-      pubnub?.registerAdapter(clonedSubscription.adapter)
+    if let pubnub = pubnub, pubnub.hasRegisteredSubscription(with: uuid) {
+      pubnub.registerSubscription(clonedSubscription)
     }
     return clonedSubscription
   }
 
-  /// Disposes the current `Subscription`, ending the subscription.
-  ///
-  /// Use this method to gracefully end the subscription and release associated resources.
-  /// Once disposed, the subscription interface cannot be restarted.
-  public func dispose() {
-    clearCallbacks()
-    unsubscribe()
-    removeAllListeners()
-    isDisposed = true
-  }
-
-  /// Adds additional subscription listener
-  public func addEventListener(_ listener: EventListener) {
-    listenersContainer.storeEventListener(listener)
-  }
-
-  /// Removes subscription listener
-  public func removeEventListener(_ listener: EventListener) {
-    listenersContainer.removeEventListener(listener)
-  }
-
-  /// Removes all event listeners
-  public func removeAllListeners() {
-    listenersContainer.removeAllEventListeners()
-  }
-
-  deinit {
-    dispose()
-  }
-}
-
-extension Subscription: SubscribeCapable {
   /// Subscribes to the associated `entity` with the specified timetoken.
   ///
   /// - Parameter timetoken: The timetoken to use for subscribing. If `nil`, the `0` value is used.
@@ -139,10 +88,7 @@ extension Subscription: SubscribeCapable {
     guard let pubnub = pubnub, !isDisposed else {
       return
     }
-    let channels = subscriptionType == .channel ? [self] : []
-    let channelGroups = subscriptionType == .channelGroup ? [self] : []
-
-    pubnub.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
+    pubnub.internalSubscribe(with: self, at: timetoken)
   }
 
   /// Unsubscribes from the associated entity, ending the PubNub subscription.
@@ -155,31 +101,15 @@ extension Subscription: SubscribeCapable {
     guard let pubnub = pubnub, !isDisposed else {
       return
     }
-    let channels = subscriptionType == .channel ? [self] : []
-    let groups = subscriptionType == .channelGroup ? [self] : []
-
-    pubnub.internalUnsubscribe(from: channels, and: groups)
-  }
-}
-
-extension Subscription: Hashable {
-  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
-    lhs.uuid == rhs.uuid
-  }
-
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(uuid)
+    pubnub.internalUnsubscribe(from: self)
   }
 }
 
 // MARK: - SubscribeMessagesReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
-    [subscriptionType: subscriptionNames]
-  }
-
-  @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
+  @discardableResult
+  func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.compactMap { event(from: $0) }
     // Emit events to the current Subscription's closures
     emit(events: events)
@@ -189,13 +119,13 @@ extension Subscription: SubscribeMessagesReceiver {
     return events
   }
 
-  func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
+  private func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
     let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
     let isMatchingEntity: Bool
 
-    if subscriptionType == .channel {
+    if entity.subscriptionType == .channel {
       isMatchingEntity = isMatchingEntityName(entity.name, string: payload.channel)
-    } else if subscriptionType == .channelGroup {
+    } else if entity.subscriptionType == .channelGroup {
       isMatchingEntity = isMatchingEntityName(entity.name, string: payload.subscription ?? payload.channel)
     } else {
       isMatchingEntity = true
@@ -209,7 +139,7 @@ extension Subscription: SubscribeMessagesReceiver {
     }
   }
 
-  fileprivate func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
+  private func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
     guard entityName.hasSuffix(".*") else {
       return entityName.trimmingPresenceChannelSuffix == string
     }

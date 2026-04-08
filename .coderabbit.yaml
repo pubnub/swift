@@ -1,0 +1,48 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+# Enable early-access features. Defaults to false.
+early_access: false
+# Settings related to reviews:
+reviews:
+  # Set the review profile: "chill" for lighter feedback, "assertive" for more feedback. Defaults to "chill".
+  profile: "chill"
+  # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false.
+  request_changes_workflow: false
+  # Generate a high-level summary of the changes in the PR description or walkthrough. Defaults to true.
+  high_level_summary: true
+  # Include the high-level summary in the walkthrough comment. Defaults to false.
+  high_level_summary_in_walkthrough: true
+  # Generate a poem in the walkthrough comment. Defaults to true
+  poem: false
+  # Post review status messages (e.g., when a review is skipped) in the walkthrough summary comment. Defaults to true.
+  review_status: false
+  # Post review details (ignored files, extra context used, suppressed comments, etc.). Defaults to false.
+  review_details: false
+  # Include a summary of the changed files in the walkthrough. Defaults to true.
+  changed_files_summary: true
+  # Configuration for auto review. Defaults to {}.
+  auto_review:
+    # Review PRs automatically. Defaults to true.
+    enabled: true
+    # Include draft PRs. Defaults to false.
+    drafts: false
+  # Configuration for finishing touches. Defaults to {}
+  finishing_touches:
+    # Configure docstring generation
+    docstrings:
+      enabled: true
+    unit_tests:
+      # Generate unit tests for changes in PRs. Defaults to true
+      enabled: false
+  # Tools that provide additional context to code reviews. Defaults to {}
+  tools:
+    # LanguageTool is a style and grammar checker for 30+ languages. Defaults to {}
+    languagetool:
+      enabled: true
+    # SwiftLint integration configuration object. Defaults to {}
+    swiftlint:
+      enabled: true
+      config_file: .swiftlint.yml
+chat:
+  # Let CodeRabbit reply automatically without requiring a mention/tag. Defaults to true.
+  auto_reply: true

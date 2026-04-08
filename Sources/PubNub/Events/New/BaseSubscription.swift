@@ -17,10 +17,10 @@ public class BaseSubscription: EventListenerInterface, EventListenerHandler, Has
   public let queue: DispatchQueue
   public let uuid: UUID = UUID()
   public let options: SubscriptionOptions
- 
+
   let listenersContainer: SubscriptionListenersContainer = .init()
   let isBeingDisposed: Atomic<Bool> = .init(false)
-  
+
   public var onEvent: ((PubNubEvent) -> Void)?
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?

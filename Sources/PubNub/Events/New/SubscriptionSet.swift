@@ -32,7 +32,7 @@ public final class SubscriptionSet: BaseSubscription {
   ) {
     self.currentSubscriptions = Atomic(entities.map { .init(queue: queue, entity: $0, options: options) })
     super.init(queue: queue, options: SubscriptionOptions.empty() + options)
-   
+
     assert(
       Self.belongToSamePubNub(currentSubscriptions.lockedRead { $0 }),
       "All entities in a SubscriptionSet must belong to the same PubNub instance"
@@ -52,7 +52,7 @@ public final class SubscriptionSet: BaseSubscription {
   ) {
     self.currentSubscriptions = Atomic(subscriptions)
     super.init(queue: queue, options: options)
-    
+
     assert(
       Self.belongToSamePubNub(subscriptions),
       "All subscriptions in a SubscriptionSet must belong to the same PubNub instance"

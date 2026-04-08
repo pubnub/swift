@@ -20,12 +20,12 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   var uuid: UUID {
     strategy.uuid
   }
-  
+
   // The `Timetoken` used for the last successful subscription request
   var previousTokenResponse: SubscribeCursor? {
     strategy.previousTokenResponse
   }
-  
+
   // PSV2 feature to subscribe with a custom filter expression.
   var filterExpression: String? {
     get {

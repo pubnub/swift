@@ -66,7 +66,9 @@ public final class SubscriptionSet: BaseSubscription {
   /// Adds a subscription to the existing set of subscriptions.
   ///
   /// - Parameters:
-  ///   - subscription: Subscription to add
+  /// Adds a child subscription to the set if it is not already present and is compatible with the existing subscriptions.
+  /// Performs the addition in a thread-safe manner; if a subscription with the same `uuid` already exists or the subscription is not compatible with the current PubNub instance, the call is a no-op.
+  /// - Parameter subscription: The `Subscription` to add; ignored when a subscription with the same `uuid` exists or when it would violate the single-PubNub-instance constraint.
   public func add(subscription: Subscription) {
     currentSubscriptions.lockedWrite {
       guard !$0.contains(where: { $0.uuid == subscription.uuid }) else { return }
@@ -78,7 +80,9 @@ public final class SubscriptionSet: BaseSubscription {
   /// Adds a collection of subscriptions to the existing set.
   ///
   /// - Parameters:
-  ///   - subscriptions: List of subscriptions to add
+  /// Adds the given subscriptions to this set, ignoring duplicates and any subscriptions that cannot be added.
+  /// - Parameters:
+  ///   - subscriptions: An array of subscriptions to add. Subscriptions with a UUID already present in the set are ignored; subscriptions that would violate the "same PubNub instance" constraint are also skipped.
   public func add(subscriptions: [Subscription]) {
     currentSubscriptions.lockedWrite { current in
       for subscription in subscriptions {
@@ -92,7 +96,8 @@ public final class SubscriptionSet: BaseSubscription {
   /// Removes a subscription from the existing set of subscriptions.
   ///
   /// - Parameters:
-  ///   - subscription: Subscription to remove
+  /// Removes any child subscriptions that have the same `uuid` as the provided subscription.
+  /// - Parameter subscription: The subscription whose `uuid` is used to identify and remove matching children; no changes occur if no match is found.
   public func remove(subscription: Subscription) {
     currentSubscriptions.lockedWrite {
       $0.removeAll(where: { $0.uuid == subscription.uuid })
@@ -102,7 +107,9 @@ public final class SubscriptionSet: BaseSubscription {
   /// Removes a collection of subscriptions from the existing set.
   ///
   /// - Parameters:
-  ///   - subscriptions: Collection of subscriptions to remove
+  /// Removes child subscriptions whose UUIDs match any in the provided array.
+  /// - Parameters:
+  ///   - subscriptions: Subscriptions to remove; any child with a matching `uuid` will be removed. The removal is performed with a thread-safe write to the internal storage.
   public func remove(subscriptions: [Subscription]) {
     currentSubscriptions.lockedWrite { current in
       let uuidsToRemove = Set(subscriptions.map { $0.uuid })
@@ -110,17 +117,27 @@ public final class SubscriptionSet: BaseSubscription {
     }
   }
 
+  /// Performs cleanup when the subscription set is disposed by unsubscribing from the service and disposing each child subscription.
+  /// 
+  /// This method is invoked as part of the disposal lifecycle to cancel active subscriptions and release child resources.
   override func onDispose() {
     unsubscribe()
     currentSubscriptions.lockedRead { $0 }.forEach { $0.dispose() }
   }
 
-  // MARK: - Validation
+  /// Check whether the given subscriptions reference at most one PubNub instance.
+  /// - Parameter subscriptions: The subscriptions to inspect; subscriptions with no associated `pubnub` are ignored.
+  /// - Returns: `true` if zero or one distinct `pubnub.instanceID` is found among the subscriptions, `false` otherwise.
 
   private static func belongToSamePubNub(_ subscriptions: [Subscription]) -> Bool {
     Set(subscriptions.compactMap { $0.pubnub?.instanceID }).count <= 1
   }
 
+  /// Determine whether a subscription may be added to an existing collection by ensuring PubNub instance consistency.
+  /// - Parameters:
+  ///   - subscription: The subscription proposed for addition.
+  ///   - existing: The current list of subscriptions to compare against.
+  /// - Returns: `true` if either side lacks a `PubNub` reference or both subscriptions belong to the same `PubNub` instance; `false` otherwise. When `false`, an assertionFailure is triggered.
   private static func canAdd(_ subscription: Subscription, to existing: [Subscription]) -> Bool {
     guard let existingPubNub = existing.first?.pubnub, let newPubNub = subscription.pubnub else {
       return true
@@ -147,7 +164,8 @@ extension SubscriptionSet: SubscriptionInterface {
   /// Creates a clone of the current instance of `SubscriptionSet`.
   ///
   /// Use this method to create a new instance with the same configuration as the current `SubscriptionSet`.
-  /// The clone is a separate instance that can be used independently.
+  /// Creates a copy of the subscription set with cloned child subscriptions.
+  /// - Returns: A new `SubscriptionSet` containing clones of the current children. If the original set is registered with a `PubNub` instance, the cloned set will be registered with that same instance.
   public func clone() -> SubscriptionSet {
     let clonedChildren = currentSubscriptions.lockedRead { $0 }.map { $0.clone() }
 
@@ -169,7 +187,10 @@ extension SubscriptionSet: SubscriptionInterface {
   /// If a timetoken is provided, it represents the starting point for the subscription.
   /// Otherwise, the `0` timetoken is used.
   ///
-  /// - Parameter timetoken: The timetoken to use for the subscriptions
+  /// Subscribes this subscription set with its associated PubNub instance using the given timetoken.
+  /// 
+  /// If there is no associated `PubNub` instance or this subscription set has been disposed, this method does nothing.
+  /// - Parameter timetoken: The timetoken to use when subscribing; pass `nil` to subscribe without providing a timetoken.
   public func subscribe(with timetoken: Timetoken?) {
     guard let pubnub = pubnub, !isDisposed else { return }
     pubnub.internalSubscribe(with: self, at: timetoken)
@@ -180,7 +201,8 @@ extension SubscriptionSet: SubscriptionInterface {
   /// and the entities will be deregistered from the Subscribe loop.
   ///
   /// Use this method to gracefully end all subscriptions and stop receiving messages for all
-  /// associated entities. After unsubscribing, the subscription set can be restarted if needed.
+  /// Unsubscribes this subscription set from its associated PubNub client.
+  /// - Note: If the set is not registered with a PubNub client or has been disposed, this is a no-op.
   public func unsubscribe() {
     guard let pubnub = pubnub, !isDisposed else { return }
     pubnub.internalUnsubscribe(from: self)
@@ -190,6 +212,9 @@ extension SubscriptionSet: SubscriptionInterface {
 // MARK: - SubscribeMessagesReceiver
 
 extension SubscriptionSet: SubscribeMessagesReceiver {
+  /// Processes incoming subscribe message payloads through each child subscription, filters the resulting events using the subscription set's options, emits the aggregated events to the set's closures and attached listeners, and returns them.
+  /// - Parameter payloads: The subscribe message payloads to be dispatched to child subscriptions.
+  /// - Returns: An array of `PubNubEvent` produced by child subscriptions after applying the subscription set's filter criteria.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let children = currentSubscriptions.lockedRead { $0 }
 

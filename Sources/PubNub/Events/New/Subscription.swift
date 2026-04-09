@@ -31,6 +31,7 @@ public final class Subscription: BaseSubscription {
     super.init(queue: queue, options: SubscriptionOptions.empty() + options)
   }
 
+  /// Unsubscribes the subscription when it is disposed.
   override func onDispose() {
     unsubscribe()
   }
@@ -68,7 +69,10 @@ extension Subscription: SubscriptionInterface {
   /// Creates a clone of the current instance of `Subscription`.
   ///
   /// Use this method to create a new instance with the same configuration as the current `Subscription`.
-  /// The clone is a separate instance that can be used independently.
+  /// Creates a copy of the subscription preserving its queue, entity, and options.
+  ///
+  /// If the original subscription is registered with a `PubNub` instance, the cloned subscription will be registered with the same `PubNub`.
+  /// - Returns: A new `Subscription` configured with the same `queue`, `entity`, and `options`.
   public func clone() -> Subscription {
     let clonedSubscription = Subscription(
       queue: queue,
@@ -83,7 +87,10 @@ extension Subscription: SubscriptionInterface {
 
   /// Subscribes to the associated `entity` with the specified timetoken.
   ///
-  /// - Parameter timetoken: The timetoken to use for subscribing. If `nil`, the `0` value is used.
+  /// Starts receiving events for this subscription's entity beginning at the specified timetoken.
+  /// If the subscription has been disposed or there is no associated `PubNub` instance, this call has no effect.
+  /// - Parameters:
+  ///   - timetoken: The timetoken to begin subscribing from. Pass `nil` to let the service determine the starting position.
   public func subscribe(with timetoken: Timetoken?) {
     guard let pubnub = pubnub, !isDisposed else {
       return
@@ -96,7 +103,9 @@ extension Subscription: SubscriptionInterface {
   /// Use this method to gracefully end the subscription and stop receiving messages for the associated entity.
   /// If there are no remaining subscriptions that match the associated entity, the unsubscribe action will be performed,
   /// and the entity will be deregistered from the Subscribe loop. After unsubscribing, the subscription interface
-  /// can be restarted if needed.
+  /// Cancels this subscription with the associated PubNub client.
+  /// 
+  /// If the subscription has no associated `PubNub` instance or has already been disposed, this method does nothing.
   public func unsubscribe() {
     guard let pubnub = pubnub, !isDisposed else {
       return
@@ -108,6 +117,9 @@ extension Subscription: SubscriptionInterface {
 // MARK: - SubscribeMessagesReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
+  /// Processes incoming subscribe message payloads and emits the resulting events to this subscription and its attached listeners.
+  /// - Parameter payloads: The received subscribe message payloads to convert and emit.
+  /// - Returns: The array of `PubNubEvent` instances that were emitted.
   @discardableResult
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     let events = payloads.compactMap { event(from: $0) }
@@ -119,6 +131,10 @@ extension Subscription: SubscribeMessagesReceiver {
     return events
   }
 
+  /// Converts a received subscribe payload into a `PubNubEvent` when it belongs to this subscription and satisfies timing and filter criteria.
+  /// 
+  /// The payload is accepted only if its publish timetoken is greater than or equal to the subscription's stored timetoken and the payload's channel/subscription matches this subscription's entity. If accepted, the payload is converted to a `PubNubEvent` and returned only when it satisfies the subscription's filter criteria.
+  /// - Returns: The `PubNubEvent` created from `payload` if it matches the subscription and filter criteria, `nil` otherwise.
   private func event(from payload: SubscribeMessagePayload) -> PubNubEvent? {
     let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
     let isMatchingEntity: Bool
@@ -139,6 +155,14 @@ extension Subscription: SubscribeMessagesReceiver {
     }
   }
 
+  /// Determines whether the subscription entity name matches the given string, supporting a trailing `.*` wildcard.
+  /// 
+  /// If `entityName` does not end with `.*`, compares `entityName` (after trimming any presence-channel suffix) for exact equality with `string`.
+  /// If `entityName` ends with `.*`, compares the prefix of both names up to their last `.` and returns `true` when those prefixes are equal.
+  /// - Parameters:
+  ///   - entityName: The subscription entity name; may end with `.*` to indicate a wildcard match or include a presence-channel suffix.
+  ///   - string: The candidate channel or subscription string to match against.
+  /// - Returns: `true` when `string` matches `entityName` according to the rules above, `false` otherwise.
   private func isMatchingEntityName(_ entityName: String, string: String) -> Bool {
     guard entityName.hasSuffix(".*") else {
       return entityName.trimmingPresenceChannelSuffix == string

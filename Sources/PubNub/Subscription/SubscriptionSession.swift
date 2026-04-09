@@ -114,7 +114,13 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     strategy.connectionStatus
   }
 
-  // MARK: - Subscription Loop
+  /// Subscribes to the provided channel and channel-group subscriptions, registers their adapters, and merges them into the session's global subscription tracking.
+  /// 
+  /// Registers adapters for each subscription, calls the underlying subscription strategy with the combined channel and group names (using `cursor`'s timetoken if provided), and updates the session's global channel/group subscription maps.
+  /// - Parameters:
+  ///   - channelSubscriptions: Subscriptions for individual channels to subscribe to and register.
+  ///   - channelGroupSubscriptions: Subscriptions for channel groups to subscribe to and register.
+  ///   - cursor: Optional subscribe cursor whose `timetoken` is used as the starting point for the subscribe call.
 
   func subscribe(
     to channelSubscriptions: [Subscription],
@@ -175,7 +181,12 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
     strategy.disconnect()
   }
 
-  // MARK: - Unsubscribe
+  /// Unsubscribes the session from the given channels and channel groups, deregistering any associated subscription adapters and updating internal subscription state.
+  /// 
+  /// The provided names are expanded to include their presence counterparts when applicable; matching tracked `Subscription` objects are found and each is deregistered. Resolved channel and group names are passed to the underlying `strategy.unsubscribe(...)`, and the corresponding entries are removed from the session's global subscription maps.
+  /// - Parameters:
+  ///   - channels: Channel names to unsubscribe from. Each name will be expanded to include its presence channel if it is not already a presence name.
+  ///   - channelGroups: Channel group names to unsubscribe from. Each name will be expanded to include its presence group if it is not already a presence name.
 
   func unsubscribe(
     from channels: [String],
@@ -229,12 +240,16 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
 }
 
 extension SubscriptionSession {
-  // MARK: - Adapter Management
+  /// Checks whether a subscription adapter is registered for the given subscription UUID.
+  /// - Parameter uuid: The UUID of the subscription to look up.
+  /// - Returns: `true` if a subscription adapter with the given UUID is registered, `false` otherwise.
 
   func hasRegisteredSubscription(with uuid: UUID) -> Bool {
     adapterMap.lockedRead { $0[uuid] != nil }
   }
 
+  /// Registers a subscription's message receiver with the session so incoming subscribe messages are delivered to session listeners.
+  /// - Parameter subscription: The subscription to register. If a registration for the subscription's UUID already exists or the subscription does not conform to `SubscribeMessagesReceiver`, this call has no effect.
   func registerSubscription(_ subscription: any SubscriptionInterface) {
     let existingAdapter = adapterMap.lockedRead { $0[subscription.uuid] }
     if existingAdapter != nil { return }
@@ -250,13 +265,18 @@ extension SubscriptionSession {
     add(adapter)
   }
 
+  /// Removes the subscription adapter identified by `uuid` and unregisters it from the session if present.
+  /// - Parameter uuid: The UUID of the subscription whose adapter should be removed.
   func deregisterSubscription(with uuid: UUID) {
     if let adapter = adapterMap.lockedWrite({ $0.removeValue(forKey: uuid) }) {
       remove(adapter)
     }
   }
 
-  // MARK: - Internal Subscribe / Unsubscribe (new single-parameter API)
+  /// Registers the subscription's listener adapter and subscribes to the subscription's channels and channel groups.
+  /// - Parameters:
+  ///   - subscription: The subscription whose channel and channel group names will be registered and subscribed to.
+  ///   - timetoken: An optional timetoken used to construct the subscribe cursor; if `nil`, subscription starts from the strategy's default cursor.
 
   func internalSubscribe(
     with subscription: any SubscriptionInterface,
@@ -276,6 +296,9 @@ extension SubscriptionSession {
     )
   }
 
+  /// Unregisters the given subscription's adapter and requests unsubscribe for the subscription's resolved channel and channel-group names.
+  /// - Parameters:
+  ///   - subscription: The subscription to remove and unsubscribe.
   func internalUnsubscribe(from subscription: any SubscriptionInterface) {
     let channelsToUnsubscribe = resolveNamesToUnsubscribe(from: subscription, type: .channel)
     let groupsToUnsubscribe = resolveNamesToUnsubscribe(from: subscription, type: .channelGroup)
@@ -286,7 +309,10 @@ extension SubscriptionSession {
   }
 
   // Returns a boolean indicating whether there are subscription objects that subscribe to at least one name
-  // in common with the given subscription
+  /// Determines whether the given subscription shares any channel or channel-group name with other registered subscriptions.
+  /// - Parameters:
+  ///   - subscription: The subscription whose channel and channel-group names will be checked for overlap with other registered subscriptions.
+  /// - Returns: `true` if at least one other registered subscription shares a channel or channel-group name with `subscription`, `false` otherwise.
   func hasOverlappingSubscriptions(for subscription: any SubscriptionInterface) -> Bool {
     let allNames = Set(subscription.channelNames + subscription.channelGroupNames)
 
@@ -302,6 +328,13 @@ extension SubscriptionSession {
       }
   }
 
+  /// Selects which channel or channel-group names from a subscription should be unsubscribed.
+  /// 
+  /// Returns the subscription's names for the specified `type` unless the list is empty or other active subscriptions overlap those names.
+  /// - Parameters:
+  ///   - subscription: The subscription to evaluate.
+  ///   - type: The subscribable type (`.channel` or `.channelGroup`) whose names to resolve.
+  /// - Returns: An array of names to unsubscribe for the given `type`; returns an empty array if there are no names of that type or if other subscriptions share those names.
   private func resolveNamesToUnsubscribe(
     from subscription: any SubscriptionInterface,
     type: SubscribableType
@@ -358,6 +391,10 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
+  /// Converts incoming subscribe payloads into `PubNubEvent` objects and dispatches them to the session and its registered listeners.
+  /// - Parameters:
+  ///   - payloads: The raw subscribe message payloads to process.
+  /// - Returns: The array of `PubNubEvent` objects produced from the provided payloads.
   func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
     // Translates payloads into PubNub Subscibe Loop events
     let events = payloads.map { $0.asPubNubEvent() }

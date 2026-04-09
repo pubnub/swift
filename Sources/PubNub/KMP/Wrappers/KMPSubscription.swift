@@ -46,6 +46,9 @@ public class KMPSubscription: NSObject {
     subscription.dispose()
   }
 
+  /// Registers a KMPEventListener to receive events forwarded from the underlying subscription.
+  /// - Parameters:
+  ///   - listener: The listener whose callback properties will be invoked when subscription events occur. File events are forwarded as `KMPFileChangeEvent` created with the subscription's `pubnub` instance.
   @objc
   public func addListener(_ listener: KMPEventListener) {
     let eventListener = EventListener(
@@ -154,6 +157,10 @@ public class KMPSubscriptionSet: NSObject {
     subscriptionSet.dispose()
   }
 
+  /// Registers an event listener that forwards subscription events to the provided `KMPEventListener`.
+  /// The listener will receive message, signal, presence, message action, file, and app context events from the underlying subscription set.
+  /// - Parameters:
+  ///   - listener: The `KMPEventListener` to receive forwarded events.
   @objc
   public func addListener(_ listener: KMPEventListener) {
     let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0 }.first?.pubnub

@@ -599,14 +599,23 @@ public extension PubNub {
 }
 
 extension PubNub {
+  /// Registers an internal subscription wrapper with the instance's subscription manager.
+  /// - Parameter sub: The `SubscriptionInterface` instance to register so it will receive subscription updates and events.
   func registerSubscription(_ sub: any SubscriptionInterface) {
     subscription.registerSubscription(sub)
   }
 
+  /// Checks whether a subscription with the given UUID is registered.
+  /// - Parameter uuid: The UUID of the subscription to look up.
+  /// - Returns: `true` if a subscription with the specified UUID is registered, `false` otherwise.
   func hasRegisteredSubscription(with uuid: UUID) -> Bool {
     subscription.hasRegisteredSubscription(with: uuid)
   }
 
+  /// Requests the internal subscription session to subscribe using the provided subscription descriptor and optional timetoken.
+  /// - Parameters:
+  ///   - sub: A `SubscriptionInterface` describing the channels and channel groups to subscribe to.
+  ///   - timetoken: An optional timetoken indicating the point from which to start or resume the subscription.
   func internalSubscribe(
     with sub: any SubscriptionInterface,
     at timetoken: Timetoken?
@@ -631,6 +640,9 @@ extension PubNub {
     )
   }
 
+  /// Requests removal of the specified subscription from the internal subscription session.
+  /// - Parameters:
+  ///   - sub: The `SubscriptionInterface` instance to unsubscribe.
   func internalUnsubscribe(from sub: any SubscriptionInterface) {
     subscription.internalUnsubscribe(from: sub)
   }

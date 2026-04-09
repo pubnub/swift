@@ -72,7 +72,11 @@ public extension Subscriber where Self: Subscribable {
   ///
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
-  ///   - options: Additional options for configuring the subscription
+  /// Creates a Subscription that delivers events on the specified queue using the provided options.
+  /// - Parameters:
+  ///   - queue: The dispatch queue on which subscription events will be delivered.
+  ///   - options: Configuration options that modify subscription behavior.
+  /// - Returns: A `Subscription` configured for this subscriber that delivers events on `queue` using `options`.
   func subscription(queue: DispatchQueue = .main, options: SubscriptionOptions = .empty()) -> Subscription {
     Subscription(
       queue: queue,

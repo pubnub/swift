@@ -16,6 +16,7 @@ reviews:
     - skip trivial cleanup, test adjustments, and config file additions unless they affect correctness
     - do not include a "Why it matters" or motivation section — the opening sentences already cover this
     - flag breaking changes inline (e.g., "**Breaking:** ...") instead of giving them a separate section
+    - wrap all code symbols (classes, protocols, methods, properties, types) in backticks (e.g., `BaseSubscription`, `dispose()`)
 
   # Automatically approve once CodeRabbit's comments are resolved and no pre-merge checks are failing. Defaults to false
   # request_changes_workflow: true

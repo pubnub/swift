@@ -1167,6 +1167,23 @@
 		3DD6AB112F879B34004196D1 /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
 		3DD6AB122F879C05004196D1 /* run-swiftlint.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "run-swiftlint.sh"; sourceTree = "<group>"; };
 		3DD6AB142F879C05004196D1 /* settings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = settings.json; sourceTree = "<group>"; };
+		3DD6AB4C2F87F8A8004196D1 /* access-manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "access-manager.swift"; sourceTree = "<group>"; };
+		3DD6AB4E2F87F8A8004196D1 /* app-context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "app-context.swift"; sourceTree = "<group>"; };
+		3DD6AB502F87F8A8004196D1 /* channel-group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "channel-group.swift"; sourceTree = "<group>"; };
+		3DD6AB522F87F8A8004196D1 /* configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = configuration.swift; sourceTree = "<group>"; };
+		3DD6AB542F87F8A8004196D1 /* entities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = entities.swift; sourceTree = "<group>"; };
+		3DD6AB562F87F8A8004196D1 /* files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = files.swift; sourceTree = "<group>"; };
+		3DD6AB582F87F8A8004196D1 /* history.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = history.swift; sourceTree = "<group>"; };
+		3DD6AB5A2F87F8A8004196D1 /* listeners-old.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "listeners-old.swift"; sourceTree = "<group>"; };
+		3DD6AB5C2F87F8A8004196D1 /* logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = logging.swift; sourceTree = "<group>"; };
+		3DD6AB5E2F87F8A8004196D1 /* message-actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "message-actions.swift"; sourceTree = "<group>"; };
+		3DD6AB602F87F8A8004196D1 /* misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = misc.swift; sourceTree = "<group>"; };
+		3DD6AB622F87F8A8004196D1 /* presence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = presence.swift; sourceTree = "<group>"; };
+		3DD6AB642F87F8A8004196D1 /* publish.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = publish.swift; sourceTree = "<group>"; };
+		3DD6AB662F87F8A8004196D1 /* pubnub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pubnub.swift; sourceTree = "<group>"; };
+		3DD6AB682F87F8A8004196D1 /* push-notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "push-notifications.swift"; sourceTree = "<group>"; };
+		3DD6AB6A2F87F8A8004196D1 /* subscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = subscriptions.swift; sourceTree = "<group>"; };
+		3DD6AB6C2F87F8A8004196D1 /* subscribe-unsubscribe-old.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "subscribe-unsubscribe-old.swift"; sourceTree = "<group>"; };
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		3DEA72382F869CF80007BCD5 /* EventEngineSubscriptionSessionStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineSubscriptionSessionStrategyTests.swift; sourceTree = "<group>"; };
 		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
@@ -2518,6 +2535,166 @@
 			path = .claude;
 			sourceTree = "<group>";
 		};
+		3DD6AB4D2F87F8A8004196D1 /* AccessManager */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB4C2F87F8A8004196D1 /* access-manager.swift */,
+			);
+			path = AccessManager;
+			sourceTree = "<group>";
+		};
+		3DD6AB4F2F87F8A8004196D1 /* AppContext */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB4E2F87F8A8004196D1 /* app-context.swift */,
+			);
+			path = AppContext;
+			sourceTree = "<group>";
+		};
+		3DD6AB512F87F8A8004196D1 /* ChannelGroup */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB502F87F8A8004196D1 /* channel-group.swift */,
+			);
+			path = ChannelGroup;
+			sourceTree = "<group>";
+		};
+		3DD6AB532F87F8A8004196D1 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB522F87F8A8004196D1 /* configuration.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		3DD6AB552F87F8A8004196D1 /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB542F87F8A8004196D1 /* entities.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		3DD6AB572F87F8A8004196D1 /* Files */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB562F87F8A8004196D1 /* files.swift */,
+			);
+			path = Files;
+			sourceTree = "<group>";
+		};
+		3DD6AB592F87F8A8004196D1 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB582F87F8A8004196D1 /* history.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		3DD6AB5B2F87F8A8004196D1 /* ListenersOld */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB5A2F87F8A8004196D1 /* listeners-old.swift */,
+			);
+			path = ListenersOld;
+			sourceTree = "<group>";
+		};
+		3DD6AB5D2F87F8A8004196D1 /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB5C2F87F8A8004196D1 /* logging.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
+		3DD6AB5F2F87F8A8004196D1 /* MessageActions */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB5E2F87F8A8004196D1 /* message-actions.swift */,
+			);
+			path = MessageActions;
+			sourceTree = "<group>";
+		};
+		3DD6AB612F87F8A8004196D1 /* Misc */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB602F87F8A8004196D1 /* misc.swift */,
+			);
+			path = Misc;
+			sourceTree = "<group>";
+		};
+		3DD6AB632F87F8A8004196D1 /* Presence */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB622F87F8A8004196D1 /* presence.swift */,
+			);
+			path = Presence;
+			sourceTree = "<group>";
+		};
+		3DD6AB652F87F8A8004196D1 /* Publish */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB642F87F8A8004196D1 /* publish.swift */,
+			);
+			path = Publish;
+			sourceTree = "<group>";
+		};
+		3DD6AB672F87F8A8004196D1 /* PubNub */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB662F87F8A8004196D1 /* pubnub.swift */,
+			);
+			path = PubNub;
+			sourceTree = "<group>";
+		};
+		3DD6AB692F87F8A8004196D1 /* Push */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB682F87F8A8004196D1 /* push-notifications.swift */,
+			);
+			path = Push;
+			sourceTree = "<group>";
+		};
+		3DD6AB6B2F87F8A8004196D1 /* SubscribeNew */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB6A2F87F8A8004196D1 /* subscriptions.swift */,
+			);
+			path = SubscribeNew;
+			sourceTree = "<group>";
+		};
+		3DD6AB6D2F87F8A8004196D1 /* SubscribeOld */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB6C2F87F8A8004196D1 /* subscribe-unsubscribe-old.swift */,
+			);
+			path = SubscribeOld;
+			sourceTree = "<group>";
+		};
+		3DD6AB6E2F87F8A8004196D1 /* Snippets */ = {
+			isa = PBXGroup;
+			children = (
+				3DD6AB4D2F87F8A8004196D1 /* AccessManager */,
+				3DD6AB4F2F87F8A8004196D1 /* AppContext */,
+				3DD6AB512F87F8A8004196D1 /* ChannelGroup */,
+				3DD6AB532F87F8A8004196D1 /* Configuration */,
+				3DD6AB552F87F8A8004196D1 /* Entities */,
+				3DD6AB572F87F8A8004196D1 /* Files */,
+				3DD6AB592F87F8A8004196D1 /* History */,
+				3DD6AB5B2F87F8A8004196D1 /* ListenersOld */,
+				3DD6AB5D2F87F8A8004196D1 /* Logging */,
+				3DD6AB5F2F87F8A8004196D1 /* MessageActions */,
+				3DD6AB612F87F8A8004196D1 /* Misc */,
+				3DD6AB632F87F8A8004196D1 /* Presence */,
+				3DD6AB652F87F8A8004196D1 /* Publish */,
+				3DD6AB672F87F8A8004196D1 /* PubNub */,
+				3DD6AB692F87F8A8004196D1 /* Push */,
+				3DD6AB6B2F87F8A8004196D1 /* SubscribeNew */,
+				3DD6AB6D2F87F8A8004196D1 /* SubscribeOld */,
+			);
+			path = Snippets;
+			sourceTree = "<group>";
+		};
 		3DF00D000000000000000001 /* JSON */ = {
 			isa = PBXGroup;
 			children = (
@@ -2770,6 +2947,7 @@
 				358B8922284D209200DB0F3D /* PubNubUser */,
 				35F0258D22BAC21E007BD7D3 /* Documentation */,
 				35EA73F622B1916800D97BF0 /* Deployment */,
+				3DD6AB6E2F87F8A8004196D1 /* Snippets */,
 				OBJ_7 /* Sources */,
 				OBJ_12 /* Tests */,
 				OBJ_17 /* Products */,

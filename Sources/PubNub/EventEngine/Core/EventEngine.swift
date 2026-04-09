@@ -20,6 +20,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
   private let recursiveLock = NSRecursiveLock()
   private let logger: PubNubLogger
   private var internalStateContainer: State
+  private var internalDependencies: EventEngineDependencies<Input>
 
   private(set) var state: State {
     get {
@@ -33,7 +34,18 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     }
   }
 
-  var dependencies: EventEngineDependencies<Input>
+  var dependencies: EventEngineDependencies<Input> {
+    get {
+      recursiveLock.lock()
+      defer { recursiveLock.unlock() }
+      return internalDependencies
+    } set {
+      recursiveLock.lock()
+      defer { recursiveLock.unlock() }
+      internalDependencies = newValue
+    }
+  }
+
   var onStateUpdated: ((State) -> Void)?
 
   init(
@@ -48,7 +60,7 @@ class EventEngine<State, Event, Invocation: AnyEffectInvocation, Input> {
     self.onStateUpdated = onStateUpdated
     self.transition = transition
     self.dispatcher = dispatcher
-    self.dependencies = dependencies
+    self.internalDependencies = dependencies
     self.logger = logger
   }
 

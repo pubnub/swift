@@ -89,7 +89,6 @@ struct FileManagementRouter: HTTPRouter {
       // swiftlint:disable:next line_length
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     case let .delete(channel, fileId, filename):
-      // swiftlint:disable:next line_length
       path = "/v1/files/\(subscribeKey)/channels/\(channel.urlEncodeSlash)/files/\(fileId.urlEncodeSlash)/\(filename.urlEncodeSlash)"
     }
     return .success(path)

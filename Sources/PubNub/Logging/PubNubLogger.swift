@@ -14,7 +14,7 @@ import Foundation
 public struct LogPrefix: OptionSet, Equatable, Hashable {
   public let rawValue: UInt32
 
-  // Reserverd Prefix Types
+  // Reserved Prefix Types
   public static let none = LogPrefix([])
   public static let level = LogPrefix(rawValue: 1 << 0)
   public static let date = LogPrefix(rawValue: 1 << 1)
@@ -233,6 +233,7 @@ public final class PubNubLogger {
   ) {
     send(
       .warn,
+      category: category,
       message: message(),
       date: date,
       queue: queue,

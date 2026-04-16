@@ -59,7 +59,7 @@ public class PubNub {
 
   init(container: DependencyContainer) {
     self.instanceID = container.instanceID
-    self.logger = container.logger.clone(withPubNubInstanceId: container.instanceID)
+    self.logger = container.logger
     self.configuration = container.configuration
     self.subscription = container.subscriptionSession
     self.networkSession = container.defaultHTTPSession

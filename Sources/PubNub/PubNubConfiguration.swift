@@ -232,7 +232,7 @@ public struct PubNubConfiguration: Hashable {
   ///   - cipherKey: If set, all communication will be encrypted with this key
   ///   - authKey: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
   ///   - authToken: If Access Manager (PAM) is enabled, client will use  `authToken` instead of `authKey` on all requests
-  ///   - useSecureConnections: The PubNub Publish Key to be used when publishing data to a channel
+  ///   - useSecureConnections: If true, requests will be made over `https`, otherwise they will use `http`
   ///   - origin: Full origin (`subdomain`.`domain`) used for requests
   ///   - useInstanceId: Whether a PubNub object instanceId should be included on outgoing requests
   ///   - useRequestId: Whether a request identifier should be included on outgoing requests

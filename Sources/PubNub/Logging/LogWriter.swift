@@ -23,7 +23,7 @@ public struct LogMetadata {
 
 // MARK: - LogCategory
 
-/// Reserverd PubNub log category types
+/// Reserved PubNub log category types
 public enum LogCategory: String, JSONCodable {
   case none = "None"
   case eventEngine = "EventEngine"

@@ -149,7 +149,7 @@ class EventEngineSubscriptionSessionStrategy: SubscriptionSessionStrategy {
         $0.emit(subscribe: .subscriptionChanged(
           .subscribed(
             channels: diff.addedChannels.map { PubNubChannel(channel: $0) }.consolidated(),
-            groups: diff.removedChannels.map { PubNubChannel(channel: $0) }.consolidated()
+            groups: diff.addedChannelGroups.map { PubNubChannel(channel: $0) }.consolidated()
           ))
         )
       }

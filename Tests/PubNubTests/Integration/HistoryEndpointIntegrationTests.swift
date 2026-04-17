@@ -224,6 +224,72 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     
     wait(for: [historyExpect], timeout: 15.0)
   }
+
+  func testFetchWithActions_Encrypted_PreservesActions() throws {
+    let channel = randomString()
+    let actionType = "reaction"
+    let actionValue = "smiley_face"
+
+    // Configure a client with CryptoModule enabled
+    var cryptoConfig = config
+    cryptoConfig.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "testCipherKey")
+    let client = PubNub(configuration: cryptoConfig)
+
+    let historyExpect = expectation(description: "History with Actions")
+
+    // 1. Publish an encrypted message
+    client.publish(channel: channel, message: "EncryptedHello") { [unowned client] publishResult in
+      switch publishResult {
+      case let .success(messageTimetoken):
+        // 2. Add a message action to the published message
+        client.addMessageAction(
+          channel: channel,
+          type: actionType,
+          value: actionValue,
+          messageTimetoken: messageTimetoken
+        ) { [unowned client] actionResult in
+          switch actionResult {
+          case .success:
+            // 3. Fetch history with actions using the same CryptoModule-enabled client
+            client.fetchMessageHistory(
+              for: [channel],
+              includeActions: true
+            ) { historyResult in
+              switch historyResult {
+              case let .success((messagesByChannel, _)):
+                let messages = messagesByChannel[channel]
+                XCTAssertEqual(messages?.count, 1)
+                XCTAssertEqual(messages?.first?.payload.stringOptional, "EncryptedHello")
+                XCTAssertEqual(messages?.first?.actions.count, 1)
+                XCTAssertEqual(messages?.first?.actions.first?.actionType, actionType)
+                XCTAssertEqual(messages?.first?.actions.first?.actionValue, actionValue)
+              case let .failure(error):
+                XCTFail("Failed to fetch history: \(error)")
+              }
+              historyExpect.fulfill()
+            }
+          case let .failure(error):
+            XCTFail("Failed to add message action: \(error)")
+            historyExpect.fulfill()
+          }
+        }
+      case let .failure(error):
+        XCTFail("Failed to publish: \(error)")
+        historyExpect.fulfill()
+      }
+    }
+
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channel,
+          completion: $0
+        )
+      }
+    }
+
+    wait(for: [historyExpect], timeout: 10.0)
+  }
 }
 
 // MARK: - Channel Population

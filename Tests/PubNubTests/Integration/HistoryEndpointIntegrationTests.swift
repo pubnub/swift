@@ -225,7 +225,7 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     wait(for: [historyExpect], timeout: 15.0)
   }
 
-  func testFetchWithActions_Encrypted_PreservesActions() throws {
+  func testFetchHistoryWithActions_CryptoModuleEnabled() throws {
     let channel = randomString()
     let actionType = "reaction"
     let actionValue = "smiley_face"

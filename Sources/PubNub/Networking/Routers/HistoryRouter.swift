@@ -192,6 +192,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               uuid: message.uuid,
               messageType: message.messageType,
               customMessageType: message.customMessageType,
+              actions: message.actions,
               error: nil
             )
           case .failure(let error):
@@ -202,6 +203,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
               uuid: message.uuid,
               messageType: message.messageType,
               customMessageType: message.customMessageType,
+              actions: message.actions,
               error: error
             )
           }
@@ -217,6 +219,7 @@ struct MessageHistoryResponseDecoder: ResponseDecoder {
             uuid: message.uuid,
             messageType: message.messageType,
             customMessageType: message.customMessageType,
+            actions: message.actions,
             error: error
           )
         }

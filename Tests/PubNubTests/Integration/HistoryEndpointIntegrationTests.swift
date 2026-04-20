@@ -224,6 +224,60 @@ class HistoryEndpointIntegrationTests: XCTestCase {
     
     wait(for: [historyExpect], timeout: 15.0)
   }
+
+  func testFetchHistoryWithActions_CryptoModuleEnabled() throws {
+    let channel = randomString()
+    let actionType = "reaction"
+    let actionValue = "smiley_face"
+
+    // Configure a client with CryptoModule enabled
+    var cryptoConfig = config
+    cryptoConfig.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "testCipherKey")
+    let client = PubNub(configuration: cryptoConfig)
+
+    let historyExpect = expectation(description: "History with Actions")
+
+    // 1. Publish an encrypted message and add a message action
+    client.publishWithMessageAction(
+      channel: channel,
+      message: "EncryptedHello",
+      actionType: actionType,
+      actionValue: actionValue
+    ) { [unowned client] publishResult in
+      switch publishResult {
+      case .success:
+        // 2. Fetch history with actions using the same CryptoModule-enabled client
+        client.fetchMessageHistory(for: [channel], includeActions: true) { historyResult in
+          switch historyResult {
+          case let .success((messagesByChannel, _)):
+            let messages = messagesByChannel[channel]
+            XCTAssertEqual(messages?.count, 1)
+            XCTAssertEqual(messages?.first?.payload.stringOptional, "EncryptedHello")
+            XCTAssertEqual(messages?.first?.actions.count, 1)
+            XCTAssertEqual(messages?.first?.actions.first?.actionType, actionType)
+            XCTAssertEqual(messages?.first?.actions.first?.actionValue, actionValue)
+          case let .failure(error):
+            XCTFail("Failed to fetch history: \(error)")
+          }
+          historyExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed to publish with message action: \(error)")
+        historyExpect.fulfill()
+      }
+    }
+
+    defer {
+      waitForCompletion {
+        client.deleteMessageHistory(
+          from: channel,
+          completion: $0
+        )
+      }
+    }
+
+    wait(for: [historyExpect], timeout: 10.0)
+  }
 }
 
 // MARK: - Channel Population

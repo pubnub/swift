@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.3"
+version: "10.1.4"
 schema: 1
 changelog:
+  - date: 2026-04-17
+    version: 10.1.4
+    changes:
+      - type: bug
+        text: "Fixed an issue where message actions were silently dropped from history responses when CryptoModule was enabled."
   - date: 2026-04-08
     version: 10.1.3
     changes:
@@ -769,7 +774,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.3.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.4.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

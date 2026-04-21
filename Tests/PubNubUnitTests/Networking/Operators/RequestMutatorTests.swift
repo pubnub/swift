@@ -38,7 +38,7 @@ class RequestMutatorTests: XCTestCase {
     var mutator = MutatorExpector(all: &expectations)
     mutator.mutateRequest = { request in
       var newRequest = request
-      newRequest.url = request.url?.appending(queryItems: [newAuth])
+      newRequest.url = request.url?.appendingQueryItems([newAuth])
       return .success(newRequest)
     }
 

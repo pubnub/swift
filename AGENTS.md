@@ -28,23 +28,37 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ## Architecture Notes
 
-### Dependency Injection
-
-`DependencyContainer` in `Sources/PubNub/DependencyContainer/` uses a key-based registry pattern. Dependencies conform to `DependencyKey` and are resolved with `.container`, `.weak`, or `.transient` storage behavior.
-
 ### Networking
 
-- Routers in `Sources/PubNub/Networking/Routers/` build PubNub API requests.
-- `HTTPSession` and related types handle execution, retry behavior, and response parsing.
-- `SessionReplaceable`, `URLSessionReplaceable`, and `RequestReplaceable` are the main extension and test seams.
+- Routers in `Sources/PubNub/Networking/Routers/` build `URLRequest`s, `HTTPSession` executes them, and response decoders in `Networking/Response/` handle parsing.
+- Retry logic lives in `Request`.
 
-### Event Engine and Subscribe
+### Event Engine
 
-- `Sources/PubNub/EventEngine/` contains the shared state-machine infrastructure for Subscribe and Presence flows.
-- Subscribe-related implementation lives under `Sources/PubNub/Subscribe/`.
-- `Sources/PubNub/Networking/Session/SessionStream.swift` is transport instrumentation, not subscribe-domain API.
+- `Sources/PubNub/EventEngine/` contains the shared state-machine infrastructure.
+- Subscribe implementation lives under `Sources/PubNub/EventEngine/Subscribe/` and `Sources/PubNub/Subscribe/`.
+- Presence heartbeat and leave logic lives under `Sources/PubNub/EventEngine/Presence/`.
 
-## Validation
+## Testing
+
+### Unit Tests (`Tests/PubNubUnitTests/`)
+
+- The only test target in `Package.swift` (`PubNubTests`). Run with `swift test`.
+- Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
+- JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
+- Helpers in `Tests/PubNubUnitTests/Support/`.
+
+### Integration Tests (`Tests/PubNubIntegrationTests/`)
+
+- Require real PubNub API keys loaded from `PubNubTests_Info.plist`.
+- Make actual network requests. Run through Xcode / Fastlane only (not `swift test`).
+- Helpers in `Tests/PubNubIntegrationTests/Support/`.
+
+### Contract Tests (`Tests/PubNubContractTests/`)
+
+- CI-managed BDD tests using Cucumberish; do not modify without coordination.
+
+### Validation
 
 Use the smallest relevant validation step first.
 

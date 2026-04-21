@@ -26,6 +26,13 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 - `fastlane/` — CI and release automation
 - `PubNub.xcodeproj` / `PubNub.xcworkspace` — Xcode project and workspace
 
+## Dependencies
+
+- The SDK has zero external production dependencies. Do not add any.
+- Distribution is supported via SPM (primary), CocoaPods, and Carthage.
+- The only test dependency is Cucumberish (CocoaPods, for contract tests).
+- Platform minimums: iOS 12+, macOS 10.15+, tvOS 12+, watchOS 4+, visionOS 1+. Swift 5.9+.
+
 ## Architecture Notes
 
 ### Networking
@@ -75,7 +82,7 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 ## Editing Rules
 
 - Preserve existing PubNub copyright headers.
-- Keep `Snippets/` aligned with public API changes.
+- Snippets in `Snippets/{Area}/` use `// snippet.<id>` / `// snippet.end` markers for doc tooling. Keep markers intact and add snippets for new public API.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.
 - If you change repository structure, test targets, or validation commands, update this file in the same change.

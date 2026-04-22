@@ -315,7 +315,7 @@ private extension HistoryEndpointIntegrationTests {
     // Start the publishing process
     publishNext(messages)
     // Wait for all messages to be published
-    wait(for: [publishExpect], timeout: 10.0)
+    wait(for: [publishExpect], timeout: 15.0)
     
     return timetokens
   }

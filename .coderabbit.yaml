@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en
+early_access: false
+
+reviews:
+  request_changes_workflow: true
+  poem: false
+  high_level_summary_in_walkthrough: true
+  estimate_code_review_effort: false
+  sequence_diagrams: false
+  changed_files_summary: false
+  path_filters:
+    - '!**/.build/**'
+    - '!**/xcuserdata/**'
+    - '!**/*.xcuserstate'
+    - '!**/*.xcworkspacedata'
+    - '!Tests/PubNubUnitTests/Support/Responses/**/*.json'
+    - '!Tests/PubNubUnitTests/Support/Responses/**/*.txt'
+    - '!Examples/**/*.storyboard'
+    - '!Examples/**/*.plist'
+    - '!Examples/**/*.xcworkspacedata'
+    - '!Examples/**/Package.resolved'
+  path_instructions:
+    - path: 'Sources/**/*.swift'
+      instructions: |
+        Review this as production Swift library code.
+
+        Swift best practices to check:
+        - Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
+        - Avoid force unwraps and other crash-prone patterns unless they are provably safe and justified.
+        - Prefer `if let` / `guard let` shorthand when unwrapping and shadowing the same optional, unless the explicit form is clearer.
+        - Preserve clear ownership and lifecycle behavior; flag likely retain cycles, leaked observers, and long-lived captured references.
+        - Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.
+        - Prefer clear, idiomatic Swift naming and small focused types/functions over overly clever abstractions.
+        - Flag duplicated logic, dead code, and abstractions that add complexity without a real boundary or testability benefit.
+        - Preserve useful error information; do not ignore failures or replace specific errors with vague ones.
+        - Watch for hot-path inefficiencies such as repeated allocations, avoidable copying, and unnecessary collection transformations.
+
+    - path: 'Sources/PubNub/PubNub.swift'
+      instructions: |
+        Review this as public SDK API surface exposed through `PubNub`.
+
+        Focus on:
+        - Consistency with existing `PubNub` API patterns, naming, parameter semantics, and overload design.
+        - Completion and callback behavior, especially around async results, threading expectations, and error delivery.
+        - Access control: avoid exposing APIs, types, members, or initializers wider than needed.
+        - Public-facing doc comments should stay accurate and aligned with current behavior, parameters, defaults, and callback semantics.
+        - Breaking changes to public API or behavior should be explicit, justified, and reflected in tests, snippets, and documentation.
+
+    - path: 'Sources/PubNub/APIs/**/*.swift'
+      instructions: |
+        Review this as public SDK API surface exposed through `PubNub`.
+
+        Focus on:
+        - Consistency with existing `PubNub` API patterns, naming, parameter semantics, and overload design.
+        - Completion and callback behavior, especially around async results, threading expectations, and error delivery.
+        - Access control: avoid exposing APIs, types, members, or initializers wider than needed.
+        - Public-facing doc comments should stay accurate and aligned with current behavior, parameters, defaults, and callback semantics.
+        - Breaking changes to public API or behavior should be explicit, justified, and reflected in tests, snippets, and documentation.
+
+    - path: 'Tests/**/*.swift'
+      instructions: |
+        Review this as Swift SDK test code.
+
+        Focus on:
+        - Test names should clearly describe the scenario and expected outcome.
+        - Prefer a clear Arrange-Act-Assert structure when practical.
+        - Cover edge cases and failure paths introduced by the change.
+        - Keep tests deterministic and isolated; avoid hidden shared state, order dependence, and timing-sensitive assertions.
+        - Prefer focused tests over broad tests that verify many behaviors at once.
+
+    - path: 'Tests/PubNubUnitTests/**/*.swift'
+      instructions: |
+        Review this as Swift unit test code.
+
+        Focus on:
+        - Unit tests should stay fast, deterministic, and isolated.
+        - Mock external interactions instead of relying on real network behavior.
+        - Prefer tests that verify behavior without depending on incidental implementation details.
+        - Use assertions that clearly validate the intended behavior and failure mode.
+
+    - path: 'Tests/PubNubIntegrationTests/**/*.swift'
+      instructions: |
+        Review this as Swift integration test code.
+
+        Focus on:
+        - Validate real end-to-end SDK behavior against PubNub services.
+        - Use the same module imports that SDK customers would use; do not rely on `@testable import`.
+        - Avoid making integration coverage redundant with unit tests when behavior can be validated more cheaply in unit tests.
+        - Watch for flaky behavior, missing cleanup, and hidden environment dependencies.
+
+    - path: 'Package.swift'
+      instructions: |
+        Review this as customer-facing Swift Package Manager integration metadata.
+
+        Focus on:
+        - Keep platform versions, products, targets, and source layout aligned with the actual project.
+        - Flag package metadata that drifts from the SDK's real supported platforms or public package surface.
+
+    - path: 'Snippets/**/*.swift'
+      instructions: |
+        Review this as documentation snippet code intended for SDK users.
+
+        Focus on:
+        - Snippets should use current public SDK APIs and recommended usage patterns.
+        - Keep examples clear, minimal, and easy for users to adapt.
+        - Public-facing comments should stay accurate and aligned with current released behavior.
+        - Do not introduce internal-only, unreleased, or misleading usage patterns.
+        - Preserve `// snippet.<id>` and `// snippet.end` markers required by documentation tooling.
+
+  tools:
+    languagetool:
+      enabled: true
+    swiftlint:
+      enabled: true
+      config_file: '.swiftlint.yml'

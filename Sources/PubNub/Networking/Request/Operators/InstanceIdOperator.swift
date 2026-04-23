@@ -23,8 +23,8 @@ public struct InstanceIdOperator: RequestOperator {
   ) {
     var mutatedRequest = urlRequest
     mutatedRequest.url = mutatedRequest.url?
-      .appending(queryItems: [URLQueryItem(name: InstanceIdOperator.instanceIDKey,
-                                           value: instanceID)])
+      .appendingQueryItems([URLQueryItem(name: InstanceIdOperator.instanceIDKey,
+                                        value: instanceID)])
 
     completion(.success(mutatedRequest))
   }

@@ -67,7 +67,8 @@ let package = Package(
     ),
     .testTarget(
       name: "PubNubTests",
-      dependencies: ["PubNubSDK"]
+      dependencies: ["PubNubSDK"],
+      path: "Tests/PubNubUnitTests"
     )
   ],
   swiftLanguageVersions: [.v5]

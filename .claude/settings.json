@@ -1,0 +1,44 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/run-swiftlint.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(swift build:*)",
+      "Bash(swift package:*)",
+      "Bash(swift test:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(xcrun simctl:*)",
+      "Bash(xcrun swift:*)",
+      "Bash(bundle exec fastlane:*)",
+      "Bash(bundle install)",
+      "Bash(bundle update:*)",
+      "Bash(gem list:*)",
+      "Bash(gem search:*)",
+      "Bash(swiftlint:*)",
+      "Bash(swiftformat:*)",
+      "Bash(ls:*)",
+      "Bash(which:*)",
+      "Bash(man:*)",
+      "Bash(pod install:*)",
+      "Bash(pod update:*)",
+      "Bash(pod outdated:*)",
+      "Bash(pod list:*)",
+      "Bash(pod search:*)",
+      "Bash(pod spec:*)",
+      "Bash(pod lib lint:*)",
+      "Bash(pod repo list:*)",
+      "Bash(pod env)"
+    ]
+  }
+}

@@ -72,7 +72,7 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
 public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public let rawValue: UInt32
 
-  // Reserverd Prefix Types
+  // Reserved Prefix Types
   public static let none = PAMPermission(rawValue: 0 << 0)
 
   public static let read = PAMPermission(rawValue: 1 << 0) // 1

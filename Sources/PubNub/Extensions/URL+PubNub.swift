@@ -22,11 +22,11 @@ import Foundation
 #endif
 
 public extension URL {
-  /// Appends a news query items to an existing URL
+  /// Appends new query items to an existing URL
   /// - parameters:
   ///   - queryItems: The `URLQueryItem` collection to append
   /// - returns: A new URL with the provided query items or nil if the appending failed
-  func appending(queryItems: [URLQueryItem]) -> URL? {
+  func appendingQueryItems(_ queryItems: [URLQueryItem]) -> URL? {
     var urlComponents = URLComponents(string: absoluteString)
 
     if urlComponents?.queryItems != nil {

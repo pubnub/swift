@@ -1,9 +1,18 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.4"
+version: "10.1.5"
 schema: 1
 changelog:
+  - date: 2026-04-22
+    version: 10.1.5
+    changes:
+      - type: bug
+        text: "Forward missing `category` parameter when PubNub internally logs a warning message."
+      - type: bug
+        text: "Fix wrong channel groups reported in the local `subscriptionChanged(.subscribed)` event."
+      - type: bug
+        text: "Rename `URL.appending(queryItems:)` to `appendingQueryItems(_:)` to resolve ambiguity with the same method Apple added to Foundation."
   - date: 2026-04-17
     version: 10.1.4
     changes:
@@ -774,7 +783,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.4.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.5.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

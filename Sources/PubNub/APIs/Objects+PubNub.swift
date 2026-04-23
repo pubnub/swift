@@ -1619,5 +1619,4 @@ public extension PubNub {
       })
     }
   }
-  // swiftlint:disable:next file_length
 }

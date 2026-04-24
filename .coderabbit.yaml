@@ -11,7 +11,7 @@ knowledge_base:
 reviews:
   in_progress_fortune: false
   poem: false
-  request_changes_workflow: true
+  request_changes_workflow: false
   high_level_summary: true
   high_level_summary_in_walkthrough: true
   high_level_summary_instructions: |

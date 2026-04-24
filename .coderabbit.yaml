@@ -64,9 +64,8 @@ reviews:
 
     - path: 'Tests/PubNubUnitTests/**/*.swift'
       instructions: |
-        Review this as Swift unit test code.
+        Test-specific best practices to check:
 
-        Focus on:
         - Keep unit tests fast, deterministic, and isolated.
         - Mock external interactions instead of relying on real network behavior.
         - Prefer tests that verify behavior without depending on incidental implementation details.

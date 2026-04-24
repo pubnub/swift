@@ -2,18 +2,24 @@
 language: en
 early_access: false
 
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - '**/CODING_STANDARDS.md'
+
 reviews:
   in_progress_fortune: false
   poem: false
   request_changes_workflow: true
   high_level_summary: true
-  high_level_summary_in_walkthrough: false
+  high_level_summary_in_walkthrough: true
   high_level_summary_instructions: |
     Structure the summary into three sections: Context, Changes, and Notes.
 
     ## Context
     A short paragraph (no more than 3-4 sentences) explaining what the PR
-    accomplishes, why the change was made, and any relevant context a reviewer
+    accomplishes, why the change was made, and any relevant context a maintainer
     should know upfront. Do not simply restate the PR title — infer the
     purpose from the actual changes.
 
@@ -45,60 +51,23 @@ reviews:
     - '!Examples/**/*.xcworkspacedata'
     - '!Examples/**/Package.resolved'
   path_instructions:
-    - path: 'Sources/**/*.swift'
-      instructions: |
-        Review this as production Swift library code.
-
-        Swift best practices to check:
-        - Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
-        - Avoid force unwraps and other crash-prone patterns unless they are provably safe and justified.
-        - Prefer `if let` / `guard let` shorthand when unwrapping and shadowing the same optional, unless the explicit form is clearer.
-        - Preserve clear ownership and lifecycle behavior; flag likely retain cycles, leaked observers, and long-lived captured references.
-        - Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.
-        - Prefer clear, idiomatic Swift naming and small focused types/functions over overly clever abstractions.
-        - Flag duplicated logic, dead code, and abstractions that add complexity without a real boundary or testability benefit.
-        - Preserve useful error information; do not ignore failures or replace specific errors with vague ones.
-        - Watch for hot-path inefficiencies such as repeated allocations, avoidable copying, and unnecessary collection transformations.
-
-    - path: 'Sources/PubNub/PubNub.swift'
+    - path: 'Sources/PubNub/{PubNub.swift,APIs/**/*.swift}'
       instructions: |
         Review this as public SDK API surface exposed through `PubNub`.
 
         Focus on:
-        - Consistency with existing `PubNub` API patterns, naming, parameter semantics, and overload design.
-        - Completion and callback behavior, especially around async results, threading expectations, and error delivery.
-        - Access control: avoid exposing APIs, types, members, or initializers wider than needed.
-        - Public-facing doc comments should stay accurate and aligned with current behavior, parameters, defaults, and callback semantics.
-        - Breaking changes to public API or behavior should be explicit, justified, and reflected in tests, snippets, and documentation.
-
-    - path: 'Sources/PubNub/APIs/**/*.swift'
-      instructions: |
-        Review this as public SDK API surface exposed through `PubNub`.
-
-        Focus on:
-        - Consistency with existing `PubNub` API patterns, naming, parameter semantics, and overload design.
-        - Completion and callback behavior, especially around async results, threading expectations, and error delivery.
-        - Access control: avoid exposing APIs, types, members, or initializers wider than needed.
-        - Public-facing doc comments should stay accurate and aligned with current behavior, parameters, defaults, and callback semantics.
-        - Breaking changes to public API or behavior should be explicit, justified, and reflected in tests, snippets, and documentation.
-
-    - path: 'Tests/**/*.swift'
-      instructions: |
-        Review this as Swift SDK test code.
-
-        Focus on:
-        - Test names should clearly describe the scenario and expected outcome.
-        - Prefer a clear Arrange-Act-Assert structure when practical.
-        - Cover edge cases and failure paths introduced by the change.
-        - Keep tests deterministic and isolated; avoid hidden shared state, order dependence, and timing-sensitive assertions.
-        - Prefer focused tests over broad tests that verify many behaviors at once.
+        - Keep API patterns, naming, parameter semantics, and overload design consistent with the existing `PubNub` surface.
+        - Check completion and callback behavior, especially around async results, threading expectations, and error delivery.
+        - Avoid exposing APIs, types, members, or initializers wider than needed.
+        - Keep public-facing doc comments accurate and aligned with current behavior, parameters, defaults, and callback semantics.
+        - Make breaking changes to public API or behavior explicit, justified, and reflected in tests, snippets, and documentation.
 
     - path: 'Tests/PubNubUnitTests/**/*.swift'
       instructions: |
         Review this as Swift unit test code.
 
         Focus on:
-        - Unit tests should stay fast, deterministic, and isolated.
+        - Keep unit tests fast, deterministic, and isolated.
         - Mock external interactions instead of relying on real network behavior.
         - Prefer tests that verify behavior without depending on incidental implementation details.
         - Use assertions that clearly validate the intended behavior and failure mode.
@@ -126,9 +95,9 @@ reviews:
         Review this as documentation snippet code intended for SDK users.
 
         Focus on:
-        - Snippets should use current public SDK APIs and recommended usage patterns.
+        - Use current public SDK APIs and recommended usage patterns.
         - Keep examples clear, minimal, and easy for users to adapt.
-        - Public-facing comments should stay accurate and aligned with current released behavior.
+        - Keep public-facing comments accurate and aligned with current released behavior.
         - Do not introduce internal-only, unreleased, or misleading usage patterns.
         - Preserve `// snippet.<id>` and `// snippet.end` markers required by documentation tooling.
 
@@ -141,7 +110,7 @@ reviews:
       enabled: true
     swiftlint:
       enabled: true
-      config_file: '.swiftlint.yml'
+      config_file: ".swiftlint.yml"
 
 chat:
   art: false

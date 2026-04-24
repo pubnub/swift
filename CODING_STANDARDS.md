@@ -8,7 +8,7 @@ Apply these standards to production Swift library code:
 
 - Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
 - Avoid force unwraps and other crash-prone patterns unless they are provably safe and justified.
-- Prefer `if let` / `guard let` shorthand when unwrapping and shadowing the same optional, unless the explicit form is clearer.
+- Flag redundant optional rebinding of the form `if let x = x` or `guard let x = x` when Swift shorthand binding (`if let x` / `guard let x`) would express the same logic just as clearly.
 - Preserve clear ownership and lifecycle behavior; flag likely retain cycles, leaked observers, and long-lived captured references.
 - Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.
 - Prefer clear, idiomatic Swift naming and small focused types/functions over overly clever abstractions.

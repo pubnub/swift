@@ -15,7 +15,7 @@ reviews:
   poem: false
   request_changes_workflow: false
   high_level_summary: true
-  high_level_summary_in_walkthrough: true
+  high_level_summary_in_walkthrough: false
   high_level_summary_instructions: |
     Structure the summary into three sections: Context, Changes, and Notes.
 

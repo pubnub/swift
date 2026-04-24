@@ -26,6 +26,10 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 - `fastlane/` — CI and release automation
 - `PubNub.xcodeproj` / `PubNub.xcworkspace` — Xcode project and workspace
 
+## Coding Standards
+
+Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.
+
 ## Dependencies
 
 - The SDK has zero external production dependencies. Do not add any.
@@ -86,7 +90,3 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.
 - If you change repository structure, test targets, or validation commands, update this file in the same change.
-
-## Coding Standards
-
-Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.

@@ -1,4 +1,4 @@
-# CODING_STANDARDS.md
+# Coding Standards
 
 This document contains shared Swift standards for this repository.
 

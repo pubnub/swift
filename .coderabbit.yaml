@@ -9,7 +9,7 @@ knowledge_base:
       - '**/CODING_STANDARDS.md'
 
 reviews:
-  profile: "assertive"	
+  profile: "assertive"
   in_progress_fortune: false
   poem: false
   request_changes_workflow: false

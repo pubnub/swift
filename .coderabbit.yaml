@@ -111,5 +111,11 @@ reviews:
       enabled: true
       config_file: ".swiftlint.yml"
 
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
 chat:
   art: false

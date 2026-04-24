@@ -1,7 +1,6 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: en
 early_access: false
-profile: "assertive"
 
 knowledge_base:
   code_guidelines:
@@ -10,6 +9,7 @@ knowledge_base:
       - '**/CODING_STANDARDS.md'
 
 reviews:
+  profile: "assertive"	
   in_progress_fortune: false
   poem: false
   request_changes_workflow: false

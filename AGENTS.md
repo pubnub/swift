@@ -67,7 +67,7 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ### Validation
 
-Use the smallest relevant validation step first.
+Always run `swiftlint` to verify code style.
 
 ```bash
 swift build

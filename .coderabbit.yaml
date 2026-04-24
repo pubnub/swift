@@ -3,8 +3,9 @@ language: en
 early_access: false
 
 reviews:
-  request_changes_workflow: true
+  in_progress_fortune: false
   poem: false
+  request_changes_workflow: true
   high_level_summary: true
   high_level_summary_in_walkthrough: false
   high_level_summary_instructions: |
@@ -131,9 +132,16 @@ reviews:
         - Do not introduce internal-only, unreleased, or misleading usage patterns.
         - Preserve `// snippet.<id>` and `// snippet.end` markers required by documentation tooling.
 
+  pre_merge_checks:
+    docstrings:
+      mode: off
+
   tools:
     languagetool:
       enabled: true
     swiftlint:
       enabled: true
       config_file: '.swiftlint.yml'
+
+chat:
+  art: false

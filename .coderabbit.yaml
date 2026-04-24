@@ -5,7 +5,30 @@ early_access: false
 reviews:
   request_changes_workflow: true
   poem: false
-  high_level_summary_in_walkthrough: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: false
+  high_level_summary_instructions: |
+    Structure the summary into three sections: Context, Changes, and Notes.
+
+    ## Context
+    A short paragraph (no more than 3-4 sentences) explaining what the PR
+    accomplishes, why the change was made, and any relevant context a reviewer
+    should know upfront. Do not simply restate the PR title — infer the
+    purpose from the actual changes.
+
+    ## Changes
+    Release-notes-style bullets grouped by category. One line per bullet.
+    Group related changes into a single bullet describing the logical change,
+    not one bullet per file. For user-facing changes, frame bullets in terms
+    of impact on the user or caller. For internal changes, describe what was
+    technically modified.
+
+    ## Notes
+    - State whether the change is user-facing or purely internal.
+    - If user-facing, flag whether the change is breaking.
+    - Omit this line for additive or non-breaking changes.
+
+    Do not include file paths. Do not restate the file-level walkthrough.
   estimate_code_review_effort: false
   sequence_diagrams: false
   changed_files_summary: false

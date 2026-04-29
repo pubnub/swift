@@ -32,7 +32,7 @@ func basicConfigExample() {
 
 func aesCbcCryptoModuleExample() {
   // snippet.crypto-module
-  // Uses encryption.
+  // Uses 256-bit AES-CBC encryption (recommended) with backward compatibility for legacy encryption
   let pubnub = PubNub(
     configuration: PubNubConfiguration(
       publishKey: "demo",

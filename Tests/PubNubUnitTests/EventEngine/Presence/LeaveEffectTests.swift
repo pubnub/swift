@@ -18,30 +18,35 @@ class LeaveEffectTests: XCTestCase {
   private var httpSession: HTTPSession!
   private var delegate: HTTPSessionDelegate!
   private var factory: PresenceEffectFactory!
-      
+
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, logger: PubNubLogger.defaultLogger(), sessionQueue: .main)
+    httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
+      sessionQueue: .main
+    )
     factory = PresenceEffectFactory(session: httpSession, presenceStateContainer: .shared)
-    
+
     super.setUp()
   }
-  
+
   override func tearDown() {
     mockUrlSession = nil
     delegate = nil
     httpSession = nil
     super.tearDown()
   }
-  
+
   func test_LeaveEffect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-  
+
     mockResponse(GenericServicePayloadResponse(status: 200))
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -58,14 +63,14 @@ class LeaveEffectTests: XCTestCase {
     }
     wait(for: [expectation], timeout: 0.5)
   }
-  
+
   func test_LeaveEffectForFailedRequest() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-  
+
     mockResponse(GenericServicePayloadResponse(status: 500))
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -86,7 +91,7 @@ class LeaveEffectTests: XCTestCase {
 
 fileprivate extension LeaveEffectTests {
   func mockResponse(_ response: GenericServicePayloadResponse) {
-    mockUrlSession.responseForDataTask = { task, id in
+    mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
       task.mockData = try? Constant.jsonEncoder.encode(response)
       task.mockResponse = HTTPURLResponse(statusCode: response.status)

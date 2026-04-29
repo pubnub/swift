@@ -42,8 +42,8 @@ class SubscriptionSessionTests: XCTestCase {
     enableEventEngine: true
   )
   let testChannel = "TestChannel"
-  
-  func testSubscriptionSession_PreviousTimetokenResponse() {
+
+  func testSubscriptionSession_PreviousTimetokenResponse() throws {
     for configuration in [config, eeEnabledConfig] {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let messageExpect = XCTestExpectation(description: "Message Event")
@@ -52,8 +52,8 @@ class SubscriptionSessionTests: XCTestCase {
         let pubnub = PubNub(configuration: configuration)
         let subscriptionSession = mockSubscriptionSession(with: mockResponses, and: configuration)
         let listener = SubscriptionListener()
-        
-        listener.didReceiveMessage = { message in
+
+        listener.didReceiveMessage = { _ in
           XCTAssertEqual(
             subscriptionSession.previousTokenResponse,
             SubscribeCursor(timetoken: 15614817397807903, region: 2)
@@ -79,21 +79,21 @@ class SubscriptionSessionTests: XCTestCase {
       }
     }
   }
-  
+
   func testSubscriptionSession_PreviousTimetokenResponseOnError() {
     for configuration in [config, eeEnabledConfig] {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let statusExpect = XCTestExpectation(description: "Status Event")
         statusExpect.assertForOverFulfill = true
         statusExpect.expectedFulfillmentCount = configuration.enableEventEngine ? 2 : 1
-        
+
         let mockResponses = ["badURL", "cancelled"]
         let subscriptionSession = mockSubscriptionSession(with: mockResponses, and: configuration)
         let listener = SubscriptionListener()
         let pubnub = PubNub(configuration: configuration)
 
         listener.didReceiveStatus = { [unowned subscriptionSession] status in
-          if case .failure(_) = status {
+          if case .failure = status {
             XCTAssertNil(subscriptionSession.previousTokenResponse)
             statusExpect.fulfill()
           }
@@ -105,7 +105,10 @@ class SubscriptionSessionTests: XCTestCase {
           }
         }
         subscriptionSession.add(listener)
-        subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()], at: SubscribeCursor(timetoken: 123456, region: 1))
+        subscriptionSession.subscribe(
+          to: [pubnub.channel(testChannel).subscription()],
+          at: SubscribeCursor(timetoken: 123456, region: 1)
+        )
         XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
 
         defer { listener.cancel() }
@@ -121,8 +124,9 @@ fileprivate extension SubscriptionSessionTests {
     and configuration: PubNubConfiguration
   ) -> SubscriptionSession {
     let dependencyContainer = DependencyContainer(configuration: configuration)
+    // swiftlint:disable:next force_try
     let mockURLSession = try! MockURLSession.mockSession(for: responses).session
-    
+
     return dependencyContainer.register(
       value: mockURLSession,
       forKey: HTTPSubscribeSessionDependencyKey.self

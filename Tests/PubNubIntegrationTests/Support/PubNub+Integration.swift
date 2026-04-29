@@ -57,8 +57,8 @@ extension PubNub {
     let expectation = XCTestExpectation(description: "Subscribe synchronously")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = 1
-    
-    onConnectionStateChange = { newStatus in 
+
+    onConnectionStateChange = { newStatus in
       if newStatus == .connected {
         expectation.fulfill()
       }
@@ -68,12 +68,12 @@ extension PubNub {
       and: channelGroups,
       withPresence: withPresence
     )
-    
+
     let result = XCTWaiter.wait(
       for: [expectation],
       timeout: timeout
     )
-    
+
     if result != .completed {
       XCTFail("Subscribe operation timed out")
     }

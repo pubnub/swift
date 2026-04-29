@@ -69,10 +69,10 @@ extension ObjectsUserRouterTests {
       custom: ["string": "String", "int": 1, "double": 1.1, "bool": true],
       updated: lastDate, eTag: "AeH55Y3T0a78Ew"
     )
-    
+
     let page = PubNubHashedPageBase(start: "NextPage", end: "PrevPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.allUserMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
@@ -240,7 +240,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case let .success(responseObject):
@@ -265,7 +265,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -290,7 +290,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -315,7 +315,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -340,7 +340,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -365,7 +365,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -403,7 +403,7 @@ extension ObjectsUserRouterTests {
   func testSet_Success() {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
-    guard 
+    guard
       let sessions = try? MockURLSession.mockSession(for: ["objects_uuid_fetch_success"]),
       let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
@@ -420,7 +420,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case let .success(responseObject):
@@ -445,7 +445,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -470,7 +470,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -495,7 +495,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -520,7 +520,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -545,7 +545,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -570,7 +570,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -595,7 +595,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setUserMetadata(testUser) { result in
       switch result {
       case .success:
@@ -641,7 +641,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case let .success(metadataId):
@@ -666,7 +666,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata(nil) { [weak self] result in
       switch result {
       case let .success(metadataId):
@@ -691,7 +691,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -716,7 +716,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -741,7 +741,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -766,7 +766,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -791,7 +791,7 @@ extension ObjectsUserRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.removeUserMetadata("TestUser") { result in
       switch result {
       case .success:
@@ -804,6 +804,4 @@ extension ObjectsUserRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

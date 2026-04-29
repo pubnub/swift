@@ -14,14 +14,14 @@ import XCTest
 
 class MembershipsEndpointIntegrationTests: XCTestCase {
   let config = PubNubConfiguration(bundle: Bundle(for: MembershipsEndpointIntegrationTests.self))
-  
+
   func testFetchMemberships() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let userId = randomString()
     let channels = [randomString(), randomString()]
     let memberships = setUpMembershipTestData(client: client, userId: userId, channelIds: channels)
-    
+
     client.fetchMemberships(
       userId: userId,
       include: .init(channelFields: true, channelCustomFields: true)
@@ -35,7 +35,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       }
       fetchMembershipsExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeMemberships(
@@ -50,7 +50,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
           completion: $0
         )
       }
-      
+
       for membership in memberships {
         waitForCompletion {
           client.removeChannelMetadata(
@@ -60,17 +60,17 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchMembershipsExpect], timeout: 10.0)
   }
-  
+
   func testFetchMembershipsWithPaginationParameters() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let userId = randomString()
     let channels = [randomString(), randomString()]
     let expectedMemberships = setUpMembershipTestData(client: client, userId: userId, channelIds: channels)
-    
+
     client.fetchMemberships(
       userId: userId,
       include: .init(channelFields: true, channelCustomFields: true),
@@ -80,7 +80,9 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       case let .success((membershipsFromFirstPage, page)):
         // Verify the first page contains the expected number of memberships
         XCTAssertEqual(membershipsFromFirstPage.count, 1)
-        XCTAssertTrue(membershipsFromFirstPage.allSatisfy { Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId })
+        XCTAssertTrue(membershipsFromFirstPage.allSatisfy {
+          Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId
+        })
         // Fetch the next page
         client.fetchMemberships(
           userId: userId,
@@ -90,7 +92,9 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
           switch result {
           case let .success((membershipsFromSecondPage, _)):
             XCTAssertEqual(membershipsFromSecondPage.count, expectedMemberships.count - membershipsFromFirstPage.count)
-            XCTAssertTrue(membershipsFromSecondPage.allSatisfy { Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId })
+            XCTAssertTrue(membershipsFromSecondPage.allSatisfy {
+              Set(channels).contains($0.channelMetadataId) && $0.userMetadataId == userId
+            })
             // Verify that all expected membership IDs are present in the fetched results
             let allFetchedMemberships = membershipsFromFirstPage + membershipsFromSecondPage
             let fetchedChannelIds = Set(allFetchedMemberships.map { $0.channelMetadataId })
@@ -105,7 +109,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         XCTFail("Failed due to error: \(error)")
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeMemberships(
@@ -120,7 +124,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
           completion: $0
         )
       }
-      
+
       for membership in expectedMemberships {
         waitForCompletion {
           client.removeChannelMetadata(
@@ -130,16 +134,16 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchMembershipsExpect], timeout: 10.0)
   }
-  
+
   func testFetchMembershipsWithFilterParameter() {
     let fetchMembershipsExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: config)
     let userId = randomString()
     let memberships = setUpMembershipTestData(client: client, userId: userId, channelIds: [randomString(), randomString()])
-    
+
     client.fetchMemberships(
       userId: userId,
       include: .init(channelFields: true, channelCustomFields: true),
@@ -154,7 +158,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       }
       fetchMembershipsExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeMemberships(
@@ -169,7 +173,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
           completion: $0
         )
       }
-      
+
       for membership in memberships {
         waitForCompletion {
           client.removeChannelMetadata(
@@ -179,17 +183,17 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchMembershipsExpect], timeout: 10.0)
   }
-  
+
   func testRemoveMembership() {
     let removeMembershipExpect = expectation(description: "Remove Membership Expectation")
     let client = PubNub(configuration: config)
     let userId = randomString()
     let channelId = randomString()
     let memberships = setUpMembershipTestData(client: client, userId: userId, channelIds: [channelId])
-    
+
     client.removeMemberships(
       userId: userId,
       channels: [PubNubMembershipMetadataBase(userMetadataId: userId, channelMetadataId: channelId)]
@@ -202,7 +206,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       }
       removeMembershipExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeMemberships(
@@ -217,7 +221,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
           completion: $0
         )
       }
-      
+
       for membership in memberships {
         waitForCompletion {
           client.removeChannelMetadata(
@@ -227,14 +231,14 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [removeMembershipExpect], timeout: 10.0)
   }
-  
+
   func testManageMemberships() {
     let manageMembershipExpect = expectation(description: "Manage Membership Expectation")
     let client = PubNub(configuration: config)
-    
+
     let testUser = PubNubUserMetadataBase(
       metadataId: "testManageMemberships",
       name: "Swift ITest"
@@ -251,7 +255,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       metadataId: "testManageMembershipsSpace3",
       name: "Swift Membership ITest 3"
     )
-    
+
     let membership1 = PubNubMembershipMetadataBase(
       userMetadataId: testUser.metadataId,
       channelMetadataId: testChannel1.metadataId,
@@ -270,7 +274,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
       user: testUser,
       channel: testChannel3
     )
-    
+
     // First set up initial memberships
     client.setUserMetadata(testUser) { [unowned client] _ in
       client.setChannelMetadata(testChannel1) { _ in
@@ -298,7 +302,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeMemberships(
@@ -332,7 +336,7 @@ class MembershipsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [manageMembershipExpect], timeout: 10.0)
   }
 }
@@ -342,19 +346,21 @@ private extension MembershipsEndpointIntegrationTests {
     let setupExpect = expectation(description: "Setup Membership Test Data")
     setupExpect.expectedFulfillmentCount = 1
     setupExpect.assertForOverFulfill = true
-    
+
     let testUser = PubNubUserMetadataBase(metadataId: userId, name: userId)
     let channelMetadataArray = channelIds.map { PubNubChannelMetadataBase(metadataId: $0, name: $0) }
     var membershipsToReturn: [PubNubMembershipMetadata] = []
-    
+
     // Step 1: Create user
-    client.setUserMetadata(testUser) { [unowned client, unowned self] userResult in
+    client.setUserMetadata(testUser) { [unowned client, unowned self] _ in
       // Step 2: Create channels
       setupChannels(client: client, channels: channelMetadataArray) {
         // Step 3: Create memberships
         client.setMemberships(
           userId: userId,
-          channels: channelMetadataArray.map { PubNubMembershipMetadataBase(userMetadataId: userId, channelMetadataId: $0.metadataId) },
+          channels: channelMetadataArray.map {
+            PubNubMembershipMetadataBase(userMetadataId: userId, channelMetadataId: $0.metadataId)
+          },
           include: .init(channelFields: true, channelCustomFields: true)
         ) {
           switch $0 {
@@ -367,14 +373,14 @@ private extension MembershipsEndpointIntegrationTests {
         }
       }
     }
-    
+
     // Wait for memberships to be set up
     wait(for: [setupExpect], timeout: 15.0)
-    
+
     // Return the memberships to the caller
     return membershipsToReturn
   }
-  
+
   private func setupChannels(
     client: PubNub,
     channels: [PubNubChannelMetadataBase],
@@ -394,7 +400,7 @@ private extension MembershipsEndpointIntegrationTests {
         completion()
       }
     }
-    
+
     setupNext(channels)
   }
 }

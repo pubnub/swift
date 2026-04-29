@@ -296,9 +296,7 @@ extension FileManagementRouterTests {
     let downloadURL = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success.txt")
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: tempFile)
 
-    guard let testData = "Testing download resume data".data(using: .utf8) else {
-      return XCTFail("Could not create required test data")
-    }
+    let testData = Data("Testing download resume data".utf8)
 
     try? InputStream(data: testData).writeEncodedData(to: downloadURL)
 
@@ -498,9 +496,7 @@ extension FileManagementRouterTests {
   }
 
   func testSend_createbackgroundTask() {
-    guard let testData = "Test String".data(using: .utf8) else {
-      return XCTFail("Could not create required test data")
-    }
+    let testData = Data("Test String".utf8)
 
     let randomFileId = UUID().uuidString
 
@@ -680,6 +676,4 @@ extension FileManagementRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -78,7 +78,6 @@ extension LogLevel: CustomStringConvertible {
 
 /// Provides a custom logger for handling log messages from the PubNub SDK.
 public final class PubNubLogger {
-  // swiftlint:disable:previous type_body_length
   /// An array of `LogWriter` instances responsible for processing log messages.
   public let writers: [LogWriter]
 

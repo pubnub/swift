@@ -27,7 +27,7 @@ extension PresenceRouterTests {
       .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
-    
+
     XCTAssertEqual(router.endpoint.description, "Here Now")
     XCTAssertEqual(router.category, "Here Now")
     XCTAssertEqual(router.service, .presence)
@@ -38,7 +38,7 @@ extension PresenceRouterTests {
       .hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
-    
+
     XCTAssertEqual(
       router.validationError?.pubNubError?.details.first,
       ErrorDescription.missingChannelsAnyGroups
@@ -50,7 +50,7 @@ extension PresenceRouterTests {
       .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
-    
+
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
@@ -59,7 +59,7 @@ extension PresenceRouterTests {
       .hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
     )
-    
+
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
 
@@ -427,7 +427,7 @@ extension PresenceRouterTests {
 
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
-  
+
   func testHeartbeat_QueryParamsWithEventEngineEnabled() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
@@ -450,25 +450,25 @@ extension PresenceRouterTests {
       endpoint,
       configuration: config
     )
-    
+
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     // There's no guaranteed order of returned states.
     // Therefore, these are two possible and valid combinations:
     let expStateValues = [
       "{\"c1\":{\"x\":1},\"c2\":{\"a\":\"someText\"}}",
       "{\"c2\":{\"a\":\"someText\"},\"c1\":{\"x\":1}}"
     ]
-    
+
     XCTAssertTrue(queryItems.count == 6)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
-    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value!.contains("group-1,group-2") })
-    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value! == "30" })
+    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value?.contains("group-1,group-2") == true })
+    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
-    XCTAssertTrue(queryItems.contains { $0.name == "state" && expStateValues.contains($0.value!) })
+    XCTAssertTrue(queryItems.contains { $0.name == "state" && $0.value.map { expStateValues.contains($0) } == true })
   }
-  
+
   func testHeartbeat_QueryParamsWithEventEngineDisabled() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
@@ -487,7 +487,7 @@ extension PresenceRouterTests {
       enableEventEngine: false,
       maintainPresenceState: true
     )
-    
+
     let router = PresenceRouter(
       endpoint,
       configuration: config
@@ -497,10 +497,10 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.count == 4)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
-    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value!.contains("group-1,group-2") })
-    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value! == "30" })
+    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value?.contains("group-1,group-2") == true })
+    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
   }
-  
+
   func testHeartbeat_QueryParamsWithMaintainPresenceStateDisabled() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
@@ -528,11 +528,11 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.count == 5)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
-    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value!.contains("group-1,group-2") })
-    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value! == "30" })
+    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value?.contains("group-1,group-2") == true })
+    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
-  
+
   func testHeartbeat_QueryParamsWithEmptyPresenceStates() {
     let endpoint = PresenceRouter.Endpoint.heartbeat(
       channels: ["c1", "c2"],
@@ -552,12 +552,12 @@ extension PresenceRouterTests {
       configuration: config
     )
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     XCTAssertTrue(queryItems.count == 5)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
-    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value!.contains("group-1,group-2") })
-    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value! == "30" })
+    XCTAssertTrue(queryItems.contains { $0.name == "channel-group" && $0.value?.contains("group-1,group-2") == true })
+    XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
 }
@@ -661,6 +661,4 @@ extension PresenceRouterTests {
     let router = PresenceRouter(.setState(channels: [], groups: [channelName], state: [:]), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -33,7 +33,7 @@ class SubscribeSessionFactoryTests: XCTestCase {
       userId: UUID().uuidString,
       authKey: "SomeNewKey"
     )
-    
+
     let dependencyContainer = DependencyContainer(configuration: config)
     let nextDependencyContainer = DependencyContainer(configuration: newConfig)
     let first = dependencyContainer.subscriptionSession

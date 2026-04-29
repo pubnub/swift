@@ -13,14 +13,19 @@ import PubNubSDK
 
 class PushIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: PushIntegrationTests.self)
-  let pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")!
+  var pushToken: Data!
   let channel = "SwiftPushITest"
   let pushTopic = "SwiftPushITest"
+
+  override func setUp() {
+    super.setUp()
+    pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")
+  }
 
   func testModifyChannels() {
     let addExpect = expectation(description: "Adding Channel")
     let client = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
-    
+
     client.managePushChannelRegistrations(
       byRemoving: [],
       thenAdding: ["foo1", "foo2"],
@@ -34,7 +39,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllPushChannelRegistrations(
@@ -71,7 +76,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllAPNSPushDevice(
@@ -84,7 +89,7 @@ class PushIntegrationTests: XCTestCase {
 
     wait(for: [addExpect, listExpect], timeout: 10.0)
   }
-  
+
   func testAddAPNSDevicesOnChannels() {
     let addExpect = expectation(description: "Adding Channel")
     let listExpect = expectation(description: "Listing Channels")
@@ -108,7 +113,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllAPNSPushDevice(
@@ -176,7 +181,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-        
+
     defer {
       waitForCompletion {
         client.removeAllPushChannelRegistrations(
@@ -221,7 +226,7 @@ class PushIntegrationTests: XCTestCase {
       }
       initialAddExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllPushChannelRegistrations(
@@ -268,7 +273,7 @@ class PushIntegrationTests: XCTestCase {
       }
       initialAddExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllAPNSPushDevice(
@@ -310,7 +315,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllPushChannelRegistrations(
@@ -342,7 +347,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllPushChannelRegistrations(
@@ -420,7 +425,7 @@ class PushIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeAllAPNSPushDevice(

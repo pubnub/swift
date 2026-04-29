@@ -17,7 +17,7 @@ class CryptoTests: XCTestCase {
   func testEncryptDecrypt_Data() {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
-    
+
     guard let testData = testMessage.data(using: .utf16) else {
       return XCTFail("Could not create Data from test string")
     }
@@ -37,7 +37,7 @@ class CryptoTests: XCTestCase {
   func testEncryptDecrypt_String() {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = true.description
-    
+
     guard let encryptedString = try? cryptoModule.encrypt(string: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
@@ -54,7 +54,7 @@ class CryptoTests: XCTestCase {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
     let jsonMessage = testMessage.jsonDescription
-    
+
     guard let testData = jsonMessage.data(using: .utf8) else {
       return XCTFail("Could not create Data from test string")
     }
@@ -68,14 +68,14 @@ class CryptoTests: XCTestCase {
       bytes: decryptedData,
       encoding: .utf8
     )?.reverseJSONDescription
-    
+
     XCTAssertEqual(testMessage, decryptedString)
   }
 
   func testDefaultRandomizedIVEncryptDecrypt() {
     let testMessage = "Test Message To Be Encrypted"
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey")
-    
+
     guard let encryptedString1 = try? cryptoModule.encrypt(string: testMessage).get() else {
       return XCTFail("Encrypted Data should not be nil")
     }
@@ -94,7 +94,7 @@ class CryptoTests: XCTestCase {
     guard let decryptedString2 = try? cryptoModule.decryptedString(from: encryptedString2Data).get() else {
       return XCTFail("Decrypted Data should not be nil")
     }
-    
+
     XCTAssertNotEqual(encryptedString1, encryptedString2)
     XCTAssertEqual(decryptedString1, decryptedString2)
     XCTAssertEqual(testMessage, decryptedString1)
@@ -103,7 +103,7 @@ class CryptoTests: XCTestCase {
   func testOtherSDKContractTest() {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey", withRandomIV: false)
     let message = "\"Hello there!\""
-    
+
     guard let messageData = message.data(using: .utf8) else {
       return XCTFail("Could not create message data")
     }
@@ -124,7 +124,9 @@ class CryptoTests: XCTestCase {
 
     do {
       let swiftEncryptedString = try cryptoModule.encrypt(string: plainText).get()
-      let swiftEncryptedStringAsData = Data(base64Encoded: swiftEncryptedString)!
+      guard let swiftEncryptedStringAsData = Data(base64Encoded: swiftEncryptedString) else {
+        return XCTFail("Could not create data from Base64")
+      }
       let swiftDecryptedString = try cryptoModule.decryptedString(from: swiftEncryptedStringAsData).get()
 
       XCTAssertEqual(plainText, swiftDecryptedString)
@@ -160,10 +162,10 @@ class CryptoTests: XCTestCase {
         contentLength: ecrypted.count,
         to: outputPath
       )
-      
+
       let decrypted = try Data(contentsOf: outputPath)
       XCTAssertEqual(finalString, String(data: decrypted, encoding: .utf8))
-      
+
     } catch {
       XCTFail("Could not write to temp file \(error)")
     }
@@ -188,7 +190,7 @@ class CryptoTests: XCTestCase {
 
       let data = try Data(contentsOf: plainTextURL)
       let inputStream = InputStream(data: data)
-      
+
       let encryptedStreamResult = try cryptoModule.encrypt(
         stream: inputStream,
         contentLength: data.count
@@ -196,13 +198,13 @@ class CryptoTests: XCTestCase {
 
       let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream")
       try? FileManager.default.removeItem(at: decryptedURL)
-      
+
       cryptoModule.decrypt(
         stream: encryptedStreamResult.stream,
         contentLength: encryptedStreamResult.contentLength,
         to: decryptedURL
       )
-      
+
       let decryptedString = String(data: try Data(contentsOf: decryptedURL), encoding: .utf8)
       XCTAssertEqual(plainTextString, decryptedString)
 
@@ -210,7 +212,7 @@ class CryptoTests: XCTestCase {
       XCTFail("Could not write to temp file \(error)")
     }
   }
-  
+
   func testDecryptStreamWithInputAndOutputURL() throws {
     guard let encryptedTextURL = ImportTestResource.testsBundle.url(
       forResource: "file_upload_sample_encrypted",
@@ -234,19 +236,19 @@ class CryptoTests: XCTestCase {
     let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "enigma", withRandomIV: true)
     let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
     let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream")
-    
+
     try? FileManager.default.removeItem(at: outputPath)
-    
+
     cryptoModule.decryptStream(
       from: encryptedTextURL,
       to: outputPath
     )
-    
+
     let actualDecryptedContent = String(
       data: try Data(contentsOf: outputPath),
       encoding: .utf8
     )
-    
+
     XCTAssertEqual(
       expectedDecryptedContent,
       actualDecryptedContent

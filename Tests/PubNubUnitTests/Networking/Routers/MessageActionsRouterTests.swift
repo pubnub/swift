@@ -460,6 +460,4 @@ extension MessageActionsRouterTests {
     XCTAssertEqual(payload?.actionTimetoken, 0)
     XCTAssertEqual(payload?.messageTimetoken, 0)
   }
-
-  // swiftlint:disable:next file_length
 }

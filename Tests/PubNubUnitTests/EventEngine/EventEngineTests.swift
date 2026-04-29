@@ -13,7 +13,7 @@ import XCTest
 
 @testable import PubNubSDK
 
-fileprivate var initialState: ExampleState {
+private var initialState: ExampleState {
   ExampleState(
     x: 1000,
     y: 2000,
@@ -21,7 +21,7 @@ fileprivate var initialState: ExampleState {
   )
 }
 
-fileprivate var stateAfterSendingEvent1: ExampleState {
+private var stateAfterSendingEvent1: ExampleState {
   ExampleState(
     x: 50,
     y: 100,
@@ -29,7 +29,7 @@ fileprivate var stateAfterSendingEvent1: ExampleState {
   )
 }
 
-fileprivate var stateAfterSendingEvent3: ExampleState {
+private var stateAfterSendingEvent3: ExampleState {
   ExampleState(
     x: 99,
     y: 999,
@@ -37,7 +37,7 @@ fileprivate var stateAfterSendingEvent3: ExampleState {
   )
 }
 
-fileprivate var stateAfterSendingEvent4: ExampleState {
+private var stateAfterSendingEvent4: ExampleState {
   ExampleState(
     x: 0,
     y: 0,
@@ -56,7 +56,7 @@ class EventEngineTests: XCTestCase {
       dependencies: EventEngineDependencies(value: Void()),
       logger: PubNubLogger.defaultLogger()
     )
-    
+
     eventEngine.send(event: .event2)
     XCTAssertTrue(eventEngine.state == initialState)
     eventEngine.send(event: .event3)
@@ -70,40 +70,40 @@ class EventEngineTests: XCTestCase {
 
 // MARK: - Helpers
 
-fileprivate struct ExampleState: Equatable {
+private struct ExampleState: Equatable {
   let x: Int
   let y: Int
   let z: Int
 }
 
-fileprivate enum ExampleEvent {
+private enum ExampleEvent {
   case event1
   case event2
   case event3
   case event4
 }
 
-fileprivate enum ExampleInvocation: AnyEffectInvocation {
+private enum ExampleInvocation: AnyEffectInvocation {
   case invocation
 
   var id: String {
     "invocation"
   }
-  
+
   enum Cancellable: AnyCancellableInvocation {
     case invocation
-    
+
     var id: String {
       "invocation"
     }
   }
 }
 
-fileprivate class StubTransition: TransitionProtocol {
+private class StubTransition: TransitionProtocol {
   typealias State = ExampleState
   typealias Event = ExampleEvent
   typealias Invocation = ExampleInvocation
-  
+
   func canTransition(from state: ExampleState, dueTo event: ExampleEvent) -> Bool {
     switch event {
     case .event1:
@@ -116,7 +116,7 @@ fileprivate class StubTransition: TransitionProtocol {
       return true
     }
   }
-  
+
   func transition(from state: ExampleState, event: ExampleEvent) -> TransitionResult<ExampleState, ExampleInvocation> {
     switch event {
     case .event1:
@@ -131,11 +131,11 @@ fileprivate class StubTransition: TransitionProtocol {
   }
 }
 
-fileprivate struct StubDispatcher: Dispatcher {
+private struct StubDispatcher: Dispatcher {
   typealias Invocation = ExampleInvocation
   typealias Event = ExampleEvent
   typealias Dependencies = Void
-  
+
   func dispatch(
     invocations: [EffectInvocation<Invocation>],
     with dependencies: EventEngineDependencies<Dependencies>,
@@ -143,7 +143,7 @@ fileprivate struct StubDispatcher: Dispatcher {
   ) {
     invocations.forEach {
       switch $0 {
-      case .managed(_):
+      case .managed:
         // Simulates that a hypothethical Effect returns an event back to EventEngine.
         // The result of processing this event might be the new State, see implementation for Transition function
         listener.onAnyInvocationCompleted([.event3])

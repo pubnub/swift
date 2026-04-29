@@ -216,7 +216,7 @@ public extension PubNub {
   ///   - to: List of channels to subscribe on
   ///   - and: List of channel groups to subscribe on
   ///   - at: The initial timetoken to subscribe with
-  ///   - withPresence: Enables extra events.
+  ///   - withPresence: If true it also subscribes to presence events on the specified channels
   func subscribe(
     to channels: [String],
     and channelGroups: [String] = [],
@@ -579,6 +579,4 @@ public extension PubNub {
       logger.levels = newValue
     }
   }
-
-  // swiftlint:disable:next file_length
 }

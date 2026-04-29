@@ -13,9 +13,9 @@ import XCTest
 
 @testable import PubNubSDK
 
-fileprivate class MockListener: BaseSubscriptionListener {
+private class MockListener: BaseSubscriptionListener {
   var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
-  
+
   override func emit(subscribe: PubNubSubscribeEvent) {
     onEmitSubscribeEventCalled(subscribe)
   }
@@ -23,22 +23,22 @@ fileprivate class MockListener: BaseSubscriptionListener {
 
 class EmitStatusTests: XCTestCase {
   private var subscriptions: [MockListener] = []
-  
+
   override func setUp() {
     subscriptions = (0...2).map { _ in MockListener() }
     super.setUp()
   }
-  
+
   override func tearDown() {
     subscriptions = []
     super.tearDown()
   }
-  
+
   func testEmitStatus_FromDisconnectedToConnected() {
     let expectation = XCTestExpectation(description: "Emit Status Effect")
     expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
-    
+
     let testedStatusChange = Subscribe.ConnectionStatusChange(
       oldStatus: .disconnected,
       newStatus: .connected,
@@ -48,7 +48,7 @@ class EmitStatusTests: XCTestCase {
       statusChange: testedStatusChange,
       subscriptions: WeakSet(subscriptions)
     )
-    
+
     subscriptions.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
@@ -59,21 +59,21 @@ class EmitStatusTests: XCTestCase {
         }
       }
     }
-    
+
     effect.performTask(completionBlock: { _ in })
-    
+
     wait(for: [expectation], timeout: 0.1)
   }
-  
+
   func testEmitStatus_WithError() {
     let expectation = XCTestExpectation(description: "Emit Status Effect")
     expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
-    
+
     let errorExpectation = XCTestExpectation(description: "Emit Status Effect - Error Listener")
     errorExpectation.expectedFulfillmentCount = subscriptions.count
     errorExpectation.assertForOverFulfill = true
-    
+
     let testedStatusChange = Subscribe.ConnectionStatusChange(
       oldStatus: .disconnected,
       newStatus: .connected,
@@ -83,7 +83,7 @@ class EmitStatusTests: XCTestCase {
       statusChange: testedStatusChange,
       subscriptions: WeakSet(subscriptions)
     )
-    
+
     subscriptions.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .connectionChanged(status) = event {
@@ -96,9 +96,9 @@ class EmitStatusTests: XCTestCase {
         }
       }
     }
-    
+
     effect.performTask(completionBlock: { _ in })
-    
-    wait(for: [expectation, errorExpectation], timeout: 0.1)    
+
+    wait(for: [expectation, errorExpectation], timeout: 0.1)
   }
 }

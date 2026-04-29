@@ -11,7 +11,6 @@
 @testable import PubNubSDK
 import XCTest
 
-// swiftlint:disable:next type_body_length
 class AnyJSONCodableTests: XCTestCase {
   struct NonCodable: Hashable {
     var value: String

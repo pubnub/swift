@@ -31,7 +31,7 @@ class ValidatedTests: XCTestCase {
     XCTAssertFalse(invalidTest.isValid)
   }
 
-  func testResult() {
+  func testValidResult() {
     let validTest = TestValidated()
     XCTAssertNil(validTest.validationError)
     XCTAssertNoThrow(try validTest.validResult.get())

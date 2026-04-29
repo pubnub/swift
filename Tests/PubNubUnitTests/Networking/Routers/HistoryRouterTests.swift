@@ -7,8 +7,6 @@
 //  This source code is licensed under the license found in the
 //  LICENSE file in the root directory of this source tree.
 //
-// swiftlint:disable file_length
-
 @testable import PubNubSDK
 import XCTest
 
@@ -197,7 +195,7 @@ extension HistoryRouterTests {
         let channelMessages = messagesByChannel[self.testChannel]
         XCTAssertNotNil(channelMessages)
         XCTAssertEqual(channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ==")
-        XCTAssertTrue((channelMessages ?? []).reduce(into: true) { $0 = $0 && $1.error?.reason == .decryptionFailure })
+        XCTAssertTrue((channelMessages ?? []).allSatisfy { $0.error?.reason == .decryptionFailure })
         XCTAssertEqual(next?.start, 15_657_268_328_421_957)
       case let .failure(error):
         XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
@@ -296,7 +294,7 @@ extension HistoryRouterTests {
     let router = HistoryRouter(
       .fetchWithActions(
         channel: testChannel, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, 
+        includeMeta: false, includeMessageType: false,
         includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
@@ -549,5 +547,3 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 }
-
-// swiftlint:enable file_length

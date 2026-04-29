@@ -52,7 +52,7 @@ extension ObjectsMembershipsRouterTests {
   func testMembershipFetch_Success() {
     let expectation = self.expectation(description: "Fetch Memberships Endpoint Expectation")
 
-    guard 
+    guard
       let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
       let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
@@ -85,7 +85,7 @@ extension ObjectsMembershipsRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchMemberships(userId: "TestUser") { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -109,7 +109,7 @@ extension ObjectsMembershipsRouterTests {
 
     let testPage = PubNubHashedPageBase(start: "NextPage")
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.fetchMemberships(userId: "TestUser") { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -189,7 +189,7 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.setMemberships(userId: "TestUser", channels: [firstMembership]) { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -207,7 +207,7 @@ extension ObjectsMembershipsRouterTests {
   func testMembershipRemove_Success() {
     let expectation = self.expectation(description: "Update Memberships Endpoint Expectation")
 
-    guard 
+    guard
       let sessions = try? MockURLSession.mockSession(for: ["objects_membership_success"]),
       let channeDate = DateFormatter.iso8601.date(from: "2019-09-29T13:07:45.807503Z"),
       let firstDate = DateFormatter.iso8601.date(from: "2019-10-02T18:07:52.858703Z"),
@@ -236,7 +236,7 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.removeMemberships(userId: "TestUser", channels: [firstMembership]) { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -302,7 +302,7 @@ extension ObjectsMembershipsRouterTests {
     let lastUser = PubNubUserMetadataBase(
       metadataId: "LastUser"
     )
-    
+
     let firstMembership = PubNubMembershipMetadataBase(
       userMetadataId: firstUser.metadataId, channelMetadataId: "TestChannel",
       status: "Test Status",
@@ -319,7 +319,7 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.fetchMembers(channel: "TestChannel") { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -347,7 +347,7 @@ extension ObjectsMembershipsRouterTests {
 
     let testPage = PubNubHashedPageBase(start: "NextPage")
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.fetchMembers(channel: "TestChannel") { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -429,7 +429,7 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -478,7 +478,7 @@ extension ObjectsMembershipsRouterTests {
 
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
       switch result {
       case let .success((memberships, nextPage)):
@@ -492,6 +492,4 @@ extension ObjectsMembershipsRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

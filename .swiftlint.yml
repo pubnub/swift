@@ -1,6 +1,12 @@
 line_length:
   warning: 130
   ignores_comments: true
+type_body_length:
+  warning: 750
+  error: 1000
+file_length:
+  warning: 1000
+  error: 1500
 disabled_rules:
   - identifier_name
   - type_name
@@ -11,7 +17,7 @@ excluded:
   - bundle
   - .bundle
   - fastlane
-  - Tests
+  - Tests/PubNubContractTests
   - Pods
   - Examples
 opt_in_rules:
@@ -28,4 +34,3 @@ opt_in_rules:
   - empty_parentheses_with_trailing_closure
   - empty_string
   - sorted_first_last
-  - anyobject_protocol

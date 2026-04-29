@@ -468,6 +468,4 @@ open class FileSessionManager: NSObject, URLSessionDataDelegate, URLSessionDownl
       totalBytesExpectedToWrite: totalBytesExpectedToWrite
     )
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -12,7 +12,6 @@ import Foundation
 
 /// Object capable of encryption/decryption
 public struct CryptoModule {
-  // swiftlint:disable:previous type_body_length
   private let defaultCryptor: any Cryptor
   private let cryptors: [any Cryptor]
   private let legacyCryptorId: CryptorId = []
@@ -724,6 +723,4 @@ extension CryptoModule {
 
     return decryptionResult
   }
-
-  // swiftlint:disable:next file_length
 }

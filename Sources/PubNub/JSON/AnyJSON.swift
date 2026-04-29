@@ -398,6 +398,4 @@ extension AnyJSONError: LocalizedError {
       return "Failed to create JSONEncoded data"
     }
   }
-
-  // swiftlint:disable:next file_length
 }

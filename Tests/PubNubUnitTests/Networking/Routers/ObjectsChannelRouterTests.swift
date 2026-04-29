@@ -79,7 +79,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
@@ -103,7 +103,7 @@ extension ObjectsChannelRouterTests {
 
     let testPage = PubNubHashedPageBase(totalCount: 0)
     let pubnub = PubNub(configuration: config, session: sessions.session)
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case let .success((metadataObjects, nextPage)):
@@ -129,7 +129,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -154,7 +154,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -179,7 +179,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -204,7 +204,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.allChannelMetadata { result in
       switch result {
       case .success:
@@ -248,7 +248,7 @@ extension ObjectsChannelRouterTests {
   func testFetch_Success() {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
 
-    guard 
+    guard
       let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
       let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
@@ -266,7 +266,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case let .success(responseObject):
@@ -291,7 +291,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
@@ -316,7 +316,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
@@ -341,7 +341,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
@@ -366,7 +366,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
@@ -391,7 +391,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
       case .success:
@@ -435,7 +435,7 @@ extension ObjectsChannelRouterTests {
   func testSet_Success() {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
 
-    guard 
+    guard
       let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
       let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
     else {
@@ -453,7 +453,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case let .success(responseObject):
@@ -478,7 +478,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -503,7 +503,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -528,7 +528,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -553,7 +553,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -578,7 +578,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -603,7 +603,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -628,7 +628,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
       case .success:
@@ -674,7 +674,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case let .success(metadataId):
@@ -699,7 +699,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -749,7 +749,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -774,7 +774,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -799,7 +799,7 @@ extension ObjectsChannelRouterTests {
       configuration: config,
       session: sessions.session
     )
-    
+
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -812,6 +812,4 @@ extension ObjectsChannelRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

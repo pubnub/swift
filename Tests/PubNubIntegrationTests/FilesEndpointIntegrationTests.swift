@@ -14,16 +14,17 @@ import PubNubSDK
 
 class FilesEndpointIntegrationTests: XCTestCase {
   let config = PubNubConfiguration(bundle: Bundle(for: FilesEndpointIntegrationTests.self))
-  
+
   func testUploadFile() throws {
-    let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let data = Data("Lorem ipsum dolor sit amet".utf8)
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let remoteFileId = "remoteFileId"
     let testChannel = randomString()
 
     let sendFileExpect = expectation(description: "Send File Response")
     let removeFileExpect = expectation(description: "Remove File Response")
-        
+
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
         fileId: file.fileId,
@@ -54,18 +55,19 @@ class FilesEndpointIntegrationTests: XCTestCase {
         XCTFail("Unexpected error: \(error)")
       }
     }
-    
+
     wait(for: [sendFileExpect, removeFileExpect], timeout: 20.0)
   }
-  
+
   func testListFiles() throws {
-    let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let data = Data("Lorem ipsum dolor sit amet".utf8)
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let remoteFileId = "remoteFileId"
     let testChannel = randomString()
     let removeFileExpect = expectation(description: "Remove File Response")
     let listFilesExpect = expectation(description: "List Files Response")
-    
+
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
         fileId: file.fileId,
@@ -80,7 +82,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     client.send(
       .data(data, contentType: "text/plain"),
       channel: testChannel,
@@ -102,19 +104,20 @@ class FilesEndpointIntegrationTests: XCTestCase {
         XCTFail("Unexpected error: \(error)")
       }
     }
-    
+
     wait(for: [listFilesExpect, removeFileExpect], timeout: 30.0)
   }
-  
+
   func testUploadFileAsStream() throws {
-    let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let data = Data("Lorem ipsum dolor sit amet".utf8)
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let remoteFileId = "remoteFileId"
     let testChannel = randomString()
 
     let sendFileExpect = expectation(description: "Send File Response")
     let removeFileExpect = expectation(description: "Remove File Response")
-        
+
     // Clean up the file after the test
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
@@ -146,18 +149,18 @@ class FilesEndpointIntegrationTests: XCTestCase {
         XCTFail("Unexpected error: \(error)")
       }
     }
-    
+
     wait(for: [sendFileExpect, removeFileExpect], timeout: 20.0)
   }
-  
+
   func testManualEncryptDecryptFile() throws {
-    let data = try XCTUnwrap("This is a secret message that should be encrypted".data(using: .utf8))
+    let data = Data("This is a secret message that should be encrypted".utf8)
     let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "someKey")
-    
+
     let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
     let client = PubNub(configuration: config, fileSession: fileSession)
     let encryptedStreamResult = try cryptoModule.encrypt(stream: InputStream(data: data), contentLength: data.count).get()
-        
+
     let downloadFileExpect = expectation(description: "Download Encrypted File Expect")
     let decryptFileExpect = expectation(description: "Decrypt File Expect")
     let removeFileExpect = expectation(description: "Remove File Response")
@@ -166,7 +169,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
     let testChannel = randomString()
     let downloadFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
     let decryptionOutputURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
-    
+
     // Clean up the file after the test
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
@@ -182,7 +185,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     // Upload encrypted file
     client.send(
       .stream(encryptedStreamResult.stream, contentType: "text/plain", contentLength: encryptedStreamResult.contentLength),
@@ -212,16 +215,16 @@ class FilesEndpointIntegrationTests: XCTestCase {
     }
     wait(for: [downloadFileExpect, decryptFileExpect, removeFileExpect], timeout: 30.0)
   }
-  
+
   func testSystemWideEncryptDecryptFile() throws {
-    let data = try XCTUnwrap("This is a secret message that should be encrypted".data(using: .utf8))
+    let data = Data("This is a secret message that should be encrypted".utf8)
     let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
-    
+
     // Reuse the same config
     var configuration = config
     // Set the system wide crypto module
     configuration.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "someKey")
-    
+
     let client = PubNub(configuration: config, fileSession: fileSession)
     let downloadFileExpect = expectation(description: "Download Encrypted File Expect")
     let decryptFileExpect = expectation(description: "Decrypt File Expect")
@@ -230,7 +233,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
     let remoteFileId = "encryptedFile"
     let testChannel = randomString()
     let downloadFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
-    
+
     // Clean up the file after the test
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
@@ -246,7 +249,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     // Upload file
     client.send(
       .stream(InputStream(data: data), contentType: "text/plain", contentLength: data.count),
@@ -275,16 +278,17 @@ class FilesEndpointIntegrationTests: XCTestCase {
     }
     wait(for: [downloadFileExpect, decryptFileExpect, removeFileExpect], timeout: 30.0)
   }
-  
+
   func testGetFileDownloadURL() throws {
-    let data = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let data = Data("Lorem ipsum dolor sit amet".utf8)
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let remoteFileId = "remoteFileId"
     let testChannel = randomString()
 
     let downloadContentExpect = expectation(description: "Download Content Check")
     let removeFileExpect = expectation(description: "Remove File Response")
-        
+
     let performDeleteFile = { (file: PubNubFile) in
       client.remove(
         fileId: file.fileId,
@@ -325,24 +329,25 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
         // Resume the task
         task.resume()
-        
+
       case let .failure(error):
         XCTFail("Unexpected error: \(error)")
       }
     }
-    
+
     wait(for: [downloadContentExpect, removeFileExpect], timeout: 30.0)
   }
 
   func testListFilesWithLimitParameter() throws {
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let testChannel = randomString()
     let listFilesExpect = expectation(description: "List Files Response")
-    
+
     let removeFileExpect = expectation(description: "Remove File Response")
     removeFileExpect.assertForOverFulfill = true
     removeFileExpect.expectedFulfillmentCount = 2
-    
+
     let performDeleteFile = { (file: PubNubFile?) in
       if let file {
         client.remove(
@@ -360,9 +365,9 @@ class FilesEndpointIntegrationTests: XCTestCase {
       }
     }
 
-    let firstData = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
+    let firstData = Data("Lorem ipsum dolor sit amet".utf8)
     let firstRemoteFileId = "firstRemoteFileId"
-    let secondData = try XCTUnwrap("Nunc finibus enim in congue dictum".data(using: .utf8))
+    let secondData = Data("Nunc finibus enim in congue dictum".utf8)
     let secondRemoteFileId = "secondRemoteFileId"
 
     client.send(
@@ -392,19 +397,20 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [listFilesExpect, removeFileExpect], timeout: 30.0)
   }
 
   func testListFilesWithNextParameter() throws {
-    let client = PubNub(configuration: config, fileSession: URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main))
+    let fileSession = URLSession(configuration: .default, delegate: FileSessionManager(), delegateQueue: .main)
+    let client = PubNub(configuration: config, fileSession: fileSession)
     let testChannel = randomString()
     let listFilesExpect = expectation(description: "List Files Response")
-    
+
     let removeFileExpect = expectation(description: "Remove File Response")
     removeFileExpect.assertForOverFulfill = true
     removeFileExpect.expectedFulfillmentCount = 2
-    
+
     let performDeleteFile = { (file: PubNubFile?) in
       if let file {
         client.remove(
@@ -422,9 +428,9 @@ class FilesEndpointIntegrationTests: XCTestCase {
       }
     }
 
-    let firstData = try XCTUnwrap("Lorem ipsum dolor sit amet".data(using: .utf8))
+    let firstData = Data("Lorem ipsum dolor sit amet".utf8)
     let firstRemoteFileId = "firstRemoteFileId"
-    let secondData = try XCTUnwrap("Nunc finibus enim in congue dictum".data(using: .utf8))
+    let secondData = Data("Nunc finibus enim in congue dictum".utf8)
     let secondRemoteFileId = "secondRemoteFileId"
 
     client.send(
@@ -466,7 +472,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [listFilesExpect, removeFileExpect], timeout: 30.0)
   }
 }

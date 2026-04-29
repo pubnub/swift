@@ -13,12 +13,12 @@ import XCTest
 
 class UserObjectsEndpointIntegrationTests: XCTestCase {
   let config = PubNubConfiguration(bundle: Bundle(for: UserObjectsEndpointIntegrationTests.self))
-  
+
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
     let expectedUsers = createTestUsers(client: client)
-    
+
     client.allUserMetadata(filter: "id LIKE 'swift-*'") { result in
       switch result {
       case let .success((users, _)):
@@ -30,7 +30,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       }
       fetchAllExpect.fulfill()
     }
-    
+
     defer {
       for user in expectedUsers {
         waitForCompletion {
@@ -41,7 +41,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
 
@@ -49,7 +49,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
     let expectedUsers = createTestUsers(client: client)
-    
+
     client.allUserMetadata(
       filter: "id LIKE '\(Constants.prefix)*'",
       sort: [.init(property: .name, ascending: false)]
@@ -57,13 +57,13 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       switch result {
       case let .success((users, _)):
         let expSortedUsers = expectedUsers.sorted(by: { $0.name ?? "" > $1.name ?? "" })
-        XCTAssertEqual(expSortedUsers.map { $0.metadataId } , users.map { $0.metadataId })
+        XCTAssertEqual(expSortedUsers.map { $0.metadataId }, users.map { $0.metadataId })
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
       }
       fetchAllExpect.fulfill()
     }
-    
+
     defer {
       for user in expectedUsers {
         waitForCompletion {
@@ -74,16 +74,16 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
-  
+
   func testFetchAllEndpointWithPaginationParameters() {
     let fetchAllExpect = expectation(description: "Fetch All with Limit Expectation")
     let client = PubNub(configuration: config)
     let expectedUsers = createTestUsers(client: client)
     let limit = 3
-    
+
     // First page
     client.allUserMetadata(
       filter: "id LIKE '\(Constants.prefix)*'",
@@ -114,7 +114,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         XCTFail("Failed due to error: \(error)")
       }
     }
-    
+
     defer {
       for user in expectedUsers {
         waitForCompletion {
@@ -125,16 +125,16 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 15.0)
   }
-  
+
   func testUserCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
-    client.setUserMetadata(testUser) { [unowned client] setResult in
+
+    client.setUserMetadata(testUser) { [unowned client] _ in
       client.fetchUserMetadata(testUser.metadataId) { result in
         switch result {
         case let .success(user):
@@ -146,7 +146,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         fetchExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeUserMetadata(
@@ -155,15 +155,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testUserCreateAndDeleteEndpoint() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
+
     client.setUserMetadata(testUser) { [unowned client] _ in
       client.removeUserMetadata(testUser.metadataId) { result in
         switch result {
@@ -175,7 +175,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         fetchExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeUserMetadata(
@@ -184,15 +184,15 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testFetchNotExistingUser() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: config)
     let testUser = PubNubUserMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
+
     client.fetchUserMetadata(testUser.metadataId) { result in
       switch result {
       case .success:
@@ -203,7 +203,7 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
       }
       fetchExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.removeUserMetadata(
@@ -212,22 +212,22 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testSetUserWithEntityTag() {
     let setExpect = expectation(description: "Delete User Expectation")
     let client = PubNub(configuration: config)
-    
+
     var testUser = PubNubUserMetadataBase(
       metadataId: randomString(),
       name: "Swift ITest",
       externalId: "ABC",
       profileURL: "https://example.com"
     )
-    
-    client.setUserMetadata(testUser) { [unowned client] firstResult in
+
+    client.setUserMetadata(testUser) { [unowned client] _ in
       // Update the user metadata
       testUser.profileURL = "https://example2.com"
       testUser.externalId = "XYZ"
@@ -243,26 +243,26 @@ class UserObjectsEndpointIntegrationTests: XCTestCase {
         setExpect.fulfill()
       }
     }
-    
+
     waitForCompletion {
       client.removeUserMetadata(
         testUser.metadataId,
         completion: $0
       )
     }
-    
+
     wait(for: [setExpect], timeout: 10.0)
-  }  
+  }
 }
 
-private extension UserObjectsEndpointIntegrationTests {  
+private extension UserObjectsEndpointIntegrationTests {
   func createTestUsers(client: PubNub) -> [PubNubUserMetadata] {
     let setupExpect = expectation(description: "Create Test Users Expectation")
     let testUsers = userStubs()
 
     setupExpect.expectedFulfillmentCount = testUsers.count
     setupExpect.assertForOverFulfill = true
-    
+
     func createNext(_ remainingUsers: [PubNubUserMetadataBase]) {
       if let user = remainingUsers.first {
         client.setUserMetadata(user) { result in
@@ -276,11 +276,11 @@ private extension UserObjectsEndpointIntegrationTests {
         }
       }
     }
-    
+
     createNext(testUsers)
     // Wait for all users to be created
     wait(for: [setupExpect], timeout: 10.0)
-    
+
     return testUsers
   }
 

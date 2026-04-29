@@ -22,7 +22,7 @@ extension XCTestCase {
     let expect = XCTestExpectation(description: "Wait for completion (\(file) \(line)")
     expect.assertForOverFulfill = true
     expect.expectedFulfillmentCount = 1
-    
+
     operation { result in
       if case .failure(let failure) = result {
         preconditionFailure("Operation failed with error: \(failure)", file: file, line: line)
@@ -30,11 +30,10 @@ extension XCTestCase {
         expect.fulfill()
       }
     }
-    
+
     wait(
       for: [expect],
       timeout: timeout
     )
   }
 }
-

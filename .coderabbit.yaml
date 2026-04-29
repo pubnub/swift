@@ -1,0 +1,123 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en
+early_access: false
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - '**/AGENTS.md'
+      - '**/CODING_STANDARDS.md'
+
+reviews:
+  profile: "assertive"
+  in_progress_fortune: false
+  poem: false
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: false
+  high_level_summary_instructions: |
+    Structure the summary into three sections: Context, Changes, and Notes.
+
+    ## Context
+    A short paragraph (no more than 3-4 sentences) explaining what the PR
+    accomplishes, why the change was made, and any relevant context a maintainer
+    should know upfront. Do not simply restate the PR title — infer the
+    purpose from the actual changes.
+
+    ## Changes
+    Release-notes-style bullets grouped by category. One line per bullet.
+    Group related changes into a single bullet describing the logical change,
+    not one bullet per file. For user-facing changes, frame bullets in terms
+    of impact on the user or caller. For internal changes, describe what was
+    technically modified.
+
+    ## Notes
+    - State whether the change is user-facing or purely internal.
+    - If user-facing, flag whether the change is breaking.
+    - Omit this line for additive or non-breaking changes.
+
+    Do not include file paths. Do not restate the file-level walkthrough.
+  estimate_code_review_effort: false
+  sequence_diagrams: false
+  changed_files_summary: false
+  path_filters:
+    - '!**/.build/**'
+    - '!**/xcuserdata/**'
+    - '!**/*.xcuserstate'
+    - '!**/*.xcworkspacedata'
+    - '!Tests/PubNubUnitTests/Support/Responses/**/*.json'
+    - '!Tests/PubNubUnitTests/Support/Responses/**/*.txt'
+    - '!Examples/**/*.storyboard'
+    - '!Examples/**/*.plist'
+    - '!Examples/**/*.xcworkspacedata'
+    - '!Examples/**/Package.resolved'
+  path_instructions:
+    - path: 'Sources/PubNub/{PubNub.swift,APIs/**/*.swift}'
+      instructions: |
+        Review this as public SDK API surface exposed through `PubNub`.
+
+        Focus on:
+        - Keep API patterns, naming, parameter semantics, and overload design consistent with the existing `PubNub` surface.
+        - Check completion and callback behavior, especially around async results, threading expectations, and error delivery.
+        - Avoid exposing APIs, types, members, or initializers wider than needed.
+        - Keep public-facing doc comments accurate and aligned with current behavior, parameters, defaults, and callback semantics.
+        - Make breaking changes to public API or behavior explicit, justified, and reflected in tests, snippets, and documentation.
+
+    - path: 'Tests/PubNubUnitTests/**/*.swift'
+      instructions: |
+        Test-specific best practices to check:
+
+        - Keep unit tests fast, deterministic, and isolated.
+        - Mock external interactions instead of relying on real network behavior.
+        - Prefer tests that verify behavior without depending on incidental implementation details.
+        - Use assertions that clearly validate the intended behavior and failure mode.
+
+    - path: 'Tests/PubNubIntegrationTests/**/*.swift'
+      instructions: |
+        Review this as Swift integration test code.
+
+        Focus on:
+        - Validate real end-to-end SDK behavior against PubNub services.
+        - Use the same module imports that SDK customers would use; do not rely on `@testable import`.
+        - Avoid making integration coverage redundant with unit tests when behavior can be validated more cheaply in unit tests.
+        - Watch for flaky behavior, missing cleanup, and hidden environment dependencies.
+
+    - path: 'Package.swift'
+      instructions: |
+        Review this as customer-facing Swift Package Manager integration metadata.
+
+        Focus on:
+        - Keep platform versions, products, targets, and source layout aligned with the actual project.
+        - Flag package metadata that drifts from the SDK's real supported platforms or public package surface.
+
+    - path: 'Snippets/**/*.swift'
+      instructions: |
+        Review this as documentation snippet code intended for SDK users.
+
+        Focus on:
+        - Use current public SDK APIs and recommended usage patterns.
+        - Keep examples clear, minimal, and easy for users to adapt.
+        - Keep public-facing comments accurate and aligned with current released behavior.
+        - Do not introduce internal-only, unreleased, or misleading usage patterns.
+        - Preserve `// snippet.<id>` and `// snippet.end` markers required by documentation tooling.
+
+  pre_merge_checks:
+    docstrings:
+      mode: off
+
+  tools:
+    languagetool:
+      enabled: true
+    swiftlint:
+      enabled: true
+      config_file: ".swiftlint.yml"
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+chat:
+  art: false

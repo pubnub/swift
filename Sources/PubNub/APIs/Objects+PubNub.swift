@@ -1592,19 +1592,21 @@ public extension PubNub {
       ), category: .pubNub
     )
 
-    let router = ObjectsMembershipsRouter(.setMembers(
-      channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
-      changes: .init(
-        set: userMembershipSets.map {
-          .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
-        },
-        delete: userMembershipDeletes.map {
-          .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
-        }
+    let router = ObjectsMembershipsRouter(
+      .setMembers(
+        channelMetadataId: metadataId, customFields: include.includeFields, totalCount: include.totalCount,
+        changes: .init(
+          set: userMembershipSets.map {
+            .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+          },
+          delete: userMembershipDeletes.map {
+            .init(metadataId: $0.userMetadataId, status: $0.status, type: $0.type, custom: $0.custom)
+          }
+        ),
+        filter: filter, sort: sort.memberURLValue, limit: limit, start: page?.start, end: page?.end
       ),
-      filter: filter, sort: sort.memberURLValue,
-      limit: limit, start: page?.start, end: page?.end
-    ), configuration: requestConfig.customConfiguration ?? configuration)
+      configuration: requestConfig.customConfiguration ?? configuration
+    )
 
     route(
       router,
@@ -1613,11 +1615,17 @@ public extension PubNub {
     ) { result in
       completion?(result.map { response in
         (
-          memberships: response.payload.data.compactMap { PubNubMembershipMetadataBase(from: $0, other: metadataId) },
+          memberships: response.payload.data.compactMap {
+            PubNubMembershipMetadataBase(
+              from: $0,
+              other: metadataId
+            )
+          },
           next: try? PubNubHashedPageBase(from: response.payload)
         )
       })
     }
   }
+
   // swiftlint:disable:next file_length
 }

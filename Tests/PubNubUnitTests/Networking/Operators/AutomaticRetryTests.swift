@@ -75,7 +75,7 @@ class AutomaticRetryTests: XCTestCase {
 
   func testRetry_ShouldRetryTrue() {}
 
-  func testRetry_WhitelistedError() {}
+  func testRetry_AllowlistedError() {}
 
   func testRetry_Policy_None() {}
 
@@ -91,7 +91,7 @@ class AutomaticRetryTests: XCTestCase {
     guard let url = URL(string: "http://example.com") else {
       return XCTFail("Could not create URL")
     }
-    
+
     let testStatusCode = 500
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
@@ -108,12 +108,12 @@ class AutomaticRetryTests: XCTestCase {
 
     XCTAssertTrue(testPolicy.shouldRetry(response: testResponse, error: PubNubError(.unknown)))
   }
-  
+
   func testShouldRetry_True_TooManyRequestsStatusCode() {
     guard let url = URL(string: "http://example.com") else {
       return XCTFail("Could not create URL")
     }
-    
+
     let testStatusCode = 429
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
@@ -155,38 +155,38 @@ class AutomaticRetryTests: XCTestCase {
 
     XCTAssertFalse(testPolicy.shouldRetry(response: nil, error: testError))
   }
-  
+
   // MARK: - exponentialBackoff(minDelay:maxDelay)
-  
+
   func testExponentialBackoffDelay() {
     let maxRetryCount = 5
     let maxDelay = UInt.max
     let delayForRetry = [2.0...3.0, 4.0...5.0, 8.0...9.0, 16.0...17.0, 32.0...33.0]
-    
+
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: maxDelay)
       let delay = policy.delay(for: count)
       XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
-  
+
   func testExponentialBackoffDelay_MaxDelayHit() {
     let maxRetryCount = 5
     let maxDelay = 15
     let delayForRetry = [2.0...3.0, 4.0...5.0, 8.0...9.0, 15.0...16.0, 15.0...16.0]
-    
+
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: UInt(maxDelay))
       let delay = policy.delay(for: count)
       XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
-  
+
   func testExponentialBackoffDelay_MinDelayHit() {
     let maxRetryCount = 5
     let maxDelay = UInt.max
     let delayForRetry = [8.0...9.0, 16...17, 32.0...33.0, 64.0...65.0, 128.0...129.0]
-    
+
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(8.0), maxDelay: UInt(maxDelay))
       let delay = policy.delay(for: count)

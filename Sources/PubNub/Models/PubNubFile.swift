@@ -425,6 +425,4 @@ public struct PubNubFileEventBase: PubNubFileEvent, Hashable {
       customMessageType: subscription.customMessageType
     )
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -433,6 +433,4 @@ extension MockURLSession {
                         sessionStream: stream).usingDefault(requestOperator: operators),
             urlSession)
   }
-
-  // swiftlint:disable:next file_length
 }

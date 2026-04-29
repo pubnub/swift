@@ -18,14 +18,14 @@ class SubscribeEffectsTests: XCTestCase {
   private var httpSession: HTTPSession!
   private var delegate: HTTPSessionDelegate!
   private var factory: SubscribeEffectFactory!
-  
+
   private let config = PubNubConfiguration(
     publishKey: "pubKey",
     subscribeKey: "subKey",
     userId: "userId",
     automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 2.0))
   )
-  
+
   private func configWithLinearPolicy(_ delay: Double = 2.0) -> PubNubConfiguration {
     PubNubConfiguration(
       publishKey: "pubKey",
@@ -34,15 +34,18 @@ class SubscribeEffectsTests: XCTestCase {
       automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: delay), excluded: [])
     )
   }
-  
+
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, logger: PubNubLogger.defaultLogger(), sessionQueue: .main)
+    httpSession = HTTPSession(
+      session: mockUrlSession, delegate: delegate,
+      logger: PubNubLogger.defaultLogger(), sessionQueue: .main
+    )
     factory = SubscribeEffectFactory(session: httpSession, presenceStateContainer: .shared)
     super.setUp()
   }
-  
+
   override func tearDown() {
     delegate = nil
     mockUrlSession = nil
@@ -60,11 +63,11 @@ extension SubscribeEffectsTests {
       cursor: SubscribeCursor(timetoken: 12345, region: 1),
       messages: []
     ))
-    
+
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
     expectation.assertForOverFulfill = true
-    
+
     let testedInvocation: Subscribe.Invocation = .handshakeRequest(
       channels: ["channel1", "channel1-pnpres", "channel2"],
       groups: ["g1", "g2", "g2-pnpres"]
@@ -76,20 +79,20 @@ extension SubscribeEffectsTests {
     let expectedOutput: Subscribe.Event = .handshakeSuccess(
       cursor: SubscribeCursor(timetoken: 12345, region: 1)
     )
-    
+
     effect.performTask {
       XCTAssertEqual([expectedOutput], $0)
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 1.0)
   }
-  
+
   func test_HandshakingEffectWithFailedResponse() {
     mockResponse(
       errorIfAny: URLError(.cannotFindHost),
-      httpResponse: HTTPURLResponse(statusCode: 404)!
+      statusCode: 404
     )
-    
+
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
     expectation.assertForOverFulfill = true
@@ -105,7 +108,7 @@ extension SubscribeEffectsTests {
       for: testedInvocation,
       with: EventEngineDependencies(value: Subscribe.Dependencies(configuration: config))
     )
-    
+
     effect.performTask {
       XCTAssertEqual([expectedOutput], $0)
       expectation.fulfill()
@@ -122,11 +125,11 @@ extension SubscribeEffectsTests {
       cursor: SubscribeCursor(timetoken: 12345, region: 1),
       messages: [firstMessage, secondMessage]
     ))
-    
+
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
     expectation.assertForOverFulfill = true
-    
+
     let testedInvocation: Subscribe.Invocation = .receiveMessages(
       channels: ["channel1", "channel1-pnpres", "channel2"],
       groups: ["g1", "g2", "g2-pnpres"],
@@ -140,24 +143,24 @@ extension SubscribeEffectsTests {
       for: testedInvocation,
       with: EventEngineDependencies(value: Subscribe.Dependencies(configuration: config))
     )
-    
+
     effect.performTask {
       XCTAssertEqual([expectedOutput], $0)
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 1.0)
   }
-  
+
   func test_ReceivingEffectWithFailedResponse() {
     mockResponse(
       errorIfAny: URLError(.cannotFindHost),
-      httpResponse: HTTPURLResponse(statusCode: 404)!
+      statusCode: 404
     )
-    
+
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
     expectation.assertForOverFulfill = true
-    
+
     let testedInvocation: Subscribe.Invocation = .receiveMessages(
       channels: ["channel1", "channel1-pnpres", "channel2"],
       groups: ["g1", "g2", "g2-pnpres"],
@@ -170,7 +173,7 @@ extension SubscribeEffectsTests {
       for: testedInvocation,
       with: EventEngineDependencies(value: Subscribe.Dependencies(configuration: config))
     )
-    
+
     effect.performTask {
       XCTAssertEqual([expectedOutput], $0)
       expectation.fulfill()
@@ -185,8 +188,9 @@ private extension SubscribeEffectsTests {
   func mockResponse(
     subscribeResponse: SubscribeResponse? = nil,
     errorIfAny: Error? = nil,
-    httpResponse: HTTPURLResponse = HTTPURLResponse(statusCode: 200)!
+    statusCode: Int = 200
   ) {
+    let httpResponse = HTTPURLResponse(statusCode: statusCode) ?? HTTPURLResponse()
     mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = errorIfAny
       task.mockData = try? Constant.jsonEncoder.encode(subscribeResponse)

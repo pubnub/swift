@@ -13,13 +13,13 @@ import Foundation
 @testable import PubNubSDK
 
 extension EffectInvocation: Equatable where Invocation: Equatable {
-  public static func ==(lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
+  public static func == (lhs: EffectInvocation<Invocation>, rhs: EffectInvocation<Invocation>) -> Bool {
     switch (lhs, rhs) {
-    case (let .managed(lhsInvocation), let .managed(rhsInvocation)):
+    case let (.managed(lhsInvocation), .managed(rhsInvocation)):
       return lhsInvocation == rhsInvocation
-    case (let .regular(lhsInvocation), let .regular(rhsInvocation)):
+    case let (.regular(lhsInvocation), .regular(rhsInvocation)):
       return lhsInvocation == rhsInvocation
-    case (let .cancel(lhsId), let .cancel(rhsId)):
+    case let (.cancel(lhsId), .cancel(rhsId)):
       return lhsId.id == rhsId.id
     default:
       return false

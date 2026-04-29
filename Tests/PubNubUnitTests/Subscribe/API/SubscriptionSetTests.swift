@@ -19,7 +19,7 @@ class SubscriptionSetTests: XCTestCase {
       userId: "userId"
     )
   )
-  
+
   func testSubscriptionSet_VariousPayloads() {
     let messagesExpectation = XCTestExpectation(description: "Message")
     messagesExpectation.assertForOverFulfill = true
@@ -48,16 +48,16 @@ class SubscriptionSetTests: XCTestCase {
     let allEventsExpectation = XCTestExpectation(description: "All Events")
     allEventsExpectation.assertForOverFulfill = true
     allEventsExpectation.expectedFulfillmentCount = 2
-    
+
     let singleEventExpectation = XCTestExpectation(description: "Single Event")
     singleEventExpectation.expectedFulfillmentCount = 12
     singleEventExpectation.assertForOverFulfill = true
-    
+
     let subscription = pubnub.subscription(entities: [
       pubnub.channel("c1"),
       pubnub.channel("c2")
     ])
-    
+
     subscription.onEvents = { _ in
       allEventsExpectation.fulfill()
       singleEventExpectation.fulfill()
@@ -93,68 +93,67 @@ class SubscriptionSetTests: XCTestCase {
       mockFilePayload(channel: "c1"), mockFilePayload(channel: "c2"),
       mockMessageActionPayload(channel: "c1"), mockMessageActionPayload(channel: "c2")
     ])
-    
+
     let allExpectations = [
       messagesExpectation, signalExpectation, presenceChangeExpectation,
       messageAction, fileExpectation, appContextExpectation,
       allEventsExpectation, singleEventExpectation
     ]
-    
+
     wait(for: allExpectations, timeout: 1.0)
   }
-  
-  func testSubscriptionSetTopology() {
+
+  func testSubscriptionSetTopology() throws {
     let subscriptionSet = pubnub.subscription(
       entities: [
         pubnub.channel("c1"),
         pubnub.channel("c2"),
-        pubnub.channelGroup("g1"),
+        pubnub.channelGroup("g1")
       ], options: ReceivePresenceEvents()
     )
     let expectedTopology: [SubscribableType: [String]] = [
-      .channel : ["c1", "c1-pnpres", "c2", "c2-pnpres"],
+      .channel: ["c1", "c1-pnpres", "c2", "c2-pnpres"],
       .channelGroup: ["g1", "g1-pnpres"]
     ]
-        
-    XCTAssertEqual(
-      subscriptionSet.subscriptionTopology[.channel]!.sorted(by: <),
-      expectedTopology[.channel]!.sorted(by: <)
-    )
-    XCTAssertEqual(
-      subscriptionSet.subscriptionTopology[.channelGroup]!.sorted(by: <),
-      expectedTopology[.channelGroup]!.sorted(by: <)
-    )
+
+    let actualChannels = try XCTUnwrap(subscriptionSet.subscriptionTopology[.channel])
+    let expectedChannels = try XCTUnwrap(expectedTopology[.channel])
+    XCTAssertEqual(actualChannels.sorted(by: <), expectedChannels.sorted(by: <))
+
+    let actualGroups = try XCTUnwrap(subscriptionSet.subscriptionTopology[.channelGroup])
+    let expectedGroups = try XCTUnwrap(expectedTopology[.channelGroup])
+    XCTAssertEqual(actualGroups.sorted(by: <), expectedGroups.sorted(by: <))
   }
-  
+
   func testSubscriptionSet_WithListeners() {
     let messagesExpectation = XCTestExpectation(description: "Message")
     messagesExpectation.assertForOverFulfill = true
     messagesExpectation.expectedFulfillmentCount = 1
-    
+
     let signalExpectation = XCTestExpectation(description: "Signal")
     signalExpectation.assertForOverFulfill = true
     signalExpectation.expectedFulfillmentCount = 1
-    
+
     let messageAction = XCTestExpectation(description: "Message Action")
     messageAction.assertForOverFulfill = true
     messageAction.expectedFulfillmentCount = 1
-    
+
     let presenceChangeExpectation = XCTestExpectation(description: "Presence")
     presenceChangeExpectation.assertForOverFulfill = true
     presenceChangeExpectation.expectedFulfillmentCount = 1
-    
+
     let appContextExpectation = XCTestExpectation(description: "App Context")
     appContextExpectation.assertForOverFulfill = true
     appContextExpectation.expectedFulfillmentCount = 1
-    
+
     let fileExpectation = XCTestExpectation(description: "File")
     fileExpectation.assertForOverFulfill = true
     fileExpectation.expectedFulfillmentCount = 1
-        
+
     let channel = pubnub.channel("test-channel")
     let channel2 = pubnub.channel("test-channel2")
     let subscriptionSet = pubnub.subscription(entities: [channel, channel2])
-    
+
     let listener = EventListener(
       onMessage: { _ in
         messagesExpectation.fulfill()
@@ -175,19 +174,19 @@ class SubscriptionSetTests: XCTestCase {
         appContextExpectation.fulfill()
       }
     )
-    
+
     subscriptionSet.addEventListener(listener)
     subscriptionSet.onPayloadsReceived(payloads: [
       mockMessagePayload(channel: channel.name), mockSignalPayload(channel: channel2.name),
       mockPresenceChangePayload(channel: channel.name), mockAppContextPayload(channel: channel2.name),
       mockFilePayload(channel: channel.name), mockMessageActionPayload(channel: channel2.name)
     ])
-    
+
     let allExpectations = [
       messagesExpectation, signalExpectation, presenceChangeExpectation,
       messageAction, fileExpectation, appContextExpectation
     ]
-    
+
     wait(for: allExpectations, timeout: 1.0)
   }
 }

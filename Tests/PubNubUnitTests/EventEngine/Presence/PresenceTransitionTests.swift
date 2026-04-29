@@ -14,7 +14,7 @@ import XCTest
 @testable import PubNubSDK
 
 extension Presence.Invocation: Equatable {
-  public static func ==(lhs: Presence.Invocation, rhs: Presence.Invocation) -> Bool {
+  public static func == (lhs: Presence.Invocation, rhs: Presence.Invocation) -> Bool {
     switch (lhs, rhs) {
     case let (.heartbeat(lC, lG), .heartbeat(rC, rG)):
       return lC.sorted(by: <) == rC.sorted(by: <) && lG.sorted(by: <) == rG.sorted(by: <)
@@ -68,9 +68,9 @@ class PresenceTransitionTests: XCTestCase {
       heartbeatInterval: 30
     )
   )
-  
+
   // MARK: - Joined
-  
+
   func testPresence_JoinedValidTransitions() {
     let configWithEmptyInterval = PubNubConfiguration(
       publishKey: "pubKey",
@@ -84,14 +84,14 @@ class PresenceTransitionTests: XCTestCase {
       userId: "userId",
       heartbeatInterval: 30
     )
-    
+
     let state = Presence.HeartbeatInactive()
     let event = Presence.Event.joined(channels: ["c1", "c2"], groups: ["g1", "g2"])
-    
+
     XCTAssertTrue(PresenceTransition(configuration: configWithEmptyInterval).canTransition(from: state, dueTo: event))
     XCTAssertTrue(PresenceTransition(configuration: configWithInterval).canTransition(from: state, dueTo: event))
   }
-  
+
   func testPresence_JoinedEventForHeartbeatInactiveState() {
     let results = transition.transition(
       from: Presence.HeartbeatInactive(),
@@ -103,11 +103,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c3"], groups: ["g3"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_JoinedEventForHeartbeatInactiveState_EmptyInterval() {
     let configWithEmptyInterval = PubNubConfiguration(
       publishKey: "pubKey",
@@ -115,7 +115,7 @@ class PresenceTransitionTests: XCTestCase {
       userId: "userId",
       heartbeatInterval: 0
     )
-    
+
     let presenceTransition = PresenceTransition(
       configuration: configWithEmptyInterval
     )
@@ -129,7 +129,7 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c3"], groups: ["g3"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
@@ -149,11 +149,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_JoinedEventForStoppedState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -166,11 +166,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.HeartbeatStopped(
       input: PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.isEmpty)
   }
-  
+
   func testPresence_JoinedEventForCooldownState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -187,11 +187,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   // MARK: - Left
 
   func testPresence_LeftEventForHeartbeatingState() {
@@ -210,11 +210,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftEventForStoppedState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -228,13 +228,13 @@ class PresenceTransitionTests: XCTestCase {
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
-      .regular(.leave(channels: ["c3"], groups: ["g3"])),
+      .regular(.leave(channels: ["c3"], groups: ["g3"]))
     ]
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftEventForCooldownState() {
     let input = PresenceInput(
       channels: ["c1", "c2", "c3"],
@@ -252,11 +252,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedState = Presence.Heartbeating(
       input: PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftEventWithAllChannelsForCooldownState() {
     let input = PresenceInput(
       channels: ["c1", "c2", "c3"],
@@ -268,14 +268,14 @@ class PresenceTransitionTests: XCTestCase {
     )
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.wait),
-      .regular(.leave(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])),
+      .regular(.leave(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"]))
     ]
     let expectedState = Presence.HeartbeatInactive()
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftEventWithSuppressLeaveEventsSetInConfig() {
     let input = PresenceInput(
       channels: ["c1", "c2", "c3"],
@@ -299,11 +299,11 @@ class PresenceTransitionTests: XCTestCase {
       channels: ["c3"],
       groups: ["g3"]
     ))
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   // MARK: - Left All
 
   func testPresence_LeftAllForHeartbeatingState() {
@@ -319,11 +319,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatInactive()
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftAllForHeartbeatStoppedState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -336,11 +336,11 @@ class PresenceTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
-    
+
     XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatInactive()))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftAllForCooldownState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -355,11 +355,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatInactive()
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_LeftAllWithSuppressLeaveEventsSetInConfig() {
     let input = PresenceInput(
       channels: ["c1", "c2", "c3"],
@@ -378,13 +378,13 @@ class PresenceTransitionTests: XCTestCase {
     let expectedInvocations: [EffectInvocation<Presence.Invocation>] = [
       .cancel(.wait)
     ]
-    
+
     XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatInactive()))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   // MARK: - Reconnect
-  
+
   func testPresence_ReconnectForStoppedState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -398,11 +398,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_ReconnectForFailedState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -416,11 +416,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   // MARK: - Disconnect
 
   func testPresence_DisconnectForHeartbeatingState() {
@@ -436,11 +436,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatStopped(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_DisconnectForCooldownState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -455,11 +455,11 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.leave(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.HeartbeatStopped(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   // MARK: - Heartbeat Success
 
   func testPresence_HeartbeatSuccessForHeartbeatingState() {
@@ -475,11 +475,11 @@ class PresenceTransitionTests: XCTestCase {
       .managed(.wait)
     ]
     let expectedState = Presence.HeartbeatCooldown(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }
-  
+
   func testPresence_HeartbeatSuccessForEmptyInterval() {
     let configWithEmptyInterval = PubNubConfiguration(
       publishKey: "pubKey",
@@ -487,21 +487,21 @@ class PresenceTransitionTests: XCTestCase {
       userId: "userId",
       heartbeatInterval: 0
     )
-    
+
     let presenceTransition = PresenceTransition(configuration: configWithEmptyInterval)
     let input = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
-    
+
     let results = presenceTransition.transition(
       from: Presence.Heartbeating(input: input),
       event: .heartbeatSuccess
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: Presence.HeartbeatStopped(input: input)))
     XCTAssertTrue(results.invocations.isEmpty)
   }
-  
+
   // MARK: - Heartbeat Failed
-  
+
   func testPresence_HeartbeatFailedForHeartbeatingState() {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -515,13 +515,13 @@ class PresenceTransitionTests: XCTestCase {
       input: input,
       error: PubNubError(.unknown)
     )
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.isEmpty)
   }
-  
+
   // MARK: - Times Up
-  
+
   func testPresence_TimesUpForCooldownState() throws {
     let input = PresenceInput(
       channels: ["c1", "c2"],
@@ -536,7 +536,7 @@ class PresenceTransitionTests: XCTestCase {
       .regular(.heartbeat(channels: ["c1", "c2"], groups: ["g1", "g2"]))
     ]
     let expectedState = Presence.Heartbeating(input: input)
-    
+
     XCTAssertTrue(results.state.isEqual(to: expectedState))
     XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
   }

@@ -221,7 +221,10 @@ extension PublishRouterTests {
 extension PublishRouterTests {
   func testCompressedPublish_Router() {
     let router = PublishRouter(
-      .compressedPublish(message: testMessage, channel: testChannel, customMessageType: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(
+        message: testMessage, channel: testChannel, customMessageType: nil,
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
       configuration: config
     )
 
@@ -277,7 +280,7 @@ extension PublishRouterTests {
     XCTAssertEqual(router.category, "Publish a File Message")
     XCTAssertEqual(router.service, .publish)
   }
-  
+
   func testFile_Router_nilMessageTypeAndSpaceId() {
     let router = PublishRouter(
       .file(
@@ -286,14 +289,14 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    
+
     guard let queryItems = try? router.queryItems.get() else {
       return XCTAssert(false, "'queryItems' not set")
     }
-    
+
     XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.type.rawValue }))
   }
-  
+
   func testFile_Router_notNilMessageType() {
     let router = PublishRouter(
       .file(
@@ -302,11 +305,11 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    
+
     guard let queryItems = try? router.queryItems.get() else {
       return XCTAssert(false, "'queryItems' not set")
     }
-    
+
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.customMessageType.rawValue, value: "type")))
   }
 
@@ -551,6 +554,4 @@ extension PublishRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

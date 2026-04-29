@@ -26,6 +26,10 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 - `fastlane/` — CI and release automation
 - `PubNub.xcodeproj` / `PubNub.xcworkspace` — Xcode project and workspace
 
+## Coding Standards
+
+Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.
+
 ## Dependencies
 
 - The SDK has zero external production dependencies. Do not add any.
@@ -67,7 +71,7 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ### Validation
 
-Use the smallest relevant validation step first.
+Use the smallest relevant validation step first. Always run `swiftlint` to verify code style.
 
 ```bash
 swift build

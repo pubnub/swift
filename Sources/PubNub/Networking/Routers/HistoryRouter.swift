@@ -421,6 +421,4 @@ struct MessageCountsResponsePayload: Codable, Hashable {
     case errorMessage = "error_message"
     case channels
   }
-
-  // swiftlint:disable:next file_length
 }

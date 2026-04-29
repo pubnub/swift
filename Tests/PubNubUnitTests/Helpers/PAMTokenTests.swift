@@ -34,7 +34,7 @@ extension PAMTokenTests {
   func testParseToken() {
     let pubnub = PubNub(configuration: config)
     let token = pubnub.parse(token: PAMTokenTests.allPermissionsToken)
-    
+
     guard let resources = token?.resources else {
       return XCTAssert(false, "'resources' is missing")
     }

@@ -31,26 +31,26 @@ final class SubscribeRouterTests: XCTestCase {
     publisher: "SomeUser", channel: "TestChannel", published: 15_725_459_794_105_070
   )
   let testChannel = "TestChannel"
-  
+
   // MARK: - Endpoint Tests
-  
+
   func testSubscribe_Router() {
     let router = SubscribeRouter(.subscribe(
       channels: ["TestChannel"], groups: [], channelStates: [:],
       timetoken: 0, region: nil, heartbeat: nil, filter: nil
     ), configuration: config)
-    
+
     XCTAssertEqual(router.endpoint.description, "Subscribe")
     XCTAssertEqual(router.category, "Subscribe")
     XCTAssertEqual(router.service, .subscribe)
   }
-  
+
   func testSubscribe_Router_ValidationError() {
     let router = SubscribeRouter(.subscribe(
       channels: [], groups: [], channelStates: [:],
       timetoken: 0, region: nil, heartbeat: nil, filter: nil
     ), configuration: config)
-    
+
     XCTAssertNotEqual(
       router.validationError?.pubNubError,
       PubNubError(.invalidEndpointType, router: router)
@@ -81,7 +81,7 @@ extension SubscribeRouterTests {
       endpoint,
       configuration: config
     )
-    
+
     // There's no guaranteed order of returned states.
     // Therefore, these are two possible and valid combinations:
     let expStateValues = [
@@ -89,7 +89,7 @@ extension SubscribeRouterTests {
       "{\"c2\":{\"a\":\"someText\"},\"c1\":{\"x\":1}}"
     ]
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     XCTAssertTrue(queryItems.count == 8)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
@@ -98,9 +98,9 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "tt" && $0.value == "123456" })
     XCTAssertTrue(queryItems.contains { $0.name == "tr" && $0.value == "42" })
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
-    XCTAssertTrue(queryItems.contains { $0.name == "state" && expStateValues.contains($0.value!) })
+    XCTAssertTrue(queryItems.contains { $0.name == "state" && $0.value.map { expStateValues.contains($0) } == true })
   }
-  
+
   func testSubscribeRouter_QueryParamsWithEventEngineDisabled() {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
@@ -117,10 +117,10 @@ extension SubscribeRouterTests {
       channels: ["c1"], groups: ["group-1", "group-2"], channelStates: channelStates,
       timetoken: 123456, region: "42", heartbeat: 30, filter: nil
     )
-    
+
     let router = SubscribeRouter(endpoint, configuration: config)
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     XCTAssertTrue(queryItems.count == 6)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
@@ -129,7 +129,7 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "tt" && $0.value == "123456" })
     XCTAssertTrue(queryItems.contains { $0.name == "tr" && $0.value == "42" })
   }
-  
+
   func testSubscribeRouter_QueryParamsWithMaintainPresenceStateDisabled() {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
@@ -146,10 +146,10 @@ extension SubscribeRouterTests {
       channels: ["c1"], groups: ["group-1", "group-2"], channelStates: channelStates,
       timetoken: 123456, region: "42", heartbeat: 30, filter: nil
     )
-    
+
     let router = SubscribeRouter(endpoint, configuration: config)
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     XCTAssertTrue(queryItems.count == 7)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
@@ -159,7 +159,7 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "tr" && $0.value == "42" })
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
-  
+
   func testSubscribeRouter_QueryParamsWithEmptyPresenceStates() {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
@@ -174,7 +174,7 @@ extension SubscribeRouterTests {
     )
     let router = SubscribeRouter(endpoint, configuration: config)
     let queryItems = (try? router.queryItems.get()) ?? []
-    
+
     XCTAssertTrue(queryItems.count == 7)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
     XCTAssertTrue(queryItems.contains { $0.name == "uuid" && $0.value == "someId" })
@@ -193,26 +193,27 @@ fileprivate extension SubscribeRouterTests {
     subscriptionSession: SubscriptionSession,
     listener: SubscriptionListener
   )
-  
+
   func mockSubscriptionSession(
     with responses: [String],
     raw dataResource: [Data] = [],
     and configuration: PubNubConfiguration
   ) -> MockResult {
-    // Creates a container to resolve SubscriptionSession
     let container = DependencyContainer(configuration: configuration)
     let listener = SubscriptionListener()
-    
-    // Registers mock URL session before retrieving SubscriptionSession
+
+    // swiftlint:disable:next force_try force_unwrapping
+    let session = try! MockURLSession.mockSession(for: responses, raw: dataResource).session!
+
     container.register(
-      value: try! MockURLSession.mockSession(for: responses, raw: dataResource).session!,
+      value: session,
       forKey: HTTPSubscribeSessionDependencyKey.self
     )
-    
+
     // Adds a single listener and returns the output to perform further tests
     let resolvedSession = container.subscriptionSession
     resolvedSession.add(listener)
-    
+
     return MockResult(
       subscriptionSession: resolvedSession,
       listener: listener
@@ -231,7 +232,7 @@ extension SubscribeRouterTests {
         let mockResponses = ["subscription_handshake_success", "subscription_message_success", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
         let pubnub = PubNub(configuration: configuration)
-        
+
         mockResult.listener.didReceiveMessage = { [weak self, mockResult] message in
           XCTAssertEqual(message.channel, self?.testChannel)
           XCTAssertEqual(message.payload.stringOptional, "Test Message")
@@ -245,7 +246,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [messageExpect, statusExpect], timeout: 1.0)
       }
@@ -281,7 +282,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [presenceExpect, statusExpect], timeout: 1.0)
       }
@@ -315,7 +316,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [signalExpect, statusExpect], timeout: 1.0)
       }
@@ -347,7 +348,7 @@ extension SubscribeRouterTests {
           updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
           eTag: "UserUpdateEtag"
         )
-        
+
         mockResult.listener.didReceiveSubscription = { event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -382,13 +383,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_UUIDMetadata_Removed() {
     for configuration in [config, eeEnabledConfig] {
@@ -434,19 +435,19 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next function_body_length
   func testSubscribe_ChannelMetadata_Set() {
     for configuration in [config, eeEnabledConfig] {
       let mockResponses = ["subscription_handshake_success", "subscription_channelSet_success", "cancelled"]
       let mockResult = mockSubscriptionSession(with: mockResponses, and: configuration)
-      
+
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
@@ -465,7 +466,7 @@ extension SubscribeRouterTests {
           updated: DateFormatter.iso8601.date(from: "2019-10-06T01:55:50.645685Z"),
           eTag: "SpaceUpdateEtag"
         )
-        
+
         mockResult.listener.didReceiveSubscription = { event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -493,13 +494,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next cyclomatic_complexity
   func testSubscribe_ChannelMetadata_Removed() {
     for configuration in [config, eeEnabledConfig] {
@@ -545,13 +546,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Set() {
     for configuration in [config, eeEnabledConfig] {
@@ -561,7 +562,7 @@ extension SubscribeRouterTests {
         let objectExpect = XCTestExpectation(description: "Object Event")
         let statusExpect = XCTestExpectation(description: "Status Event")
         let objectListenerExpect = XCTestExpectation(description: "Object Listener Event")
-        
+
         let channel = PubNubChannelMetadataBase(metadataId: "TestSpaceID")
         let uuid = PubNubUserMetadataBase(metadataId: "TestUserID")
         let pubnub = PubNub(configuration: configuration)
@@ -573,10 +574,10 @@ extension SubscribeRouterTests {
           user: uuid,
           channel: channel,
           custom: ["something": true],
-          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), 
+          updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"),
           eTag: "TestETag"
         )
-        
+
         mockResult.listener.didReceiveSubscription = { [unowned self] event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -611,13 +612,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testSubscribe_Membership_Removed() {
     for configuration in [config, eeEnabledConfig] {
@@ -636,7 +637,7 @@ extension SubscribeRouterTests {
           user: uuid, channel: channel,
           updated: DateFormatter.iso8601.date(from: "2019-10-05T23:35:38.457823306Z"), eTag: "TestETag"
         )
-        
+
         mockResult.listener.didReceiveSubscription = { [weak self] event in
           switch event {
           case let .connectionStatusChanged(status):
@@ -671,7 +672,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [objectExpect, statusExpect, objectListenerExpect], timeout: 1.0)
       }
@@ -727,13 +728,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
       }
     }
   }
-  
+
   // swiftlint:disable:next cyclomatic_complexity function_body_length
   func testSubscribe_MessageAction_Removed() {
     for configuration in [config, eeEnabledConfig] {
@@ -779,7 +780,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [actionExpect, statusExpect, actionListenerExpect], timeout: 1.0)
       }
@@ -801,7 +802,7 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         let pubnub = PubNub(configuration: configuration)
         var payloadCount = 0
-        
+
         mockResult.listener.didReceiveSubscription = { [mockResult] _ in
           payloadCount += 1
           if payloadCount == 7 {
@@ -830,7 +831,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [signalExpect, statusExpect], timeout: 1.0)
       }
@@ -846,17 +847,17 @@ extension SubscribeRouterTests {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
         // swiftlint:disable:next line_length
         let corruptBase64Response = "eyJ0Ijp7InQiOiIxNTkxMjE4MzQ0MTUyNjM1MCIsInIiOjF9LCJtIjpbeyJhIjoiMyIsImYiOjUxMiwicCI6eyJ0IjoiMTU5MTIxODM0NDE1NTQyMDAiLCJyIjoxfSwiayI6ImRlbW8tMzYiLCJjIjoic3dpZnRJbnZhbGlkSlNPTi7/IiwiZCI6ImhlbGxvIiwiYiI6InN3aWZ0SW52YWxpZEpTT04uKiJ9XX0="
-        
+
         guard let corruptedData = Data(base64Encoded: corruptBase64Response) else {
           return XCTFail("Could not create Data from String")
         }
-        
+
         let mockResponses = ["subscription_handshake_success", "subscription_invalid_json", "cancelled"]
         let mockResult = mockSubscriptionSession(with: mockResponses, raw: [corruptedData], and: configuration)
         let errorExpect = XCTestExpectation(description: "Error Event")
         let pubnub = PubNub(configuration: configuration)
 
-        let statusExpect: XCTestExpectation? = if (configuration.enableEventEngine) {
+        let statusExpect: XCTestExpectation? = if configuration.enableEventEngine {
           XCTestExpectation(description: "Status Event")
         } else {
           nil
@@ -880,7 +881,7 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [errorExpect, statusExpect].compactMap { $0 }, timeout: 1.0, enforceOrder: true)
       }
@@ -900,7 +901,7 @@ extension SubscribeRouterTests {
         let statusExpect = XCTestExpectation(description: "Status Event")
         statusExpect.expectedFulfillmentCount = 2
         statusExpect.assertForOverFulfill = true
-        
+
         mockResult.listener.didReceiveSubscription = { [unowned self, mockResult] event in
           switch event {
           case let .subscriptionChanged(change):
@@ -929,13 +930,13 @@ extension SubscribeRouterTests {
         }
         mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription()])
         XCTAssertEqual(mockResult.subscriptionSession.subscribedChannels, [testChannel])
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [statusExpect], timeout: 1.0)
       }
     }
   }
-  
+
   func testUnsubscribeAll() {
     for configuration in [config, eeEnabledConfig] {
       XCTContext.runActivity(named: "Testing with enableEventEngine=\(configuration.enableEventEngine)") { _ in
@@ -974,11 +975,14 @@ extension SubscribeRouterTests {
             break
           }
         }
-        
-        mockResult.subscriptionSession.subscribe(to: [pubnub.channel(testChannel).subscription(), pubnub.channel(otherChannel).subscription()])
+
+        mockResult.subscriptionSession.subscribe(to: [
+          pubnub.channel(testChannel).subscription(),
+          pubnub.channel(otherChannel).subscription()
+        ])
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(testChannel))
         XCTAssertTrue(mockResult.subscriptionSession.subscribedChannels.contains(otherChannel))
-        
+
         defer { mockResult.listener.cancel() }
         wait(for: [statusExpect], timeout: 1.0)
       }
@@ -989,11 +993,11 @@ extension SubscribeRouterTests {
 // MARK: - Subscription with CryptoModule enabled
 
 extension SubscribeRouterTests {
-  func testSubscribe_DecryptNonEncryptedMessage() {
+  func testSubscribe_DecryptNonEncryptedMessage() throws {
     let messageExpect = XCTestExpectation(description: "Message Event")
     messageExpect.assertForOverFulfill = true
     messageExpect.expectedFulfillmentCount = 1
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -1006,13 +1010,13 @@ extension SubscribeRouterTests {
       "cancelled"
     ]
     let container = DependencyContainer(configuration: config).register(
-      value: try! MockURLSession.mockSession(for: mockResponses).session,
+      value: try MockURLSession.mockSession(for: mockResponses).session,
       forKey: HTTPSubscribeSessionDependencyKey.self
     )
 
     let pubnub = PubNub(container: container)
     let listener = SubscriptionListener()
-        
+
     listener.didReceiveMessage = { [weak self, unowned pubnub] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
@@ -1020,19 +1024,19 @@ extension SubscribeRouterTests {
       pubnub.unsubscribeAll()
       messageExpect.fulfill()
     }
-    
+
     pubnub.add(listener)
     pubnub.subscribe(to: [testChannel])
 
     defer { listener.cancel() }
     wait(for: [messageExpect], timeout: 1.0)
   }
-  
-  func testSubscribe_DecryptEncryptedMessage() {
+
+  func testSubscribe_DecryptEncryptedMessage() throws {
     let messageExpect = XCTestExpectation(description: "Message Event")
     messageExpect.assertForOverFulfill = true
     messageExpect.expectedFulfillmentCount = 1
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -1045,13 +1049,13 @@ extension SubscribeRouterTests {
       "cancelled"
     ]
     let container = DependencyContainer(configuration: config).register(
-      value: try! MockURLSession.mockSession(for: mockResponses).session,
+      value: try MockURLSession.mockSession(for: mockResponses).session,
       forKey: HTTPSubscribeSessionDependencyKey.self
     )
-    
+
     let pubnub = PubNub(container: container)
     let listener = SubscriptionListener()
-        
+
     listener.didReceiveMessage = { [weak self, unowned pubnub] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "Test Message")
@@ -1059,19 +1063,19 @@ extension SubscribeRouterTests {
       pubnub.unsubscribeAll()
       messageExpect.fulfill()
     }
-    
+
     pubnub.add(listener)
     pubnub.subscribe(to: [testChannel])
 
     defer { listener.cancel() }
     wait(for: [messageExpect], timeout: 1.0)
   }
-  
-  func testSubscribe_DecryptEncryptedMessageWithMismatchedKey() {
+
+  func testSubscribe_DecryptEncryptedMessageWithMismatchedKey() throws {
     let messageExpect = XCTestExpectation(description: "Message Event")
     messageExpect.assertForOverFulfill = true
     messageExpect.expectedFulfillmentCount = 1
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -1084,13 +1088,13 @@ extension SubscribeRouterTests {
       "cancelled"
     ]
     let container = DependencyContainer(configuration: config).register(
-      value: try! MockURLSession.mockSession(for: mockResponses).session,
+      value: try MockURLSession.mockSession(for: mockResponses).session,
       forKey: HTTPSubscribeSessionDependencyKey.self
     )
 
     let pubnub = PubNub(container: container)
     let listener = SubscriptionListener()
-    
+
     listener.didReceiveMessage = { [weak self, unowned pubnub] message in
       XCTAssertEqual(message.channel, self?.testChannel)
       XCTAssertEqual(message.payload.stringOptional, "UE5FRAFBQ1JIEGOmGQMIMXD+91V+5hTxm7p7uEUhEEYohYLQz5fEGITC")
@@ -1098,13 +1102,13 @@ extension SubscribeRouterTests {
       pubnub.unsubscribeAll()
       messageExpect.fulfill()
     }
-    
+
     pubnub.add(listener)
     pubnub.subscribe(to: [testChannel])
 
     defer { listener.cancel() }
     wait(for: [messageExpect], timeout: 1.0)
   }
-  
+
   // swiftlint:disable:next file_length
 }

@@ -18,28 +18,33 @@ class WaitEffectTests: XCTestCase {
   private var httpSession: HTTPSession!
   private var delegate: HTTPSessionDelegate!
   private var factory: PresenceEffectFactory!
-      
+
   override func setUp() {
     delegate = HTTPSessionDelegate()
     mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, logger: PubNubLogger.defaultLogger(), sessionQueue: .main)
+    httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
+      sessionQueue: .main
+    )
     factory = PresenceEffectFactory(session: httpSession, presenceStateContainer: .shared)
-    
+
     super.setUp()
   }
-  
+
   override func tearDown() {
     mockUrlSession = nil
     delegate = nil
     httpSession = nil
     super.tearDown()
   }
-  
+
   func test_WaitEffect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-  
+
     let heartbeatInterval = 2
     let config = PubNubConfiguration(
       publishKey: "pubKey",
@@ -47,7 +52,7 @@ class WaitEffectTests: XCTestCase {
       userId: "userId",
       heartbeatInterval: UInt(heartbeatInterval)
     )
-            
+
     let effect = factory.effect(
       for: .wait,
       with: EventEngineDependencies(value: Presence.Dependencies(configuration: config))
@@ -61,36 +66,36 @@ class WaitEffectTests: XCTestCase {
     }
     wait(for: [expectation], timeout: 2.5)
   }
-  
+
   func test_WaitEffectCancellation() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
     expectation.isInverted = true
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
       userId: "userId",
       heartbeatInterval: UInt(2)
-    )            
+    )
     let effect = factory.effect(
       for: .wait,
       with: EventEngineDependencies(value: Presence.Dependencies(configuration: config))
     )
-    effect.performTask { returnedEvents in
+    effect.performTask { _ in
       expectation.fulfill()
     }
     effect.cancelTask()
-    
+
     wait(for: [expectation], timeout: 0.5)
   }
-  
+
   func test_WaitEffectFinishesImmediatelyWithEmptyHeartbeatInterval() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -105,7 +110,7 @@ class WaitEffectTests: XCTestCase {
       XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 0.5)
   }
 }

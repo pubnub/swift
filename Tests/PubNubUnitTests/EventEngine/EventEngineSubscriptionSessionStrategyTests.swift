@@ -43,7 +43,7 @@ class EventEngineSubscriptionSessionStrategyTests: XCTestCase {
       presenceEngine: presenceEngine,
       presenceStateContainer: .shared
     )
-    
+
     // Verify initial state
     XCTAssertEqual(
       strategy.subscribeEngine.dependencies.value.configuration.authToken,

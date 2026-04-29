@@ -24,7 +24,7 @@ final class PushRouterTests: XCTestCase {
 
 extension PushRouterTests {
   func testListFCMPushProvisions_Router() {
-    let data = "A1b2".data(using: .utf8)!
+    let data = Data("A1b2".utf8)
     let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
@@ -553,6 +553,4 @@ extension PushRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

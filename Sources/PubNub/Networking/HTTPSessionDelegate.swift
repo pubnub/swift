@@ -121,8 +121,8 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
           operation: "session-network-transport",
           details: "Connected using \(transportProtocol)",
           arguments: [
-            ("sessionID", self.sessionBridge?.sessionID.uuidString),
-            ("requestID", self.sessionBridge?.request(for: task)?.requestID.uuidString),
+            ("sessionID", String(describing: self.sessionBridge?.sessionID)),
+            ("requestID", String(describing: self.sessionBridge?.request(for: task)?.requestID)),
             ("taskIdentifier", task.taskIdentifier)
           ]
         )

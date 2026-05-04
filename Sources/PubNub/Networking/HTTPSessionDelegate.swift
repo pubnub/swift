@@ -99,6 +99,38 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 
+  public func urlSession(_: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    guard let networkProtocolName = metrics.transactionMetrics.last?.networkProtocolName?.lowercased() else {
+      return
+    }
+
+    let transportProtocol: String
+
+    switch networkProtocolName {
+    case "h2":
+      transportProtocol = "HTTP/2"
+    case "http/1.1":
+      transportProtocol = "HTTP/1.1"
+    default:
+      transportProtocol = networkProtocolName
+    }
+
+    logger?.info(
+      .customObject(
+        .init(
+          operation: "session-network-transport",
+          details: "Connected using \(transportProtocol)",
+          arguments: [
+            ("sessionID", self.sessionBridge?.sessionID.uuidString),
+            ("requestID", self.sessionBridge?.request(for: task)?.requestID.uuidString),
+            ("taskIdentifier", task.taskIdentifier)
+          ]
+        )
+      ),
+      category: .networking
+    )
+  }
+
   public func urlSession(
     _ session: URLSession,
     didReceive challenge: URLAuthenticationChallenge,

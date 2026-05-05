@@ -23,6 +23,7 @@ The PubNub Real-Time Network. Build real-time apps quickly and scale them global
 
   s.module_name = 'PubNubSDK'
   s.source_files = 'Sources/**/*.swift'
+  s.frameworks = 'CFNetwork'
   
   s.resource_bundles = { "PubNubSwift" => ["Sources/PubNub/PrivacyInfo.xcprivacy"]}
 

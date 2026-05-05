@@ -115,7 +115,7 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
       transportProtocol = networkProtocolName
     }
 
-    logger?.info(
+    logger?.trace(
       .customObject(
         .init(
           operation: "session-network-transport",

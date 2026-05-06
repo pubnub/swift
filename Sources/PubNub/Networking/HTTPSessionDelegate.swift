@@ -111,6 +111,8 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
       transportProtocol = "HTTP/2"
     case "http/1.1":
       transportProtocol = "HTTP/1.1"
+    case "h3":
+      transportProtocol = "HTTP/3"
     default:
       transportProtocol = networkProtocolName
     }

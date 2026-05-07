@@ -40,8 +40,16 @@ enum CryptorVector {
     }
   }
 
+enum CryptorVector {
+  private static let fixedInitializationVector = Data("0123456789012345".utf8)
+
+  case fixed
+  case random(bytesCount: Int)
+
   private func staticInitializationVector() -> Data {
-    Data("0123456789012345".utf8)
+    Self.fixedInitializationVector
+  }
+}
   }
 
   private func randomInitializationVector(with byteCount: Int) throws -> Data {

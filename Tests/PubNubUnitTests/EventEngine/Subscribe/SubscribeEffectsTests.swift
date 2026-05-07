@@ -190,7 +190,10 @@ private extension SubscribeEffectsTests {
     errorIfAny: Error? = nil,
     statusCode: Int = 200
   ) {
-    let httpResponse = HTTPURLResponse(statusCode: statusCode) ?? HTTPURLResponse()
+    guard let httpResponse = HTTPURLResponse(statusCode: statusCode) else {
+      XCTFail("Failed to create HTTPURLResponse for statusCode: \(statusCode)")
+      return
+    }
     mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = errorIfAny
       task.mockData = try? Constant.jsonEncoder.encode(subscribeResponse)

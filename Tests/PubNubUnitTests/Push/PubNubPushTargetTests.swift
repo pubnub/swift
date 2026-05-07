@@ -42,13 +42,14 @@ private func testPushMessage(with target: PubNubPushTarget) -> PubNubAPNSPayload
 
 private func retrieveExcludedDevicesValue(from string: String) throws -> String? {
   let regex = try NSRegularExpression(pattern: "(?<=\"excluded_devices\":)(.*?)](=?)")
-  let regexMatch = regex.matches(in: string, range: NSRange(location: 0, length: string.count)).first
+  let nsRange = NSRange(string.startIndex..., in: string)
 
-  if let regexMatch = regexMatch {
-    let startIdx = string.index(string.startIndex, offsetBy: regexMatch.range.location)
-    let endIdx = string.index(startIdx, offsetBy: regexMatch.range.length - 1)
-    return String(string[startIdx...endIdx])
-  } else {
+  guard
+    let regexMatch = regex.matches(in: string, range: nsRange).first,
+    let range = Range(regexMatch.range, in: string)
+  else {
     return nil
   }
+
+  return String(string[range])
 }

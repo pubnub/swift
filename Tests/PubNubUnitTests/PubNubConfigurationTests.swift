@@ -14,10 +14,8 @@ import XCTest
 class PubNubConfigurationTests: XCTestCase {
   let publishDictionaryKey = "PubNubPubKey"
   let subscribeDictionaryKey = "PubNubSubKey"
-
   let plistPublishKeyValue = "demo"
   let plistSubscribeKeyValue = "demo"
-
   let publishKeyValue = "NotARealPublishKey"
   let subscribeKeyValue = "NotARealSubscribeKey"
 

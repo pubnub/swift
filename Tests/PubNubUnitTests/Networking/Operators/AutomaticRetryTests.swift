@@ -46,6 +46,7 @@ class AutomaticRetryTests: XCTestCase {
   func testEquatable_Init_Linear_InvalidDelay() {
     let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: -1.0)
     let validBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 2.0)
+
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: invalidBasePolicy,
@@ -59,6 +60,7 @@ class AutomaticRetryTests: XCTestCase {
 
   func testEquatable_Init_Linear_Valid() {
     let validLinearPolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 2.0)
+    
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
       policy: validLinearPolicy,

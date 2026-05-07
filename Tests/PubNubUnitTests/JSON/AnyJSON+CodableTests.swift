@@ -67,6 +67,7 @@ class AnyJSONCodableTests: XCTestCase {
 
     exampleDict["Dictionary"] = exampleDict
     exampleDict["Array"] = exampleList
+    
     XCTAssertNotNil(exampleDict["Dictionary"] as? [String: Any])
     XCTAssertNotNil(exampleDict["Array"] as? [Any])
   }
@@ -327,6 +328,7 @@ class AnyJSONCodableTests: XCTestCase {
   func testCodingKeys_IntValue() {
     let intValue = 1
     let keys = AnyJSONType.AnyJSONTypeCodingKey(intValue: intValue)
+
     XCTAssertNil(keys?.intValue)
     XCTAssertEqual(keys?.stringValue, intValue.description)
   }

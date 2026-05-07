@@ -7,6 +7,7 @@ This document contains shared Swift standards for this repository.
 Apply these standards to production Swift library code:
 
 - Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
+- Minimize access levels: default to `private` or `internal`; only expose `public` what SDK consumers explicitly need. Do not widen access without justification.
 - Preserve clear ownership and lifecycle behavior; flag likely retain cycles, leaked observers, and long-lived captured references.
 - Avoid force unwraps and other crash-prone patterns.
 - Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.

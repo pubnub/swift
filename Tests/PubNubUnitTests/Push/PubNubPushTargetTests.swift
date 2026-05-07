@@ -25,8 +25,8 @@ class PubNubPushTargetTests: XCTestCase {
 
   func test_ExcludedDeviceTokensAreNotSentIfNotProvided() throws {
     let message = testPushMessage(with: .init(topic: "com.pubnub", environment: .production))
-    let encodedData = try? Constant.jsonEncoder.encode(message)
-    let encodedStr = String(data: encodedData ?? Data(), encoding: .utf8) ?? ""
+    let encodedData = try Constant.jsonEncoder.encode(message)
+    let encodedStr = String(decoding: encodedData, as: UTF8.self)
 
     XCTAssertEqual(try retrieveExcludedDevicesValue(from: encodedStr), nil)
   }

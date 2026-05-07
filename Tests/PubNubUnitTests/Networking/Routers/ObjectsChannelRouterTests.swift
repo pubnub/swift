@@ -12,7 +12,6 @@
 import XCTest
 
 final class ObjectsChannelRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
   let testChannel = PubNubChannelMetadataBase(name: "TestChannel")
   let invalidUser = PubNubChannelMetadataBase(name: "")
 }
@@ -20,7 +19,9 @@ final class ObjectsChannelRouterTests: XCTestCase {
 // MARK: - All Tests
 
 extension ObjectsChannelRouterTests {
-  func testAll_Router() {
+  func test_FetchAllChannels_RouterConfiguration_ReturnsCorrectEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .all(
         include: [.custom], totalCount: true, filter: "filter",
@@ -34,7 +35,9 @@ extension ObjectsChannelRouterTests {
     XCTAssertEqual(router.service, .objects)
   }
 
-  func testAll_Router_ValidationError() {
+  func test_FetchAllChannels_RouterValidation_ReturnsNoEndpointTypeError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .all(
         include: [.custom], totalCount: true, filter: "filter",
@@ -49,16 +52,12 @@ extension ObjectsChannelRouterTests {
     )
   }
 
-  func testAll_Success() {
+  func test_FetchAllChannels_WithValidConfig_ReturnsChannels() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
 
-    guard
-      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_all_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"),
-      let lastDate = DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z")
-    else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["objects_channel_all_success"])
+    let firstDate = try XCTUnwrap(DateFormatter.iso8601.date(from: "2019-08-18T11:25:55.44977Z"))
+    let lastDate = try XCTUnwrap(DateFormatter.iso8601.date(from: "2019-08-18T11:25:59.326105Z"))
 
     let firstTest = PubNubChannelMetadataBase(
       metadataId: "WGWPWPJBRJ", name: "HNNCTGRURF",
@@ -75,10 +74,7 @@ extension ObjectsChannelRouterTests {
       totalCount: 2
     )
 
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -94,15 +90,12 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAll_Success_empty() {
+  func test_FetchAllChannels_WhenEmpty_ReturnsEmptyList() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_all_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["objects_channel_all_success_empty"])
 
     let testPage = PubNubHashedPageBase(totalCount: 0)
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -118,17 +111,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_403() {
+  func test_FetchAllChannels_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_403"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -143,17 +129,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_429() {
+  func test_FetchAllChannels_WhenTooManyRequests_ReturnsTooManyRequestsError() throws {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_429"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -168,17 +147,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_500() {
+  func test_FetchAllChannels_WhenInternalServerError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_500"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -193,17 +165,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchAll_error_503() {
+  func test_FetchAllChannels_WhenServiceUnavailable_ReturnsServiceUnavailableError() throws {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_503"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.allChannelMetadata { result in
       switch result {
@@ -222,7 +187,9 @@ extension ObjectsChannelRouterTests {
 // MARK: - Fetch Tests
 
 extension ObjectsChannelRouterTests {
-  func testFetch_Router() {
+  func test_FetchChannel_RouterConfiguration_ReturnsCorrectEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .fetch(metadataId: "OtherUser", include: [.custom]),
       configuration: config
@@ -233,7 +200,9 @@ extension ObjectsChannelRouterTests {
     XCTAssertEqual(router.service, .objects)
   }
 
-  func testFetch_Router_ValidationError() {
+  func test_FetchChannel_RouterValidationWithEmptyId_ReturnsNoEndpointTypeError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .fetch(metadataId: "", include: [.custom]),
       configuration: config
@@ -245,15 +214,10 @@ extension ObjectsChannelRouterTests {
     )
   }
 
-  func testFetch_Success() {
+  func test_FetchChannel_WithValidConfig_ReturnsChannel() throws {
     let expectation = self.expectation(description: "Fetch Endpoint Expectation")
-
-    guard
-      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
-    else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["objects_channel_fetch_success"])
+    let firstDate = try XCTUnwrap(DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z"))
 
     let testObject = PubNubChannelMetadataBase(
       metadataId: "TestChannel", name: "Test Channel",
@@ -262,10 +226,7 @@ extension ObjectsChannelRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -280,17 +241,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_403() {
+  func test_FetchChannel_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_403"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -305,17 +259,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_404() {
+  func test_FetchChannel_WhenNotFound_ReturnsResourceNotFoundError() throws {
     let expectation = self.expectation(description: "404 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_404"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_404"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -330,17 +277,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_429() {
+  func test_FetchChannel_WhenTooManyRequests_ReturnsTooManyRequestsError() throws {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_429"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -355,17 +295,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_500() {
+  func test_FetchChannel_WhenInternalServerError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_500"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -380,17 +313,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_503() {
+  func test_FetchChannel_WhenServiceUnavailable_ReturnsServiceUnavailableError() throws {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_503"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.fetchChannelMetadata("TestChannel") { result in
       switch result {
@@ -409,7 +335,9 @@ extension ObjectsChannelRouterTests {
 // MARK: - Set Tests
 
 extension ObjectsChannelRouterTests {
-  func testSet_Router() {
+  func test_SetChannel_RouterConfiguration_ReturnsCorrectEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .set(metadata: testChannel, include: [.custom]),
       configuration: config
@@ -420,7 +348,9 @@ extension ObjectsChannelRouterTests {
     XCTAssertEqual(router.service, .objects)
   }
 
-  func testSet_Router_ValidationError() {
+  func test_SetChannel_RouterValidationWithInvalidChannel_ReturnsNoEndpointTypeError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = ObjectsChannelRouter(
       .set(metadata: invalidUser, include: [.custom]),
       configuration: config
@@ -432,15 +362,10 @@ extension ObjectsChannelRouterTests {
     )
   }
 
-  func testSet_Success() {
+  func test_SetChannel_WithValidConfig_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Create Endpoint Expectation")
-
-    guard
-      let sessions = try? MockURLSession.mockSession(for: ["objects_channel_fetch_success"]),
-      let firstDate = DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z")
-    else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["objects_channel_fetch_success"])
+    let firstDate = try XCTUnwrap(DateFormatter.iso8601.date(from: "2019-09-03T02:47:38.609257Z"))
 
     let testObject = PubNubChannelMetadataBase(
       metadataId: "TestChannel", name: "Test Channel",
@@ -449,10 +374,7 @@ extension ObjectsChannelRouterTests {
       updated: firstDate, eTag: "AfuB8q7/s+qCwAE"
     )
 
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -467,17 +389,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_400() {
+  func test_SetChannel_WhenBadRequest_ReturnsBadRequestError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_400"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_400"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -492,17 +407,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_403() {
+  func test_SetChannel_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_403"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -517,17 +425,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_409() {
+  func test_SetChannel_WhenConflict_ReturnsConflictError() throws {
     let expectation = self.expectation(description: "409 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_409"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_409"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -542,17 +443,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_415() {
+  func test_SetChannel_WhenUnsupportedType_ReturnsUnsupportedTypeError() throws {
     let expectation = self.expectation(description: "415 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_415"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_415"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -567,17 +461,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_429() {
+  func test_SetChannel_WhenTooManyRequests_ReturnsTooManyRequestsError() throws {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_429"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -592,17 +479,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_500() {
+  func test_SetChannel_WhenInternalServerError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_500"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -617,17 +497,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSet_error_503() {
+  func test_SetChannel_WhenServiceUnavailable_ReturnsServiceUnavailableError() throws {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_503"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.setChannelMetadata(testChannel) { result in
       switch result {
@@ -646,7 +519,8 @@ extension ObjectsChannelRouterTests {
 // MARK: - Remove Tests
 
 extension ObjectsChannelRouterTests {
-  func testRemove_Router() {
+  func test_RemoveChannel_RouterConfiguration_ReturnsCorrectEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
     let router = ObjectsChannelRouter(.remove(metadataId: "TestChannel"), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove Metadata from a Channel")
@@ -654,7 +528,8 @@ extension ObjectsChannelRouterTests {
     XCTAssertEqual(router.service, .objects)
   }
 
-  func testRemove_Router_ValidationError() {
+  func test_RemoveChannel_RouterValidationWithEmptyId_ReturnsNoEndpointTypeError() {
+    let config = TestPubNubFactory.makeConfig()
     let router = ObjectsChannelRouter(.remove(metadataId: ""), configuration: config)
 
     XCTAssertNotEqual(
@@ -663,17 +538,10 @@ extension ObjectsChannelRouterTests {
     )
   }
 
-  func testRemove_Success() {
+  func test_RemoveChannel_WithValidConfig_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Delete Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_channel_remove_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_channel_remove_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
@@ -688,17 +556,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_403() {
+  func test_RemoveChannel_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_403"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
@@ -713,17 +574,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_412() {
+  func test_RemoveChannel_WhenPreconditionFailed_ReturnsPreconditionFailedError() throws {
     let expectation = self.expectation(description: "412 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_412"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_412"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
@@ -738,17 +592,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_429() {
+  func test_RemoveChannel_WhenTooManyRequests_ReturnsTooManyRequestsError() throws {
     let expectation = self.expectation(description: "429 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_429"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_429"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
@@ -763,17 +610,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_500() {
+  func test_RemoveChannel_WhenInternalServerError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "500 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_500"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_500"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {
@@ -788,17 +628,10 @@ extension ObjectsChannelRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_503() {
+  func test_RemoveChannel_WhenServiceUnavailable_ReturnsServiceUnavailableError() throws {
     let expectation = self.expectation(description: "503 Error Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["objects_error_503"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(
-      configuration: config,
-      session: sessions.session
-    )
+    let sessions = try MockURLSession.mockSession(for: ["objects_error_503"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.remove(channel: "TestChannel") { result in
       switch result {

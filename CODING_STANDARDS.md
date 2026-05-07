@@ -25,3 +25,6 @@ Apply these standards to Swift SDK test code:
 - Cover edge cases and failure paths introduced by the change.
 - Keep tests deterministic and isolated; avoid hidden shared state, order dependence, and timing-sensitive assertions.
 - Prefer focused tests over broad tests that verify many behaviors at once.
+- Declare test methods as `throws` and use `try` / `try XCTUnwrap()` instead of `guard let ... else { return XCTFail(...) }`. Tests should be flat with no early-return guard boilerplate.
+- Each test method should create its own mutable state and dependencies locally — do not share them via class-level var properties or setUp()/tearDown(). Class-level let constants for static test data are fine.
+- Use clearly-typed test doubles with consistent prefixes: `Mock` (verifies interactions), `Stub` (returns canned data), `NoOp` (null object), `Expector` (spy with XCTestExpectation).

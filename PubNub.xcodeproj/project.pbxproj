@@ -481,7 +481,9 @@
 		3DB925602B7A2B9B001B7E90 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */; };
 		3DB925622B7A2BCA001B7E90 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */; };
 		3DB925642B7A2BF5001B7E90 /* SubscriptionSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */; };
-		3DB925662B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */; };
+		3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1FC /* MockListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1FD /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */; };
 		3DB9257C2B7AA75F001B7E90 /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256B2B7AA75F001B7E90 /* EventStream.swift */; };
 		3DB9257D2B7AA75F001B7E90 /* SubscriptionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */; };
 		3DB9257E2B7AA75F001B7E90 /* PubNubEntityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */; };
@@ -1144,7 +1146,9 @@
 		3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionTests.swift; sourceTree = "<group>"; };
 		3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSetTests.swift; sourceTree = "<group>"; };
-		3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeMessagesGeneratorTests.swift; sourceTree = "<group>"; };
+		3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribePayloadFactory.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockListener.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPubNubFactory.swift; sourceTree = "<group>"; };
 		3DB9256B2B7AA75F001B7E90 /* EventStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStream.swift; sourceTree = "<group>"; };
 		3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStream.swift; sourceTree = "<group>"; };
 		3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEntityEvent.swift; sourceTree = "<group>"; };
@@ -1407,7 +1411,6 @@
 				A5A0A0032E31A00100000003 /* API */,
 				A5A0A0042E31A00100000004 /* Core */,
 				A5A0A0052E31A00100000005 /* Legacy */,
-				A5A0A0062E31A00100000006 /* Mapping */,
 			);
 			path = Subscribe;
 			sourceTree = "<group>";
@@ -1637,16 +1640,59 @@
 			isa = PBXGroup;
 			children = (
 				355BEA0022C2CCBF000EC334 /* Responses */,
-				35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */,
-				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
-				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
-				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
-				35CDA4CD2510032B00218137 /* XMLEncoder.swift */,
-				35458BA4230D8E500085B502 /* TestLogWriter.swift */,
-				35458BA6230D91BB0085B502 /* TestSetup.swift */,
-				3D38A0092B35AF6A006928E7 /* EffectInvocation+Equatable.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* Mocks */,
+				A1B2C3D4E5F6A7B8C9D0E1F3 /* Helpers */,
+				A1B2C3D4E5F6A7B8C9D0E1F4 /* Extensions */,
+				A1B2C3D4E5F6A7B8C9D0E1F5 /* Factories */,
+				A1B2C3D4E5F6A7B8C9D0E1F6 /* Stubs */,
 			);
 			path = Support;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
+				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F3 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
+				35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */,
+				35458BA4230D8E500085B502 /* TestLogWriter.swift */,
+				35458BA6230D91BB0085B502 /* TestSetup.swift */,
+				35CDA4CD2510032B00218137 /* XMLEncoder.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F4 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				3D38A0092B35AF6A006928E7 /* EffectInvocation+Equatable.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F5 /* Factories */ = {
+			isa = PBXGroup;
+			children = (
+				3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */,
+				A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */,
+			);
+			path = Factories;
+			sourceTree = "<group>";
+		};
+		A1B2C3D4E5F6A7B8C9D0E1F6 /* Stubs */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Stubs;
 			sourceTree = "<group>";
 		};
 		3580A5A422F14D6000B12E5E /* Networking */ = {
@@ -2865,14 +2911,6 @@
 				3DB9255A2B7A2B89001B7E90 /* EventStreamTests.swift */,
 			);
 			path = Legacy;
-			sourceTree = "<group>";
-		};
-		A5A0A0062E31A00100000006 /* Mapping */ = {
-			isa = PBXGroup;
-			children = (
-				3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */,
-			);
-			path = Mapping;
 			sourceTree = "<group>";
 		};
 		A5A0A0072E31A00100000007 /* JSON */ = {
@@ -4156,7 +4194,9 @@
 				3580A5A822F1583900B12E5E /* MockRequestOperators.swift in Sources */,
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
-				3DB925662B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift in Sources */,
+				3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1FC /* MockListener.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1FD /* TestPubNubFactory.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
 				3D38A0112B35AF6B006928E7 /* SubscribeTransitionTests.swift in Sources */,
 				3D38A00B2B35AF6A006928E7 /* DispatcherTests.swift in Sources */,

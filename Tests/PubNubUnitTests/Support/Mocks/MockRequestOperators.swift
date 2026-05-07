@@ -11,9 +11,11 @@
 import XCTest
 @testable import PubNubSDK
 
-struct DefaultOperator: RequestOperator, Equatable {
+struct StubRequestOperator: RequestOperator, Equatable {
   let uuid = UUID()
 }
+
+typealias DefaultOperator = StubRequestOperator
 
 class RetryExpector: RequestOperator {
   var retryCount = 0

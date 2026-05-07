@@ -12,37 +12,34 @@
 import XCTest
 
 final class HTTPURLResponsePubNubTests: XCTestCase {
-  let url: URL! = URL(string: "https://example.com")
 
-  func testIsSuccessful_True() {
-    guard let response = HTTPURLResponse(
-      url: url,
-      statusCode: 200,
-      httpVersion: "1.2",
-      headerFields: nil
-    ) else {
-      XCTFail("HTTPURLResponse was nil ")
-      return
-    }
+  func test_IsSuccessful_WithStatus200_ReturnsTrue() throws {
+    let response = try XCTUnwrap(
+      HTTPURLResponse(
+        url: try XCTUnwrap(URL(string: "https://example.com")),
+        statusCode: 200,
+        httpVersion: "1.2",
+        headerFields: nil
+      )
+    )
 
     XCTAssertTrue(response.isSuccessful)
   }
 
-  func testIsSuccessful_False() {
-    guard let response = HTTPURLResponse(
-      url: url,
-      statusCode: 300,
-      httpVersion: "1.2",
-      headerFields: nil
-    ) else {
-      XCTFail("HTTPURLResponse was nil ")
-      return
-    }
+  func test_IsSuccessful_WithStatus300_ReturnsFalse() throws {
+    let response = try XCTUnwrap(
+      HTTPURLResponse(
+        url: try XCTUnwrap(URL(string: "https://example.com")),
+        statusCode: 300,
+        httpVersion: "1.2",
+        headerFields: nil
+      )
+    )
 
     XCTAssertFalse(response.isSuccessful)
   }
 
-  func testSuccessfulStatusCodes() {
+  func test_SuccessfulStatusCodes_ReturnsRange200To299() {
     XCTAssertEqual(HTTPURLResponse.successfulStatusCodes, 200 ..< 300)
   }
 }

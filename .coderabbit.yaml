@@ -46,6 +46,7 @@ reviews:
     - '!**/xcuserdata/**'
     - '!**/*.xcuserstate'
     - '!**/*.xcworkspacedata'
+    - '!Tests/PubNubContractTests/**/*.swift'
     - '!Tests/PubNubUnitTests/Support/Responses/**/*.json'
     - '!Tests/PubNubUnitTests/Support/Responses/**/*.txt'
     - '!Examples/**/*.storyboard'

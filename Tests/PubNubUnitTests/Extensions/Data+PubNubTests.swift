@@ -14,34 +14,24 @@ import Foundation
 import XCTest
 
 final class DataPubNubTests: XCTestCase {
-  func testHexEncodedString() {
+  func test_HexEncodedString_WithValidUTF8Data_RoundTripsCorrectly() throws {
     let testString = "Test String To Data Encode"
-
-    guard let testStringData = testString.data(using: .utf8) else {
-      return XCTFail("Could not create data from test string")
-    }
-
+    let testStringData = try XCTUnwrap(testString.data(using: .utf8))
     let hexString = testStringData.hexEncodedString
-
-    guard let encodedData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not create data from hex string")
-    }
-
-    guard let encodedString = String(bytes: encodedData, encoding: .utf8) else {
-      return XCTFail("Could not turn encoded data into encoded string")
-    }
+    let encodedData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let encodedString = try XCTUnwrap(String(bytes: encodedData, encoding: .utf8))
 
     XCTAssertEqual(encodedString, testString)
   }
 
-  func testInitHexEncodedString_Fail_UnevenStringCount() {
+  func test_InitHexEncodedString_WithOddCharacterCount_ReturnsNil() {
     let testString = "AAA"
 
     XCTAssertTrue(testString.count % 2 == 1)
     XCTAssertNil(Data(hexEncodedString: testString))
   }
 
-  func testInitHexEncodedString_Fail_NonHexString() {
+  func test_InitHexEncodedString_WithNonHexCharacters_ReturnsNil() {
     let testString = "This Is A Non Hex String"
 
     XCTAssertTrue(testString.count % 2 == 0)

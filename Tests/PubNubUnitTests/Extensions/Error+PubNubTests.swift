@@ -12,14 +12,14 @@
 import XCTest
 
 final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
+  func test_PubNubError_WhenCastingPubNubError_ReturnsNonNil() {
     let error: Error = PubNubError(.unknown)
 
     XCTAssertNotNil(error.pubNubError)
     XCTAssertNil(error.urlError)
   }
 
-  func testURLErrorCast() {
+  func test_URLError_WhenCastingURLError_ReturnsNonNil() {
     let error: Error = URLError(.unknown)
 
     XCTAssertNotNil(error.urlError)

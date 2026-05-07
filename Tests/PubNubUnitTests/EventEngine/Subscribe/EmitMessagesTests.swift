@@ -13,32 +13,14 @@ import XCTest
 
 @testable import PubNubSDK
 
-private class MockListener: BaseSubscriptionListener {
-  var onEmitMessagesCalled: ([SubscribeMessagePayload]) -> Void = { _ in }
-  var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
-
-  override func emit(batch: [SubscribeMessagePayload]) {
-    onEmitMessagesCalled(batch)
-  }
-  override func emit(subscribe: PubNubSubscribeEvent) {
-    onEmitSubscribeEventCalled(subscribe)
-  }
-}
-
 class EmitMessagesTests: XCTestCase {
-  private var subscriptions: [MockListener] = []
-
-  override func setUp() {
-    subscriptions = (0...2).map { _ in MockListener() }
-    super.setUp()
-  }
-
-  override func tearDown() {
-    subscriptions = []
-    super.tearDown()
+  private func makeListeners(count: Int = 3) -> [MockListener] {
+    (0..<count).map { _ in MockListener() }
   }
 
   func testListener_WithMessage() {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
@@ -51,6 +33,7 @@ class EmitMessagesTests: XCTestCase {
       testFile,
       testPresenceChange
     ]
+
     let effect = EmitMessagesEffect(
       messages: messages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
@@ -71,6 +54,8 @@ class EmitMessagesTests: XCTestCase {
   }
 
   func testListener_MessageCountExceededMaximum() {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
@@ -81,6 +66,7 @@ class EmitMessagesTests: XCTestCase {
         payload: AnyJSON("Hello, it's message number \($0)")
       )
     }
+
     let effect = EmitMessagesEffect(
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
@@ -103,6 +89,8 @@ class EmitMessagesTests: XCTestCase {
   }
 
   func testEffect_SkipsDuplicatedMessages() {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
@@ -134,6 +122,7 @@ class EmitMessagesTests: XCTestCase {
   }
 
   func testEffect_MessageCacheDropsTheOldestMessages() {
+    let subscriptions = makeListeners()
     let initialMessages = (1...99).map { idx in
       generateMessage(
         with: .message,

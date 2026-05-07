@@ -12,11 +12,11 @@
 import XCTest
 
 final class DispatchQueuePubNubTests: XCTestCase {
-  func testCurrentLabel() {
-    let queue = DispatchQueue(label: "test label")
+  func test_CurrentLabel_WhenExecutingOnNamedQueue_ReturnsQueueLabel() {
+    let queue = DispatchQueue(label: "Test label")
 
     queue.sync {
-      XCTAssertEqual(DispatchQueue.currentLabel, "test label")
+      XCTAssertEqual(DispatchQueue.currentLabel, "Test label")
     }
   }
 }

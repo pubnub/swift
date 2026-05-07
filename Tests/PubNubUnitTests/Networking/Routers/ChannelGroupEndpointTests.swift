@@ -12,12 +12,9 @@
 import XCTest
 
 final class ChannelGroupsRouterTests: XCTestCase {
-  var pubnub: PubNub!
-
   let subKey = "FakeSub"
   let pubKey = "FakePub"
-  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", userId: UUID().uuidString)
-
+  let config = TestPubNubFactory.makeConfig(publishKey: "FakePub", subscribeKey: "FakeSub")
   let testChannels = ["TestChannel", "OtherChannel"]
   let testGroupName = "TestGroup"
 }
@@ -25,7 +22,7 @@ final class ChannelGroupsRouterTests: XCTestCase {
 // MARK: - List Channel Groups
 
 extension ChannelGroupsRouterTests {
-  func testGroupList_Router() {
+  func test_GroupListRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = ChannelGroupsRouter(.channelGroups, configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Group List")
@@ -34,20 +31,17 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.pamVersion, .none)
   }
 
-  func testGroupList_Router_ValidationError() {
+  func test_GroupList_WithValidConfig_ReturnsNoValidationError() {
     let router = ChannelGroupsRouter(.channelGroups, configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError, nil)
   }
 
-  func testGroupList_Success() {
+  func test_GroupList_WithValidConfig_ReturnsGroups() throws {
     let expectation = self.expectation(description: "Group List Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_list_success"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_list_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listChannelGroups { result in
       switch result {
       case let .success(groups):
@@ -61,24 +55,20 @@ extension ChannelGroupsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testGroupList_Success_EmptyClasses() {
+  func test_GroupList_WithNoGroups_ReturnsEmptyGroups() throws {
     let expectation = self.expectation(description: "Group List Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_list_success_empty"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_list_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listChannelGroups { result in
-        switch result {
-        case let .success(groups):
-          XCTAssertTrue(groups.isEmpty)
-        case let .failure(error):
-          XCTFail("Group List request failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    pubnub.listChannelGroups { result in
+      switch result {
+      case let .success(groups):
+        XCTAssertTrue(groups.isEmpty)
+      case let .failure(error):
+        XCTFail("Group List request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -87,7 +77,7 @@ extension ChannelGroupsRouterTests {
 // MARK: - Delete Group
 
 extension ChannelGroupsRouterTests {
-  func testGroupDelete_Router() {
+  func test_GroupDeleteRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = ChannelGroupsRouter(.deleteGroup(group: testGroupName), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Group Delete")
@@ -95,21 +85,20 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func testGroupDelete_Router_ValidationError() {
+  func test_GroupDelete_WhenGroupEmpty_ReturnsValidationError() {
     let router = ChannelGroupsRouter(.deleteGroup(group: ""), configuration: config)
 
-    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyGroupString)
+    XCTAssertEqual(
+      router.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyGroupString
+    )
   }
 
-  func testGroupDelete_Success() {
+  func test_GroupDelete_WithValidGroup_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Group Delete Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_delete_success"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_delete_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.remove(channelGroup: testGroupName) { result in
       switch result {
       case .success:
@@ -126,7 +115,7 @@ extension ChannelGroupsRouterTests {
 // MARK: - List Channels For Group
 
 extension ChannelGroupsRouterTests {
-  func testChannelsForGroup_Router() {
+  func test_ChannelsForGroupRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = ChannelGroupsRouter(.channelsForGroup(group: testGroupName), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Group Channels List")
@@ -135,21 +124,20 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.pamVersion, .version2)
   }
 
-  func testChannelsForGroup_Router_ValidationError() {
+  func test_ChannelsForGroup_WhenGroupEmpty_ReturnsValidationError() {
     let router = ChannelGroupsRouter(.channelsForGroup(group: ""), configuration: config)
 
-    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyGroupString)
+    XCTAssertEqual(
+      router.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyGroupString
+    )
   }
 
-  func testGroupChannelsList_Success() {
+  func test_GroupChannelsList_WithValidGroup_ReturnsChannels() throws {
     let expectation = self.expectation(description: "Group Channels List Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_channels_list_success"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_list_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listChannels(for: testGroupName) { result in
       switch result {
       case let .success(response):
@@ -164,14 +152,11 @@ extension ChannelGroupsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testGroupChannelsList_EmptyClasses() {
+  func test_GroupChannelsList_WithValidGroupNoChannels_ReturnsEmptyChannels() throws {
     let expectation = self.expectation(description: "Group Channels List Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_channels_list_success_empty"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_list_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listChannels(for: testGroupName) { result in
       switch result {
       case let .success(response):
@@ -190,36 +175,47 @@ extension ChannelGroupsRouterTests {
 // MARK: - Add Channel to Group
 
 extension ChannelGroupsRouterTests {
-  func test_AddChannelsForGroup_Router() {
-    let router = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: testChannels),
-                                     configuration: config)
+  func test_AddChannelsForGroupRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let router = ChannelGroupsRouter(
+      .addChannelsToGroup(
+        group: testGroupName,
+        channels: testChannels
+      ),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Group Channels Add")
     XCTAssertEqual(router.category, "Group Channels Add")
     XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func test_AddChannelsForGroup_Router_ValidationError() {
+  func test_AddChannelsForGroup_WhenGroupOrChannelsEmpty_ReturnsValidationError() {
     let router = ChannelGroupsRouter(.addChannelsToGroup(group: "", channels: testChannels), configuration: config)
 
-    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyGroupString)
+    XCTAssertEqual(
+      router.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyGroupString
+    )
 
-    let emptyChannel = ChannelGroupsRouter(.addChannelsToGroup(group: testGroupName, channels: []),
-                                           configuration: config)
+    let emptyChannel = ChannelGroupsRouter(
+      .addChannelsToGroup(
+        group: testGroupName,
+        channels: []
+      ),
+      configuration: config
+    )
 
-    XCTAssertEqual(emptyChannel.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyChannelArray)
+    XCTAssertEqual(
+      emptyChannel.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyChannelArray
+    )
   }
 
-  func testGroupChannels_Add_Success() {
+  func test_GroupChannelsAdd_WithValidChannels_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Group Channels Add Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_channels_add_success"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_add_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.add(channels: testChannels, to: testGroupName) { result in
       switch result {
       case .success:
@@ -232,14 +228,11 @@ extension ChannelGroupsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAddChannels_Error_ExceedGroupCount() {
+  func test_AddChannels_WhenGroupCountExceeded_ReturnsMaxCountExceededError() throws {
     let expectation = self.expectation(description: "Add Channel Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["maximumChannelCountExceeded_Message"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["maximumChannelCountExceeded_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.add(channels: testChannels, to: testGroupName) { result in
       switch result {
       case .success:
@@ -253,14 +246,11 @@ extension ChannelGroupsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAddChannels_Error_InvalidCharacter() {
+  func test_AddChannels_WhenInvalidCharacter_ReturnsInvalidCharacterError() throws {
     let expectation = self.expectation(description: "Add Channel Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["invalidCharacter_Message"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["invalidCharacter_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.add(channels: testChannels, to: testGroupName) { result in
       switch result {
       case .success:
@@ -278,36 +268,52 @@ extension ChannelGroupsRouterTests {
 // MARK: - Remove Channel from Group
 
 extension ChannelGroupsRouterTests {
-  func test_RemoveChannelsForGroup_Router() {
-    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: testChannels),
-                                     configuration: config)
+  func test_RemoveChannelsForGroupRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let router = ChannelGroupsRouter(
+      .removeChannelsForGroup(
+        group: testGroupName,
+        channels: testChannels
+      ),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Group Channels Remove")
     XCTAssertEqual(router.category, "Group Channels Remove")
     XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func test_RemoveChannelsForGroup_Router_ValidationError() {
-    let router = ChannelGroupsRouter(.removeChannelsForGroup(group: "", channels: testChannels), configuration: config)
+  func test_RemoveChannelsForGroup_WhenGroupOrChannelsEmpty_ReturnsValidationError() {
+    let router = ChannelGroupsRouter(
+      .removeChannelsForGroup(
+        group: "",
+        channels: testChannels
+      ),
+      configuration: config
+    )
 
-    XCTAssertEqual(router.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyGroupString)
+    XCTAssertEqual(
+      router.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyGroupString
+    )
 
-    let emptyChannels = ChannelGroupsRouter(.removeChannelsForGroup(group: testGroupName, channels: []),
-                                            configuration: config)
+    let emptyChannels = ChannelGroupsRouter(
+      .removeChannelsForGroup(
+        group: testGroupName,
+        channels: []
+      ), configuration: config
+    )
 
-    XCTAssertEqual(emptyChannels.validationError?.pubNubError?.details.first,
-                   ErrorDescription.emptyChannelArray)
+    XCTAssertEqual(
+      emptyChannels.validationError?.pubNubError?.details.first,
+      ErrorDescription.emptyChannelArray
+    )
   }
 
-  func testGroupChannels_Remove_Success() {
+  func test_GroupChannelsRemove_WithValidChannels_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Group Channels Remove Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["groups_channels_remove_success"])
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePub", subscribeKey: "FakeSub", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["groups_channels_remove_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.remove(channels: testChannels, from: testGroupName) { result in
       switch result {
       case .success:

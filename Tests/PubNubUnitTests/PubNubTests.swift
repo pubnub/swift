@@ -13,10 +13,9 @@ import XCTest
 
 final class PubNubTests: XCTestCase {
   let testBundle = Bundle(for: PubNubTests.self)
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
 
   func testInit_CustomConfig() {
+    let config = TestPubNubFactory.makeConfig()
     let pubnub = PubNub(configuration: config)
 
     XCTAssertEqual(pubnub.configuration, config)

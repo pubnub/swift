@@ -60,7 +60,7 @@ class MockURLSessionDataTask: URLSessionDataTask {
 
 class MockURLSessionUploadTask: URLSessionUploadTask {
   weak var mockSession: MockURLSession?
-  
+
   var mockIdentifier: Int
   var mockState: URLSessionTask.State = .suspended
   var mockRequest: URLRequest?

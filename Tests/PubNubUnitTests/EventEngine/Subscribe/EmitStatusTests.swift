@@ -13,28 +13,13 @@ import XCTest
 
 @testable import PubNubSDK
 
-private class MockListener: BaseSubscriptionListener {
-  var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
-
-  override func emit(subscribe: PubNubSubscribeEvent) {
-    onEmitSubscribeEventCalled(subscribe)
-  }
-}
-
 class EmitStatusTests: XCTestCase {
-  private var subscriptions: [MockListener] = []
-
-  override func setUp() {
-    subscriptions = (0...2).map { _ in MockListener() }
-    super.setUp()
-  }
-
-  override func tearDown() {
-    subscriptions = []
-    super.tearDown()
+  private func makeListeners(count: Int = 3) -> [MockListener] {
+    (0..<count).map { _ in MockListener() }
   }
 
   func testEmitStatus_FromDisconnectedToConnected() {
+    let subscriptions = makeListeners()
     let expectation = XCTestExpectation(description: "Emit Status Effect")
     expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
@@ -66,6 +51,8 @@ class EmitStatusTests: XCTestCase {
   }
 
   func testEmitStatus_WithError() {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Status Effect")
     expectation.expectedFulfillmentCount = subscriptions.count
     expectation.assertForOverFulfill = true
@@ -79,6 +66,7 @@ class EmitStatusTests: XCTestCase {
       newStatus: .connected,
       error: PubNubError(.unknown)
     )
+
     let effect = EmitStatusEffect(
       statusChange: testedStatusChange,
       subscriptions: WeakSet(subscriptions)

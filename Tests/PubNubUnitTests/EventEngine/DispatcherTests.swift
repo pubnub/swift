@@ -122,6 +122,11 @@ private enum TestInvocation: String, AnyEffectInvocation {
   }
 
   enum Cancellable: AnyCancellableInvocation {
+    case firstCancellable
+    case secondCancellable
+    case thirdCancellable
+    case fourthCancellable
+
     var id: String {
       switch self {
       case .firstCancellable:
@@ -134,11 +139,6 @@ private enum TestInvocation: String, AnyEffectInvocation {
         return TestInvocation.fourth.rawValue
       }
     }
-
-    case firstCancellable
-    case secondCancellable
-    case thirdCancellable
-    case fourthCancellable
   }
 }
 
@@ -153,8 +153,7 @@ private struct MockEffectHandlerFactory: EffectHandlerFactory {
 
 private struct MockEffectHandler: EffectHandler {
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
-    // Added an artificial delay to simulate network latency or other asynchronous computations
-    DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + 0.35) {
+    DispatchQueue.global(qos: .default).async {
       completionBlock([])
     }
   }

@@ -13,23 +13,14 @@ import XCTest
 
 class RequestRetrierTests: XCTestCase {
   let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
-  var retryCount = 0
-  let config = PubNubConfiguration(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", userId: UUID().uuidString)
-
-  var expectations = [XCTestExpectation]()
-
-  override func setUp() {
-    super.setUp()
-
-    retryCount = 0
-    expectations.removeAll()
-  }
 
   // swiftlint:disable:next function_body_length
-  func testRetryRequest_Success() {
+  func test_RequestRetrier_AfterTwoFailures_SucceedsOnThirdAttempt() throws {
+    var expectations = [XCTestExpectation]()
+    var retryCount = 0
+
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
-
     let taskResources = ["networkConnectionLost", "timedOut", "time_success"]
 
     let retrier = RetryExpector(all: &expectations)
@@ -45,18 +36,16 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    guard let sessions = try? MockURLSession.mockSession(
+    let sessions = try MockURLSession.mockSession(
       for: taskResources,
       with: sessionListener,
       request: MultiplexRequestOperator(requestOperator: retrier)
-    ) else {
-      return XCTFail("Could not create mock url session")
-    }
+    )
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
       XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
-      self.retryCount += 1
-      switch self.retryCount {
+      retryCount += 1
+      switch retryCount {
       case 1:
         XCTAssertEqual(request.retryCount, 1)
       case 2:
@@ -67,7 +56,8 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", session: sessions.session)
+
     pubnub.time { result in
       switch result {
       case let .success(timetoken):
@@ -86,7 +76,10 @@ class RequestRetrierTests: XCTestCase {
   }
 
   // swiftlint:disable:next function_body_length
-  func testRetryRequest_Failure() {
+  func test_RequestRetrier_AllRetriesFail_ReturnsLastError() throws {
+    var expectations = [XCTestExpectation]()
+    var retryCount = 0
+
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
@@ -104,18 +97,16 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    guard let sessions = try? MockURLSession.mockSession(
+    let sessions = try MockURLSession.mockSession(
       for: taskResources,
       with: sessionListener,
       request: retrier
-    ) else {
-      return XCTFail("Could not create mock url session")
-    }
+    )
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
       XCTAssertEqual(request.urlRequest, sessions.mockSession.tasks.first?.originalRequest)
-      self.retryCount += 1
-      switch self.retryCount {
+      retryCount += 1
+      switch retryCount {
       case 1:
         XCTAssertEqual(request.retryCount, 1)
       case 2:
@@ -126,7 +117,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", session: sessions.session)
     pubnub.time { result in
       switch result {
       case .success:
@@ -154,7 +145,10 @@ class RequestRetrierTests: XCTestCase {
   }
 
   // swiftlint:disable:next function_body_length
-  func testRetryRequest_Multiple_Success() {
+  func test_RequestRetrier_MultiplexWithRetrier_SucceedsAfterRetries() throws {
+    var expectations = [XCTestExpectation]()
+    var retryCount = 0
+
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
@@ -172,19 +166,17 @@ class RequestRetrierTests: XCTestCase {
       }
     }
 
-    guard let sessions = try? MockURLSession.mockSession(
+    let sessions = try MockURLSession.mockSession(
       for: taskResources,
       with: sessionListener,
       request: MultiplexRequestOperator(operators: [DefaultOperator(), retrier])
-    ) else {
-      return XCTFail("Could not create mock url session")
-    }
+    )
 
     sessionExpector.expectDidRetryRequest(fullfil: 2) { request in
       let urlRequest = sessions.mockSession.tasks.first?.originalRequest
       XCTAssertEqual(request.urlRequest, urlRequest)
-      self.retryCount += 1
-      switch self.retryCount {
+      retryCount += 1
+      switch retryCount {
       case 1:
         XCTAssertEqual(request.retryCount, 1)
       case 2:
@@ -195,7 +187,7 @@ class RequestRetrierTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", session: sessions.session)
     pubnub.time { result in
       switch result {
       case let .success(timetoken):

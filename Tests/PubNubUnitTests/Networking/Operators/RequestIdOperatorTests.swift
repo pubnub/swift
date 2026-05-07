@@ -12,21 +12,15 @@
 import XCTest
 
 class RequestIdOperatorTests: XCTestCase {
-  var pubnub: PubNub!
-  var config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
-
-  func testUseRequestID_Success() {
+  func test_RequestIdOperator_UseRequestIdEnabled_AppendsRequestIdToURL() throws {
     var expectations = [XCTestExpectation]()
 
     let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",
                                                                qos: .userInitiated,
                                                                attributes: .concurrent))
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: sessionListener)
-    else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["time_success"],
+                                                   with: sessionListener)
 
     let sessionExpector = SessionExpector(session: sessionListener)
     sessionExpector.expectDidMutateRequest { _, initialURLRequest, mutatedURLRequest in
@@ -39,8 +33,11 @@ class RequestIdOperatorTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    config.useRequestId = true
-    pubnub = PubNub(configuration: config, session: sessions.session)
+    let config = PubNubConfiguration(
+      publishKey: "FakeTestString", subscribeKey: "FakeTestString",
+      userId: "testUserId", useRequestId: true
+    )
+    let pubnub = PubNub(configuration: config, session: sessions.session)
 
     XCTAssertTrue(pubnub.configuration.useRequestId)
 

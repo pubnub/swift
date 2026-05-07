@@ -13,7 +13,7 @@
 import XCTest
 
 final class URLQueryItemPubNubTests: XCTestCase {
-  func testIndexOf() {
+  func test_FirstIndex_WithExistingName_ReturnsCorrectIndex() {
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
@@ -23,7 +23,7 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertEqual(queryItems.firstIndex(of: "first"), 0)
   }
 
-  func testIndexOf_CaseSensitivity() {
+  func test_FirstIndex_WithDifferentCase_ReturnsNil() {
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
@@ -33,7 +33,7 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertEqual(queryItems.firstIndex(of: "second"), nil)
   }
 
-  func testIndexOf_NotFound() {
+  func test_FirstIndex_WithNonExistentName_ReturnsNil() {
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "Second", value: "value"),
@@ -43,7 +43,7 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertEqual(queryItems.firstIndex(of: "second"), nil)
   }
 
-  func testMerge() {
+  func test_Merge_WithOverlappingItems_UpdatesExistingAndAddsNew() {
     var queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "second", value: "value"),
@@ -61,7 +61,7 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertNotNil(queryItems.firstIndex(of: "fourth"))
   }
 
-  func testMerging() {
+  func test_Merging_WithOverlappingItems_ReturnsNewMergedArray() {
     let queryItems = [
       URLQueryItem(name: "first", value: "value"),
       URLQueryItem(name: "second", value: "value"),
@@ -79,29 +79,35 @@ final class URLQueryItemPubNubTests: XCTestCase {
     XCTAssertNotNil(newList.firstIndex(of: "fourth"))
   }
 
-  func testAppendIfPresent() {
+  func test_AppendIfPresent_WithNonNilValue_AppendsItem() {
     var query = [URLQueryItem]()
     let queryItem = URLQueryItem(name: "TestKey", value: "TestValue")
+
     query.appendIfPresent(name: queryItem.name, value: queryItem.value)
+
     XCTAssertEqual(query.first, queryItem)
   }
 
-  func testAppendIfPresent_Nil() {
+  func test_AppendIfPresent_WithNilValue_DoesNotAppend() {
     var query = [URLQueryItem]()
     query.appendIfPresent(name: "TestKey", value: nil)
+
     XCTAssertTrue(query.isEmpty)
   }
 
-  func testAppendIfNotEmpty() {
+  func test_AppendIfNotEmpty_WithPopulatedArray_AppendsCSVItem() {
     var query = [URLQueryItem]()
     let queryItems = ["TestValue", "OtherValue"]
+
     query.appendIfNotEmpty(name: "TestKey", value: queryItems)
+
     XCTAssertEqual(query.first?.value, queryItems.csvString)
   }
 
-  func testAppendIfNotEmpty_Empty() {
+  func test_AppendIfNotEmpty_WithEmptyArray_DoesNotAppend() {
     var query = [URLQueryItem]()
     query.appendIfNotEmpty(name: "TestKey", value: [])
+
     XCTAssertTrue(query.isEmpty)
   }
 }

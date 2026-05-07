@@ -20,7 +20,7 @@ class ValidatedTests: XCTestCase {
     }
   }
 
-  func testIsValid() {
+  func test_Validated_IsValid_ReturnsTrueWhenNoErrorAndFalseWhenError() {
     let validTest = TestValidated()
     XCTAssertNil(validTest.validationError)
     XCTAssertTrue(validTest.isValid)
@@ -31,13 +31,14 @@ class ValidatedTests: XCTestCase {
     XCTAssertFalse(invalidTest.isValid)
   }
 
-  func testValidResult() {
+  func test_Validated_ValidResult_SucceedsOrThrowsBasedOnError() {
     let validTest = TestValidated()
     XCTAssertNil(validTest.validationError)
     XCTAssertNoThrow(try validTest.validResult.get())
 
     let testError = PubNubError(.invalidEndpointType)
     let invalidTest = TestValidated(mockError: testError)
+
     XCTAssertNotNil(invalidTest.validationError)
     XCTAssertThrowsError(try invalidTest.validResult.get(), "An error should be thrown") { error in
       XCTAssertEqual(error.pubNubError, testError)

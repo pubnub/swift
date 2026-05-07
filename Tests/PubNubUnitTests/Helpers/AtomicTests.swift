@@ -14,12 +14,9 @@ import XCTest
 class AtomicTests: XCTestCase {
   // MARK: - General Functionality
 
-  func testLockedPerform() {
+  func test_Atomic_LockedPerform_ExecutesClosure() {
     let lockedPerform = XCTestExpectation(description: "testLockedPerform")
-
-    let closure = {
-      lockedPerform.fulfill()
-    }
+    let closure = { lockedPerform.fulfill() }
     let atomic = Atomic(1)
 
     atomic.lockedPerform { closure() }
@@ -27,14 +24,14 @@ class AtomicTests: XCTestCase {
     wait(for: [lockedPerform], timeout: 1.0)
   }
 
-  func testLockedRead() {
+  func test_Atomic_LockedRead_ReturnsTrue() {
     let value = 0
     let atomic = Atomic(value)
 
     XCTAssertTrue(atomic.lockedRead { $0 == value })
   }
 
-  func testLockedWrite() {
+  func test_Atomic_LockedWrite_UpdatesValue() {
     let value = 0
     let newValue = 1
     let atomic = Atomic(value)
@@ -49,14 +46,14 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(writtenValue, newValue)
   }
 
-  func testLockedTry_Throws() {
+  func test_Atomic_LockedTryWithError_ThrowsError() {
     let invalidJson = 0
     let atomic = Atomic(invalidJson)
 
     XCTAssertThrowsError(try atomic.lockedTry { _ in throw PubNubError(.requestMutatorFailure) })
   }
 
-  func testLockedTry_NoThrows() {
+  func test_Atomic_LockedTryWithValidData_DoesNotThrow() {
     let validJson = [0]
     let value = AnyJSON(validJson)
     let atomic = Atomic(value)
@@ -64,7 +61,7 @@ class AtomicTests: XCTestCase {
     XCTAssertNoThrow(try atomic.lockedTry { try $0.jsonDataResult.get() })
   }
 
-  func testIsEmpty() {
+  func test_Atomic_IsEmptyWithEmptyArray_ReturnsTrue() {
     let value = [Int]()
     let atomic = Atomic(value)
 
@@ -72,7 +69,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0 }, value)
   }
 
-  func testAppendElement() {
+  func test_Atomic_AppendElement_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let atomic = Atomic(value)
@@ -85,7 +82,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
-  func testAppendSequence() {
+  func test_Atomic_AppendSequence_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let sequence = [newValue].makeIterator()
@@ -99,7 +96,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
-  func testAppendCollection() {
+  func test_Atomic_AppendCollection_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let atomic = Atomic(value)
@@ -114,7 +111,7 @@ class AtomicTests: XCTestCase {
 
   // MARK: - AtomicInt
 
-  func testFetchOrSetsBits() {
+  func test_AtomicInt_BitwiseOrAssignment_SetsBitsCorrectly() {
     let atomic = AtomicInt(0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(0), 0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(4), 0)
@@ -122,7 +119,7 @@ class AtomicTests: XCTestCase {
     XCTAssertTrue(atomic.isEqual(to: 12))
   }
 
-  func testAdd() {
+  func test_AtomicInt_Add_ReturnsOldValueAndIncrements() {
     let atomic = AtomicInt(0)
     XCTAssertEqual(atomic.add(4), 0)
     XCTAssertEqual(atomic.add(3), 4)
@@ -131,7 +128,7 @@ class AtomicTests: XCTestCase {
     XCTAssertTrue(atomic.isEqual(to: 18))
   }
 
-  func testSub() {
+  func test_AtomicInt_Sub_ReturnsOldValueAndDecrements() {
     let atomic = AtomicInt(0)
     XCTAssertEqual(atomic.sub(4), 0)
     XCTAssertEqual(atomic.sub(3), -4)
@@ -140,12 +137,13 @@ class AtomicTests: XCTestCase {
     XCTAssertTrue(atomic.isEqual(to: -18))
   }
 
-  func testConcurreny_FetchOr() {
+  func test_AtomicInt_ConcurrentBitwiseOr_OnlyOneThreadSeesExpectedValue() {
     let queue = DispatchQueue(
       label: "ConcurrenyQueue Fetch",
       qos: .default,
       attributes: .concurrent
     )
+
     let repeatCount = 25
     let concurrencyCount = 8
     let fetchCount: Int32 = 1
@@ -177,12 +175,13 @@ class AtomicTests: XCTestCase {
     }
   }
 
-  func testConcurreny_Add() {
+  func test_AtomicInt_ConcurrentIncrement_AllThreadsComplete() {
     let queue = DispatchQueue(
       label: "ConcurrenyQueue Add",
       qos: .default,
       attributes: .concurrent
     )
+
     let repeatCount = 25
     let concurrencyCount: Int32 = 8
 

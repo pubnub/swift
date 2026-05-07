@@ -25,36 +25,36 @@ import XCTest
 #endif
 
 class ConstantsTests: XCTestCase {
-  func testOperatingSystem() {
+  func test_Constant_OperatingSystemName_MatchesPlatform() {
     XCTAssertEqual(Constant.operatingSystemName, osName)
   }
 
-  func testOperatingSystemVersion() {
+  func test_Constant_OperatingSystemVersion_MatchesProcessInfo() {
     let osVer = ProcessInfo.processInfo.operatingSystemVersion
     let verString = "\(osVer.majorVersion).\(osVer.minorVersion).\(osVer.patchVersion)"
 
     XCTAssertEqual(Constant.operatingSystemVersion, verString)
   }
 
-  func testPubnubSwiftSDKName() {
+  func test_Constant_PubnubSwiftSDKName_ReturnsPubNubSwift() {
     XCTAssertEqual(Constant.pubnubSwiftSDKName, "PubNubSwift")
   }
 
-  func testPubnubSwiftSDKVersion() {
+  func test_Constant_PubnubSwiftSDKVersion_MatchesBundleVersion() {
     let ver = Bundle(for: HTTPSession.self).infoDictionary?["CFBundleShortVersionString"]
 
     XCTAssertEqual(Constant.pubnubSwiftSDKVersion, "\(ver ?? "")")
   }
 
-  func testAppBundleId() {
+  func test_Constant_AppBundleId_ReturnsXCTestBundleId() {
     XCTAssertEqual(Constant.appBundleId, "com.apple.dt.xctest.tool")
   }
 
-  func testAppVersion() {
+  func test_Constant_AppVersion_IsNotPlaceholder() {
     XCTAssertNotEqual(Constant.appVersion, "?.?.?")
   }
 
-  func testDefaultUserAgent() {
+  func test_Constant_DefaultUserAgentHeader_MatchesExpectedFormat() {
     var testUA = "\(Constant.appBundleId)/\(Constant.appVersion)"
     testUA = "\(testUA) (\(Constant.operatingSystemName) \(Constant.operatingSystemVersion))"
     testUA = "\(testUA) \(Constant.pubnubSwiftSDKName)/\(Constant.pubnubSwiftSDKVersion)"
@@ -62,7 +62,7 @@ class ConstantsTests: XCTestCase {
     XCTAssertEqual(Constant.defaultUserAgentHeader, testUA)
   }
 
-  func testPNSDKQueryParameterValue() {
+  func test_Constant_PNSDKQueryParameterValue_MatchesExpectedFormat() {
     var pnsdk = "\(Constant.pubnubSwiftSDKName)"
     pnsdk = "\(pnsdk)-\(Constant.operatingSystemName)"
     pnsdk = "\(pnsdk)/\(Constant.pubnubSwiftSDKVersion)"
@@ -70,27 +70,35 @@ class ConstantsTests: XCTestCase {
     XCTAssertEqual(Constant.pnSDKQueryParameterValue, pnsdk)
   }
 
-  func testMinimumSubscribeRequestTimeout() {
+  func test_Constant_MinimumSubscribeRequestTimeout_Returns280() {
     XCTAssertEqual(Constant.minimumSubscribeRequestTimeout, 280)
   }
 
-  func testErrorDescription_AnyJSON_StringCreationFailure() {
-    XCTAssertEqual(ErrorDescription.stringEncodingFailure,
-                   "`String(data:encoding:)` returned nil when converting JSON Data to a `String`")
+  func test_ErrorDescription_StringEncodingFailure_ReturnsExpectedMessage() {
+    XCTAssertEqual(
+      ErrorDescription.stringEncodingFailure,
+      "`String(data:encoding:)` returned nil when converting JSON Data to a `String`"
+    )
   }
 
-  func testErrorDescription_DecodingError_RootLeve() {
-    XCTAssertEqual(ErrorDescription.rootLevelDecoding,
-                   "AnyJSON could not decode invalid root-level JSON object")
+  func test_ErrorDescription_RootLevelDecoding_ReturnsExpectedMessage() {
+    XCTAssertEqual(
+      ErrorDescription.rootLevelDecoding,
+      "AnyJSON could not decode invalid root-level JSON object"
+    )
   }
 
-  func testErrorDescription_DecodingError_KeyedContainer() {
-    XCTAssertEqual(ErrorDescription.keyedContainerDecoding,
-                   "AnyJSON could not decode value inside `KeyedDecodingContainer`")
+  func test_ErrorDescription_KeyedContainerDecoding_ReturnsExpectedMessage() {
+    XCTAssertEqual(
+      ErrorDescription.keyedContainerDecoding,
+      "AnyJSON could not decode value inside `KeyedDecodingContainer`"
+    )
   }
 
-  func testErrorDescription_DecodingError_UnkeyedContainer() {
-    XCTAssertEqual(ErrorDescription.unkeyedContainerDecoding,
-                   "AnyJSON could not decode value inside `UnkeyedDecodingContainer`")
+  func test_ErrorDescription_UnkeyedContainerDecoding_ReturnsExpectedMessage() {
+    XCTAssertEqual(
+      ErrorDescription.unkeyedContainerDecoding,
+      "AnyJSON could not decode value inside `UnkeyedDecodingContainer`"
+    )
   }
 }

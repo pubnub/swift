@@ -12,8 +12,6 @@
 import XCTest
 
 final class FileManagementRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakePub", subscribeKey: "FakeSub", userId: UUID().uuidString)
-
   let testChannel = "TestChannel"
   let testFilename = "TestFile.txt"
   let testFileId = "TestFileId"
@@ -22,7 +20,8 @@ final class FileManagementRouterTests: XCTestCase {
 // MARK: - List
 
 extension FileManagementRouterTests {
-  func testList_Router() {
+  func test_ListRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
     let router = FileManagementRouter(
       .list(channel: testChannel, limit: 0, next: nil),
       configuration: config
@@ -33,7 +32,9 @@ extension FileManagementRouterTests {
     XCTAssertEqual(router.service, .fileManagement)
   }
 
-  func testList_Router_ValidationError() {
+  func test_List_WhenChannelEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .list(channel: "", limit: 0, next: nil),
       configuration: config
@@ -43,16 +44,12 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testList_Success() {
+  func test_ListFiles_WithValidChannel_ReturnsFiles() throws {
     let expectation = self.expectation(description: "testList_Success")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_list_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_list_success"])
 
-    guard let testDate = DateFormatter.iso8601_noMilliseconds.date(from: "2020-10-12T16:21:56Z") else {
-      return XCTFail("Could not create test date")
-    }
+    let testDate = try XCTUnwrap(DateFormatter.iso8601_noMilliseconds.date(from: "2020-10-12T16:21:56Z"))
 
     let testFile = PubNubFileBase(
       channel: testChannel,
@@ -63,107 +60,94 @@ extension FileManagementRouterTests {
       createdDate: testDate
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listFiles(channel: testChannel) { result in
-        switch result {
-        case let .success((files, next)):
-          XCTAssertEqual(try? files.first?.transcode(), testFile)
-          XCTAssertNil(next)
-        case let .failure(error):
-          XCTFail("List failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.listFiles(channel: testChannel) { result in
+      switch result {
+      case let .success((files, next)):
+        XCTAssertEqual(try? files.first?.transcode(), testFile)
+        XCTAssertNil(next)
+      case let .failure(error):
+        XCTFail("List failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testList_Success_Empty() {
+  func test_ListFiles_WithNoFiles_ReturnsEmptyList() throws {
     let expectation = self.expectation(description: "testList_Success_Empty")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_list_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_list_success_empty"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listFiles(channel: testChannel) { result in
-        switch result {
-        case let .success((files, next)):
-          XCTAssertTrue(files.isEmpty)
-          XCTAssertNil(next)
-        case let .failure(error):
-          XCTFail("List failed with error: \(error.localizedDescription)")
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.listFiles(channel: testChannel) { result in
+      switch result {
+      case let .success((files, next)):
+        XCTAssertTrue(files.isEmpty)
+        XCTAssertNil(next)
+      case let .failure(error):
+        XCTFail("List failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testList_Error_InvalidParameter() {
+  func test_ListFiles_WhenInvalidParameter_ReturnsInvalidCharacterError() throws {
     let expectation = self.expectation(description: "testList_Error_InvalidParameter")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_error_invalidParam"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_error_invalidParam"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listFiles(channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.listFiles(channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testList_Error_NotEnabled() {
+  func test_ListFiles_WhenServiceNotEnabled_ReturnsServiceNotEnabledError() throws {
     let expectation = self.expectation(description: "testList_Error_NotEnabled")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_error_notEnabled"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_error_notEnabled"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listFiles(channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.listFiles(channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testList_Error_InternalError() {
+  func test_ListFiles_WhenInternalServiceError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "testList_Error_InternalError")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["internalServiceError_StatusCode"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["internalServiceError_StatusCode"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .listFiles(channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.listFiles(channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -172,7 +156,9 @@ extension FileManagementRouterTests {
 // MARK: - Fetch URL / Download
 
 extension FileManagementRouterTests {
-  func testFetchURL_Router() {
+  func test_FetchURLRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .fetchURL(channel: testChannel, fileId: testFileId, filename: testFilename),
       configuration: config
@@ -183,7 +169,9 @@ extension FileManagementRouterTests {
     XCTAssertEqual(router.service, .fileManagement)
   }
 
-  func testFetchURL_Router_ValidationError_Channel() {
+  func test_FetchURL_WhenChannelEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .fetchURL(channel: "", fileId: testFileId, filename: testFilename),
       configuration: config
@@ -193,7 +181,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testFetchURL_Router_ValidationError_FileId() {
+  func test_FetchURL_WhenFileIdEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .fetchURL(channel: testChannel, fileId: "", filename: testFilename),
       configuration: config
@@ -203,7 +193,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyFileIdString)
   }
 
-  func testFetchURL_Router_ValidationError_Filename() {
+  func test_FetchURL_WhenFilenameEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .fetchURL(channel: testChannel, fileId: testFileId, filename: ""),
       configuration: config
@@ -213,7 +205,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyFilenameString)
   }
 
-  func testFetchURL_Success() {
+  func test_FetchURL_WithValidParams_ReturnsExpectedURL() throws {
+    let config = TestPubNubFactory.makeConfig()
+
     var testURL = URLComponents()
     testURL.scheme = config.urlScheme
     testURL.host = config.origin
@@ -224,17 +218,15 @@ extension FileManagementRouterTests {
       URLQueryItem(name: "uuid", value: config.userId)
     ]
 
-    do {
-      let downloadURL = try PubNub(configuration: config)
-        .generateFileDownloadURL(channel: testChannel, fileId: testFileId, filename: testFilename)
+    let downloadURL = try PubNub(configuration: config)
+      .generateFileDownloadURL(channel: testChannel, fileId: testFileId, filename: testFilename)
 
-      XCTAssertEqual(downloadURL, testURL.url)
-    } catch {
-      XCTFail("Failed to generate URL due to error \(error)")
-    }
+    XCTAssertEqual(downloadURL, testURL.url)
   }
 
-  func testFetchURL_Failure() {
+  func test_FetchURL_WhenFileIdEmpty_ThrowsError() {
+    let config = TestPubNubFactory.makeConfig()
+
     do {
       _ = try PubNub(configuration: config)
         .generateFileDownloadURL(channel: testChannel, fileId: "", filename: testFilename)
@@ -246,8 +238,10 @@ extension FileManagementRouterTests {
     }
   }
 
-  func testDownload_Success() {
+  func test_Download_WithValidFile_ReturnsDownloadedFile() throws {
     let expectation = self.expectation(description: "testDownload_Success")
+
+    let config = TestPubNubFactory.makeConfig()
 
     let tempFile = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success.txt")
     if FileManager.default.fileExists(atPath: tempFile.path) {
@@ -256,10 +250,8 @@ extension FileManagementRouterTests {
 
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: tempFile)
 
-    guard let testURL = try? ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt"),
-          let testData = try? Data(contentsOf: testURL) else {
-      return XCTFail("Could not create required test data")
-    }
+    let testURL = try ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt")
+    let testData = try Data(contentsOf: testURL)
 
     let mockTask = MockURLSessionDownloadTask(identifier: 1)
     mockTask.mockDownloadLocation = testURL
@@ -289,8 +281,10 @@ extension FileManagementRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDownload_Success_ResumeData() {
+  func test_Download_WithResumeData_ReturnsDownloadedFile() {
     let expectation = self.expectation(description: "testDownload_Success")
+
+    let config = TestPubNubFactory.makeConfig()
 
     let tempFile = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success_ResumeData.txt")
     let downloadURL = FileManager.default.tempDirectory.appendingPathComponent("testDownload_Success.txt")
@@ -331,8 +325,10 @@ extension FileManagementRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDownload_Error_BadRequest() {
+  func test_Download_WhenBadRequest_ReturnsInvalidCharacterError() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
+
+    let config = TestPubNubFactory.makeConfig()
 
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
@@ -359,8 +355,10 @@ extension FileManagementRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDownload_Error_ServiceNotEnabled() {
+  func test_Download_WhenServiceNotEnabled_ReturnsServiceNotEnabledError() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
+
+    let config = TestPubNubFactory.makeConfig()
 
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
@@ -387,8 +385,10 @@ extension FileManagementRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDownload_Error_InternalServiceError() {
+  func test_Download_WhenInternalServiceError_ReturnsInternalServiceError() {
     let expectation = self.expectation(description: "testDownload_Error_ServiceNotEnabled")
+
+    let config = TestPubNubFactory.makeConfig()
 
     let testFile = PubNubLocalFileBase(channel: testChannel, fileId: testFileId, fileURL: URL(fileURLWithPath: ""))
 
@@ -418,7 +418,9 @@ extension FileManagementRouterTests {
 // MARK: - Generate URL / Send
 
 extension FileManagementRouterTests {
-  func testGenerateURL_Router() {
+  func test_GenerateURLRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .generateURL(channel: testChannel, body: .init(name: testFilename)),
       configuration: config
@@ -429,7 +431,9 @@ extension FileManagementRouterTests {
     XCTAssertEqual(router.service, .fileManagement)
   }
 
-  func testGenerateURL_Router_ValidationError_Channel() {
+  func test_GenerateURL_WhenChannelEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .generateURL(channel: "", body: .init(name: testFilename)),
       configuration: config
@@ -439,7 +443,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testGenerateURL_Router_ValidationError_Filename() {
+  func test_GenerateURL_WhenFilenameEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .generateURL(channel: testChannel, body: .init(name: "")),
       configuration: config
@@ -449,16 +455,12 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyFilenameString)
   }
 
-  func testSend_Success_fileURL() {
+  func test_Send_WithFileURL_ReturnsUploadedFileAndTimetoken() throws {
     let expectation = self.expectation(description: "testSend_Success")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_generateURL_success", "publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    guard let testURL = try? ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt") else {
-      return XCTFail("Could not create required test data")
-    }
+    let config = TestPubNubFactory.makeConfig()
+    let sessions = try MockURLSession.mockSession(for: ["file_generateURL_success", "publish_success"])
+    let testURL = try ImportTestResource.resourceURL("file_upload_sample", withExtension: "txt")
 
     let testFile = PubNubLocalFileBase(
       channel: testChannel,
@@ -495,7 +497,8 @@ extension FileManagementRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSend_createbackgroundTask() {
+  func test_Send_WithBackgroundSession_CreatesBackgroundUploadTask() {
+    let config = TestPubNubFactory.makeConfig()
     let testData = Data("Test String".utf8)
 
     let randomFileId = UUID().uuidString
@@ -520,26 +523,23 @@ extension FileManagementRouterTests {
     try? FileManager.default.removeItem(at: backgroundFileUploadURL)
   }
 
-  func testSend_Failure_() {
+  func test_Send_WhenServiceNotEnabled_ReturnsServiceNotEnabledError() throws {
     let expectation = self.expectation(description: "testSend_Success")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_error_notEnabled"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_error_notEnabled"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .send(
-        .data(Data(), contentType: "text/plain"), channel: testChannel, remoteFilename: testFilename
-      ) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.send(
+      .data(Data(), contentType: "text/plain"), channel: testChannel, remoteFilename: testFilename
+    ) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -548,7 +548,9 @@ extension FileManagementRouterTests {
 // MARK: - Delete
 
 extension FileManagementRouterTests {
-  func testDelete_Router() {
+  func test_DeleteRouter_WithValidConfig_SetsExpectedEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .delete(channel: testChannel, fileId: testFileId, filename: testFilename),
       configuration: config
@@ -560,7 +562,9 @@ extension FileManagementRouterTests {
     XCTAssertEqual(router.method, .delete)
   }
 
-  func testDelete_Router_ValidationError_Channel() {
+  func test_Delete_WhenChannelEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .delete(channel: "", fileId: testFileId, filename: testFilename),
       configuration: config
@@ -570,7 +574,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testDelete_Router_ValidationError_FileId() {
+  func test_Delete_WhenFileIdEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .delete(channel: testChannel, fileId: "", filename: testFilename),
       configuration: config
@@ -580,7 +586,9 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyFileIdString)
   }
 
-  func testDelete_Router_ValidationError_Filename() {
+  func test_Delete_WhenFilenameEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
+
     let router = FileManagementRouter(
       .delete(channel: testChannel, fileId: testFileId, filename: ""),
       configuration: config
@@ -590,89 +598,77 @@ extension FileManagementRouterTests {
                    ErrorDescription.emptyFilenameString)
   }
 
-  func testDelete_Success() {
+  func test_Delete_WithValidFile_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "testDelete_Success")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_delete_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_delete_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
-        switch result {
-        case .success:
-          expectation.fulfill()
-        case .failure:
-          XCTFail("Request should not fail")
-        }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
+      switch result {
+      case .success:
+        expectation.fulfill()
+      case .failure:
+        XCTFail("Request should not fail")
       }
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDelete_Error_InvalidParameter() {
+  func test_Delete_WhenInvalidParameter_ReturnsInvalidCharacterError() throws {
     let expectation = self.expectation(description: "testDelete_Error_InvalidParameter")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_error_invalidParam"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_error_invalidParam"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.invalidCharacter))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDelete_Error_NotEnabled() {
+  func test_Delete_WhenServiceNotEnabled_ReturnsServiceNotEnabledError() throws {
     let expectation = self.expectation(description: "testDelete_Error_NotEnabled")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["file_error_notEnabled"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["file_error_notEnabled"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.serviceNotEnabled))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testDelete_Error_InternalError() {
+  func test_Delete_WhenInternalServiceError_ReturnsInternalServiceError() throws {
     let expectation = self.expectation(description: "testDelete_Error_InternalError")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["internalServiceError_StatusCode"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["internalServiceError_StatusCode"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub
-      .remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
-        switch result {
-        case .success:
-          XCTFail("Request should not succeed")
-        case let .failure(error):
-          XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
-        }
-        expectation.fulfill()
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+    pubnub.remove(fileId: testFileId, filename: testFilename, channel: testChannel) { result in
+      switch result {
+      case .success:
+        XCTFail("Request should not succeed")
+      case let .failure(error):
+        XCTAssertEqual(error.pubNubError, PubNubError(.internalServiceError))
       }
+      expectation.fulfill()
+    }
 
     wait(for: [expectation], timeout: 1.0)
   }

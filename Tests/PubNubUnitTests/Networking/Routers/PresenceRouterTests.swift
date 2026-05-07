@@ -12,8 +12,7 @@
 import XCTest
 
 final class PresenceRouterTests: XCTestCase {
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
+  let config = TestPubNubFactory.makeConfig()
 
   let channelName = "TestChannel"
   let otherChannel = "OtherTestChannel"
@@ -22,7 +21,7 @@ final class PresenceRouterTests: XCTestCase {
 // MARK: - HereNow Tests
 
 extension PresenceRouterTests {
-  func testHereNow_Router() {
+  func test_HereNowRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(
       .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
@@ -33,7 +32,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testHereNow_Router_ValidationError() {
+  func test_HereNow_WhenChannelsAndGroupsEmpty_ReturnsValidationError() {
     let router = PresenceRouter(
       .hereNow(channels: [], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
@@ -45,7 +44,7 @@ extension PresenceRouterTests {
     )
   }
 
-  func testHereNow_Router_Channels() {
+  func test_HereNowRouter_WithChannels_ReturnsExpectedChannels() {
     let router = PresenceRouter(
       .hereNow(channels: [channelName], groups: [], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
@@ -54,7 +53,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
-  func testHereNow_Router_Groups() {
+  func test_HereNowRouter_WithGroups_ReturnsExpectedGroups() {
     let router = PresenceRouter(
       .hereNow(channels: [], groups: [channelName], includeUUIDs: true, includeState: true, limit: 1000, offset: 0),
       configuration: config
@@ -64,17 +63,15 @@ extension PresenceRouterTests {
   }
 
   // Single Channel
-  func testHereNow_Success_SingleChannel() {
+  func test_HereNow_WithSingleChannel_ReturnsOccupancy() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_singleChannel_success"])
 
     let testChannel = channelName
     let presence = PubNubPresenceBase(channel: testChannel, occupancy: 1, occupants: ["pn-12"], occupantsState: [:])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [testChannel]) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -88,12 +85,10 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success_SingleChannel_Stateful() {
+  func test_HereNow_WithSingleChannelStateful_ReturnsOccupantsState() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success_stateful"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_singleChannel_success_stateful"])
 
     let testChannel = channelName
     let presence = PubNubPresenceBase(
@@ -101,7 +96,7 @@ extension PresenceRouterTests {
       occupantsState: ["pn-12": ["SubKey": "SubValue"]]
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -115,19 +110,17 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success_SingleChannel_EmptyPresence() {
+  func test_HereNow_WithSingleChannelNoOccupants_ReturnsEmptyPresence() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_singleChannel_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_singleChannel_success_empty"])
 
     let testChannel = channelName
     let presence = PubNubPresenceBase(
       channel: testChannel, occupancy: 0, occupants: [], occupantsState: [:]
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [testChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -143,16 +136,14 @@ extension PresenceRouterTests {
 
   // Multi Channel
 
-  func testHereNow_Success() {
+  func test_HereNow_WithMultipleChannels_ReturnsPresenceByChannel() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_success"])
 
     let presence = PubNubPresenceBase(channel: "TestChannel", occupancy: 1, occupants: ["pn-12"], occupantsState: [:])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -166,19 +157,17 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success_Stateful() {
+  func test_HereNow_WithMultipleChannelsStateful_ReturnsPresenceWithState() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_stateful"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_success_stateful"])
 
     let presence = PubNubPresenceBase(
       channel: "TestChannel", occupancy: 1,
       occupants: ["pn-12"], occupantsState: ["pn-12": ["SubKey": "SubValue"]]
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -192,14 +181,12 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success_EmptyPresence() {
+  func test_HereNow_WithMultipleChannelsEmpty_ReturnsEmptyPresence() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_success_empty"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -215,12 +202,10 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHereNow_Success_DisableUUID() {
+  func test_HereNow_WithUUIDsDisabled_ReturnsOccupancyWithoutUUIDs() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success_disableUUID"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_success_disableUUID"])
 
     let channelName = "TestChannel"
 
@@ -229,7 +214,7 @@ extension PresenceRouterTests {
       occupants: [], occupantsState: [:]
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [channelName, otherChannel], includeUUIDs: false, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -249,7 +234,7 @@ extension PresenceRouterTests {
 // MARK: - Global HereNow Tests
 
 extension PresenceRouterTests {
-  func testHereNowGlobal_Router() {
+  func test_HereNowGlobalRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Global Here Now")
@@ -257,34 +242,32 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testHereNowGlobal_Router_ValidationError() {
+  func test_HereNowGlobal_WithValidConfig_ReturnsNoValidationError() {
     let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
     XCTAssertNil(router.validationError)
   }
 
-  func testHereNowGlobal_Router_Channels() {
+  func test_HereNowGlobalRouter_WithNoChannels_ReturnsEmptyChannels() {
     let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
     XCTAssertEqual(router.endpoint.channels, [])
   }
 
-  func testHereNowGlobal_Router_Groups() {
+  func test_HereNowGlobalRouter_WithNoGroups_ReturnsEmptyGroups() {
     let router = PresenceRouter(.hereNowGlobal(includeUUIDs: true, includeState: true), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [])
   }
 
-  func testHereNowGlobal_Success() {
+  func test_HereNowGlobal_WithNoChannels_ReturnsGlobalPresence() throws {
     let expectation = self.expectation(description: "HereNowGlobal Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["herenow_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["herenow_success"])
 
     let presence = PubNubPresenceBase(
       channel: "TestChannel", occupancy: 1,
       occupants: ["pn-12"], occupantsState: [:]
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.hereNow(on: [], includeUUIDs: true, includeState: true) { result in
       switch result {
       case let .success(presenceByChannel):
@@ -302,7 +285,7 @@ extension PresenceRouterTests {
 // MARK: - WhereNow Tests
 
 extension PresenceRouterTests {
-  func testWhereNow_Router() {
+  func test_WhereNowRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Where Now")
@@ -310,7 +293,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testWhereNow_Router_ValidationError() {
+  func test_WhereNow_WhenUUIDEmpty_ReturnsValidationError() {
     let router = PresenceRouter(.whereNow(uuid: ""), configuration: config)
 
     XCTAssertEqual(
@@ -319,24 +302,22 @@ extension PresenceRouterTests {
     )
   }
 
-  func testWhereNow_Router_Channels() {
+  func test_WhereNowRouter_WithValidUUID_ReturnsEmptyChannels() {
     let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
     XCTAssertEqual(router.endpoint.channels, [])
   }
 
-  func testWhereNow_Router_Groups() {
+  func test_WhereNowRouter_WithValidUUID_ReturnsEmptyGroups() {
     let router = PresenceRouter(.whereNow(uuid: "Something"), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [])
   }
 
-  func testWhereNow_Success_EmptyClasses() {
+  func test_WhereNow_WithUserNoChannels_ReturnsEmptyChannels() throws {
     let expectation = self.expectation(description: "WhereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["wherenow_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["wherenow_success_empty"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.whereNow(for: "testUser") { result in
       switch result {
       case let .success(channelsByGroupId):
@@ -350,14 +331,12 @@ extension PresenceRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testWhereNow_Success() {
+  func test_WhereNow_WithActiveUser_ReturnsChannels() throws {
     let expectation = self.expectation(description: "WhereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["wherenow_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["wherenow_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
     pubnub.whereNow(for: "testUser") { result in
       switch result {
       case let .success(channels):
@@ -375,7 +354,7 @@ extension PresenceRouterTests {
 // MARK: - Heartbeat Tests
 
 extension PresenceRouterTests {
-  func testHeartbeat_Router() {
+  func test_HeartbeatRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(
       .heartbeat(
         channels: [channelName], groups: [],
@@ -388,7 +367,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testHeartbeat_Router_ValidationError() {
+  func test_Heartbeat_WhenChannelsAndGroupsEmpty_ReturnsValidationError() {
     let router = PresenceRouter(
       .heartbeat(
         channels: [], groups: [],
@@ -402,7 +381,7 @@ extension PresenceRouterTests {
     )
   }
 
-  func testHeartbeat_Router_Channels() {
+  func test_HeartbeatRouter_WithChannels_ReturnsExpectedChannels() {
     let router = PresenceRouter(
       .heartbeat(
         channels: [channelName],
@@ -415,7 +394,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
-  func testHeartbeat_Router_Groups() {
+  func test_HeartbeatRouter_WithGroups_ReturnsExpectedGroups() {
     let router = PresenceRouter(
       .heartbeat(
         channels: [],
@@ -428,7 +407,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
 
-  func testHeartbeat_QueryParamsWithEventEngineEnabled() {
+  func test_Heartbeat_WithEventEngineEnabled_IncludesStateAndEEParams() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -469,7 +448,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "state" && $0.value.map { expStateValues.contains($0) } == true })
   }
 
-  func testHeartbeat_QueryParamsWithEventEngineDisabled() {
+  func test_Heartbeat_WithEventEngineDisabled_ExcludesStateAndEEParams() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -501,7 +480,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
   }
 
-  func testHeartbeat_QueryParamsWithMaintainPresenceStateDisabled() {
+  func test_Heartbeat_WithMaintainPresenceStateDisabled_ExcludesStateParam() {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -533,7 +512,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
 
-  func testHeartbeat_QueryParamsWithEmptyPresenceStates() {
+  func test_Heartbeat_WithEmptyPresenceStates_ExcludesStateParam() {
     let endpoint = PresenceRouter.Endpoint.heartbeat(
       channels: ["c1", "c2"],
       groups: ["group-1", "group-2"],
@@ -565,7 +544,7 @@ extension PresenceRouterTests {
 // MARK: - Leave Tests
 
 extension PresenceRouterTests {
-  func testLeave_Router() {
+  func test_LeaveRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(.leave(channels: [channelName], groups: []), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Leave")
@@ -573,7 +552,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testLeave_Router_ValidationError() {
+  func test_Leave_WhenChannelsAndGroupsEmpty_ReturnsValidationError() {
     let router = PresenceRouter(.leave(channels: [], groups: []), configuration: config)
 
     XCTAssertEqual(
@@ -582,12 +561,12 @@ extension PresenceRouterTests {
     )
   }
 
-  func testLeave_Router_Channels() {
+  func test_LeaveRouter_WithChannels_ReturnsExpectedChannels() {
     let router = PresenceRouter(.leave(channels: [channelName], groups: []), configuration: config)
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
-  func testLeave_Router_Groups() {
+  func test_LeaveRouter_WithGroups_ReturnsExpectedGroups() {
     let router = PresenceRouter(.leave(channels: [], groups: [channelName]), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
@@ -596,7 +575,7 @@ extension PresenceRouterTests {
 // MARK: - Get State Tests
 
 extension PresenceRouterTests {
-  func testGetState_Router() {
+  func test_GetStateRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [channelName], groups: []), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Get Presence State")
@@ -604,7 +583,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testGetState_Router_ValidationError() {
+  func test_GetState_WhenUUIDOrChannelsInvalid_ReturnsValidationError() {
     let router = PresenceRouter(.getState(uuid: "", channels: [channelName], groups: []), configuration: config)
     XCTAssertEqual(
       router.validationError?.pubNubError?.details.first,
@@ -621,12 +600,12 @@ extension PresenceRouterTests {
     )
   }
 
-  func testGetState_Router_Channels() {
+  func test_GetStateRouter_WithChannels_ReturnsExpectedChannels() {
     let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [channelName], groups: []), configuration: config)
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
-  func testGetState_Router_Groups() {
+  func test_GetStateRouter_WithGroups_ReturnsExpectedGroups() {
     let router = PresenceRouter(.getState(uuid: "TestUUID", channels: [], groups: [channelName]), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
@@ -635,7 +614,7 @@ extension PresenceRouterTests {
 // MARK: - Set State Tests
 
 extension PresenceRouterTests {
-  func testSetState_Router() {
+  func test_SetStateRouter_WithValidConfig_SetsExpectedEndpoint() {
     let router = PresenceRouter(.setState(channels: [channelName], groups: [], state: [:]), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Set Presence State")
@@ -643,7 +622,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.service, .presence)
   }
 
-  func testSetState_Router_ValidationError() {
+  func test_SetState_WhenChannelsAndGroupsEmpty_ReturnsValidationError() {
     let router = PresenceRouter(.setState(channels: [], groups: [], state: [:]), configuration: config)
 
     XCTAssertEqual(
@@ -652,12 +631,12 @@ extension PresenceRouterTests {
     )
   }
 
-  func testSetState_Router_Channels() {
+  func test_SetStateRouter_WithChannels_ReturnsExpectedChannels() {
     let router = PresenceRouter(.setState(channels: [channelName], groups: [], state: [:]), configuration: config)
     XCTAssertEqual(router.endpoint.channels, [channelName])
   }
 
-  func testSetState_Router_Groups() {
+  func test_SetStateRouter_WithGroups_ReturnsExpectedGroups() {
     let router = PresenceRouter(.setState(channels: [], groups: [channelName], state: [:]), configuration: config)
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }

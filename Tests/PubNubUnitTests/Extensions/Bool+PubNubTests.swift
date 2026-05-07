@@ -12,11 +12,11 @@
 import XCTest
 
 final class BoolPubNubTests: XCTestCase {
-  func testStringNumber_True() {
+  func test_StringNumber_WhenTrue_Returns1() {
     XCTAssertEqual(true.stringNumber, "1")
   }
 
-  func testStringNumber_False() {
+  func test_StringNumber_WhenFalse_Returns0() {
     XCTAssertEqual(false.stringNumber, "0")
   }
 }

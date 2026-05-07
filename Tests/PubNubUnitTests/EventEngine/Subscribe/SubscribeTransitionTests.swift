@@ -19,7 +19,7 @@ extension SubscribeState {
   }
 }
 
-extension Subscribe.Invocation: Equatable {
+extension Subscribe.Invocation: @retroactive Equatable {
   public static func == (lhs: Subscribe.Invocation, rhs: Subscribe.Invocation) -> Bool {
     switch (lhs, rhs) {
     case let (.handshakeRequest(lC, lG), .handshakeRequest(rC, rG)):
@@ -36,7 +36,7 @@ extension Subscribe.Invocation: Equatable {
   }
 }
 
-extension Subscribe.Event: Equatable {
+extension Subscribe.Event: @retroactive Equatable {
   public static func == (lhs: Subscribe.Event, rhs: Subscribe.Event) -> Bool {
     switch (lhs, rhs) {
     case let (.subscriptionChanged(lC, lG), .subscriptionChanged(rC, rG)):
@@ -69,7 +69,7 @@ class SubscribeTransitionTests: XCTestCase {
 
   // MARK: - Subscription Changed
 
-  func test_SubscriptionChangedForUnsubscribedState() throws {
+  func test_SubscriptionChanged_FromUnsubscribedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.UnsubscribedState(),
       event: .subscriptionChanged(
@@ -92,11 +92,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionChangedForHandshakeFailedState() throws {
+  func test_SubscriptionChanged_FromHandshakeFailedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input,
@@ -124,11 +124,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionChangedForHandshakeStoppedState() throws {
+  func test_SubscriptionChanged_FromHandshakeStoppedState_TransitionsToHandshakeStopped() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeStoppedState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .subscriptionChanged(
@@ -145,11 +145,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
     XCTAssertTrue(results.invocations.isEmpty)
   }
 
-  func test_SubscriptionChangedForHandshakingState() throws {
+  func test_SubscriptionChanged_FromHandshakingState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .subscriptionChanged(
@@ -174,11 +174,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionChangedForReceivingState() throws {
+  func test_SubscriptionChanged_FromReceivingState_TransitionsToReceiving() throws {
     let status: ConnectionStatus = .subscriptionChanged(
       channels: input.channelNames(withPresence: true),
       groups: input.channelGroupNames(withPresence: true)
@@ -221,11 +221,11 @@ class SubscribeTransitionTests: XCTestCase {
       connectionStatus: .subscriptionChanged(channels: expChannels, groups: expGroups)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionChangedForReceiveFailedState() throws {
+  func test_SubscriptionChanged_FromReceiveFailedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveFailedState(
         input: input,
@@ -252,11 +252,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 500100900, region: 11)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionChangedForReceiveStoppedState() throws {
+  func test_SubscriptionChanged_FromReceiveStoppedState_TransitionsToReceiveStopped() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveStoppedState(input: input, cursor: SubscribeCursor(timetoken: 500100900, region: 11)),
       event: .subscriptionChanged(
@@ -273,13 +273,13 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 500100900, region: 11)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
     XCTAssertTrue(results.invocations.isEmpty)
   }
 
   // MARK: - Subscription Restored
 
-  func test_SubscriptionRestoredForReceivingState() throws {
+  func test_SubscriptionRestored_FromReceivingState_TransitionsToReceiving() throws {
     let status: ConnectionStatus = .subscriptionChanged(
       channels: input.channelNames(withPresence: true),
       groups: input.channelGroupNames(withPresence: true)
@@ -326,11 +326,11 @@ class SubscribeTransitionTests: XCTestCase {
       )
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionRestoredForReceiveFailedState() {
+  func test_SubscriptionRestored_FromReceiveFailedState_TransitionsToHandshaking() {
     let results = transition.transition(
       from: Subscribe.ReceiveFailedState(
         input: input,
@@ -358,11 +358,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionRestoredForReceiveStoppedState() {
+  func test_SubscriptionRestored_FromReceiveStoppedState_TransitionsToReceiveStopped() {
     let results = transition.transition(
       from: Subscribe.ReceiveStoppedState(
         input: input,
@@ -383,11 +383,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
     XCTAssertTrue(results.invocations.isEmpty)
   }
 
-  func test_SubscriptionRestoredForHandshakingState() {
+  func test_SubscriptionRestored_FromHandshakingState_TransitionsToHandshaking() {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .subscriptionRestored(
@@ -412,11 +412,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionRestoredForHandshakeFailedState() {
+  func test_SubscriptionRestored_FromHandshakeFailedState_TransitionsToHandshaking() {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input,
@@ -445,11 +445,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_SubscriptionRestoredForHandshakeStoppedState() {
+  func test_SubscriptionRestored_FromHandshakeStoppedState_TransitionsToHandshakeStopped() {
     let results = transition.transition(
       from: Subscribe.HandshakeStoppedState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .subscriptionRestored(
@@ -467,13 +467,13 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 100, region: 55)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
     XCTAssertTrue(results.invocations.isEmpty)
   }
 
   // MARK: - Handshake Success
 
-  func test_HandshakeSuccessForHandshakingState() {
+  func test_HandshakeSuccess_FromHandshakingState_TransitionsToReceiving() {
     let cursor = SubscribeCursor(
       timetoken: 1500100900,
       region: 41
@@ -501,13 +501,13 @@ class SubscribeTransitionTests: XCTestCase {
       connectionStatus: .connected
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Handshake Failure
 
-  func test_HandshakeFailureForHandshakingState() {
+  func test_HandshakeFailure_FromHandshakingState_TransitionsToHandshakeFailed() {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .handshakeFailure(error: PubNubError(.unknown))
@@ -526,13 +526,13 @@ class SubscribeTransitionTests: XCTestCase {
       error: PubNubError(.unknown)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Receiving With Messages
 
-  func test_ReceivingStateWithMessages() {
+  func test_ReceiveSuccess_FromReceivingState_TransitionsToReceiving() {
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -562,13 +562,13 @@ class SubscribeTransitionTests: XCTestCase {
       connectionStatus: .connected
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Receive Failed
 
-  func test_ReceiveFailedForReceivingState() {
+  func test_ReceiveFailure_FromReceivingState_TransitionsToReceiveFailed() {
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -591,13 +591,13 @@ class SubscribeTransitionTests: XCTestCase {
       error: PubNubError(.unknown)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Reconnect
 
-  func test_ReconnectForHandshakeStoppedState() throws {
+  func test_Reconnect_FromHandshakeStoppedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeStoppedState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .reconnect(cursor: nil)
@@ -615,11 +615,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_ReconnectForHandshakeFailedState() throws {
+  func test_Reconnect_FromHandshakeFailedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input, cursor: SubscribeCursor(timetoken: 0, region: 0),
@@ -640,11 +640,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_ReconnectForReceiveStoppedState() throws {
+  func test_Reconnect_FromReceiveStoppedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveStoppedState(
         input: input,
@@ -665,11 +665,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 123, region: 456)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_ReconnectForReceiveFailedState() throws {
+  func test_Reconnect_FromReceiveFailedState_TransitionsToHandshaking() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveFailedState(
         input: input,
@@ -691,13 +691,13 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 123, region: 456)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Disconnect
 
-  func test_DisconnectForHandshakingState() {
+  func test_Disconnect_FromHandshakingState_TransitionsToHandshakeStopped() {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .disconnect
@@ -715,11 +715,11 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 0, region: 0)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_DisconnectForReceivingState() {
+  func test_Disconnect_FromReceivingState_TransitionsToReceiveStopped() {
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -741,13 +741,13 @@ class SubscribeTransitionTests: XCTestCase {
       cursor: SubscribeCursor(timetoken: 123, region: 456)
     )
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
   // MARK: - Unsubscribe All
 
-  func testUnsubscribeAll_ForHandshakingState() throws {
+  func test_UnsubscribeAll_FromHandshakingState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.HandshakingState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .unsubscribeAll
@@ -762,10 +762,10 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     XCTAssertTrue(results.state.isEqual(to: Subscribe.UnsubscribedState()))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func testUnsubscribeAll_ForHandshakeFailedState() throws {
+  func test_UnsubscribeAll_FromHandshakeFailedState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeFailedState(
         input: input, cursor: SubscribeCursor(timetoken: 0, region: 0),
@@ -782,11 +782,11 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     let expectedState = Subscribe.UnsubscribedState()
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func testUnsubscribeAll_ForHandshakeStoppedState() throws {
+  func test_UnsubscribeAll_FromHandshakeStoppedState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.HandshakeStoppedState(input: input, cursor: SubscribeCursor(timetoken: 0, region: 0)),
       event: .unsubscribeAll
@@ -800,11 +800,11 @@ class SubscribeTransitionTests: XCTestCase {
     ]
     let expectedState = Subscribe.UnsubscribedState()
 
-    XCTAssertTrue(results.state.isEqual(to: expectedState))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.state.isEqual(to: expectedState), "State mismatch: expected \(type(of: expectedState))")
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_UnsubscribeAllForReceivingState() throws {
+  func test_UnsubscribeAll_FromReceivingState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.ReceivingState(
         input: input,
@@ -823,10 +823,10 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     XCTAssertTrue(results.state.isEqual(to: Subscribe.UnsubscribedState()))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_UnsubscribeAllForReceiveFailedState() throws {
+  func test_UnsubscribeAll_FromReceiveFailedState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveFailedState(
         input: input,
@@ -844,10 +844,10 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     XCTAssertTrue(results.state.isEqual(to: Subscribe.UnsubscribedState()))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 
-  func test_UnsubscribeAllForReceiveStoppedState() throws {
+  func test_UnsubscribeAll_FromReceiveStoppedState_TransitionsToUnsubscribed() throws {
     let results = transition.transition(
       from: Subscribe.ReceiveStoppedState(
         input: input,
@@ -864,7 +864,7 @@ class SubscribeTransitionTests: XCTestCase {
     ]
 
     XCTAssertTrue(results.state.isEqual(to: Subscribe.UnsubscribedState()))
-    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations))
+    XCTAssertTrue(results.invocations.elementsEqual(expectedInvocations), "Invocations mismatch")
   }
 }
 

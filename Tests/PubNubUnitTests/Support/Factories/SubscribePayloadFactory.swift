@@ -1,5 +1,5 @@
 //
-//  SubscribeMessagesGeneratorTests.swift
+//  SubscribePayloadFactory.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.

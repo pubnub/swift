@@ -139,7 +139,7 @@ class AtomicTests: XCTestCase {
 
   func test_AtomicInt_ConcurrentBitwiseOr_OnlyOneThreadSeesExpectedValue() {
     let queue = DispatchQueue(
-      label: "ConcurrenyQueue Fetch",
+      label: "ConcurrencyQueue Fetch",
       qos: .default,
       attributes: .concurrent
     )

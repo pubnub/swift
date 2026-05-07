@@ -33,35 +33,35 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: Hashable
 
-  func test_AnyJSON_CompareCodableArrays_ReturnsEqual() {
+  func test_CompareCodableArrays_ReturnsEqual() {
     let nonHashable = NonHashable(value: "value")
     let json = AnyJSON([nonHashable])
 
     XCTAssertEqual(json, AnyJSON([nonHashable]))
   }
 
-  func test_AnyJSON_ArrayWithMismatchedTypes_ReturnsNotEqual() {
+  func test_ArrayWithMismatchedTypes_ReturnsNotEqual() {
     let json = AnyJSON([1, 2, 3])
     let otherJson = AnyJSON([1, 2, "3"])
 
     XCTAssertNotEqual(json, otherJson)
   }
 
-  func test_AnyJSON_ArrayWithMismatchedSizes_ReturnsNotEqual() {
+  func test_ArrayWithMismatchedSizes_ReturnsNotEqual() {
     let json = AnyJSON([1, 2, 3])
     let otherJson = AnyJSON([1, 2])
 
     XCTAssertNotEqual(json, otherJson)
   }
 
-  func test_AnyJSON_DictionaryWithMismatchedTypes_ReturnsNotEqual() {
+  func test_DictionaryWithMismatchedTypes_ReturnsNotEqual() {
     let json = AnyJSON(["one": 1, "two": 2, "three": 3])
     let otherJson = AnyJSON(["one": 1, "two": 2, "three": "3"])
 
     XCTAssertNotEqual(json, otherJson)
   }
 
-  func test_AnyJSON_DictionaryWithMismatchedSizes_ReturnsNotEqual() {
+  func test_DictionaryWithMismatchedSizes_ReturnsNotEqual() {
     let json = AnyJSON(["one": 1, "two": 2, "three": 3])
     let otherJson = AnyJSON(["one": 1, "two": 2])
 
@@ -70,7 +70,7 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: ExpressibleBy...
 
-  func test_AnyJSON_ExpressibleByArrayLiteral_MatchesArrayInit() {
+  func test_ExpressibleByArrayLiteral_MatchesArrayInit() {
     let literal: [Any] = ["One", 2, true, 3.0]
     let json: AnyJSON = ["One", 2, true, 3.0]
 
@@ -78,7 +78,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertNotNil(json.arrayOptional)
   }
 
-  func test_AnyJSON_ExpressibleByDictionaryLiteral_MatchesDictionaryInit() {
+  func test_ExpressibleByDictionaryLiteral_MatchesDictionaryInit() {
     let literal: [String: Any] = [
       "String": "One",
       "Int": 2,
@@ -99,7 +99,7 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: Stringify
 
-  func test_AnyJSON_StringifyRecodeBool_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeBool_ReturnsOriginalValue() throws {
     let testValue = true
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).boolOptional)
@@ -107,7 +107,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue, valueRecoded)
   }
 
-  func test_AnyJSON_StringifyRecodeInt_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeInt_ReturnsOriginalValue() throws {
     let testValue = 10
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).intOptional)
@@ -115,7 +115,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue, valueRecoded)
   }
 
-  func test_AnyJSON_StringifyRecodeDouble_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeDouble_ReturnsOriginalValue() throws {
     let testValue = 145.502
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).doubleOptional)
@@ -123,7 +123,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue, valueRecoded)
   }
 
-  func test_AnyJSON_StringifyRecodeNil_ReturnsEmptyAndNil() throws {
+  func test_StringifyRecodeNil_ReturnsEmptyAndNil() throws {
     let testValue = NSNull()
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = AnyJSON(reverse: valueString)
@@ -131,7 +131,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertTrue(valueRecoded.isEmpty && valueRecoded.isNil)
   }
 
-  func test_AnyJSON_StringifyRecodeArray_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeArray_ReturnsOriginalValue() throws {
     let testValue = [10, 22, 34]
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).arrayOptional)
@@ -139,7 +139,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue.description, valueRecoded.description)
   }
 
-  func test_AnyJSON_StringifyRecodeDictionary_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeDictionary_ReturnsOriginalValue() throws {
     let testValue = ["TestKey": "TestValue"]
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).dictionaryOptional)
@@ -147,7 +147,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue.description, valueRecoded.description)
   }
 
-  func test_AnyJSON_StringifyRecodeCodable_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeCodable_ReturnsOriginalValue() throws {
     let testValue = SomeCodable(value: "Hello")
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try AnyJSON(reverse: valueString).decode(SomeCodable.self)
@@ -155,7 +155,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(testValue, valueRecoded)
   }
 
-  func test_AnyJSON_StringifyRecodeString_ReturnsOriginalValue() throws {
+  func test_StringifyRecodeString_ReturnsOriginalValue() throws {
     let testValue = "TestString"
     let valueString = try XCTUnwrap(AnyJSON(testValue).jsonStringify)
     let valueRecoded = try XCTUnwrap(AnyJSON(reverse: valueString).stringOptional)
@@ -165,7 +165,7 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: - Convertible
 
-  func test_AnyJSON_DescriptionWithString_ReturnsJSONString() {
+  func test_DescriptionWithString_ReturnsJSONString() {
     let testString = "String Describing This Object"
     let testStringDescription = "[\"\(testString)\"]"
     let stringJSON = AnyJSON([testString])
@@ -173,7 +173,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.description, testStringDescription)
   }
 
-  func test_AnyJSON_DescriptionWithForwardSlashes_PreservesSlashes() {
+  func test_DescriptionWithForwardSlashes_PreservesSlashes() {
     let testString = "String/containing/Slashes"
     let testStringDescription = "[\"\(testString)\"]"
     let stringJSON = AnyJSON([testString])
@@ -181,7 +181,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.description, testStringDescription)
   }
 
-  func test_AnyJSON_DescriptionWithNonHashableDescribable_ReturnsEncodedJSON() {
+  func test_DescriptionWithNonHashableDescribable_ReturnsEncodedJSON() {
     let testString = "String Describing This Object"
     let test = NonHashableStringConvertible(value: testString)
     let stringJSON = AnyJSON([test])
@@ -189,7 +189,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.description, "[{\"value\":\"\(testString)\"}]")
   }
 
-  func test_AnyJSON_DescriptionWithNonHashableNonDescribable_ReturnsEncodedJSON() {
+  func test_DescriptionWithNonHashableNonDescribable_ReturnsEncodedJSON() {
     let testString = "String Describing This Object"
     let test = NonHashable(value: testString)
     let json = AnyJSON([test])
@@ -197,7 +197,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(json.description, "[{\"value\":\"\(testString)\"}]")
   }
 
-  func test_AnyJSON_DebugDescriptionWithString_ReturnsJSONString() {
+  func test_DebugDescriptionWithString_ReturnsJSONString() {
     let testString = "String Describing This Object"
     let testStringDescription = "[\"\(testString)\"]"
     let stringJSON = AnyJSON([testString])
@@ -205,7 +205,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.debugDescription, testStringDescription)
   }
 
-  func test_AnyJSON_DebugDescriptionWithForwardSlashes_PreservesSlashes() {
+  func test_DebugDescriptionWithForwardSlashes_PreservesSlashes() {
     let testString = "String/containing/Slashes"
     let testStringDescription = "[\"\(testString)\"]"
     let stringJSON = AnyJSON([testString])
@@ -213,7 +213,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.debugDescription, testStringDescription)
   }
 
-  func test_AnyJSON_DebugDescriptionWithNonHashableDescribable_ReturnsArrayDescription() {
+  func test_DebugDescriptionWithNonHashableDescribable_ReturnsArrayDescription() {
     let testString = "String Describing This Object"
     let test = NonHashableStringConvertible(value: testString)
     let stringJSON = AnyJSON([test])
@@ -221,7 +221,7 @@ class AnyJSONTests: XCTestCase {
     XCTAssertEqual(stringJSON.debugDescription, [test].description)
   }
 
-  func test_AnyJSON_DebugDescriptionWithNonHashableNonDescribable_ReturnsArrayDescription() {
+  func test_DebugDescriptionWithNonHashableNonDescribable_ReturnsArrayDescription() {
     let testString = "String Describing This Object"
     let test = NonHashable(value: testString)
     let json = AnyJSON([test])
@@ -231,7 +231,7 @@ class AnyJSONTests: XCTestCase {
 
   // MARK: - subscript
 
-  func test_AnyJSON_SubscriptRawValueDictionary_ReturnsValue() {
+  func test_SubscriptRawValueDictionary_ReturnsValue() {
     let testValue = "Hello"
     let testDict = ["messageText": testValue]
     let json = AnyJSON(testDict)

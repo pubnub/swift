@@ -482,8 +482,8 @@
 		3DB925622B7A2BCA001B7E90 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */; };
 		3DB925642B7A2BF5001B7E90 /* SubscriptionSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */; };
 		3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1FC /* MockListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */; };
-		A1B2C3D4E5F6A7B8C9D0E1FD /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */; };
+		1A39430AF65B1BAADB7590FA /* MockListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */; };
+		7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4633F013726A54716BF2443 /* TestPubNubFactory.swift */; };
 		3DB9257C2B7AA75F001B7E90 /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256B2B7AA75F001B7E90 /* EventStream.swift */; };
 		3DB9257D2B7AA75F001B7E90 /* SubscriptionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */; };
 		3DB9257E2B7AA75F001B7E90 /* PubNubEntityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */; };
@@ -1147,8 +1147,8 @@
 		3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSetTests.swift; sourceTree = "<group>"; };
 		3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribePayloadFactory.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockListener.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPubNubFactory.swift; sourceTree = "<group>"; };
+		10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockListener.swift; sourceTree = "<group>"; };
+		B4633F013726A54716BF2443 /* TestPubNubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPubNubFactory.swift; sourceTree = "<group>"; };
 		3DB9256B2B7AA75F001B7E90 /* EventStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStream.swift; sourceTree = "<group>"; };
 		3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStream.swift; sourceTree = "<group>"; };
 		3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEntityEvent.swift; sourceTree = "<group>"; };
@@ -1640,25 +1640,25 @@
 			isa = PBXGroup;
 			children = (
 				355BEA0022C2CCBF000EC334 /* Responses */,
-				A1B2C3D4E5F6A7B8C9D0E1F2 /* Mocks */,
-				A1B2C3D4E5F6A7B8C9D0E1F3 /* Helpers */,
-				A1B2C3D4E5F6A7B8C9D0E1F4 /* Extensions */,
-				A1B2C3D4E5F6A7B8C9D0E1F5 /* Factories */,
+				DC16575797B99A4004452FDC /* Mocks */,
+				789DE320D1D8C62DC8BC6126 /* Helpers */,
+				903F2335F2AF964319AE5E82 /* Extensions */,
+				B1BF99D138AB06A25C22623D /* Factories */,
 			);
 			path = Support;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6A7B8C9D0E1F2 /* Mocks */ = {
+		DC16575797B99A4004452FDC /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
 				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
 				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
-				A1B2C3D4E5F6A7B8C9D0E1FA /* MockListener.swift */,
+				10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6A7B8C9D0E1F3 /* Helpers */ = {
+		789DE320D1D8C62DC8BC6126 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
@@ -1670,7 +1670,7 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6A7B8C9D0E1F4 /* Extensions */ = {
+		903F2335F2AF964319AE5E82 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				3D38A0092B35AF6A006928E7 /* EffectInvocation+Equatable.swift */,
@@ -1678,11 +1678,11 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F6A7B8C9D0E1F5 /* Factories */ = {
+		B1BF99D138AB06A25C22623D /* Factories */ = {
 			isa = PBXGroup;
 			children = (
 				3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */,
-				A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */,
+				B4633F013726A54716BF2443 /* TestPubNubFactory.swift */,
 			);
 			path = Factories;
 			sourceTree = "<group>";
@@ -4187,8 +4187,8 @@
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
 				3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1FC /* MockListener.swift in Sources */,
-				A1B2C3D4E5F6A7B8C9D0E1FD /* TestPubNubFactory.swift in Sources */,
+				1A39430AF65B1BAADB7590FA /* MockListener.swift in Sources */,
+				7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
 				3D38A0112B35AF6B006928E7 /* SubscribeTransitionTests.swift in Sources */,
 				3D38A00B2B35AF6A006928E7 /* DispatcherTests.swift in Sources */,

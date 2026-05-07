@@ -26,7 +26,7 @@ class PAMTokenTests: XCTestCase {
 // MARK: Scanner
 
 extension PAMTokenTests {
-  func test_PAMToken_ParseValidToken_ReturnsCorrectPermissions() throws {
+  func test_ParseValidToken_ReturnsCorrectPermissions() throws {
     let pubnub = PubNub(configuration: config)
     let token = pubnub.parse(token: PAMTokenTests.allPermissionsToken)
 
@@ -49,7 +49,7 @@ extension PAMTokenTests {
     XCTAssertEqual(patterns.uuids["^uuid-\\S*$"], [PAMPermission.delete, PAMPermission.get, PAMPermission.update])
   }
 
-  func test_PAMToken_SetToken_UpdatesConfiguration() {
+  func test_SetToken_UpdatesConfiguration() {
     let pubnub = PubNub(configuration: config)
     pubnub.set(token: "access-token")
 
@@ -57,7 +57,7 @@ extension PAMTokenTests {
     XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
   }
 
-  func test_PAMToken_ChangeToken_UpdatesToNewValue() {
+  func test_ChangeToken_UpdatesToNewValue() {
     let pubnub = PubNub(configuration: config)
     pubnub.set(token: "access-token")
     pubnub.set(token: "access-token-updated")

@@ -15,7 +15,7 @@ class RequestRetrierTests: XCTestCase {
   let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
 
   // swiftlint:disable:next function_body_length
-  func test_RequestRetrier_AfterTwoFailures_SucceedsOnThirdAttempt() throws {
+  func test_AfterTwoFailures_SucceedsOnThirdAttempt() throws {
     var expectations = [XCTestExpectation]()
     var retryCount = 0
 
@@ -76,7 +76,7 @@ class RequestRetrierTests: XCTestCase {
   }
 
   // swiftlint:disable:next function_body_length
-  func test_RequestRetrier_AllRetriesFail_ReturnsLastError() throws {
+  func test_AllRetriesFail_ReturnsLastError() throws {
     var expectations = [XCTestExpectation]()
     var retryCount = 0
 
@@ -145,7 +145,7 @@ class RequestRetrierTests: XCTestCase {
   }
 
   // swiftlint:disable:next function_body_length
-  func test_RequestRetrier_MultiplexWithRetrier_SucceedsAfterRetries() throws {
+  func test_MultiplexWithRetrier_SucceedsAfterRetries() throws {
     var expectations = [XCTestExpectation]()
     var retryCount = 0
 

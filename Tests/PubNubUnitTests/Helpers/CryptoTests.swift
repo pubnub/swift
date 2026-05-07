@@ -14,7 +14,7 @@ import XCTest
 @testable import PubNubSDK
 
 class CryptoTests: XCTestCase {
-  func test_CryptoModule_EncryptThenDecryptData_ReturnsOriginal() throws {
+  func test_EncryptThenDecryptData_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
 
@@ -26,7 +26,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(testMessage, decryptedString)
   }
 
-  func test_CryptoModule_EncryptThenDecryptString_ReturnsOriginal() throws {
+  func test_EncryptThenDecryptString_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = true.description
 
@@ -37,7 +37,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(testMessage, decryptedString)
   }
 
-  func test_CryptoModule_EncryptThenDecryptJSONString_ReturnsOriginal() throws {
+  func test_EncryptThenDecryptJSONString_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString")
     let testMessage = "Test Message To Be Encrypted"
     let jsonMessage = testMessage.jsonDescription
@@ -50,7 +50,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(testMessage, decryptedString)
   }
 
-  func test_CryptoModule_RandomizedIV_ProducesDifferentCiphertextButSamePlaintext() throws {
+  func test_RandomizedIV_ProducesDifferentCiphertextButSamePlaintext() throws {
     let testMessage = "Test Message To Be Encrypted"
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey")
 
@@ -66,7 +66,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(testMessage, decryptedString1)
   }
 
-  func test_CryptoModule_StaticIVEncryptDecrypt_ReturnsOriginal() throws {
+  func test_StaticIVEncryptDecrypt_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "MyCoolCipherKey", withRandomIV: false)
     let message = "\"Hello there!\""
 
@@ -76,7 +76,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(message, String(bytes: decrypted, encoding: .utf8))
   }
 
-  func test_CryptoModule_DecryptOtherSDKRandomIVPayload_ReturnsOriginal() throws {
+  func test_DecryptOtherSDKRandomIVPayload_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "enigma", withRandomIV: true)
     let plainText = "yay!"
     let otherSDKBase64 = "MTIzNDU2Nzg5MDEyMzQ1NjdnONoCgo0wbuMGGMmfMX0="
@@ -93,7 +93,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(plainText, String(data: otherDecrypted, encoding: .utf8))
   }
 
-  func test_CryptoModule_DecryptStreamFromOtherSDK_MatchesPlaintext() throws {
+  func test_DecryptStreamFromOtherSDK_MatchesPlaintext() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(with: "enigma", withRandomIV: true)
     let ecrypted = try ImportTestResource.importResource("file_upload_sample_encrypted", withExtension: "txt")
     let final = try ImportTestResource.importResource("file_upload_sample", withExtension: "txt")
@@ -115,7 +115,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(finalString, String(data: decrypted, encoding: .utf8))
   }
 
-  func test_CryptoModule_EncryptThenDecryptStream_ReturnsOriginal() throws {
+  func test_EncryptThenDecryptStream_ReturnsOriginal() throws {
     let cryptoModule = CryptoModule.legacyCryptoModule(
       with: "enigma",
       withRandomIV: true
@@ -158,7 +158,7 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(plainTextString, decryptedString)
   }
 
-  func test_CryptoModule_DecryptStreamFromFileURL_MatchesPlaintext() throws {
+  func test_DecryptStreamFromFileURL_MatchesPlaintext() throws {
     let encryptedTextURL = try XCTUnwrap(ImportTestResource.testsBundle.url(
       forResource: "file_upload_sample_encrypted",
       withExtension: "txt"

@@ -12,7 +12,7 @@
 import XCTest
 
 class RequestIdOperatorTests: XCTestCase {
-  func test_RequestIdOperator_UseRequestIdEnabled_AppendsRequestIdToURL() throws {
+  func test_UseRequestIdEnabled_AppendsRequestIdToURL() throws {
     var expectations = [XCTestExpectation]()
 
     let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",

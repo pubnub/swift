@@ -12,7 +12,7 @@
 import XCTest
 
 class RequestMutatorTests: XCTestCase {
-  func test_MultiplexRequestOperator_InitWithOperator_ContainsOneOperator() {
+  func test_MultiplexInitWithOperator_ContainsOneOperator() {
     let mutator = DefaultOperator()
 
     let multiplex = MultiplexRequestOperator(requestOperator: mutator)
@@ -23,7 +23,7 @@ class RequestMutatorTests: XCTestCase {
     XCTAssertEqual(emptyMultiplex.operators.count, 0)
   }
 
-  func test_RequestMutator_MutateRequestSucceeds_AppendsQueryItemToURL() throws {
+  func test_MutateRequestSucceeds_AppendsQueryItemToURL() throws {
     var expectations = [XCTestExpectation]()
 
     let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",
@@ -79,7 +79,7 @@ class RequestMutatorTests: XCTestCase {
     wait(for: expectations, timeout: 1.0)
   }
 
-  func test_RequestMutator_MutateRequestFails_ReturnsRequestMutatorFailureError() throws {
+  func test_MutateRequestFails_ReturnsRequestMutatorFailureError() throws {
     var expectations = [XCTestExpectation]()
 
     let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",

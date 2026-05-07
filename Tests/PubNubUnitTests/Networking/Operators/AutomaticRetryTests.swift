@@ -36,14 +36,14 @@ class AutomaticRetryTests: XCTestCase {
 
   // MARK: - init() & Equatable
 
-  func test_AutomaticRetry_DefaultInit_MatchesDefaultPolicy() {
+  func test_DefaultInit_MatchesDefaultPolicy() {
     let testPolicy = AutomaticRetry.default
     let policy = AutomaticRetry()
 
     XCTAssertEqual(testPolicy, policy)
   }
 
-  func test_AutomaticRetry_InitWithInvalidLinearDelay_ClampsToMinimumDelay() {
+  func test_InitWithInvalidLinearDelay_ClampsToMinimumDelay() {
     let invalidBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: -1.0)
     let validBasePolicy = AutomaticRetry.ReconnectionPolicy.linear(delay: 2.0)
 
@@ -58,7 +58,7 @@ class AutomaticRetryTests: XCTestCase {
     XCTAssertEqual(testPolicy.policy, validBasePolicy)
   }
 
-  func test_AutomaticRetry_InitWithValidLinearDelay_PreservesPolicy() {
+  func test_InitWithValidLinearDelay_PreservesPolicy() {
     let validLinearPolicy = AutomaticRetry
       .ReconnectionPolicy
       .linear(delay: 2.0)
@@ -75,7 +75,7 @@ class AutomaticRetryTests: XCTestCase {
 
   // MARK: shouldRetry(response:error:)
 
-  func test_AutomaticRetry_ResponseMatchesRetryableStatusCode_ReturnsTrue() throws {
+  func test_ResponseMatchesRetryableStatusCode_ReturnsTrue() throws {
     let url = try XCTUnwrap(URL(string: "http://example.com"))
     let testStatusCode = 500
 
@@ -95,7 +95,7 @@ class AutomaticRetryTests: XCTestCase {
     XCTAssertTrue(testPolicy.shouldRetry(response: testResponse, error: PubNubError(.unknown)))
   }
 
-  func test_AutomaticRetry_ResponseIsTooManyRequests_ReturnsTrue() throws {
+  func test_ResponseIsTooManyRequests_ReturnsTrue() throws {
     let url = try XCTUnwrap(URL(string: "http://example.com"))
     let testStatusCode = 429
 
@@ -113,7 +113,7 @@ class AutomaticRetryTests: XCTestCase {
     XCTAssertTrue(testPolicy.shouldRetry(response: testResponse, error: PubNubError(.unknown)))
   }
 
-  func test_AutomaticRetry_ErrorMatchesRetryableURLErrorCode_ReturnsTrue() {
+  func test_ErrorMatchesRetryableURLErrorCode_ReturnsTrue() {
     let testURLErrorCode = URLError.Code.timedOut
     let testError = URLError(testURLErrorCode)
 
@@ -127,7 +127,7 @@ class AutomaticRetryTests: XCTestCase {
     XCTAssertTrue(testPolicy.shouldRetry(response: nil, error: testError))
   }
 
-  func test_AutomaticRetry_ErrorNotInRetryableCodes_ReturnsFalse() {
+  func test_ErrorNotInRetryableCodes_ReturnsFalse() {
     let testError = URLError(.timedOut)
     let testPolicy = AutomaticRetry(
       retryLimit: 2,

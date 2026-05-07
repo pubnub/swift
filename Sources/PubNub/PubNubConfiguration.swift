@@ -190,7 +190,7 @@ public struct PubNubConfiguration: Hashable {
     enableEventEngine: Bool = true,
     maintainPresenceState: Bool = true
   ) {
-    let cryptoModule: CryptoModule? = if let cipherKey = cipherKey {
+    let cryptoModule: CryptoModule? = if let cipherKey {
       CryptoModule.legacyCryptoModule(with: cipherKey.key, withRandomIV: cipherKey.randomizeIV)
     } else {
       nil

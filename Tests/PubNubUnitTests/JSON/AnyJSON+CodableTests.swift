@@ -61,7 +61,7 @@ class AnyJSONCodableTests: XCTestCase {
     return (list, dict)
   }
 
-  func test_AnyJSON_EncodeDictionary_RoundTripsSuccessfully() throws {
+  func test_EncodeDictionary_RoundTripsSuccessfully() throws {
     let (_, exampleDict) = makeExampleData()
     let json = AnyJSON(exampleDict)
 
@@ -73,7 +73,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(json, jsonDecoder)
   }
 
-  func test_AnyJSON_EncodeEmptyDictionary_RoundTripsSuccessfully() throws {
+  func test_EncodeEmptyDictionary_RoundTripsSuccessfully() throws {
     let json = AnyJSON([String: Any]())
 
     let anyJSONDecode = try json.decode(AnyJSON.self)
@@ -84,7 +84,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(json, jsonDecoder)
   }
 
-  func test_AnyJSON_CompareSingleString_ReturnsEqual() throws {
+  func test_CompareSingleString_ReturnsEqual() throws {
     let testMessage = "abcdefg HIJKLMNO 123456789 !@#$%^&*()"
     let jsonString = AnyJSON(testMessage)
     let jsonStringLiteral = AnyJSON("abcdefg HIJKLMNO 123456789 !@#$%^&*()")
@@ -96,7 +96,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(jsonString.debugDescription, testMessage)
   }
 
-  func test_AnyJSON_EncodeSingleString_ProducesQuotedData() throws {
+  func test_EncodeSingleString_ProducesQuotedData() throws {
     let testValue = "abcdefg HIJKLMNO 123456789 !@#$%^&*()"
     let json = AnyJSON(testValue)
     let jsonFromLiteral = AnyJSON("abcdefg HIJKLMNO 123456789 !@#$%^&*()")
@@ -116,7 +116,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(valueJson, "\"\(testValue)\"")
   }
 
-  func test_AnyJSON_EncodeSingleInt_ProducesNumericData() throws {
+  func test_EncodeSingleInt_ProducesNumericData() throws {
     let testValue = 11_123_123
     let json = AnyJSON(testValue)
     let jsonFromLiteral = AnyJSON(11_123_123)
@@ -138,7 +138,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(valueJson, testValue)
   }
 
-  func test_AnyJSON_EncodeSingleDouble_ProducesNumericData() throws {
+  func test_EncodeSingleDouble_ProducesNumericData() throws {
     let testValue = 11123.2302342
     let json = AnyJSON(testValue)
     let jsonFromLiteral = AnyJSON(11123.2302342)
@@ -160,7 +160,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(valueJson, testValue)
   }
 
-  func test_AnyJSON_EncodeSingleBool_ProducesBoolData() throws {
+  func test_EncodeSingleBool_ProducesBoolData() throws {
     let testValue = true
     let json = AnyJSON(testValue)
     let jsonFromLiteral = AnyJSON(true)
@@ -182,7 +182,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(valueJson, testValue)
   }
 
-  func test_AnyJSON_EncodeArray_RoundTripsSuccessfully() throws {
+  func test_EncodeArray_RoundTripsSuccessfully() throws {
     let (exampleList, _) = makeExampleData()
     let json = AnyJSON(exampleList)
 
@@ -191,7 +191,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(json, anyJSONDecode)
   }
 
-  func test_AnyJSON_EncodeEmptyArray_RoundTripsSuccessfully() throws {
+  func test_EncodeEmptyArray_RoundTripsSuccessfully() throws {
     let json = AnyJSON([Any]())
 
     let anyJSONDecode = try json.decode(AnyJSON.self)
@@ -204,7 +204,7 @@ class AnyJSONCodableTests: XCTestCase {
 
   // MARK: - Failed Coding
 
-  func test_AnyJSON_EncodeNonCodableInArray_ThrowsEncodingError() {
+  func test_EncodeNonCodableInArray_ThrowsEncodingError() {
     let nonCodable = NonCodable(value: "Test")
     let json = AnyJSON([nonCodable])
 
@@ -231,7 +231,7 @@ class AnyJSONCodableTests: XCTestCase {
     }
   }
 
-  func test_AnyJSON_EncodeNonCodableInDictionary_ThrowsEncodingError() {
+  func test_EncodeNonCodableInDictionary_ThrowsEncodingError() {
     let codableKey = "NonCodable"
     let nonCodable = NonCodable(value: "Test")
     let json = AnyJSON([codableKey: nonCodable])

@@ -20,7 +20,7 @@ class FlatJSONCodableTests: XCTestCase {
     }
   }
 
-  func test_FlatJSONCodable_InitWithOptionalDictionary_MatchesDirectInit() {
+  func test_InitWithOptionalDictionary_MatchesDirectInit() {
     let custom = Custom(flatJSON: ["value": "test"])
     let optionalCustom: [String: JSONCodableScalar]? = [
       "value": JSONCodableScalarType(stringValue: "test")
@@ -29,13 +29,13 @@ class FlatJSONCodableTests: XCTestCase {
     XCTAssertEqual(custom.codableValue, Custom(flatJSON: optionalCustom).codableValue)
   }
 
-  func test_FlatJSONCodable_InitWithNilOptional_MatchesEmptyDictInit() {
+  func test_InitWithNilOptional_MatchesEmptyDictInit() {
     let custom = Custom(flatJSON: [:])
 
     XCTAssertEqual(custom.codableValue, Custom(flatJSON: nil).codableValue)
   }
 
-  func test_FlatJSONCodable_FlatJSONProperty_ReturnsOriginalValue() {
+  func test_FlatJSONProperty_ReturnsOriginalValue() {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
@@ -50,7 +50,7 @@ class FlatJSONCodableTests: XCTestCase {
 // MARK: Concrete Type Tests
 
 class FlatJSONTests: XCTestCase {
-  func test_FlatJSON_InitWithDictionary_MatchesTypedInit() {
+  func test_InitWithDictionary_MatchesTypedInit() {
     let custom = FlatJSON(flatJSON: ["value": "test"])
     let customDictionry = [
       "value": JSONCodableScalarType(stringValue: "test")
@@ -61,7 +61,7 @@ class FlatJSONTests: XCTestCase {
     )
   }
 
-  func test_FlatJSON_FlatJSONProperty_ReturnsOriginalValue() {
+  func test_FlatJSONProperty_ReturnsOriginalValue() {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
@@ -72,7 +72,7 @@ class FlatJSONTests: XCTestCase {
     )
   }
 
-  func test_FlatJSON_EncodeDecode_RoundTripsSuccessfully() throws {
+  func test_EncodeDecode_RoundTripsSuccessfully() throws {
     let initialJSON = FlatJSON(flatJSON: ["value": "test"])
 
     let data = try Constant.jsonEncoder.encode(initialJSON)

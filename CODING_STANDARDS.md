@@ -28,3 +28,4 @@ Apply these standards to Swift SDK test code:
 - Declare test methods as `throws` and use `try` / `try XCTUnwrap()` instead of `guard let ... else { return XCTFail(...) }`. Tests should be flat with no early-return guard boilerplate.
 - Each test method should create its own mutable state and dependencies locally — do not share them via class-level var properties or setUp()/tearDown(). Class-level let constants for static test data are fine.
 - Use clearly-typed test doubles with consistent prefixes: `Mock` (verifies interactions), `Stub` (returns canned data), `NoOp` (null object), `Expector` (spy with XCTestExpectation).
+- `unowned` captures in test code are acceptable; they reduce unwrapping noise and surface lifecycle bugs immediately.

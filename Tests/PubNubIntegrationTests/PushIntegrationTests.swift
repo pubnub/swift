@@ -13,14 +13,10 @@ import PubNubSDK
 
 class PushIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: PushIntegrationTests.self)
-  var pushToken: Data!
+  // swiftlint:disable:next force_unwrapping
+  let pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")!
   let channel = "SwiftPushITest"
   let pushTopic = "SwiftPushITest"
-
-  override func setUp() {
-    super.setUp()
-    pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")
-  }
 
   func testModifyChannels() {
     let addExpect = expectation(description: "Adding Channel")

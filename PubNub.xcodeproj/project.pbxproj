@@ -1644,7 +1644,6 @@
 				A1B2C3D4E5F6A7B8C9D0E1F3 /* Helpers */,
 				A1B2C3D4E5F6A7B8C9D0E1F4 /* Extensions */,
 				A1B2C3D4E5F6A7B8C9D0E1F5 /* Factories */,
-				A1B2C3D4E5F6A7B8C9D0E1F6 /* Stubs */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1686,13 +1685,6 @@
 				A1B2C3D4E5F6A7B8C9D0E1FB /* TestPubNubFactory.swift */,
 			);
 			path = Factories;
-			sourceTree = "<group>";
-		};
-		A1B2C3D4E5F6A7B8C9D0E1F6 /* Stubs */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Stubs;
 			sourceTree = "<group>";
 		};
 		3580A5A422F14D6000B12E5E /* Networking */ = {

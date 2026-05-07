@@ -446,7 +446,7 @@ extension ObjectsMembershipsRouterTests {
     let page = PubNubHashedPageBase(start: "NextPage", totalCount: 2)
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.setMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
+    pubnub.removeMembers(channel: "TestChannel", uuids: [firstMembership]) { result in
       switch result {
       case let .success((memberships, nextPage)):
         XCTAssertEqual(memberships.compactMap { try? $0.transcode() }, [firstMembership, lastMembership])

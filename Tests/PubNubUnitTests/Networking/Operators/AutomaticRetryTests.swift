@@ -101,9 +101,7 @@ class AutomaticRetryTests: XCTestCase {
 
     let testPolicy = AutomaticRetry(
       retryLimit: 2,
-      policy: .linear(delay: 2.0),
-      retryableHTTPStatusCodes: [testStatusCode],
-      retryableURLErrorCodes: []
+      policy: .linear(delay: 2.0)
     )
     let testResponse = HTTPURLResponse(
       url: url,

@@ -225,7 +225,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
     // Set the system wide crypto module
     configuration.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "someKey")
 
-    let client = PubNub(configuration: config, fileSession: fileSession)
+    let client = PubNub(configuration: configuration, fileSession: fileSession)
     let downloadFileExpect = expectation(description: "Download Encrypted File Expect")
     let decryptFileExpect = expectation(description: "Decrypt File Expect")
     let removeFileExpect = expectation(description: "Remove File Response")

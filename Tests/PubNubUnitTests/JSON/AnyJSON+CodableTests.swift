@@ -92,7 +92,7 @@ class AnyJSONCodableTests: XCTestCase {
     XCTAssertEqual(jsonString, jsonStringLiteral)
 
     let stringified = try jsonString.jsonStringifyResult.get()
-    XCTAssertEqual(stringified, try jsonString.jsonStringifyResult.get())
+    XCTAssertEqual(stringified, try jsonStringLiteral.jsonStringifyResult.get())
     XCTAssertEqual(jsonString.debugDescription, testMessage)
   }
 

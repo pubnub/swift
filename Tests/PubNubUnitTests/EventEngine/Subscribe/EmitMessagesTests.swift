@@ -153,7 +153,7 @@ class EmitMessagesTests: XCTestCase {
     for droppedMssg in expectedDroppedMssgs {
       XCTAssertFalse(allCachedMessages.contains(droppedMssg))
     }
-    for newMessage in allCachedMessages {
+    for newMessage in newMessages {
       XCTAssertTrue(allCachedMessages.contains(newMessage))
     }
   }

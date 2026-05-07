@@ -40,7 +40,7 @@ final class URLQueryItemPubNubTests: XCTestCase {
       URLQueryItem(name: "third", value: "value")
     ]
 
-    XCTAssertEqual(queryItems.firstIndex(of: "second"), nil)
+    XCTAssertEqual(queryItems.firstIndex(of: "nonexistent"), nil)
   }
 
   func test_Merge_WithOverlappingItems_UpdatesExistingAndAddsNew() {

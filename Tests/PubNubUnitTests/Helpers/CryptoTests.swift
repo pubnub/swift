@@ -101,7 +101,7 @@ class CryptoTests: XCTestCase {
 
     XCTAssertEqual(finalString?.isEmpty, false)
 
-    let outputPath = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testFile")
+    let outputPath = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testFile-\(UUID().uuidString)")
     try? FileManager.default.removeItem(at: outputPath)
 
     cryptoModule.decrypt(
@@ -141,7 +141,7 @@ class CryptoTests: XCTestCase {
     let inputStream = InputStream(data: data)
     let encryptedStreamResult = try cryptoModule.encrypt(stream: inputStream, contentLength: data.count).get()
 
-    let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream")
+    let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream-\(UUID().uuidString)")
     try? FileManager.default.removeItem(at: decryptedURL)
 
     cryptoModule.decrypt(
@@ -176,7 +176,7 @@ class CryptoTests: XCTestCase {
 
     let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "enigma", withRandomIV: true)
     let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
-    let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream")
+    let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream-\(UUID().uuidString)")
 
     try? FileManager.default.removeItem(at: outputPath)
 

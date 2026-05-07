@@ -46,7 +46,7 @@ extension PublishRouterTests {
       configuration: config
     )
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_Publish_WithValidMessage_ReturnsTimetoken() throws {
@@ -210,7 +210,7 @@ extension PublishRouterTests {
       configuration: config
     )
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_CompressedPublish_WithValidMessage_ReturnsTimetoken() throws {
@@ -310,7 +310,7 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_FilePublishRouter_WithEmptyFileId_ReturnsValidationError() {
@@ -323,7 +323,7 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_FilePublishRouter_WithEmptyFilename_ReturnsValidationError() {
@@ -336,7 +336,7 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_FilePublish_WithValidPayload_ReturnsTimetoken() throws {
@@ -398,7 +398,7 @@ extension PublishRouterTests {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.fire(message: [], channel: testChannel, meta: nil), configuration: config)
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_Fire_WithValidMessage_ReturnsTimetoken() throws {
@@ -434,9 +434,9 @@ extension PublishRouterTests {
 
   func test_SignalRouter_WithEmptyMessage_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
-    let router = PublishRouter(.signal(message: "", channel: testChannel, customMessageType: nil), configuration: config)
+    let router = PublishRouter(.signal(message: [], channel: testChannel, customMessageType: nil), configuration: config)
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_Signal_WithValidMessage_ReturnsTimetoken() throws {

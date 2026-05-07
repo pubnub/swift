@@ -542,14 +542,12 @@ extension ObjectsUserRouterTests {
   func test_RemoveUser_WithConfigUserId_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Delete Endpoint Expectation")
     let sessions = try MockURLSession.mockSession(for: ["objects_uuid_remove_success"])
-
-    let config = TestPubNubFactory.makeConfig()
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.removeUserMetadata(nil) { result in
+    pubnub.removeUserMetadata(nil) { [weak pubnub] result in
       switch result {
       case let .success(metadataId):
-        XCTAssertEqual(metadataId, config.userId)
+        XCTAssertEqual(metadataId, pubnub?.configuration.userId)
       case let .failure(error):
         XCTFail("Delete request failed with error: \(error.localizedDescription)")
       }

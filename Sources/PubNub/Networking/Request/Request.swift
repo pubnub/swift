@@ -385,24 +385,6 @@ final class Request {
     }
 
     logger.trace(
-      .networkRequest(
-        .init(
-          id: self.requestID.uuidString,
-          origin: request?.url?.host ?? "Unknown origin",
-          path: request?.url?.path ?? "Unknown path",
-          query: task.getURLQueryItems().reduce(into: [String: String]()) { $0[$1.name] = $1.value },
-          method: request?.httpMethod ?? "Unknown HTTP method",
-          headers: request?.allHTTPHeaderFields ?? [:],
-          body: request?.httpBody,
-          details: error?.localizedDescription,
-          isCompleted: true,
-          isCancelled: error?.isCancellationError ?? false,
-          isFailed: error != nil
-        )
-      ), category: .networking
-    )
-
-    logger.trace(
       .networkResponse(
         .init(
           id: self.requestID.uuidString,

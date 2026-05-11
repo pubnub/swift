@@ -99,29 +99,14 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 
+  #if !os(watchOS)
+
   public func urlSession(_: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
-    guard let networkProtocolName = metrics.transactionMetrics.last?.networkProtocolName?.lowercased() else {
-      return
-    }
-
-    let transportProtocol: String
-
-    switch networkProtocolName {
-    case "h2":
-      transportProtocol = "HTTP/2"
-    case "http/1.1":
-      transportProtocol = "HTTP/1.1"
-    case "h3":
-      transportProtocol = "HTTP/3"
-    default:
-      transportProtocol = networkProtocolName
-    }
-
     logger?.trace(
       .customObject(
         .init(
           operation: "session-network-transport",
-          details: "Connected using \(transportProtocol)",
+          details: "Negotiated \(metrics.transactionMetrics.last?.networkProtocolName?.lowercased() ?? "unknown")",
           arguments: [
             ("sessionID", String(describing: self.sessionBridge?.sessionID)),
             ("requestID", String(describing: self.sessionBridge?.request(for: task)?.requestID)),
@@ -132,6 +117,8 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
       category: .networking
     )
   }
+
+  #endif
 
   public func urlSession(
     _ session: URLSession,

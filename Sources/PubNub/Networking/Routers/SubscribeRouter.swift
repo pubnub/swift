@@ -423,24 +423,27 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
   }
 
   public var description: String {
-    String.logDescription(
-      of: self,
-      arguments: [
-        ("shard", shard),
-        ("subscription", subscription?.description),
-        ("channel", channel),
-        ("messageType", messageType),
-        ("customMessageType", customMessageType),
-        ("payload", payload.jsonStringify ?? ""),
-        ("flags", flags),
-        ("publisher", publisher),
-        ("subscribeKey", subscribeKey),
-        ("originTimetoken", originTimetoken),
-        ("publishTimetoken", publishTimetoken),
-        ("metadata", metadata?.jsonStringify),
-        ("error", error?.reason)
-      ]
+    let indent = String(repeating: " ", count: 2)
+    let prettyPayload = (payload.jsonData?.prettyPrintedString ?? "nil").replacingOccurrences(of: "\n", with: "\n\(indent)")
+    let prettyMetadata = (metadata?.jsonData?.prettyPrintedString ?? "nil").replacingOccurrences(of: "\n", with: "\n\(indent)")
+
+    return """
+    SubscribeMessagePayload(
+      shard: \(shard),
+      subscription: \(subscription ?? "nil"),
+      channel: \(channel),
+      messageType: \(messageType),
+      customMessageType: \(customMessageType ?? "nil"),
+      payload: \(prettyPayload),
+      flags: \(flags),
+      publisher: \(publisher ?? "nil"),
+      subscribeKey: \(subscribeKey),
+      originTimetoken: \(originTimetoken.map(String.init(describing:)) ?? "nil"),
+      publishTimetoken: \(publishTimetoken),
+      metadata: \(prettyMetadata),
+      error: \(error.map { String(describing: $0.reason) } ?? "nil")
     )
+    """
   }
 
   // swiftlint:disable:next file_length

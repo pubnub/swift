@@ -12,8 +12,6 @@
 import XCTest
 
 class RequestMutatorTests: XCTestCase {
-  let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
-
   func test_MultiplexInitWithOperator_ContainsOneOperator() {
     let mutator = DefaultOperator()
 
@@ -26,6 +24,7 @@ class RequestMutatorTests: XCTestCase {
   }
 
   func test_MutateRequestSucceeds_AppendsQueryItemToURL() throws {
+    let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
     let newAuth = URLQueryItem(name: "auth", value: "newAuthKey")
     let mutator = StubRequestMutator(appending: [newAuth])
     let sessionListener = SessionListener(queue: streamQueue)
@@ -51,7 +50,12 @@ class RequestMutatorTests: XCTestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.time { result in
-      XCTAssertEqual(try? result.get(), 15_643_405_135_132_358)
+      do {
+        let value = try result.get()
+        XCTAssertEqual(value, 15_643_405_135_132_358)
+      } catch {
+        XCTFail("Expected success but got error: \(error)")
+      }
       responseExpect.fulfill()
     }
 
@@ -59,6 +63,7 @@ class RequestMutatorTests: XCTestCase {
   }
 
   func test_MutateRequestFails_ReturnsRequestMutatorFailureError() throws {
+    let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
     let mutator = StubRequestMutator(failing: PubNubError(.requestMutatorFailure))
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)

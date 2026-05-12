@@ -43,7 +43,12 @@ class RequestRetrierTests: XCTestCase {
     let pubnub = TestPubNubFactory.make(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", session: sessions.session)
 
     pubnub.time { result in
-      XCTAssertEqual(try? result.get(), 15_643_405_135_132_358)
+      do {
+        let value = try result.get()
+        XCTAssertEqual(value, 15_643_405_135_132_358)
+      } catch {
+        XCTFail("Expected success but got error: \(error)")
+      }
       responseExpect.fulfill()
     }
 
@@ -117,7 +122,12 @@ class RequestRetrierTests: XCTestCase {
     let pubnub = TestPubNubFactory.make(publishKey: "FakePubKey", subscribeKey: "FakeSubKey", session: sessions.session)
 
     pubnub.time { result in
-      XCTAssertEqual(try? result.get(), 15_643_405_135_132_358)
+      do {
+        let value = try result.get()
+        XCTAssertEqual(try result.get(), 15_643_405_135_132_358)
+      } catch {
+        XCTFail("Expected success but got error: \(error)")
+      }
       responseExpect.fulfill()
     }
 

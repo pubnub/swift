@@ -54,6 +54,14 @@ reviews:
     - '!Examples/**/*.xcworkspacedata'
     - '!Examples/**/Package.resolved'
   path_instructions:
+    - path: 'Sources/**/*.swift'
+      instructions: |
+        Review focus for all production source:
+        - Flag likely retain cycles, leaked observers, and long-lived captured references.
+        - Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.
+        - Flag duplicated logic, dead code, and abstractions that add complexity without a real boundary or testability benefit.
+        - Watch for hot-path inefficiencies such as repeated allocations, avoidable copying, and unnecessary collection transformations.
+
     - path: 'Sources/PubNub/{PubNub.swift,APIs/**/*.swift}'
       instructions: |
         Review this as public SDK API surface exposed through `PubNub`.

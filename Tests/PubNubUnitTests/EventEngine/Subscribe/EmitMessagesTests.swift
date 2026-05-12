@@ -14,7 +14,7 @@ import XCTest
 @testable import PubNubSDK
 
 class EmitMessagesTests: XCTestCase {
-  func test_EmitMessages_DeliversAllMessageTypesToListeners() {
+  func test_EmitMessages_DeliversAllMessageTypesToListeners() throws {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -49,7 +49,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.35)
   }
 
-  func test_EmitMessages_WhenCountExceedsMaximum_EmitsErrorToListeners() {
+  func test_EmitMessages_WhenCountExceedsMaximum_EmitsErrorToListeners() throws {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -84,7 +84,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.1)
   }
 
-  func test_EmitMessages_WithDuplicateMessages_SkipsDuplicates() {
+  func test_EmitMessages_WithDuplicateMessages_SkipsDuplicates() throws {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -117,7 +117,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.1)
   }
 
-  func test_EmitMessages_WhenCacheFull_DropsOldestMessages() {
+  func test_EmitMessages_WhenCacheFull_DropsOldestMessages() throws {
     let subscriptions = makeListeners()
 
     let initialMessages = (1...99).map { idx in
@@ -142,7 +142,13 @@ class EmitMessagesTests: XCTestCase {
       messageCache: cache
     )
 
-    effect.performTask(completionBlock: { _ in })
+    let completionExpect = expectation(description: "Effect completed")
+
+    effect.performTask(completionBlock: { _ in
+      completionExpect.fulfill()
+    })
+
+    wait(for: [completionExpect], timeout: 1.0)
 
     let allCachedMessages = cache.messagesArray.compactMap { $0 }
     let expectedDroppedMssgs = Array(initialMessages[0...9])

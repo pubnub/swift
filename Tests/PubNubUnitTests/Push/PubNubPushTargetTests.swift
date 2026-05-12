@@ -44,7 +44,13 @@ private extension PubNubPushTargetTests {
   func retrieveExcludedDevicesValue(from string: String) throws -> String? {
     guard let data = string.data(using: .utf8) else { return nil }
     let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-    guard let excludedDevices = json?["excluded_devices"] else { return nil }
+    guard let pnPush = json?["pn_push"] as? [[String: Any]],
+          let firstConfig = pnPush.first,
+          let targets = firstConfig["targets"] as? [[String: Any]],
+          let firstTarget = targets.first else {
+      return nil
+    }
+    guard let excludedDevices = firstTarget["excluded_devices"] else { return nil }
     let encodedData = try JSONSerialization.data(withJSONObject: excludedDevices)
     return String(data: encodedData, encoding: .utf8)
   }

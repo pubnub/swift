@@ -45,6 +45,7 @@ class AtomicTests: XCTestCase {
     }
 
     XCTAssertEqual(writtenValue, newValue)
+    XCTAssertEqual(atomic.lockedRead { $0 }, newValue)
   }
 
   func test_Atomic_LockedTryWithError_ThrowsError() {
@@ -182,14 +183,20 @@ private extension AtomicTests {
   func performConcurrently(count: Int, timeout: TimeInterval = 1.0, action: @escaping () -> Void) {
     let queue = DispatchQueue(label: "ConcurrencyQueue", attributes: .concurrent)
     let startGate = DispatchSemaphore(value: 0)
+    let readyGate = DispatchSemaphore(value: 0)
     let expectations = (0..<count).map { _ in expectation(description: "concurrent work") }
 
     for i in 0..<count {
       queue.async {
+        readyGate.signal()
         startGate.wait()
         action()
         expectations[i].fulfill()
       }
+    }
+
+    for _ in 0..<count {
+      readyGate.wait()
     }
 
     for _ in 0..<count {

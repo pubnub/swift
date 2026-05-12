@@ -45,9 +45,10 @@ final class SubscribeRouterTests: XCTestCase {
       timetoken: 0, region: nil, heartbeat: nil, filter: nil
     ), configuration: config)
 
-    XCTAssertNotEqual(
+    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(
       router.validationError?.pubNubError,
-      PubNubError(.invalidEndpointType, router: router)
+      PubNubError(.missingRequiredParameter, router: router)
     )
   }
 }
@@ -55,7 +56,7 @@ final class SubscribeRouterTests: XCTestCase {
 // MARK: - Subscribe Query Params
 
 extension SubscribeRouterTests {
-  func test_SubscribeRouter_WithEventEngineEnabled_IncludesStateAndEEParams() {
+  func test_SubscribeRouter_WithEventEngineEnabled_IncludesStateAndEEParams() throws {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
       subscribeKey: "FakeTestString",
@@ -82,7 +83,7 @@ extension SubscribeRouterTests {
       "{\"c1\":{\"x\":1},\"c2\":{\"a\":\"someText\"}}",
       "{\"c2\":{\"a\":\"someText\"},\"c1\":{\"x\":1}}"
     ]
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 8)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -95,7 +96,7 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "state" && $0.value.map { expStateValues.contains($0) } == true })
   }
 
-  func test_SubscribeRouter_WithEventEngineDisabled_ExcludesStateAndEEParams() {
+  func test_SubscribeRouter_WithEventEngineDisabled_ExcludesStateAndEEParams() throws {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
       subscribeKey: "FakeTestString",
@@ -113,7 +114,7 @@ extension SubscribeRouterTests {
     )
 
     let router = SubscribeRouter(endpoint, configuration: config)
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 6)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -124,7 +125,7 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "tr" && $0.value == "42" })
   }
 
-  func test_SubscribeRouter_WithMaintainPresenceStateDisabled_ExcludesStateParam() {
+  func test_SubscribeRouter_WithMaintainPresenceStateDisabled_ExcludesStateParam() throws {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
       subscribeKey: "FakeTestString",
@@ -142,7 +143,7 @@ extension SubscribeRouterTests {
     )
 
     let router = SubscribeRouter(endpoint, configuration: config)
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 7)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -154,7 +155,7 @@ extension SubscribeRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
 
-  func test_SubscribeRouter_WithEmptyPresenceStates_ExcludesStateParam() {
+  func test_SubscribeRouter_WithEmptyPresenceStates_ExcludesStateParam() throws {
     let config = PubNubConfiguration(
       publishKey: "FakeTestString",
       subscribeKey: "FakeTestString",
@@ -168,7 +169,7 @@ extension SubscribeRouterTests {
     )
 
     let router = SubscribeRouter(endpoint, configuration: config)
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 7)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -239,7 +240,7 @@ extension SubscribeRouterTests {
     let event = try decodeEvent(from: "subscription_uuidSet_success")
     let changeset = try XCTUnwrap(event.userMetadataChangeset)
 
-    XCTAssertEqual(try? changeset.apply(to: baseUser).transcode(), patchedUser)
+    XCTAssertEqual(try changeset.apply(to: baseUser).transcode(), patchedUser)
   }
 
   func test_Subscribe_WithUUIDMetadataRemovedEvent_ReceivesMetadataId() throws {
@@ -265,7 +266,7 @@ extension SubscribeRouterTests {
     let event = try decodeEvent(from: "subscription_channelSet_success")
     let changeset = try XCTUnwrap(event.channelMetadataChangeset)
 
-    XCTAssertEqual(try? changeset.apply(to: baseChannel).transcode(), patchedChannel)
+    XCTAssertEqual(try changeset.apply(to: baseChannel).transcode(), patchedChannel)
   }
 
   func test_Subscribe_WithChannelMetadataRemovedEvent_ReceivesMetadataId() throws {
@@ -289,7 +290,7 @@ extension SubscribeRouterTests {
     let event = try decodeEvent(from: "subscription_membershipSet_success")
     let membership = try XCTUnwrap(event.membershipSet)
 
-    XCTAssertEqual(try? membership.transcode(), expectedMembership)
+    XCTAssertEqual(try membership.transcode(), expectedMembership)
   }
 
   func test_Subscribe_WithMembershipRemovedEvent_ReceivesMembership() throws {
@@ -303,7 +304,7 @@ extension SubscribeRouterTests {
     let event = try decodeEvent(from: "subscription_membershipRemove_success")
     let membership = try XCTUnwrap(event.membershipRemoved)
 
-    XCTAssertEqual(try? membership.transcode(), expectedMembership)
+    XCTAssertEqual(try membership.transcode(), expectedMembership)
   }
 }
 
@@ -314,14 +315,14 @@ extension SubscribeRouterTests {
     let event = try decodeEvent(from: "subscription_addMessageAction_success")
     let action = try XCTUnwrap(event.addedMessageAction)
 
-    XCTAssertEqual(try? action.transcode(), testAction)
+    XCTAssertEqual(try action.transcode(), testAction)
   }
 
   func test_Subscribe_WithMessageActionRemovedEvent_ReceivesAction() throws {
     let event = try decodeEvent(from: "subscription_removeMessageAction_success")
     let action = try XCTUnwrap(event.removedMessageAction)
 
-    XCTAssertEqual(try? action.transcode(), testAction)
+    XCTAssertEqual(try action.transcode(), testAction)
   }
 }
 
@@ -370,14 +371,18 @@ extension SubscribeRouterTests {
     let disconnectedExpect = expectation(description: "Disconnected")
 
     mock.listener.didReceiveStatus = { status in
-      guard let status = try? status.get() else { return }
-      switch status {
-      case .connected:
-        connectedExpect.fulfill()
-      case .disconnected:
-        disconnectedExpect.fulfill()
-      default:
-        break
+      do {
+        let status = try status.get()
+        switch status {
+        case .connected:
+          connectedExpect.fulfill()
+        case .disconnected:
+          disconnectedExpect.fulfill()
+        default:
+          break
+        }
+      } catch {
+        XCTFail("Unexpected status error: \(error)")
       }
     }
 
@@ -401,14 +406,18 @@ extension SubscribeRouterTests {
     let disconnectedExpect = expectation(description: "Disconnected")
 
     mock.listener.didReceiveStatus = { status in
-      guard let status = try? status.get() else { return }
-      switch status {
-      case .connected:
-        connectedExpect.fulfill()
-      case .disconnected:
-        disconnectedExpect.fulfill()
-      default:
-        break
+      do {
+        let status = try status.get()
+        switch status {
+        case .connected:
+          connectedExpect.fulfill()
+        case .disconnected:
+          disconnectedExpect.fulfill()
+        default:
+          break
+        }
+      } catch {
+        XCTFail("Unexpected status error: \(error)")
       }
     }
 

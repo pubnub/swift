@@ -8,13 +8,9 @@ Apply these standards to production Swift library code:
 
 - Prefer value semantics and immutability where practical; use `let` instead of `var` unless mutation is required.
 - Minimize access levels: default to `private` or `internal`; only expose `public` what SDK consumers explicitly need. Do not widen access without justification.
-- Preserve clear ownership and lifecycle behavior; flag likely retain cycles, leaked observers, and long-lived captured references.
 - Avoid force unwraps and other crash-prone patterns.
-- Watch for race conditions and shared mutable state, especially around callbacks, queues, async work, and listener management.
 - Prefer clear, idiomatic Swift naming and small focused types/functions over overly clever abstractions.
-- Flag duplicated logic, dead code, and abstractions that add complexity without a real boundary or testability benefit.
 - Preserve useful error information; do not ignore failures or replace specific errors with vague ones.
-- Watch for hot-path inefficiencies such as repeated allocations, avoidable copying, and unnecessary collection transformations.
 
 ## Swift SDK Test Code
 

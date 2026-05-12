@@ -154,7 +154,7 @@ public extension PubNub {
   }
 
   /// Configuration overrides for a single request
-  struct RequestConfiguration {
+  struct RequestConfiguration: CustomStringConvertible {
     /// The custom Network session that that will be used to make the request
     public var customSession: SessionReplaceable?
     /// The endpoint configuration used by the request
@@ -176,6 +176,17 @@ public extension PubNub {
       self.customSession = customSession
       self.customConfiguration = customConfiguration
       self.responseQueue = responseQueue
+    }
+
+    public var description: String {
+      String.logDescription(
+        of: self,
+        arguments: [
+          ("customSession", customSession),
+          ("customConfiguration", customConfiguration),
+          ("responseQueue", responseQueue.label)
+        ]
+      )
     }
   }
 

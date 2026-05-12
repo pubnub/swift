@@ -244,7 +244,8 @@ class BaseLogMessage: LogMessage {
     [
       timestamp.description,
       "PubNub-\(pubNubId)",
-      logLevel.description, location ?? "",
+      logLevel.description,
+      location ?? "",
       message.description
     ].joined(separator: " ")
   }

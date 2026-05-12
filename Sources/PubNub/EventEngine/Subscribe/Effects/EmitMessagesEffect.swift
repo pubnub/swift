@@ -41,13 +41,14 @@ struct EmitMessagesEffect: EffectHandler, CustomStringConvertible {
   let messageCache: MessageCache
 
   var description: String {
-    String.logDescription(
-      of: self,
-      arguments: [
-        ("messages", messages),
-        ("cursor", cursor)
-      ]
-    )
+    """
+    EmitMessagesEffect
+
+    cursor: \(cursor)
+    messages (\(messages.count)):
+
+    \(messages.map { "\($0)" }.joined(separator: "\n"))
+    """
   }
 
   func performTask(completionBlock: @escaping ([Subscribe.Event]) -> Void) {

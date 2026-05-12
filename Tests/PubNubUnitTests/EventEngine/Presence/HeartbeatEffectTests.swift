@@ -14,11 +14,6 @@ import XCTest
 @testable import PubNubSDK
 
 class HeartbeatEffectTests: XCTestCase {
-  private var mockUrlSession: MockURLSession!
-  private var httpSession: HTTPSession!
-  private var delegate: HTTPSessionDelegate!
-  private var factory: PresenceEffectFactory!
-
   private let config = PubNubConfiguration(
     publishKey: "pubKey",
     subscribeKey: "subKey",
@@ -26,37 +21,12 @@ class HeartbeatEffectTests: XCTestCase {
     heartbeatInterval: 30
   )
 
-  override func setUp() {
-    delegate = HTTPSessionDelegate()
-    mockUrlSession = MockURLSession(delegate: delegate)
+  func test_HeartbeatEffect_WithSuccessResponse_ReturnsHeartbeatSuccessEvent() {
+    let factory = makeFactory(mockingResponse: GenericServicePayloadResponse(status: 200))
 
-    httpSession = HTTPSession(
-      session: mockUrlSession,
-      delegate: delegate,
-      logger: PubNubLogger.defaultLogger(),
-      sessionQueue: .main
-    )
-    factory = PresenceEffectFactory(
-      session: httpSession,
-      presenceStateContainer: .shared
-    )
-
-    super.setUp()
-  }
-
-  override func tearDown() {
-    mockUrlSession = nil
-    delegate = nil
-    httpSession = nil
-    super.tearDown()
-  }
-
-  func test_HeartbeatingEffectWithSuccessResponse() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
-    mockResponse(GenericServicePayloadResponse(status: 200))
 
     let effect = factory.effect(
       for: .heartbeat(channels: ["channel-1", "channel-2"], groups: ["group-1", "group-2"]),
@@ -66,15 +36,16 @@ class HeartbeatEffectTests: XCTestCase {
       XCTAssertTrue(returnedEvents.elementsEqual([.heartbeatSuccess]))
       expectation.fulfill()
     }
+
     wait(for: [expectation], timeout: 0.5)
   }
 
-  func test_HeartbeatingEffectWithFailedResponse() {
+  func test_HeartbeatEffect_WithFailedResponse_ReturnsHeartbeatFailedEvent() {
+    let factory = makeFactory(mockingResponse: GenericServicePayloadResponse(status: 500))
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-
-    mockResponse(GenericServicePayloadResponse(status: 500))
 
     let effect = factory.effect(
       for: .heartbeat(channels: ["channel-1", "channel-2"], groups: ["group-1", "group-2"]),
@@ -86,17 +57,33 @@ class HeartbeatEffectTests: XCTestCase {
       XCTAssertTrue(returnedEvents.elementsEqual([expectedEvent]))
       expectation.fulfill()
     }
+
     wait(for: [expectation], timeout: 0.5)
   }
 }
 
-fileprivate extension HeartbeatEffectTests {
-  func mockResponse(_ response: GenericServicePayloadResponse) {
+private extension HeartbeatEffectTests {
+  func makeFactory(mockingResponse response: GenericServicePayloadResponse) -> PresenceEffectFactory {
+    let delegate = HTTPSessionDelegate()
+    let mockUrlSession = MockURLSession(delegate: delegate)
+
     mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
       task.mockData = try? Constant.jsonEncoder.encode(response)
       task.mockResponse = HTTPURLResponse(statusCode: response.status)
       return task
     }
+
+    let httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
+      sessionQueue: .main
+    )
+
+    return PresenceEffectFactory(
+      session: httpSession,
+      presenceStateContainer: .shared
+    )
   }
 }

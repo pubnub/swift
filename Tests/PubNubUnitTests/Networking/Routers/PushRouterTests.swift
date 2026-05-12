@@ -56,7 +56,7 @@ extension PushRouterTests {
     let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.listPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_ListPushRegistration_WithValidToken_ReturnsChannels() throws {
@@ -149,7 +149,7 @@ extension PushRouterTests {
       ), configuration: config
     )
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_ModifyPush_WithValidChannels_ReturnsRemovedChannels() throws {
@@ -229,7 +229,7 @@ extension PushRouterTests {
     let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
   }
 
   func test_RemoveAllPush_WithValidToken_ReturnsSuccess() throws {
@@ -287,7 +287,7 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
 
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let emptyTopic = PushRouter(
@@ -301,10 +301,7 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNotEqual(
-      emptyTopic.validationError?.pubNubError,
-      PubNubError(.invalidEndpointType, router: emptyTopic)
-    )
+    XCTAssertNotNil(emptyTopic.validationError)
   }
 
   func test_ModifyAPNSListChannels_WithValidToken_ReturnsChannels() throws {
@@ -471,21 +468,18 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNil(router.validationError)
+    XCTAssertNotNil(router.validationError)
 
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let emptyTopic = PushRouter(
       .removeAllAPNS(
         pushToken: data,
         environment: .development,
-        topic: "TestTopic"
+        topic: ""
       ), configuration: config
     )
 
-    XCTAssertNotEqual(
-      emptyTopic.validationError?.pubNubError,
-      PubNubError(.invalidEndpointType, router: emptyTopic)
-    )
+    XCTAssertNotNil(emptyTopic.validationError)
   }
 
   func test_RemoveAllAPNSChannels_WithValidToken_ReturnsSuccess() throws {

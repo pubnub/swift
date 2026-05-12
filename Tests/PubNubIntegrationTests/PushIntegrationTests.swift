@@ -13,8 +13,13 @@ import PubNubSDK
 
 class PushIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: PushIntegrationTests.self)
-  // swiftlint:disable:next force_unwrapping
-  let pushToken = Data(hexEncodedString: "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8")!
+  // Equivalent to hex string "7a043aa0085d31422cab58101d9237ad8ce6d77283d68639c6e71924c39fc5f8"
+  let pushToken = Data([
+    0x7a, 0x04, 0x3a, 0xa0, 0x08, 0x5d, 0x31, 0x42,
+    0x2c, 0xab, 0x58, 0x10, 0x1d, 0x92, 0x37, 0xad,
+    0x8c, 0xe6, 0xd7, 0x72, 0x83, 0xd6, 0x86, 0x39,
+    0xc6, 0xe7, 0x19, 0x24, 0xc3, 0x9f, 0xc5, 0xf8
+  ])
   let channel = "SwiftPushITest"
   let pushTopic = "SwiftPushITest"
 

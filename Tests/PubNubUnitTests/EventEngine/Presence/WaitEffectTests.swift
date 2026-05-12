@@ -14,37 +14,9 @@ import XCTest
 @testable import PubNubSDK
 
 class WaitEffectTests: XCTestCase {
-  private var mockUrlSession: MockURLSession!
-  private var httpSession: HTTPSession!
-  private var delegate: HTTPSessionDelegate!
-  private var factory: PresenceEffectFactory!
+  func test_WaitEffect_WithHeartbeatInterval_CompletesAfterInterval() {
+    let factory = makeFactory()
 
-  override func setUp() {
-    delegate = HTTPSessionDelegate()
-    mockUrlSession = MockURLSession(delegate: delegate)
-
-    httpSession = HTTPSession(
-      session: mockUrlSession,
-      delegate: delegate,
-      logger: PubNubLogger.defaultLogger(),
-      sessionQueue: .main
-    )
-    factory = PresenceEffectFactory(
-      session: httpSession,
-      presenceStateContainer: .shared
-    )
-
-    super.setUp()
-  }
-
-  override func tearDown() {
-    mockUrlSession = nil
-    delegate = nil
-    httpSession = nil
-    super.tearDown()
-  }
-
-  func test_WaitEffect() {
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
@@ -65,13 +37,16 @@ class WaitEffectTests: XCTestCase {
 
     effect.performTask { returnedEvents in
       XCTAssertTrue(returnedEvents.elementsEqual([.timesUp]))
-      XCTAssertTrue(Int(Date().timeIntervalSince(startDate)) == heartbeatInterval)
+      let elapsed = Date().timeIntervalSince(startDate)
+      XCTAssertEqual(elapsed, Double(heartbeatInterval), accuracy: 0.5)
       expectation.fulfill()
     }
     wait(for: [expectation], timeout: 2.5)
   }
 
-  func test_WaitEffectCancellation() {
+  func test_WaitEffect_WhenCancelled_DoesNotComplete() {
+    let factory = makeFactory()
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
@@ -95,7 +70,9 @@ class WaitEffectTests: XCTestCase {
     wait(for: [expectation], timeout: 0.5)
   }
 
-  func test_WaitEffectFinishesImmediatelyWithEmptyHeartbeatInterval() {
+  func test_WaitEffect_WithZeroHeartbeatInterval_CompletesImmediatelyWithNoEvents() {
+    let factory = makeFactory()
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
@@ -116,5 +93,24 @@ class WaitEffectTests: XCTestCase {
     }
 
     wait(for: [expectation], timeout: 0.5)
+  }
+}
+
+private extension WaitEffectTests {
+  func makeFactory() -> PresenceEffectFactory {
+    let delegate = HTTPSessionDelegate()
+    let mockUrlSession = MockURLSession(delegate: delegate)
+
+    let httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
+      sessionQueue: .main
+    )
+
+    return PresenceEffectFactory(
+      session: httpSession,
+      presenceStateContainer: .shared
+    )
   }
 }

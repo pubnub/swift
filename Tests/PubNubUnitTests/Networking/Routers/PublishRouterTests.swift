@@ -264,7 +264,7 @@ extension PublishRouterTests {
 
     let queryItems = try router.queryItems.get()
 
-    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.type.rawValue }))
+    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.customMessageType.rawValue }))
   }
 
   func test_FilePublishRouter_WithCustomMessageType_IncludesTypeQueryItem() throws {

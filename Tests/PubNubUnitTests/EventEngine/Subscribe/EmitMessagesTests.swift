@@ -14,11 +14,7 @@ import XCTest
 @testable import PubNubSDK
 
 class EmitMessagesTests: XCTestCase {
-  private func makeListeners(count: Int = 3) -> [MockListener] {
-    (0..<count).map { _ in MockListener() }
-  }
-
-  func testListener_WithMessage() {
+  func test_EmitMessages_DeliversAllMessageTypesToListeners() {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -53,7 +49,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.35)
   }
 
-  func testListener_MessageCountExceededMaximum() {
+  func test_EmitMessages_WhenCountExceedsMaximum_EmitsErrorToListeners() {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -88,7 +84,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.1)
   }
 
-  func testEffect_SkipsDuplicatedMessages() {
+  func test_EmitMessages_WithDuplicateMessages_SkipsDuplicates() {
     let subscriptions = makeListeners()
 
     let expectation = XCTestExpectation(description: "Emit Messages")
@@ -121,7 +117,7 @@ class EmitMessagesTests: XCTestCase {
     wait(for: [expectation], timeout: 0.1)
   }
 
-  func testEffect_MessageCacheDropsTheOldestMessages() {
+  func test_EmitMessages_WhenCacheFull_DropsOldestMessages() {
     let subscriptions = makeListeners()
     let initialMessages = (1...99).map { idx in
       generateMessage(
@@ -159,7 +155,11 @@ class EmitMessagesTests: XCTestCase {
   }
 }
 
-fileprivate extension EmitMessagesTests {
+private extension EmitMessagesTests {
+  func makeListeners(count: Int = 3) -> [MockListener] {
+    (0..<count).map { _ in MockListener() }
+  }
+
   var testMessage: SubscribeMessagePayload {
     generateMessage(
       with: .message,

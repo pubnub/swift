@@ -12,6 +12,9 @@
 import XCTest
 
 class SubscriptionListenerTests: XCTestCase {
+  let connectionEvent: ConnectionStatus = .connected
+  let statusEvent: SubscriptionListener.StatusEvent = .success(.connected)
+
   let pubnubMessage = PubNubMessageBase(
     payload: "Message",
     actions: [],
@@ -22,8 +25,6 @@ class SubscriptionListenerTests: XCTestCase {
     metadata: "Message",
     messageType: .message
   )
-  let connectionEvent: ConnectionStatus = .connected
-  let statusEvent: SubscriptionListener.StatusEvent = .success(.connected)
 
   let presenceEvent = PubNubPresenceChangeBase(
     actions: [.join(uuids: ["User"]), .stateChange(uuid: "User", state: ["StateKey": "StateValue"])],
@@ -38,6 +39,7 @@ class SubscriptionListenerTests: XCTestCase {
 
   func testSessionStream_Default_Messages() {
     let stream = SubscriptionListener()
+
     stream.didReceiveStatus = { [weak self] event in
       XCTAssertEqual(event, self?.statusEvent)
     }
@@ -49,6 +51,7 @@ class SubscriptionListenerTests: XCTestCase {
 
   func testSessionStream_Default_StatusPresence() {
     let stream = SubscriptionListener()
+
     stream.didReceiveMessage = { [weak self] event in
       XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
     }
@@ -60,8 +63,8 @@ class SubscriptionListenerTests: XCTestCase {
 
   func testEmitDidReceiveMessage() {
     let expectation = XCTestExpectation(description: "didReceiveMessage")
-
     let listener = SubscriptionListener(queue: .main)
+
     listener.didReceiveMessage = { [weak self] event in
       XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
       expectation.fulfill()
@@ -77,6 +80,7 @@ class SubscriptionListenerTests: XCTestCase {
   func testEmitDidReceiveStatus() {
     let expectation = XCTestExpectation(description: "didReceiveStatus")
     let listener = SubscriptionListener()
+
     listener.didReceiveStatus = { [weak self] event in
       XCTAssertEqual(event, self?.statusEvent)
       expectation.fulfill()
@@ -90,6 +94,7 @@ class SubscriptionListenerTests: XCTestCase {
   func testEmitDidReceivePresence() {
     let expectation = XCTestExpectation(description: "didReceivePresence")
     let listener = SubscriptionListener()
+
     listener.didReceivePresence = { [weak self] event in
       XCTAssertEqual(try? event.transcode(), self?.presenceEvent)
       expectation.fulfill()
@@ -103,6 +108,7 @@ class SubscriptionListenerTests: XCTestCase {
   func testEquatable() {
     let listener = SubscriptionListener()
     let copy = listener
+
     XCTAssertEqual(listener, copy)
     XCTAssertNotEqual(SubscriptionListener(), SubscriptionListener())
   }

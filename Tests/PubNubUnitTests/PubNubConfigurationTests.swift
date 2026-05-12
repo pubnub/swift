@@ -18,8 +18,6 @@ class PubNubConfigurationTests: XCTestCase {
   let plistSubscribeKeyValue = "demo"
   let publishKeyValue = "NotARealPublishKey"
   let subscribeKeyValue = "NotARealSubscribeKey"
-
-  // Info.plist for the PubNubTests Target Bundle
   let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   func testDefault() {

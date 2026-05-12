@@ -134,7 +134,7 @@ class SubscriptionSetTests: XCTestCase {
     subscription.onPayloadsReceived(
       payloads: [
         mockMessagePayload(channel: "c1"),
-        mockMessagePayload(channel: "c1"),
+        mockMessagePayload(channel: "c2"),
         mockSignalPayload(channel: "c1"),
         mockSignalPayload(channel: "c2"),
         mockPresenceChangePayload(channel: "c1"), mockPresenceChangePayload(channel: "c2"),

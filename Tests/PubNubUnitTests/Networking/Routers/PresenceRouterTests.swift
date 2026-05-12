@@ -16,6 +16,11 @@ final class PresenceRouterTests: XCTestCase {
 
   let channelName = "TestChannel"
   let otherChannel = "OtherTestChannel"
+
+  override func tearDown() {
+    PubNubPresenceStateContainer.shared.removeAll()
+    super.tearDown()
+  }
 }
 
 // MARK: - HereNow Tests

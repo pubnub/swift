@@ -63,9 +63,11 @@ class DispatcherTests: XCTestCase {
   }
 
   func testDispatcher_NotifiesListenerWithExpectedEvents() {
+    let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     let dispatcher = EffectDispatcher(factory: StubEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { events in
       XCTAssertEqual(events, [.event1, .event3])
+      onResultReceivedExpectation.fulfill()
     })
 
     dispatcher.dispatch(
@@ -73,6 +75,8 @@ class DispatcherTests: XCTestCase {
       with: EventEngineDependencies(value: Void()),
       notify: listener
     )
+
+    wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
 
   func testDispatcher_RemovesEffectsOnFinish() {

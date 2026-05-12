@@ -14,55 +14,24 @@ import XCTest
 @testable import PubNubSDK
 
 class SubscribeEffectsTests: XCTestCase {
-  private var mockUrlSession: MockURLSession!
-  private var httpSession: HTTPSession!
-  private var delegate: HTTPSessionDelegate!
-  private var factory: SubscribeEffectFactory!
-
   private let config = PubNubConfiguration(
     publishKey: "pubKey",
     subscribeKey: "subKey",
     userId: "userId",
     automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: 2.0))
   )
-
-  private func configWithLinearPolicy(_ delay: Double = 2.0) -> PubNubConfiguration {
-    PubNubConfiguration(
-      publishKey: "pubKey",
-      subscribeKey: "subKey",
-      userId: "userId",
-      automaticRetry: AutomaticRetry(retryLimit: 3, policy: .linear(delay: delay), excluded: [])
-    )
-  }
-
-  override func setUp() {
-    delegate = HTTPSessionDelegate()
-    mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(
-      session: mockUrlSession, delegate: delegate,
-      logger: PubNubLogger.defaultLogger(), sessionQueue: .main
-    )
-    factory = SubscribeEffectFactory(session: httpSession, presenceStateContainer: .shared)
-    super.setUp()
-  }
-
-  override func tearDown() {
-    delegate = nil
-    mockUrlSession = nil
-    httpSession = nil
-    factory = nil
-    super.tearDown()
-  }
 }
 
 // MARK: - HandshakingEffect
 
 extension SubscribeEffectsTests {
-  func test_HandshakingEffectWithSuccessResponse() {
-    mockResponse(subscribeResponse: SubscribeResponse(
-      cursor: SubscribeCursor(timetoken: 12345, region: 1),
-      messages: []
-    ))
+  func test_HandshakeEffect_WithSuccessResponse_ReturnsHandshakeSuccessEvent() throws {
+    let factory = try makeFactory(
+      mockingResponse: SubscribeResponse(
+        cursor: SubscribeCursor(timetoken: 12345, region: 1),
+        messages: []
+      )
+    )
 
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
@@ -87,9 +56,9 @@ extension SubscribeEffectsTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_HandshakingEffectWithFailedResponse() {
-    mockResponse(
-      errorIfAny: URLError(.cannotFindHost),
+  func test_HandshakeEffect_WithFailedResponse_ReturnsHandshakeFailureEvent() throws {
+    let factory = try makeFactory(
+      error: URLError(.cannotFindHost),
       statusCode: 404
     )
 
@@ -120,11 +89,13 @@ extension SubscribeEffectsTests {
 // MARK: ReceivingEffect
 
 extension SubscribeEffectsTests {
-  func test_ReceivingEffectWithSuccessResponse() {
-    mockResponse(subscribeResponse: SubscribeResponse(
-      cursor: SubscribeCursor(timetoken: 12345, region: 1),
-      messages: [firstMessage, secondMessage]
-    ))
+  func test_ReceiveEffect_WithSuccessResponse_ReturnsMessagesAndCursor() throws {
+    let factory = try makeFactory(
+      mockingResponse: SubscribeResponse(
+        cursor: SubscribeCursor(timetoken: 12345, region: 1),
+        messages: [firstMessage, secondMessage]
+      )
+    )
 
     let expectation = XCTestExpectation(description: "Effect Completion")
     expectation.expectedFulfillmentCount = 1
@@ -151,9 +122,9 @@ extension SubscribeEffectsTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_ReceivingEffectWithFailedResponse() {
-    mockResponse(
-      errorIfAny: URLError(.cannotFindHost),
+  func test_ReceiveEffect_WithFailedResponse_ReturnsReceiveFailureEvent() throws {
+    let factory = try makeFactory(
+      error: URLError(.cannotFindHost),
       statusCode: 404
     )
 
@@ -182,24 +153,34 @@ extension SubscribeEffectsTests {
   }
 }
 
-// MARK: - Helpers
-
 private extension SubscribeEffectsTests {
-  func mockResponse(
-    subscribeResponse: SubscribeResponse? = nil,
-    errorIfAny: Error? = nil,
+  func makeFactory(
+    mockingResponse response: SubscribeResponse? = nil,
+    error: Error? = nil,
     statusCode: Int = 200
-  ) {
-    guard let httpResponse = HTTPURLResponse(statusCode: statusCode) else {
-      XCTFail("Failed to create HTTPURLResponse for statusCode: \(statusCode)")
-      return
-    }
+  ) throws -> SubscribeEffectFactory {
+    let delegate = HTTPSessionDelegate()
+    let mockUrlSession = MockURLSession(delegate: delegate)
+    let httpResponse = try XCTUnwrap(HTTPURLResponse(statusCode: statusCode))
+    let mockData = try XCTUnwrap(Constant.jsonEncoder.encode(response))
+
     mockUrlSession.responseForDataTask = { task, _ in
-      task.mockError = errorIfAny
-      task.mockData = try? Constant.jsonEncoder.encode(subscribeResponse)
+      task.mockError = error
+      task.mockData = mockData
       task.mockResponse = httpResponse
+
       return task
     }
+
+    let httpSession = HTTPSession(
+      session: mockUrlSession, delegate: delegate,
+      logger: PubNubLogger.defaultLogger(), sessionQueue: .main
+    )
+
+    return SubscribeEffectFactory(
+      session: httpSession,
+      presenceStateContainer: .shared
+    )
   }
 }
 

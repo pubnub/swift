@@ -13,6 +13,31 @@ import XCTest
 
 @testable import PubNubSDK
 
+// MARK: - EventEngineTests
+
+class EventEngineTests: XCTestCase {
+  func testEventEngineTransitions() {
+    let eventEngine = EventEngine(
+      state: initialState,
+      transition: StubTransition(),
+      dispatcher: StubDispatcher(),
+      dependencies: EventEngineDependencies(value: Void()),
+      logger: PubNubLogger.defaultLogger()
+    )
+
+    eventEngine.send(event: .event2)
+    XCTAssertTrue(eventEngine.state == initialState)
+    eventEngine.send(event: .event3)
+    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent3)
+    eventEngine.send(event: .event1)
+    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent1)
+    eventEngine.send(event: .event4)
+    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent3)
+  }
+}
+
+// MARK: - Helpers
+
 private var initialState: ExampleState {
   ExampleState(
     x: 1000,
@@ -44,31 +69,6 @@ private var stateAfterSendingEvent4: ExampleState {
     z: 0
   )
 }
-
-// MARK: - EventEngineTests
-
-class EventEngineTests: XCTestCase {
-  func testEventEngineTransitions() {
-    let eventEngine = EventEngine(
-      state: initialState,
-      transition: StubTransition(),
-      dispatcher: StubDispatcher(),
-      dependencies: EventEngineDependencies(value: Void()),
-      logger: PubNubLogger.defaultLogger()
-    )
-
-    eventEngine.send(event: .event2)
-    XCTAssertTrue(eventEngine.state == initialState)
-    eventEngine.send(event: .event3)
-    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent3)
-    eventEngine.send(event: .event1)
-    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent1)
-    eventEngine.send(event: .event4)
-    XCTAssertTrue(eventEngine.state == stateAfterSendingEvent3)
-  }
-}
-
-// MARK: - Helpers
 
 private struct ExampleState: Equatable {
   let x: Int

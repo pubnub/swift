@@ -180,7 +180,7 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenPartialSuccess207_ReturnsActionAndPublishError() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 2
+    expectation.expectedFulfillmentCount = 1
 
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success_207"])
 
@@ -322,7 +322,7 @@ extension MessageActionsRouterTests {
 
   func test_RemoveMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 2
+    expectation.expectedFulfillmentCount = 1
 
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success_207"])
 

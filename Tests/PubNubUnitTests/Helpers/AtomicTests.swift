@@ -177,7 +177,7 @@ class AtomicTests: XCTestCase {
 
   func test_AtomicInt_ConcurrentIncrement_AllThreadsComplete() {
     let queue = DispatchQueue(
-      label: "ConcurrenyQueue Add",
+      label: "ConcurrencyQueue Add",
       qos: .default,
       attributes: .concurrent
     )

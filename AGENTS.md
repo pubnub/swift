@@ -59,6 +59,13 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
 - Helpers in `Tests/PubNubUnitTests/Support/`.
 
+#### Support Subdirectories (`Tests/PubNubUnitTests/Support/`)
+
+- `Mocks/` — Test doubles (e.g., `MockURLSession.swift`, `MockRequestOperators.swift`, `MockListener.swift`).
+- `Helpers/` — Test utilities (e.g., `ImportTestResource.swift`, `TestLogWriter.swift`, `TestSetup.swift`).
+- `Extensions/` — Test-only extensions (e.g., `EffectInvocation+Equatable.swift`).
+- `Factories/` — Object builders (e.g., `TestPubNubFactory.swift`, `SubscribePayloadFactory.swift`).
+
 ### Integration Tests (`Tests/PubNubIntegrationTests/`)
 
 - Require real PubNub API keys loaded from `PubNubTests_Info.plist`.

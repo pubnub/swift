@@ -13,7 +13,7 @@ import XCTest
 @testable import PubNubSDK
 
 class SubscribeInputTests: XCTestCase {
-  func test_WithoutPresence() {
+  func test_ChannelNames_WithoutPresenceChannels_ReturnsOnlyBaseChannels() {
     let input = SubscribeInput(channels: ["c1", "c2"])
     let expAllSubscribedChannelNames = ["c1", "c2"]
     let expSubscribedChannelNames = ["c1", "c2"]
@@ -24,7 +24,7 @@ class SubscribeInputTests: XCTestCase {
     XCTAssertTrue(input.channelGroupNames(withPresence: false).isEmpty)
   }
 
-  func test_WithPresence() {
+  func test_ChannelNames_WithPresenceChannels_ReturnsFilteredAndUnfilteredSets() {
     let input = SubscribeInput(channels: ["c1", "c1-pnpres", "c2"], channelGroups: ["g1", "g1-pnpres", "g2"])
     let expAllSubscribedChannelNames = ["c1", "c1-pnpres", "c2"]
     let expSubscribedChannelNames = ["c1", "c2"]
@@ -37,7 +37,7 @@ class SubscribeInputTests: XCTestCase {
     XCTAssertTrue(input.channelGroupNames(withPresence: true).sorted(by: <).elementsEqual(expAllSubscribedGroups))
   }
 
-  func test_AddWithDuplicates() {
+  func test_Adding_WithDuplicateChannels_DeduplicatesAndReportsDiff() {
     let input = SubscribeInput(channels: ["c1", "c2", "c2-pnpres"], channelGroups: ["g1", "g2"])
     let newInput = input.adding(channels: ["c3", "c3-pnpres"], and: ["g3"])
 
@@ -55,7 +55,7 @@ class SubscribeInputTests: XCTestCase {
     XCTAssertTrue(diff.addedChannelGroups == ["g3"])
   }
 
-  func test_Remove() {
+  func test_Removing_ExistingChannelsAndGroups_RemovesAndReportsDiff() {
     let input1 = SubscribeInput(channels: ["c1", "c2", "c3"], channelGroups: ["g1", "g2", "g3"])
     let newInput = input1.removing(channels: ["c1", "c3"], and: ["g1", "g3"])
     let diff = newInput.difference(from: input1)
@@ -76,7 +76,7 @@ class SubscribeInputTests: XCTestCase {
     XCTAssertTrue(diff.removedChannelGroups == expRemovedGroups)
   }
 
-  func test_RemovePresenceOnly() {
+  func test_Removing_PresenceChannelsOnly_KeepsBaseChannelsIntact() {
     let input1 = SubscribeInput(
       channels: [
         "c1",
@@ -113,7 +113,7 @@ class SubscribeInputTests: XCTestCase {
     XCTAssertTrue(newInput.channelGroupNames(withPresence: true).sorted(by: <).elementsEqual(expAllSubscribedGroupNames))
   }
 
-  func test_RemoveNonExistent() {
+  func test_Removing_NonExistentChannels_OnlyReportsActuallyRemovedInDiff() {
     let input = SubscribeInput(channels: ["c1", "c2"], channelGroups: ["g1", "g2", "g3"])
     let newInput = input.removing(channels: ["c1", "c3", "c4"], and: ["g1", "g3", "g5"])
     let diff = newInput.difference(from: input)

@@ -12,6 +12,7 @@
 import XCTest
 
 class AtomicTests: XCTestCase {
+
   // MARK: - General Functionality
 
   func test_Atomic_LockedPerform_ExecutesClosure() {
@@ -50,7 +51,9 @@ class AtomicTests: XCTestCase {
     let invalidJson = 0
     let atomic = Atomic(invalidJson)
 
-    XCTAssertThrowsError(try atomic.lockedTry { _ in throw PubNubError(.requestMutatorFailure) })
+    XCTAssertThrowsError(try atomic.lockedTry { _ in throw PubNubError(.requestMutatorFailure) }) { error in
+      XCTAssertEqual(error as? PubNubError, PubNubError(.requestMutatorFailure))
+    }
   }
 
   func test_Atomic_LockedTryWithValidData_DoesNotThrow() {
@@ -113,6 +116,7 @@ class AtomicTests: XCTestCase {
 
   func test_AtomicInt_BitwiseOrAssignment_SetsBitsCorrectly() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(0), 0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(4), 0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(8), 4)
@@ -121,6 +125,7 @@ class AtomicTests: XCTestCase {
 
   func test_AtomicInt_Add_ReturnsOldValueAndIncrements() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.add(4), 0)
     XCTAssertEqual(atomic.add(3), 4)
     XCTAssertEqual(atomic.add(10), 7)
@@ -130,6 +135,7 @@ class AtomicTests: XCTestCase {
 
   func test_AtomicInt_Sub_ReturnsOldValueAndDecrements() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.sub(4), 0)
     XCTAssertEqual(atomic.sub(3), -4)
     XCTAssertEqual(atomic.sub(10), -7)
@@ -138,75 +144,58 @@ class AtomicTests: XCTestCase {
   }
 
   func test_AtomicInt_ConcurrentBitwiseOr_OnlyOneThreadSeesExpectedValue() {
-    let queue = DispatchQueue(
-      label: "ConcurrencyQueue Fetch",
-      qos: .default,
-      attributes: .concurrent
-    )
-
-    let repeatCount = 25
     let concurrencyCount = 8
     let fetchCount: Int32 = 1
 
-    for _ in 0 ..< repeatCount {
-      let atomic = AtomicInt(0)
+    for _ in 0..<25 {
+      let atomic = AtomicInt(fetchCount)
       let counter = AtomicInt(0)
 
-      var expectations = [XCTestExpectation]()
-
-      for _ in 0 ..< concurrencyCount {
-        let expectation = self.expectation(description: "wait until loop completes")
-        queue.async {
-          while atomic.get() == 0 {}
-
-          if atomic.bitwiseOrAssignemnt(-1) == fetchCount {
-            counter.increment()
-          }
-
-          expectation.fulfill()
+      performConcurrently(count: concurrencyCount) {
+        if atomic.bitwiseOrAssignemnt(-1) == fetchCount {
+          counter.increment()
         }
-        expectations.append(expectation)
       }
-      atomic.bitwiseOrAssignemnt(fetchCount)
-
-      wait(for: expectations, timeout: 1.0)
 
       XCTAssertEqual(counter.get(), fetchCount)
     }
   }
 
   func test_AtomicInt_ConcurrentIncrement_AllThreadsComplete() {
-    let queue = DispatchQueue(
-      label: "ConcurrencyQueue Add",
-      qos: .default,
-      attributes: .concurrent
-    )
-
-    let repeatCount = 25
     let concurrencyCount: Int32 = 8
 
-    for _ in 0 ..< repeatCount {
-      let atomic = AtomicInt(0)
+    for _ in 0..<25 {
       let counter = AtomicInt(0)
 
-      var expectations = [XCTestExpectation]()
-
-      for _ in 0 ..< concurrencyCount {
-        let expectation = self.expectation(description: "wait until loop completes")
-        queue.async {
-          while atomic.get() == 0 {}
-
-          counter.increment()
-
-          expectation.fulfill()
-        }
-        expectations.append(expectation)
+      performConcurrently(count: Int(concurrencyCount)) {
+        counter.increment()
       }
-      atomic.bitwiseOrAssignemnt(1)
-
-      wait(for: expectations, timeout: 1.0)
 
       XCTAssertEqual(counter.get(), concurrencyCount)
     }
+  }
+}
+
+private extension AtomicTests {
+
+  /// Executes `action` on `count` threads simultaneously and waits for all to finish.
+  func performConcurrently(count: Int, timeout: TimeInterval = 1.0, action: @escaping () -> Void) {
+    let queue = DispatchQueue(label: "ConcurrencyQueue", attributes: .concurrent)
+    let startGate = DispatchSemaphore(value: 0)
+    let expectations = (0..<count).map { _ in expectation(description: "concurrent work") }
+
+    for i in 0..<count {
+      queue.async {
+        startGate.wait()
+        action()
+        expectations[i].fulfill()
+      }
+    }
+
+    for _ in 0..<count {
+      startGate.signal()
+    }
+
+    wait(for: expectations, timeout: timeout)
   }
 }

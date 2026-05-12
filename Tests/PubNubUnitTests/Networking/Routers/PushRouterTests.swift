@@ -56,7 +56,7 @@ extension PushRouterTests {
     let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.listPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
   func test_ListPushRegistration_WithValidToken_ReturnsChannels() throws {
@@ -149,7 +149,7 @@ extension PushRouterTests {
       ), configuration: config
     )
 
-    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
   func test_ModifyPush_WithValidChannels_ReturnsRemovedChannels() throws {
@@ -229,7 +229,7 @@ extension PushRouterTests {
     let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
   func test_RemoveAllPush_WithValidToken_ReturnsSuccess() throws {
@@ -287,7 +287,7 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
 
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let emptyTopic = PushRouter(
@@ -301,7 +301,7 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNotNil(emptyTopic.validationError)
+    XCTAssertEqual(emptyTopic.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
   func test_ModifyAPNSListChannels_WithValidToken_ReturnsChannels() throws {
@@ -468,7 +468,7 @@ extension PushRouterTests {
       configuration: config
     )
 
-    XCTAssertNotNil(router.validationError)
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
 
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let emptyTopic = PushRouter(
@@ -479,7 +479,7 @@ extension PushRouterTests {
       ), configuration: config
     )
 
-    XCTAssertNotNil(emptyTopic.validationError)
+    XCTAssertEqual(emptyTopic.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
   func test_RemoveAllAPNSChannels_WithValidToken_ReturnsSuccess() throws {

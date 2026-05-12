@@ -12,6 +12,8 @@
 import XCTest
 
 class RequestMutatorTests: XCTestCase {
+  let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
+
   func test_MultiplexInitWithOperator_ContainsOneOperator() {
     let mutator = DefaultOperator()
 
@@ -24,75 +26,44 @@ class RequestMutatorTests: XCTestCase {
   }
 
   func test_MutateRequestSucceeds_AppendsQueryItemToURL() throws {
-    var expectations = [XCTestExpectation]()
-
-    let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",
-                                                               qos: .userInitiated,
-                                                               attributes: .concurrent))
-
     let newAuth = URLQueryItem(name: "auth", value: "newAuthKey")
-
-    var mutator = MutatorExpector(all: &expectations)
-    mutator.mutateRequest = { request in
-      var newRequest = request
-      newRequest.url = request.url?.appendingQueryItems([newAuth])
-      return .success(newRequest)
-    }
-
+    let mutator = StubRequestMutator(appending: [newAuth])
+    let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
-    sessionExpector.expectDidMutateRequest { request, initialURLRequest, mutatedURLRequest in
-      guard let mutatedURL = mutatedURLRequest.url, let initialURL = initialURLRequest.url else {
-        return XCTFail("Could not create URL during request mutation")
-      }
 
-      XCTAssertEqual(request.urlRequest, mutatedURLRequest)
+    sessionExpector.expectDidMutateRequest { _, initialURLRequest, mutatedURLRequest in
+      let initialItems = initialURLRequest.url
+        .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: true) }?.queryItems
+      let mutatedItems = mutatedURLRequest.url
+        .flatMap { URLComponents(url: $0, resolvingAgainstBaseURL: true) }?.queryItems
 
-      let initialURLComp = URLComponents(url: initialURL, resolvingAgainstBaseURL: true)
-      XCTAssertFalse(initialURLComp?.queryItems?.contains(newAuth) ?? true)
-
-      let mutatedURLComp = URLComponents(url: mutatedURL, resolvingAgainstBaseURL: true)
-      XCTAssertTrue(mutatedURLComp?.queryItems?.contains(newAuth) ?? false)
+      XCTAssertFalse(initialItems?.contains(newAuth) ?? true)
+      XCTAssertTrue(mutatedItems?.contains(newAuth) ?? false)
     }
 
     let sessions = try MockURLSession.mockSession(
       for: ["time_success"],
       with: sessionListener,
-      request: MultiplexRequestOperator(operators: [DefaultOperator(), mutator])
+      request: MultiplexRequestOperator(operators: [mutator])
     )
 
-    let totalExpectation = expectation(description: "Time Response Received")
+    let responseExpect = expectation(description: "Time response")
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.time { result in
-      switch result {
-      case let .success(timetoken):
-        XCTAssertEqual(timetoken, 15_643_405_135_132_358)
-      case let .failure(error):
-        XCTFail("Time request failed with error: \(error.localizedDescription)")
-      }
-      totalExpectation.fulfill()
+      XCTAssertEqual(try? result.get(), 15_643_405_135_132_358)
+      responseExpect.fulfill()
     }
-    expectations.append(totalExpectation)
 
-    XCTAssertEqual(sessionExpector.expectations.count, 1)
-    expectations.append(contentsOf: sessionExpector.expectations)
-
-    wait(for: expectations, timeout: 1.0)
+    wait(for: sessionExpector.expectations + [responseExpect], timeout: 1.0)
   }
 
   func test_MutateRequestFails_ReturnsRequestMutatorFailureError() throws {
-    var expectations = [XCTestExpectation]()
-
-    let sessionListener = SessionListener(queue: DispatchQueue(label: "Session Listener",
-                                                               qos: .userInitiated,
-                                                               attributes: .concurrent))
-    var mutator = MutatorExpector(all: &expectations)
-    mutator.mutateRequest = { _ in
-      .failure(PubNubError(.requestMutatorFailure))
-    }
-
+    let mutator = StubRequestMutator(failing: PubNubError(.requestMutatorFailure))
+    let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
-    sessionExpector.expectDidFailToMutateRequest { request, initialURLRequest, error in
 
+    sessionExpector.expectDidFailToMutateRequest { request, initialURLRequest, error in
       XCTAssertEqual(request.urlRequest, initialURLRequest)
       XCTAssertEqual(error.pubNubError, PubNubError(.requestMutatorFailure))
     }
@@ -100,25 +71,21 @@ class RequestMutatorTests: XCTestCase {
     let sessions = try MockURLSession.mockSession(
       for: ["cannotFindHost"],
       with: sessionListener,
-      request: MultiplexRequestOperator(operators: [mutator, DefaultOperator()])
+      request: MultiplexRequestOperator(operators: [mutator])
     )
 
-    let totalExpectation = expectation(description: "Time Response Received")
+    let responseExpect = expectation(description: "Time response")
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.time { result in
-      switch result {
-      case .success:
-        XCTFail("Time request should fail")
-      case let .failure(error):
+      if case let .failure(error) = result {
         XCTAssertEqual(error.pubNubError, PubNubError(.requestMutatorFailure))
+      } else {
+        XCTFail("Expected failure")
       }
-      totalExpectation.fulfill()
+      responseExpect.fulfill()
     }
-    expectations.append(totalExpectation)
 
-    XCTAssertEqual(sessionExpector.expectations.count, 1)
-    expectations.append(contentsOf: sessionExpector.expectations)
-
-    wait(for: expectations, timeout: 1.0)
+    wait(for: sessionExpector.expectations + [responseExpect], timeout: 1.0)
   }
 }

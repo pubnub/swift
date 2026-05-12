@@ -39,7 +39,7 @@ class SubscribeInputTests: XCTestCase {
 
   func test_Adding_WithDuplicateChannels_DeduplicatesAndReportsDiff() {
     let input = SubscribeInput(channels: ["c1", "c2", "c2-pnpres"], channelGroups: ["g1", "g2"])
-    let newInput = input.adding(channels: ["c3", "c3-pnpres"], and: ["g3"])
+    let newInput = input.adding(channels: ["c2", "c3", "c3-pnpres"], and: ["g2", "g3"])
 
     let diff = newInput.difference(from: input)
     let expAllSubscribedChannelNames = ["c1", "c2", "c2-pnpres", "c3", "c3-pnpres"]

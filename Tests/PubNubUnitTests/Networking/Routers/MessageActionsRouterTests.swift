@@ -18,8 +18,10 @@ final class MessageActionsRouterTests: XCTestCase {}
 extension MessageActionsRouterTests {
   func test_FetchMessageActionsRouter_WithValidConfig_SetsExpectedEndpoint() {
     let config = TestPubNubFactory.makeConfig()
-    let router = MessageActionsRouter(.fetch(channel: "TestChannel", start: nil, end: nil, limit: nil),
-                                      configuration: config)
+    let router = MessageActionsRouter(
+      .fetch(channel: "TestChannel", start: nil, end: nil, limit: nil),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch a List of Message Actions")
     XCTAssertEqual(router.category, "Fetch a List of Message Actions")
@@ -28,16 +30,19 @@ extension MessageActionsRouterTests {
 
   func test_FetchMessageActions_WhenChannelEmpty_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig()
-    let router = MessageActionsRouter(.fetch(channel: "", start: nil, end: nil, limit: nil),
-                                      configuration: config)
+    let router = MessageActionsRouter(
+      .fetch(channel: "", start: nil, end: nil, limit: nil),
+      configuration: config
+    )
 
-    XCTAssertEqual(router.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: router))
+    XCTAssertEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: router)
+    )
   }
 
   func test_FetchMessageActions_WithValidChannel_ReturnsActionsAndPaging() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_success"])
 
     let testAction = PubNubMessageActionBase(
@@ -47,6 +52,7 @@ extension MessageActionsRouterTests {
     )
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.fetchMessageActions(channel: "TestChannel") { result in
       switch result {
       case let .success((actions, next)):
@@ -66,16 +72,15 @@ extension MessageActionsRouterTests {
 
   func test_FetchMessageActions_WithNoActions_ReturnsEmptyList() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_success_empty"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.fetchMessageActions(channel: "TestChannel") { result in
       switch result {
       case let .success((actions, next)):
         XCTAssertTrue(actions.isEmpty)
         XCTAssertNil(next)
-
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
@@ -87,10 +92,10 @@ extension MessageActionsRouterTests {
 
   func test_FetchMessageActions_WhenInvalidSubscribeKey_ReturnsInvalidSubscribeKeyError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_error_400"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.fetchMessageActions(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -106,10 +111,10 @@ extension MessageActionsRouterTests {
 
   func test_FetchMessageActions_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_error_403"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.fetchMessageActions(channel: "TestChannel") { result in
       switch result {
       case .success:
@@ -141,16 +146,19 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenChannelEmpty_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig()
-    let router = MessageActionsRouter(.add(channel: "", type: "reaction", value: "smiley_face", timetoken: 0),
-                                      configuration: config)
+    let router = MessageActionsRouter(
+      .add(channel: "", type: "reaction", value: "smiley_face", timetoken: 0),
+      configuration: config
+    )
 
-    XCTAssertEqual(router.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: router))
+    XCTAssertEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: router)
+    )
   }
 
   func test_AddMessageAction_WithValidParams_ReturnsCreatedAction() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success"])
 
     let testAction = PubNubMessageActionBase(
@@ -160,6 +168,7 @@ extension MessageActionsRouterTests {
     )
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
       channel: "TestChannel",
       type: "reaction", value: "smiley_face",
@@ -168,7 +177,6 @@ extension MessageActionsRouterTests {
       switch result {
       case let .success(action):
         XCTAssertEqual(try? action.transcode(), testAction)
-
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
@@ -180,7 +188,7 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenPartialSuccess207_ReturnsActionAndPublishError() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 1
+    expectation.expectedFulfillmentCount = 2
 
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success_207"])
 
@@ -191,6 +199,7 @@ extension MessageActionsRouterTests {
     )
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
       channel: "TestChannel",
       type: "reaction", value: "smiley_face",
@@ -210,10 +219,10 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenBadRequest_ReturnsBadRequestError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_400"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
       channel: "TestChannel",
       type: "reaction", value: "smiley_face",
@@ -234,10 +243,10 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_403"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
       channel: "TestChannel",
       type: "reaction", value: "smiley_face",
@@ -257,10 +266,10 @@ extension MessageActionsRouterTests {
 
   func test_AddMessageAction_WhenConflict_ReturnsConflictError() throws {
     let expectation = self.expectation(description: "409 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_409"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
       channel: "TestChannel",
       type: "reaction", value: "smiley_face",
@@ -294,16 +303,19 @@ extension MessageActionsRouterTests {
   func test_RemoveMessageAction_WhenChannelEmpty_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig()
     let emptyChannel = MessageActionsRouter(.remove(channel: "", message: 0, action: 0), configuration: config)
-    XCTAssertEqual(emptyChannel.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: emptyChannel))
+
+    XCTAssertEqual(
+      emptyChannel.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: emptyChannel)
+    )
   }
 
   func test_RemoveMessageAction_WithValidParams_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.removeMessageActions(
       channel: "TestChannel",
       message: 15_610_547_826_969_050,
@@ -322,11 +334,11 @@ extension MessageActionsRouterTests {
 
   func test_RemoveMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 1
+    expectation.expectedFulfillmentCount = 2
 
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success_207"])
-
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.removeMessageActions(
       channel: "TestChannel",
       message: 15_610_547_826_969_050,
@@ -346,10 +358,10 @@ extension MessageActionsRouterTests {
 
   func test_RemoveMessageAction_WhenNothingToDelete_ReturnsNothingToDeleteError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_400_noMessage"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.removeMessageActions(
       channel: "TestChannel",
       message: 15_610_547_826_969_050,
@@ -369,10 +381,10 @@ extension MessageActionsRouterTests {
 
   func test_RemoveMessageAction_WhenInvalidUUID_ReturnsInvalidUUIDError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_400"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.removeMessageActions(
       channel: "TestChannel",
       message: 15_610_547_826_969_050,
@@ -392,10 +404,10 @@ extension MessageActionsRouterTests {
 
   func test_RemoveMessageAction_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
-
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_403"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.removeMessageActions(
       channel: "TestChannel",
       message: 15_610_547_826_969_050,
@@ -419,6 +431,7 @@ extension MessageActionsRouterTests {
 extension MessageActionsRouterTests {
   func test_MessageActionsResponsePayload_WithDefaults_SetsExpectedValues() {
     let payload = MessageActionsResponsePayload(actions: [], start: 123)
+
     XCTAssertEqual(payload.actions, [])
     XCTAssertEqual(payload.start, 123)
     XCTAssertEqual(payload.end, nil)

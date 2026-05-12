@@ -42,16 +42,10 @@ private extension PubNubPushTargetTests {
   }
 
   func retrieveExcludedDevicesValue(from string: String) throws -> String? {
-    let regex = try NSRegularExpression(pattern: "(?<=\"excluded_devices\":)(.*?)](=?)")
-    let nsRange = NSRange(string.startIndex..., in: string)
-
-    guard
-      let regexMatch = regex.matches(in: string, range: nsRange).first,
-      let range = Range(regexMatch.range, in: string)
-    else {
-      return nil
-    }
-
-    return String(string[range])
+    guard let data = string.data(using: .utf8) else { return nil }
+    let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+    guard let excludedDevices = json?["excluded_devices"] else { return nil }
+    let encodedData = try JSONSerialization.data(withJSONObject: excludedDevices)
+    return String(data: encodedData, encoding: .utf8)
   }
 }

@@ -11,11 +11,11 @@
 import XCTest
 @testable import PubNubSDK
 
+typealias DefaultOperator = StubRequestOperator
+
 struct StubRequestOperator: RequestOperator, Equatable {
   let uuid = UUID()
 }
-
-typealias DefaultOperator = StubRequestOperator
 
 class RetryExpector: RequestOperator {
   var retryCount = 0
@@ -42,23 +42,31 @@ class RetryExpector: RequestOperator {
   }
 }
 
-struct MutatorExpector: RequestOperator {
-  let expectation: XCTestExpectation
+struct StubRequestMutator: RequestOperator {
+  private let appendedQueryItems: [URLQueryItem]?
+  private let error: Error?
 
-  init(expectedRetry count: Int = 1, all expectations: inout [XCTestExpectation]) {
-    expectation = XCTestExpectation(description: "Mutator Expector")
-    expectation.expectedFulfillmentCount = count
-    expectations.append(expectation)
+  init(appending queryItems: [URLQueryItem]) {
+    self.appendedQueryItems = queryItems
+    self.error = nil
   }
 
-  var mutateRequest: ((URLRequest) -> (Result<URLRequest, Error>))?
+  init(failing error: Error) {
+    self.appendedQueryItems = nil
+    self.error = error
+  }
 
   func mutate(
     _ urlRequest: URLRequest,
     for _: SessionReplaceable,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
-    completion(mutateRequest?(urlRequest) ?? .success(urlRequest))
-    expectation.fulfill()
+    if let error {
+      return completion(.failure(error))
+    }
+
+    var request = urlRequest
+    request.url = request.url?.appendingQueryItems(appendedQueryItems ?? [])
+    completion(.success(request))
   }
 }

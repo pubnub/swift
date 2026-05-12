@@ -119,6 +119,7 @@ class EmitMessagesTests: XCTestCase {
 
   func test_EmitMessages_WhenCacheFull_DropsOldestMessages() {
     let subscriptions = makeListeners()
+
     let initialMessages = (1...99).map { idx in
       generateMessage(
         with: .message,

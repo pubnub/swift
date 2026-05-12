@@ -156,8 +156,10 @@ private struct MockEffectHandlerFactory: EffectHandlerFactory {
 }
 
 private struct MockEffectHandler: EffectHandler {
+  private static let queue = DispatchQueue(label: "com.pubnub.test.MockEffectHandler")
+
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
-    DispatchQueue.global(qos: .default).async {
+    Self.queue.async {
       completionBlock([])
     }
   }

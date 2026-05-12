@@ -55,6 +55,7 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
 - The only test target in `Package.swift` (`PubNubTests`). Run with `swift test`.
+- Class-level `let` constants and value types (structs, enums) for static test data are acceptable. Only mutable state and reference-type dependencies must be created locally per test method.
 - Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
 - Helpers in `Tests/PubNubUnitTests/Support/`.

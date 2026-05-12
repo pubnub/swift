@@ -21,8 +21,8 @@ class HeartbeatEffectTests: XCTestCase {
     heartbeatInterval: 30
   )
 
-  func test_HeartbeatEffect_WithSuccessResponse_ReturnsHeartbeatSuccessEvent() {
-    let factory = makeFactory(mockingResponse: GenericServicePayloadResponse(status: 200))
+  func test_HeartbeatEffect_WithSuccessResponse_ReturnsHeartbeatSuccessEvent() throws {
+    let factory = try makeFactory(mockingResponse: GenericServicePayloadResponse(status: 200))
 
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
@@ -40,8 +40,8 @@ class HeartbeatEffectTests: XCTestCase {
     wait(for: [expectation], timeout: 0.5)
   }
 
-  func test_HeartbeatEffect_WithFailedResponse_ReturnsHeartbeatFailedEvent() {
-    let factory = makeFactory(mockingResponse: GenericServicePayloadResponse(status: 500))
+  func test_HeartbeatEffect_WithFailedResponse_ReturnsHeartbeatFailedEvent() throws {
+    let factory = try makeFactory(mockingResponse: GenericServicePayloadResponse(status: 500))
 
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
@@ -63,13 +63,14 @@ class HeartbeatEffectTests: XCTestCase {
 }
 
 private extension HeartbeatEffectTests {
-  func makeFactory(mockingResponse response: GenericServicePayloadResponse) -> PresenceEffectFactory {
+  func makeFactory(mockingResponse response: GenericServicePayloadResponse) throws -> PresenceEffectFactory {
+    let mockData = try XCTUnwrap(Constant.jsonEncoder.encode(response))
     let delegate = HTTPSessionDelegate()
     let mockUrlSession = MockURLSession(delegate: delegate)
 
     mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
-      task.mockData = try? Constant.jsonEncoder.encode(response)
+      task.mockData = mockData
       task.mockResponse = HTTPURLResponse(statusCode: response.status)
       return task
     }

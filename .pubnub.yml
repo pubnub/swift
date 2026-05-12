@@ -1,9 +1,18 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.5"
+version: "10.1.6"
 schema: 1
 changelog:
+  - date: 2026-05-11
+    version: 10.1.6
+    changes:
+      - type: feature
+        text: "Log negotiated transport protocol from `URLSessionTaskMetrics` for network diagnostics."
+      - type: bug
+        text: "Pretty-print `SubscribeMessagePayload` and `EmitMessagesEffect` descriptions with multi-line formatting."
+      - type: bug
+        text: "Adds `CustomStringConvertible` conformance to `RequestConfiguration` for improved debug output."
   - date: 2026-04-22
     version: 10.1.5
     changes:
@@ -783,7 +792,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.5.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.6.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

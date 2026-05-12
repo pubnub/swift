@@ -128,6 +128,7 @@ public final class HTTPSession {
   /// - Returns: This `Session` object
   public func usingDefault(logger: PubNubLogger) -> Self {
     self.logger = logger
+    self.delegate?.logger = logger
     return self
   }
 

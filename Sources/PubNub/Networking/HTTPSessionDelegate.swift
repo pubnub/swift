@@ -99,6 +99,27 @@ extension HTTPSessionDelegate: URLSessionDataDelegate {
     sessionBridge?.sessionStream?.emitURLSession(session, dataTask: dataTask, didReceive: data)
   }
 
+  #if !os(watchOS)
+
+  public func urlSession(_: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+    logger?.trace(
+      .customObject(
+        .init(
+          operation: "session-network-transport",
+          details: "Negotiated \(metrics.transactionMetrics.last?.networkProtocolName?.lowercased() ?? "unknown")",
+          arguments: [
+            ("sessionID", String(describing: self.sessionBridge?.sessionID)),
+            ("requestID", String(describing: self.sessionBridge?.request(for: task)?.requestID)),
+            ("taskIdentifier", task.taskIdentifier)
+          ]
+        )
+      ),
+      category: .networking
+    )
+  }
+
+  #endif
+
   public func urlSession(
     _ session: URLSession,
     didReceive challenge: URLAuthenticationChallenge,

@@ -12,10 +12,9 @@
 import XCTest
 
 class RequestRetrierTests: XCTestCase {
-  let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
-
   func test_AfterTwoFailures_SucceedsOnThirdAttempt() throws {
     var expectations = [XCTestExpectation]()
+    let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
@@ -57,6 +56,7 @@ class RequestRetrierTests: XCTestCase {
 
   func test_AllRetriesFail_ReturnsLastError() throws {
     var expectations = [XCTestExpectation]()
+    let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 
@@ -96,6 +96,7 @@ class RequestRetrierTests: XCTestCase {
 
   func test_MultiplexWithRetrier_SucceedsAfterRetries() throws {
     var expectations = [XCTestExpectation]()
+    let streamQueue = DispatchQueue(label: "Session Listener", qos: .userInitiated, attributes: .concurrent)
     let sessionListener = SessionListener(queue: streamQueue)
     let sessionExpector = SessionExpector(session: sessionListener)
 

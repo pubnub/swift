@@ -17,27 +17,32 @@ reviews:
   high_level_summary: true
   high_level_summary_in_walkthrough: false
   high_level_summary_instructions: |
+    The summary is a reading guide, not a compressed diff.
+    Tell the reviewer what to expect and where to pay attention.
+
     Structure the summary into three sections: Context, Changes, and Notes.
 
     ## Context
-    A short paragraph (no more than 3-4 sentences) explaining what the PR
-    accomplishes, why the change was made, and any relevant context a maintainer
-    should know upfront. Do not simply restate the PR title — infer the
-    purpose from the actual changes.
+    A short paragraph (3-4 sentences max) explaining what the PR accomplishes
+    and why. Infer purpose from the changes — do not restate the PR title.
 
     ## Changes
-    Release-notes-style bullets grouped by category. One line per bullet.
-    Group related changes into a single bullet describing the logical change,
-    not one bullet per file. For user-facing changes, frame bullets in terms
-    of impact on the user or caller. For internal changes, describe what was
-    technically modified.
+    Release-notes-style bullets grouped by category. Rules:
+    - One short sentence per bullet (15 words max).
+    - Group related changes into a single bullet describing the logical change.
+    - Frame user-facing changes in terms of impact on the caller.
+    - Frame internal changes in terms of the category modified (e.g., "tests", "linting", "build config").
+    - Do not describe internal changes at the symbol level.
+    - Only name a symbol if it is public API the reader must act on. Never name internal types, test helpers, or private symbols.
+    - Do not include file paths.
+    - Omit trivial formatting or whitespace changes entirely.
 
     ## Notes
     - State whether the change is user-facing or purely internal.
-    - If user-facing, flag whether the change is breaking.
+    - If user-facing, state whether it is breaking.
     - Omit this line for additive or non-breaking changes.
 
-    Do not include file paths. Do not restate the file-level walkthrough.
+    Do not restate the file-level walkthrough.
   estimate_code_review_effort: false
   sequence_diagrams: false
   changed_files_summary: false

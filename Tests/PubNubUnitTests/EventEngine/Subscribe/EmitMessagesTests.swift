@@ -106,11 +106,8 @@ class EmitMessagesTests: XCTestCase {
 
     subscriptions.forEach {
       $0.onEmitMessagesCalled = { messages in
-        if let message = messages.first {
-          XCTAssertEqual(message.payload, "Hello, it's a message")
-        } else {
-          XCTFail("Expected to have a message")
-        }
+        XCTAssertEqual(messages.count, 1, "Expected to produce exactly one message")
+        XCTAssertEqual(messages.first?.payload, "Hello, it's a message")
         expectation.fulfill()
       }
     }

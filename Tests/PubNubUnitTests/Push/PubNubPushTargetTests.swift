@@ -12,8 +12,11 @@
 import XCTest
 
 class PubNubPushTargetTests: XCTestCase {
+  let fixtureTopic = "com.pubnub"
+  let fixtureExcludedDevices = ["fafb3456", "7654egh"]
+
   func test_ExcludedDeviceTokensAreUppercased() throws {
-    let target = PubNubPushTarget(topic: "com.pubnub", environment: .production, excludedDevices: ["fafb3456", "7654egh"])
+    let target = PubNubPushTarget(topic: fixtureTopic, environment: .production, excludedDevices: fixtureExcludedDevices)
     let data = try Constant.jsonEncoder.encode(target)
     let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
 
@@ -22,7 +25,7 @@ class PubNubPushTargetTests: XCTestCase {
   }
 
   func test_ExcludedDeviceTokensAreNotSentIfNotProvided() throws {
-    let target = PubNubPushTarget(topic: "com.pubnub", environment: .production)
+    let target = PubNubPushTarget(topic: fixtureTopic, environment: .production)
     let data = try Constant.jsonEncoder.encode(target)
     let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
 

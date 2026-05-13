@@ -74,8 +74,10 @@ class EmitMessagesTests: XCTestCase {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .errorReceived(error) = event {
           XCTAssertTrue(error.reason == .messageCountExceededMaximum)
-          expectation.fulfill()
+        } else {
+          XCTFail("Expected .errorReceived but received \(event)")
         }
+        expectation.fulfill()
       }
     }
 

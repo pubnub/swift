@@ -20,13 +20,15 @@ reviews:
     The summary is a reading guide, not a compressed diff.
     Tell the reviewer what to expect and where to pay attention.
 
-    Structure the summary into three sections: Context, Changes, and Notes.
+    Structure the summary into three sections: Context, Changes, and Notes. Always prefix these sections with ##
 
     ## Context
     A short paragraph (3-4 sentences max) explaining what the PR accomplishes
     and why. Infer purpose from the changes — do not restate the PR title.
 
     ## Changes
+
+    #### Category name
     Release-notes-style bullets grouped by category. Rules:
     - One short sentence per bullet (15 words max).
     - Group related changes into a single bullet describing the logical change.
@@ -40,7 +42,8 @@ reviews:
     ## Notes
     - State whether the change is user-facing or purely internal.
     - If user-facing, state whether it is breaking.
-    - Omit this line for additive or non-breaking changes.
+    - A bug fix that changes what the caller receives IS a behavioral change — flag it even if the prior behavior was a bug.
+    - Omit this section entirely for additive or non-breaking changes.
 
     Do not restate the file-level walkthrough.
   estimate_code_review_effort: false

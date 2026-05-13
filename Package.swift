@@ -69,7 +69,7 @@ let package = Package(
       name: "PubNubTests",
       dependencies: ["PubNubSDK"],
       path: "Tests/PubNubUnitTests",
-      resources: [.copy("Support/Responses")]
+      resources: [.process("Support/Responses")]
     )
   ],
   swiftLanguageVersions: [.v5]

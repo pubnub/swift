@@ -186,10 +186,8 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_AddMessageAction_WhenPartialSuccess207_ReturnsActionAndPublishError() throws {
-    let successExpect = self.expectation(description: "Success branch")
-    let failureExpect = self.expectation(description: "Failure branch")
-
+  func test_AddMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
+    let expectation = self.expectation(description: "207 Partial Success Expectation")
     let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success_207"])
 
     let pubnub = TestPubNubFactory.make(session: sessions.session)
@@ -198,18 +196,17 @@ extension MessageActionsRouterTests {
       channel: testChannel,
       type: "reaction", value: "smiley_face",
       messageTimetoken: testMessageTimetoken
-    ) { [testAction] result in
+    ) { result in
       switch result {
-      case let .success(action):
-        XCTAssertEqual(try? action.transcode(), testAction)
-        successExpect.fulfill()
+      case .success:
+        XCTFail("Should not succeed when publish event failed")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
-        failureExpect.fulfill()
       }
+      expectation.fulfill()
     }
 
-    wait(for: [successExpect, failureExpect], timeout: 1.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func test_AddMessageAction_WhenBadRequest_ReturnsBadRequestError() throws {
@@ -328,8 +325,7 @@ extension MessageActionsRouterTests {
   }
 
   func test_RemoveMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
-    let successExpect = self.expectation(description: "Success branch")
-    let failureExpect = self.expectation(description: "Failure branch")
+    let expectation = self.expectation(description: "207 Partial Success Expectation")
 
     let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success_207"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
@@ -341,14 +337,14 @@ extension MessageActionsRouterTests {
     ) { result in
       switch result {
       case .success:
-        successExpect.fulfill()
+        XCTFail("Should not succeed when publish event failed")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
-        failureExpect.fulfill()
       }
+      expectation.fulfill()
     }
 
-    wait(for: [successExpect, failureExpect], timeout: 1.0)
+    wait(for: [expectation], timeout: 1.0)
   }
 
   func test_RemoveMessageAction_WhenNothingToDelete_ReturnsNothingToDeleteError() throws {

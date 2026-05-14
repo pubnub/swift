@@ -38,7 +38,7 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func test_PublishRouter_WithEmptyMessage_ReturnsValidationError() {
+  func test_PublishRouter_WithEmptyMessage_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
 
     let router = PublishRouter(
@@ -46,7 +46,8 @@ extension PublishRouterTests {
       configuration: config
     )
 
-    XCTAssertNotNil(router.validationError)
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
   func test_Publish_WithValidMessage_ReturnsTimetoken() throws {
@@ -296,7 +297,7 @@ extension PublishRouterTests {
     XCTAssertEqual(file, jsonFilePublish)
   }
 
-  func test_FilePublishRouter_WithEmptyChannel_ReturnsValidationError() {
+  func test_FilePublishRouter_WithEmptyChannel_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
 
     let router = PublishRouter(
@@ -306,10 +307,12 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotNil(router.validationError)
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func test_FilePublishRouter_WithEmptyFileId_ReturnsValidationError() {
+  func test_FilePublishRouter_WithEmptyFileId_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
 
     let router = PublishRouter(
@@ -319,10 +322,12 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotNil(router.validationError)
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func test_FilePublishRouter_WithEmptyFilename_ReturnsValidationError() {
+  func test_FilePublishRouter_WithEmptyFilename_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
 
     let router = PublishRouter(
@@ -332,7 +337,9 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotNil(router.validationError)
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
   func test_FilePublish_WithValidPayload_ReturnsTimetoken() throws {
@@ -390,11 +397,12 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func test_FireRouter_WithEmptyMessage_ReturnsValidationError() {
+  func test_FireRouter_WithEmptyMessage_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.fire(message: [], channel: testChannel, meta: nil), configuration: config)
 
-    XCTAssertNotNil(router.validationError)
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
   func test_Fire_WithValidMessage_ReturnsTimetoken() throws {
@@ -428,11 +436,12 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func test_SignalRouter_WithEmptyMessage_ReturnsValidationError() {
+  func test_SignalRouter_WithEmptyMessage_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.signal(message: [], channel: testChannel, customMessageType: nil), configuration: config)
 
-    XCTAssertNotNil(router.validationError)
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
   func test_Signal_WithValidMessage_ReturnsTimetoken() throws {

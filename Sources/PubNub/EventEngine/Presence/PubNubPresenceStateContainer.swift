@@ -14,7 +14,7 @@ class PubNubPresenceStateContainer {
   static let shared: PubNubPresenceStateContainer = PubNubPresenceStateContainer()
 
   private var channelStates: Atomic<[String: JSONCodable]> = Atomic([:])
-  private init() {}
+  init() {}
 
   func registerState(_ state: JSONCodable, forChannels channels: [String]) {
     channelStates.lockedWrite { channelStates in

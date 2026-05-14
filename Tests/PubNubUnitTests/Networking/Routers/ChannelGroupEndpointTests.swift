@@ -190,15 +190,17 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func test_AddChannelsForGroup_WhenGroupOrChannelsEmpty_ReturnsValidationError() {
+  func test_AddChannelsForGroup_WhenGroupEmpty_ReturnsValidationError() {
     let router = ChannelGroupsRouter(.addChannelsToGroup(group: "", channels: testChannels), configuration: config)
 
     XCTAssertEqual(
       router.validationError?.pubNubError?.details.first,
       ErrorDescription.emptyGroupString
     )
+  }
 
-    let emptyChannel = ChannelGroupsRouter(
+  func test_AddChannelsForGroup_WhenChannelsEmpty_ReturnsValidationError() {
+    let router = ChannelGroupsRouter(
       .addChannelsToGroup(
         group: testGroupName,
         channels: []
@@ -207,7 +209,7 @@ extension ChannelGroupsRouterTests {
     )
 
     XCTAssertEqual(
-      emptyChannel.validationError?.pubNubError?.details.first,
+      router.validationError?.pubNubError?.details.first,
       ErrorDescription.emptyChannelArray
     )
   }
@@ -284,7 +286,7 @@ extension ChannelGroupsRouterTests {
     XCTAssertEqual(router.service, .channelGroup)
   }
 
-  func test_RemoveChannelsForGroup_WhenGroupOrChannelsEmpty_ReturnsValidationError() {
+  func test_RemoveChannelsForGroup_WhenGroupEmpty_ReturnsValidationError() {
     let router = ChannelGroupsRouter(
       .removeChannelsForGroup(
         group: "",
@@ -297,8 +299,10 @@ extension ChannelGroupsRouterTests {
       router.validationError?.pubNubError?.details.first,
       ErrorDescription.emptyGroupString
     )
+  }
 
-    let emptyChannels = ChannelGroupsRouter(
+  func test_RemoveChannelsForGroup_WhenChannelsEmpty_ReturnsValidationError() {
+    let router = ChannelGroupsRouter(
       .removeChannelsForGroup(
         group: testGroupName,
         channels: []
@@ -306,7 +310,7 @@ extension ChannelGroupsRouterTests {
     )
 
     XCTAssertEqual(
-      emptyChannels.validationError?.pubNubError?.details.first,
+      router.validationError?.pubNubError?.details.first,
       ErrorDescription.emptyChannelArray
     )
   }

@@ -62,7 +62,12 @@ extension MessageActionsRouterTests {
     pubnub.fetchMessageActions(channel: testChannel) { [testAction] result in
       switch result {
       case let .success((actions, next)):
-        XCTAssertEqual(try? actions.first?.transcode(), testAction)
+        do {
+          let action = try XCTUnwrap(actions.first)
+          XCTAssertEqual(try action.transcode(), testAction)
+        } catch {
+          XCTFail("Transcode failed with error: \(error)")
+        }
         XCTAssertEqual(next?.start, 15_610_547_826_970_050)
         XCTAssertEqual(next?.end, 15_645_905_639_093_361)
         XCTAssertEqual(next?.limit, 2)

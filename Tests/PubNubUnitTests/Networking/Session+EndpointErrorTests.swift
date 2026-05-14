@@ -23,7 +23,7 @@ final class SessionEndpointErrorTests: XCTestCase {
     pubnub.time { result in
       switch result {
       case .success:
-        XCTFail("Publish request should fail")
+        XCTFail("Time request should fail")
       case let .failure(error):
         guard
           let task = sessions.mockSession.tasks.first,

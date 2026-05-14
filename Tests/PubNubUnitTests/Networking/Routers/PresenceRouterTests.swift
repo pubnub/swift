@@ -417,7 +417,7 @@ extension PresenceRouterTests {
     XCTAssertEqual(router.endpoint.groups, [channelName])
   }
 
-  func test_Heartbeat_WithEventEngineEnabled_IncludesStateAndEEParams() {
+  func test_Heartbeat_WithEventEngineEnabled_IncludesStateAndEEParams() throws {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -440,7 +440,7 @@ extension PresenceRouterTests {
       configuration: config
     )
 
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     // There's no guaranteed order of returned states.
     // Therefore, these are two possible and valid combinations:
@@ -458,7 +458,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "state" && $0.value.map { expStateValues.contains($0) } == true })
   }
 
-  func test_Heartbeat_WithEventEngineDisabled_ExcludesStateAndEEParams() {
+  func test_Heartbeat_WithEventEngineDisabled_ExcludesStateAndEEParams() throws {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -481,7 +481,7 @@ extension PresenceRouterTests {
       endpoint,
       configuration: config
     )
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 4)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -490,7 +490,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "heartbeat" && $0.value == "30" })
   }
 
-  func test_Heartbeat_WithMaintainPresenceStateDisabled_ExcludesStateParam() {
+  func test_Heartbeat_WithMaintainPresenceStateDisabled_ExcludesStateParam() throws {
     let stateContainer = PubNubPresenceStateContainer.shared
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
@@ -512,7 +512,7 @@ extension PresenceRouterTests {
       endpoint,
       configuration: config
     )
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 5)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })
@@ -522,7 +522,7 @@ extension PresenceRouterTests {
     XCTAssertTrue(queryItems.contains { $0.name == "ee" && $0.value == nil })
   }
 
-  func test_Heartbeat_WithEmptyPresenceStates_ExcludesStateParam() {
+  func test_Heartbeat_WithEmptyPresenceStates_ExcludesStateParam() throws {
     let endpoint = PresenceRouter.Endpoint.heartbeat(
       channels: ["c1", "c2"],
       groups: ["group-1", "group-2"],
@@ -540,7 +540,7 @@ extension PresenceRouterTests {
       endpoint,
       configuration: config
     )
-    let queryItems = (try? router.queryItems.get()) ?? []
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.count == 5)
     XCTAssertTrue(queryItems.contains { $0.name == "pnsdk" })

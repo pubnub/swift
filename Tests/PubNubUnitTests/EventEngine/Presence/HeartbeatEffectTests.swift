@@ -85,7 +85,7 @@ private extension HeartbeatEffectTests {
 
     return PresenceEffectFactory(
       session: httpSession,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
   }
 }

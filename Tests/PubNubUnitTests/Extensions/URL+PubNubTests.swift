@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class URLPubNubTests: XCTestCase {
   func test_AppendingQueryItems_WithExistingQuery_AppendsNewItem() throws {

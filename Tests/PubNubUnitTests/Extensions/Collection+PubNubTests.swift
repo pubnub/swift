@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class CollectionPubNubTests: XCTestCase {
   func test_CSVString_WithMultipleElements_ReturnsCommaSeparatedString() {

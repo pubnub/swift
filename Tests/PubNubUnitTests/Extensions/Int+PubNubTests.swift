@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class TimetokenTests: XCTestCase {
   func test_TimetokenDate_WithValidTimetoken_ReturnsCorrespondingDate() {

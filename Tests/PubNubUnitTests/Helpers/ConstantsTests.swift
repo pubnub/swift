@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 #if os(iOS)
   let osName = "iOS"
 #elseif os(watchOS)

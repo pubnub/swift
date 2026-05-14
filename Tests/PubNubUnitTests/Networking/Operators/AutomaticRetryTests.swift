@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class AutomaticRetryTests: XCTestCase {
   let defaultLinearPolicy = AutomaticRetry.ReconnectionPolicy.defaultLinear
@@ -149,6 +149,7 @@ class AutomaticRetryTests: XCTestCase {
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: maxDelay)
       let delay = policy.delay(for: count)
+
       XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
@@ -161,6 +162,7 @@ class AutomaticRetryTests: XCTestCase {
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(2.0), maxDelay: UInt(maxDelay))
       let delay = policy.delay(for: count)
+
       XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }
@@ -173,6 +175,7 @@ class AutomaticRetryTests: XCTestCase {
     for count in 0..<maxRetryCount {
       let policy = AutomaticRetry.ReconnectionPolicy.exponential(minDelay: UInt(8.0), maxDelay: UInt(maxDelay))
       let delay = policy.delay(for: count)
+
       XCTAssertTrue(delayForRetry[count].contains(delay))
     }
   }

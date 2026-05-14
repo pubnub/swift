@@ -9,8 +9,8 @@
 //
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class URLQueryItemPubNubTests: XCTestCase {
   func test_FirstIndex_WithExistingName_ReturnsCorrectIndex() {

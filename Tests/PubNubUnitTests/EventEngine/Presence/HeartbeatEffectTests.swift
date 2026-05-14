@@ -8,7 +8,6 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
@@ -72,6 +71,7 @@ private extension HeartbeatEffectTests {
       task.mockError = nil
       task.mockData = mockData
       task.mockResponse = HTTPURLResponse(statusCode: response.status)
+
       return task
     }
 

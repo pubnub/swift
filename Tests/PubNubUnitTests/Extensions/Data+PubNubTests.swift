@@ -10,8 +10,8 @@
 
 import Foundation
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class DataPubNubTests: XCTestCase {
   func test_HexEncodedString_WithValidUTF8Data_RoundTripsCorrectly() throws {

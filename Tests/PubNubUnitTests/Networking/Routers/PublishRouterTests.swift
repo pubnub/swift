@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class PublishRouterTests: XCTestCase {
   let testMessage: AnyJSON = "Test Message"

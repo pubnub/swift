@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class DateFormatterPubNubTests: XCTestCase {
   func test_CurrentDateString_WhenFormatted_MatchesCurrentDateWithinOneSecond() throws {

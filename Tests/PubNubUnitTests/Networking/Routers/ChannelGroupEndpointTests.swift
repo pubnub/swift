@@ -102,10 +102,11 @@ extension ChannelGroupsRouterTests {
     pubnub.remove(channelGroup: testGroupName) { result in
       switch result {
       case .success:
-        expectation.fulfill()
+        break
       case let .failure(error):
         XCTFail("Group Delete request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
@@ -219,10 +220,11 @@ extension ChannelGroupsRouterTests {
     pubnub.add(channels: testChannels, to: testGroupName) { result in
       switch result {
       case .success:
-        expectation.fulfill()
+        break
       case let .failure(error):
         XCTFail("Group Channels Add request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
@@ -317,10 +319,11 @@ extension ChannelGroupsRouterTests {
     pubnub.remove(channels: testChannels, from: testGroupName) { result in
       switch result {
       case .success:
-        expectation.fulfill()
+        break
       case let .failure(error):
         XCTFail("Group Channels Remove request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)

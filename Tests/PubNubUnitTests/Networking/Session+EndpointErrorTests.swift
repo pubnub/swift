@@ -30,7 +30,9 @@ final class SessionEndpointErrorTests: XCTestCase {
           let request = task.originalRequest,
           let response = task.httpResponse
         else {
-          return XCTFail("Could not get task")
+          XCTFail("Could not get task")
+          expectation.fulfill()
+          return
         }
 
         let pubnubError = PubNubError(

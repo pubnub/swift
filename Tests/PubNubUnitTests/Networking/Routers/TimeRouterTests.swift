@@ -14,13 +14,13 @@ import XCTest
 final class TimeRouterTests: XCTestCase {
   let config = TestPubNubFactory.makeConfig()
 
-  func test_TimeRouter_WithValidConfig_SetsExpectedEndpoint() {
+  func test_TimeRouter_WithValidConfig_SetsExpectedEndpoint() throws {
     let router = TimeRouter(.time, configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Time")
     XCTAssertEqual(router.category, "Time")
-    XCTAssertEqual(try? router.path.get(), "/time/0")
-    XCTAssertEqual(try? router.queryItems.get(), router.defaultQueryItems)
+    XCTAssertEqual(try router.path.get(), "/time/0")
+    XCTAssertEqual(try router.queryItems.get(), router.defaultQueryItems)
     XCTAssertEqual(router.pamVersion, .none)
     XCTAssertEqual(router.keysRequired, .none)
     XCTAssertEqual(router.service, .time)

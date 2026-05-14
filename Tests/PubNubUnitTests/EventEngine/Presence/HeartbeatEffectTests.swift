@@ -64,13 +64,14 @@ class HeartbeatEffectTests: XCTestCase {
 private extension HeartbeatEffectTests {
   func makeFactory(mockingResponse response: GenericServicePayloadResponse) throws -> PresenceEffectFactory {
     let mockData = try XCTUnwrap(Constant.jsonEncoder.encode(response))
+    let mockResponse = try XCTUnwrap(HTTPURLResponse(statusCode: response.status))
     let delegate = HTTPSessionDelegate()
     let mockUrlSession = MockURLSession(delegate: delegate)
 
     mockUrlSession.responseForDataTask = { task, _ in
       task.mockError = nil
       task.mockData = mockData
-      task.mockResponse = HTTPURLResponse(statusCode: response.status)
+      task.mockResponse = mockResponse
 
       return task
     }

@@ -544,10 +544,10 @@ extension ObjectsUserRouterTests {
     let sessions = try MockURLSession.mockSession(for: ["objects_uuid_remove_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.removeUserMetadata(nil) { [weak pubnub] result in
+    pubnub.removeUserMetadata(nil) { [unowned pubnub] result in
       switch result {
       case let .success(metadataId):
-        XCTAssertEqual(metadataId, pubnub?.configuration.userId)
+        XCTAssertEqual(metadataId, pubnub.configuration.userId)
       case let .failure(error):
         XCTFail("Delete request failed with error: \(error.localizedDescription)")
       }

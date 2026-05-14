@@ -106,11 +106,8 @@ class AnyJSONCodableTests: XCTestCase {
 
     XCTAssertEqual(jsonLiteralData, jsonData)
 
-    let valueLiteral = String(bytes: jsonLiteralData, encoding: .utf8)
-    let valueJson = String(bytes: jsonData, encoding: .utf8)
-
-    XCTAssertNotNil(valueLiteral)
-    XCTAssertNotNil(valueJson)
+    let valueLiteral = try XCTUnwrap(String(bytes: jsonLiteralData, encoding: .utf8))
+    let valueJson = try XCTUnwrap(String(bytes: jsonData, encoding: .utf8))
 
     XCTAssertEqual(valueLiteral, "\"\(testValue)\"")
     XCTAssertEqual(valueJson, "\"\(testValue)\"")

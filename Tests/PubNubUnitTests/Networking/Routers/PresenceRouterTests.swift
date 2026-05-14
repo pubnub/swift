@@ -17,6 +17,11 @@ final class PresenceRouterTests: XCTestCase {
   let channelName = "TestChannel"
   let otherChannel = "OtherTestChannel"
 
+  override func setUp() {
+    super.setUp()
+    PubNubPresenceStateContainer.shared.removeAll()
+  }
+
   override func tearDown() {
     PubNubPresenceStateContainer.shared.removeAll()
     super.tearDown()

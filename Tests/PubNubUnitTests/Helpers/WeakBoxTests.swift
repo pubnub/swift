@@ -12,7 +12,6 @@ import XCTest
 @testable import PubNubSDK
 
 class WeakBoxTests: XCTestCase {
-  var strongValue = DeinitTest(value: "TestValue")
 
   class DeinitTest: Hashable {
     static func == (lhs: WeakBoxTests.DeinitTest, rhs: WeakBoxTests.DeinitTest) -> Bool {
@@ -36,6 +35,7 @@ class WeakBoxTests: XCTestCase {
   }
 
   func test_WithStrongReference_ContainsValue() {
+    let strongValue = DeinitTest(value: "TestValue")
     let weakBox = WeakBox(strongValue)
 
     XCTAssertNotNil(weakBox.underlying)

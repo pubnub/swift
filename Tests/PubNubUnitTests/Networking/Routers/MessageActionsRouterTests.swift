@@ -315,10 +315,11 @@ extension MessageActionsRouterTests {
     ) { result in
       switch result {
       case .success:
-        expectation.fulfill()
+        break
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)

@@ -283,21 +283,17 @@ extension PublishRouterTests {
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.customMessageType.rawValue, value: "type")))
   }
 
-  func test_FilePublishRouter_WithAdditionalDetails_MatchesDecodedPayload() {
+  func test_FilePublishRouter_WithAdditionalDetails_MatchesDecodedPayload() throws {
     let file = FilePublishPayload(
       channel: "",
       fileId: testFileId, filename: testFilename,
       additionalDetails: testCustom
     )
 
-    do {
-      let jsonMessage = try ImportTestResource.importResource("publish_file_body_raw")
-      let jsonFilePublish = try Constant.jsonDecoder.decode(FilePublishPayload.self, from: jsonMessage)
+    let jsonMessage = try ImportTestResource.importResource("publish_file_body_raw")
+    let jsonFilePublish = try Constant.jsonDecoder.decode(FilePublishPayload.self, from: jsonMessage)
 
-      XCTAssertEqual(file, jsonFilePublish)
-    } catch {
-      XCTFail("Could not create test resources due to \(error)")
-    }
+    XCTAssertEqual(file, jsonFilePublish)
   }
 
   func test_FilePublishRouter_WithEmptyChannel_ReturnsValidationError() {

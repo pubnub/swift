@@ -87,7 +87,7 @@ private extension LeaveEffectTests {
     )
     return PresenceEffectFactory(
       session: httpSession,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
   }
 }

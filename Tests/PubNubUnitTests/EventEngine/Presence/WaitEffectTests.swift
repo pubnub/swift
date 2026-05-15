@@ -109,7 +109,7 @@ private extension WaitEffectTests {
 
     return PresenceEffectFactory(
       session: httpSession,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
   }
 }

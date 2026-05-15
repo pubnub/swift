@@ -178,7 +178,7 @@ private extension SubscribeEffectsTests {
 
     return SubscribeEffectFactory(
       session: httpSession,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
   }
 }

@@ -40,7 +40,7 @@ class EventEngineSubscriptionSessionStrategyTests: XCTestCase {
       configuration: config,
       subscribeEngine: subscribeEngine,
       presenceEngine: presenceEngine,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
 
     // Verify initial state

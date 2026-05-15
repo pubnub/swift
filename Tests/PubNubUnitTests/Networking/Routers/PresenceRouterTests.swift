@@ -16,16 +16,6 @@ final class PresenceRouterTests: XCTestCase {
 
   let channelName = "TestChannel"
   let otherChannel = "OtherTestChannel"
-
-  override func setUp() {
-    super.setUp()
-    PubNubPresenceStateContainer.shared.removeAll()
-  }
-
-  override func tearDown() {
-    PubNubPresenceStateContainer.shared.removeAll()
-    super.tearDown()
-  }
 }
 
 // MARK: - HereNow Tests
@@ -418,7 +408,7 @@ extension PresenceRouterTests {
   }
 
   func test_Heartbeat_WithEventEngineEnabled_IncludesStateAndEEParams() throws {
-    let stateContainer = PubNubPresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer()
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 
@@ -459,7 +449,7 @@ extension PresenceRouterTests {
   }
 
   func test_Heartbeat_WithEventEngineDisabled_ExcludesStateAndEEParams() throws {
-    let stateContainer = PubNubPresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer()
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 
@@ -491,7 +481,7 @@ extension PresenceRouterTests {
   }
 
   func test_Heartbeat_WithMaintainPresenceStateDisabled_ExcludesStateParam() throws {
-    let stateContainer = PubNubPresenceStateContainer.shared
+    let stateContainer = PubNubPresenceStateContainer()
     stateContainer.registerState(["x": 1], forChannels: ["c1"])
     stateContainer.registerState(["a": "someText"], forChannels: ["c2"])
 

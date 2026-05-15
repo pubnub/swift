@@ -11,8 +11,6 @@
 import Foundation
 
 class PubNubPresenceStateContainer {
-  static let shared: PubNubPresenceStateContainer = PubNubPresenceStateContainer()
-
   private var channelStates: Atomic<[String: JSONCodable]> = Atomic([:])
   init() {}
 

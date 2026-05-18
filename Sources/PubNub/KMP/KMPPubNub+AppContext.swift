@@ -577,5 +577,4 @@ public extension KMPPubNub {
       }
     }
   }
-  // swiftlint:disable:next file_length
 }

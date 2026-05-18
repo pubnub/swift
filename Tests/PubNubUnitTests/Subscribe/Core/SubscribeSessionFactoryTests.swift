@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class SubscribeSessionFactoryTests: XCTestCase {
   func testLoggingSameInstance() {
@@ -33,7 +33,7 @@ class SubscribeSessionFactoryTests: XCTestCase {
       userId: UUID().uuidString,
       authKey: "SomeNewKey"
     )
-    
+
     let dependencyContainer = DependencyContainer(configuration: config)
     let nextDependencyContainer = DependencyContainer(configuration: newConfig)
     let first = dependencyContainer.subscriptionSession

@@ -8,15 +8,13 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class URLPubNubTests: XCTestCase {
-  func testAppendingQueryItems() {
+  func test_AppendingQueryItems_WithExistingQuery_AppendsNewItem() throws {
     let testString = "https://example.com?one=two&key=value"
-    guard let url = URL(string: "https://example.com?one=two") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+    let url = try XCTUnwrap(URL(string: "https://example.com?one=two"))
     let queryItem = URLQueryItem(name: "key", value: "value")
 
     let newURL = url.appendingQueryItems([queryItem])
@@ -24,11 +22,9 @@ final class URLPubNubTests: XCTestCase {
     XCTAssertEqual(newURL?.absoluteString, testString)
   }
 
-  func testAppendingQueryItems_NonePrevious() {
+  func test_AppendingQueryItems_WithNoExistingQuery_CreatesQueryString() throws {
     let testString = "https://example.com?key=value"
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+    let url = try XCTUnwrap(URL(string: "https://example.com"))
     let queryItem = URLQueryItem(name: "key", value: "value")
 
     let newURL = url.appendingQueryItems([queryItem])

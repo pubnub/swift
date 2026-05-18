@@ -19,7 +19,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
-    
+
     client.publish(channel: channelName, message: "TestPublish") { result in
       switch result {
       case .success:
@@ -29,7 +29,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       }
       publishExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.deleteMessageHistory(
@@ -47,7 +47,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let testChannel = randomString()
-    
+
     client.signal(
       channel: testChannel,
       message: ["$": "35.75", "HI": "b62", "t": "BO", "X": "Lorem ipsum dolor sit amet"]
@@ -69,7 +69,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let channelName = randomString()
-    
+
     client.publish(
       channel: channelName,
       message: "TestCompressedPublish",
@@ -83,7 +83,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       }
       compressedPublishExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.deleteMessageHistory(
@@ -252,7 +252,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
     let subscription = firstClient
       .channel(channelForFistClient)
       .subscription()
-    
+
     let subscriptionFromSecondClient = secondClient
       .channel(channelForSecondClient)
       .subscription()
@@ -265,7 +265,7 @@ class PublishEndpointIntegrationTests: XCTestCase {
       XCTAssertEqual(message.payload.stringOptional, "This is a message")
       subscribeExpect.fulfill()
     }
-    
+
     subscription.subscribe()
     subscriptionFromSecondClient.subscribe()
 

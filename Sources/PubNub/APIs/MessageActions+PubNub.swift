@@ -118,6 +118,7 @@ public extension PubNub {
             additional: errorPayload.details
           )
           completion?(.failure(error))
+          return
         }
         completion?(.success(PubNubMessageActionBase(from: response.payload.data, on: channel)))
       case let .failure(error):
@@ -179,8 +180,8 @@ public extension PubNub {
             additional: errorPayload.details
           )
           completion?(.failure(error))
+          return
         }
-
         completion?(.success((channel, timetoken, actionTimetoken)))
       case let .failure(error):
         completion?(.failure(error))

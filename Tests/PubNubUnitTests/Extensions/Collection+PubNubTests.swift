@@ -8,25 +8,25 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class CollectionPubNubTests: XCTestCase {
-  func testCSVString() {
+  func test_CSVString_WithMultipleElements_ReturnsCommaSeparatedString() {
     let csvInput = ["one", "two", "three", "four"]
     let csvOutput = "one,two,three,four"
 
     XCTAssertEqual(csvInput.csvString, csvOutput)
   }
 
-  func testHeaderQualityEncoded() {
+  func test_HeaderQualityEncoded_WithFourElements_ReturnsDecrementingQualityValues() {
     let headerInput = ["one", "two", "three", "four"]
     let headerOutput = "one;q=1.0, two;q=0.9, three;q=0.8, four;q=0.7"
 
     XCTAssertEqual(headerInput.headerQualityEncoded, headerOutput)
   }
 
-  func testHeaderQualityEncoded_Overflow() {
+  func test_HeaderQualityEncoded_WithOverflowElements_ReturnsJoinedWithoutQuality() {
     let headerInput = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
 
     XCTAssertEqual(headerInput.headerQualityEncoded, headerInput.joined(separator: ", "))

@@ -10,7 +10,6 @@
 
 import Foundation
 
-// swiftlint:disable:next type_body_length
 class LegacySubscriptionSessionStrategy: SubscriptionSessionStrategy {
   let uuid = UUID()
   let longPollingSession: SessionReplaceable

@@ -8,15 +8,17 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class DispatchQueuePubNubTests: XCTestCase {
-  func testCurrentLabel() {
-    let queue = DispatchQueue(label: "test label")
+  private let testQueueLabel = "Test label"
+
+  func test_CurrentLabel_WhenExecutingOnNamedQueue_ReturnsQueueLabel() {
+    let queue = DispatchQueue(label: testQueueLabel)
 
     queue.sync {
-      XCTAssertEqual(DispatchQueue.currentLabel, "test label")
+      XCTAssertEqual(DispatchQueue.currentLabel, testQueueLabel)
     }
   }
 }

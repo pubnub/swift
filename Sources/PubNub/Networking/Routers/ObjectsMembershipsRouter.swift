@@ -499,5 +499,4 @@ public struct ObjectMetadataPartial: Codable {
       try uuidContainer.encodeIfPresent(uuid?.metadataId, forKey: .id)
     }
   }
-  // swiftlint:disable:next file_length
 }

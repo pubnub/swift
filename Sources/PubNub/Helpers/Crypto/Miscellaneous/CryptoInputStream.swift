@@ -13,7 +13,6 @@ import CommonCrypto
 
 /// A stream that provides read-only stream functionality while performing crypto operations
 public class CryptoInputStream: InputStream {
-  // swiftlint:disable:previous type_body_length
   public struct DataSource {
     let key: Data
     let iv: Data
@@ -523,5 +522,4 @@ public class CryptoInputStream: InputStream {
 
   override public func schedule(in _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
   override public func remove(from _: RunLoop, forMode _: RunLoop.Mode) { /* no-op */ }
-  // swiftlint:disable:next file_length
 }

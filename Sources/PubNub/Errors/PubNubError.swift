@@ -564,6 +564,4 @@ extension Collection where Element == PubNubError.AffectedValue {
     }
     return nil
   }
-
-  // swiftlint:disable:next file_length
 }

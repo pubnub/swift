@@ -8,105 +8,104 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
 
 class PresenceInputTests: XCTestCase {
-  func test_InitWithChannelsAndGroups() {
+  func test_Init_WithChannelsAndGroups_StoresValues() {
     let input = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
-    
+
     XCTAssertTrue(input.channels.sorted(by: <).elementsEqual(["c1", "c2"]))
     XCTAssertTrue(input.groups.sorted(by: <).elementsEqual(["g1", "g2"]))
     XCTAssertFalse(input.isEmpty)
   }
-  
-  func test_InitEmpty() {
+
+  func test_Init_WithNoArguments_IsEmpty() {
     let input = PresenceInput()
-    
+
     XCTAssertTrue(input.channels.isEmpty)
     XCTAssertTrue(input.groups.isEmpty)
     XCTAssertTrue(input.isEmpty)
   }
-  
-  func test_InitRemovesDuplicates() {
+
+  func test_Init_WithDuplicateEntries_DeduplicatesChannelsAndGroups() {
     let input = PresenceInput(channels: ["c1", "c1", "c2"], groups: ["g1", "g2", "g2"])
-    
+
     XCTAssertTrue(input.channels.sorted(by: <).elementsEqual(["c1", "c2"]))
     XCTAssertTrue(input.groups.sorted(by: <).elementsEqual(["g1", "g2"]))
   }
-  
-  func test_AdditionOperator() {
+
+  func test_Addition_WithDisjointInputs_CombinesAll() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1"])
     let input2 = PresenceInput(channels: ["c3"], groups: ["g2", "g3"])
     let result = input1 + input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c1", "c2", "c3"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g1", "g2", "g3"]))
   }
-  
-  func test_AddWithDuplicates() {
+
+  func test_Addition_WithOverlappingInputs_DeduplicatesResult() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let input2 = PresenceInput(channels: ["c2", "c3"], groups: ["g2", "g3"])
     let result = input1 + input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c1", "c2", "c3"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g1", "g2", "g3"]))
   }
-  
-  func test_SubtractionOperator() {
+
+  func test_Subtraction_WithExistingEntries_RemovesMatchingItems() {
     let input1 = PresenceInput(channels: ["c1", "c2", "c3"], groups: ["g1", "g2", "g3"])
     let input2 = PresenceInput(channels: ["c1", "c3"], groups: ["g1", "g3"])
     let result = input1 - input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c2"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g2"]))
   }
-  
-  func test_SubtractNonExistent() {
+
+  func test_Subtraction_WithNonExistentEntries_IgnoresMissingItems() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2", "g3"])
     let input2 = PresenceInput(channels: ["c1", "c3", "c4"], groups: ["g1", "g3", "g5"])
     let result = input1 - input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c2"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g2"]))
   }
-  
-  func test_Equality() {
+
+  func test_Equality_WithSameElementsDifferentOrder_ReturnsTrue() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let input2 = PresenceInput(channels: ["c2", "c1"], groups: ["g2", "g1"])
     let input3 = PresenceInput(channels: ["c1", "c3"], groups: ["g1", "g2"])
-    
+
     XCTAssertTrue(input1 == input2)
     XCTAssertFalse(input1 == input3)
   }
-  
-  func test_AddEmptyInput() {
+
+  func test_Addition_WithEmptyInput_ReturnsOriginalUnchanged() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let input2 = PresenceInput()
     let result = input1 + input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c1", "c2"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g1", "g2"]))
     XCTAssertTrue(result == input1)
   }
-  
-  func test_SubtractEmptyInput() {
+
+  func test_Subtraction_WithEmptyInput_ReturnsOriginalUnchanged() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let input2 = PresenceInput()
     let result = input1 - input2
-    
+
     XCTAssertTrue(result.channels.sorted(by: <).elementsEqual(["c1", "c2"]))
     XCTAssertTrue(result.groups.sorted(by: <).elementsEqual(["g1", "g2"]))
     XCTAssertTrue(result == input1)
   }
-  
-  func test_SubtractAll() {
+
+  func test_Subtraction_WithAllEntries_ReturnsEmptyInput() {
     let input1 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let input2 = PresenceInput(channels: ["c1", "c2"], groups: ["g1", "g2"])
     let result = input1 - input2
-    
+
     XCTAssertTrue(result.channels.isEmpty)
     XCTAssertTrue(result.groups.isEmpty)
     XCTAssertTrue(result.isEmpty)

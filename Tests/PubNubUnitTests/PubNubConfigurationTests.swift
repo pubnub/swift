@@ -8,20 +8,16 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class PubNubConfigurationTests: XCTestCase {
   let publishDictionaryKey = "PubNubPubKey"
   let subscribeDictionaryKey = "PubNubSubKey"
-
   let plistPublishKeyValue = "demo"
   let plistSubscribeKeyValue = "demo"
-
   let publishKeyValue = "NotARealPublishKey"
   let subscribeKeyValue = "NotARealSubscribeKey"
-
-  // Info.plist for the PubNubTests Target Bundle
   let testsBundle = Bundle(for: PubNubConfigurationTests.self)
 
   func testDefault() {

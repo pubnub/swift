@@ -8,41 +8,18 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
 
-fileprivate class MockListener: BaseSubscriptionListener {
-  var onEmitMessagesCalled: ([SubscribeMessagePayload]) -> Void = { _ in }
-  var onEmitSubscribeEventCalled: ((PubNubSubscribeEvent) -> Void) = { _ in }
-  
-  override func emit(batch: [SubscribeMessagePayload]) {
-    onEmitMessagesCalled(batch)
-  }
-  override func emit(subscribe: PubNubSubscribeEvent) {
-    onEmitSubscribeEventCalled(subscribe)
-  }
-}
-
 class EmitMessagesTests: XCTestCase {
-  private var subscriptions: [MockListener] = []
-  
-  override func setUp() {
-    subscriptions = (0...2).map { _ in MockListener() }
-    super.setUp()
-  }
-  
-  override func tearDown() {
-    subscriptions = []
-    super.tearDown()
-  }
-  
-  func testListener_WithMessage() {
+  func test_EmitMessages_DeliversAllMessageTypesToListeners() throws {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
-    
+
     let messages = [
       testMessage,
       testSignal,
@@ -51,62 +28,70 @@ class EmitMessagesTests: XCTestCase {
       testFile,
       testPresenceChange
     ]
+
     let effect = EmitMessagesEffect(
       messages: messages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
       subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
-    
+
     subscriptions.forEach {
       $0.onEmitMessagesCalled = { receivedMessages in
         XCTAssertTrue(receivedMessages.map { $0.messageType } == messages.map { $0.messageType })
         expectation.fulfill()
       }
     }
-    
+
     effect.performTask(completionBlock: { _ in })
-    
+
     wait(for: [expectation], timeout: 0.35)
   }
-  
-  func testListener_MessageCountExceededMaximum() {
+
+  func test_EmitMessages_WhenCountExceedsMaximum_EmitsErrorToListeners() throws {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
-    
+
     let generatedMessages = (1...100).map {
       generateMessage(
         with: .message,
         payload: AnyJSON("Hello, it's message number \($0)")
       )
     }
+
     let effect = EmitMessagesEffect(
       messages: generatedMessages,
       cursor: SubscribeCursor(timetoken: 12345, region: 11),
       subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
-    
-    subscriptions.forEach() {
+
+    subscriptions.forEach {
       $0.onEmitSubscribeEventCalled = { event in
         if case let .errorReceived(error) = event {
           XCTAssertTrue(error.reason == .messageCountExceededMaximum)
-          expectation.fulfill()
+        } else {
+          XCTFail("Expected .errorReceived but received \(event)")
         }
+        expectation.fulfill()
       }
     }
-    
+
     effect.performTask(completionBlock: { _ in })
-    
+
     wait(for: [expectation], timeout: 0.1)
   }
-  
-  func testEffect_SkipsDuplicatedMessages() {
+
+  func test_EmitMessages_WithDuplicateMessages_SkipsDuplicates() throws {
+    let subscriptions = makeListeners()
+
     let expectation = XCTestExpectation(description: "Emit Messages")
     expectation.assertForOverFulfill = true
     expectation.expectedFulfillmentCount = subscriptions.count
-    
+
     let generatedMessages = (1...50).map { _ in
       generateMessage(
         with: .message,
@@ -119,21 +104,23 @@ class EmitMessagesTests: XCTestCase {
       subscriptions: WeakSet(subscriptions),
       messageCache: MessageCache()
     )
-    
+
     subscriptions.forEach {
       $0.onEmitMessagesCalled = { messages in
-        XCTAssertTrue(messages.count == 1)
-        XCTAssertTrue(messages[0].payload == "Hello, it's a message")
+        XCTAssertEqual(messages.count, 1, "Expected to produce exactly one message")
+        XCTAssertEqual(messages.first?.payload, "Hello, it's a message")
         expectation.fulfill()
       }
     }
-    
+
     effect.performTask(completionBlock: { _ in })
-    
+
     wait(for: [expectation], timeout: 0.1)
   }
-  
-  func testEffect_MessageCacheDropsTheOldestMessages() {
+
+  func test_EmitMessages_WhenCacheFull_DropsOldestMessages() throws {
+    let subscriptions = makeListeners()
+
     let initialMessages = (1...99).map { idx in
       generateMessage(
         with: .message,
@@ -155,36 +142,46 @@ class EmitMessagesTests: XCTestCase {
       subscriptions: WeakSet(subscriptions),
       messageCache: cache
     )
-    
-    effect.performTask(completionBlock: { _ in })
-    
+
+    let completionExpect = expectation(description: "Effect completed")
+
+    effect.performTask(completionBlock: { _ in
+      completionExpect.fulfill()
+    })
+
+    wait(for: [completionExpect], timeout: 1.0)
+
     let allCachedMessages = cache.messagesArray.compactMap { $0 }
     let expectedDroppedMssgs = Array(initialMessages[0...9])
-        
+
     for droppedMssg in expectedDroppedMssgs {
       XCTAssertFalse(allCachedMessages.contains(droppedMssg))
     }
-    for newMessage in allCachedMessages {
+    for newMessage in newMessages {
       XCTAssertTrue(allCachedMessages.contains(newMessage))
     }
   }
 }
 
-fileprivate extension EmitMessagesTests {
+private extension EmitMessagesTests {
+  func makeListeners(count: Int = 3) -> [MockListener] {
+    (0..<count).map { _ in MockListener() }
+  }
+
   var testMessage: SubscribeMessagePayload {
     generateMessage(
       with: .message,
       payload: "Hello, this is a message"
     )
   }
-  
+
   var testSignal: SubscribeMessagePayload {
     generateMessage(
       with: .signal,
       payload: "Hello, this is a signal"
     )
   }
-  
+
   var testObject: SubscribeMessagePayload {
     generateMessage(
       with: .object,
@@ -199,7 +196,7 @@ fileprivate extension EmitMessagesTests {
       )
     )
   }
-  
+
   var testMessageAction: SubscribeMessagePayload {
     generateMessage(
       with: .messageAction,
@@ -218,7 +215,7 @@ fileprivate extension EmitMessagesTests {
       )
     )
   }
-  
+
   var testFile: SubscribeMessagePayload {
     generateMessage(
       with: .file,
@@ -233,7 +230,7 @@ fileprivate extension EmitMessagesTests {
       ))
     )
   }
-  
+
   var testPresenceChange: SubscribeMessagePayload {
     generateMessage(
       with: .presence,
@@ -252,7 +249,7 @@ fileprivate extension EmitMessagesTests {
       )
     )
   }
-  
+
   func generateMessage(
     with type: SubscribeMessagePayload.Action,
     payload: AnyJSON

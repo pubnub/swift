@@ -8,11 +8,10 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class WeakBoxTests: XCTestCase {
-  var strongValue = DeinitTest(value: "TestValue")
 
   class DeinitTest: Hashable {
     static func == (lhs: WeakBoxTests.DeinitTest, rhs: WeakBoxTests.DeinitTest) -> Bool {
@@ -35,14 +34,15 @@ class WeakBoxTests: XCTestCase {
     }
   }
 
-  func testWeakBox_ContainsStrongRef() {
+  func test_WithStrongReference_ContainsValue() {
+    let strongValue = DeinitTest(value: "TestValue")
     let weakBox = WeakBox(strongValue)
 
     XCTAssertNotNil(weakBox.underlying)
     XCTAssertEqual(weakBox.underlying, strongValue)
   }
 
-  func testWeakBox_Hashable() {
+  func test_EqualValues_AreHashableAndEqual() {
     let weakOne = WeakBox<NSString>("Test")
     let weakTwo = WeakBox<NSString>("Test")
 
@@ -53,21 +53,21 @@ class WeakBoxTests: XCTestCase {
 }
 
 class WeakSetTests: XCTestCase {
-  func testAllObject() {
+  func test_AllObjects_ReturnsStoredObjects() {
     let testObjects: [NSString] = ["Hello"]
     let weakSet = WeakSet<NSString>(testObjects)
 
     XCTAssertEqual(weakSet.allObjects, testObjects)
   }
 
-  func testCount() {
+  func test_Count_MatchesObjectCount() {
     let testObjects: [NSString] = ["Hello"]
     let weakSet = WeakSet<NSString>(testObjects)
 
     XCTAssertEqual(weakSet.count, testObjects.count)
   }
 
-  func testUpdate() {
+  func test_UpdateWithNewObject_IncrementsCount() {
     let testObjects: [NSString] = ["Hello"]
     let newObject: NSString = "New"
     var weakSet = WeakSet<NSString>(testObjects)
@@ -80,7 +80,7 @@ class WeakSetTests: XCTestCase {
     XCTAssertEqual(weakSet.count, testObjects.count + 1)
   }
 
-  func testRemove() {
+  func test_RemoveObject_BecomesEmpty() {
     let testObject: NSString = "Hello"
     let testObjects: [NSString] = [testObject]
 
@@ -91,7 +91,7 @@ class WeakSetTests: XCTestCase {
     XCTAssertTrue(weakSet.isEmpty)
   }
 
-  func testRemoveAll() {
+  func test_RemoveAll_BecomesEmpty() {
     let testObject: NSString = "Hello"
     let testObjects: [NSString] = [testObject]
 
@@ -101,7 +101,7 @@ class WeakSetTests: XCTestCase {
     XCTAssertTrue(weakSet.isEmpty)
   }
 
-  func testInsertingEqualObjects() {
+  func test_InsertEqualObject_DoesNotDuplicate() {
     let firstObject: NSString = "Hello"
     let secondObject: NSString = "Hello"
 
@@ -111,7 +111,7 @@ class WeakSetTests: XCTestCase {
     XCTAssertEqual(weakSet.count, 1)
   }
 
-  func testRemovingEqualObjects() {
+  func test_RemoveEqualObject_RemovesFromSet() {
     let firstObject: NSString = "Hello"
     let secondObject: NSString = "Hello"
 
@@ -121,7 +121,7 @@ class WeakSetTests: XCTestCase {
     XCTAssertTrue(weakSet.isEmpty)
   }
 
-  func testInitializingWithDuplicateObjects() {
+  func test_InitWithDuplicates_DeduplicatesObjects() {
     let firstObject: NSString = "Hello"
     let secondObject: NSString = "Hello"
     let thirdObject: NSString = "World"

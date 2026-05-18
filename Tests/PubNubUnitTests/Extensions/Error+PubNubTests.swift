@@ -8,18 +8,18 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class ErrorPubNubTests: XCTestCase {
-  func testPubNubErrorCast() {
+  func test_PubNubError_WhenCastingPubNubError_ReturnsNonNil() {
     let error: Error = PubNubError(.unknown)
 
     XCTAssertNotNil(error.pubNubError)
     XCTAssertNil(error.urlError)
   }
 
-  func testURLErrorCast() {
+  func test_URLError_WhenCastingURLError_ReturnsNonNil() {
     let error: Error = URLError(.unknown)
 
     XCTAssertNotNil(error.urlError)

@@ -8,51 +8,66 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class MessageActionsRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
+  let testChannel = "TestChannel"
+  let testMessageTimetoken: Timetoken = 15_610_547_826_969_050
+  let testActionTimetoken: Timetoken = 15_610_547_826_970_050
+
+  var testAction: PubNubMessageActionBase {
+    PubNubMessageActionBase(
+      actionType: "reaction", actionValue: "smiley_face",
+      actionTimetoken: testActionTimetoken, messageTimetoken: testMessageTimetoken,
+      publisher: "testUser", channel: testChannel
+    )
+  }
 }
 
 // MARK: - Fetch Message Actions Tests
 
 extension MessageActionsRouterTests {
-  func testFetch_Router() {
-    let router = MessageActionsRouter(.fetch(channel: "TestChannel", start: nil, end: nil, limit: nil),
-                                      configuration: config)
+  func test_FetchMessageActionsRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = MessageActionsRouter(
+      .fetch(channel: testChannel, start: nil, end: nil, limit: nil),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Fetch a List of Message Actions")
     XCTAssertEqual(router.category, "Fetch a List of Message Actions")
     XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testFetch_Router_ValidationError() {
-    let router = MessageActionsRouter(.fetch(channel: "", start: nil, end: nil, limit: nil),
-                                      configuration: config)
-
-    XCTAssertEqual(router.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: router))
-  }
-
-  func testFetch_Success() {
-    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let testAction = PubNubMessageActionBase(
-      actionType: "reaction", actionValue: "smiley_face",
-      actionTimetoken: 15_610_547_826_970_050, messageTimetoken: 15_610_547_826_969_050,
-      publisher: "testUser", channel: "TestChannel"
+  func test_FetchMessageActions_WhenChannelEmpty_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = MessageActionsRouter(
+      .fetch(channel: "", start: nil, end: nil, limit: nil),
+      configuration: config
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+    XCTAssertEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: router)
+    )
+  }
+
+  func test_FetchMessageActions_WithValidChannel_ReturnsActionsAndPaging() throws {
+    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_success"])
+
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.fetchMessageActions(channel: testChannel) { [testAction] result in
       switch result {
       case let .success((actions, next)):
-        XCTAssertEqual(try? actions.first?.transcode(), testAction)
+        do {
+          let action = try XCTUnwrap(actions.first)
+          XCTAssertEqual(try action.transcode(), testAction)
+        } catch {
+          XCTFail("Transcode failed with error: \(error)")
+        }
         XCTAssertEqual(next?.start, 15_610_547_826_970_050)
         XCTAssertEqual(next?.end, 15_645_905_639_093_361)
         XCTAssertEqual(next?.limit, 2)
@@ -66,20 +81,17 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_empty() {
+  func test_FetchMessageActions_WithNoActions_ReturnsEmptyList() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_success_empty"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+    pubnub.fetchMessageActions(channel: testChannel) { result in
       switch result {
       case let .success((actions, next)):
         XCTAssertTrue(actions.isEmpty)
         XCTAssertNil(next)
-
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
@@ -89,15 +101,13 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_400() {
+  func test_FetchMessageActions_WhenInvalidSubscribeKey_ReturnsInvalidSubscribeKeyError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_error_400"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_error_400"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+    pubnub.fetchMessageActions(channel: testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -110,15 +120,13 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_error_403() {
+  func test_FetchMessageActions_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["fetchMessageAction_error_403"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["fetchMessageAction_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.fetchMessageActions(channel: "TestChannel") { result in
+    pubnub.fetchMessageActions(channel: testChannel) { result in
       switch result {
       case .success:
         XCTFail("Request should fail.")
@@ -135,9 +143,10 @@ extension MessageActionsRouterTests {
 // MARK: - Add Message Actions Tests
 
 extension MessageActionsRouterTests {
-  func testAdd_Router() {
+  func test_AddMessageActionRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
     let router = MessageActionsRouter(
-      .add(channel: "TestChannel", type: "reaction", value: "smiley_face", timetoken: 0),
+      .add(channel: testChannel, type: "reaction", value: "smiley_face", timetoken: 0),
       configuration: config
     )
 
@@ -146,37 +155,33 @@ extension MessageActionsRouterTests {
     XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testAdd_Router_ValidationError() {
-    let router = MessageActionsRouter(.add(channel: "", type: "reaction", value: "smiley_face", timetoken: 0),
-                                      configuration: config)
-
-    XCTAssertEqual(router.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: router))
-  }
-
-  func testAdd_Success() {
-    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["addMessageAction_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let testAction = PubNubMessageActionBase(
-      actionType: "reaction", actionValue: "smiley_face",
-      actionTimetoken: 15_610_547_826_970_050, messageTimetoken: 15_610_547_826_969_050,
-      publisher: "testUser", channel: "TestChannel"
+  func test_AddMessageAction_WhenChannelEmpty_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = MessageActionsRouter(
+      .add(channel: "", type: "reaction", value: "smiley_face", timetoken: 0),
+      configuration: config
     )
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    XCTAssertEqual(
+      router.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: router)
+    )
+  }
+
+  func test_AddMessageAction_WithValidParams_ReturnsCreatedAction() throws {
+    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success"])
+
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
     pubnub.addMessageAction(
-      channel: "TestChannel",
+      channel: testChannel,
       type: "reaction", value: "smiley_face",
-      messageTimetoken: 15_610_547_826_969_050
-    ) { result in
+      messageTimetoken: testMessageTimetoken
+    ) { [testAction] result in
       switch result {
       case let .success(action):
         XCTAssertEqual(try? action.transcode(), testAction)
-
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
@@ -186,29 +191,20 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAdd_success_207() {
-    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 2
+  func test_AddMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
+    let expectation = self.expectation(description: "207 Partial Success Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["addMessageAction_success_207"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["addMessageAction_success_207"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let testAction = PubNubMessageActionBase(
-      actionType: "reaction", actionValue: "smiley_face",
-      actionTimetoken: 15_610_547_826_970_050, messageTimetoken: 15_610_547_826_969_050,
-      publisher: "testUser", channel: "TestChannel"
-    )
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.addMessageAction(
-      channel: "TestChannel",
+      channel: testChannel,
       type: "reaction", value: "smiley_face",
-      messageTimetoken: 15_610_547_826_969_050
+      messageTimetoken: testMessageTimetoken
     ) { result in
       switch result {
-      case let .success(action):
-        XCTAssertEqual(try? action.transcode(), testAction)
+      case .success:
+        XCTFail("Should not succeed when publish event failed")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
       }
@@ -218,18 +214,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAdd_error_400() {
+  func test_AddMessageAction_WhenBadRequest_ReturnsBadRequestError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_400"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["addMessageAction_error_400"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.addMessageAction(
-      channel: "TestChannel",
+      channel: testChannel,
       type: "reaction", value: "smiley_face",
-      messageTimetoken: 15_610_547_826_969_050
+      messageTimetoken: testMessageTimetoken
     ) { result in
       switch result {
       case .success:
@@ -244,18 +238,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAdd_error_403() {
+  func test_AddMessageAction_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_403"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["addMessageAction_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.addMessageAction(
-      channel: "TestChannel",
+      channel: testChannel,
       type: "reaction", value: "smiley_face",
-      messageTimetoken: 15_610_547_826_969_050
+      messageTimetoken: testMessageTimetoken
     ) { result in
       switch result {
       case .success:
@@ -269,18 +261,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testAdd_error_409() {
+  func test_AddMessageAction_WhenConflict_ReturnsConflictError() throws {
     let expectation = self.expectation(description: "409 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["addMessageAction_error_409"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["addMessageAction_error_409"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.addMessageAction(
-      channel: "TestChannel",
+      channel: testChannel,
       type: "reaction", value: "smiley_face",
-      messageTimetoken: 15_610_547_826_969_050
+      messageTimetoken: testMessageTimetoken
     ) { result in
       switch result {
       case .success:
@@ -298,61 +288,62 @@ extension MessageActionsRouterTests {
 // MARK: - Remove Message Actions Tests
 
 extension MessageActionsRouterTests {
-  func testRemove_Router() {
-    let router = MessageActionsRouter(.remove(channel: "TestChannel", message: 0, action: 0), configuration: config)
+  func test_RemoveMessageActionRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = MessageActionsRouter(.remove(channel: testChannel, message: 0, action: 0), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove a Message Action")
     XCTAssertEqual(router.category, "Remove a Message Action")
     XCTAssertEqual(router.service, .messageActions)
   }
 
-  func testRemove_Router_ValidationError() {
+  func test_RemoveMessageAction_WhenChannelEmpty_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig()
     let emptyChannel = MessageActionsRouter(.remove(channel: "", message: 0, action: 0), configuration: config)
-    XCTAssertEqual(emptyChannel.validationError?.pubNubError,
-                   PubNubError(.missingRequiredParameter, router: emptyChannel))
+
+    XCTAssertEqual(
+      emptyChannel.validationError?.pubNubError,
+      PubNubError(.missingRequiredParameter, router: emptyChannel)
+    )
   }
 
-  func testRemove_Success() {
+  func test_RemoveMessageAction_WithValidParams_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeMessageActions(
-      channel: "TestChannel",
-      message: 15_610_547_826_969_050,
-      action: 15_610_547_826_970_050
+      channel: testChannel,
+      message: testMessageTimetoken,
+      action: testActionTimetoken
     ) { result in
       switch result {
       case .success:
-        expectation.fulfill()
+        break
       case let .failure(error):
         XCTFail("Fetch All request failed with error: \(error.localizedDescription)")
       }
+      expectation.fulfill()
     }
 
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_success_207() {
-    let expectation = self.expectation(description: "Fetch All Endpoint Expectation")
-    expectation.expectedFulfillmentCount = 2
+  func test_RemoveMessageAction_WhenPartialSuccess207_ReturnsPublishError() throws {
+    let expectation = self.expectation(description: "207 Partial Success Expectation")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_success_207"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_success_207"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeMessageActions(
-      channel: "TestChannel",
-      message: 15_610_547_826_969_050,
-      action: 15_610_547_826_970_050
+      channel: testChannel,
+      message: testMessageTimetoken,
+      action: testActionTimetoken
     ) { result in
       switch result {
       case .success:
-        break
+        XCTFail("Should not succeed when publish event failed")
       case let .failure(error):
         XCTAssertEqual(error.pubNubError?.reason, .failedToPublish)
       }
@@ -362,18 +353,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_400() {
+  func test_RemoveMessageAction_WhenNothingToDelete_ReturnsNothingToDeleteError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_400_noMessage"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_error_400_noMessage"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeMessageActions(
-      channel: "TestChannel",
-      message: 15_610_547_826_969_050,
-      action: 15_610_547_826_970_050
+      channel: testChannel,
+      message: testMessageTimetoken,
+      action: testActionTimetoken
     ) { result in
       switch result {
       case .success:
@@ -387,18 +376,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_400_NoMessage() {
+  func test_RemoveMessageAction_WhenInvalidUUID_ReturnsInvalidUUIDError() throws {
     let expectation = self.expectation(description: "400 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_400"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_error_400"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeMessageActions(
-      channel: "TestChannel",
-      message: 15_610_547_826_969_050,
-      action: 15_610_547_826_970_050
+      channel: testChannel,
+      message: testMessageTimetoken,
+      action: testActionTimetoken
     ) { result in
       switch result {
       case .success:
@@ -412,18 +399,16 @@ extension MessageActionsRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemove_error_403() {
+  func test_RemoveMessageAction_WhenForbidden_ReturnsForbiddenError() throws {
     let expectation = self.expectation(description: "403 Error Endpoint Expectation")
+    let sessions = try MockURLSession.mockSession(for: ["removeMessageAction_error_403"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["removeMessageAction_error_403"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeMessageActions(
-      channel: "TestChannel",
-      message: 15_610_547_826_969_050,
-      action: 15_610_547_826_970_050
+      channel: testChannel,
+      message: testMessageTimetoken,
+      action: testActionTimetoken
     ) { result in
       switch result {
       case .success:
@@ -441,25 +426,23 @@ extension MessageActionsRouterTests {
 // MARK: - MessageActions Response Payload
 
 extension MessageActionsRouterTests {
-  func testInit_Defaults() {
+  func test_MessageActionsResponsePayload_WithDefaults_SetsExpectedValues() {
     let payload = MessageActionsResponsePayload(actions: [], start: 123)
+
     XCTAssertEqual(payload.actions, [])
     XCTAssertEqual(payload.start, 123)
     XCTAssertEqual(payload.end, nil)
     XCTAssertEqual(payload.limit, nil)
   }
 
-  func testMessageActionPayload_Decode_InvalidTimetokenStrings() {
-    guard let action = ["uuid": "UUIDString", "type": "ActionType", "value": "ValueType",
-                        "actionTimetoken": "notTimetoken", "messageTimetoken": "notTimetoken"].jsonData
-    else {
-      return XCTFail("Could not convert object to data")
-    }
-    let payload = try? JSONDecoder().decode(MessageActionPayload.self, from: action)
+  func test_MessageActionPayload_WithInvalidTimetokenStrings_DecodesToZero() throws {
+    let action = try XCTUnwrap(
+      ["uuid": "UUIDString", "type": "ActionType", "value": "ValueType",
+       "actionTimetoken": "notTimetoken", "messageTimetoken": "notTimetoken"].jsonData
+    )
+    let payload = try JSONDecoder().decode(MessageActionPayload.self, from: action)
 
-    XCTAssertEqual(payload?.actionTimetoken, 0)
-    XCTAssertEqual(payload?.messageTimetoken, 0)
+    XCTAssertEqual(payload.actionTimetoken, 0)
+    XCTAssertEqual(payload.messageTimetoken, 0)
   }
-
-  // swiftlint:disable:next file_length
 }

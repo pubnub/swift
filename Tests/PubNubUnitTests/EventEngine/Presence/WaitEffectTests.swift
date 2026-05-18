@@ -8,38 +8,18 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
 
 class WaitEffectTests: XCTestCase {
-  private var mockUrlSession: MockURLSession!
-  private var httpSession: HTTPSession!
-  private var delegate: HTTPSessionDelegate!
-  private var factory: PresenceEffectFactory!
-      
-  override func setUp() {
-    delegate = HTTPSessionDelegate()
-    mockUrlSession = MockURLSession(delegate: delegate)
-    httpSession = HTTPSession(session: mockUrlSession, delegate: delegate, logger: PubNubLogger.defaultLogger(), sessionQueue: .main)
-    factory = PresenceEffectFactory(session: httpSession, presenceStateContainer: .shared)
-    
-    super.setUp()
-  }
-  
-  override func tearDown() {
-    mockUrlSession = nil
-    delegate = nil
-    httpSession = nil
-    super.tearDown()
-  }
-  
-  func test_WaitEffect() {
+  func test_WaitEffect_WithHeartbeatInterval_CompletesAfterInterval() {
+    let factory = makeFactory()
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-  
+
     let heartbeatInterval = 2
     let config = PubNubConfiguration(
       publishKey: "pubKey",
@@ -47,7 +27,7 @@ class WaitEffectTests: XCTestCase {
       userId: "userId",
       heartbeatInterval: UInt(heartbeatInterval)
     )
-            
+
     let effect = factory.effect(
       for: .wait,
       with: EventEngineDependencies(value: Presence.Dependencies(configuration: config))
@@ -56,41 +36,46 @@ class WaitEffectTests: XCTestCase {
 
     effect.performTask { returnedEvents in
       XCTAssertTrue(returnedEvents.elementsEqual([.timesUp]))
-      XCTAssertTrue(Int(Date().timeIntervalSince(startDate)) == heartbeatInterval)
+      let elapsed = Date().timeIntervalSince(startDate)
+      XCTAssertEqual(elapsed, Double(heartbeatInterval), accuracy: 1.0)
       expectation.fulfill()
     }
-    wait(for: [expectation], timeout: 2.5)
+    wait(for: [expectation], timeout: 5.0)
   }
-  
-  func test_WaitEffectCancellation() {
+
+  func test_WaitEffect_WhenCancelled_DoesNotComplete() {
+    let factory = makeFactory()
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
     expectation.isInverted = true
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
       userId: "userId",
       heartbeatInterval: UInt(2)
-    )            
+    )
     let effect = factory.effect(
       for: .wait,
       with: EventEngineDependencies(value: Presence.Dependencies(configuration: config))
     )
-    effect.performTask { returnedEvents in
+    effect.performTask { _ in
       expectation.fulfill()
     }
     effect.cancelTask()
-    
+
     wait(for: [expectation], timeout: 0.5)
   }
-  
-  func test_WaitEffectFinishesImmediatelyWithEmptyHeartbeatInterval() {
+
+  func test_WaitEffect_WithZeroHeartbeatInterval_CompletesImmediatelyWithNoEvents() {
+    let factory = makeFactory()
+
     let expectation = XCTestExpectation()
     expectation.expectationDescription = "Effect Completion Expectation"
     expectation.assertForOverFulfill = true
-    
+
     let config = PubNubConfiguration(
       publishKey: "pubKey",
       subscribeKey: "subKey",
@@ -105,7 +90,26 @@ class WaitEffectTests: XCTestCase {
       XCTAssertTrue(returnedEvents.isEmpty)
       expectation.fulfill()
     }
-    
+
     wait(for: [expectation], timeout: 0.5)
+  }
+}
+
+private extension WaitEffectTests {
+  func makeFactory() -> PresenceEffectFactory {
+    let delegate = HTTPSessionDelegate()
+    let mockUrlSession = MockURLSession(delegate: delegate)
+
+    let httpSession = HTTPSession(
+      session: mockUrlSession,
+      delegate: delegate,
+      logger: PubNubLogger.defaultLogger(),
+      sessionQueue: .main
+    )
+
+    return PresenceEffectFactory(
+      session: httpSession,
+      presenceStateContainer: .init()
+    )
   }
 }

@@ -23,6 +23,7 @@
 
 /* Begin PBXBuildFile section */
 		0162B986DE5A8773D6F8C8A0 /* Pods_PubNubContractTestsBeta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E812941F9706B958CD448B54 /* Pods_PubNubContractTestsBeta.framework */; };
+		1A39430AF65B1BAADB7590FA /* MockListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */; };
 		35012EB22850039D00CF7E0A /* PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8975284D323300DB0F3D /* PubNubUser.swift */; };
 		35012EB3285003A100CF7E0A /* Patcher+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8974284D323300DB0F3D /* Patcher+PubNubUser.swift */; };
 		35012EB5285003EC00CF7E0A /* PubNubUserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */; };
@@ -481,7 +482,7 @@
 		3DB925602B7A2B9B001B7E90 /* SubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */; };
 		3DB925622B7A2BCA001B7E90 /* SessionStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */; };
 		3DB925642B7A2BF5001B7E90 /* SubscriptionSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */; };
-		3DB925662B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */; };
+		3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */; };
 		3DB9257C2B7AA75F001B7E90 /* EventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256B2B7AA75F001B7E90 /* EventStream.swift */; };
 		3DB9257D2B7AA75F001B7E90 /* SubscriptionStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */; };
 		3DB9257E2B7AA75F001B7E90 /* PubNubEntityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */; };
@@ -529,6 +530,7 @@
 		7941EEA9270E433F0054D9EF /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
+		7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4633F013726A54716BF2443 /* TestPubNubFactory.swift */; };
 		84AE887E2C0D9CFA009FB148 /* KMPAnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
@@ -659,6 +661,7 @@
 
 /* Begin PBXFileReference section */
 		01F80D9221FA218C6E7D5572 /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
+		10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockListener.swift; sourceTree = "<group>"; };
 		1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserEvent.swift; sourceTree = "<group>"; };
 		35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipEvent.swift; sourceTree = "<group>"; };
@@ -1135,6 +1138,7 @@
 		3DA24A422C2AAB54005B959B /* KMPPubNub+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+AppContext.swift"; sourceTree = "<group>"; };
 		3DA24A442C2AABC0005B959B /* KMPPubNub+Files.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KMPPubNub+Files.swift"; sourceTree = "<group>"; };
 		3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+Integration.swift"; sourceTree = "<group>"; };
+		3DAB88AF2FB4729A00E2982F /* CODING_STANDARDS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CODING_STANDARDS.md; sourceTree = "<group>"; };
 		3DACC7F62AB88F8E00210B14 /* Data+CommonCrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+CommonCrypto.swift"; sourceTree = "<group>"; };
 		3DADDF962DCB4E8E001564C3 /* ChannelGroupEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelGroupEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3DB2C4862C0F4B250060B8CF /* KMPStatusListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPStatusListener.swift; sourceTree = "<group>"; };
@@ -1144,7 +1148,7 @@
 		3DB9255F2B7A2B9B001B7E90 /* SubscriptionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionTests.swift; sourceTree = "<group>"; };
 		3DB925612B7A2BCA001B7E90 /* SessionStreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionStreamTests.swift; sourceTree = "<group>"; };
 		3DB925632B7A2BF5001B7E90 /* SubscriptionSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionSetTests.swift; sourceTree = "<group>"; };
-		3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeMessagesGeneratorTests.swift; sourceTree = "<group>"; };
+		3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribePayloadFactory.swift; sourceTree = "<group>"; };
 		3DB9256B2B7AA75F001B7E90 /* EventStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventStream.swift; sourceTree = "<group>"; };
 		3DB9256D2B7AA75F001B7E90 /* SubscriptionStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionStream.swift; sourceTree = "<group>"; };
 		3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEntityEvent.swift; sourceTree = "<group>"; };
@@ -1212,6 +1216,7 @@
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUserMetadataContractTestSteps.swift; sourceTree = "<group>"; };
+		B4633F013726A54716BF2443 /* TestPubNubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPubNubFactory.swift; sourceTree = "<group>"; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
 		E812941F9706B958CD448B54 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB0696E0E433339FBC48D1D3 /* Pods-PubNubContractTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1407,7 +1412,6 @@
 				A5A0A0032E31A00100000003 /* API */,
 				A5A0A0042E31A00100000004 /* Core */,
 				A5A0A0052E31A00100000005 /* Legacy */,
-				A5A0A0062E31A00100000006 /* Mapping */,
 			);
 			path = Subscribe;
 			sourceTree = "<group>";
@@ -1637,14 +1641,10 @@
 			isa = PBXGroup;
 			children = (
 				355BEA0022C2CCBF000EC334 /* Responses */,
-				35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */,
-				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
-				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
-				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
-				35CDA4CD2510032B00218137 /* XMLEncoder.swift */,
-				35458BA4230D8E500085B502 /* TestLogWriter.swift */,
-				35458BA6230D91BB0085B502 /* TestSetup.swift */,
-				3D38A0092B35AF6A006928E7 /* EffectInvocation+Equatable.swift */,
+				DC16575797B99A4004452FDC /* Mocks */,
+				789DE320D1D8C62DC8BC6126 /* Helpers */,
+				903F2335F2AF964319AE5E82 /* Extensions */,
+				B1BF99D138AB06A25C22623D /* Factories */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1988,6 +1988,7 @@
 				3D3686832F7C0B4200918788 /* fastlane */,
 				3DD6AB102F879B34004196D1 /* AGENTS.md */,
 				3DD6AB112F879B34004196D1 /* CLAUDE.md */,
+				3DAB88AF2FB4729A00E2982F /* CODING_STANDARDS.md */,
 				OBJ_21 /* LICENSE */,
 				35DA9AAC2331674000867989 /* .swiftformat */,
 				35DA9AAB2331674000867989 /* .swiftlint.yml */,
@@ -2706,6 +2707,18 @@
 			path = JSON;
 			sourceTree = "<group>";
 		};
+		789DE320D1D8C62DC8BC6126 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				3580A5A022F139DD00B12E5E /* SessionStreamAwait.swift */,
+				35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */,
+				35458BA4230D8E500085B502 /* TestLogWriter.swift */,
+				35458BA6230D91BB0085B502 /* TestSetup.swift */,
+				35CDA4CD2510032B00218137 /* XMLEncoder.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		79407BBD271D4CDA0032076C /* PubNubContractTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -2801,6 +2814,14 @@
 			path = Files;
 			sourceTree = "<group>";
 		};
+		903F2335F2AF964319AE5E82 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				3D38A0092B35AF6A006928E7 /* EffectInvocation+Equatable.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		A311BADC0F7EA586FC713D4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -2867,14 +2888,6 @@
 			path = Legacy;
 			sourceTree = "<group>";
 		};
-		A5A0A0062E31A00100000006 /* Mapping */ = {
-			isa = PBXGroup;
-			children = (
-				3DB925652B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift */,
-			);
-			path = Mapping;
-			sourceTree = "<group>";
-		};
 		A5A0A0072E31A00100000007 /* JSON */ = {
 			isa = PBXGroup;
 			children = (
@@ -2897,6 +2910,15 @@
 			path = Objects;
 			sourceTree = "<group>";
 		};
+		B1BF99D138AB06A25C22623D /* Factories */ = {
+			isa = PBXGroup;
+			children = (
+				3DB925652B7A2C52001B7E90 /* SubscribePayloadFactory.swift */,
+				B4633F013726A54716BF2443 /* TestPubNubFactory.swift */,
+			);
+			path = Factories;
+			sourceTree = "<group>";
+		};
 		D2635DF922FCCE7A0097CF64 /* MessageCounts */ = {
 			isa = PBXGroup;
 			children = (
@@ -2905,6 +2927,16 @@
 				3559978123079001000BCFD1 /* message_counts_error_serviceNotEnabled.json */,
 			);
 			path = MessageCounts;
+			sourceTree = "<group>";
+		};
+		DC16575797B99A4004452FDC /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				35FE93B822EE44F70051C455 /* MockURLSession.swift */,
+				3580A5A722F1583900B12E5E /* MockRequestOperators.swift */,
+				10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		OBJ_12 /* Tests */ = {
@@ -3600,9 +3632,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3639,9 +3675,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -4156,7 +4196,9 @@
 				3580A5A822F1583900B12E5E /* MockRequestOperators.swift in Sources */,
 				35458BA7230D91BB0085B502 /* TestSetup.swift in Sources */,
 				357AEB8C22E6A12400C18250 /* HTTPURLResponse+PubNubTests.swift in Sources */,
-				3DB925662B7A2C52001B7E90 /* SubscribeMessagesGeneratorTests.swift in Sources */,
+				3DB925662B7A2C52001B7E90 /* SubscribePayloadFactory.swift in Sources */,
+				1A39430AF65B1BAADB7590FA /* MockListener.swift in Sources */,
+				7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */,
 				3580A59422F0C74100B12E5E /* RequestMutatorTests.swift in Sources */,
 				3D38A0112B35AF6B006928E7 /* SubscribeTransitionTests.swift in Sources */,
 				3D38A00B2B35AF6A006928E7 /* DispatcherTests.swift in Sources */,

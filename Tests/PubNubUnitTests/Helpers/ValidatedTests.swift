@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class ValidatedTests: XCTestCase {
   struct TestValidated: Validated {
@@ -20,7 +20,7 @@ class ValidatedTests: XCTestCase {
     }
   }
 
-  func testIsValid() {
+  func test_IsValid_ReturnsTrueWhenNoErrorAndFalseWhenError() {
     let validTest = TestValidated()
     XCTAssertNil(validTest.validationError)
     XCTAssertTrue(validTest.isValid)
@@ -31,13 +31,14 @@ class ValidatedTests: XCTestCase {
     XCTAssertFalse(invalidTest.isValid)
   }
 
-  func testValidResult() {
+  func test_ValidResult_SucceedsOrThrowsBasedOnError() {
     let validTest = TestValidated()
     XCTAssertNil(validTest.validationError)
     XCTAssertNoThrow(try validTest.validResult.get())
 
     let testError = PubNubError(.invalidEndpointType)
     let invalidTest = TestValidated(mockError: testError)
+
     XCTAssertNotNil(invalidTest.validationError)
     XCTAssertThrowsError(try invalidTest.validResult.get(), "An error should be thrown") { error in
       XCTAssertEqual(error.pubNubError, testError)

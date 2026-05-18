@@ -8,15 +8,15 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class BoolPubNubTests: XCTestCase {
-  func testStringNumber_True() {
+  func test_StringNumber_WhenTrue_Returns1() {
     XCTAssertEqual(true.stringNumber, "1")
   }
 
-  func testStringNumber_False() {
+  func test_StringNumber_WhenFalse_Returns0() {
     XCTAssertEqual(false.stringNumber, "0")
   }
 }

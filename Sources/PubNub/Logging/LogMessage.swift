@@ -485,5 +485,3 @@ extension LogMessageContent {
     }
   }
 }
-
-// swiftlint:disable:this file_length

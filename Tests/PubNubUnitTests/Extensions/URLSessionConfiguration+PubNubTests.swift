@@ -8,11 +8,11 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class URLSessionConfigurationPubNubTests: XCTestCase {
-  func testPubNubConfiguration() {
+  func test_PubNubConfiguration_WhenAccessed_ReturnsDefaultHeaders() {
     let config = URLSessionConfiguration.pubnub
 
     let defaultHeaders = [
@@ -23,7 +23,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
     XCTAssertEqual(config.headers, defaultHeaders)
   }
 
-  func testSubscriptionConfiguration() {
+  func test_SubscriptionConfiguration_WhenAccessed_ReturnsCorrectHeadersAndTimeout() {
     let config = URLSessionConfiguration.subscription
 
     let defaultHeaders = [
@@ -41,7 +41,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
     XCTAssertEqual(config.httpMaximumConnectionsPerHost, 1)
   }
 
-  func testHeaders_GetSetHeaders() {
+  func test_Headers_WhenSetWithValues_ReturnsSameValues() {
     let config = URLSessionConfiguration.default
     let additionalHeaders = [
       Constant.acceptEncodingHeaderKey: Constant.defaultAcceptEncodingHeader
@@ -52,7 +52,7 @@ final class URLSessionConfigurationPubNubTests: XCTestCase {
     XCTAssertEqual(config.headers, additionalHeaders)
   }
 
-  func testHeaders_GetNil() {
+  func test_Headers_WhenNoHeadersSet_ReturnsEmptyDictionary() {
     let config = URLSessionConfiguration.default
 
     XCTAssertEqual(config.headers, [:])

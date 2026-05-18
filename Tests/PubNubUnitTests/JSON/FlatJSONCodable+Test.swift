@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class FlatJSONCodableTests: XCTestCase {
   struct Custom: FlatJSONCodable {
@@ -20,7 +20,7 @@ class FlatJSONCodableTests: XCTestCase {
     }
   }
 
-  func testFlatJSONCodable_init_optional() {
+  func test_InitWithOptionalDictionary_MatchesDirectInit() {
     let custom = Custom(flatJSON: ["value": "test"])
     let optionalCustom: [String: JSONCodableScalar]? = [
       "value": JSONCodableScalarType(stringValue: "test")
@@ -29,13 +29,13 @@ class FlatJSONCodableTests: XCTestCase {
     XCTAssertEqual(custom.codableValue, Custom(flatJSON: optionalCustom).codableValue)
   }
 
-  func testFlatJSONCodable_init_optionalEmpty() {
+  func test_InitWithNilOptional_MatchesEmptyDictInit() {
     let custom = Custom(flatJSON: [:])
 
     XCTAssertEqual(custom.codableValue, Custom(flatJSON: nil).codableValue)
   }
 
-  func testFlatJSONCodable_flatJSON() {
+  func test_FlatJSONProperty_ReturnsOriginalValue() {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
@@ -50,7 +50,7 @@ class FlatJSONCodableTests: XCTestCase {
 // MARK: Concrete Type Tests
 
 class FlatJSONTests: XCTestCase {
-  func testFlatJSON_init() {
+  func test_InitWithDictionary_MatchesTypedInit() {
     let custom = FlatJSON(flatJSON: ["value": "test"])
     let customDictionry = [
       "value": JSONCodableScalarType(stringValue: "test")
@@ -61,7 +61,7 @@ class FlatJSONTests: XCTestCase {
     )
   }
 
-  func testFlatJSON_flatJSON() {
+  func test_FlatJSONProperty_ReturnsOriginalValue() {
     let custom: [String: JSONCodableScalar] = [
       "value": JSONCodableScalarType(stringValue: "test")
     ]
@@ -72,7 +72,7 @@ class FlatJSONTests: XCTestCase {
     )
   }
 
-  func testFlatJSON_Codable() throws {
+  func test_EncodeDecode_RoundTripsSuccessfully() throws {
     let initialJSON = FlatJSON(flatJSON: ["value": "test"])
 
     let data = try Constant.jsonEncoder.encode(initialJSON)

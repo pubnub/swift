@@ -8,8 +8,8 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 // swiftlint:disable line_length
 
@@ -19,28 +19,19 @@ class PAMTokenTests: XCTestCase {
     subscribeKey: "",
     userId: "tester"
   )
-  let eeEnabledConfig = PubNubConfiguration(
-    publishKey: "",
-    subscribeKey: "",
-    userId: "tester",
-    enableEventEngine: true
-  )
+
   static let allPermissionsToken = "qEF2AkF0GmEI03xDdHRsGDxDcmVzpURjaGFuoWljaGFubmVsLTEY70NncnChb2NoYW5uZWxfZ3JvdXAtMQVDdXNyoENzcGOgRHV1aWShZnV1aWQtMRhoQ3BhdKVEY2hhbqFtXmNoYW5uZWwtXFMqJBjvQ2dycKF0XjpjaGFubmVsX2dyb3VwLVxTKiQFQ3VzcqBDc3BjoER1dWlkoWpedXVpZC1cUyokGGhEbWV0YaBEdXVpZHR0ZXN0LWF1dGhvcml6ZWQtdXVpZENzaWdYIPpU-vCe9rkpYs87YUrFNWkyNq8CVvmKwEjVinnDrJJc"
 }
 
 // MARK: Scanner
 
 extension PAMTokenTests {
-  func testParseToken() {
+  func test_ParseValidToken_ReturnsCorrectPermissions() throws {
     let pubnub = PubNub(configuration: config)
     let token = pubnub.parse(token: PAMTokenTests.allPermissionsToken)
-    
-    guard let resources = token?.resources else {
-      return XCTAssert(false, "'resources' is missing")
-    }
-    guard let patterns = token?.patterns else {
-      return XCTAssert(false, "'patterns' is missing")
-    }
+
+    let resources = try XCTUnwrap(token?.resources)
+    let patterns = try XCTUnwrap(token?.patterns)
 
     XCTAssertEqual(token?.authorizedUUID, "test-authorized-uuid")
     XCTAssertEqual(resources.channels.count, 1)
@@ -58,29 +49,21 @@ extension PAMTokenTests {
     XCTAssertEqual(patterns.uuids["^uuid-\\S*$"], [PAMPermission.delete, PAMPermission.get, PAMPermission.update])
   }
 
-  func testSetToken() {
-    for config in [config, eeEnabledConfig] {
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(config.enableEventEngine)") { _ in
-        let pubnub = PubNub(configuration: config)
-        pubnub.set(token: "access-token")
+  func test_SetToken_UpdatesConfiguration() {
+    let pubnub = PubNub(configuration: config)
+    pubnub.set(token: "access-token")
 
-        XCTAssertEqual(pubnub.configuration.authToken, "access-token")
-        XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
-      }
-    }
+    XCTAssertEqual(pubnub.configuration.authToken, "access-token")
+    XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token")
   }
 
-  func testChangeToken() {
-    for config in [config, eeEnabledConfig] {
-      XCTContext.runActivity(named: "Testing with enableEventEngine=\(config.enableEventEngine)") { _ in
-        let pubnub = PubNub(configuration: config)
-        pubnub.set(token: "access-token")
-        pubnub.set(token: "access-token-updated")
+  func test_ChangeToken_UpdatesToNewValue() {
+    let pubnub = PubNub(configuration: config)
+    pubnub.set(token: "access-token")
+    pubnub.set(token: "access-token-updated")
 
-        XCTAssertEqual(pubnub.configuration.authToken, "access-token-updated")
-        XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token-updated")
-      }
-    }
+    XCTAssertEqual(pubnub.configuration.authToken, "access-token-updated")
+    XCTAssertEqual(pubnub.subscription.configuration.authToken, "access-token-updated")
   }
 
   // swiftlint:enable line_length

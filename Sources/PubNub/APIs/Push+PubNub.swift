@@ -401,6 +401,4 @@ public extension PubNub {
       completion?(result.map { _ in () })
     }
   }
-
-  // swiftlint:disable:next file_length
 }

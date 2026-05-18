@@ -10,7 +10,6 @@
 
 import Foundation
 
-// swiftlint:disable:next type_body_length
 final class Request {
   enum TaskState: String, CustomStringConvertible {
     case initialized = "Initialized"
@@ -604,5 +603,3 @@ private extension URLSessionTask {
     return components?.queryItems ?? []
   }
 }
-
-// swiftlint:disable:this file_length

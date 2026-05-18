@@ -8,11 +8,11 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class SetPubNubTests: XCTestCase {
-  func testAllObjects() {
+  func test_AllObjects_WithPopulatedSet_ReturnsArrayOfElements() {
     let set = Set(["one", "two", "three"])
 
     XCTAssertEqual(set.allObjects, Array(set))

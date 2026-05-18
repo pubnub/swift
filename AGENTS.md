@@ -26,6 +26,10 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 - `fastlane/` — CI and release automation
 - `PubNub.xcodeproj` / `PubNub.xcworkspace` — Xcode project and workspace
 
+## Coding Standards
+
+Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.
+
 ## Dependencies
 
 - The SDK has zero external production dependencies. Do not add any.
@@ -51,9 +55,17 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
 - The only test target in `Package.swift` (`PubNubTests`). Run with `swift test`.
+- Class-level `let` constants and value types (structs, enums) for static test data are acceptable. Only mutable state and reference-type dependencies must be created locally per test method.
 - Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
 - Helpers in `Tests/PubNubUnitTests/Support/`.
+
+#### Support Subdirectories (`Tests/PubNubUnitTests/Support/`)
+
+- `Mocks/` — Test doubles (e.g., `MockURLSession.swift`, `MockRequestOperators.swift`, `MockListener.swift`).
+- `Helpers/` — Test utilities (e.g., `ImportTestResource.swift`, `TestLogWriter.swift`, `TestSetup.swift`).
+- `Extensions/` — Test-only extensions (e.g., `EffectInvocation+Equatable.swift`).
+- `Factories/` — Object builders (e.g., `TestPubNubFactory.swift`, `SubscribePayloadFactory.swift`).
 
 ### Integration Tests (`Tests/PubNubIntegrationTests/`)
 
@@ -67,7 +79,7 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 
 ### Validation
 
-Use the smallest relevant validation step first.
+Use the smallest relevant validation step first. Always run `swiftlint` to verify code style.
 
 ```bash
 swift build

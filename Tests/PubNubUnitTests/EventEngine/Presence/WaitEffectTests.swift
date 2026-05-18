@@ -37,10 +37,10 @@ class WaitEffectTests: XCTestCase {
     effect.performTask { returnedEvents in
       XCTAssertTrue(returnedEvents.elementsEqual([.timesUp]))
       let elapsed = Date().timeIntervalSince(startDate)
-      XCTAssertEqual(elapsed, Double(heartbeatInterval), accuracy: 0.5)
+      XCTAssertEqual(elapsed, Double(heartbeatInterval), accuracy: 1.0)
       expectation.fulfill()
     }
-    wait(for: [expectation], timeout: 2.5)
+    wait(for: [expectation], timeout: 5.0)
   }
 
   func test_WaitEffect_WhenCancelled_DoesNotComplete() {

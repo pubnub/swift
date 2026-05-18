@@ -203,7 +203,7 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func test_CompressedPublishRouter_WithEmptyMessage_ReturnsValidationError() {
+  func test_CompressedPublishRouter_WithEmptyMessage_ReturnsValidationError() throws {
     let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
 
     let router = PublishRouter(
@@ -211,7 +211,8 @@ extension PublishRouterTests {
       configuration: config
     )
 
-    XCTAssertNotNil(router.validationError)
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
   func test_CompressedPublish_WithValidMessage_ReturnsTimetoken() throws {

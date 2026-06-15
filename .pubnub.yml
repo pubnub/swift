@@ -1,9 +1,14 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.6"
+version: "10.1.7"
 schema: 1
 changelog:
+  - date: 2026-06-15
+    version: 10.1.7
+    changes:
+      - type: bug
+        text: "Improve inline docs for CryptoModule and LegacyCryptor APIs."
   - date: 2026-05-11
     version: 10.1.6
     changes:
@@ -792,7 +797,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.6.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.7.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

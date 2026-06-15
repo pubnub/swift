@@ -11,9 +11,9 @@
 import Foundation
 import CommonCrypto
 
-/// Provides a backward-compatible way of encryption/decryption
+/// A `Cryptor` implementing PubNub's older encryption format.
 ///
-/// - Important: Using this `Cryptor` for encoding is strongly discouraged. Use ``AESCBCCryptor`` instead.
+/// - Important: Kept for backward compatibility only. Do not use it to encrypt new payloads. Use ``AESCBCCryptor`` instead.
 public struct LegacyCryptor: Cryptor {
   private let key: Data
   private let withRandomIV: Bool
@@ -21,6 +21,13 @@ public struct LegacyCryptor: Cryptor {
 
   static let ID: CryptorId = [0x00, 0x00, 0x00, 0x00]
 
+  /// Creates a cryptor that encrypts and decrypts in PubNub's older format.
+  ///
+  /// - Parameters:
+  ///   - key: Cipher key.
+  ///   - withRandomIV: Whether a random initialization vector is used. When decrypting, this must match the value used at encryption time.
+  ///
+  /// - Important: For new encryption, use ``AESCBCCryptor`` instead.
   public init(key: String, withRandomIV: Bool = true) {
     let hash = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
     let hexStrData = CryptorUtils.hexFrom(hash).lowercased(with: .current).data(using: .utf8) ?? Data()

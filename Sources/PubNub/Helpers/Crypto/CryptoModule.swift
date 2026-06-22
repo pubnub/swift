@@ -580,25 +580,30 @@ public struct CryptoModule {
 
 /// Convenience methods for creating `CryptoModule`
 public extension CryptoModule {
-  /// Returns **recommended** `CryptoModule` for encryption/decryption
+  /// Returns the recommended `CryptoModule` for encryption and decryption.
+  ///
+  /// Encrypts new payloads with ``AESCBCCryptor`` and registers ``LegacyCryptor``
+  /// as a secondary decryptor, so payloads produced in the older format remain readable.
   ///
   /// - Parameters:
-  ///   - key: Key used for encryption/decryption
-  ///   - withRandomIV: A flag describing whether random initialization vector should be used
-  ///
-  /// This method sets ``AESCBCCryptor`` as the primary object for decryption and encryption. It also
-  /// instantiates ``LegacyCryptor``under the hood with `withRandomIV`. This way, you can interact with historical
-  /// messages or messages sent from older clients
+  ///   - key: Key used for encryption/decryption.
+  ///   - withRandomIV: Whether the bundled ``LegacyCryptor`` should expect a random IV when decrypting older payloads. Does not affect new encryption.
   static func aesCbcCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
     CryptoModule(default: AESCBCCryptor(key: key), cryptors: [LegacyCryptor(key: key, withRandomIV: withRandomIV)])
   }
 
-  /// Returns legacy `CryptoModule` for encryption/decryption
+  /// Returns a `CryptoModule` that encrypts in PubNub's older format.
+  ///
+  /// - Important: Use only if you must keep producing payloads readable by very old
+  ///   clients that cannot decode ``AESCBCCryptor`` output. For everything else, use
+  ///   ``aesCbcCryptoModule(with:withRandomIV:)`` — it encrypts with the stronger
+  ///   cipher and still decrypts payloads produced in the older format.
   ///
   /// - Parameters:
-  ///   - key: Key used for encryption/decryption
-  ///   - withRandomIV: A flag describing whether random initialization vector should be used
-  /// - Warning: It's highly recommended to always use ``aesCbcCryptoModule(with:withRandomIV:)``
+  ///   - key: Key used for encryption/decryption.
+  ///   - withRandomIV: Whether a random initialization vector should be used.
+  ///
+  /// - Warning: A fixed IV (`withRandomIV: false`) is insecure and exists only for the oldest payloads.
   static func legacyCryptoModule(with key: String, withRandomIV: Bool = true) -> CryptoModule {
     CryptoModule(default: LegacyCryptor(key: key, withRandomIV: withRandomIV), cryptors: [AESCBCCryptor(key: key)])
   }

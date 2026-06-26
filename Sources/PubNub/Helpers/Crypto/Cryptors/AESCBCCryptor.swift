@@ -58,13 +58,14 @@ public struct AESCBCCryptor: Cryptor {
   }
 
   public func decrypt(data: EncryptedData) -> Result<Data, Error> {
+    guard CBCDecrypt.isValidInput(
+      iv: data.metadata,
+      cipherText: data.data,
+      blockSize: kCCBlockSizeAES128
+    ) else {
+      return .failure(CBCDecrypt.failure)
+    }
     do {
-      if data.data.isEmpty {
-        return .failure(PubNubError(
-          .decryptionFailure,
-          additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
-        )
-      }
       return .success(
         try data.data.crypt(
           operation: CCOperation(kCCDecrypt),
@@ -77,10 +78,7 @@ public struct AESCBCCryptor: Cryptor {
         )
       )
     } catch {
-      return .failure(PubNubError(
-        .decryptionFailure,
-        underlying: error
-      ))
+      return .failure(CBCDecrypt.failure)
     }
   }
 
@@ -120,6 +118,15 @@ public struct AESCBCCryptor: Cryptor {
   }
 
   public func decrypt(data: EncryptedStreamData, outputPath: URL) -> Result<InputStream, Error> {
+    // The IV lives in `metadata` and the stream carries only ciphertext, so the same length and
+    // alignment checks as the in-memory path apply (CWE-20, CWE-208).
+    guard
+      data.metadata.count == kCCBlockSizeAES128,
+      data.contentLength > 0,
+      data.contentLength % kCCBlockSizeAES128 == 0
+    else {
+      return .failure(CBCDecrypt.failure)
+    }
     do {
       let cryptoInputStreamCipher = CryptoInputStream.Cipher(
         algorithm: CCAlgorithm(kCCAlgorithmAES128),
@@ -140,18 +147,12 @@ public struct AESCBCCryptor: Cryptor {
       try cryptoInputStream.writeEncodedData(
         to: outputPath
       )
-      if let stream = InputStream(url: outputPath) {
-        return .success(stream)
+      guard let stream = InputStream(url: outputPath) else {
+        return .failure(CBCDecrypt.failure)
       }
-      return .failure(PubNubError(
-        .decryptionFailure,
-        additional: ["Cannot create resulting InputStream at \(outputPath)"]
-      ))
+      return .success(stream)
     } catch {
-      return .failure(PubNubError(
-        .decryptionFailure,
-        underlying: error
-      ))
+      return .failure(CBCDecrypt.failure)
     }
   }
 

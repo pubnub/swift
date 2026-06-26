@@ -80,6 +80,10 @@ public struct LegacyCryptor: Cryptor {
 
     do {
       if withRandomIV {
+        // A random-IV payload must carry at least one block of IV before any ciphertext.
+        guard data.data.count >= kCCBlockSizeAES128 else {
+          return .failure(CBCDecrypt.failure)
+        }
         iv = data.data.prefix(kCCBlockSizeAES128)
         cipherText = data.data.suffix(from: kCCBlockSizeAES128)
       } else {
@@ -87,15 +91,12 @@ public struct LegacyCryptor: Cryptor {
         cipherText = data.data
       }
 
-      if cipherText.isEmpty {
-        return .failure(PubNubError(
-          .decryptionFailure,
-          additional: ["Cannot decrypt empty Data in \(String(describing: self))"])
-        )
+      guard CBCDecrypt.isValidInput(iv: iv, cipherText: cipherText, blockSize: kCCBlockSizeAES128) else {
+        return .failure(CBCDecrypt.failure)
       }
 
       return .success(
-        try data.data.crypt(
+        try cipherText.crypt(
           operation: CCOperation(kCCDecrypt),
           algorithm: CCAlgorithm(kCCAlgorithmAES128),
           options: CCOptions(kCCOptionPKCS7Padding),
@@ -106,10 +107,7 @@ public struct LegacyCryptor: Cryptor {
         )
       )
     } catch {
-      return .failure(PubNubError(
-        .decryptionFailure,
-        underlying: error
-      ))
+      return .failure(CBCDecrypt.failure)
     }
   }
 
@@ -171,18 +169,12 @@ public struct LegacyCryptor: Cryptor {
       try cryptoInputStream.writeEncodedData(
         to: outputPath
       )
-      if let inputStream = InputStream(url: outputPath) {
-        return .success(inputStream)
+      guard let inputStream = InputStream(url: outputPath) else {
+        return .failure(CBCDecrypt.failure)
       }
-      return .failure(PubNubError(
-        .decryptionFailure,
-        additional: ["Cannot create resulting InputStream at \(outputPath)"]
-      ))
+      return .success(inputStream)
     } catch {
-      return .failure(PubNubError(
-        .decryptionFailure,
-        underlying: error
-      ))
+      return .failure(CBCDecrypt.failure)
     }
   }
 

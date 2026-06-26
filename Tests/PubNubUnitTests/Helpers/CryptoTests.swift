@@ -9,6 +9,7 @@
 //
 
 import CommonCrypto
+import Foundation
 import XCTest
 
 @testable import PubNubSDK
@@ -341,5 +342,116 @@ class CryptoTests: XCTestCase {
       CryptoError.unknown,
       CryptoError(rawValue: CCCryptorStatus(1_240_124))
     )
+  }
+
+  func testDecrypt_RejectsWrongSizeIV() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeIV = Data(repeating: 0x01, count: kCCBlockSizeAES128 - 1)
+    
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: wrongSizeIV,
+        data: Data(repeating: 0xAB, count: kCCBlockSizeAES128)
+      )
+    )
+    
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func testDecrypt_RejectsNonBlockAlignedContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 + 1)
+
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: Data(repeating: 0x01, count: kCCBlockSizeAES128),
+        data: wrongSizeData
+      )
+    )
+    
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func testDecrypt_RejectsEmptyContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let emptyData = Data()
+    
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: Data(repeating: 0x01, count: kCCBlockSizeAES128),
+        data: emptyData
+      )
+    )
+    
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func testDecryptStream_RejectsWrongSizeIV() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeIV = Data(repeating: 0x01, count: kCCBlockSizeAES128 - 1)
+    let testData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 * 2)
+
+    let outputPath = URL.randomTempPath
+    let encryptedStreamData = EncryptedStreamData(stream: .init(data: testData), contentLength: testData.count, metadata: wrongSizeIV)
+    let decryptionResult = cryptor.decrypt(data: encryptedStreamData, outputPath: outputPath)
+    
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+
+  func testDecryptStream_RejectsNonBlockAlignedContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let iv = Data(repeating: 0x01, count: kCCBlockSizeAES128)
+    let wrongSizeData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 + 1)
+
+    let outputPath = URL.randomTempPath
+    let encryptedStreamData = EncryptedStreamData(stream: .init(data: wrongSizeData), contentLength: wrongSizeData.count, metadata: iv)
+    let decryptionResult = cryptor.decrypt(data: encryptedStreamData, outputPath: outputPath)
+    
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+
+  func testDecryptStream_RejectsEmptyContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let iv = Data(repeating: 0x01, count: kCCBlockSizeAES128)
+    let emptyData = Data()
+    
+    let outputPath = URL.randomTempPath
+    let encryptedStreamData = EncryptedStreamData(stream: .init(data: emptyData), contentLength: emptyData.count, metadata: iv)
+    let decryptionResult = cryptor.decrypt(data: encryptedStreamData, outputPath: outputPath)
+    
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+}
+
+private extension CryptoTests {
+  func assertOpaqueDecryptionFailure(
+    _ error: Error?,
+    file: StaticString = #filePath,
+    line: UInt = #line
+  ) {
+    guard let pubNubError = error as? PubNubError else {
+      return XCTFail("Expected a PubNubError, got \(String(describing: error))", file: file, line: line)
+    }
+    
+    XCTAssertEqual(pubNubError.reason, .decryptionFailure, file: file, line: line)
+    XCTAssertNil(pubNubError.underlying, "Decrypt failures must not expose an underlying status", file: file, line: line)
+    XCTAssertEqual(pubNubError.details, ["Decryption failed"], file: file, line: line)
+  }
+}
+
+private extension Result {
+  var error: Error? {
+    switch self {
+    case .success:
+      return nil
+    case let .failure(error):
+      return error
+    }
+  }
+}
+
+private extension URL {
+  static var randomTempPath: URL {
+    URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
   }
 }

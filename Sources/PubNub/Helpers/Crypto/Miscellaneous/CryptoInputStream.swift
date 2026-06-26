@@ -109,17 +109,18 @@ public class CryptoInputStream: InputStream {
       var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
 
       if includeInitializationVectorInContent {
-        switch input.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) {
-        case let bytesRead where bytesRead < 0:
-          // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
+        // The IV must be exactly one block; anything shorter is rejected so that an attacker
+        // cannot probe decrypt failures by truncating the leading IV.
+        if input.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) != crypto.cipher.blockSize {
           _streamStatus = .error
-          _streamError = input.streamError
-        default:
-          // 0 represents end of the current buffer
-          break
+          _streamError = input.streamError ?? PubNubError(.decryptionFailure)
         }
-      } else {
+      } else if crypto.iv.count == crypto.cipher.blockSize {
         initializationVectorBuffer = crypto.iv.map { $0 }
+      } else {
+        // A wrong-length IV is rejected for the same reason as above.
+        _streamStatus = .error
+        _streamError = PubNubError(.decryptionFailure)
       }
 
       // Init the Crypto Stream

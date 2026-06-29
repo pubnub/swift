@@ -585,6 +585,8 @@ public extension CryptoModule {
   /// Encrypts new payloads with ``AESCBCCryptor`` and registers ``LegacyCryptor``
   /// as a secondary decryptor, so payloads produced in the older format remain readable.
   ///
+  /// Use a long, random, high-entropy key; short or guessable keys remain weak.
+  ///
   /// - Parameters:
   ///   - key: Key used for encryption/decryption.
   ///   - withRandomIV: Whether the bundled ``LegacyCryptor`` should expect a random IV when decrypting older payloads. Does not affect new encryption.
@@ -641,8 +643,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "encrypt-string",
-          details: "Encrypting String",
-          arguments: [("string", string)]
+          details: "Encrypting String"
         )
       ), category: .crypto
     )
@@ -681,8 +682,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "decrypt-data",
-          details: "Decrypting Data",
-          arguments: [("data", data.utf8String)]
+          details: "Decrypting Data to String"
         )
       ),
       category: .crypto

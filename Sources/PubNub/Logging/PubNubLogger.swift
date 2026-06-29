@@ -86,10 +86,13 @@ public final class PubNubLogger {
 
   /// Initializes a new `PubNubLogger` instance with the specified log levels and writers.
   ///
+  /// - Warning: Enabling verbose levels such as `.debug`, `.trace`, or `.all` produces logs that may include  sensitive information,
+  /// such as API responses, user data, request URLs, authentication tokens, or internal system details. Avoid these levels in production builds.
+  ///
   /// - Parameters:
-  ///   - levels: The log levels to be included in the logger. Defaults to `.all`.
+  ///   - levels: The log levels to be included in the logger. Defaults to `.none`.
   ///   - writers: The writers to be used for logging. Defaults to the default log writers.
-  public init(levels: LogLevel = .all, writers: [LogWriter] = PubNubLogger.defaultLogWriters()) {
+  public init(levels: LogLevel = .none, writers: [LogWriter] = PubNubLogger.defaultLogWriters()) {
     self.writers = writers
     self.levelsContainer = Atomic(levels)
     self.pubNubInstanceId = nil

@@ -16,6 +16,11 @@ public struct AESCBCCryptor: Cryptor {
   private let key: Data
   private let logger: PubNubLogger?
 
+  /// Creates an ``AESCBCCryptor`` from the given cipher key.
+  ///
+  /// Use a long, random, high-entropy key; short or guessable keys remain weak.
+  ///
+  /// - Parameter key: Secret used to derive the AES key.
   public init(key: String) {
     self.key = CryptorUtils.SHA256.hash(from: key.data(using: .utf8) ?? Data())
     self.logger = nil

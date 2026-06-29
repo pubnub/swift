@@ -253,7 +253,7 @@ class HistoryEndpointIntegrationTests: XCTestCase {
 
     // Configure a client with CryptoModule enabled
     var cryptoConfig = config
-    cryptoConfig.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "testCipherKey")
+    cryptoConfig.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "bVw5yU2DAiMLOJjJn33s8UDmuFsCP0lf")
     let client = PubNub(configuration: cryptoConfig)
 
     let historyExpect = expectation(description: "History with Actions")

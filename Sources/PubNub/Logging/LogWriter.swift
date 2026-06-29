@@ -45,9 +45,9 @@ public protocol LogWriter {
   ///
   /// - Note: This method is called only if the  log message's ``LogMessage/logLevel`` is not lower than the parent ``PubNubLogger`` instance's log level.
   ///
-  /// - Warning: Debug-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, or internal system details.
-  /// It is **your responsibility** to ensure that sensitive data is properly handled and that logs are not exposed in production environments. For example,
-  /// our in-house ``OSLogWriter`` implementation safely writes logs using `os.Logger`, ensuring optimal performance and security while adhering to this contract.
+  /// - Warning: Debug- and trace-level logging, if enabled, is verbose and may include sensitive information, such as API responses, user data, request URLs,
+  /// authentication tokens, or internal system details. When you provide your own `LogWriter` implementation, it is **your responsibility** to ensure that sensitive data
+  /// is properly handled and that logs are not exposed in production environments.
   ///
   /// - Parameters:
   ///   - message: A closure that returns the log message. This uses `@autoclosure` to defer evaluation until needed.

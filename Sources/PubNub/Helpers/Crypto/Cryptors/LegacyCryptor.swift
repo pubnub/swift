@@ -68,7 +68,7 @@ public struct LegacyCryptor: Cryptor {
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionFailure,
+        .encryptionFailure,
         underlying: error
       ))
     }

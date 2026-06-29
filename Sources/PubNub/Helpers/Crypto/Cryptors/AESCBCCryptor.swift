@@ -56,7 +56,7 @@ public struct AESCBCCryptor: Cryptor {
       ))
     } catch {
       return .failure(PubNubError(
-        .decryptionFailure,
+        .encryptionFailure,
         underlying: error
       ))
     }

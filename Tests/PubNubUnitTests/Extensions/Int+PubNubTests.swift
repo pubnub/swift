@@ -8,13 +8,12 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class TimetokenTests: XCTestCase {
-  func testTimetokenDate() {
+  func test_TimetokenDate_WithValidTimetoken_ReturnsCorrespondingDate() {
     let timetoken = Timetoken(15_614_817_397_828_462)
-
     let date = Date(timeIntervalSince1970: TimeInterval(timetoken / 10_000_000))
 
     XCTAssertEqual(timetoken.timetokenDate, date)

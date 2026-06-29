@@ -8,7 +8,6 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
@@ -41,9 +40,9 @@ class EventEngineSubscriptionSessionStrategyTests: XCTestCase {
       configuration: config,
       subscribeEngine: subscribeEngine,
       presenceEngine: presenceEngine,
-      presenceStateContainer: .shared
+      presenceStateContainer: .init()
     )
-    
+
     // Verify initial state
     XCTAssertEqual(
       strategy.subscribeEngine.dependencies.value.configuration.authToken,

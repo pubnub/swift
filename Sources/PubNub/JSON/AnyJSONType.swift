@@ -513,5 +513,3 @@ extension AnyJSONType {
     }
   }
 }
-
-// swiftlint:disable:this file_length

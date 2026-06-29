@@ -8,44 +8,40 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class URLRequestPubNubTests: XCTestCase {
-  func testmethod() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+  func test_Method_WithValidHTTPMethod_ReturnsMatchingEnum() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com"))
+
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
 
     XCTAssertEqual(request.method, .post)
   }
 
-  func testMethod_UnknownMethod() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+  func test_Method_WithUnknownHTTPMethod_ReturnsNil() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com"))
+
     var request = URLRequest(url: url)
     request.httpMethod = "Something"
 
     XCTAssertNil(request.method)
   }
 
-  func testMethod_DefaultMethod() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+  func test_Method_WithNilHTTPMethod_ReturnsGet() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com"))
+
     var request = URLRequest(url: url)
     request.httpMethod = nil
 
     XCTAssertEqual(request.method, .get)
   }
 
-  func testMethod_Set() {
-    guard let url = URL(string: "https://example.com") else {
-      return XCTFail("Failed to unwrap url string")
-    }
+  func test_Method_WhenSetViaProperty_UpdatesCorrectly() throws {
+    let url = try XCTUnwrap(URL(string: "https://example.com"))
+
     var request = URLRequest(url: url)
     request.method = .post
 

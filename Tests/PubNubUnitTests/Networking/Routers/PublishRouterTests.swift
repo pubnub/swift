@@ -8,17 +8,10 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class PublishRouterTests: XCTestCase {
-  var config = PubNubConfiguration(
-    publishKey: "FakeTestString",
-    subscribeKey: "FakeTestString",
-    userId: UUID().uuidString,
-    authKey: "auth-key"
-  )
-
   let testMessage: AnyJSON = "Test Message"
   let testChannel = "TestChannel"
   let testFileId = "FileId"
@@ -29,15 +22,15 @@ final class PublishRouterTests: XCTestCase {
 // MARK: - Publish
 
 extension PublishRouterTests {
-  func testPublish_Router() {
+  func test_PublishRouter_WithAuthKey_SetsExpectedQueryItems() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .publish(message: testMessage, channel: testChannel, customMessageType: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
-    guard let queryItems = try? router.queryItems.get() else {
-      return XCTAssert(false, "'queryItems' not set")
-    }
+    let queryItems = try router.queryItems.get()
 
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "auth-key")))
     XCTAssertEqual(router.endpoint.description, "Publish")
@@ -45,24 +38,23 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func testPublish_Router_ValidationError() {
+  func test_PublishRouter_WithEmptyMessage_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .publish(message: [], channel: testChannel, customMessageType: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testPublish_Success() {
+  func test_Publish_WithValidMessage_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Publish Response Received")
-    config.authToken = "access-token"
+    let sessions = try MockURLSession.mockSession(for: ["publish_success"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", authToken: "access-token", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case let .success(timetoken):
@@ -76,14 +68,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_MessageTooLongError() {
+  func test_Publish_WhenMessageTooLarge_ReturnsMessageTooLongError() throws {
     let expectation = self.expectation(description: "Message Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_message_too_large"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_message_too_large"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -99,14 +88,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_Error_InvalidKey() {
+  func test_Publish_WithInvalidKey_ReturnsInvalidPublishKeyError() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_invalid_key"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -121,14 +107,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_Error_SystemSupplied() {
+  func test_Publish_WhenURITooLong_ReturnsRequestURITooLongError() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["requestURITooLong_Message"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["requestURITooLong_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -143,16 +126,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_Error_MissingPublishKey() {
+  func test_Publish_WithMissingPublishKey_ReturnsMissingPublishKeyError() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_invalid_key"])
+    let pubnub = TestPubNubFactory.make(publishKey: nil, subscribeKey: "NotARealKey", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "NotARealKey", userId: UUID().uuidString)
-
-    let pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -167,16 +145,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_Error_MissingSubscribeKey() {
+  func test_Publish_WithMissingSubscribeKey_ReturnsMissingSubscribeKeyError() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_invalid_key"])
+    let pubnub = TestPubNubFactory.make(publishKey: "NotARealKey", subscribeKey: "", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let missingPublishConfig = PubNubConfiguration(publishKey: "NotARealKey", subscribeKey: "", userId: UUID().uuidString)
-
-    let pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -191,16 +164,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testPublish_Error_MissingPublishAndSubscribeKey() {
+  func test_Publish_WithMissingPublishAndSubscribeKey_ReturnsMissingBothKeysError() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_invalid_key"])
+    let pubnub = TestPubNubFactory.make(publishKey: nil, subscribeKey: "", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let missingPublishConfig = PubNubConfiguration(publishKey: nil, subscribeKey: "", userId: UUID().uuidString)
-
-    let pubnub = PubNub(configuration: missingPublishConfig, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -219,9 +187,14 @@ extension PublishRouterTests {
 // MARK: - Compressed Publish
 
 extension PublishRouterTests {
-  func testCompressedPublish_Router() {
+  func test_CompressedPublishRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
-      .compressedPublish(message: testMessage, channel: testChannel, customMessageType: nil, shouldStore: nil, ttl: nil, meta: nil),
+      .compressedPublish(
+        message: testMessage, channel: testChannel, customMessageType: nil,
+        shouldStore: nil, ttl: nil, meta: nil
+      ),
       configuration: config
     )
 
@@ -230,23 +203,23 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func testCompressedPublish_Router_ValidationError() {
+  func test_CompressedPublishRouter_WithEmptyMessage_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .compressedPublish(message: [], channel: testChannel, customMessageType: nil, shouldStore: nil, ttl: nil, meta: nil),
       configuration: config
     )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testCompressedPublish_Success() {
+  func test_CompressedPublish_WithValidMessage_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_success"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.publish(channel: "Test", message: ["text": "Hello"], shouldCompress: true) { result in
       switch result {
       case let .success(timetoken):
@@ -264,7 +237,9 @@ extension PublishRouterTests {
 // MARK: - File
 
 extension PublishRouterTests {
-  func testFile_Router() {
+  func test_FilePublishRouter_WithValidPayload_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
@@ -277,8 +252,10 @@ extension PublishRouterTests {
     XCTAssertEqual(router.category, "Publish a File Message")
     XCTAssertEqual(router.service, .publish)
   }
-  
-  func testFile_Router_nilMessageTypeAndSpaceId() {
+
+  func test_FilePublishRouter_WithNilMessageType_ExcludesTypeQueryItem() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
@@ -286,15 +263,15 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    
-    guard let queryItems = try? router.queryItems.get() else {
-      return XCTAssert(false, "'queryItems' not set")
-    }
-    
-    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.type.rawValue }))
+
+    let queryItems = try router.queryItems.get()
+
+    XCTAssertNil(queryItems.first(where: { $0.name == QueryKey.customMessageType.rawValue }))
   }
-  
-  func testFile_Router_notNilMessageType() {
+
+  func test_FilePublishRouter_WithCustomMessageType_IncludesTypeQueryItem() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename),
@@ -302,32 +279,28 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    
-    guard let queryItems = try? router.queryItems.get() else {
-      return XCTAssert(false, "'queryItems' not set")
-    }
-    
+
+    let queryItems = try router.queryItems.get()
+
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: QueryKey.customMessageType.rawValue, value: "type")))
   }
 
-  func testFile_Router_Validate_Message() {
+  func test_FilePublishRouter_WithAdditionalDetails_MatchesDecodedPayload() throws {
     let file = FilePublishPayload(
       channel: "",
       fileId: testFileId, filename: testFilename,
       additionalDetails: testCustom
     )
 
-    do {
-      let jsonMessage = try ImportTestResource.importResource("publish_file_body_raw")
-      let jsonFilePublish = try Constant.jsonDecoder.decode(FilePublishPayload.self, from: jsonMessage)
+    let jsonMessage = try ImportTestResource.importResource("publish_file_body_raw")
+    let jsonFilePublish = try Constant.jsonDecoder.decode(FilePublishPayload.self, from: jsonMessage)
 
-      XCTAssertEqual(file, jsonFilePublish)
-    } catch {
-      XCTFail("Could not create test resources due to \(error)")
-    }
+    XCTAssertEqual(file, jsonFilePublish)
   }
 
-  func testFile_Router_ValidationError_EmptyChannel() {
+  func test_FilePublishRouter_WithEmptyChannel_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: "", fileId: testFileId, filename: testFilename),
@@ -335,10 +308,14 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testFile_Router_ValidationError_EmptyFileId() {
+  func test_FilePublishRouter_WithEmptyFileId_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: "", filename: testFilename),
@@ -346,10 +323,14 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testFile_Router_ValidationError_EmptyFilename() {
+  func test_FilePublishRouter_WithEmptyFilename_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+
     let router = PublishRouter(
       .file(
         message: FilePublishPayload(channel: testChannel, fileId: testFileId, filename: ""),
@@ -357,19 +338,18 @@ extension PublishRouterTests {
       ),
       configuration: config
     )
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testFile_Success() {
+  func test_FilePublish_WithValidPayload_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Publish Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
+    let sessions = try MockURLSession.mockSession(for: ["publish_success"])
     let file = FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
+
     pubnub.publish(file: file, request: .init(additionalMessage: ["text": "Hello"])) { result in
       switch result {
       case let .success(timetoken):
@@ -383,16 +363,13 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFile_MessageTooLongError() {
+  func test_FilePublish_WhenMessageTooLarge_ReturnsMessageTooLongError() throws {
     let expectation = self.expectation(description: "Message Response Received")
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_message_too_large"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
+    let sessions = try MockURLSession.mockSession(for: ["publish_message_too_large"])
     let file = FilePublishPayload(channel: testChannel, fileId: testFileId, filename: testFilename)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
+
     pubnub.publish(file: file, request: .init(additionalMessage: ["text": "Hello"])) { result in
       switch result {
       case .success:
@@ -412,7 +389,8 @@ extension PublishRouterTests {
 // MARK: - Fire
 
 extension PublishRouterTests {
-  func testFire_Router() {
+  func test_FireRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.fire(message: testMessage, channel: testChannel, meta: nil), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Fire")
@@ -420,20 +398,19 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func testFire_Router_ValidationError() {
+  func test_FireRouter_WithEmptyMessage_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.fire(message: [], channel: testChannel, meta: nil), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testFire_Success() {
+  func test_Fire_WithValidMessage_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Publish Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_success"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.fire(channel: "Test", message: ["text": "Hello"], meta: ["metaKey": "metaValue"]) { result in
       switch result {
       case let .success(timetoken):
@@ -451,7 +428,8 @@ extension PublishRouterTests {
 // MARK: - Signal
 
 extension PublishRouterTests {
-  func testSignal_Router() {
+  func test_SignalRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = PublishRouter(.signal(message: testMessage, channel: testChannel, customMessageType: nil), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Signal")
@@ -459,20 +437,20 @@ extension PublishRouterTests {
     XCTAssertEqual(router.service, .publish)
   }
 
-  func testSignal_Router_ValidationError() {
-    let router = PublishRouter(.signal(message: "", channel: testChannel, customMessageType: nil), configuration: config)
+  func test_SignalRouter_WithEmptyMessage_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
+    let router = PublishRouter(.signal(message: [], channel: testChannel, customMessageType: nil), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    let error = try XCTUnwrap(router.validationError as? PubNubError)
+    XCTAssertEqual(error.reason, .missingRequiredParameter)
   }
 
-  func testSignal_Success() {
+  func test_Signal_WithValidMessage_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Signal Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_success"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.signal(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case let .success(timetoken):
@@ -486,14 +464,12 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSignal_Error() {
+  func test_Signal_WithInvalidKey_ReturnsInvalidPublishKeyError() throws {
     let expectation = self.expectation(description: "Signal Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["publish_invalid_key"])
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["publish_invalid_key"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.signal(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -508,14 +484,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSignal_Error_MessageTooLarge() {
+  func test_Signal_WhenMessageTooLarge_ReturnsMessageTooLongError() throws {
     let expectation = self.expectation(description: "Signal Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["signal_message_too_large"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["signal_message_too_large"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.signal(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -530,14 +503,11 @@ extension PublishRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testSignal_Error_SystemSupplied() {
+  func test_Signal_WhenURITooLong_ReturnsRequestURITooLongError() throws {
     let expectation = self.expectation(description: "Signal Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["requestURITooLong_Message"])
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["requestURITooLong_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.signal(channel: "Test", message: ["text": "Hello"]) { result in
       switch result {
       case .success:
@@ -551,6 +521,4 @@ extension PublishRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

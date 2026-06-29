@@ -58,7 +58,10 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success(presenceByChannel):
           XCTAssertNotNil(presenceByChannel[testChannel])
-          XCTAssertEqual(presenceByChannel[testChannel]?.occupantsState[client.configuration.userId]?.codableValue, ["StateKey": "StateValue"])
+          XCTAssertEqual(
+            presenceByChannel[testChannel]?.occupantsState[client.configuration.userId]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
@@ -131,7 +134,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     let listener = waitOnPresence(
       client: client,
-      channel: testChannel, 
+      channel: testChannel,
       completion: performHereNow
     )
     client.subscribe(
@@ -155,15 +158,21 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         switch result {
         case let .success(presenceByChannel):
           XCTAssertNotNil(presenceByChannel[testChannel])
-          XCTAssertEqual(presenceByChannel[testChannel]?.occupantsState[client.configuration.userId]?.codableValue, ["StateKey": "StateValue"])
-          XCTAssertEqual(presenceByChannel[otherChannel]?.occupantsState[client.configuration.userId]?.codableValue, ["StateKey": "StateValue"])
+          XCTAssertEqual(
+            presenceByChannel[testChannel]?.occupantsState[client.configuration.userId]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
+          XCTAssertEqual(
+            presenceByChannel[otherChannel]?.occupantsState[client.configuration.userId]?.codableValue,
+            ["StateKey": "StateValue"]
+          )
         case let .failure(error):
           XCTFail("Failed due to error: \(error)")
         }
         hereNowExpect.fulfill()
       }
     }
-    
+
     let performSetState = {
       client.setPresence(state: ["StateKey": "StateValue"], on: [testChannel, otherChannel]) { result in
         switch result {
@@ -222,9 +231,9 @@ class PresenceEndpointIntegrationTests: XCTestCase {
 
     // Expected users to join the channel
     let expectedUsers = Set([
-      clientA.configuration.userId, 
+      clientA.configuration.userId,
       clientB.configuration.userId,
-      clientC.configuration.userId, 
+      clientC.configuration.userId,
       clientD.configuration.userId
     ])
 
@@ -246,7 +255,7 @@ class PresenceEndpointIntegrationTests: XCTestCase {
       userIds: expectedUsers,
       completion: performHereNow
     )
-    
+
     clientA.subscribe(to: [testChannel], withPresence: true)
     clientB.subscribe(to: [testChannel], withPresence: true)
     clientC.subscribe(to: [testChannel], withPresence: true)
@@ -275,17 +284,17 @@ class PresenceEndpointIntegrationTests: XCTestCase {
         whereNowExpect.fulfill()
       }
     }
-    
+
     let listener = waitOnPresence(
-      client: client, 
-      channel: testChannel2, 
+      client: client,
+      channel: testChannel2,
       completion: performWhereNow
     )
     client.subscribe(
       to: [testChannel1, testChannel2],
       withPresence: true
     )
-    
+
     defer { listener.cancel() }
     wait(for: [whereNowExpect], timeout: 10.0)
   }
@@ -305,7 +314,12 @@ private extension PresenceEndpointIntegrationTests {
 }
 
 private extension PresenceEndpointIntegrationTests {
-  func waitOnPresence(client: PubNub, channel: String, userIds: Set<String>? = nil, completion: @escaping () -> Void) -> SubscriptionListener {
+  func waitOnPresence(
+    client: PubNub,
+    channel: String,
+    userIds: Set<String>? = nil,
+    completion: @escaping () -> Void
+  ) -> SubscriptionListener {
     let listener = SubscriptionListener()
     let expectedUsers = userIds ?? Set([client.configuration.userId])
     var joinedUsers: Set<String> = Set<String>()
@@ -315,7 +329,7 @@ private extension PresenceEndpointIntegrationTests {
       guard !hasCompleted, event.channel == channel else {
         return
       }
-      
+
       for action in event.actions {
         if case let .join(uuids) = action {
           joinedUsers.formUnion(uuids.filter { expectedUsers.contains($0) })
@@ -331,7 +345,7 @@ private extension PresenceEndpointIntegrationTests {
 
     // Add listener to client
     client.add(listener)
-    
+
     // Return listener to be able to cancel it when the test is done
     return listener
   }

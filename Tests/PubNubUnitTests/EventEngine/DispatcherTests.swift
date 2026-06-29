@@ -8,7 +8,6 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK
@@ -18,12 +17,12 @@ class DispatcherTests: XCTestCase {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 4
     onResultReceivedExpectation.assertForOverFulfill = true
-        
+
     let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
-    
+
     dispatcher.dispatch(
       invocations: [
         .managed(.first),
@@ -34,20 +33,20 @@ class DispatcherTests: XCTestCase {
       with: EventEngineDependencies(value: Void()),
       notify: listener
     )
-    
+
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
-  
+
   func testDispatcher_CancelInvocationsWithManagedInvocationsNotifiesListener() {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 2
     onResultReceivedExpectation.assertForOverFulfill = true
-    
+
     let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
-    
+
     dispatcher.dispatch(
       invocations: [
         .cancel(.firstCancellable),
@@ -58,33 +57,37 @@ class DispatcherTests: XCTestCase {
       with: EventEngineDependencies(value: Void()),
       notify: listener
     )
-    
+
     wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
-  
+
   func testDispatcher_NotifiesListenerWithExpectedEvents() {
+    let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     let dispatcher = EffectDispatcher(factory: StubEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
     let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { events in
       XCTAssertEqual(events, [.event1, .event3])
+      onResultReceivedExpectation.fulfill()
     })
-    
+
     dispatcher.dispatch(
       invocations: [.managed(.first)],
       with: EventEngineDependencies(value: Void()),
       notify: listener
     )
+
+    wait(for: [onResultReceivedExpectation], timeout: 1.0)
   }
-  
+
   func testDispatcher_RemovesEffectsOnFinish() {
     let onResultReceivedExpectation = XCTestExpectation(description: "onResultReceived")
     onResultReceivedExpectation.expectedFulfillmentCount = 3
     onResultReceivedExpectation.assertForOverFulfill = true
 
     let dispatcher = EffectDispatcher(factory: MockEffectHandlerFactory(), logger: PubNubLogger.defaultLogger())
-    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { results in
+    let listener = DispatcherListener<TestEvent>(onAnyInvocationCompleted: { _ in
       onResultReceivedExpectation.fulfill()
     })
-        
+
     dispatcher.dispatch(
       invocations: [
         .managed(.first),
@@ -95,9 +98,9 @@ class DispatcherTests: XCTestCase {
       with: EventEngineDependencies(value: Void()),
       notify: listener
     )
-    
+
     wait(for: [onResultReceivedExpectation], timeout: 2.0)
-    
+
     XCTAssertFalse(dispatcher.hasPendingInvocation(.first))
     XCTAssertFalse(dispatcher.hasPendingInvocation(.second))
     XCTAssertFalse(dispatcher.hasPendingInvocation(.third))
@@ -105,23 +108,28 @@ class DispatcherTests: XCTestCase {
   }
 }
 
-fileprivate enum TestEvent {
+private enum TestEvent {
   case event1
   case event2
   case event3
 }
 
-fileprivate enum TestInvocation: String, AnyEffectInvocation {
-  case first = "first"
-  case second = "second"
-  case third = "third"
-  case fourth = "fourth"
-  
+private enum TestInvocation: String, AnyEffectInvocation {
+  case first
+  case second
+  case third
+  case fourth
+
   var id: String {
     rawValue
   }
-  
+
   enum Cancellable: AnyCancellableInvocation {
+    case firstCancellable
+    case secondCancellable
+    case thirdCancellable
+    case fourthCancellable
+
     var id: String {
       switch self {
       case .firstCancellable:
@@ -134,15 +142,10 @@ fileprivate enum TestInvocation: String, AnyEffectInvocation {
         return TestInvocation.fourth.rawValue
       }
     }
-    
-    case firstCancellable
-    case secondCancellable
-    case thirdCancellable
-    case fourthCancellable
   }
 }
 
-fileprivate struct MockEffectHandlerFactory: EffectHandlerFactory {
+private struct MockEffectHandlerFactory: EffectHandlerFactory {
   func effect(
     for invocation: TestInvocation,
     with dependencies: EventEngineDependencies<Void>
@@ -151,16 +154,17 @@ fileprivate struct MockEffectHandlerFactory: EffectHandlerFactory {
   }
 }
 
-fileprivate struct MockEffectHandler: EffectHandler {
+private struct MockEffectHandler: EffectHandler {
+  private static let queue = DispatchQueue(label: "com.pubnub.test.MockEffectHandler")
+
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
-    // Added an artificial delay to simulate network latency or other asynchronous computations
-    DispatchQueue.global(qos: .default).asyncAfter(deadline: .now() + 0.35) {
+    Self.queue.async {
       completionBlock([])
     }
   }
 }
 
-fileprivate class StubEffectHandlerFactory: EffectHandlerFactory {
+private class StubEffectHandlerFactory: EffectHandlerFactory {
   func effect(
     for invocation: TestInvocation,
     with dependencies: EventEngineDependencies<Void>
@@ -169,7 +173,7 @@ fileprivate class StubEffectHandlerFactory: EffectHandlerFactory {
   }
 }
 
-fileprivate class StubEffectHandler: EffectHandler {
+private class StubEffectHandler: EffectHandler {
   func performTask(completionBlock: @escaping ([TestEvent]) -> Void) {
     completionBlock([.event1, .event3])
   }

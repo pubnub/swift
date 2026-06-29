@@ -8,13 +8,10 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class PushRouterTests: XCTestCase {
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
-
   let testChannels = ["TestChannel", "OtherChannel"]
 
   let hexString = "815ee724ccb0a6a84dc303be8ccbaa00d1c84dde6bcae6721b08f92100951113"
@@ -23,8 +20,9 @@ final class PushRouterTests: XCTestCase {
 // MARK: - List Push Channels
 
 extension PushRouterTests {
-  func testListFCMPushProvisions_Router() {
-    let data = "A1b2".data(using: .utf8)!
+  func test_ListFCMPushProvisions_WithValidConfig_SetsExpectedEndpoint() {
+    let config = TestPubNubFactory.makeConfig()
+    let data = Data("A1b2".utf8)
     let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
@@ -33,10 +31,9 @@ extension PushRouterTests {
     XCTAssertEqual(router.service, .push)
   }
 
-  func testListFCMPushProvisions_Router_TokenError() {
-    guard let data = Data(hexEncodedString: "A1b2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
+  func test_ListFCMPushProvisions_WhenTokenInvalid_ReturnsNilPushToken() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1b2"))
     let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
@@ -45,10 +42,9 @@ extension PushRouterTests {
     XCTAssertEqual(router.service, .push)
   }
 
-  func testListPushProvisions_Router() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
+  func test_ListPushProvisions_WithValidAPNSConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let router = PushRouter(.listPushChannels(pushToken: data, pushType: .apns), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
@@ -56,24 +52,20 @@ extension PushRouterTests {
     XCTAssertEqual(router.service, .push)
   }
 
-  func testListPushProvisions_Router_ValidationError() {
+  func test_ListPushProvisions_WhenTokenEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.listPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
-  func testListPushRegistration_Success() {
+  func test_ListPushRegistration_WithValidToken_ReturnsChannels() throws {
     let expectation = self.expectation(description: "Push List Response Received")
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_list_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listPushChannelRegistrations(for: hexData) { result in
       switch result {
       case let .success(channels):
@@ -87,18 +79,12 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testListPushRegistration_Success_Empty() {
+  func test_ListPushRegistration_WithValidToken_ReturnsEmptyChannels() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_list_success_empty"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listPushChannelRegistrations(for: hexData) { result in
       switch result {
       case let .success(channels):
@@ -112,18 +98,12 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testListPushRegistration_Fail_NotEnabled() {
+  func test_ListPushRegistration_WhenPushNotEnabled_ReturnsPushNotEnabledError() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listPushChannelRegistrations(for: hexData) { result in
       switch result {
       case .success:
@@ -141,13 +121,16 @@ extension PushRouterTests {
 // MARK: - Modify Push Channels Tests
 
 extension PushRouterTests {
-  func testModifyPushChannels_Router() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
-
+  func test_ModifyPushChannelsRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let router = PushRouter(
-      .managePushChannels(pushToken: data, pushType: .apns, joining: testChannels, leaving: []), configuration: config
+      .managePushChannels(
+        pushToken: data,
+        pushType: .apns,
+        joining: testChannels,
+        leaving: []
+      ), configuration: config
     )
 
     XCTAssertEqual(router.endpoint.description, "Modify Push Channels")
@@ -155,28 +138,28 @@ extension PushRouterTests {
     XCTAssertEqual(router.service, .push)
   }
 
-  func testListModifyPushChannels_Router_ValidationError() {
+  func test_ModifyPushChannels_WhenTokenAndChannelsEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(
-      .managePushChannels(pushToken: Data(), pushType: .apns, joining: [], leaving: []), configuration: config
+      .managePushChannels(
+        pushToken: Data(),
+        pushType: .apns,
+        joining: [],
+        leaving: []
+      ), configuration: config
     )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
-  func testModifyPush_Success() {
+  func test_ModifyPush_WithValidChannels_ReturnsRemovedChannels() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_modify_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_modify_success"])
     let testRemoved = testChannels
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
       switch result {
       case let .success(response):
@@ -190,18 +173,12 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyPush_Fail_NotEnabled() {
+  func test_ModifyPush_WhenPushNotEnabled_ReturnsPushNotEnabledError() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
       switch result {
       case .success:
@@ -215,18 +192,12 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyPush_Fail_InvalidToken() {
+  func test_ModifyPush_WhenTokenInvalid_ReturnsInvalidDeviceTokenError() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["invalid_device_token_Message"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["invalid_device_token_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.managePushChannelRegistrations(byRemoving: testChannels, thenAdding: [], for: hexData) { result in
       switch result {
       case .success:
@@ -244,11 +215,9 @@ extension PushRouterTests {
 // MARK: - Remove All Push Channels Tests
 
 extension PushRouterTests {
-  func testRemoveAllPushChannels_Router() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
-
+  func test_RemoveAllPushChannelsRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
     let router = PushRouter(.removeAllPushChannels(pushToken: data, pushType: .apns), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove All Push Channels")
@@ -256,24 +225,20 @@ extension PushRouterTests {
     XCTAssertEqual(router.service, .push)
   }
 
-  func testRemoveAllPushChannels_Router_ValidationError() {
+  func test_RemoveAllPushChannels_WhenTokenEmpty_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig()
     let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
-  func testRemoveAllPush_Success() {
+  func test_RemoveAllPush_WithValidToken_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Group List Response Received")
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_remove_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_remove_all_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeAllPushChannelRegistrations(for: hexData) { result in
       switch result {
       case .success:
@@ -290,49 +255,62 @@ extension PushRouterTests {
 // MARK: - Remove All Push Channels Tests
 
 extension PushRouterTests {
-  func testModifyAPNS_Router() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
+  func test_ModifyAPNSRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
 
-    let router = PushRouter(.manageAPNS(pushToken: data, environment: .development,
-                                        topic: "TestTopic", adding: [], removing: []), configuration: config)
+    let router = PushRouter(
+      .manageAPNS(
+        pushToken: data,
+        environment: .development,
+        topic: "TestTopic",
+        adding: [],
+        removing: []
+      ), configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "List/Modify APNS Devices")
     XCTAssertEqual(router.category, "List/Modify APNS Devices")
     XCTAssertEqual(router.service, .push)
   }
 
-  func testModifyAPNS_Router_ValidationError() {
-    let router = PushRouter(.manageAPNS(pushToken: Data(), environment: .development,
-                                        topic: "TestTopic", adding: [], removing: []),
-                            configuration: config)
+  func test_ModifyAPNS_WhenTokenOrTopicEmpty_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = PushRouter(
+      .manageAPNS(
+        pushToken: Data(),
+        environment: .development,
+        topic: "TestTopic",
+        adding: [],
+        removing: []
+      ),
+      configuration: config
+    )
 
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
 
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
+    let emptyTopic = PushRouter(
+      .manageAPNS(
+        pushToken: data,
+        environment: .development,
+        topic: "",
+        adding: [],
+        removing: []
+      ),
+      configuration: config
+    )
 
-    let emptyTopic = PushRouter(.manageAPNS(pushToken: data, environment: .development,
-                                            topic: "", adding: [], removing: []),
-                                configuration: config)
-
-    XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
+    XCTAssertEqual(emptyTopic.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
-  func testModifyAPNS_ListChannels_Success() {
+  func test_ModifyAPNSListChannels_WithValidToken_ReturnsChannels() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_list_success"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
       switch result {
       case let .success(channels):
@@ -346,18 +324,13 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyAPNS_ListChannels_Fail_NotEnabled() {
+  func test_ModifyAPNSListChannels_WhenPushNotEnabled_ReturnsPushNotEnabledError() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
       switch result {
       case .success:
@@ -371,18 +344,13 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyAPNS_ListChannels_Success_Empty() {
+  func test_ModifyAPNSListChannels_WithValidToken_ReturnsEmptyChannels() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_list_success_empty"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_list_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.listAPNSPushChannelRegistrations(for: hexData, on: "TestTopic") { result in
       switch result {
       case let .success(channels):
@@ -396,22 +364,20 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyAPNS_AddRemove_Success() {
+  func test_ModifyAPNSAddRemove_WithValidChannels_ReturnsRemovedChannels() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
-
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_modify_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_modify_success"])
     let testRemoved = testChannels
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
-                                       device: hexData, on: "TestTopic") { result in
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.manageAPNSDevicesOnChannels(
+      byRemoving: testChannels,
+      thenAdding: [],
+      device: hexData,
+      on: "TestTopic"
+    ) { result in
       switch result {
       case let .success(response):
         XCTAssertEqual(response.removed, testRemoved)
@@ -424,18 +390,13 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyAPNS_AddRemove_Fail_EmptyAddRemove() {
+  func test_ModifyAPNSAddRemove_WhenBothEmpty_ReturnsMissingParameterError() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.manageAPNSDevicesOnChannels(byRemoving: [], thenAdding: [], device: hexData, on: "TestTopic") { result in
       switch result {
       case .success:
@@ -449,20 +410,19 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testModifyAPNS_AddRemove_Fail_NotEnabled() {
+  func test_ModifyAPNSAddRemove_WhenPushNotEnabled_ReturnsPushNotEnabledError() throws {
     let expectation = self.expectation(description: "Modify Push Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
-    pubnub.manageAPNSDevicesOnChannels(byRemoving: testChannels, thenAdding: [],
-                                       device: hexData, on: "TestTopic") { result in
+    pubnub.manageAPNSDevicesOnChannels(
+      byRemoving: testChannels,
+      thenAdding: [],
+      device: hexData,
+      on: "TestTopic"
+    ) { result in
       switch result {
       case .success:
         XCTFail("This should not succeed")
@@ -479,44 +439,56 @@ extension PushRouterTests {
 // MARK: - Remove All APNS Channels Tests
 
 extension PushRouterTests {
-  func testRemoveAllAPNSChannels_Router() {
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
+  func test_RemoveAllAPNSChannelsRouter_WithValidConfig_SetsExpectedEndpoint() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
 
-    let router = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
-                            configuration: config)
+    let router = PushRouter(
+      .removeAllAPNS(
+        pushToken: data,
+        environment: .development,
+        topic: "TestTopic"
+      ),
+      configuration: config
+    )
 
     XCTAssertEqual(router.endpoint.description, "Remove all channels from APNS device")
     XCTAssertEqual(router.category, "Remove all channels from APNS device")
     XCTAssertEqual(router.service, .push)
   }
 
-  func testRemoveAllAPNSChannels_Router_ValidationError() {
-    let router = PushRouter(.removeAllAPNS(pushToken: Data(), environment: .development, topic: "TestTopic"),
-                            configuration: config)
-    XCTAssertNotEqual(router.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: router))
+  func test_RemoveAllAPNSChannels_WhenTokenEmpty_ReturnsValidationError() throws {
+    let config = TestPubNubFactory.makeConfig()
+    let router = PushRouter(
+      .removeAllAPNS(
+        pushToken: Data(),
+        environment: .development,
+        topic: "TestTopic"
+      ),
+      configuration: config
+    )
 
-    guard let data = Data(hexEncodedString: "A1B2") else {
-      return XCTFail("Could not encode Data from hex string")
-    }
-    let emptyTopic = PushRouter(.removeAllAPNS(pushToken: data, environment: .development, topic: "TestTopic"),
-                                configuration: config)
-    XCTAssertNotEqual(emptyTopic.validationError?.pubNubError, PubNubError(.invalidEndpointType, router: emptyTopic))
+    XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
+
+    let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
+    let emptyTopic = PushRouter(
+      .removeAllAPNS(
+        pushToken: data,
+        environment: .development,
+        topic: ""
+      ), configuration: config
+    )
+
+    XCTAssertEqual(emptyTopic.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
 
-  func testRemoveAllAPNSChannels_Success() {
+  func test_RemoveAllAPNSChannels_WithValidToken_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Group List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_remove_all_success"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_remove_all_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
       switch result {
       case .success:
@@ -529,18 +501,13 @@ extension PushRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testRemoveAllAPNSChannels_Fail_NotEnabled() {
+  func test_RemoveAllAPNSChannels_WhenPushNotEnabled_ReturnsPushNotEnabledError() throws {
     let expectation = self.expectation(description: "Push List Response Received")
+    let hexData = try XCTUnwrap(Data(hexEncodedString: hexString))
+    let sessions = try MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"])
 
-    guard let hexData = Data(hexEncodedString: hexString) else {
-      return XCTFail("Could not conver hex string to data")
-    }
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["push_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.removeAllAPNSPushDevice(for: hexData, on: "TestTopic") { result in
       switch result {
       case .success:
@@ -553,6 +520,4 @@ extension PushRouterTests {
 
     wait(for: [expectation], timeout: 1.0)
   }
-
-  // swiftlint:disable:next file_length
 }

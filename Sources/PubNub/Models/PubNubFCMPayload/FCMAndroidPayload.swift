@@ -404,6 +404,4 @@ public struct FCMColor: Codable, Hashable {
   ///
   /// A value of 1.0 corresponds to a solid color, whereas a value of 0.0 corresponds to a completely transparent color.
   public let alpha: Double
-
-  // swiftlint:disable:next file_length
 }

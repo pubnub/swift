@@ -440,6 +440,4 @@ struct GetPresenceStatePayload: Codable {
       try container.encodeIfPresent(channels.first?.value, forKey: .payload)
     }
   }
-
-  // swiftlint:disable:next file_length
 }

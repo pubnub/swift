@@ -19,14 +19,15 @@ public struct PubNubError: Error {
   public let details: [String]
   /// The underlying `Error` that caused this `Error` to happen
   public let underlying: Error?
-
-  let coorelation: [CorrelationIdentifier]
+  /// The values that were affected by the error
   public let affected: [AffectedValue]
 
+  let coorelation: [CorrelationIdentifier]
   let router: HTTPRouter?
 
   /// The domain of the `Error`
   public let domain = "PubNub"
+
   /// The subdomain that this error can be categorized with
   public var subdomain: Domain {
     return reason.domain

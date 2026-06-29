@@ -107,10 +107,10 @@ struct CryptorHeaderParser {
       throw PubNubError(.decryptionFailure, additional: ["Could not find Cryptor identifier"])
     }
     guard let cryptorDataSizeByte = scanner.nextByte() else {
-      throw PubNubError(.decryptionFailure, additional: ["Could not find Cryptor data size byte"])
+      throw PubNubError(.decryptionFailure, additional: ["Could not find Cryptor data-size byte"])
     }
     guard let finalCryptorDataSize = try? computeCryptorDataSize(with: Int(cryptorDataSizeByte)) else {
-      throw PubNubError(.decryptionFailure, additional: ["Could not retrieve Cryptor defined data size"])
+      throw PubNubError(.decryptionFailure, additional: ["Could not retrieve Cryptor-defined data size"])
     }
     return .v1(
       cryptorId: cryptorId.map { $0 },
@@ -123,7 +123,7 @@ struct CryptorHeaderParser {
       return UInt16(sizeIndicator)
     }
     guard let nextBytes = scanner.nextBytes(2) else {
-      throw PubNubError(.unknownCryptorFailure, additional: ["Could not find next Cryptor data size bytes"])
+      throw PubNubError(.unknownCryptorFailure, additional: ["Could not find next Cryptor data-size bytes"])
     }
     return nextBytes.withUnsafeBytes {
       $0.load(as: UInt16.self)

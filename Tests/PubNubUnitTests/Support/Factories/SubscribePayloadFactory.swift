@@ -1,5 +1,5 @@
 //
-//  SubscribeMessagesGeneratorTests.swift
+//  SubscribePayloadFactory.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -8,7 +8,6 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 @testable import PubNubSDK
 
 func mockMessagePayload(

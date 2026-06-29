@@ -8,18 +8,18 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class StringPubNubTests: XCTestCase {
-  func testPresenceChannel() {
+  func test_PresenceChannelName_ForRegularChannel_AppendsPnpres() {
     let channel = "channelName"
     let presece = "channelName-pnpres"
 
     XCTAssertEqual(channel.presenceChannelName, presece)
   }
 
-  func testIsPresenceChannel() {
+  func test_IsPresenceChannelName_ForRegularAndPresenceChannel_ReturnsCorrectBool() {
     let channel = "channelName"
     let presece = "channelName-pnpres"
 
@@ -27,7 +27,7 @@ final class StringPubNubTests: XCTestCase {
     XCTAssertTrue(presece.isPresenceChannelName)
   }
 
-  func testURLEncodeSlash() {
+  func test_URLEncodeSlash_WithSlashCharacter_EncodesCorrectly() {
     let userInput = "unsanitary/input".urlEncodeSlash
     let path = "/path/component/\(userInput)/end"
 

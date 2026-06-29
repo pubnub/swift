@@ -13,12 +13,12 @@ import XCTest
 
 class ChannelObjectsEndpointIntegrationTests: XCTestCase {
   let config: PubNubConfiguration = PubNubConfiguration(bundle: Bundle(for: ChannelObjectsEndpointIntegrationTests.self))
-  
+
   func testFetchAllEndpoint() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
     let expectedChannels = createTestChannels(client: client)
-    
+
     client.allChannelMetadata(filter: "id LIKE 'swift-*'") { result in
       switch result {
       case let .success((channels, _)):
@@ -30,7 +30,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       fetchAllExpect.fulfill()
     }
-    
+
     defer {
       for channel in expectedChannels {
         waitForCompletion {
@@ -41,15 +41,15 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
-  
+
   func testFetchAllEndpointWithSortParameter() {
     let fetchAllExpect = expectation(description: "Fetch All Expectation")
     let client = PubNub(configuration: config)
     let expectedChannels = createTestChannels(client: client)
-    
+
     client.allChannelMetadata(
       filter: "id LIKE '\(Constants.prefix)*'",
       sort: [.init(property: .name, ascending: false)]
@@ -64,7 +64,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       fetchAllExpect.fulfill()
     }
-    
+
     defer {
       for channel in expectedChannels {
         waitForCompletion {
@@ -75,16 +75,16 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 10.0)
   }
-  
+
   func testFetchAllEndpointWithLimitAndPagination() {
     let fetchAllExpect = expectation(description: "Fetch All with Limit Expectation")
     let client = PubNub(configuration: config)
     let expectedChannels = createTestChannels(client: client)
     let limit = 3
-    
+
     // First page
     client.allChannelMetadata(
       filter: "id LIKE 'swift-*'",
@@ -115,7 +115,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         fetchAllExpect.fulfill()
       }
     }
-    
+
     defer {
       for channel in expectedChannels {
         waitForCompletion {
@@ -126,15 +126,15 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         }
       }
     }
-    
+
     wait(for: [fetchAllExpect], timeout: 15.0)
   }
-  
+
   func testCreateAndFetchEndpoint() {
     let fetchExpect = expectation(description: "Fetch Expectation")
     let client = PubNub(configuration: config)
     let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
+
     client.setChannelMetadata(testChannel) { [unowned client] _ in
       client.fetchChannelMetadata(testChannel.metadataId) { result in
         switch result {
@@ -146,7 +146,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         fetchExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeChannelMetadata(
@@ -155,15 +155,15 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testDeleteAndCreateEndpoint() {
     let fetchExpect = expectation(description: "Create User Expectation")
     let client = PubNub(configuration: config)
     let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
+
     client.setChannelMetadata(testChannel) { [unowned client] _ in
       client.removeChannelMetadata(testChannel.metadataId) { result in
         switch result {
@@ -175,7 +175,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         fetchExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeChannelMetadata(
@@ -184,15 +184,15 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testFetchNotExistingChannel() {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
     let client = PubNub(configuration: config)
     let testChannel = PubNubChannelMetadataBase(metadataId: randomString(), name: "Swift ITest")
-    
+
     client.fetchChannelMetadata(testChannel.metadataId) { result in
       switch result {
       case .success:
@@ -203,8 +203,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
       }
       fetchExpect.fulfill()
     }
-    
-    
+
     defer {
       waitForCompletion {
         client.removeChannelMetadata(
@@ -213,21 +212,21 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [fetchExpect], timeout: 10.0)
   }
-  
+
   func testSetChannelWithEntityTag() {
     let setExpect = expectation(description: "Set Channel Expectation")
     let client = PubNub(configuration: config)
-    
+
     var testChannel = PubNubChannelMetadataBase(
       metadataId: randomString(),
       name: "Swift ITest",
       custom: ["type": "public"]
     )
-    
-    client.setChannelMetadata(testChannel) { [unowned client] firstResult in
+
+    client.setChannelMetadata(testChannel) { [unowned client] _ in
       // Update the channel metadata
       testChannel.custom = ["type": "private"]
       // Set the channel metadata with the ifMatchesEtag parameter
@@ -242,7 +241,7 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         setExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.removeChannelMetadata(
@@ -251,19 +250,19 @@ class ChannelObjectsEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [setExpect], timeout: 10.0)
   }
 }
 
-private extension ChannelObjectsEndpointIntegrationTests {  
+private extension ChannelObjectsEndpointIntegrationTests {
   func createTestChannels(client: PubNub) -> [PubNubChannelMetadata] {
     let setupExpect = expectation(description: "Create Test Channels Expectation")
     let testChannels = channelStubs()
 
     setupExpect.expectedFulfillmentCount = testChannels.count
     setupExpect.assertForOverFulfill = true
-    
+
     func createNext(_ remainingChannels: [PubNubChannelMetadataBase]) {
       if let channel = remainingChannels.first {
         client.setChannelMetadata(channel) { result in
@@ -277,11 +276,11 @@ private extension ChannelObjectsEndpointIntegrationTests {
         }
       }
     }
-    
+
     createNext(testChannels)
     // Wait for all channels to be created
     wait(for: [setupExpect], timeout: 10.0)
-    
+
     return testChannels
   }
 

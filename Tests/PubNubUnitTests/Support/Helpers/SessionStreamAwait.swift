@@ -8,7 +8,6 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-import Foundation
 import XCTest
 
 @testable import PubNubSDK

@@ -8,15 +8,14 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class PubNubTests: XCTestCase {
   let testBundle = Bundle(for: PubNubTests.self)
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
 
   func testInit_CustomConfig() {
+    let config = TestPubNubFactory.makeConfig()
     let pubnub = PubNub(configuration: config)
 
     XCTAssertEqual(pubnub.configuration, config)

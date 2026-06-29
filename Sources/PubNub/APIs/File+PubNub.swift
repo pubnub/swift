@@ -643,6 +643,4 @@ public extension PubNub {
     // Start the download
     task.resume()
   }
-
-  // swiftlint:disable:next file_length
 }

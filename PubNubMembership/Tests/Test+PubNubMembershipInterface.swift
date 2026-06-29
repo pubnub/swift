@@ -15,7 +15,6 @@ import XCTest
 
 @testable import PubNubMembership
 
-// swiftlint:disable:next type_body_length
 class PubNubMembershipInterfaceTests: XCTestCase {
   let testMembership = PubNubMembership(
     user: PubNubUser(id: "TestUserId"),
@@ -697,5 +696,4 @@ class PubNubMembershipInterfaceTests: XCTestCase {
 
     wait(for: [expectation], timeout: 1.0)
   }
-  // swiftlint:disable:next file_length
 }

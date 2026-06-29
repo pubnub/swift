@@ -660,6 +660,4 @@ struct _XMLEncodingStorage {
     precondition(!containers.isEmpty, "Empty container stack.")
     return containers.popLast() ?? NSNull()
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -514,6 +514,4 @@ extension FilePublishPayload: Validated {
   var validationErrorDetail: String? {
     return validationError?.pubNubError?.details.first
   }
-
-  // swiftlint:disable:next file_length
 }

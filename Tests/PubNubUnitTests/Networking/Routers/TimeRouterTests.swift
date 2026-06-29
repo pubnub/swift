@@ -8,38 +8,35 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
-class TimeRouterTests: XCTestCase {
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
+final class TimeRouterTests: XCTestCase {
+  let config = TestPubNubFactory.makeConfig()
 
-  func testTime_Endpoint() {
+  func test_TimeRouter_WithValidConfig_SetsExpectedEndpoint() throws {
     let router = TimeRouter(.time, configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Time")
     XCTAssertEqual(router.category, "Time")
-    XCTAssertEqual(try? router.path.get(), "/time/0")
-    XCTAssertEqual(try? router.queryItems.get(), router.defaultQueryItems)
+    XCTAssertEqual(try router.path.get(), "/time/0")
+    XCTAssertEqual(try router.queryItems.get(), router.defaultQueryItems)
     XCTAssertEqual(router.pamVersion, .none)
     XCTAssertEqual(router.keysRequired, .none)
     XCTAssertEqual(router.service, .time)
   }
 
-  func testTime_Endpoint_ValidationError() {
+  func test_TimeRouter_WithValidConfig_ReturnsNoValidationError() {
     let router = TimeRouter(.time, configuration: config)
 
     XCTAssertEqual(router.validationError?.pubNubError, nil)
   }
 
-  func testTime_Success() {
+  func test_Time_WithValidRequest_ReturnsTimetoken() throws {
     let expectation = self.expectation(description: "Time Response Received")
+    let sessions = try MockURLSession.mockSession(for: ["time_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
-
-    let pubnub = PubNub(configuration: config, session: sessions.session)
     pubnub.time { result in
       switch result {
       case let .success(timetoken):

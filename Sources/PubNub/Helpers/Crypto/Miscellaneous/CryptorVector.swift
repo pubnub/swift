@@ -15,10 +15,12 @@ enum CryptorVector {
   case fixed
   case random(bytesCount: Int)
 
+  private static let fixedInitializationVector = Data("0123456789012345".utf8)
+
   func data() throws -> Data {
     switch self {
     case .fixed:
-      return try staticInitializationVector()
+      return Self.fixedInitializationVector
     case .random(let byteCount):
       return try randomInitializationVector(with: byteCount)
     }
@@ -38,13 +40,6 @@ enum CryptorVector {
     } else {
       return false
     }
-  }
-
-  private func staticInitializationVector() throws -> Data {
-    guard let initializationVector = "0123456789012345".data(using: .utf8) else {
-      throw CryptoError.rngFailure
-    }
-    return initializationVector
   }
 
   private func randomInitializationVector(with byteCount: Int) throws -> Data {

@@ -61,7 +61,7 @@ class DependencyContainer {
     register(key: HTTPSubscribeSessionDependencyKey.self, scope: .weak)
     register(key: HTTPPresenceSessionDependencyKey.self, scope: .weak)
     register(key: HTTPSubscribeSessionQueueDependencyKey.self, scope: .weak)
-    register(key: PresenceStateContainerDependencyKey.self, scope: .weak)
+    register(key: PresenceStateContainerDependencyKey.self, scope: .container)
     register(key: SubscribeEventEngineDependencyKey.self, scope: .weak)
     register(key: PresenceEventEngineDependencyKey.self, scope: .weak)
     register(key: SubscriptionSessionDependencyKey.self, scope: .weak)
@@ -285,7 +285,7 @@ struct FileURLSessionManagerDependencyKey: DependencyKey {
 
 struct PresenceStateContainerDependencyKey: DependencyKey {
   static func value(from container: DependencyContainer) -> PubNubPresenceStateContainer {
-    PubNubPresenceStateContainer.shared
+    PubNubPresenceStateContainer()
   }
 }
 

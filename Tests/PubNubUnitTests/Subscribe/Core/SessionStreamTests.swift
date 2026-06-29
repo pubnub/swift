@@ -8,27 +8,28 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class SessionStreamTests: XCTestCase {
-  var pubnub: PubNub!
-  let config = PubNubConfiguration(publishKey: "FakeTestString", subscribeKey: "FakeTestString", userId: UUID().uuidString)
+  let config = PubNubConfiguration(
+    publishKey: "FakeTestString",
+    subscribeKey: "FakeTestString",
+    userId: UUID().uuidString
+  )
 
   // swiftlint:disable:next function_body_length
-  func testSessionStream_Closure() {
-    var expectations = [XCTestExpectation]()
+  func testSessionStream_Closure() throws {
+    let closureStream = SessionListener(
+      queue: DispatchQueue(
+        label: "Session Listener",
+        qos: .userInitiated,
+        attributes: .concurrent
+      )
+    )
 
-    let closureStream = SessionListener(queue: DispatchQueue(label: "Session Listener",
-                                                             qos: .userInitiated,
-                                                             attributes: .concurrent))
     let multiplexStream = MultiplexSessionStream([closureStream])
-
-    guard let sessions = try? MockURLSession.mockSession(for: ["time_success"],
-                                                         with: multiplexStream)
-    else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["time_success"], with: multiplexStream)
 
     let sessionMultiplex = sessions.session?.sessionStream as? MultiplexSessionStream
     let sessionListener = sessionMultiplex?.streams.first as? SessionListener
@@ -82,7 +83,8 @@ class SessionStreamTests: XCTestCase {
     }
 
     let totalExpectation = expectation(description: "Time Response Received")
-    pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = PubNub(configuration: config, session: sessions.session)
+
     pubnub.time { result in
       switch result {
       case let .success(timetoken):
@@ -92,8 +94,9 @@ class SessionStreamTests: XCTestCase {
       }
       totalExpectation.fulfill()
     }
-    expectations.append(totalExpectation)
 
+    var expectations: [XCTestExpectation] = []
+    expectations.append(totalExpectation)
     XCTAssertEqual(sessionExpector.expectations.count, 8)
     expectations.append(contentsOf: sessionExpector.expectations)
 

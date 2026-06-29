@@ -14,13 +14,13 @@ import PubNubSDK
 
 final class ChannelGroupEndpointIntegrationTests: XCTestCase {
   let config = PubNubConfiguration(bundle: Bundle(for: ChannelGroupEndpointIntegrationTests.self))
-  
+
   func testListChannelsInGroup() {
     let listChannelsExpect = expectation(description: "List Channels Response")
     let client = PubNub(configuration: config)
     let testGroup = randomString()
     let testChannels = [randomString(), randomString()]
-    
+
     // First add channels to the group
     client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then list channels in the group
@@ -35,7 +35,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         listChannelsExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.remove(
@@ -51,23 +51,23 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [listChannelsExpect], timeout: 10.0)
   }
-  
+
   func testAddChannelsToGroup() {
     let addChannelsExpect = expectation(description: "Add Channels Response")
     let listChannelsExpect = expectation(description: "List Channels Response")
-    
+
     let client = PubNub(configuration: config)
     let testGroup = randomString()
     let testChannels = [randomString(), randomString()]
-    
+
     client.add(channels: testChannels, to: testGroup) { [unowned client] result in
       switch result {
       case let .success(addChannelsResponse):
         XCTAssertEqual(Set(addChannelsResponse.channels), Set(testChannels))
-        XCTAssertEqual(addChannelsResponse.group, testGroup)        
+        XCTAssertEqual(addChannelsResponse.group, testGroup)
         // Fetch the channels for the group and verify they are the same as the ones added
         client.listChannels(for: testGroup) { listChannelsResult in
           switch listChannelsResult {
@@ -84,7 +84,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
       }
       addChannelsExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.remove(
@@ -100,18 +100,18 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [addChannelsExpect, listChannelsExpect], timeout: 100.0)
   }
-  
+
   func testRemoveChannelsFromGroup() {
     let removeChannelsExpect = expectation(description: "Remove Channels Response")
     let listChannelsExpect = expectation(description: "List Channels Response")
-    
+
     let client = PubNub(configuration: config)
     let testGroup = randomString()
     let testChannels = [randomString(), randomString()]
-    
+
     // First add channels to the group
     client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then remove them
@@ -137,7 +137,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         removeChannelsExpect.fulfill()
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.remove(
@@ -153,10 +153,10 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [removeChannelsExpect, listChannelsExpect], timeout: 10.0)
   }
-  
+
   func testRemoveChannelGroup() {
     let removeGroupExpect = expectation(description: "Remove Channel Group Response")
     let listGroupsExpect = expectation(description: "List Groups Response")
@@ -164,7 +164,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: config)
     let testGroup = randomString()
     let testChannels = [randomString(), randomString()]
-    
+
     // First add channels to the group
     client.add(channels: testChannels, to: testGroup) { [unowned client] _ in
       // Then remove the group
@@ -204,7 +204,7 @@ final class ChannelGroupEndpointIntegrationTests: XCTestCase {
         )
       }
     }
-    
+
     wait(for: [removeGroupExpect, listGroupsExpect], timeout: 10.0)
   }
 }

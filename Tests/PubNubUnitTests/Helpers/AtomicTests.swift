@@ -8,18 +8,16 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 class AtomicTests: XCTestCase {
+
   // MARK: - General Functionality
 
-  func testLockedPerform() {
+  func test_Atomic_LockedPerform_ExecutesClosure() {
     let lockedPerform = XCTestExpectation(description: "testLockedPerform")
-
-    let closure = {
-      lockedPerform.fulfill()
-    }
+    let closure = { lockedPerform.fulfill() }
     let atomic = Atomic(1)
 
     atomic.lockedPerform { closure() }
@@ -27,14 +25,14 @@ class AtomicTests: XCTestCase {
     wait(for: [lockedPerform], timeout: 1.0)
   }
 
-  func testLockedRead() {
+  func test_Atomic_LockedRead_ReturnsTrue() {
     let value = 0
     let atomic = Atomic(value)
 
     XCTAssertTrue(atomic.lockedRead { $0 == value })
   }
 
-  func testLockedWrite() {
+  func test_Atomic_LockedWrite_UpdatesValue() {
     let value = 0
     let newValue = 1
     let atomic = Atomic(value)
@@ -47,16 +45,19 @@ class AtomicTests: XCTestCase {
     }
 
     XCTAssertEqual(writtenValue, newValue)
+    XCTAssertEqual(atomic.lockedRead { $0 }, newValue)
   }
 
-  func testLockedTry_Throws() {
+  func test_Atomic_LockedTryWithError_ThrowsError() {
     let invalidJson = 0
     let atomic = Atomic(invalidJson)
 
-    XCTAssertThrowsError(try atomic.lockedTry { _ in throw PubNubError(.requestMutatorFailure) })
+    XCTAssertThrowsError(try atomic.lockedTry { _ in throw PubNubError(.requestMutatorFailure) }) { error in
+      XCTAssertEqual(error as? PubNubError, PubNubError(.requestMutatorFailure))
+    }
   }
 
-  func testLockedTry_NoThrows() {
+  func test_Atomic_LockedTryWithValidData_DoesNotThrow() {
     let validJson = [0]
     let value = AnyJSON(validJson)
     let atomic = Atomic(value)
@@ -64,7 +65,7 @@ class AtomicTests: XCTestCase {
     XCTAssertNoThrow(try atomic.lockedTry { try $0.jsonDataResult.get() })
   }
 
-  func testIsEmpty() {
+  func test_Atomic_IsEmptyWithEmptyArray_ReturnsTrue() {
     let value = [Int]()
     let atomic = Atomic(value)
 
@@ -72,7 +73,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0 }, value)
   }
 
-  func testAppendElement() {
+  func test_Atomic_AppendElement_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let atomic = Atomic(value)
@@ -85,7 +86,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
-  func testAppendSequence() {
+  func test_Atomic_AppendSequence_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let sequence = [newValue].makeIterator()
@@ -99,7 +100,7 @@ class AtomicTests: XCTestCase {
     XCTAssertEqual(atomic.lockedRead { $0.first }, newValue)
   }
 
-  func testAppendCollection() {
+  func test_Atomic_AppendCollection_AddsToArray() {
     let value = [Int]()
     let newValue = 0
     let atomic = Atomic(value)
@@ -114,16 +115,18 @@ class AtomicTests: XCTestCase {
 
   // MARK: - AtomicInt
 
-  func testFetchOrSetsBits() {
+  func test_AtomicInt_BitwiseOrAssignment_SetsBitsCorrectly() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(0), 0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(4), 0)
     XCTAssertEqual(atomic.bitwiseOrAssignemnt(8), 4)
     XCTAssertTrue(atomic.isEqual(to: 12))
   }
 
-  func testAdd() {
+  func test_AtomicInt_Add_ReturnsOldValueAndIncrements() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.add(4), 0)
     XCTAssertEqual(atomic.add(3), 4)
     XCTAssertEqual(atomic.add(10), 7)
@@ -131,8 +134,9 @@ class AtomicTests: XCTestCase {
     XCTAssertTrue(atomic.isEqual(to: 18))
   }
 
-  func testSub() {
+  func test_AtomicInt_Sub_ReturnsOldValueAndDecrements() {
     let atomic = AtomicInt(0)
+
     XCTAssertEqual(atomic.sub(4), 0)
     XCTAssertEqual(atomic.sub(3), -4)
     XCTAssertEqual(atomic.sub(10), -7)
@@ -140,74 +144,65 @@ class AtomicTests: XCTestCase {
     XCTAssertTrue(atomic.isEqual(to: -18))
   }
 
-  func testConcurreny_FetchOr() {
-    let queue = DispatchQueue(
-      label: "ConcurrenyQueue Fetch",
-      qos: .default,
-      attributes: .concurrent
-    )
-    let repeatCount = 25
+  func test_AtomicInt_ConcurrentBitwiseOr_OnlyOneThreadSeesExpectedValue() {
     let concurrencyCount = 8
     let fetchCount: Int32 = 1
 
-    for _ in 0 ..< repeatCount {
-      let atomic = AtomicInt(0)
+    for _ in 0..<25 {
+      let atomic = AtomicInt(fetchCount)
       let counter = AtomicInt(0)
 
-      var expectations = [XCTestExpectation]()
-
-      for _ in 0 ..< concurrencyCount {
-        let expectation = self.expectation(description: "wait until loop completes")
-        queue.async {
-          while atomic.get() == 0 {}
-
-          if atomic.bitwiseOrAssignemnt(-1) == fetchCount {
-            counter.increment()
-          }
-
-          expectation.fulfill()
+      performConcurrently(count: concurrencyCount) {
+        if atomic.bitwiseOrAssignemnt(-1) == fetchCount {
+          counter.increment()
         }
-        expectations.append(expectation)
       }
-      atomic.bitwiseOrAssignemnt(fetchCount)
-
-      wait(for: expectations, timeout: 1.0)
 
       XCTAssertEqual(counter.get(), fetchCount)
     }
   }
 
-  func testConcurreny_Add() {
-    let queue = DispatchQueue(
-      label: "ConcurrenyQueue Add",
-      qos: .default,
-      attributes: .concurrent
-    )
-    let repeatCount = 25
+  func test_AtomicInt_ConcurrentIncrement_AllThreadsComplete() {
     let concurrencyCount: Int32 = 8
 
-    for _ in 0 ..< repeatCount {
-      let atomic = AtomicInt(0)
+    for _ in 0..<25 {
       let counter = AtomicInt(0)
 
-      var expectations = [XCTestExpectation]()
-
-      for _ in 0 ..< concurrencyCount {
-        let expectation = self.expectation(description: "wait until loop completes")
-        queue.async {
-          while atomic.get() == 0 {}
-
-          counter.increment()
-
-          expectation.fulfill()
-        }
-        expectations.append(expectation)
+      performConcurrently(count: Int(concurrencyCount)) {
+        counter.increment()
       }
-      atomic.bitwiseOrAssignemnt(1)
-
-      wait(for: expectations, timeout: 1.0)
 
       XCTAssertEqual(counter.get(), concurrencyCount)
     }
+  }
+}
+
+private extension AtomicTests {
+
+  /// Executes `action` on `count` threads simultaneously and waits for all to finish.
+  func performConcurrently(count: Int, timeout: TimeInterval = 1.0, action: @escaping () -> Void) {
+    let queue = DispatchQueue(label: "ConcurrencyQueue", attributes: .concurrent)
+    let startGate = DispatchSemaphore(value: 0)
+    let readyGate = DispatchSemaphore(value: 0)
+    let expectations = (0..<count).map { _ in expectation(description: "concurrent work") }
+
+    for i in 0..<count {
+      queue.async {
+        readyGate.signal()
+        startGate.wait()
+        action()
+        expectations[i].fulfill()
+      }
+    }
+
+    for _ in 0..<count {
+      readyGate.wait()
+    }
+
+    for _ in 0..<count {
+      startGate.signal()
+    }
+
+    wait(for: expectations, timeout: timeout)
   }
 }

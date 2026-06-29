@@ -8,21 +8,17 @@
 //  LICENSE file in the root directory of this source tree.
 //
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class DateFormatterPubNubTests: XCTestCase {
-  func testCurrentDateString() {
+  func test_CurrentDateString_WhenFormatted_MatchesCurrentDateWithinOneSecond() throws {
     let formatter = DateFormatter()
     formatter.dateStyle = .long
     formatter.timeStyle = .long
 
     let currentDate = Date()
-    guard let dateFormatterDate = formatter.date(from: formatter.currentDateString) else {
-      XCTFail("Could not create valid date from Date object.")
-      return
-    }
-
+    let dateFormatterDate = try XCTUnwrap(formatter.date(from: formatter.currentDateString))
     let offset = currentDate.timeIntervalSince(dateFormatterDate)
 
     // Ensure that the dates are close enough

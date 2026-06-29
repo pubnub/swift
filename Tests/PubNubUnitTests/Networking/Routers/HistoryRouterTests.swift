@@ -7,19 +7,11 @@
 //  This source code is licensed under the license found in the
 //  LICENSE file in the root directory of this source tree.
 //
-// swiftlint:disable file_length
 
-@testable import PubNubSDK
 import XCTest
+@testable import PubNubSDK
 
 final class HistoryRouterTests: XCTestCase {
-  var config = PubNubConfiguration(
-    publishKey: "FakeTestString",
-    subscribeKey: "FakeTestString",
-    userId: UUID().uuidString,
-    authKey: "auth-key"
-  )
-
   let testChannel = "TestChannel"
   let testSingleChannel = ["TestChannel"]
   let testMultiChannels = ["TestChannel", "OtherTestChannel"]
@@ -28,8 +20,8 @@ final class HistoryRouterTests: XCTestCase {
 // MARK: - Fetch History
 
 extension HistoryRouterTests {
-  func testFetch_Router() {
-    config.authToken = "access-token"
+  func test_FetchHistoryRouter_WithAuthToken_SetsExpectedQueryItems() throws {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key", authToken: "access-token")
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
@@ -39,9 +31,7 @@ extension HistoryRouterTests {
       configuration: config
     )
 
-    guard let queryItems = try? router.queryItems.get() else {
-      return XCTAssert(false, "'queryItems' not set")
-    }
+    let queryItems = try router.queryItems.get()
 
     XCTAssertEqual(router.endpoint.description, "Fetch Message History")
     XCTAssertEqual(router.category, "Fetch Message History")
@@ -51,7 +41,8 @@ extension HistoryRouterTests {
     XCTAssertTrue(queryItems.contains(URLQueryItem(name: "auth", value: "access-token")))
   }
 
-  func testFetch_Router_ValidationError() {
+  func test_FetchHistoryRouter_WithEmptyChannels_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .fetch(
         channels: [], max: nil, start: nil, end: nil,
@@ -65,7 +56,8 @@ extension HistoryRouterTests {
                    ErrorDescription.emptyChannelArray)
   }
 
-  func testFetch_Router_firstChannel() {
+  func test_FetchHistoryRouter_WithMultipleChannels_ReturnsFirstChannel() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .fetch(
         channels: testMultiChannels, max: nil, start: nil, end: nil,
@@ -78,14 +70,12 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testFetch_Success() {
+  func test_FetchHistory_WithSingleChannel_ReturnsMessages() throws {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: testSingleChannel) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -103,14 +93,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_IncludeMeta() {
+  func test_FetchHistory_WithIncludeMeta_ReturnsMessagesWithMetadata() throws {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_withMeta"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_withMeta"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -128,14 +116,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_MultipleChannels() {
+  func test_FetchHistory_WithMultipleChannels_ReturnsMessagesForAllChannels() throws {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_multipleChannels"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_multipleChannels"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -153,17 +139,16 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_Encrypted() {
+  func test_FetchHistory_WithEncryptedMessages_ReturnsDecryptedPayload() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"])
 
-    var configWithCipher = config
-    configWithCipher.cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false)
-
-    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(
+      authKey: "auth-key",
+      cryptoModule: CryptoModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false),
+      session: sessions.session
+    )
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -180,24 +165,23 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_EncryptedWrongKey() {
+  func test_FetchHistory_WithWrongDecryptionKey_ReturnsDecryptionFailureError() throws {
     let expectation = self.expectation(description: "HereNow Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_encrypted"])
 
-    var configWithCipher = config
-    configWithCipher.cryptoModule = CryptoModule.legacyCryptoModule(with: "NotTheRightKey", withRandomIV: false)
-
-    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(
+      authKey: "auth-key",
+      cryptoModule: CryptoModule.legacyCryptoModule(with: "NotTheRightKey", withRandomIV: false),
+      session: sessions.session
+    )
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
         let channelMessages = messagesByChannel[self.testChannel]
         XCTAssertNotNil(channelMessages)
         XCTAssertEqual(channelMessages?.first?.payload.dataOptional?.base64EncodedString(), "s3+CcEE2QZ/Lh9CaPieJnQ==")
-        XCTAssertTrue((channelMessages ?? []).reduce(into: true) { $0 = $0 && $1.error?.reason == .decryptionFailure })
+        XCTAssertTrue((channelMessages ?? []).allSatisfy { $0.error?.reason == .decryptionFailure })
         XCTAssertEqual(next?.start, 15_657_268_328_421_957)
       case let .failure(error):
         XCTFail("Fetch History request failed with error: \(error.localizedDescription)")
@@ -207,17 +191,16 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_MixedEncrypted() {
+  func test_FetchHistory_WithMixedEncryptedMessages_ReturnsDecryptedAndPlaintext() throws {
     let expectation = self.expectation(description: "Fetch Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_mixedEncrypted"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_mixedEncrypted"])
 
-    var configWithCipher = config
-    configWithCipher.cryptoModule = CryptoModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false)
-
-    let pubnub = PubNub(configuration: configWithCipher, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(
+      authKey: "auth-key",
+      cryptoModule: CryptoModule.legacyCryptoModule(with: "SomeTestString", withRandomIV: false),
+      session: sessions.session
+    )
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -237,14 +220,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetch_Success_EmptyMessages() {
+  func test_FetchHistory_WithNoMessages_ReturnsEmptyResult() throws {
     let expectation = self.expectation(description: "Fetch History Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Fetch_success_emptyList"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Fetch_success_emptyList"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: testMultiChannels) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -263,7 +244,8 @@ extension HistoryRouterTests {
 // MARK: - Fetch With Message Actions
 
 extension HistoryRouterTests {
-  func testFetchWithActions_Router() {
+  func test_FetchWithActionsRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .fetchWithActions(
         channel: testChannel, max: nil, start: nil, end: nil,
@@ -278,7 +260,8 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.service, .history)
   }
 
-  func testFetchWithActions_Router_ValidationError() {
+  func test_FetchWithActionsRouter_WithEmptyChannel_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .fetchWithActions(
         channel: "", max: nil, start: nil, end: nil,
@@ -292,11 +275,12 @@ extension HistoryRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testFetchWithActions_Router_firstChannel() {
+  func test_FetchWithActionsRouter_WithValidChannel_ReturnsFirstChannel() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .fetchWithActions(
         channel: testChannel, max: nil, start: nil, end: nil,
-        includeMeta: false, includeMessageType: false, 
+        includeMeta: false, includeMessageType: false,
         includeCustomMessageType: false, includeUUID: false
       ),
       configuration: config
@@ -305,14 +289,12 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testFetchWithActions_Success() {
+  func test_FetchWithActions_WithValidChannel_ReturnsMessagesWithActions() throws {
     let expectation = self.expectation(description: "Fetch History  Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_Fetch_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistoryWithActions_Fetch_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: [testChannel], includeActions: true) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -329,14 +311,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testFetchWithActions_Success_Empty() {
+  func test_FetchWithActions_WithNoMessages_ReturnsEmptyResult() throws {
     let expectation = self.expectation(description: "Fetch History Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistoryWithActions_success_empty"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistoryWithActions_success_empty"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.fetchMessageHistory(for: [testChannel], includeActions: true) { result in
       switch result {
       case let .success((messagesByChannel, next)):
@@ -355,7 +335,8 @@ extension HistoryRouterTests {
 // MARK: - Delete History
 
 extension HistoryRouterTests {
-  func testDelete_Router() {
+  func test_DeleteHistoryRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(
       .delete(channel: testChannel, start: nil, end: nil),
       configuration: config
@@ -367,7 +348,8 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.service, .history)
   }
 
-  func testDelete_Router_ValidationError() {
+  func test_DeleteHistoryRouter_WithEmptyChannel_ReturnsValidationError() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(.delete(channel: "", start: nil, end: nil),
                                configuration: config)
 
@@ -375,21 +357,20 @@ extension HistoryRouterTests {
                    ErrorDescription.emptyChannelString)
   }
 
-  func testDelete_Router_firstChannel() {
+  func test_DeleteHistoryRouter_WithValidChannel_ReturnsFirstChannel() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(.delete(channel: testChannel, start: nil, end: nil),
                                configuration: config)
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testDelete_Success() {
+  func test_DeleteHistory_WithValidChannel_ReturnsSuccess() throws {
     let expectation = self.expectation(description: "Delete History Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["messageHistory_Delete_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["messageHistory_Delete_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.deleteMessageHistory(from: testChannel) { result in
       switch result {
       case .success:
@@ -402,14 +383,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testHistory_Error_HistoryNotEnabled() {
+  func test_DeleteHistory_WhenNotEnabled_ReturnsMessageDeletionNotEnabledError() throws {
     let expectation = self.expectation(description: "History Not Enabled Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["history_delete_not_enabled_for_key_Message"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["history_delete_not_enabled_for_key_Message"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.deleteMessageHistory(from: testChannel) { result in
       switch result {
       case .success:
@@ -427,7 +406,8 @@ extension HistoryRouterTests {
 // MARK: - Message Counts
 
 extension HistoryRouterTests {
-  func testMessageCounts_Router() {
+  func test_MessageCountsRouter_WithValidConfig_SetsExpectedProperties() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(.messageCounts(channels: testSingleChannel, timetoken: 0, channelsTimetoken: [0]),
                                configuration: config)
 
@@ -436,7 +416,8 @@ extension HistoryRouterTests {
     XCTAssertEqual(router.service, .history)
   }
 
-  func testMessageCounts_Router_ValidationError() {
+  func test_MessageCountsRouter_WithInvalidInputs_ReturnsValidationErrors() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(.messageCounts(channels: [], timetoken: 0, channelsTimetoken: [0]),
                                configuration: config)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyChannelArray)
@@ -452,21 +433,20 @@ extension HistoryRouterTests {
                    ErrorDescription.invalidHistoryTimetokens)
   }
 
-  func testMessageCounts_Router_firstChannel() {
+  func test_MessageCountsRouter_WithValidChannels_ReturnsFirstChannel() {
+    let config = TestPubNubFactory.makeConfig(authKey: "auth-key")
     let router = HistoryRouter(.messageCounts(channels: testSingleChannel, timetoken: 0, channelsTimetoken: [0]),
                                configuration: config)
 
     XCTAssertEqual(router.endpoint.firstChannel, testChannel)
   }
 
-  func testMessageCounts_Success() {
+  func test_MessageCounts_WithValidChannel_ReturnsCountPerChannel() throws {
     let expectation = self.expectation(description: "Message Counts Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["message_counts_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
       switch result {
       case let .success(channels):
@@ -483,14 +463,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testMessageCounts_Success_ChannelsDictionary() {
+  func test_MessageCounts_WithChannelsDictionary_ReturnsCountPerChannel() throws {
     let expectation = self.expectation(description: "Message Counts Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_success"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["message_counts_success"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.messageCounts(channels: Dictionary(zip(testSingleChannel, [0])) { _, last in last }) { result in
       switch result {
       case let .success(channels):
@@ -507,14 +485,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testMessageCounts_Error_InvalidArguments() {
+  func test_MessageCounts_WithInvalidArguments_ReturnsInvalidArgumentsError() throws {
     let expectation = self.expectation(description: "Message Counts Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_error_invalid_arguments"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["message_counts_error_invalid_arguments"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
       switch result {
       case .success:
@@ -528,14 +504,12 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func testMessageCounts_Error_ServiceNotEnabled() {
+  func test_MessageCounts_WhenServiceNotEnabled_ReturnsMessageHistoryNotEnabledError() throws {
     let expectation = self.expectation(description: "Message Counts Response Received")
 
-    guard let sessions = try? MockURLSession.mockSession(for: ["message_counts_error_serviceNotEnabled"]) else {
-      return XCTFail("Could not create mock url session")
-    }
+    let sessions = try MockURLSession.mockSession(for: ["message_counts_error_serviceNotEnabled"])
 
-    let pubnub = PubNub(configuration: config, session: sessions.session)
+    let pubnub = TestPubNubFactory.make(authKey: "auth-key", session: sessions.session)
     pubnub.messageCounts(channels: testSingleChannel, timetoken: 0) { result in
       switch result {
       case .success:
@@ -549,5 +523,3 @@ extension HistoryRouterTests {
     wait(for: [expectation], timeout: 1.0)
   }
 }
-
-// swiftlint:enable file_length

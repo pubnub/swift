@@ -26,7 +26,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let actionValue = "smiley_face"
 
     let listener = SubscriptionListener()
-    
+
     listener.didReceiveMessageAction = { event in
       switch event {
       case let .added(action):
@@ -91,19 +91,19 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
     let removeExpect = expectation(description: "Remove Message Action Expectation")
     let addedEventExcept = expectation(description: "Add Message Action Event Expectation")
     let removedEventExcept = expectation(description: "Remove Message Action Event Expectation")
-    
+
     addedEventExcept.assertForOverFulfill = true
     addedEventExcept.expectedFulfillmentCount = 1
     removedEventExcept.assertForOverFulfill = true
     removedEventExcept.expectedFulfillmentCount = 1
-    
+
     let configuration = PubNubConfiguration(bundle: testsBundle)
     let client = PubNub(configuration: configuration)
     let actionType = "reaction"
     let actionValue = "smiley_face"
 
     let listener = SubscriptionListener()
-    
+
     listener.didReceiveMessageAction = { event in
       switch event {
       case .added:
@@ -114,7 +114,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
         removedEventExcept.fulfill()
       }
     }
-    
+
     listener.didReceiveStatus = { [unowned self, unowned client] status in
       switch status {
       case let .success(connection):
@@ -192,7 +192,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
         XCTFail("Unexpected condition")
       }
     }
-    
+
     defer {
       waitForCompletion {
         client.deleteMessageHistory(
@@ -243,7 +243,7 @@ class MessageActionsEndpointIntegrationTests: XCTestCase {
       }
       addExpect.fulfill()
     }
-    
+
     defer {
       waitForCompletion {
         client.deleteMessageHistory(

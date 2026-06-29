@@ -445,6 +445,4 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
     )
     """
   }
-
-  // swiftlint:disable:next file_length
 }

@@ -457,6 +457,4 @@ extension UnsafeRawBufferPointer {
       return rawValue.pointee
     }, endRange)
   }
-
-  // swiftlint:disable:next file_length
 }

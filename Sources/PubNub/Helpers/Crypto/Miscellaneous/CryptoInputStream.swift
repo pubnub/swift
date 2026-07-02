@@ -108,16 +108,13 @@ public class CryptoInputStream: InputStream {
       var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
 
       if includeInitializationVectorInContent {
-        // The IV must be exactly one block; anything shorter is rejected so that an attacker
-        // cannot probe decrypt failures by truncating the leading IV.
-        if input.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) != crypto.cipher.blockSize {
+        if !Self.readExactly(from: input, into: &initializationVectorBuffer, length: crypto.cipher.blockSize) {
           _streamStatus = .error
           _streamError = input.streamError ?? PubNubError(.decryptionFailure)
         }
       } else if crypto.iv.count == crypto.cipher.blockSize {
         initializationVectorBuffer = crypto.iv.map { $0 }
       } else {
-        // A wrong-length IV is rejected for the same reason as above.
         _streamStatus = .error
         _streamError = PubNubError(.decryptionFailure)
       }
@@ -237,6 +234,24 @@ public class CryptoInputStream: InputStream {
   }
 
   // MARK: - Helpers
+
+  private static func readExactly(from stream: InputStream, into buffer: inout [UInt8], length: Int) -> Bool {
+    var totalRead = 0
+
+    while totalRead < length {
+      let bytesRead = buffer.withUnsafeMutableBufferPointer { ptr -> Int in
+        guard let baseAddress = ptr.baseAddress else {
+          return -1
+        }
+        return stream.read(baseAddress + totalRead, maxLength: length - totalRead)
+      }
+      if bytesRead <= 0 {
+        return false
+      }
+      totalRead += bytesRead
+    }
+    return true
+  }
 
   private func fillRawDataBuffer(with bytes: Int) {
     guard _streamStatus == .open, cipherStream.streamStatus == .open else {

@@ -1,9 +1,30 @@
 ---
 name: swift
 scm: github.com/pubnub/swift
-version: "10.1.7"
+version: "10.1.8"
 schema: 1
 changelog:
+  - date: 2026-07-08
+    version: 10.1.8
+    changes:
+      - type: bug
+        text: "Validate IV length and ciphertext block-alignment before decrypting."
+      - type: bug
+        text: "Return a uniform .decryptionFailure that never exposes the underlying CommonCrypto status."
+      - type: bug
+        text: "Guard LegacyCryptor random-IV path against payloads too short to contain an IV."
+      - type: bug
+        text: "Map encrypt-path errors to .encryptionFailure instead of .decryptionFailure ."
+      - type: bug
+        text: "Redact authKey and authToken in instance logs instead of emitting them in cleartext."
+      - type: bug
+        text: "Use .none as the default log level for the PubNubLogger public initializer to avoid an insecure default."
+      - type: bug
+        text: "Make message action add/remove fire completion only once on error."
+      - type: improvement
+        text: "Warn that verbose log levels may expose sensitive data and recommend long, high-entropy cipher keys."
+      - type: improvement
+        text: "Make every PubNub instance manage its own presence-state container."
   - date: 2026-06-15
     version: 10.1.7
     changes:
@@ -797,7 +818,7 @@ sdks:
           - distribution-type: source
             distribution-repository: GitHub release
             package-name: PubNub
-            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.7.zip
+            location: https://github.com/pubnub/swift/archive/refs/tags/10.1.8.zip
             supported-platforms:
               supported-operating-systems:
                 macOS:

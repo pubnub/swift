@@ -182,7 +182,7 @@ public struct CryptoModule {
     guard !data.isEmpty else {
       return .failure(PubNubError(
         .decryptionFailure,
-        additional: ["Cannot decrypt empty Data in \(String(describing: self))"]
+        additional: ["Cannot decrypt empty Data"]
       ))
     }
     do {
@@ -235,7 +235,7 @@ public struct CryptoModule {
         if $0.isEmpty {
           return .failure(PubNubError(
             .decryptionFailure,
-            additional: ["Decrypting resulted with empty Data"]
+            additional: ["Decryption resulted in empty Data"]
           ))
         }
         return .success($0)
@@ -249,7 +249,7 @@ public struct CryptoModule {
       return .failure(PubNubError(
         .decryptionFailure,
         underlying: error,
-        additional: ["Cannot decrypt InputStream"]
+        additional: ["Could not decrypt Data"]
       ))
     }
   }
@@ -475,7 +475,7 @@ public struct CryptoModule {
       )
       return .failure(PubNubError(
         .decryptionFailure,
-        additional: ["File doesn't exist at \(localFileURL) path"]
+        additional: ["File doesn't exist at \(localFileURL)"]
       ))
     }
 
@@ -552,7 +552,7 @@ public struct CryptoModule {
         if outputPath.sizeOf == 0 {
           return .failure(PubNubError(
             .decryptionFailure,
-            additional: ["Decrypting resulted with an empty File"]
+            additional: ["Decryption resulted in an empty File"]
           ))
         }
         return .success($0)
@@ -584,6 +584,8 @@ public extension CryptoModule {
   ///
   /// Encrypts new payloads with ``AESCBCCryptor`` and registers ``LegacyCryptor``
   /// as a secondary decryptor, so payloads produced in the older format remain readable.
+  ///
+  /// Use a long, random, high-entropy key; short or guessable keys remain weak.
   ///
   /// - Parameters:
   ///   - key: Key used for encryption/decryption.
@@ -641,8 +643,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "encrypt-string",
-          details: "Encrypting String",
-          arguments: [("string", string)]
+          details: "Encrypting String"
         )
       ), category: .crypto
     )
@@ -681,8 +682,7 @@ extension CryptoModule {
       .customObject(
         .init(
           operation: "decrypt-data",
-          details: "Decrypting Data",
-          arguments: [("data", data.utf8String)]
+          details: "Decrypting Data to String"
         )
       ),
       category: .crypto

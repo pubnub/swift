@@ -108,17 +108,15 @@ public class CryptoInputStream: InputStream {
       var initializationVectorBuffer = [UInt8](repeating: 0, count: crypto.cipher.blockSize)
 
       if includeInitializationVectorInContent {
-        switch input.read(&initializationVectorBuffer, maxLength: crypto.cipher.blockSize) {
-        case let bytesRead where bytesRead < 0:
-          // -1 means that the operation failed; more information about the error can be obtained with `streamError`.
+        if !Self.readExactly(from: input, into: &initializationVectorBuffer, length: crypto.cipher.blockSize) {
           _streamStatus = .error
-          _streamError = input.streamError
-        default:
-          // 0 represents end of the current buffer
-          break
+          _streamError = input.streamError ?? PubNubError(.decryptionFailure)
         }
-      } else {
+      } else if crypto.iv.count == crypto.cipher.blockSize {
         initializationVectorBuffer = crypto.iv.map { $0 }
+      } else {
+        _streamStatus = .error
+        _streamError = PubNubError(.decryptionFailure)
       }
 
       // Init the Crypto Stream
@@ -236,6 +234,24 @@ public class CryptoInputStream: InputStream {
   }
 
   // MARK: - Helpers
+
+  private static func readExactly(from stream: InputStream, into buffer: inout [UInt8], length: Int) -> Bool {
+    var totalRead = 0
+
+    while totalRead < length {
+      let bytesRead = buffer.withUnsafeMutableBufferPointer { ptr -> Int in
+        guard let baseAddress = ptr.baseAddress else {
+          return -1
+        }
+        return stream.read(baseAddress + totalRead, maxLength: length - totalRead)
+      }
+      if bytesRead <= 0 {
+        return false
+      }
+      totalRead += bytesRead
+    }
+    return true
+  }
 
   private func fillRawDataBuffer(with bytes: Int) {
     guard _streamStatus == .open, cipherStream.streamStatus == .open else {

@@ -72,6 +72,24 @@ extension String {
 }
 
 extension String {
+  /// A fully masked representation of a sensitive value for logging
+  var fullyRedacted: String {
+    "***"
+  }
+
+  /// A redacted representation of a sensitive value for logging that keeps a short prefix
+  /// and the total length, preserving debugging context without exposing the full
+  /// credential (e.g. `p0F2AkF0… (len=184)`). Values too short to keep a partial prefix
+  /// without revealing the whole secret are fully masked.
+  func redacted(prefixLength: Int = 8) -> String {
+    guard count > prefixLength else {
+      return "\(fullyRedacted) (len=\(count))"
+    }
+    return "\(prefix(prefixLength))… (len=\(count))"
+  }
+}
+
+extension String {
   /// Creates a structured log description for an object with optional arguments
   /// - Parameters:
   ///   - instance: The object to describe

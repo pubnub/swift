@@ -11,6 +11,22 @@
 import Foundation
 import CommonCrypto
 
+/// Helpers shared by the AES-CBC decrypt paths
+enum CBCDecrypt {
+  /// A single, uniform decryption failure that never exposes an underlying decryption error.
+  static var failure: PubNubError {
+    PubNubError(.decryptionFailure, additional: ["Decryption failed"])
+  }
+
+  /// Returns `true` when the IV and ciphertext are valid inputs for an AES-CBC decrypt.
+  ///
+  /// Rejects a wrong-length IV, empty ciphertext, and ciphertext that is not a whole number of
+  /// blocks — preventing invalid input from reaching `CCCrypt` where the status would differ.
+  static func isValidInput(iv: Data, cipherText: Data, blockSize: Int) -> Bool {
+    iv.count == blockSize && !cipherText.isEmpty && cipherText.count % blockSize == 0
+  }
+}
+
 extension Data {
   func crypt(
     operation: CCOperation,

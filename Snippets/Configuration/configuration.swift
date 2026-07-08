@@ -38,7 +38,7 @@ func aesCbcCryptoModuleExample() {
       publishKey: "demo",
       subscribeKey: "demo",
       userId: "myUniqueUserId",
-      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "Be7HHAmdGinTHPulC0aLIUHx7Bna10y2")
     )
   )
   // snippet.end
@@ -52,7 +52,7 @@ func legacyCryptoModuleExample() {
       publishKey: "demo",
       subscribeKey: "demo",
       userId: "myUniqueUserId",
-      cryptoModule: CryptoModule.legacyCryptoModule(with: "pubnubenigma")
+      cryptoModule: CryptoModule.legacyCryptoModule(with: "Be7HHAmdGinTHPulC0aLIUHx7Bna10y2")
     )
   )
   // snippet.end

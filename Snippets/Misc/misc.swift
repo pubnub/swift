@@ -29,7 +29,7 @@ let pubnub = PubNub(
 // snippet.encrypt-data
 func encryptDataExample() throws {
   // Initialize the crypto module with a cipher key
-  let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
+  let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "Be7HHAmdGinTHPulC0aLIUHx7Bna10y2")
   // The message to encrypt
   let messageToEncrypt = Data("this is message".utf8)
   // Encrypt the message
@@ -41,7 +41,7 @@ func encryptDataExample() throws {
 // snippet.decrypt-data
 func decryptDataExample() throws {
   // Initialize the crypto module with a cipher key
-  let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "pubnubenigma")
+  let cryptoModule = CryptoModule.aesCbcCryptoModule(with: "Be7HHAmdGinTHPulC0aLIUHx7Bna10y2")
   // Encrypt a message to demonstrate its decryption later
   let messageToEncrypt = Data("this is message".utf8)
   let encryptedMessage = try cryptoModule.encrypt(data: messageToEncrypt).get()

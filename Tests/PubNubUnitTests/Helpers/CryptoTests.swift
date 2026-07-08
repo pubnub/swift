@@ -9,6 +9,7 @@
 //
 
 import CommonCrypto
+import Foundation
 import XCTest
 
 @testable import PubNubSDK
@@ -21,7 +22,7 @@ class CryptoTests: XCTestCase {
     let testData = try XCTUnwrap(testMessage.data(using: .utf16))
     let encryptedData = try cryptoModule.encrypt(data: testData).get()
     let decryptedData = try cryptoModule.decrypt(data: encryptedData).get()
-    let decryptedString = String(bytes: decryptedData, encoding: .utf16)
+    let decryptedString = try XCTUnwrap(String(bytes: decryptedData, encoding: .utf16))
 
     XCTAssertEqual(testMessage, decryptedString)
   }
@@ -45,7 +46,7 @@ class CryptoTests: XCTestCase {
     let testData = try XCTUnwrap(jsonMessage.data(using: .utf8))
     let encryptedData = try cryptoModule.encrypt(data: testData).get()
     let decryptedData = try cryptoModule.decrypt(data: encryptedData).get()
-    let decryptedString = String(bytes: decryptedData, encoding: .utf8)?.reverseJSONDescription
+    let decryptedString = try XCTUnwrap(String(bytes: decryptedData, encoding: .utf8)).reverseJSONDescription
 
     XCTAssertEqual(testMessage, decryptedString)
   }
@@ -73,7 +74,19 @@ class CryptoTests: XCTestCase {
     let messageData = try XCTUnwrap(message.data(using: .utf8))
     let encryptedMessage = try cryptoModule.encrypt(data: messageData).get()
     let decrypted = try cryptoModule.decrypt(data: encryptedMessage).get()
-    XCTAssertEqual(message, String(bytes: decrypted, encoding: .utf8))
+
+    XCTAssertEqual(message, try XCTUnwrap(String(bytes: decrypted, encoding: .utf8)))
+  }
+
+  func test_EncryptThenDecryptStringWithRandomIV_ReturnsOriginal() throws {
+    let cryptoModule = CryptoModule.legacyCryptoModule(with: "enigma", withRandomIV: true)
+    let plainText = "yay!"
+
+    let swiftEncryptedString = try cryptoModule.encrypt(string: plainText).get()
+    let swiftEncryptedStringAsData = try XCTUnwrap(Data(base64Encoded: swiftEncryptedString))
+    let swiftDecryptedString = try cryptoModule.decryptedString(from: swiftEncryptedStringAsData).get()
+
+    XCTAssertEqual(plainText, swiftDecryptedString)
   }
 
   func test_DecryptOtherSDKRandomIVPayload_ReturnsOriginal() throws {
@@ -81,16 +94,10 @@ class CryptoTests: XCTestCase {
     let plainText = "yay!"
     let otherSDKBase64 = "MTIzNDU2Nzg5MDEyMzQ1NjdnONoCgo0wbuMGGMmfMX0="
 
-    let swiftEncryptedString = try cryptoModule.encrypt(string: plainText).get()
-    let swiftEncryptedStringAsData = try XCTUnwrap(Data(base64Encoded: swiftEncryptedString))
-    let swiftDecryptedString = try cryptoModule.decryptedString(from: swiftEncryptedStringAsData).get()
-
-    XCTAssertEqual(plainText, swiftDecryptedString)
-
     let otherData = try XCTUnwrap(Data(base64Encoded: otherSDKBase64))
     let otherDecrypted = try cryptoModule.decrypt(data: otherData).get()
 
-    XCTAssertEqual(plainText, String(data: otherDecrypted, encoding: .utf8))
+    XCTAssertEqual(plainText, try XCTUnwrap(String(data: otherDecrypted, encoding: .utf8)))
   }
 
   func test_DecryptStreamFromOtherSDK_MatchesPlaintext() throws {
@@ -102,17 +109,16 @@ class CryptoTests: XCTestCase {
     XCTAssertEqual(finalString?.isEmpty, false)
 
     let outputPath = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("testFile-\(UUID().uuidString)")
-    try? FileManager.default.removeItem(at: outputPath)
 
-    cryptoModule.decrypt(
+    _ = try cryptoModule.decrypt(
       stream: InputStream(data: ecrypted),
       contentLength: ecrypted.count,
       to: outputPath
-    )
+    ).get()
 
-    let decrypted = try Data(contentsOf: outputPath)
+    let decryptedFile = try Data(contentsOf: outputPath)
 
-    XCTAssertEqual(finalString, String(data: decrypted, encoding: .utf8))
+    XCTAssertEqual(finalString, try XCTUnwrap(String(data: decryptedFile, encoding: .utf8)))
   }
 
   func test_EncryptThenDecryptStream_ReturnsOriginal() throws {
@@ -142,18 +148,17 @@ class CryptoTests: XCTestCase {
     let encryptedStreamResult = try cryptoModule.encrypt(stream: inputStream, contentLength: data.count).get()
 
     let decryptedURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("decryptedStream-\(UUID().uuidString)")
-    try? FileManager.default.removeItem(at: decryptedURL)
 
-    cryptoModule.decrypt(
+    _ = try cryptoModule.decrypt(
       stream: encryptedStreamResult.stream,
       contentLength: encryptedStreamResult.contentLength,
       to: decryptedURL
-    )
+    ).get()
 
-    let decryptedString = String(
+    let decryptedString = try XCTUnwrap(String(
       data: try Data(contentsOf: decryptedURL),
       encoding: .utf8
-    )
+    ))
 
     XCTAssertEqual(plainTextString, decryptedString)
   }
@@ -178,17 +183,15 @@ class CryptoTests: XCTestCase {
     let temporaryDirectory = URL(fileURLWithPath: NSTemporaryDirectory())
     let outputPath = temporaryDirectory.appendingPathComponent("decryptedStream-\(UUID().uuidString)")
 
-    try? FileManager.default.removeItem(at: outputPath)
-
-    cryptoModule.decryptStream(
+    _ = try cryptoModule.decryptStream(
       from: encryptedTextURL,
       to: outputPath
-    )
+    ).get()
 
-    let actualDecryptedContent = String(
+    let actualDecryptedContent = try XCTUnwrap(String(
       data: try Data(contentsOf: outputPath),
       encoding: .utf8
-    )
+    ))
 
     XCTAssertEqual(
       expectedDecryptedContent,
@@ -284,5 +287,128 @@ class CryptoTests: XCTestCase {
       CryptoError.unknown,
       CryptoError(rawValue: CCCryptorStatus(1_240_124))
     )
+  }
+
+  func test_Decrypt_RejectsWrongSizeIV() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeIV = Data(repeating: 0x01, count: kCCBlockSizeAES128 - 1)
+
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: wrongSizeIV,
+        data: Data(repeating: 0xAB, count: kCCBlockSizeAES128)
+      )
+    )
+
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func test_Decrypt_RejectsNonBlockAlignedContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 + 1)
+
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: Data(repeating: 0x01, count: kCCBlockSizeAES128),
+        data: wrongSizeData
+      )
+    )
+
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func test_Decrypt_RejectsEmptyContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let emptyData = Data()
+
+    let result = cryptor.decrypt(
+      data: EncryptedData(
+        metadata: Data(repeating: 0x01, count: kCCBlockSizeAES128),
+        data: emptyData
+      )
+    )
+
+    assertOpaqueDecryptionFailure(result.error)
+  }
+
+  func test_DecryptStream_RejectsWrongSizeIV() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let wrongSizeIV = Data(repeating: 0x01, count: kCCBlockSizeAES128 - 1)
+    let testData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 * 2)
+    let outputPath = URL.randomTempPath
+
+    let encryptedStreamData = EncryptedStreamData(
+      stream: .init(data: testData),
+      contentLength: testData.count, metadata: wrongSizeIV
+    )
+    let decryptionResult = cryptor.decrypt(
+      data: encryptedStreamData,
+      outputPath: outputPath
+    )
+
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+
+  func test_DecryptStream_RejectsNonBlockAlignedContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let iv = Data(repeating: 0x01, count: kCCBlockSizeAES128)
+    let wrongSizeData = Data(repeating: 0xAB, count: kCCBlockSizeAES128 + 1)
+    let outputPath = URL.randomTempPath
+
+    let encryptedStreamData = EncryptedStreamData(
+      stream: .init(data: wrongSizeData),
+      contentLength: wrongSizeData.count, metadata: iv
+    )
+    let decryptionResult = cryptor.decrypt(
+      data: encryptedStreamData,
+      outputPath: outputPath
+    )
+
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+
+  func test_DecryptStream_RejectsEmptyContent() {
+    let cryptor = AESCBCCryptor(key: "enigma")
+    let iv = Data(repeating: 0x01, count: kCCBlockSizeAES128)
+    let emptyData = Data()
+
+    let outputPath = URL.randomTempPath
+    let encryptedStreamData = EncryptedStreamData(stream: .init(data: emptyData), contentLength: emptyData.count, metadata: iv)
+    let decryptionResult = cryptor.decrypt(data: encryptedStreamData, outputPath: outputPath)
+
+    assertOpaqueDecryptionFailure(decryptionResult.error)
+  }
+}
+
+private extension CryptoTests {
+  func assertOpaqueDecryptionFailure(
+    _ error: Error?,
+    file: StaticString = #filePath,
+    line: UInt = #line
+  ) {
+    guard let pubNubError = error as? PubNubError else {
+      return XCTFail("Expected a PubNubError, got \(String(describing: error))", file: file, line: line)
+    }
+
+    XCTAssertEqual(pubNubError.reason, .decryptionFailure, file: file, line: line)
+    XCTAssertNil(pubNubError.underlying, "Decrypt failures must not expose an underlying status", file: file, line: line)
+    XCTAssertEqual(pubNubError.details, ["Decryption failed"], file: file, line: line)
+  }
+}
+
+private extension Result {
+  var error: Error? {
+    switch self {
+    case .success:
+      return nil
+    case let .failure(error):
+      return error
+    }
+  }
+}
+
+private extension URL {
+  static var randomTempPath: URL {
+    URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
   }
 }

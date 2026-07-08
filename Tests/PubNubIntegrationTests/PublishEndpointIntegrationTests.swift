@@ -211,13 +211,13 @@ class PublishEndpointIntegrationTests: XCTestCase {
       publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
       userId: PubNubConfiguration(bundle: testsBundle).userId,
-      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "someKey")
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "bVw5yU2DAiMLOJjJn33s8UDmuFsCP0lf")
     ))
     let secondClient = PubNub(configuration: PubNubConfiguration(
       publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
       subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
       userId: PubNubConfiguration(bundle: testsBundle).userId,
-      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "anotherKey")
+      cryptoModule: CryptoModule.aesCbcCryptoModule(with: "qVgwzFS3G5aCN6lvp3hV6GSqZYfKa")
     ))
 
     let channelForFistClient = randomString()

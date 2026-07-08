@@ -223,7 +223,7 @@ class FilesEndpointIntegrationTests: XCTestCase {
     // Reuse the same config
     var configuration = config
     // Set the system wide crypto module
-    configuration.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "someKey")
+    configuration.cryptoModule = CryptoModule.aesCbcCryptoModule(with: "bVw5yU2DAiMLOJjJn33s8UDmuFsCP0lf")
 
     let client = PubNub(configuration: configuration, fileSession: fileSession)
     let downloadFileExpect = expectation(description: "Download Encrypted File Expect")

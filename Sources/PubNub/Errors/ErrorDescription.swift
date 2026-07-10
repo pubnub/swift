@@ -69,6 +69,14 @@ extension ErrorDescription {
   static let emptyFilenameString: String = "The required Filename `String` is empty"
 
   static let emptyFileIdString: String = "The required FileId `String` is empty"
+
+  static let emptyDataSyncId: String = "The DataSync resource id `String` cannot be empty"
+
+  static let emptyEntityClass: String = "The required `entity_class` `String` cannot be empty"
+
+  static let emptyRelationshipClass: String = "The required `relationship_class` `String` cannot be empty"
+
+  static let emptyPatchOperations: String = "The JSON Patch operations `Array` cannot be empty"
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {

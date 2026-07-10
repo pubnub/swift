@@ -281,6 +281,13 @@
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */; };
 		35CF548C248971BF0099FE81 /* ObjectsUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */; };
+		4E45EAB7E4CAE5C43AA4C598 /* DataSyncChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */; };
+		A9FE40B4D29F21CC0143667E /* DataSyncEntityRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */; };
+		862A4507613A1E76D0C7798A /* DataSyncMembershipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */; };
+		997DBBB71508808142C40D57 /* DataSyncRelationshipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */; };
+		61EF9E0B1C8606520E009F04 /* DataSyncRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */; };
+		3B606B5ABA0D7EEACD6457C1 /* DataSyncUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */; };
+		7E421DECD8867FA8742DEB06 /* DataSyncRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */; };
 		35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */; };
 		35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */; };
 		35CF54922489912F0099FE81 /* PubNubUserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */; };
@@ -936,6 +943,12 @@
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTestResource.swift; sourceTree = "<group>"; };
 		35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouter.swift; sourceTree = "<group>"; };
+		203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncChannelRouter.swift; sourceTree = "<group>"; };
+		A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityRouter.swift; sourceTree = "<group>"; };
+		01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncMembershipRouter.swift; sourceTree = "<group>"; };
+		1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipRouter.swift; sourceTree = "<group>"; };
+		33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouter.swift; sourceTree = "<group>"; };
+		3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncUserRouter.swift; sourceTree = "<group>"; };
 		35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsChannelRouter.swift; sourceTree = "<group>"; };
 		35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsMembershipsRouter.swift; sourceTree = "<group>"; };
 		35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserMetadata.swift; sourceTree = "<group>"; };
@@ -959,6 +972,7 @@
 		35DA9AB02334479800867989 /* objects_uuid_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = objects_uuid_all_success.json; path = Tests/PubNubUnitTests/Support/Responses/Objects/objects_uuid_all_success.json; sourceTree = SOURCE_ROOT; };
 		35DA9AB2233447F200867989 /* objects_uuid_fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_uuid_fetch_success.json; sourceTree = "<group>"; };
 		35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouterTests.swift; sourceTree = "<group>"; };
+		3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouterTests.swift; sourceTree = "<group>"; };
 		35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatJSONCodable.swift; sourceTree = "<group>"; };
 		35DB0C4C287476BF001E1F76 /* OptionalChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalChange.swift; sourceTree = "<group>"; };
 		35E381FC23149BA900A17549 /* AutomaticRetryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutomaticRetryTests.swift; sourceTree = "<group>"; };
@@ -1390,6 +1404,12 @@
 			isa = PBXGroup;
 			children = (
 				35A6C78E22FB4F0500E97CC5 /* ChannelGroupsRouter.swift */,
+				203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */,
+				A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */,
+				01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */,
+				1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */,
+				33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */,
+				3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */,
 				35AE6A3124FD6CEE00BBFA37 /* FileManagementRouter.swift */,
 				35A6C7BD22FCCBF900E97CC5 /* HistoryRouter.swift */,
 				35293A792368F9680049A71F /* MessageActionsRouter.swift */,
@@ -1782,6 +1802,7 @@
 			isa = PBXGroup;
 			children = (
 				35A6C79222FB93FD00E97CC5 /* ChannelGroupEndpointTests.swift */,
+				3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */,
 				35AE6A3525000AC700BBFA37 /* FileManagementRouterTests.swift */,
 				35304F9122FF7073006A02CA /* HistoryRouterTests.swift */,
 				35293A942369F31B0049A71F /* MessageActionsRouterTests.swift */,
@@ -3989,6 +4010,12 @@
 				35A66A8022F861BA00AC67A9 /* AutomaticRetry.swift in Sources */,
 				357D1C1B22CB04C4003625BA /* Bool+PubNub.swift in Sources */,
 				35CF548C248971BF0099FE81 /* ObjectsUserRouter.swift in Sources */,
+				4E45EAB7E4CAE5C43AA4C598 /* DataSyncChannelRouter.swift in Sources */,
+				A9FE40B4D29F21CC0143667E /* DataSyncEntityRouter.swift in Sources */,
+				862A4507613A1E76D0C7798A /* DataSyncMembershipRouter.swift in Sources */,
+				997DBBB71508808142C40D57 /* DataSyncRelationshipRouter.swift in Sources */,
+				61EF9E0B1C8606520E009F04 /* DataSyncRouter.swift in Sources */,
+				3B606B5ABA0D7EEACD6457C1 /* DataSyncUserRouter.swift in Sources */,
 				3585033222CD138300A11D9A /* Set+PubNub.swift in Sources */,
 				358C641C238C5232009CE354 /* FCMAndroidPayload.swift in Sources */,
 				35FAC1E72357C2AE0096E418 /* PubNubError.swift in Sources */,
@@ -4186,6 +4213,7 @@
 				3D38A0142B35AF6B006928E7 /* PresenceTransitionTests.swift in Sources */,
 				OBJ_49 /* PubNubTests.swift in Sources */,
 				35CF549E248D913A0099FE81 /* ObjectsUserRouterTests.swift in Sources */,
+				7E421DECD8867FA8742DEB06 /* DataSyncRouterTests.swift in Sources */,
 				3DB925642B7A2BF5001B7E90 /* SubscriptionSetTests.swift in Sources */,
 				35458BA3230CB3570085B502 /* SubscribeSessionFactoryTests.swift in Sources */,
 				3580A5A222F13C6500B12E5E /* SessionStreamAwait.swift in Sources */,

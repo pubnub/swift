@@ -17,6 +17,24 @@ final class DataSyncRouterTests: XCTestCase {
   private func queryValue(_ router: HTTPRouter, _ key: String) throws -> String? {
     try router.queryItems.get().first { $0.name == key }?.value
   }
+
+  private func queryNames(_ router: HTTPRouter) throws -> Set<String> {
+    Set(try router.queryItems.get().map { $0.name })
+  }
+
+  private func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+
+    return try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
+  }
+
+  private func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+
+    return try Constant.jsonDecoder.decode([AnyJSON].self, from: body)
+  }
 }
 
 // MARK: - Users: List
@@ -32,14 +50,37 @@ extension DataSyncRouterTests {
       configuration: config
     )
 
+    XCTAssertEqual(router.service, .dataSync)
+    XCTAssertEqual(router.pamVersion, .version3)
     XCTAssertEqual(router.method, .get)
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users")
+    XCTAssertNil(router.validationError)
     XCTAssertEqual(try queryValue(router, "entity_class_version"), "2")
     XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
     XCTAssertEqual(try queryValue(router, "limit"), "25")
     XCTAssertEqual(try queryValue(router, "filter"), "status=='active'")
     XCTAssertEqual(try queryValue(router, "filter_advanced"), "a AND b")
     XCTAssertEqual(try queryValue(router, "sort"), "+name")
+  }
+
+  func test_UserList_OmitsNilQueryItems() throws {
+    let endpoint = DataSyncUserRouter.Endpoint.all(
+      entityClassVersion: nil, cursor: nil, limit: nil,
+      filter: nil, filterAdvanced: nil, sort: nil
+    )
+    let router = DataSyncUserRouter(
+      endpoint,
+      configuration: config
+    )
+
+    let names = try queryNames(router)
+
+    XCTAssertFalse(names.contains("entity_class_version"))
+    XCTAssertFalse(names.contains("cursor"))
+    XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter"))
+    XCTAssertFalse(names.contains("filter_advanced"))
+    XCTAssertFalse(names.contains("sort"))
   }
 }
 
@@ -62,6 +103,13 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(router.method, .get)
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyDataSyncId)
+  }
+
+  func test_UserFetch_EncodesSlashInId() throws {
+    let router = DataSyncUserRouter(.fetch(id: "a/b"), configuration: config)
+
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users/a%2Fb")
   }
 }
 
@@ -80,7 +128,12 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users")
     XCTAssertNil(router.validationError)
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.user+json;version=1")
-    XCTAssertNotNil(request.httpBody)
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["id"]?.stringOptional, "alice")
+    XCTAssertEqual(body["entityClassVersion"]?.intOptional, 1)
+    XCTAssertEqual(body["payload"]?["name"]?.stringOptional, "Alice")
   }
 }
 
@@ -100,7 +153,9 @@ extension DataSyncRouterTests {
     XCTAssertNil(router.validationError)
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.user+json;version=1")
     XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"5\"")
-    XCTAssertNotNil(request.httpBody)
+
+    let body = try decodeBody(router)
+    XCTAssertEqual(body["entityClassVersion"]?.intOptional, 1)
   }
 
   func test_UserReplace_EmptyIdFailsValidation() throws {
@@ -111,6 +166,7 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(router.method, .put)
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyDataSyncId)
   }
 }
 
@@ -133,7 +189,13 @@ extension DataSyncRouterTests {
     XCTAssertNil(router.validationError)
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
     XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"2\"")
-    XCTAssertNotNil(request.httpBody)
+
+    let encodedOps = try decodeBodyArray(router)
+
+    XCTAssertEqual(encodedOps.count, 1)
+    XCTAssertEqual(encodedOps.first?["op"]?.stringOptional, "replace")
+    XCTAssertEqual(encodedOps.first?["path"]?.stringOptional, "/payload/profileUrl")
+    XCTAssertEqual(encodedOps.first?["value"]?.stringOptional, "https://x")
   }
 
   func test_UserPatch_EmptyOperationsFailsValidation() throws {
@@ -141,6 +203,7 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(router.method, .patch)
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyPatchOperations)
   }
 }
 
@@ -166,6 +229,71 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users/alice")
     XCTAssertNil(router.validationError)
     XCTAssertNil(request.value(forHTTPHeaderField: "If-Match"))
+  }
+}
+
+// MARK: - JSONPatchOperation encoding
+
+extension DataSyncRouterTests {
+  private func encode(_ op: JSONPatchOperation) throws -> AnyJSON {
+    let data = try Constant.jsonEncoder.encode([op])
+    let array = try Constant.jsonDecoder.decode([AnyJSON].self, from: data)
+
+    return try XCTUnwrap(array.first)
+  }
+
+  func test_JSONPatch_Add() throws {
+    let json = try encode(.add(path: "/payload/a", value: 1))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "add")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
+    XCTAssertEqual(json["value"]?.intOptional, 1)
+    XCTAssertNil(json["from"])
+  }
+
+  func test_JSONPatch_Remove() throws {
+    let json = try encode(.remove(path: "/payload/a"))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "remove")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
+    XCTAssertNil(json["value"])
+    XCTAssertNil(json["from"])
+  }
+
+  func test_JSONPatch_Replace() throws {
+    let json = try encode(.replace(path: "/payload/a", value: "x"))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "replace")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
+    XCTAssertEqual(json["value"]?.stringOptional, "x")
+    XCTAssertNil(json["from"])
+  }
+
+  func test_JSONPatch_Move() throws {
+    let json = try encode(.move(from: "/payload/a", path: "/payload/b"))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "move")
+    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
+    XCTAssertNil(json["value"])
+  }
+
+  func test_JSONPatch_Copy() throws {
+    let json = try encode(.copy(from: "/payload/a", path: "/payload/b"))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "copy")
+    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
+    XCTAssertNil(json["value"])
+  }
+
+  func test_JSONPatch_Test() throws {
+    let json = try encode(.test(path: "/payload/a", value: true))
+
+    XCTAssertEqual(json["op"]?.stringOptional, "test")
+    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
+    XCTAssertEqual(json["value"]?.boolOptional, true)
+    XCTAssertNil(json["from"])
   }
 }
 
@@ -206,6 +334,28 @@ extension DataSyncRouterTests {
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.channel+json;version=1")
     XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"5\"")
   }
+
+  func test_ChannelPatch_SetsJsonPatchContentType() throws {
+    let router = DataSyncChannelRouter(
+      .patch(id: "general", operations: [.remove(path: "/payload/x")], ifMatch: "\"3\""),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .patch)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+  }
+
+  func test_ChannelRemove_OmitsIfMatchWhenNil() throws {
+    let router = DataSyncChannelRouter(.remove(id: "general", ifMatch: nil), configuration: config)
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .delete)
+    XCTAssertNil(request.value(forHTTPHeaderField: "If-Match"))
+    XCTAssertNil(request.httpBody)
+  }
 }
 
 // MARK: - Memberships
@@ -233,6 +383,14 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try queryValue(router, "user_id"), "alice")
     XCTAssertEqual(try queryValue(router, "channel_id"), "general")
     XCTAssertEqual(try queryValue(router, "relationship_class_version"), "1")
+
+    let names = try queryNames(router)
+
+    XCTAssertFalse(names.contains("cursor"))
+    XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter"))
+    XCTAssertFalse(names.contains("filter_advanced"))
+    XCTAssertFalse(names.contains("sort"))
   }
 
   func test_MembershipCreate_SetsVendorContentType() throws {
@@ -251,6 +409,12 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships")
     XCTAssertNil(router.validationError)
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.membership+json;version=1")
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["channelId"]?.stringOptional, "general")
+    XCTAssertEqual(body["userId"]?.stringOptional, "alice")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
   }
 }
 
@@ -284,6 +448,7 @@ extension DataSyncRouterTests {
     )
 
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyEntityClass)
   }
 
   func test_EntityCreate_SetsVendorContentType() throws {
@@ -298,6 +463,11 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/entities")
     XCTAssertNil(router.validationError)
     XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.entity+json;version=1")
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["entityClass"]?.stringOptional, "user")
+    XCTAssertEqual(body["entityClassVersion"]?.intOptional, 1)
   }
 }
 
@@ -339,6 +509,7 @@ extension DataSyncRouterTests {
     )
 
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipClass)
   }
 
   func test_RelationshipCreate_SetsVendorContentType() throws {
@@ -363,6 +534,13 @@ extension DataSyncRouterTests {
       request.value(forHTTPHeaderField: "Content-Type"),
        "application/vnd.pubnub.objects.relationship+json;version=1"
     )
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["entityAId"]?.stringOptional, "u123")
+    XCTAssertEqual(body["entityBId"]?.stringOptional, "s456")
+    XCTAssertEqual(body["relationshipClass"]?.stringOptional, "ProductOwner")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
   }
 }
 

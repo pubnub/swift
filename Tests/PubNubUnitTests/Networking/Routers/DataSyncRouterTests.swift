@@ -416,6 +416,26 @@ extension DataSyncRouterTests {
     XCTAssertEqual(body["userId"]?.stringOptional, "alice")
     XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
   }
+
+  func test_MembershipCreate_EmptyChannelIdFailsValidation() throws {
+    let router = DataSyncMembershipRouter(
+      .create(body: .init(channelId: "", userId: "alice", relationshipClassVersion: 1)),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyMembershipChannelId)
+  }
+
+  func test_MembershipCreate_EmptyUserIdFailsValidation() throws {
+    let router = DataSyncMembershipRouter(
+      .create(body: .init(channelId: "general", userId: "", relationshipClassVersion: 1)),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyMembershipUserId)
+  }
 }
 
 // MARK: - Entities
@@ -468,6 +488,16 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(body["entityClass"]?.stringOptional, "user")
     XCTAssertEqual(body["entityClassVersion"]?.intOptional, 1)
+  }
+
+  func test_EntityCreate_EmptyEntityClassFailsValidation() throws {
+    let router = DataSyncEntityRouter(
+      .create(body: .init(entityClass: "", entityClassVersion: 1)),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyEntityClass)
   }
 }
 

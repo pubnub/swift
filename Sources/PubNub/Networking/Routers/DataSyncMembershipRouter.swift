@@ -179,8 +179,13 @@ struct DataSyncMembershipRouter: HTTPRouter {
 
   var validationErrorDetail: String? {
     switch endpoint {
-    case .all, .create:
+    case .all:
       return nil
+    case let .create(body):
+      return isInvalidForReason(
+        (body.channelId.isEmpty, ErrorDescription.emptyMembershipChannelId),
+        (body.userId.isEmpty, ErrorDescription.emptyMembershipUserId)
+      )
     case let .fetch(id):
       return isInvalidForReason((id.isEmpty, ErrorDescription.emptyDataSyncId))
     case let .replace(id, _, _):

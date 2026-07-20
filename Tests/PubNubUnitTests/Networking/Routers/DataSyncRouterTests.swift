@@ -572,6 +572,42 @@ extension DataSyncRouterTests {
     XCTAssertEqual(body["relationshipClass"]?.stringOptional, "ProductOwner")
     XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
   }
+
+  func test_RelationshipCreate_EmptyEntityAIdFailsValidation() throws {
+    let router = DataSyncRelationshipRouter(
+      .create(body: .init(
+        entityAId: "", entityBId: "s456", relationshipClass: "ProductOwner", relationshipClassVersion: 1
+      )),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipEntityAId)
+  }
+
+  func test_RelationshipCreate_EmptyEntityBIdFailsValidation() throws {
+    let router = DataSyncRelationshipRouter(
+      .create(body: .init(
+        entityAId: "u123", entityBId: "", relationshipClass: "ProductOwner", relationshipClassVersion: 1
+      )),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipEntityBId)
+  }
+
+  func test_RelationshipCreate_EmptyClassFailsValidation() throws {
+    let router = DataSyncRelationshipRouter(
+      .create(body: .init(
+        entityAId: "u123", entityBId: "s456", relationshipClass: "", relationshipClassVersion: 1
+      )),
+      configuration: config
+    )
+
+    XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
+    XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipClass)
+  }
 }
 
 // MARK: - Response Decoders

@@ -81,6 +81,10 @@ extension ErrorDescription {
   static let emptyMembershipChannelId: String = "The required `channelId` `String` cannot be empty"
 
   static let emptyMembershipUserId: String = "The required `userId` `String` cannot be empty"
+
+  static let emptyRelationshipEntityAId: String = "The required `entityAId` `String` cannot be empty"
+
+  static let emptyRelationshipEntityBId: String = "The required `entityBId` `String` cannot be empty"
 }
 
 extension PubNubError: LocalizedError, CustomStringConvertible {

@@ -189,8 +189,12 @@ struct DataSyncRelationshipRouter: HTTPRouter {
     switch endpoint {
     case let .all(relationshipClass, _, _, _, _, _, _, _, _):
       return isInvalidForReason((relationshipClass.isEmpty, ErrorDescription.emptyRelationshipClass))
-    case .create:
-      return nil
+    case let .create(body):
+      return isInvalidForReason(
+        (body.entityAId.isEmpty, ErrorDescription.emptyRelationshipEntityAId),
+        (body.entityBId.isEmpty, ErrorDescription.emptyRelationshipEntityBId),
+        (body.relationshipClass.isEmpty, ErrorDescription.emptyRelationshipClass)
+      )
     case let .fetch(id):
       return isInvalidForReason((id.isEmpty, ErrorDescription.emptyDataSyncId))
     case let .replace(id, _, _):

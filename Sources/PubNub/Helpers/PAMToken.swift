@@ -61,11 +61,28 @@ public struct PAMTokenResource: Codable, Equatable, Hashable {
   public let channels: [String: PAMPermission]
   public let groups: [String: PAMPermission]
   public let uuids: [String: PAMPermission]
+  public let dataSyncEntities: [String: PAMPermission]
+  public let dataSyncMemberships: [String: PAMPermission]
+  public let dataSyncRelationships: [String: PAMPermission]
 
   enum CodingKeys: String, CodingKey {
     case channels = "chan"
     case groups = "grp"
     case uuids = "uuid"
+    case dataSyncEntities = "datasync:entities"
+    case dataSyncMemberships = "datasync:memberships"
+    case dataSyncRelationships = "datasync:relationships"
+  }
+
+  public init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+
+    channels = try container.decodeIfPresent([String: PAMPermission].self, forKey: .channels) ?? [:]
+    groups = try container.decodeIfPresent([String: PAMPermission].self, forKey: .groups) ?? [:]
+    uuids = try container.decodeIfPresent([String: PAMPermission].self, forKey: .uuids) ?? [:]
+    dataSyncEntities = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncEntities) ?? [:]
+    dataSyncMemberships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncMemberships) ?? [:]
+    dataSyncRelationships = try container.decodeIfPresent([String: PAMPermission].self, forKey: .dataSyncRelationships) ?? [:]
   }
 }
 
@@ -79,12 +96,13 @@ public struct PAMPermission: OptionSet, Codable, Equatable, Hashable {
   public static let write = PAMPermission(rawValue: 1 << 1) // 2
   public static let manage = PAMPermission(rawValue: 1 << 2) // 4
   public static let delete = PAMPermission(rawValue: 1 << 3) // 8
+  public static let create = PAMPermission(rawValue: 1 << 4) // 16
   public static let get = PAMPermission(rawValue: 1 << 5) // 32
   public static let update = PAMPermission(rawValue: 1 << 6) // 64
   public static let join = PAMPermission(rawValue: 1 << 7) // 128
 
   public static let crud: PAMPermission = [
-    PAMPermission.read, PAMPermission.write, PAMPermission.update, PAMPermission.delete
+    PAMPermission.read, PAMPermission.write, PAMPermission.create, PAMPermission.update, PAMPermission.delete
   ]
   public static let all: PAMPermission = [
     PAMPermission.get, PAMPermission.join, PAMPermission.crud, PAMPermission.manage
@@ -117,6 +135,9 @@ extension PAMPermission: CustomStringConvertible {
     }
     if contains(.delete) {
       perm.append("delete")
+    }
+    if contains(.create) {
+      perm.append("create")
     }
     if contains(.get) {
       perm.append("get")

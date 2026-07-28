@@ -51,9 +51,13 @@ struct DataSyncRelationshipRouter: HTTPRouter {
     let payload: AnyJSON?
 
     init(
-      id: String? = nil, entityAId: String, entityBId: String,
-      relationshipClass: String, relationshipClassVersion: Int,
-      status: String? = nil, payload: AnyJSON? = nil
+      id: String? = nil,
+      entityAId: String,
+      entityBId: String,
+      relationshipClass: String,
+      relationshipClassVersion: Int,
+      status: String? = nil,
+      payload: AnyJSON? = nil
     ) {
       self.id = id
       self.entityAId = entityAId
@@ -154,9 +158,9 @@ struct DataSyncRelationshipRouter: HTTPRouter {
   var body: Result<Data?, Error> {
     switch endpoint {
     case let .create(body):
-      return body.jsonDataResult.map { .some($0) }
+      return DataSyncRequestEnvelope(data: body).encodableJSONData.map { .some($0) }
     case let .replace(_, body, _):
-      return body.jsonDataResult.map { .some($0) }
+      return DataSyncRequestEnvelope(data: body).encodableJSONData.map { .some($0) }
     case let .patch(_, operations, _):
       return operations.encodableJSONData.map { .some($0) }
     default:

@@ -72,6 +72,13 @@ enum JSONPatchOperation: Encodable, Equatable {
   }
 }
 
+// MARK: - Request envelope
+
+/// Wraps a create/replace request body in the `{ "data": ... }`
+struct DataSyncRequestEnvelope<Value: Encodable>: Encodable {
+  let data: Value
+}
+
 // MARK: - Response envelope models
 
 /// Pagination metadata returned on DataSync list responses.

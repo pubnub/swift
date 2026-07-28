@@ -25,8 +25,9 @@ final class DataSyncRouterTests: XCTestCase {
   private func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
     let request = try router.asURLRequest.get()
     let body = try XCTUnwrap(request.httpBody)
+    let envelope = try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
 
-    return try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
+    return try XCTUnwrap(envelope["data"])
   }
 
   private func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
@@ -42,8 +43,8 @@ final class DataSyncRouterTests: XCTestCase {
 extension DataSyncRouterTests {
   func test_UserList_AllQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
-      entityClassVersion: 2, cursor: "TjIw", limit: 25,
-      filter: "status=='active'", filterAdvanced: "a AND b", sort: "+name"
+      entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
+      filter: "status=='active'", filterAdvanced: "a AND b", sort: "name:desc,type"
     )
     let router = DataSyncUserRouter(
       endpoint,
@@ -56,16 +57,17 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users")
     XCTAssertNil(router.validationError)
     XCTAssertEqual(try queryValue(router, "entity_class_version"), "2")
+    XCTAssertEqual(try queryValue(router, "entity_class_level"), "SubKey")
     XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
     XCTAssertEqual(try queryValue(router, "limit"), "25")
     XCTAssertEqual(try queryValue(router, "filter"), "status=='active'")
     XCTAssertEqual(try queryValue(router, "filter_advanced"), "a AND b")
-    XCTAssertEqual(try queryValue(router, "sort"), "+name")
+    XCTAssertEqual(try queryValue(router, "sort"), "name:desc,type")
   }
 
   func test_UserList_OmitsNilQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
-      entityClassVersion: nil, cursor: nil, limit: nil,
+      entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
       filter: nil, filterAdvanced: nil, sort: nil
     )
     let router = DataSyncUserRouter(
@@ -76,6 +78,7 @@ extension DataSyncRouterTests {
     let names = try queryNames(router)
 
     XCTAssertFalse(names.contains("entity_class_version"))
+    XCTAssertFalse(names.contains("entity_class_level"))
     XCTAssertFalse(names.contains("cursor"))
     XCTAssertFalse(names.contains("limit"))
     XCTAssertFalse(names.contains("filter"))
@@ -451,7 +454,10 @@ extension DataSyncRouterTests {
 
   func test_EntityList_RequiresEntityClassQueryItem() throws {
     let router = DataSyncEntityRouter(
-      .all(entityClass: "user", entityClassVersion: nil, cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil),
+      .all(
+        entityClass: "user", entityClassVersion: nil, entityClassLevel: nil,
+        cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+      ),
       configuration: config
     )
 
@@ -463,7 +469,10 @@ extension DataSyncRouterTests {
 
   func test_EntityList_MissingEntityClassFailsValidation() throws {
     let router = DataSyncEntityRouter(
-      .all(entityClass: "", entityClassVersion: nil, cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil),
+      .all(
+        entityClass: "", entityClassVersion: nil, entityClassLevel: nil, cursor: nil,
+        limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+      ),
       configuration: config
     )
 
@@ -560,9 +569,10 @@ extension DataSyncRouterTests {
     XCTAssertEqual(router.method, .post)
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships")
     XCTAssertNil(router.validationError)
+
     XCTAssertEqual(
       request.value(forHTTPHeaderField: "Content-Type"),
-       "application/vnd.pubnub.objects.relationship+json;version=1"
+      "application/vnd.pubnub.objects.relationship+json;version=1"
     )
 
     let body = try decodeBody(router)

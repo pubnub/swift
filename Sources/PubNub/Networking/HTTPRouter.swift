@@ -135,6 +135,7 @@ enum QueryKey: String {
   case filterAdvanced = "filter_advanced"
   case entityClass = "entity_class"
   case entityClassVersion = "entity_class_version"
+  case entityClassLevel = "entity_class_level"
   case relationshipClass = "relationship_class"
   case relationshipClassVersion = "relationship_class_version"
   case userId = "user_id"

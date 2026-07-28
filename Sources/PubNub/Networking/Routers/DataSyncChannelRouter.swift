@@ -12,7 +12,10 @@ import Foundation
 
 struct DataSyncChannelRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
-    case all(entityClassVersion: Int?, cursor: String?, limit: Int?, filter: String?, filterAdvanced: String?, sort: String?)
+    case all(
+      entityClassVersion: Int?, entityClassLevel: String?, cursor: String?, limit: Int?,
+      filter: String?, filterAdvanced: String?, sort: String?
+    )
     case fetch(id: String)
     case create(body: CreateBody)
     case replace(id: String, body: ReplaceBody, ifMatch: String?)
@@ -40,13 +43,24 @@ struct DataSyncChannelRouter: HTTPRouter {
   struct CreateBody: JSONCodable, Equatable {
     let id: String?
     let status: String?
+    let entityClass: String?
     let entityClassVersion: Int
+    let entityClassLevel: String?
     let payload: AnyJSON?
 
-    init(id: String? = nil, status: String? = nil, entityClassVersion: Int, payload: AnyJSON? = nil) {
+    init(
+      id: String? = nil,
+      status: String? = nil,
+      entityClass: String? = nil,
+      entityClassVersion: Int,
+      entityClassLevel: String? = nil,
+      payload: AnyJSON? = nil
+    ) {
       self.id = id
       self.status = status
+      self.entityClass = entityClass
       self.entityClassVersion = entityClassVersion
+      self.entityClassLevel = entityClassLevel
       self.payload = payload
     }
   }
@@ -106,8 +120,9 @@ struct DataSyncChannelRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .all(entityClassVersion, cursor, limit, filter, filterAdvanced, sort):
+    case let .all(entityClassVersion, entityClassLevel, cursor, limit, filter, filterAdvanced, sort):
       query.appendIfPresent(key: .entityClassVersion, value: entityClassVersion?.description)
+      query.appendIfPresent(key: .entityClassLevel, value: entityClassLevel)
       query.appendIfPresent(key: .cursor, value: cursor)
       query.appendIfPresent(key: .limit, value: limit?.description)
       query.appendIfPresent(key: .filter, value: filter)
@@ -134,9 +149,9 @@ struct DataSyncChannelRouter: HTTPRouter {
   var body: Result<Data?, Error> {
     switch endpoint {
     case let .create(body):
-      return body.jsonDataResult.map { .some($0) }
+      return DataSyncRequestEnvelope(data: body).encodableJSONData.map { .some($0) }
     case let .replace(_, body, _):
-      return body.jsonDataResult.map { .some($0) }
+      return DataSyncRequestEnvelope(data: body).encodableJSONData.map { .some($0) }
     case let .patch(_, operations, _):
       return operations.encodableJSONData.map { .some($0) }
     default:

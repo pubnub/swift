@@ -540,6 +540,11 @@ extension PubNub: EventListenerInterface {
     get { subscription.onAppContext }
     set { subscription.onAppContext = newValue }
   }
+
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)? {
+    get { subscription.onDataSync }
+    set { subscription.onDataSync = newValue }
+  }
 }
 
 /// An extension to the `PubNub` class, making it conform to the `StatusListenerInterface` protocol and serving

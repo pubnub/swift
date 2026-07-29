@@ -24,6 +24,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)?
 
   public let queue: DispatchQueue
   /// Additional subscription options

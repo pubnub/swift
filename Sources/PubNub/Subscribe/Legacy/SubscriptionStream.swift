@@ -105,6 +105,8 @@ public enum PubNubCoreEvent {
   case messageActionRemoved(PubNubMessageAction)
   /// A File was uploaded to storage
   case fileUploaded(PubNubFileEvent)
+  /// A DataSync entity or relationship has been created/updated/deleted
+  case dataSyncChanged(PubNubDataSyncEvent)
   /// A subscription error has occurred
   case subscribeError(PubNubError)
 
@@ -173,6 +175,8 @@ public final class CoreListener: BaseSubscriptionListener {
   public var didReceiveMessageAction: ((MessageActionEvent) -> Void)?
   /// Receiver for File Upload events
   public var didReceiveFileUpload: ((PubNubFileEvent) -> Void)?
+  /// Receiver for DataSync events
+  public var didReceiveDataSyncEvent: ((PubNubDataSyncEvent) -> Void)?
 
   // MARK: Parent Override
 
@@ -229,6 +233,11 @@ public final class CoreListener: BaseSubscriptionListener {
           return .messageReceived(PubNubMessageBase(from: message))
         }
         return .fileUploaded(fileMessage)
+      case .dataSync:
+        guard let dataSyncEvent = message.asDataSyncEvent() else {
+          return .messageReceived(PubNubMessageBase(from: message))
+        }
+        return .dataSyncChanged(dataSyncEvent)
       case .presence:
         guard let presence = PubNubPresenceChangeBase(from: message) else {
           return .messageReceived(PubNubMessageBase(from: message))
@@ -291,6 +300,8 @@ public final class CoreListener: BaseSubscriptionListener {
         self?.didReceiveMessageAction?(.removed(action))
       case let .fileUploaded(file):
         self?.didReceiveFileUpload?(file)
+      case let .dataSyncChanged(dataSyncEvent):
+        self?.didReceiveDataSyncEvent?(dataSyncEvent)
       case let .subscribeError(error):
         self?.didReceiveStatus?(.failure(error))
       }

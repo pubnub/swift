@@ -149,6 +149,9 @@ listener.didReceiveBatchSubscription = { events in
 
     case let .fileUploaded(fileEvent):
       print("A file was uploaded: \(fileEvent)")
+
+    default:
+      break
     }
   }
 }

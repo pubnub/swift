@@ -322,6 +322,20 @@ class DetailTableViewController: UITableViewController {
             }
           }
           print("If `disconnectedUnexpectedly` also occurred then subscription has stopped, and needs to be restarted")
+        case let .dataSyncChanged(dataSyncEvent):
+          switch dataSyncEvent {
+          case let .entityCreated(entity), let .entityUpdated(entity):
+            print("The \(entity.className) entity \(entity.id) was created or updated at \(entity.updatedAt)")
+            print("Its revision is \(entity.eTag) and it expires at \(entity.expiresAt)")
+            print("Visible fields: \(entity.payload?.description ?? "none")")
+          case let .relationshipCreated(relationship), let .relationshipUpdated(relationship):
+            print("The \(relationship.className) relationship \(relationship.id) was created or updated")
+            print("It connects entity \(relationship.entityAId) to entity \(relationship.entityBId)")
+          case let .entityDeleted(removed):
+            print("The \(removed.className) entity \(removed.id) was deleted at \(removed.deletedAt)")
+          case let .relationshipDeleted(removed):
+            print("The \(removed.className) relationship \(removed.id) was deleted at \(removed.deletedAt)")
+          }
         }
       }
     }

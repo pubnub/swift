@@ -316,6 +316,7 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
     case object = 2
     case messageAction = 3
     case file = 4
+    case dataSync = 5
     /// Presence Event type
     /// - warning: This is a client-side type and will be encoded as nil
     case presence = 99
@@ -332,6 +333,8 @@ public struct SubscribeMessagePayload: Codable, Hashable, CustomStringConvertibl
         return .messageAction
       case .file:
         return .file
+      case .dataSync:
+        return .unknown
       case .presence:
         return .unknown
       }

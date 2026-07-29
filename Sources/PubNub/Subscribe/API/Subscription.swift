@@ -54,6 +54,7 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)?
 
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(

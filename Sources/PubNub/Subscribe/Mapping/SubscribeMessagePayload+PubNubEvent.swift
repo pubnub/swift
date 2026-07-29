@@ -57,6 +57,11 @@ extension SubscribeMessagePayload {
         return .messageReceived(PubNubMessageBase(from: self))
       }
       return .fileChanged(.uploaded(fileMessage))
+    case .dataSync:
+      guard let dataSyncEvent = asDataSyncEvent() else {
+        return .messageReceived(PubNubMessageBase(from: self))
+      }
+      return .dataSyncChanged(dataSyncEvent)
     case .presence:
       guard let presence = PubNubPresenceChangeBase(from: self) else {
         return .messageReceived(PubNubMessageBase(from: self))

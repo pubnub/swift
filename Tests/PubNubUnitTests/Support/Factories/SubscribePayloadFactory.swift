@@ -111,6 +111,38 @@ func mockPresenceChangePayload(
   )
 }
 
+func mockDataSyncPayload(
+  channel: String = "channel",
+  event: String = "create",
+  type: String = "entity",
+  className: String = "::patient",
+  data: [String: Any] = [
+    "id": "hcn-patient-alice",
+    "createdAt": "2026-07-28T09:11:17.077390Z",
+    "updatedAt": "2026-07-28T09:11:17.077390Z",
+    "eTag": "3w5e111hppk83",
+    "expiresAt": "2027-07-29T00:00:00Z",
+    "status": "active",
+    "payload": ["mrn": "MRN-100001"]
+  ]
+) -> SubscribeMessagePayload {
+  generateMessage(
+    with: .dataSync,
+    channel: channel,
+    payload: AnyJSON([
+      "version": "1.0",
+      "metadata": [
+        "event": event,
+        "source": "data-sync",
+        "type": type,
+        "className": className,
+        "classVersion": 1
+      ],
+      "data": data
+    ])
+  )
+}
+
 func generateMessage(
   with type: SubscribeMessagePayload.Action,
   subscription: String? = nil,

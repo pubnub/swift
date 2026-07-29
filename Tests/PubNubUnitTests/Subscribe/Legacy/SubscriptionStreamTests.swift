@@ -105,6 +105,21 @@ class SubscriptionListenerTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testEmitDidReceiveDataSyncEvent() {
+    let expectation = XCTestExpectation(description: "didReceiveDataSyncEvent")
+    let listener = SubscriptionListener()
+
+    listener.didReceiveDataSyncEvent = { event in
+      if case let .entityCreated(entityEvent) = event {
+        expectation.fulfill()
+      }
+    }
+
+    listener.emit(batch: [mockDataSyncPayload()])
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testEquatable() {
     let listener = SubscriptionListener()
     let copy = listener

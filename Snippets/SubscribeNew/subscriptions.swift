@@ -220,6 +220,8 @@ subscription.onEvent = { event in
     print("Message Reaction event: \(messageActionEvent)")
   case let .fileChanged(fileEvent):
     print("File event: \(fileEvent)")
+  default:
+    break
   }
 }
 // snippet.end

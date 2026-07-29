@@ -1,0 +1,47 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17852304271181877",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17852304271181877",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "__admin__hcn-patient-alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "update",
+            "source": "data-sync",
+            "type": "entity",
+            "className": "::patient",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "hcn-patient-alice",
+            "updatedAt": "2026-07-28T09:20:25.783379Z",
+            "createdAt": "2026-07-28T09:11:17.077390Z",
+            "eTag": "3w5e111hq1bsx",
+            "expiresAt": "2027-07-29T00:00:00Z",
+            "status": "active",
+            "payload": {
+              "diagnosis": "Essential hypertension (I10)",
+              "dateOfBirth": "1985-03-14",
+              "weightKg": 60.4,
+              "isSmoker": true
+            }
+          }
+        },
+        "b": "__admin__hcn-patient-alice"
+      }
+    ]
+  }
+}

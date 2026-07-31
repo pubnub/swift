@@ -107,12 +107,12 @@ extension SubscribeRouterTests {
     let errorExpect = expectation(description: "Subscribe error")
     let disconnectExpect = expectation(description: "Connection error")
 
-    mock.listener.didReceiveSubscription = { [mock] event in
-      if case let .subscribeError(error) = event {
+    mock.listener.didReceiveStatus = { [mock] statusEvent in
+      if case let .failure(error) = statusEvent {
         XCTAssertEqual(error.reason, .jsonDataDecodingFailure)
         mock.session.unsubscribeAll()
         errorExpect.fulfill()
-      } else if case .connectionStatusChanged(.connectionError) = event {
+      } else if case .success(.connectionError) = statusEvent {
         disconnectExpect.fulfill()
       }
     }

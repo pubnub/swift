@@ -171,13 +171,13 @@ subscription.onAppContext = { appContextEvent in
   case let .userMetadataSet(changeset):
     print("User metadata changes detected for \(changeset.metadataId) at \(changeset.updated).")
     print("All changes made to the object: \(changeset.changes)")
-    print("To apply these changes, fetch the relevant object and call `changeset.apply(to: otherChannelMetadata)`.")
+    print("To apply these changes, fetch the relevant object and call `changeset.apply(to: otherUserMetadata)`.")
   case let .userMetadataRemoved(metadataId):
-    print("Metadata for UUID \(metadataId) removed")
+    print("Metadata for User \(metadataId) removed")
   case let .channelMetadataSet(changeset):
     print("Channel metadata changes detected for \(changeset.metadataId) at \(changeset.updated).")
     print("All changes made to the object: \(changeset.changes)")
-    print("To apply these changes, fetch the relevant object and call `changeset.apply(to: otherUserMetadata)`.")
+    print("To apply these changes, fetch the relevant object and call `changeset.apply(to: otherChannelMetadata)`.")
   case let .channelMetadataRemoved(metadataId: metadataId):
     print("Metadata for channel \(metadataId) removed")
   case let .membershipMetadataSet(membership):

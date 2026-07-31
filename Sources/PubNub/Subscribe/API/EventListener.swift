@@ -50,8 +50,10 @@ public protocol EventListenerInterface: AnyObject {
   /// A unique emitter's identifier
   var uuid: UUID { get }
   /// Receiver for a single event
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   var onEvent: ((PubNubEvent) -> Void)? { get set }
   /// Receiver for multiple events. This will also emit individual events to `onEvent:`
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   var onEvents: (([PubNubEvent]) -> Void)? { get set }
   /// Receiver for Message events
   var onMessage: ((PubNubMessage) -> Void)? { get set }
@@ -73,7 +75,9 @@ public protocol EventListenerInterface: AnyObject {
 public class EventListener: EventListenerInterface {
   public let queue: DispatchQueue
   public let uuid: UUID
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
   public var onSignal: ((PubNubMessage) -> Void)?

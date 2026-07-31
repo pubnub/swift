@@ -46,7 +46,9 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   // Stores additional listeners
   private let listenersContainer: SubscriptionListenersContainer = .init()
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
   public var onSignal: ((PubNubMessage) -> Void)?

@@ -16,7 +16,9 @@ import Foundation
 /// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
 /// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
 public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
   public var onSignal: ((PubNubMessage) -> Void)?

@@ -44,7 +44,7 @@ class SubscriptionListenerTests: XCTestCase {
       XCTAssertEqual(event, self?.statusEvent)
     }
 
-    stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
+    stream.emit(subscribe: .connectionChanged(connectionEvent))
     stream.emitDidReceive(subscription: .messageReceived(pubnubMessage))
     stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
@@ -56,7 +56,7 @@ class SubscriptionListenerTests: XCTestCase {
       XCTAssertEqual(try? event.transcode(), self?.pubnubMessage)
     }
 
-    stream.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
+    stream.emit(subscribe: .connectionChanged(connectionEvent))
     stream.emitDidReceive(subscription: .messageReceived(pubnubMessage))
     stream.emitDidReceive(subscription: .presenceChanged(presenceEvent))
   }
@@ -86,7 +86,7 @@ class SubscriptionListenerTests: XCTestCase {
       expectation.fulfill()
     }
 
-    listener.emitDidReceive(subscription: .connectionStatusChanged(connectionEvent))
+    listener.emit(subscribe: .connectionChanged(connectionEvent))
 
     wait(for: [expectation], timeout: 1.0)
   }
@@ -110,7 +110,7 @@ class SubscriptionListenerTests: XCTestCase {
     let listener = SubscriptionListener()
 
     listener.didReceiveDataSyncEvent = { event in
-      if case let .entityCreated(entityEvent) = event {
+      if case .entityCreated = event {
         expectation.fulfill()
       }
     }

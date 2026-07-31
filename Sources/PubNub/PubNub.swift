@@ -501,11 +501,13 @@ extension PubNub: EventListenerInterface {
     subscription.uuid
   }
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)? {
     get { subscription.onEvent }
     set { subscription.onEvent = newValue }
   }
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)? {
     get { subscription.onEvents }
     set { subscription.onEvents = newValue }

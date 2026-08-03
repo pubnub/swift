@@ -103,7 +103,7 @@ public struct PubNubDataSyncRelationship: Hashable {
 
   let concretePayload: AnyJSON?
 
-  public init(
+  init(
     id: String,
     className: String,
     classLevel: PubNubDataSyncClassLevel,

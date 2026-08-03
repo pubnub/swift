@@ -22,11 +22,7 @@ public enum PubNubDataSyncClassLevel: Hashable {
 
 // MARK: - PubNubDataSyncEntity
 
-/// A DataSync entity
-///
-/// - Important: When received from the Subscribe loop, `payload` contains the fields visible to
-/// the projection the receiving token carries, not necessarily every field of the entity. Fields
-/// not declared in the entity's class schema belong to no projection and are always present.
+/// Represents a DataSync entity in PubNub DataSync.
 public struct PubNubDataSyncEntity: Hashable {
   /// The unique identifier of the entity
   public let id: String
@@ -47,9 +43,11 @@ public struct PubNubDataSyncEntity: Hashable {
   /// The entity status
   public let status: String?
   /// The entity fields
-  public let payload: AnyJSON?
+  public var payload: JSONCodable? { concretePayload }
 
-  public init(
+  let concretePayload: AnyJSON?
+
+  init(
     id: String,
     className: String,
     classLevel: PubNubDataSyncClassLevel,
@@ -59,7 +57,7 @@ public struct PubNubDataSyncEntity: Hashable {
     eTag: String,
     expiresAt: Date,
     status: String? = nil,
-    payload: AnyJSON? = nil
+    payload: JSONCodable? = nil
   ) {
     self.id = id
     self.className = className
@@ -70,18 +68,13 @@ public struct PubNubDataSyncEntity: Hashable {
     self.eTag = eTag
     self.expiresAt = expiresAt
     self.status = status
-    self.payload = payload
+    self.concretePayload = payload?.codableValue
   }
 }
 
 // MARK: - PubNubDataSyncRelationship
 
-/// A DataSync relationship connecting two entities
-///
-/// - Important: When received from the Subscribe loop, `payload` contains the fields visible to
-/// the projection the receiving token carries, not necessarily every field of the relationship.
-/// Fields not declared in the relationship's class schema belong to no projection and are always
-/// present.
+/// Represents a DataSync relationship connecting two entities in PubNub DataSync.
 public struct PubNubDataSyncRelationship: Hashable {
   /// The unique identifier of the relationship
   public let id: String
@@ -106,7 +99,9 @@ public struct PubNubDataSyncRelationship: Hashable {
   /// The relationship status
   public let status: String?
   /// The relationship fields
-  public let payload: AnyJSON?
+  public var payload: JSONCodable? { concretePayload }
+
+  let concretePayload: AnyJSON?
 
   public init(
     id: String,
@@ -120,7 +115,7 @@ public struct PubNubDataSyncRelationship: Hashable {
     eTag: String,
     expiresAt: Date,
     status: String? = nil,
-    payload: AnyJSON? = nil
+    payload: JSONCodable? = nil
   ) {
     self.id = id
     self.className = className
@@ -133,6 +128,6 @@ public struct PubNubDataSyncRelationship: Hashable {
     self.eTag = eTag
     self.expiresAt = expiresAt
     self.status = status
-    self.payload = payload
+    self.concretePayload = payload?.codableValue
   }
 }

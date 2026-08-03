@@ -335,7 +335,7 @@ class DetailTableViewController: UITableViewController {
       case let .entityCreated(entity), let .entityUpdated(entity):
         print("The \(entity.className) entity \(entity.id) was created or updated at \(entity.updatedAt)")
         print("Its revision is \(entity.eTag) and it expires at \(entity.expiresAt)")
-        print("Visible fields: \(entity.payload?.description ?? "none")")
+        print("Payload: \(entity.payload ?? "none")")
       case let .relationshipCreated(relationship), let .relationshipUpdated(relationship):
         print("The \(relationship.className) relationship \(relationship.id) was created or updated")
         print("It connects entity \(relationship.entityAId) to entity \(relationship.entityBId)")

@@ -23,7 +23,9 @@
 
 /* Begin PBXBuildFile section */
 		0162B986DE5A8773D6F8C8A0 /* Pods_PubNubContractTestsBeta.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E812941F9706B958CD448B54 /* Pods_PubNubContractTestsBeta.framework */; };
+		106727AA5282777820BFC25F /* SubscribeDataSyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D2098DF3D020AC68DD7C85 /* SubscribeDataSyncPayload.swift */; };
 		1A39430AF65B1BAADB7590FA /* MockListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */; };
+		266C9E78D5E714960B32C55E /* SubscribeRouterTests+Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = F421DD43E4051D3AE5FACC39 /* SubscribeRouterTests+Crypto.swift */; };
 		35012EB22850039D00CF7E0A /* PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8975284D323300DB0F3D /* PubNubUser.swift */; };
 		35012EB3285003A100CF7E0A /* Patcher+PubNubUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 358B8974284D323300DB0F3D /* Patcher+PubNubUser.swift */; };
 		35012EB5285003EC00CF7E0A /* PubNubUserEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */; };
@@ -192,12 +194,6 @@
 		359287BF23183DC20046F7A2 /* subscription_signal_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287BE23183DBB0046F7A2 /* subscription_signal_success.json */; };
 		359287C123183E530046F7A2 /* subscription_presence_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287C023183E4A0046F7A2 /* subscription_presence_success.json */; };
 		359287C32318484D0046F7A2 /* subscription_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287C223183E6A0046F7A2 /* subscription_message_success.json */; };
-		BF76A0CE28AAD64DC24BC726 /* subscription_dataSyncRelationshipDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 146141894BCB0FE565FF127C /* subscription_dataSyncRelationshipDelete_success.json */; };
-		FEECFED552025EE3D7897E0C /* subscription_dataSyncRelationshipUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCCCA408812B8BD920DE6401 /* subscription_dataSyncRelationshipUpdate_success.json */; };
-		C437A4B75BE23702C56962EE /* subscription_dataSyncRelationshipCreate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 1FE20274B79F82AEB70DC962 /* subscription_dataSyncRelationshipCreate_success.json */; };
-		DC1FB72D98DF046B1FA1EED0 /* subscription_dataSyncEntityDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = F663C27813A8D0288A85B9E3 /* subscription_dataSyncEntityDelete_success.json */; };
-		BEEEF3B40DACC7D326000C9E /* subscription_dataSyncEntityUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 01B74E96C4C209D0D810E15D /* subscription_dataSyncEntityUpdate_success.json */; };
-		C5B70B4556929A569618025C /* subscription_dataSyncEntityCreate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = BF339ABD59FF4797EE5D22E2 /* subscription_dataSyncEntityCreate_success.json */; };
 		359287C5231861580046F7A2 /* subscription_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287C423185EEE0046F7A2 /* subscription_success.json */; };
 		359287C7232712520046F7A2 /* PresenceEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */; };
 		359287CF232880660046F7A2 /* herenow_success_stateful.json in Resources */ = {isa = PBXBuildFile; fileRef = 359287CE232880660046F7A2 /* herenow_success_stateful.json */; };
@@ -248,7 +244,6 @@
 		35AB218D22E7D72200BD3049 /* AnyJSON+CodableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */; };
 		35AC162B2485B1DA00A66030 /* SubscribeMessageActionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC162A2485B1DA00A66030 /* SubscribeMessageActionPayload.swift */; };
 		35AC162F2486C9A400A66030 /* PubNubMessageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC162E2486C9A400A66030 /* PubNubMessageAction.swift */; };
-		4A86B7D380B57CFF56D18D70 /* PubNubDataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF1762A6990A374C0A3C745 /* PubNubDataSync.swift */; };
 		35AC16332487179400A66030 /* PubNubPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC16322487179400A66030 /* PubNubPage.swift */; };
 		35AE6A3224FD6CEE00BBFA37 /* FileManagementRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AE6A3124FD6CEE00BBFA37 /* FileManagementRouter.swift */; };
 		35B0ACE3252BE36D00537A18 /* File+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35B0ACE2252BE36C00537A18 /* File+PubNub.swift */; };
@@ -288,13 +283,6 @@
 		35CDFEBC22E789B200F3B9F2 /* ConstantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */; };
 		35CDFEC022E7B48000F3B9F2 /* ImportTestResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */; };
 		35CF548C248971BF0099FE81 /* ObjectsUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */; };
-		4E45EAB7E4CAE5C43AA4C598 /* DataSyncChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */; };
-		A9FE40B4D29F21CC0143667E /* DataSyncEntityRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */; };
-		862A4507613A1E76D0C7798A /* DataSyncMembershipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */; };
-		997DBBB71508808142C40D57 /* DataSyncRelationshipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */; };
-		61EF9E0B1C8606520E009F04 /* DataSyncRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */; };
-		3B606B5ABA0D7EEACD6457C1 /* DataSyncUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */; };
-		7E421DECD8867FA8742DEB06 /* DataSyncRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */; };
 		35CF548E248971CD0099FE81 /* ObjectsChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */; };
 		35CF5490248971DD0099FE81 /* ObjectsMembershipsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */; };
 		35CF54922489912F0099FE81 /* PubNubUserMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */; };
@@ -302,15 +290,8 @@
 		35CF54962489B3760099FE81 /* PubNubMembershipMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54952489B3760099FE81 /* PubNubMembershipMetadata.swift */; };
 		35CF549C248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF549B248ABE8B0099FE81 /* PubNubObjectMetadataPatcher.swift */; };
 		35CF549D248D73500099FE81 /* SubscribeObjectPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35AC162C2485E3C600A66030 /* SubscribeObjectPayload.swift */; };
-		106727AA5282777820BFC25F /* SubscribeDataSyncPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D2098DF3D020AC68DD7C85 /* SubscribeDataSyncPayload.swift */; };
 		35CF549E248D913A0099FE81 /* ObjectsUserRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */; };
 		35CF54A0248D96320099FE81 /* SubscribeRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 359287BC23173D490046F7A2 /* SubscribeRouterTests.swift */; };
-		CD2D7173AED2461D41C4179F /* SubscribeRouterTests+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D3BD3FF11236509EF7246E /* SubscribeRouterTests+Lifecycle.swift */; };
-		266C9E78D5E714960B32C55E /* SubscribeRouterTests+Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = F421DD43E4051D3AE5FACC39 /* SubscribeRouterTests+Crypto.swift */; };
-		CB10F06F92E2A1514E343CC7 /* SubscribeRouterTests+DataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9851DCE774C23568C9771F9C /* SubscribeRouterTests+DataSync.swift */; };
-		CED1B0098532FAD94D518845 /* SubscribeRouterTests+MessageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669D91BCD5DABAFC6327D51E /* SubscribeRouterTests+MessageAction.swift */; };
-		4BD7ACA5CAED948213E31F17 /* SubscribeRouterTests+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37C46345377A1E625B9CC09 /* SubscribeRouterTests+AppContext.swift */; };
-		4B614A7576C560B114008463 /* SubscribeRouterTests+CoreEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */; };
 		35CF54A1248DA6430099FE81 /* ObjectsChannelRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3562DBC22345066F006DFFBC /* ObjectsChannelRouterTests.swift */; };
 		35CF54A3248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35CF54A2248DA8650099FE81 /* ObjectsMembershipsRouterTests.swift */; };
 		35D01978233581AC00C30E3F /* objects_uuid_fetch_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35DA9AB2233447F200867989 /* objects_uuid_fetch_success.json */; };
@@ -386,6 +367,7 @@
 		35FE941222EFB70B0051C455 /* unrecognizedEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */; };
 		35FE941422EFB7C10051C455 /* unknownEndpointError.json in Resources */ = {isa = PBXBuildFile; fileRef = 35FE941322EFB7C10051C455 /* unknownEndpointError.json */; };
 		35FE941F22F0929A0051C455 /* RequestRetrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */; };
+		3B606B5ABA0D7EEACD6457C1 /* DataSyncUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */; };
 		3D00A2012E30A00100000001 /* Time+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D00A1012E30A00100000001 /* Time+PubNub.swift */; };
 		3D00A2022E30A00100000002 /* Publish+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D00A1022E30A00100000002 /* Publish+PubNub.swift */; };
 		3D00A2032E30A00100000003 /* Presence+PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D00A1032E30A00100000003 /* Presence+PubNub.swift */; };
@@ -509,7 +491,6 @@
 		3DB9257E2B7AA75F001B7E90 /* PubNubEntityEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */; };
 		3DB9257F2B7AA75F001B7E90 /* SubscriptionSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */; };
 		3DB925802B7AA75F001B7E90 /* PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */; };
-		BD5F33D7BEF57CC272468CC4 /* PubNubDataSyncEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98122CED5402A3B8DF3D1E74 /* PubNubDataSyncEvent.swift */; };
 		3DB925812B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */; };
 		3DB925822B7AA75F001B7E90 /* Subscribable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925742B7AA75F001B7E90 /* Subscribable.swift */; };
 		3DB925832B7AA75F001B7E90 /* Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DB925752B7AA75F001B7E90 /* Subscription.swift */; };
@@ -526,7 +507,12 @@
 		3DD1FB992B5A7804005A14E3 /* PubNubPresenceStateContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD1FB982B5A7804005A14E3 /* PubNubPresenceStateContainer.swift */; };
 		3DEA72392F869CF80007BCD5 /* EventEngineSubscriptionSessionStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEA72382F869CF80007BCD5 /* EventEngineSubscriptionSessionStrategyTests.swift */; };
 		3DFB01942B0E30EE00146B57 /* subscription_encrypted_message_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */; };
+		4A86B7D380B57CFF56D18D70 /* PubNubDataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FF1762A6990A374C0A3C745 /* PubNubDataSync.swift */; };
+		4B614A7576C560B114008463 /* SubscribeRouterTests+CoreEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */; };
+		4BD7ACA5CAED948213E31F17 /* SubscribeRouterTests+AppContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37C46345377A1E625B9CC09 /* SubscribeRouterTests+AppContext.swift */; };
 		4C2A8D84BCD39B07A66FD9B4 /* Pods_PubNubContractTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */; };
+		4E45EAB7E4CAE5C43AA4C598 /* DataSyncChannelRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */; };
+		61EF9E0B1C8606520E009F04 /* DataSyncRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */; };
 		79407BD2271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD3271D4CFA0032076C /* PubNubContractTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */; };
 		79407BD4271D4CFA0032076C /* PubNubContractCucumberTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 79407BC0271D4CFA0032076C /* PubNubContractCucumberTest.m */; };
@@ -553,7 +539,10 @@
 		7951954E26C955CE001E308C /* PAMToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7951954D26C955CE001E308C /* PAMToken.swift */; };
 		79657AA3271A13F700BACEC5 /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; platformFilter = ios; };
 		7D06370D7AD0E46FC803436D /* TestPubNubFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4633F013726A54716BF2443 /* TestPubNubFactory.swift */; };
+		7E421DECD8867FA8742DEB06 /* DataSyncRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */; };
 		84AE887E2C0D9CFA009FB148 /* KMPAnyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */; };
+		862A4507613A1E76D0C7798A /* DataSyncMembershipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */; };
+		997DBBB71508808142C40D57 /* DataSyncRelationshipRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */; };
 		A5115F2529195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F2629195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */; };
 		A5115F28291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */; };
@@ -567,7 +556,18 @@
 		A5A574D429C309750065D333 /* leave_success.json in Resources */ = {isa = PBXBuildFile; fileRef = A5A574D329C309750065D333 /* leave_success.json */; };
 		A5F19EE329126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift */; };
 		A5F19EE429126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F19EE229126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift */; };
+		A9FE40B4D29F21CC0143667E /* DataSyncEntityRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */; };
+		BD5F33D7BEF57CC272468CC4 /* PubNubDataSyncEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98122CED5402A3B8DF3D1E74 /* PubNubDataSyncEvent.swift */; };
+		BEEEF3B40DACC7D326000C9E /* subscription_dataSyncEntityUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 01B74E96C4C209D0D810E15D /* subscription_dataSyncEntityUpdate_success.json */; };
+		BF76A0CE28AAD64DC24BC726 /* subscription_dataSyncRelationshipDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 146141894BCB0FE565FF127C /* subscription_dataSyncRelationshipDelete_success.json */; };
+		C437A4B75BE23702C56962EE /* subscription_dataSyncRelationshipCreate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 1FE20274B79F82AEB70DC962 /* subscription_dataSyncRelationshipCreate_success.json */; };
+		C5B70B4556929A569618025C /* subscription_dataSyncEntityCreate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = BF339ABD59FF4797EE5D22E2 /* subscription_dataSyncEntityCreate_success.json */; };
+		CB10F06F92E2A1514E343CC7 /* SubscribeRouterTests+DataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9851DCE774C23568C9771F9C /* SubscribeRouterTests+DataSync.swift */; };
+		CD2D7173AED2461D41C4179F /* SubscribeRouterTests+Lifecycle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98D3BD3FF11236509EF7246E /* SubscribeRouterTests+Lifecycle.swift */; };
+		CED1B0098532FAD94D518845 /* SubscribeRouterTests+MessageAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 669D91BCD5DABAFC6327D51E /* SubscribeRouterTests+MessageAction.swift */; };
 		D2635DFB22FCCF080097CF64 /* message_counts_success.json in Resources */ = {isa = PBXBuildFile; fileRef = D2635DFA22FCCF080097CF64 /* message_counts_success.json */; };
+		DC1FB72D98DF046B1FA1EED0 /* subscription_dataSyncEntityDelete_success.json in Resources */ = {isa = PBXBuildFile; fileRef = F663C27813A8D0288A85B9E3 /* subscription_dataSyncEntityDelete_success.json */; };
+		FEECFED552025EE3D7897E0C /* subscription_dataSyncRelationshipUpdate_success.json in Resources */ = {isa = PBXBuildFile; fileRef = BCCCA408812B8BD920DE6401 /* subscription_dataSyncRelationshipUpdate_success.json */; };
 		OBJ_31 /* PubNub.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_11 /* PubNub.swift */; };
 		OBJ_49 /* PubNubTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = OBJ_15 /* PubNubTests.swift */; };
 		OBJ_51 /* PubNubSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = "PubNub::PubNub::Product" /* PubNubSDK.framework */; };
@@ -682,9 +682,18 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		01B74E96C4C209D0D810E15D /* subscription_dataSyncEntityUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityUpdate_success.json; sourceTree = SOURCE_ROOT; };
+		01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncMembershipRouter.swift; sourceTree = "<group>"; };
 		01F80D9221FA218C6E7D5572 /* Pods-PubNubContractTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.release.xcconfig"; sourceTree = "<group>"; };
+		0FF1762A6990A374C0A3C745 /* PubNubDataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubDataSync.swift; sourceTree = "<group>"; };
 		10AA22C3ABEDBBDDAA133A5C /* MockListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockListener.swift; sourceTree = "<group>"; };
+		146141894BCB0FE565FF127C /* subscription_dataSyncRelationshipDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipDelete_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipDelete_success.json; sourceTree = SOURCE_ROOT; };
+		1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipRouter.swift; sourceTree = "<group>"; };
 		1E7F3D449F2D66FC29674EF6 /* Pods_PubNubContractTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1FE20274B79F82AEB70DC962 /* subscription_dataSyncRelationshipCreate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipCreate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipCreate_success.json; sourceTree = SOURCE_ROOT; };
+		203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncChannelRouter.swift; sourceTree = "<group>"; };
+		32D2098DF3D020AC68DD7C85 /* SubscribeDataSyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeDataSyncPayload.swift; sourceTree = "<group>"; };
+		33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouter.swift; sourceTree = "<group>"; };
 		35012EB4285003EC00CF7E0A /* PubNubUserEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserEvent.swift; sourceTree = "<group>"; };
 		35012EB9285004E300CF7E0A /* PubNubMembershipEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMembershipEvent.swift; sourceTree = "<group>"; };
 		35012EBB2850052500CF7E0A /* PubNubSpaceEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubSpaceEvent.swift; sourceTree = "<group>"; };
@@ -864,21 +873,9 @@
 		359287B3231720C20046F7A2 /* PublishRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishRouterTests.swift; sourceTree = "<group>"; };
 		359287B5231727EC0046F7A2 /* PublishEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		359287BC23173D490046F7A2 /* SubscribeRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeRouterTests.swift; sourceTree = "<group>"; };
-		98D3BD3FF11236509EF7246E /* SubscribeRouterTests+Lifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+Lifecycle.swift"; sourceTree = "<group>"; };
-		F421DD43E4051D3AE5FACC39 /* SubscribeRouterTests+Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+Crypto.swift"; sourceTree = "<group>"; };
-		9851DCE774C23568C9771F9C /* SubscribeRouterTests+DataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+DataSync.swift"; sourceTree = "<group>"; };
-		669D91BCD5DABAFC6327D51E /* SubscribeRouterTests+MessageAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+MessageAction.swift"; sourceTree = "<group>"; };
-		A37C46345377A1E625B9CC09 /* SubscribeRouterTests+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+AppContext.swift"; sourceTree = "<group>"; };
-		DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+CoreEvents.swift"; sourceTree = "<group>"; };
 		359287BE23183DBB0046F7A2 /* subscription_signal_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_signal_success.json; sourceTree = "<group>"; };
 		359287C023183E4A0046F7A2 /* subscription_presence_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_presence_success.json; sourceTree = "<group>"; };
 		359287C223183E6A0046F7A2 /* subscription_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_message_success.json; sourceTree = "<group>"; };
-		146141894BCB0FE565FF127C /* subscription_dataSyncRelationshipDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipDelete_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipDelete_success.json; sourceTree = SOURCE_ROOT; };
-		BCCCA408812B8BD920DE6401 /* subscription_dataSyncRelationshipUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipUpdate_success.json; sourceTree = SOURCE_ROOT; };
-		1FE20274B79F82AEB70DC962 /* subscription_dataSyncRelationshipCreate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipCreate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipCreate_success.json; sourceTree = SOURCE_ROOT; };
-		F663C27813A8D0288A85B9E3 /* subscription_dataSyncEntityDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityDelete_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityDelete_success.json; sourceTree = SOURCE_ROOT; };
-		01B74E96C4C209D0D810E15D /* subscription_dataSyncEntityUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityUpdate_success.json; sourceTree = SOURCE_ROOT; };
-		BF339ABD59FF4797EE5D22E2 /* subscription_dataSyncEntityCreate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityCreate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityCreate_success.json; sourceTree = SOURCE_ROOT; };
 		359287C423185EEE0046F7A2 /* subscription_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_success.json; sourceTree = "<group>"; };
 		359287C6232712520046F7A2 /* PresenceEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresenceEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		359287CE232880660046F7A2 /* herenow_success_stateful.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = herenow_success_stateful.json; sourceTree = "<group>"; };
@@ -934,9 +931,7 @@
 		35AB218C22E7D72200BD3049 /* AnyJSON+CodableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyJSON+CodableTests.swift"; sourceTree = "<group>"; };
 		35AC162A2485B1DA00A66030 /* SubscribeMessageActionPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeMessageActionPayload.swift; sourceTree = "<group>"; };
 		35AC162C2485E3C600A66030 /* SubscribeObjectPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeObjectPayload.swift; sourceTree = "<group>"; };
-		32D2098DF3D020AC68DD7C85 /* SubscribeDataSyncPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscribeDataSyncPayload.swift; sourceTree = "<group>"; };
 		35AC162E2486C9A400A66030 /* PubNubMessageAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubMessageAction.swift; sourceTree = "<group>"; };
-		0FF1762A6990A374C0A3C745 /* PubNubDataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubDataSync.swift; sourceTree = "<group>"; };
 		35AC16322487179400A66030 /* PubNubPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubPage.swift; sourceTree = "<group>"; };
 		35AE6A3124FD6CEE00BBFA37 /* FileManagementRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileManagementRouter.swift; sourceTree = "<group>"; };
 		35AE6A3425000A3800BBFA37 /* file_list_success_empty.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = file_list_success_empty.json; sourceTree = "<group>"; };
@@ -972,12 +967,6 @@
 		35CDFEBB22E789B200F3B9F2 /* ConstantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConstantsTests.swift; sourceTree = "<group>"; };
 		35CDFEBF22E7B48000F3B9F2 /* ImportTestResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportTestResource.swift; sourceTree = "<group>"; };
 		35CF548B248971BF0099FE81 /* ObjectsUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouter.swift; sourceTree = "<group>"; };
-		203376E7E6C9C1B39DCEAD9B /* DataSyncChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncChannelRouter.swift; sourceTree = "<group>"; };
-		A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityRouter.swift; sourceTree = "<group>"; };
-		01BFE10F1FA3723DE2556979 /* DataSyncMembershipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncMembershipRouter.swift; sourceTree = "<group>"; };
-		1B214609A615104BE8A597B9 /* DataSyncRelationshipRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipRouter.swift; sourceTree = "<group>"; };
-		33212E96A038DB6A4F03D7BE /* DataSyncRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouter.swift; sourceTree = "<group>"; };
-		3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncUserRouter.swift; sourceTree = "<group>"; };
 		35CF548D248971CD0099FE81 /* ObjectsChannelRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsChannelRouter.swift; sourceTree = "<group>"; };
 		35CF548F248971DD0099FE81 /* ObjectsMembershipsRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsMembershipsRouter.swift; sourceTree = "<group>"; };
 		35CF54912489912F0099FE81 /* PubNubUserMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubUserMetadata.swift; sourceTree = "<group>"; };
@@ -1001,7 +990,6 @@
 		35DA9AB02334479800867989 /* objects_uuid_all_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = objects_uuid_all_success.json; path = Tests/PubNubUnitTests/Support/Responses/Objects/objects_uuid_all_success.json; sourceTree = SOURCE_ROOT; };
 		35DA9AB2233447F200867989 /* objects_uuid_fetch_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = objects_uuid_fetch_success.json; sourceTree = "<group>"; };
 		35DA9AB42335491F00867989 /* ObjectsUserRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectsUserRouterTests.swift; sourceTree = "<group>"; };
-		3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouterTests.swift; sourceTree = "<group>"; };
 		35DB0C4A2874768C001E1F76 /* FlatJSONCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlatJSONCodable.swift; sourceTree = "<group>"; };
 		35DB0C4C287476BF001E1F76 /* OptionalChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalChange.swift; sourceTree = "<group>"; };
 		35E381FC23149BA900A17549 /* AutomaticRetryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AutomaticRetryTests.swift; sourceTree = "<group>"; };
@@ -1061,6 +1049,8 @@
 		35FE941122EFB70B0051C455 /* unrecognizedEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unrecognizedEndpointError.json; sourceTree = "<group>"; };
 		35FE941322EFB7C10051C455 /* unknownEndpointError.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = unknownEndpointError.json; sourceTree = "<group>"; };
 		35FE941E22F0929A0051C455 /* RequestRetrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestRetrierTests.swift; sourceTree = "<group>"; };
+		3B2B4CA4F68262547E20A6DA /* DataSyncUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncUserRouter.swift; sourceTree = "<group>"; };
+		3C499F67A4CCAA9E47D1B542 /* DataSyncRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRouterTests.swift; sourceTree = "<group>"; };
 		3D00A1012E30A00100000001 /* Time+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Time+PubNub.swift"; sourceTree = "<group>"; };
 		3D00A1022E30A00100000002 /* Publish+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publish+PubNub.swift"; sourceTree = "<group>"; };
 		3D00A1032E30A00100000003 /* Presence+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Presence+PubNub.swift"; sourceTree = "<group>"; };
@@ -1072,6 +1062,7 @@
 		3D00A1092E30A00100000009 /* PAM+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PAM+PubNub.swift"; sourceTree = "<group>"; };
 		3D00B0022E30A10100000001 /* SubscriptionOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionOptions.swift; sourceTree = "<group>"; };
 		3D00B0042E30A10100000002 /* PubNubChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubChannel.swift; sourceTree = "<group>"; };
+		3D014C7830207A2A00CF7A36 /* PubNub_11_0_Migration_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PubNub_11_0_Migration_Guide.md; sourceTree = "<group>"; };
 		3D0934352DD33A74007132B1 /* FilesEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D1C4FF52C074BDB0030B3D6 /* KMPHashedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPHashedPage.swift; sourceTree = "<group>"; };
 		3D2642932C3BE835000154EC /* Dictionary+ObjCRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+ObjCRepresentable.swift"; sourceTree = "<group>"; };
@@ -1197,7 +1188,6 @@
 		3DB9256E2B7AA75F001B7E90 /* PubNubEntityEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEntityEvent.swift; sourceTree = "<group>"; };
 		3DB925702B7AA75F001B7E90 /* SubscriptionSet.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSet.swift; sourceTree = "<group>"; };
 		3DB925712B7AA75F001B7E90 /* PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubEvent.swift; sourceTree = "<group>"; };
-		98122CED5402A3B8DF3D1E74 /* PubNubDataSyncEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubDataSyncEvent.swift; sourceTree = "<group>"; };
 		3DB925732B7AA75F001B7E90 /* SubscribeMessagePayload+PubNubEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SubscribeMessagePayload+PubNubEvent.swift"; sourceTree = "<group>"; };
 		3DB925742B7AA75F001B7E90 /* Subscribable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscribable.swift; sourceTree = "<group>"; };
 		3DB925752B7AA75F001B7E90 /* Subscription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Subscription.swift; sourceTree = "<group>"; };
@@ -1235,6 +1225,7 @@
 		3DE632651BA8B2E27ACFC4AD /* Pods-PubNubContractTestsBeta.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.release.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.release.xcconfig"; sourceTree = "<group>"; };
 		3DEA72382F869CF80007BCD5 /* EventEngineSubscriptionSessionStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventEngineSubscriptionSessionStrategyTests.swift; sourceTree = "<group>"; };
 		3DFB01932B0E30EE00146B57 /* subscription_encrypted_message_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = subscription_encrypted_message_success.json; sourceTree = "<group>"; };
+		669D91BCD5DABAFC6327D51E /* SubscribeRouterTests+MessageAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+MessageAction.swift"; sourceTree = "<group>"; };
 		79407BBE271D4CFA0032076C /* PubNubContractTests-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "PubNubContractTests-Bridging-Header.h"; path = "Tests/PubNubContractTests/PubNubContractTests-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
 		79407BBF271D4CFA0032076C /* PubNubContractTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PubNubContractTestCase.swift; path = Tests/PubNubContractTests/Support/PubNubContractTestCase.swift; sourceTree = SOURCE_ROOT; };
 		79407BC0271D4CFA0032076C /* PubNubContractCucumberTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PubNubContractCucumberTest.m; path = Tests/PubNubContractTests/PubNubContractCucumberTest.m; sourceTree = SOURCE_ROOT; };
@@ -1253,6 +1244,10 @@
 		79657AAB271A13F700BACEC5 /* PubNubContractTestsBeta.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PubNubContractTestsBeta.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		84AE887D2C0D9CFA009FB148 /* KMPAnyJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KMPAnyJSON.swift; sourceTree = "<group>"; };
 		979DD162B86D78BE9B72DEEF /* Pods-PubNubContractTestsBeta.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTestsBeta.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTestsBeta/Pods-PubNubContractTestsBeta.debug.xcconfig"; sourceTree = "<group>"; };
+		98122CED5402A3B8DF3D1E74 /* PubNubDataSyncEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubDataSyncEvent.swift; sourceTree = "<group>"; };
+		9851DCE774C23568C9771F9C /* SubscribeRouterTests+DataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+DataSync.swift"; sourceTree = "<group>"; };
+		98D3BD3FF11236509EF7246E /* SubscribeRouterTests+Lifecycle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+Lifecycle.swift"; sourceTree = "<group>"; };
+		A37C46345377A1E625B9CC09 /* SubscribeRouterTests+AppContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+AppContext.swift"; sourceTree = "<group>"; };
 		A5115F2429195AF400F6ADA1 /* PubNubObjectsMembersContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembersContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F27291D54F500F6ADA1 /* PubNubObjectsMembershipsContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsMembershipsContractTestSteps.swift; sourceTree = "<group>"; };
 		A5115F2A291D5C2700F6ADA1 /* PubNubObjectsContractTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsContractTests.swift; sourceTree = "<group>"; };
@@ -1260,9 +1255,15 @@
 		A56445F12907D9FD0085B310 /* PubNubObjectsChannelMetadataContractTestSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubObjectsChannelMetadataContractTestSteps.swift; sourceTree = "<group>"; };
 		A5A574D329C309750065D333 /* leave_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = leave_success.json; sourceTree = "<group>"; };
 		A5F19EE229126D8200F185A9 /* PubNubObjectsUserMetadataContractTestSteps.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PubNubObjectsUserMetadataContractTestSteps.swift; sourceTree = "<group>"; };
+		A657F0570CF9A9B2BD9E4719 /* DataSyncEntityRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityRouter.swift; sourceTree = "<group>"; };
 		B4633F013726A54716BF2443 /* TestPubNubFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPubNubFactory.swift; sourceTree = "<group>"; };
+		BCCCA408812B8BD920DE6401 /* subscription_dataSyncRelationshipUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncRelationshipUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncRelationshipUpdate_success.json; sourceTree = SOURCE_ROOT; };
+		BF339ABD59FF4797EE5D22E2 /* subscription_dataSyncEntityCreate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityCreate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityCreate_success.json; sourceTree = SOURCE_ROOT; };
 		D2635DFA22FCCF080097CF64 /* message_counts_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = message_counts_success.json; sourceTree = "<group>"; };
+		DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+CoreEvents.swift"; sourceTree = "<group>"; };
 		E812941F9706B958CD448B54 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F421DD43E4051D3AE5FACC39 /* SubscribeRouterTests+Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+Crypto.swift"; sourceTree = "<group>"; };
+		F663C27813A8D0288A85B9E3 /* subscription_dataSyncEntityDelete_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncEntityDelete_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncEntityDelete_success.json; sourceTree = SOURCE_ROOT; };
 		FB0696E0E433339FBC48D1D3 /* Pods-PubNubContractTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PubNubContractTests.debug.xcconfig"; path = "Target Support Files/Pods-PubNubContractTests/Pods-PubNubContractTests.debug.xcconfig"; sourceTree = "<group>"; };
 		OBJ_11 /* PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNub.swift; sourceTree = "<group>"; };
 		OBJ_15 /* PubNubTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PubNubTests.swift; sourceTree = "<group>"; };
@@ -2091,6 +2092,7 @@
 				35F0258F22BAC21E007BD7D3 /* PubNub_3_0_Migration_Guide.md */,
 				35F0259022BAC21E007BD7D3 /* PubNub_8_0_Migration_Guide.md */,
 				35F0259122BAC21E007BD7D3 /* PubNub_9_0_Migration_Guide.md */,
+				3D014C7830207A2A00CF7A36 /* PubNub_11_0_Migration_Guide.md */,
 			);
 			path = Documentation;
 			sourceTree = "<group>";

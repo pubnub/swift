@@ -234,17 +234,13 @@ class DetailTableViewController: UITableViewController {
 
     self.listener?.didReceiveMessage = { message in
       print("The \(message.channel) channel received a message at \(message.published)")
-      if let subscription = message.subscription {
-        print("The channel-group or wildcard that matched this channel was \(subscription)")
-      }
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: message.subscription)).")
       print("The message is \(message.payload) and was sent by \(message.publisher ?? "")")
     }
 
     self.listener?.didReceiveSignal = { signal in
       print("The \(signal.channel) channel received a message at \(signal.published)")
-      if let subscription = signal.subscription {
-        print("The channel-group or wildcard that matched this channel was \(subscription)")
-      }
+      print("The channel group or wildcard subscription match (if exists): \(String(describing: signal.subscription)).")
       print("The signal is \(signal.payload) and was sent by \(signal.publisher ?? "")")
     }
 
@@ -265,6 +261,7 @@ class DetailTableViewController: UITableViewController {
         }
       case let .failure(error):
         print("The following error was generated during subscription \(error.localizedDescription)")
+
         error.affected.forEach {
           switch $0 {
           case let .channels(affectedChannels):

@@ -58,14 +58,6 @@ class SubscriptionIntegrationTests: XCTestCase {
     let totalLoops = 10
     let testChannel = randomString()
 
-    let subscribeExpect = expectation(description: "Subscribe Expectation")
-    subscribeExpect.assertForOverFulfill = true
-    subscribeExpect.expectedFulfillmentCount = totalLoops
-
-    let unsubscribeExpect = expectation(description: "Unsubscribe Expectation")
-    unsubscribeExpect.assertForOverFulfill = true
-    unsubscribeExpect.expectedFulfillmentCount = totalLoops
-
     let publishExpect = expectation(description: "Publish Expectation")
     publishExpect.assertForOverFulfill = true
     publishExpect.expectedFulfillmentCount = totalLoops
@@ -88,14 +80,8 @@ class SubscriptionIntegrationTests: XCTestCase {
       switch statusEvent {
       case let .success(status):
         switch status {
-        case let .subscriptionChanged(channels, _):
-          if channels.contains(testChannel) {
-            XCTAssertTrue(pubnub.subscribedChannels.contains(testChannel))
-            subscribeExpect.fulfill()
-          } else {
-            XCTAssertFalse(pubnub.subscribedChannels.contains(testChannel))
-            unsubscribeExpect.fulfill()
-          }
+        case .subscriptionChanged:
+          XCTFail("Unexpected condition")
         case .connected:
           pubnub.publish(channel: testChannel, message: "Test") { _ in }
           connectedCount += 1
@@ -125,17 +111,13 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.subscribe(to: [testChannel])
 
     defer { pubnub.disconnect() }
-    wait(for: [subscribeExpect, unsubscribeExpect, publishExpect, connectedExpect, disconnectedExpect], timeout: 30.0)
+    wait(for: [publishExpect, connectedExpect, disconnectedExpect], timeout: 30.0)
   }
 
   func testMixedSubscriptionsToTheSameChannel() {
-    let subscribedEventExpect = expectation(description: "Subscribed Event Expect")
-    subscribedEventExpect.assertForOverFulfill = true
-    subscribedEventExpect.expectedFulfillmentCount = 1
-
-    let usubscribeEventExpect = expectation(description: "Unsubscribed Event Expect")
-    usubscribeEventExpect.assertForOverFulfill = true
-    usubscribeEventExpect.expectedFulfillmentCount = 1
+    let connectedStatusExpect = expectation(description: "Connected Status Expect")
+    connectedStatusExpect.assertForOverFulfill = true
+    connectedStatusExpect.expectedFulfillmentCount = 1
 
     let disconnectedStatusExpect = expectation(description: "Disconnected Status Expect")
     disconnectedStatusExpect.assertForOverFulfill = true
@@ -153,21 +135,18 @@ class SubscriptionIntegrationTests: XCTestCase {
       switch statusEvent {
       case let .success(status):
         switch status {
-        case let .subscriptionChanged(channels, _):
-          if channels.contains(testChannelName) {
-            XCTAssertTrue(pubnub.subscribedChannels.contains(testChannelName))
-            subscribedEventExpect.fulfill()
-          } else {
-            XCTAssertFalse(pubnub.subscribedChannels.contains(testChannelName))
-            usubscribeEventExpect.fulfill()
-          }
         case .connected:
+          XCTAssertTrue(pubnub.subscribedChannels.contains(testChannelName))
           firstSubscription = nil
           secondSubscription = nil
           subscriptionSet = nil
+          connectedStatusExpect.fulfill()
           pubnub.unsubscribe(from: [testChannelName])
         case .disconnected:
+          XCTAssertFalse(pubnub.subscribedChannels.contains(testChannelName))
           disconnectedStatusExpect.fulfill()
+        case .subscriptionChanged:
+          XCTFail("Unexpected condition")
         default:
           break
         }
@@ -184,7 +163,7 @@ class SubscriptionIntegrationTests: XCTestCase {
 
     defer { pubnub.disconnect() }
     wait(
-      for: [subscribedEventExpect, usubscribeEventExpect, disconnectedStatusExpect],
+      for: [connectedStatusExpect, disconnectedStatusExpect],
       timeout: 30.0,
       enforceOrder: true
     )

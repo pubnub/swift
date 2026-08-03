@@ -43,7 +43,7 @@ final class DataSyncRouterTests: XCTestCase {
 extension DataSyncRouterTests {
   func test_UserList_AllQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
-      entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
+      entityClass: "User", entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
       filter: "status=='active'", filterAdvanced: "a AND b", sort: "name:desc,type"
     )
     let router = DataSyncUserRouter(
@@ -56,6 +56,7 @@ extension DataSyncRouterTests {
     XCTAssertEqual(router.method, .get)
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users")
     XCTAssertNil(router.validationError)
+    XCTAssertEqual(try queryValue(router, "entity_class"), "User")
     XCTAssertEqual(try queryValue(router, "entity_class_version"), "2")
     XCTAssertEqual(try queryValue(router, "entity_class_level"), "SubKey")
     XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
@@ -67,7 +68,7 @@ extension DataSyncRouterTests {
 
   func test_UserList_OmitsNilQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
-      entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
+      entityClass: nil, entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
       filter: nil, filterAdvanced: nil, sort: nil
     )
     let router = DataSyncUserRouter(
@@ -77,6 +78,7 @@ extension DataSyncRouterTests {
 
     let names = try queryNames(router)
 
+    XCTAssertFalse(names.contains("entity_class"))
     XCTAssertFalse(names.contains("entity_class_version"))
     XCTAssertFalse(names.contains("entity_class_level"))
     XCTAssertFalse(names.contains("cursor"))
@@ -303,6 +305,53 @@ extension DataSyncRouterTests {
 // MARK: - Channels
 
 extension DataSyncRouterTests {
+  func test_ChannelList_AllQueryItems() throws {
+    let endpoint = DataSyncChannelRouter.Endpoint.all(
+      entityClass: "Channel", entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
+      filter: "status=='active'", filterAdvanced: "a AND b", sort: "name:desc,type"
+    )
+    let router = DataSyncChannelRouter(
+      endpoint,
+      configuration: config
+    )
+
+    XCTAssertEqual(router.service, .dataSync)
+    XCTAssertEqual(router.pamVersion, .version3)
+    XCTAssertEqual(router.method, .get)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/channels")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(try queryValue(router, "entity_class"), "Channel")
+    XCTAssertEqual(try queryValue(router, "entity_class_version"), "2")
+    XCTAssertEqual(try queryValue(router, "entity_class_level"), "SubKey")
+    XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
+    XCTAssertEqual(try queryValue(router, "limit"), "25")
+    XCTAssertEqual(try queryValue(router, "filter"), "status=='active'")
+    XCTAssertEqual(try queryValue(router, "filter_advanced"), "a AND b")
+    XCTAssertEqual(try queryValue(router, "sort"), "name:desc,type")
+  }
+
+  func test_ChannelList_OmitsNilQueryItems() throws {
+    let endpoint = DataSyncChannelRouter.Endpoint.all(
+      entityClass: nil, entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
+      filter: nil, filterAdvanced: nil, sort: nil
+    )
+    let router = DataSyncChannelRouter(
+      endpoint,
+      configuration: config
+    )
+
+    let names = try queryNames(router)
+
+    XCTAssertFalse(names.contains("entity_class"))
+    XCTAssertFalse(names.contains("entity_class_version"))
+    XCTAssertFalse(names.contains("entity_class_level"))
+    XCTAssertFalse(names.contains("cursor"))
+    XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter"))
+    XCTAssertFalse(names.contains("filter_advanced"))
+    XCTAssertFalse(names.contains("sort"))
+  }
+
   func test_ChannelFetch_Endpoint() throws {
     let router = DataSyncChannelRouter(.fetch(id: "general"), configuration: config)
 

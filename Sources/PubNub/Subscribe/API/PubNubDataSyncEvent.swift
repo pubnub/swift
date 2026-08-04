@@ -38,18 +38,4 @@ public struct PubNubDataSyncRemovedObject: Hashable {
   public let classVersion: Int
   /// The date the object was deleted
   public let deletedAt: Date
-
-  public init(
-    id: String,
-    className: String,
-    classLevel: PubNubDataSyncClassLevel,
-    classVersion: Int,
-    deletedAt: Date
-  ) {
-    self.id = id
-    self.className = className
-    self.classLevel = classLevel
-    self.classVersion = classVersion
-    self.deletedAt = deletedAt
-  }
 }

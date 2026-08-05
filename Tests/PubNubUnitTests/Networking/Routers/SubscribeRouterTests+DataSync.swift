@@ -156,20 +156,28 @@ extension SubscribeRouterTests {
     XCTAssertEqual(removed, expectedRemoval)
   }
 
-  func test_Subscribe_WithDataSyncClassNames_ParsesNameAndLevel() throws {
+  func test_Subscribe_WithDataSyncClassLevels_ReceivesMatchingLevel() throws {
     let levels: [String: PubNubDataSyncClassLevel] = [
-      "::patient": .subKey,
-      ":patient:": .account,
-      "patient::": .global
+      "SubKey": .subKey,
+      "Account": .account,
+      "Global": .global
     ]
 
-    for (rawClassName, expectedLevel) in levels {
-      let event = mockDataSyncPayload(className: rawClassName).asPubNubEvent()
-      let entity = try XCTUnwrap(event.createdDataSyncEntity, "\(rawClassName) should decode")
+    for (rawClassLevel, expectedLevel) in levels {
+      let event = mockDataSyncPayload(classLevel: rawClassLevel).asPubNubEvent()
+      let entity = try XCTUnwrap(event.createdDataSyncEntity, "\(rawClassLevel) should decode")
 
-      XCTAssertEqual(entity.className, "patient", "\(rawClassName) should parse to patient")
-      XCTAssertEqual(entity.classLevel, expectedLevel, "\(rawClassName) should parse as \(expectedLevel)")
+      XCTAssertEqual(entity.classLevel, expectedLevel, "\(rawClassLevel) should decode as \(expectedLevel)")
+      XCTAssertEqual(entity.classLevel.stringValue, rawClassLevel)
     }
+  }
+
+  func test_Subscribe_WithUnrecognizedDataSyncClassLevel_ReceivesUnknownLevel() throws {
+    let event = mockDataSyncPayload(classLevel: "Space").asPubNubEvent()
+    let entity = try XCTUnwrap(event.createdDataSyncEntity)
+
+    XCTAssertEqual(entity.classLevel, .unknown("Space"))
+    XCTAssertEqual(entity.classLevel.stringValue, "Space")
   }
 
   func test_Subscribe_WithDataSyncNullableFieldsAbsent_ReceivesEntity() throws {

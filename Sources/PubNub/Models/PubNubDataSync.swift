@@ -18,6 +18,35 @@ public enum PubNubDataSyncClassLevel: Hashable {
   case account
   /// A class scoped to the subscribe key
   case subKey
+  /// A level this version of the SDK doesn't recognize, along with the value received from the server
+  case unknown(String)
+
+  /// The value used to represent the level on the wire
+  public var stringValue: String {
+    switch self {
+    case .global:
+      return "Global"
+    case .account:
+      return "Account"
+    case .subKey:
+      return "SubKey"
+    case let .unknown(rawValue):
+      return rawValue
+    }
+  }
+
+  init(stringValue: String) {
+    switch stringValue {
+    case "Global":
+      self = .global
+    case "Account":
+      self = .account
+    case "SubKey":
+      self = .subKey
+    default:
+      self = .unknown(stringValue)
+    }
+  }
 }
 
 // MARK: - PubNubDataSyncEntity

@@ -10,9 +10,9 @@ This guide is meant to ease the transition to the 11.0 version of the SDK. To re
 
 > **Note:** Skip this section if you use the modern listener API (`onMessage`, `onPresence`, …). Only the legacy `SubscriptionListener` is affected.
 
-The legacy `SubscriptionListener` now emits the unified `PubNubEvent` — the same type the modern API uses — instead of the removed `SubscriptionEvent`. Since the catch-all `didReceiveSubscription` / `didReceiveBatchSubscription` closures are also deprecated in 11.0 (see Deprecations), migrate to the granular callbacks rather than update your `PubNubEvent` switch:
+The legacy `SubscriptionListener` now emits the unified `PubNubEvent` — the same type the modern API uses. Since the catch-all `didReceiveSubscription` / `didReceiveBatchSubscription` closures are also deprecated in 11.0 (see Deprecations), migrate to the granular callbacks rather than update your `PubNubEvent` switch:
 
-1. Replace `didReceiveSubscription` / `didReceiveBatchSubscription` with the granular closures — `didReceiveMessage`, `didReceivePresence`, `didReceiveAppContextEvent`, `didReceiveMessageAction`, `didReceiveFileUpload`, `didReceiveDataSyncEvent`.
+1. Replace `didReceiveSubscription` / `didReceiveBatchSubscription` with the granular closures — `didReceiveMessage`, `didReceivePresence`, `didReceiveMessageAction`, `didReceiveFileUpload`, `didReceiveDataSyncEvent`.
 2. Read connection status, subscription changes, and errors from `didReceiveStatus`.
 
 ```swift

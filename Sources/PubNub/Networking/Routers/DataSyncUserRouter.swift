@@ -13,7 +13,7 @@ import Foundation
 struct DataSyncUserRouter: HTTPRouter {
   enum Endpoint: CustomStringConvertible {
     case all(
-      entityClassVersion: Int?, entityClassLevel: String?, cursor: String?, limit: Int?,
+      entityClass: String?, entityClassVersion: Int?, entityClassLevel: String?, cursor: String?, limit: Int?,
       filter: String?, filterAdvanced: String?, sort: String?
     )
     case fetch(id: String)
@@ -120,7 +120,8 @@ struct DataSyncUserRouter: HTTPRouter {
     var query = defaultQueryItems
 
     switch endpoint {
-    case let .all(entityClassVersion, entityClassLevel, cursor, limit, filter, filterAdvanced, sort):
+    case let .all(entityClass, entityClassVersion, entityClassLevel, cursor, limit, filter, filterAdvanced, sort):
+      query.appendIfPresent(key: .entityClass, value: entityClass)
       query.appendIfPresent(key: .entityClassVersion, value: entityClassVersion?.description)
       query.appendIfPresent(key: .entityClassLevel, value: entityClassLevel)
       query.appendIfPresent(key: .cursor, value: cursor)

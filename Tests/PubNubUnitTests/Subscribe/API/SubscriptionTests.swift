@@ -84,6 +84,24 @@ class SubscriptionTests: XCTestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func testSubscription_OnDataSync() {
+    let expectation = XCTestExpectation(description: "DataSync")
+    expectation.assertForOverFulfill = true
+
+    let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
+    let channel = pubnub.channel("test-channel")
+    let subscription = channel.subscription()
+
+    subscription.onDataSync = { _ in
+      expectation.fulfill()
+    }
+    subscription.onPayloadsReceived(payloads: [
+      mockDataSyncPayload(channel: channel.name)
+    ])
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func testSubscription_OnFileEvent() {
     let expectation = XCTestExpectation(description: "File")
     expectation.assertForOverFulfill = true
@@ -400,6 +418,26 @@ class SubscriptionTests: XCTestCase {
     subscription.addEventListener(listener)
     subscription.onPayloadsReceived(payloads: [
       mockAppContextPayload(channel: channel.name)
+    ])
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func testSubscription_WithListeners_OnDataSync() {
+    let expectation = XCTestExpectation(description: "DataSync")
+    expectation.assertForOverFulfill = true
+
+    let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
+    let channel = pubnub.channel("test-channel")
+    let subscription = channel.subscription()
+
+    let listener = EventListener(onDataSync: { _ in
+      expectation.fulfill()
+    })
+
+    subscription.addEventListener(listener)
+    subscription.onPayloadsReceived(payloads: [
+      mockDataSyncPayload(channel: channel.name)
     ])
 
     wait(for: [expectation], timeout: 1.0)

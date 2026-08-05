@@ -46,7 +46,9 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   // Stores additional listeners
   private let listenersContainer: SubscriptionListenersContainer = .init()
 
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
   public var onSignal: ((PubNubMessage) -> Void)?
@@ -54,6 +56,7 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)?
 
   // Intercepts messages from the Subscribe loop and forwards them to the current `Subscription`
   lazy var adapter = BaseSubscriptionListenerAdapter(

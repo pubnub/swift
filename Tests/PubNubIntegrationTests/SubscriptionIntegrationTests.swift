@@ -33,21 +33,17 @@ class SubscriptionIntegrationTests: XCTestCase {
     let pubnub = PubNub(configuration: configuration)
     let listener = SubscriptionListener()
 
-    listener.didReceiveSubscription = { event in
-      switch event {
-      case let .connectionStatusChanged(status):
+    listener.didReceiveStatus = { statusEvent in
+      switch statusEvent {
+      case let .success(status):
         switch status {
-        case .disconnectedUnexpectedly:
-          disconnectedExpect.fulfill()
-        case .connectionError:
+        case .disconnectedUnexpectedly, .connectionError:
           disconnectedExpect.fulfill()
         default:
-          XCTFail("Only should emit these two states")
+          break
         }
-      case .subscribeError:
+      case .failure:
         subscribeExpect.fulfill()
-      default:
-        break
       }
     }
 
@@ -58,18 +54,9 @@ class SubscriptionIntegrationTests: XCTestCase {
     wait(for: [subscribeExpect, disconnectedExpect], timeout: 10.0)
   }
 
-  // swiftlint:disable:next function_body_length cyclomatic_complexity
   func testUnsubscribeResubscribe() {
     let totalLoops = 10
     let testChannel = randomString()
-
-    let subscribeExpect = expectation(description: "Subscribe Expectation")
-    subscribeExpect.assertForOverFulfill = true
-    subscribeExpect.expectedFulfillmentCount = totalLoops
-
-    let unsubscribeExpect = expectation(description: "Unsubscribe Expectation")
-    unsubscribeExpect.assertForOverFulfill = true
-    unsubscribeExpect.expectedFulfillmentCount = totalLoops
 
     let publishExpect = expectation(description: "Publish Expectation")
     publishExpect.assertForOverFulfill = true
@@ -89,33 +76,18 @@ class SubscriptionIntegrationTests: XCTestCase {
     let pubnub = PubNub(configuration: PubNubConfiguration(bundle: testsBundle))
     let listener = SubscriptionListener()
 
-    listener.didReceiveSubscription = { [unowned pubnub] event in
-      switch event {
-      case let .subscriptionChanged(status):
+    listener.didReceiveStatus = { [unowned pubnub] statusEvent in
+      switch statusEvent {
+      case let .success(status):
         switch status {
-        case let .subscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannel }))
-          XCTAssertTrue(pubnub.subscribedChannels.contains(testChannel))
-          subscribeExpect.fulfill()
-        case let .responseHeader(channels, _, _, next):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannel }))
-          XCTAssertEqual(pubnub.previousTimetoken, next?.timetoken)
-        case let .unsubscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannel }))
-          XCTAssertFalse(pubnub.subscribedChannels.contains(testChannel))
-          unsubscribeExpect.fulfill()
-        }
-      case .messageReceived:
-        pubnub.unsubscribe(from: [testChannel])
-        publishExpect.fulfill()
-      case let .connectionStatusChanged(status):
-        switch status {
+        case .subscriptionChanged:
+          XCTFail("Unexpected condition")
         case .connected:
           pubnub.publish(channel: testChannel, message: "Test") { _ in }
           connectedCount += 1
           connectedExpect.fulfill()
         case .disconnected:
-          // Stop reconneced after N attempts
+          // Stop reconnecting after N attempts
           if connectedCount < totalLoops {
             pubnub.subscribe(to: [testChannel])
           }
@@ -123,10 +95,15 @@ class SubscriptionIntegrationTests: XCTestCase {
         default:
           break
         }
-      case let .subscribeError(error):
+      case let .failure(error):
         XCTFail("An error was returned: \(error)")
-      default:
-        break
+      }
+    }
+
+    listener.didReceiveSubscription = { [unowned pubnub] event in
+      if case .messageReceived = event {
+        pubnub.unsubscribe(from: [testChannel])
+        publishExpect.fulfill()
       }
     }
 
@@ -134,21 +111,13 @@ class SubscriptionIntegrationTests: XCTestCase {
     pubnub.subscribe(to: [testChannel])
 
     defer { pubnub.disconnect() }
-    wait(for: [subscribeExpect, unsubscribeExpect, publishExpect, connectedExpect, disconnectedExpect], timeout: 30.0)
+    wait(for: [publishExpect, connectedExpect, disconnectedExpect], timeout: 30.0)
   }
 
   func testMixedSubscriptionsToTheSameChannel() {
-    let subscribedEventExpect = expectation(description: "Subscribed Event Expect")
-    subscribedEventExpect.assertForOverFulfill = true
-    subscribedEventExpect.expectedFulfillmentCount = 1
-
-    let responseHeaderExpect = expectation(description: "Response Received Event Expect")
-    responseHeaderExpect.assertForOverFulfill = true
-    responseHeaderExpect.expectedFulfillmentCount = 1
-
-    let usubscribeEventExpect = expectation(description: "Unsubscribed Event Expect")
-    usubscribeEventExpect.assertForOverFulfill = true
-    usubscribeEventExpect.expectedFulfillmentCount = 1
+    let connectedStatusExpect = expectation(description: "Connected Status Expect")
+    connectedStatusExpect.assertForOverFulfill = true
+    connectedStatusExpect.expectedFulfillmentCount = 1
 
     let disconnectedStatusExpect = expectation(description: "Disconnected Status Expect")
     disconnectedStatusExpect.assertForOverFulfill = true
@@ -162,38 +131,27 @@ class SubscriptionIntegrationTests: XCTestCase {
     var secondSubscription: Subscription? = pubnub.channel(testChannelName).subscription()
     var subscriptionSet: SubscriptionSet? = pubnub.subscription(entities: [pubnub.channel(testChannelName)])
 
-    listener.didReceiveSubscription = { [unowned pubnub] event in
-      switch event {
-      case let .subscriptionChanged(status):
-        switch status {
-        case let .subscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannelName }))
-          XCTAssertTrue(pubnub.subscribedChannels.contains(testChannelName))
-          subscribedEventExpect.fulfill()
-        case let .responseHeader(channels, _, _, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannelName }))
-          responseHeaderExpect.fulfill()
-        case let .unsubscribed(channels, _):
-          XCTAssertTrue(channels.contains(where: { $0.id == testChannelName }))
-          XCTAssertFalse(pubnub.subscribedChannels.contains(testChannelName))
-          usubscribeEventExpect.fulfill()
-        }
-      case let .connectionStatusChanged(status):
+    listener.didReceiveStatus = { [unowned pubnub] statusEvent in
+      switch statusEvent {
+      case let .success(status):
         switch status {
         case .connected:
+          XCTAssertTrue(pubnub.subscribedChannels.contains(testChannelName))
           firstSubscription = nil
           secondSubscription = nil
           subscriptionSet = nil
+          connectedStatusExpect.fulfill()
           pubnub.unsubscribe(from: [testChannelName])
         case .disconnected:
+          XCTAssertFalse(pubnub.subscribedChannels.contains(testChannelName))
           disconnectedStatusExpect.fulfill()
+        case .subscriptionChanged:
+          XCTFail("Unexpected condition")
         default:
           break
         }
-      case let .subscribeError(error):
+      case let .failure(error):
         XCTFail("An error was returned: \(error)")
-      default:
-        break
       }
     }
 
@@ -205,7 +163,7 @@ class SubscriptionIntegrationTests: XCTestCase {
 
     defer { pubnub.disconnect() }
     wait(
-      for: [subscribedEventExpect, responseHeaderExpect, usubscribeEventExpect, disconnectedStatusExpect],
+      for: [connectedStatusExpect, disconnectedStatusExpect],
       timeout: 30.0,
       enforceOrder: true
     )

@@ -1,0 +1,49 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17852306923632348",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17852306923632348",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "__admin__hcn-patient-alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "update",
+            "source": "data-sync",
+            "type": "relationship",
+            "className": "::attending-physician",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "hcn-rel-attending-carter-alice",
+            "updatedAt": "2026-07-28T09:24:50.283068Z",
+            "createdAt": "2026-07-28T09:11:35.242585Z",
+            "eTag": "3w5e111hq6zil",
+            "entityAId": "hcn-practitioner-carter",
+            "entityBId": "hcn-patient-alice",
+            "expiresAt": "2027-07-29T00:00:00Z",
+            "status": "active",
+            "payload": {
+              "role": "consulting",
+              "since": "2024-01-15",
+              "isPrimary": false,
+              "visitsPerMonth": 1
+            }
+          }
+        },
+        "b": "__admin__hcn-patient-alice"
+      }
+    ]
+  }
+}

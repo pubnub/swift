@@ -191,7 +191,7 @@ private extension EmitMessagesTests {
           version: "456",
           event: .delete,
           type: .uuid,
-          subscribeEvent: .uuidMetadataRemoved(metadataId: "12345")
+          subscribeEvent: .userMetadataRemoved(metadataId: "12345")
         )
       )
     )

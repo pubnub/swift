@@ -1,0 +1,37 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17852296737571982",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17852296737571982",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "__admin__hcn-patient-dubois",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "delete",
+            "source": "data-sync",
+            "type": "entity",
+            "className": "::patient",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "hcn-patient-dubois",
+            "deletedAt": "2026-07-28T09:07:52.934258Z"
+          }
+        },
+        "b": "__admin__hcn-patient-dubois"
+      }
+    ]
+  }
+}

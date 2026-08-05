@@ -45,6 +45,7 @@ class SubscriptionSession: EventListenerInterface, StatusListenerInterface {
   var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  var onDataSync: ((PubNubDataSyncEvent) -> Void)?
   var onConnectionStateChange: ((ConnectionStatus) -> Void)?
 
   private lazy var globalEventsListener: BaseSubscriptionListenerAdapter = .init(

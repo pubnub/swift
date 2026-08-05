@@ -50,8 +50,10 @@ public protocol EventListenerInterface: AnyObject {
   /// A unique emitter's identifier
   var uuid: UUID { get }
   /// Receiver for a single event
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   var onEvent: ((PubNubEvent) -> Void)? { get set }
   /// Receiver for multiple events. This will also emit individual events to `onEvent:`
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   var onEvents: (([PubNubEvent]) -> Void)? { get set }
   /// Receiver for Message events
   var onMessage: ((PubNubMessage) -> Void)? { get set }
@@ -65,13 +67,17 @@ public protocol EventListenerInterface: AnyObject {
   var onFileEvent: ((PubNubFileChangeEvent) -> Void)? { get set }
   /// Receiver for App Context events
   var onAppContext: ((PubNubAppContextEvent) -> Void)? { get set }
+  /// Receiver for DataSync events
+  var onDataSync: ((PubNubDataSyncEvent) -> Void)? { get set }
 }
 
 /// Defines additional event listener that can be attached to `Subscription` or `SubscriptionSet`
 public class EventListener: EventListenerInterface {
   public let queue: DispatchQueue
   public let uuid: UUID
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
+  @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvents: (([PubNubEvent]) -> Void)?
   public var onMessage: ((PubNubMessage) -> Void)?
   public var onSignal: ((PubNubMessage) -> Void)?
@@ -79,6 +85,7 @@ public class EventListener: EventListenerInterface {
   public var onMessageAction: ((PubNubMessageActionEvent) -> Void)?
   public var onFileEvent: ((PubNubFileChangeEvent) -> Void)?
   public var onAppContext: ((PubNubAppContextEvent) -> Void)?
+  public var onDataSync: ((PubNubDataSyncEvent) -> Void)?
 
   public init(
     queue: DispatchQueue = .main,
@@ -90,7 +97,8 @@ public class EventListener: EventListenerInterface {
     onPresence: ((PubNubPresenceChange) -> Void)? = nil,
     onMessageAction: ((PubNubMessageActionEvent) -> Void)? = nil,
     onFileEvent: ((PubNubFileChangeEvent) -> Void)? = nil,
-    onAppContext: ((PubNubAppContextEvent) -> Void)? = nil
+    onAppContext: ((PubNubAppContextEvent) -> Void)? = nil,
+    onDataSync: ((PubNubDataSyncEvent) -> Void)? = nil
   ) {
     self.queue = queue
     self.uuid = uuid
@@ -102,6 +110,7 @@ public class EventListener: EventListenerInterface {
     self.onMessageAction = onMessageAction
     self.onFileEvent = onFileEvent
     self.onAppContext = onAppContext
+    self.onDataSync = onDataSync
   }
 }
 
@@ -122,6 +131,8 @@ extension EventListenerInterface {
           self?.onPresence?(presence)
         case let .appContextChanged(appContextEvent):
           self?.onAppContext?(appContextEvent)
+        case let .dataSyncChanged(dataSyncEvent):
+          self?.onDataSync?(dataSyncEvent)
         case let .messageActionChanged(messageActionEvent):
           self?.onMessageAction?(messageActionEvent)
         case let .fileChanged(fileEvent):
@@ -145,6 +156,7 @@ extension EventListenerInterface {
     onMessageAction = nil
     onFileEvent = nil
     onAppContext = nil
+    onDataSync = nil
   }
 }
 

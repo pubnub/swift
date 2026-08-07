@@ -22,7 +22,8 @@
             "event": "create",
             "source": "data-sync",
             "type": "relationship",
-            "className": "::attending-physician",
+            "className": "attending-physician",
+            "classLevel": "SubKey",
             "classVersion": 1
           },
           "data": {

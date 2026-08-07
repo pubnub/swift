@@ -115,7 +115,8 @@ func mockDataSyncPayload(
   channel: String = "channel",
   event: String = "create",
   type: String = "entity",
-  className: String = "::patient",
+  className: String = "patient",
+  classLevel: String = "SubKey",
   data: [String: Any] = [
     "id": "hcn-patient-alice",
     "createdAt": "2026-07-28T09:11:17.077390Z",
@@ -136,6 +137,7 @@ func mockDataSyncPayload(
         "source": "data-sync",
         "type": type,
         "className": className,
+        "classLevel": classLevel,
         "classVersion": 1
       ],
       "data": data

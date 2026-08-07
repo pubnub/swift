@@ -22,7 +22,8 @@
             "event": "delete",
             "source": "data-sync",
             "type": "entity",
-            "className": "::patient",
+            "className": "patient",
+            "classLevel": "SubKey",
             "classVersion": 1
           },
           "data": {

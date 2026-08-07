@@ -39,6 +39,7 @@ extension SubscribeDataSyncPayload: Decodable {
     case source
     case type
     case className
+    case classLevel
     case classVersion
   }
 
@@ -64,9 +65,9 @@ extension SubscribeDataSyncPayload: Decodable {
 
     let action = try metadata.decode(Action.self, forKey: .event)
     let type = try metadata.decode(ObjectType.self, forKey: .type)
-    let rawClassName = try metadata.decode(String.self, forKey: .className)
+    let className = try metadata.decode(String.self, forKey: .className)
+    let classLevel = PubNubDataSyncClassLevel(stringValue: try metadata.decode(String.self, forKey: .classLevel))
     let classVersion = try metadata.decode(Int.self, forKey: .classVersion)
-    let (className, classLevel) = Self.parseClassName(rawClassName)
 
     let data = try container.nestedContainer(keyedBy: DataCodingKeys.self, forKey: .data)
     let identifier = try data.decode(String.self, forKey: .id)
@@ -111,18 +112,6 @@ extension SubscribeDataSyncPayload: Decodable {
         deletedAt: try data.decode(Date.self, forKey: .deletedAt)
       )
       event = type == .entity ? .entityDeleted(removed) : .relationshipDeleted(removed)
-    }
-  }
-
-  private static func parseClassName(_ rawValue: String) -> (String, PubNubDataSyncClassLevel) {
-    if rawValue.hasPrefix("::") {
-      return (String(rawValue.dropFirst(2)), .subKey)
-    } else if rawValue.hasSuffix("::") {
-      return (String(rawValue.dropLast(2)), .global)
-    } else if rawValue.hasPrefix(":"), rawValue.hasSuffix(":") {
-      return (String(rawValue.dropFirst().dropLast()), .account)
-    } else {
-      return (rawValue, .subKey)
     }
   }
 }

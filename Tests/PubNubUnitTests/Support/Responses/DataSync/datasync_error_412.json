@@ -1,0 +1,11 @@
+{
+  "code": 412,
+  "body": {
+    "errors": [
+      {
+        "errorCode": "SYN-0801",
+        "message": "Entity has been modified since the provided eTag"
+      }
+    ]
+  }
+}

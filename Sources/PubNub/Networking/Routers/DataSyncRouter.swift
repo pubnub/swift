@@ -26,13 +26,13 @@ enum DataSyncHeader {
 // MARK: - JSON Patch (RFC 6902)
 
 /// A single RFC 6902 JSON Patch operation used by DataSync `PATCH` endpoints.
-enum JSONPatchOperation: Encodable, Equatable {
-  case add(path: String, value: AnyJSON)
+enum JSONPatchOperation: Encodable {
+  case add(path: String, value: JSONCodable)
   case remove(path: String)
-  case replace(path: String, value: AnyJSON)
+  case replace(path: String, value: JSONCodable)
   case move(from: String, path: String)
   case copy(from: String, path: String)
-  case test(path: String, value: AnyJSON)
+  case test(path: String, value: JSONCodable)
 
   private enum CodingKeys: String, CodingKey {
     case op
@@ -135,6 +135,51 @@ struct DataSyncResource: Codable, Equatable {
   let eTag: String?
   let expiresAt: String?
   let payload: AnyJSON?
+}
+
+// MARK: - Error envelope
+
+/// A single failure entry in a DataSync error response.
+struct DataSyncErrorItem: Codable, Equatable {
+  /// An opaque service error code.
+  let errorCode: String
+  /// A human-readable error message.
+  let message: String
+  /// The offending field, if any: an RFC 6901 JSON Pointer for a request-body failure, or the bare parameter name for a query-parameter failure.
+  let path: String?
+}
+
+/// The DataSync v4 error envelope, which differs from ``GenericServicePayloadResponse``.
+struct DataSyncErrorPayload: Codable, Equatable {
+  let errors: [DataSyncErrorItem]
+}
+
+/// A router for the DataSync v4 data plane, which returns an error envelope distinct from ``GenericServicePayloadResponse``.
+protocol DataSyncRouting: HTTPRouter {}
+
+/// Decodes the DataSync v4 error envelope, falling back to the default decoding when the body isn't one.
+extension DataSyncRouting {
+  func decodeError(request: URLRequest, response: HTTPURLResponse, for data: Data) -> PubNubError? {
+    guard let payload = try? Constant.jsonDecoder.decode(DataSyncErrorPayload.self, from: data), !payload.errors.isEmpty else {
+      return AnyJSONResponseDecoder().decodeDefaultError(
+        router: self, request: request, response: response, for: data
+      )
+    }
+
+    return PubNubError(
+      reason: nil,
+      router: self,
+      request: request,
+      response: response,
+      additional: payload.errors.map {
+        ErrorDetail(
+          message: $0.message,
+          location: $0.path ?? "",
+          locationType: $0.errorCode
+        )
+      }
+    )
+  }
 }
 
 // MARK: - Response decoders

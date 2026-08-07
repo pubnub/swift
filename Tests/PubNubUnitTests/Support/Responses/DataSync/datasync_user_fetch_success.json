@@ -1,0 +1,20 @@
+{
+  "code": 200,
+  "body": {
+    "data": {
+      "id": "alice",
+      "status": "active",
+      "entityClass": "user",
+      "entityClassVersion": 1,
+      "entityClassLevel": "SubKey",
+      "createdAt": "2026-08-06T08:58:09.720323Z",
+      "updatedAt": "2026-08-06T08:58:10.329598Z",
+      "eTag": "3w5e111uk7djz",
+      "expiresAt": "2027-08-07T00:00:00Z",
+      "payload": {
+        "name": "Alice Summers",
+        "email": "alice@example.com"
+      }
+    }
+  }
+}

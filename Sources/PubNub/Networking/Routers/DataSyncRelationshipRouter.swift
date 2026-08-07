@@ -10,7 +10,7 @@
 
 import Foundation
 
-struct DataSyncRelationshipRouter: HTTPRouter {
+struct DataSyncRelationshipRouter: DataSyncRouting {
   enum Endpoint: CustomStringConvertible {
     case all(
       relationshipClass: String, entityAId: String?, entityBId: String?,

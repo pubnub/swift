@@ -91,7 +91,6 @@ extension SubscribeRouterTests {
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
-      classLevel: .subKey,
       classVersion: 1,
       entityAId: "hcn-practitioner-carter",
       entityBId: "hcn-patient-alice",
@@ -118,7 +117,6 @@ extension SubscribeRouterTests {
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
-      classLevel: .subKey,
       classVersion: 1,
       entityAId: "hcn-practitioner-carter",
       entityBId: "hcn-patient-alice",
@@ -213,13 +211,12 @@ extension SubscribeRouterTests {
   }
 
   func test_Subscribe_WithDataSyncMissingRequiredFields_ReceivesMessage() throws {
-    for missingField in ["eTag", "expiresAt"] {
+    for missingField in ["eTag"] {
       var data: [String: Any] = [
         "id": "hcn-patient-alice",
         "createdAt": "2026-07-28T09:11:17.077390Z",
         "updatedAt": "2026-07-28T09:11:17.077390Z",
-        "eTag": "3w5e111hppk83",
-        "expiresAt": "2027-07-29T00:00:00Z"
+        "eTag": "3w5e111hppk83"
       ]
 
       data.removeValue(forKey: missingField)

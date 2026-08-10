@@ -672,6 +672,126 @@ extension DataSyncAPITests {
   }
 }
 
+// MARK: - Sorting
+
+extension DataSyncAPITests {
+  private func sortQueryValue(_ session: MockURLSession) throws -> String? {
+    let request = try XCTUnwrap(session.tasks.first?.originalRequest)
+    let components = try XCTUnwrap(URLComponents(url: try XCTUnwrap(request.url), resolvingAgainstBaseURL: false))
+
+    return components.queryItems?.first { $0.name == "sort" }?.value
+  }
+
+  func test_DataSyncSortField_DefaultsToAscending() {
+    XCTAssertTrue(PubNub.DataSyncSortField(property: "name").ascending)
+  }
+
+  func test_DataSyncSortField_AscendingOmitsDirectionSuffix() {
+    XCTAssertEqual(PubNub.DataSyncSortField(property: "name").description, "name")
+  }
+
+  func test_DataSyncSortField_DescendingAppendsDirectionSuffix() {
+    XCTAssertEqual(PubNub.DataSyncSortField(property: "name", ascending: false).description, "name:desc")
+  }
+
+  func test_DataSyncSortFields_WhenEmpty_ProduceNoQueryValue() {
+    XCTAssertNil([PubNub.DataSyncSortField]().urlValue)
+  }
+
+  func test_DataSyncSortFields_JoinIntoCommaSeparatedQueryValue() {
+    let sort = [
+      PubNub.DataSyncSortField(property: "name", ascending: false),
+      PubNub.DataSyncSortField(property: "type")
+    ]
+
+    XCTAssertEqual(sort.urlValue, "name:desc,type")
+  }
+
+  func test_GetEntities_WithSortFields_SendsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getEntities sorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getEntities(
+      entityClass: "patient",
+      sort: [.init(property: "fullName", ascending: false), .init(property: "mrn")]
+    ) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try sortQueryValue(sessions.mockSession), "fullName:desc,mrn")
+  }
+
+  func test_GetEntities_WithoutSortFields_OmitsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getEntities unsorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getEntities(entityClass: "patient") { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertNil(try sortQueryValue(sessions.mockSession))
+  }
+
+  func test_GetUsers_WithSortFields_SendsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getUsers sorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_user_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getUsers(sort: [.init(property: "name")]) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try sortQueryValue(sessions.mockSession), "name")
+  }
+
+  func test_GetChannels_WithSortFields_SendsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getChannels sorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getChannels(sort: [.init(property: "name", ascending: false)]) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try sortQueryValue(sessions.mockSession), "name:desc")
+  }
+
+  func test_GetMemberships_WithSortFields_SendsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getMemberships sorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_membership_all_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getMemberships(channelId: "general", sort: [.init(property: "role")]) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try sortQueryValue(sessions.mockSession), "role")
+  }
+
+  func test_GetRelationships_WithSortFields_SendsSortQueryItem() throws {
+    let expectation = self.expectation(description: "getRelationships sorted")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_all_no_meta"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.getRelationships(
+      relationshipClass: "attending-physician",
+      sort: [.init(property: "since", ascending: false)]
+    ) { _ in
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+    XCTAssertEqual(try sortQueryValue(sessions.mockSession), "since:desc")
+  }
+}
+
 // MARK: - Helpers
 
 private extension Date {

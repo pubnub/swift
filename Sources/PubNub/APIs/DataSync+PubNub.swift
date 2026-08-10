@@ -64,6 +64,44 @@ extension PubNubDataSyncPatchOperation: CustomStringConvertible {
   }
 }
 
+// MARK: - Sorting
+
+public extension PubNub {
+  /// The property and direction to sort a paged DataSync response
+  ///
+  /// Only properties declared by the class the results conform to can be sorted on. Sorting on anything
+  /// else, including system fields such as `createdAt` or `status`, fails the request.
+  struct DataSyncSortField: Hashable {
+    /// The name of the property to sort by
+    public let property: String
+    /// The direction of the sort
+    public let ascending: Bool
+
+    /// Creates a new `DataSyncSortField` instance
+    ///
+    /// - Parameters:
+    ///   - property: The name of the property to sort by
+    ///   - ascending: The direction of the sort
+    public init(property: String, ascending: Bool = true) {
+      self.property = property
+      self.ascending = ascending
+    }
+  }
+}
+
+extension PubNub.DataSyncSortField: CustomStringConvertible {
+  public var description: String {
+    "\(property)\(ascending ? "" : ":desc")"
+  }
+}
+
+extension Array where Element == PubNub.DataSyncSortField {
+  /// The comma-separated value sent as the `sort` query parameter, or `nil` when there is nothing to sort by
+  var urlValue: String? {
+    isEmpty ? nil : map { $0.description }.csvString
+  }
+}
+
 // MARK: - Namespace
 
 public extension PubNub {
@@ -97,7 +135,7 @@ public extension PubNub.DataSyncAPI {
   ///   - limit: The number of entities to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
   ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
-  ///   - sort: Comma-separated list of fields to sort by, ascending unless the field is suffixed with `:desc`
+  ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncEntity``, and the next page (if one exists)
@@ -110,7 +148,7 @@ public extension PubNub.DataSyncAPI {
     limit: Int? = nil,
     filter: String? = nil,
     filterAdvanced: String? = nil,
-    sort: String? = nil,
+    sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(entities: [PubNubDataSyncEntity], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
@@ -139,7 +177,7 @@ public extension PubNub.DataSyncAPI {
         limit: limit,
         filter: filter,
         filterAdvanced: filterAdvanced,
-        sort: sort
+        sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
     )
@@ -196,7 +234,7 @@ public extension PubNub.DataSyncAPI {
   ///   - entityClassVersion: The version of the class the payload conforms to
   ///   - id: The unique identifier to create the entity with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the entity
-  ///   - payload: The entity fields, which must conform to the class schema
+  ///   - payload: The entity fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The created ``PubNubDataSyncEntity``
@@ -255,7 +293,7 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the entity
   ///   - entityClassVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the entity
-  ///   - payload: The replacement entity fields, which must conform to the class schema
+  ///   - payload: The replacement entity fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the entity changed since
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -390,7 +428,7 @@ public extension PubNub.DataSyncAPI {
   ///   - limit: The number of users to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
   ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
-  ///   - sort: Comma-separated list of fields to sort by, ascending unless the field is suffixed with `:desc`
+  ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncUser``, and the next page (if one exists)
@@ -401,7 +439,7 @@ public extension PubNub.DataSyncAPI {
     limit: Int? = nil,
     filter: String? = nil,
     filterAdvanced: String? = nil,
-    sort: String? = nil,
+    sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(users: [PubNubDataSyncUser], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
@@ -428,7 +466,7 @@ public extension PubNub.DataSyncAPI {
         limit: limit,
         filter: filter,
         filterAdvanced: filterAdvanced,
-        sort: sort
+        sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
     )
@@ -484,7 +522,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `user` class the payload conforms to
   ///   - id: The unique identifier to create the user with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the user
-  ///   - payload: The user fields, which must conform to the class schema
+  ///   - payload: The user fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The created ``PubNubDataSyncUser``
@@ -542,7 +580,7 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the user
   ///   - classVersion: The version of the `user` class the payload conforms to
   ///   - status: An arbitrary status to store with the user
-  ///   - payload: The replacement user fields, which must conform to the class schema
+  ///   - payload: The replacement user fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncUser/eTag`` last read, to fail the request when the user changed since
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -677,7 +715,7 @@ public extension PubNub.DataSyncAPI {
   ///   - limit: The number of channels to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
   ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
-  ///   - sort: Comma-separated list of fields to sort by, ascending unless the field is suffixed with `:desc`
+  ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncChannel``, and the next page (if one exists)
@@ -688,7 +726,7 @@ public extension PubNub.DataSyncAPI {
     limit: Int? = nil,
     filter: String? = nil,
     filterAdvanced: String? = nil,
-    sort: String? = nil,
+    sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(channels: [PubNubDataSyncChannel], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
@@ -715,7 +753,7 @@ public extension PubNub.DataSyncAPI {
         limit: limit,
         filter: filter,
         filterAdvanced: filterAdvanced,
-        sort: sort
+        sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
     )
@@ -771,7 +809,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `channel` class the payload conforms to
   ///   - id: The unique identifier to create the channel with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the channel
-  ///   - payload: The channel fields, which must conform to the class schema
+  ///   - payload: The channel fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The created ``PubNubDataSyncChannel``
@@ -968,7 +1006,7 @@ public extension PubNub.DataSyncAPI {
   ///   - limit: The number of memberships to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
   ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
-  ///   - sort: Comma-separated list of fields to sort by, ascending unless the field is suffixed with `:desc`
+  ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncMembership``, and the next page (if one exists)
@@ -981,7 +1019,7 @@ public extension PubNub.DataSyncAPI {
     limit: Int? = nil,
     filter: String? = nil,
     filterAdvanced: String? = nil,
-    sort: String? = nil,
+    sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(memberships: [PubNubDataSyncMembership], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
@@ -1010,7 +1048,7 @@ public extension PubNub.DataSyncAPI {
         limit: limit,
         filter: filter,
         filterAdvanced: filterAdvanced,
-        sort: sort
+        sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
     )
@@ -1068,7 +1106,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `Membership` class the payload conforms to
   ///   - id: The unique identifier to create the membership with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the membership
-  ///   - payload: The membership fields, which must conform to the class schema
+  ///   - payload: The membership fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The created ``PubNubDataSyncMembership``
@@ -1129,7 +1167,7 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the membership
   ///   - classVersion: The version of the `Membership` class the payload conforms to
   ///   - status: An arbitrary status to store with the membership
-  ///   - payload: The replacement membership fields, which must conform to the class schema
+  ///   - payload: The replacement membership fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncMembership/eTag`` last read, to fail the request when the membership changed since
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -1267,7 +1305,7 @@ public extension PubNub.DataSyncAPI {
   ///   - limit: The number of relationships to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
   ///   - filterAdvanced: Advanced expression used to filter the results. Mutually exclusive with `filter`
-  ///   - sort: Comma-separated list of fields to sort by, ascending unless the field is suffixed with `:desc`
+  ///   - sort: List of properties to sort the results by
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncRelationship``, and the next page (if one exists)
@@ -1281,7 +1319,7 @@ public extension PubNub.DataSyncAPI {
     limit: Int? = nil,
     filter: String? = nil,
     filterAdvanced: String? = nil,
-    sort: String? = nil,
+    sort: [PubNub.DataSyncSortField] = [],
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<(relationships: [PubNubDataSyncRelationship], next: PubNubDataSyncPage?), Error>) -> Void)?
   ) {
@@ -1312,7 +1350,7 @@ public extension PubNub.DataSyncAPI {
         limit: limit,
         filter: filter,
         filterAdvanced: filterAdvanced,
-        sort: sort
+        sort: sort.urlValue
       ),
       configuration: configuration(from: requestConfig)
     )
@@ -1436,7 +1474,7 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the relationship
   ///   - relationshipClassVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the relationship
-  ///   - payload: The replacement relationship fields, which must conform to the class schema
+  ///   - payload: The replacement relationship fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncRelationship/eTag`` last read, to fail the request when it changed since
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call

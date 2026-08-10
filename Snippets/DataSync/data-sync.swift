@@ -40,6 +40,23 @@ pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { result in
 }
 // snippet.end
 
+// snippet.sort-entities
+// Sort a page of entities by the properties declared on their class
+pubnub.dataSync.getEntities(
+  entityClass: "patient",
+  limit: 20,
+  sort: [.init(property: "fullName", ascending: false), .init(property: "mrn")]
+) { result in
+  switch result {
+  case let .success((entities, next)):
+    print("The sorted entities: \(entities)")
+    print("The next page used for pagination: \(String(describing: next))")
+  case let .failure(error):
+    print("Get entities request failed with error: \(error.localizedDescription)")
+  }
+}
+// snippet.end
+
 // snippet.get-entity
 // Retrieve a single entity by identifier
 pubnub.dataSync.getEntity("hcn-patient-alice") { result in
@@ -85,7 +102,6 @@ pubnub.dataSync.replaceEntity(
   case let .success(entity):
     print("The replaced entity: \(entity)")
   case let .failure(error):
-    // A stale eTag surfaces as `PubNubError.Reason.preconditionFailed`
     print("Replace entity request failed with error: \(error.localizedDescription)")
   }
 }
@@ -490,7 +506,6 @@ pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { result in
   case let .success((entities, next)):
     print("The first page: \(entities)")
 
-    // `hasNext` reports whether another page exists; DataSync pagination is forward-only
     guard let next = next, next.hasNext else {
       return
     }

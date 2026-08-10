@@ -25,7 +25,7 @@ extension DataSyncAPITests {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { [self] result in
+    pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { result in
       switch result {
       case let .success((entities, next)):
         XCTAssertEqual(entities.count, 2)
@@ -35,16 +35,14 @@ extension DataSyncAPITests {
         XCTAssertEqual(first.className, "patient")
         XCTAssertEqual(first.classLevel, .subKey)
         XCTAssertEqual(first.classVersion, 1)
-        XCTAssertEqual(first.createdAt, createdAt)
-        XCTAssertEqual(first.updatedAt, updatedAt)
-        XCTAssertEqual(first.eTag, "3w5e111uk7djz")
-        XCTAssertEqual(first.expiresAt, expiresAt)
-        XCTAssertEqual(first.status, "active")
-        XCTAssertEqual(first.payload?.codableValue["fullName"]?.stringOptional, "Alice Summers")
+        XCTAssertPayload(first.payload, equals: PatientPayload(mrn: "MRN-100001", fullName: "Alice Summers"))
 
-        XCTAssertEqual(entities[1].className, "inpatient")
-        XCTAssertEqual(entities[1].classLevel, .global)
-        XCTAssertEqual(entities[1].classVersion, 2)
+        let second = entities[1]
+        XCTAssertEqual(second.id, "hcn-patient-bob")
+        XCTAssertEqual(second.className, "inpatient")
+        XCTAssertEqual(second.classLevel, .global)
+        XCTAssertEqual(second.classVersion, 2)
+        XCTAssertPayload(second.payload, equals: EmptyPayload())
 
         XCTAssertEqual(next?.cursor, "TjIw")
         XCTAssertEqual(next?.hasNext, true)
@@ -59,17 +57,17 @@ extension DataSyncAPITests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_GetEntities_WithoutExpiresAt_DecodesNilExpiry() throws {
-    let expectation = self.expectation(description: "getEntities TTL-less")
+  func test_GetEntities_WithoutStatus_DecodesNilStatusAndEmptyPayload() throws {
+    let expectation = self.expectation(description: "getEntities without status")
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getEntities(entityClass: "patient") { result in
       switch result {
       case let .success((entities, _)):
-        XCTAssertNil(entities[1].expiresAt)
-        XCTAssertNil(entities[1].status)
-        XCTAssertNil(entities[1].payload)
+        let second = entities[1]
+        XCTAssertNil(second.status)
+        XCTAssertPayload(second.payload, equals: EmptyPayload())
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -112,8 +110,16 @@ extension DataSyncAPITests {
         XCTAssertEqual(entity.classLevel, .subKey)
         XCTAssertEqual(entity.classVersion, 1)
         XCTAssertEqual(entity.createdAt, createdAt)
+        XCTAssertEqual(entity.updatedAt, updatedAt)
+        XCTAssertEqual(entity.eTag, "3w5e111uk7djz")
         XCTAssertEqual(entity.expiresAt, expiresAt)
-        XCTAssertEqual(entity.payload?.codableValue["diagnosis"]?.stringOptional, "Type 2 diabetes")
+        XCTAssertEqual(entity.status, "active")
+        XCTAssertPayload(entity.payload, equals: PatientPayload(
+          mrn: "MRN-100001",
+          fullName: "Alice Summers",
+          diagnosis: "Type 2 diabetes",
+          dateOfBirth: "1985-04-12"
+        ))
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -132,12 +138,24 @@ extension DataSyncAPITests {
       entityClass: "patient",
       entityClassVersion: 1,
       id: "hcn-patient-alice",
-      payload: ["mrn": "MRN-100001"]
+      payload: PatientPayload(mrn: "MRN-100001")
     ) { result in
       switch result {
       case let .success(entity):
         XCTAssertEqual(entity.id, "hcn-patient-alice")
+        XCTAssertEqual(entity.className, "patient")
+        XCTAssertEqual(entity.classVersion, 1)
         XCTAssertEqual(entity.eTag, "3w5e111uk7djz")
+        XCTAssertEqual(entity.status, "active")
+        XCTAssertPayload(
+          entity.payload,
+          equals: PatientPayload(
+            mrn: "MRN-100001",
+            fullName: "Alice Summers",
+            diagnosis: "Type 2 diabetes",
+            dateOfBirth: "1985-04-12"
+          )
+        )
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -155,7 +173,7 @@ extension DataSyncAPITests {
     pubnub.dataSync.replaceEntity(
       "hcn-patient-alice",
       entityClassVersion: 1,
-      payload: ["mrn": "MRN-100001"],
+      payload: PatientPayload(mrn: "MRN-100001"),
       ifMatchesEtag: "3w5e111uk7djz"
     ) { result in
       switch result {
@@ -229,7 +247,7 @@ extension DataSyncAPITests {
         XCTAssertEqual(users[0].updatedAt, updatedAt)
         XCTAssertEqual(users[0].status, "active")
         XCTAssertNil(users[0].expiresAt)
-        XCTAssertEqual(users[0].payload?.codableValue["name"]?.stringOptional, "Alice Summers")
+        XCTAssertPayload(users[0].payload, equals: UserPayload(name: "Alice Summers"))
         XCTAssertEqual(next?.hasNext, false)
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
@@ -251,7 +269,7 @@ extension DataSyncAPITests {
         XCTAssertEqual(user.id, "alice")
         XCTAssertEqual(user.eTag, "3w5e111uk7djz")
         XCTAssertEqual(user.expiresAt, expiresAt)
-        XCTAssertEqual(user.payload?.codableValue["email"]?.stringOptional, "alice@example.com")
+        XCTAssertPayload(user.payload, equals: UserPayload(name: "Alice Summers", email: "alice@example.com"))
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -266,7 +284,11 @@ extension DataSyncAPITests {
     let sessions = try MockURLSession.mockSession(for: ["datasync_user_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.createUser(classVersion: 1, id: "alice", payload: ["name": "Alice Summers"]) { result in
+    pubnub.dataSync.createUser(
+      classVersion: 1,
+      id: "alice",
+      payload: UserPayload(name: "Alice Summers")
+    ) { result in
       switch result {
       case let .success(user):
         XCTAssertEqual(user.id, "alice")
@@ -312,7 +334,7 @@ extension DataSyncAPITests {
         XCTAssertEqual(channel.classVersion, 1)
         XCTAssertEqual(channel.createdAt, createdAt)
         XCTAssertNil(channel.expiresAt)
-        XCTAssertEqual(channel.payload?.codableValue["name"]?.stringOptional, "General")
+        XCTAssertPayload(channel.payload, equals: ChannelPayload(name: "General", description: "Company-wide announcements"))
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -365,7 +387,7 @@ extension DataSyncAPITests {
         XCTAssertEqual(memberships[0].updatedAt, updatedAt)
         XCTAssertEqual(memberships[0].status, "active")
         XCTAssertNil(memberships[0].expiresAt)
-        XCTAssertEqual(memberships[0].payload?.codableValue["role"]?.stringOptional, "admin")
+        XCTAssertPayload(memberships[0].payload, equals: MembershipPayload(role: "admin"))
 
         XCTAssertEqual(next?.cursor, "TjQw")
         XCTAssertEqual(next?.hasNext, true)
@@ -388,7 +410,7 @@ extension DataSyncAPITests {
       channelId: "general",
       userId: "alice",
       classVersion: 1,
-      payload: ["role": "admin"]
+      payload: MembershipPayload(role: "admin")
     ) { result in
       switch result {
       case let .success(membership):
@@ -422,7 +444,6 @@ extension DataSyncAPITests {
 // MARK: - Relationships
 
 extension DataSyncAPITests {
-  /// Relationship lists carry no `meta`, so there is no page to report
   func test_GetRelationships_WithoutMeta_ReportsNilPage() throws {
     let expectation = self.expectation(description: "getRelationships")
     let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_all_no_meta"])
@@ -459,7 +480,7 @@ extension DataSyncAPITests {
       case let .success(relationship):
         XCTAssertEqual(relationship.className, "Treats")
         XCTAssertEqual(relationship.expiresAt, expiresAt)
-        XCTAssertEqual(relationship.payload?.codableValue["since"]?.stringOptional, "2026-01-01")
+        XCTAssertPayload(relationship.payload, equals: RelationshipPayload(since: "2026-01-01"))
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }
@@ -511,7 +532,6 @@ extension DataSyncAPITests {
 // MARK: - Error envelope
 
 extension DataSyncAPITests {
-  /// A resource-level failure carries no `path`, which must not prevent the code from surfacing
   func test_CreateEntity_WhenDuplicate_SurfacesConflictWithoutPath() throws {
     let expectation = self.expectation(description: "createEntity conflict")
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_409"])
@@ -536,7 +556,6 @@ extension DataSyncAPITests {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  /// A field-level failure carries a JSON Pointer, which must survive into the error details
   func test_GetEntities_WhenLimitInvalid_SurfacesBadRequestWithPath() throws {
     let expectation = self.expectation(description: "getEntities bad request")
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_400"])
@@ -611,26 +630,6 @@ extension DataSyncAPITests {
     }
 
     wait(for: [expectation], timeout: 1.0)
-  }
-
-  /// The v4 envelope decodes to `errorCode` and `path`, which are carried as `ErrorDetail`
-  func test_DataSyncErrorPayload_DecodesBothShapes() throws {
-    let withPath = try XCTUnwrap(ImportTestResource.testResource("datasync_error_400") as EndpointResource?)
-    let withoutPath = try XCTUnwrap(ImportTestResource.testResource("datasync_error_409") as EndpointResource?)
-
-    let fieldLevel = try Constant.jsonDecoder.decode(
-      DataSyncErrorPayload.self, from: try withPath.body.jsonDataResult.get()
-    )
-
-    XCTAssertEqual(fieldLevel.errors.first?.errorCode, "SYN-0004")
-    XCTAssertEqual(fieldLevel.errors.first?.path, "limit")
-
-    let resourceLevel = try Constant.jsonDecoder.decode(
-      DataSyncErrorPayload.self, from: try withoutPath.body.jsonDataResult.get()
-    )
-
-    XCTAssertEqual(resourceLevel.errors.first?.errorCode, "SYN-0301")
-    XCTAssertNil(resourceLevel.errors.first?.path)
   }
 }
 
@@ -795,7 +794,6 @@ extension DataSyncAPITests {
 // MARK: - Helpers
 
 private extension Date {
-  /// Parses a service timestamp through the same strategy the SDK decodes responses with
   static func dataSyncTestDate(from string: String) -> Date? {
     try? Constant.jsonDecoder.decode(Date.self, from: Data("\"\(string)\"".utf8))
   }

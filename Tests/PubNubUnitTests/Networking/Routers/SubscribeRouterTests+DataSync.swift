@@ -15,6 +15,17 @@ import XCTest
 
 extension SubscribeRouterTests {
   func test_Subscribe_WithDataSyncEntityCreateEvent_ReceivesEntity() throws {
+    let expectedPayload = PatientPayload(
+      mrn: "MRN-100001",
+      fullName: "Alice Summers",
+      dateOfBirth: "1985-04-12",
+      heightCm: 167,
+      weightKg: 61.5,
+      isSmoker: false,
+      dischargedAt: JSONCodableScalarType(stringValue: nil),
+      allergies: ["penicillin", "latex"],
+      emergencyContact: EmergencyContact(name: "Mark Summers", phone: "+1-555-0142")
+    )
     let expectedEntity = PubNubDataSyncEntity(
       id: "hcn-patient-alice",
       className: "patient",
@@ -25,29 +36,43 @@ extension SubscribeRouterTests {
       eTag: "3w5e111hppk83",
       expiresAt: try XCTUnwrap(DateFormatter.iso8601_noMilliseconds.date(from: "2027-07-29T00:00:00Z")),
       status: "active",
-      payload: AnyJSON([
-        "mrn": "MRN-100001",
-        "fullName": "Alice Summers",
-        "dateOfBirth": "1985-04-12",
-        "heightCm": 167,
-        "weightKg": 61.5,
-        "isSmoker": false,
-        "dischargedAt": NSNull(),
-        "allergies": ["penicillin", "latex"],
-        "emergencyContact": [
-          "name": "Mark Summers",
-          "phone": "+1-555-0142"
-        ]
-      ])
+      payload: expectedPayload
     )
 
     let event = try decodeEvent(from: "subscription_dataSyncEntityCreate_success")
     let entity = try XCTUnwrap(event.createdDataSyncEntity)
 
-    XCTAssertEqual(entity, expectedEntity)
+    XCTAssertEqual(entity.id, expectedEntity.id)
+    XCTAssertEqual(entity.className, expectedEntity.className)
+    XCTAssertEqual(entity.classLevel, expectedEntity.classLevel)
+    XCTAssertEqual(entity.classVersion, expectedEntity.classVersion)
+    XCTAssertEqual(entity.createdAt, expectedEntity.createdAt)
+    XCTAssertEqual(entity.updatedAt, expectedEntity.updatedAt)
+    XCTAssertEqual(entity.eTag, expectedEntity.eTag)
+    XCTAssertEqual(entity.expiresAt, expectedEntity.expiresAt)
+    XCTAssertEqual(entity.status, expectedEntity.status)
+    XCTAssertPayload(
+      entity.payload,
+      equals: PatientPayload(
+        mrn: "MRN-100001",
+        fullName: "Alice Summers",
+        dateOfBirth: "1985-04-12",
+        heightCm: 167,
+        weightKg: 61.5,
+        isSmoker: false,
+        allergies: ["penicillin", "latex"],
+        emergencyContact: EmergencyContact(name: "Mark Summers", phone: "+1-555-0142")
+      )
+    )
   }
 
   func test_Subscribe_WithDataSyncEntityUpdateEvent_ReceivesProjectedPayload() throws {
+    let expectedPayload = PatientPayload(
+      diagnosis: "Essential hypertension (I10)",
+      dateOfBirth: "1985-03-14",
+      weightKg: 60.4,
+      isSmoker: true
+    )
     let expectedEntity = PubNubDataSyncEntity(
       id: "hcn-patient-alice",
       className: "patient",
@@ -58,18 +83,22 @@ extension SubscribeRouterTests {
       eTag: "3w5e111hq1bsx",
       expiresAt: try XCTUnwrap(DateFormatter.iso8601_noMilliseconds.date(from: "2027-07-29T00:00:00Z")),
       status: "active",
-      payload: AnyJSON([
-        "diagnosis": "Essential hypertension (I10)",
-        "dateOfBirth": "1985-03-14",
-        "weightKg": 60.4,
-        "isSmoker": true
-      ])
+      payload: expectedPayload
     )
 
     let event = try decodeEvent(from: "subscription_dataSyncEntityUpdate_success")
     let entity = try XCTUnwrap(event.updatedDataSyncEntity)
 
-    XCTAssertEqual(entity, expectedEntity)
+    XCTAssertEqual(entity.id, expectedEntity.id)
+    XCTAssertEqual(entity.className, expectedEntity.className)
+    XCTAssertEqual(entity.classLevel, expectedEntity.classLevel)
+    XCTAssertEqual(entity.classVersion, expectedEntity.classVersion)
+    XCTAssertEqual(entity.createdAt, expectedEntity.createdAt)
+    XCTAssertEqual(entity.updatedAt, expectedEntity.updatedAt)
+    XCTAssertEqual(entity.eTag, expectedEntity.eTag)
+    XCTAssertEqual(entity.expiresAt, expectedEntity.expiresAt)
+    XCTAssertEqual(entity.status, expectedEntity.status)
+    XCTAssertPayload(entity.payload, equals: expectedPayload)
   }
 
   func test_Subscribe_WithDataSyncEntityDeleteEvent_ReceivesRemovedEntity() throws {
@@ -88,6 +117,12 @@ extension SubscribeRouterTests {
   }
 
   func test_Subscribe_WithDataSyncRelationshipCreateEvent_ReceivesRelationship() throws {
+    let expectedPayload = RelationshipPayload(
+      role: "attending",
+      since: "2024-01-15",
+      isPrimary: true,
+      visitsPerMonth: 3
+    )
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
@@ -99,21 +134,32 @@ extension SubscribeRouterTests {
       eTag: "3w5e111hppyni",
       expiresAt: try XCTUnwrap(DateFormatter.iso8601_noMilliseconds.date(from: "2027-07-29T00:00:00Z")),
       status: "active",
-      payload: AnyJSON([
-        "role": "attending",
-        "since": "2024-01-15",
-        "isPrimary": true,
-        "visitsPerMonth": 3
-      ])
+      payload: expectedPayload
     )
 
     let event = try decodeEvent(from: "subscription_dataSyncRelationshipCreate_success")
     let relationship = try XCTUnwrap(event.createdDataSyncRelationship)
 
-    XCTAssertEqual(relationship, expectedRelationship)
+    XCTAssertEqual(relationship.id, expectedRelationship.id)
+    XCTAssertEqual(relationship.className, expectedRelationship.className)
+    XCTAssertEqual(relationship.classVersion, expectedRelationship.classVersion)
+    XCTAssertEqual(relationship.entityAId, expectedRelationship.entityAId)
+    XCTAssertEqual(relationship.entityBId, expectedRelationship.entityBId)
+    XCTAssertEqual(relationship.createdAt, expectedRelationship.createdAt)
+    XCTAssertEqual(relationship.updatedAt, expectedRelationship.updatedAt)
+    XCTAssertEqual(relationship.eTag, expectedRelationship.eTag)
+    XCTAssertEqual(relationship.expiresAt, expectedRelationship.expiresAt)
+    XCTAssertEqual(relationship.status, expectedRelationship.status)
+    XCTAssertPayload(relationship.payload, equals: expectedPayload)
   }
 
   func test_Subscribe_WithDataSyncRelationshipUpdateEvent_ReceivesRelationship() throws {
+    let expectedPayload = RelationshipPayload(
+      role: "consulting",
+      since: "2024-01-15",
+      isPrimary: false,
+      visitsPerMonth: 1
+    )
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
@@ -125,18 +171,23 @@ extension SubscribeRouterTests {
       eTag: "3w5e111hq6zil",
       expiresAt: try XCTUnwrap(DateFormatter.iso8601_noMilliseconds.date(from: "2027-07-29T00:00:00Z")),
       status: "active",
-      payload: AnyJSON([
-        "role": "consulting",
-        "since": "2024-01-15",
-        "isPrimary": false,
-        "visitsPerMonth": 1
-      ])
+      payload: expectedPayload
     )
 
     let event = try decodeEvent(from: "subscription_dataSyncRelationshipUpdate_success")
     let relationship = try XCTUnwrap(event.updatedDataSyncRelationship)
 
-    XCTAssertEqual(relationship, expectedRelationship)
+    XCTAssertEqual(relationship.id, expectedRelationship.id)
+    XCTAssertEqual(relationship.className, expectedRelationship.className)
+    XCTAssertEqual(relationship.classVersion, expectedRelationship.classVersion)
+    XCTAssertEqual(relationship.entityAId, expectedRelationship.entityAId)
+    XCTAssertEqual(relationship.entityBId, expectedRelationship.entityBId)
+    XCTAssertEqual(relationship.createdAt, expectedRelationship.createdAt)
+    XCTAssertEqual(relationship.updatedAt, expectedRelationship.updatedAt)
+    XCTAssertEqual(relationship.eTag, expectedRelationship.eTag)
+    XCTAssertEqual(relationship.expiresAt, expectedRelationship.expiresAt)
+    XCTAssertEqual(relationship.status, expectedRelationship.status)
+    XCTAssertPayload(relationship.payload, equals: expectedPayload)
   }
 
   func test_Subscribe_WithDataSyncRelationshipDeleteEvent_ReceivesRemovedRelationship() throws {
@@ -229,7 +280,7 @@ extension SubscribeRouterTests {
   }
 
   func test_Subscribe_WithMalformedDataSyncEnvelope_ReceivesMessage() {
-    let payload = generateMessage(with: .dataSync, payload: AnyJSON(["not": "a datasync envelope"]))
+    let payload = generateMessage(with: .dataSync, payload: MalformedDataSyncPayload().codableValue)
     XCTAssertNotNil(payload.asPubNubEvent().message)
   }
 
@@ -309,6 +360,14 @@ extension SubscribeRouterTests {
 // MARK: Helpers
 
 private extension SubscribeRouterTests {
+  struct MalformedDataSyncPayload: JSONCodable, Equatable {
+    let not: String
+
+    init(not: String = "a datasync envelope") {
+      self.not = not
+    }
+  }
+
   struct EmittedDataSyncEvents {
     let legacy: PubNubDataSyncEvent
     let modern: PubNubDataSyncEvent
@@ -364,7 +423,6 @@ private extension SubscribeRouterTests {
 }
 
 private extension PubNubDataSyncEvent {
-
   var createdEntity: PubNubDataSyncEntity? {
     guard case let .entityCreated(e) = self else { return nil }
     return e
@@ -399,7 +457,6 @@ private extension PubNubDataSyncEvent {
 // MARK: Helpers
 
 private extension PubNubEvent {
-
   var createdDataSyncEntity: PubNubDataSyncEntity? {
     guard case let .dataSyncChanged(.entityCreated(e)) = self else { return nil }
     return e

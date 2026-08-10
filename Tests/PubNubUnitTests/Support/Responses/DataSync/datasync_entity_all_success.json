@@ -24,7 +24,9 @@
         "entityClassLevel": "Global",
         "createdAt": "2026-08-06T09:01:00Z",
         "updatedAt": "2026-08-06T09:01:00Z",
-        "eTag": "4x6f222vl8ek0"
+        "eTag": "4x6f222vl8ek0",
+        "expiresAt": "2027-08-07T00:00:00Z",
+        "payload": {}
       }
     ],
     "meta": {

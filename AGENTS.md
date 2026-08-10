@@ -54,7 +54,8 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
-- The only test target in `Package.swift` (`PubNubTests`). Run with `swift test`.
+- The SwiftPM test target is `PubNubTests`, but local SwiftPM test runs currently have fixture/configuration parity issues. Prefer Xcode-based unit test validation until that is resolved.
+- Unit tests are part of `PubNub.xcodeproj`. When adding, moving, or renaming test files or shared test helpers, update the Xcode project tree and `PubNubTests` build phase, then run the affected tests through Xcode.
 - Class-level `let` constants and value types (structs, enums) for static test data are acceptable. Only mutable state and reference-type dependencies must be created locally per test method.
 - Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
@@ -83,9 +84,7 @@ Use the smallest relevant validation step first. Always run `swiftlint` to verif
 
 ```bash
 swift build
-swift test
-swift test --filter PubNubConfigurationTests
-swift test --filter PubNubConfigurationTests/testDefaultValues
+xcodebuild test -project PubNub.xcodeproj -scheme PubNub -destination 'platform=macOS' -only-testing:PubNubTests/<TestClassName>
 swiftlint
 ```
 

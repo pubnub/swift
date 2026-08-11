@@ -1,0 +1,50 @@
+{
+  "configurations" : [
+    {
+      "id" : "77C98DAB-3AAA-4F02-906B-A2E9758A894C",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "DataSyncChannelEndpointIntegrationTests",
+        "DataSyncChannelEndpointIntegrationTests\/testCreateAndFetchChannel()",
+        "DataSyncChannelEndpointIntegrationTests\/testGetChannelsPagesWithCursor()",
+        "DataSyncChannelEndpointIntegrationTests\/testGetChannelsReturnsCreatedChannels()",
+        "DataSyncChannelEndpointIntegrationTests\/testPatchChannelAppliesOperationsAndKeepsUntouchedFields()",
+        "DataSyncChannelEndpointIntegrationTests\/testRemoveChannelThenFetchFails()",
+        "DataSyncChannelEndpointIntegrationTests\/testReplaceChannelReplacesPayloadWholesale()",
+        "DataSyncChannelEndpointIntegrationTests\/testReplaceChannelWithStaleEtagFails()",
+        "DataSyncMembershipEndpointIntegrationTests",
+        "DataSyncMembershipEndpointIntegrationTests\/testCreateAndFetchMembership()",
+        "DataSyncMembershipEndpointIntegrationTests\/testGetMembershipsForChannelReturnsEveryUserJoined()",
+        "DataSyncMembershipEndpointIntegrationTests\/testGetMembershipsForUserReturnsEveryChannelJoined()",
+        "DataSyncMembershipEndpointIntegrationTests\/testPatchMembershipAppliesOperationsAndKeepsUntouchedFields()",
+        "DataSyncMembershipEndpointIntegrationTests\/testRemoveMembershipThenFetchFails()",
+        "DataSyncMembershipEndpointIntegrationTests\/testReplaceMembershipReplacesPayloadWholesale()",
+        "DataSyncMembershipEndpointIntegrationTests\/testReplaceMembershipWithStaleEtagFails()",
+        "DataSyncUserEndpointIntegrationTests",
+        "DataSyncUserEndpointIntegrationTests\/testCreateAndFetchUser()",
+        "DataSyncUserEndpointIntegrationTests\/testGetUsersPagesWithCursor()",
+        "DataSyncUserEndpointIntegrationTests\/testGetUsersReturnsCreatedUsers()",
+        "DataSyncUserEndpointIntegrationTests\/testPatchUserAppliesOperationsAndKeepsUntouchedFields()",
+        "DataSyncUserEndpointIntegrationTests\/testRemoveUserThenFetchFails()",
+        "DataSyncUserEndpointIntegrationTests\/testReplaceUserReplacesPayloadWholesale()",
+        "DataSyncUserEndpointIntegrationTests\/testReplaceUserWithStaleEtagFails()"
+      ],
+      "target" : {
+        "containerPath" : "container:PubNub.xcodeproj",
+        "identifier" : "3558069D23145749005CDD92",
+        "name" : "PubNubIntegration"
+      }
+    }
+  ],
+  "version" : 1
+}

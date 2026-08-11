@@ -114,12 +114,15 @@ extension DataSyncAPITests {
         XCTAssertEqual(entity.eTag, "3w5e111uk7djz")
         XCTAssertEqual(entity.expiresAt, expiresAt)
         XCTAssertEqual(entity.status, "active")
-        XCTAssertPayload(entity.payload, equals: PatientPayload(
-          mrn: "MRN-100001",
-          fullName: "Alice Summers",
-          diagnosis: "Type 2 diabetes",
-          dateOfBirth: "1985-04-12"
-        ))
+        XCTAssertPayload(
+          entity.payload,
+          equals: PatientPayload(
+            mrn: "MRN-100001",
+            fullName: "Alice Summers",
+            diagnosis: "Type 2 diabetes",
+            dateOfBirth: "1985-04-12"
+          )
+        )
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }

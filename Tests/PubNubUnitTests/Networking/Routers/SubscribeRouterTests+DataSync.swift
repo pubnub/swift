@@ -51,6 +51,7 @@ extension SubscribeRouterTests {
     XCTAssertEqual(entity.eTag, expectedEntity.eTag)
     XCTAssertEqual(entity.expiresAt, expectedEntity.expiresAt)
     XCTAssertEqual(entity.status, expectedEntity.status)
+
     XCTAssertPayload(
       entity.payload,
       equals: PatientPayload(

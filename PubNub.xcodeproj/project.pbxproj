@@ -1320,7 +1320,9 @@
 		DA7A5C000000000000000033 /* HTTPRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRouterTests.swift; sourceTree = "<group>"; };
 		DA7A5C000000000000000035 /* XCTAssertPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTAssertPayload.swift; sourceTree = "<group>"; };
 		DA7A5C000000000000000037 /* DataSyncTestPayloads.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncTestPayloads.swift; sourceTree = "<group>"; };
-		DA7B5C000000000000000065 /* data-sync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync.swift"; sourceTree = "<group>"; };
+		DA7B5C000000000000000065 /* data-sync-users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-users.swift"; sourceTree = "<group>"; };
+		DA7B5C000000000000000066 /* data-sync-channels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-channels.swift"; sourceTree = "<group>"; };
+		DA7B5C000000000000000067 /* data-sync-memberships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-memberships.swift"; sourceTree = "<group>"; };
 		DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+CoreEvents.swift"; sourceTree = "<group>"; };
 		E812941F9706B958CD448B54 /* Pods_PubNubContractTestsBeta.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PubNubContractTestsBeta.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F421DD43E4051D3AE5FACC39 /* SubscribeRouterTests+Crypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+Crypto.swift"; sourceTree = "<group>"; };
@@ -3100,7 +3102,9 @@
 		DA7B5C0000000000000000C9 /* DataSync */ = {
 			isa = PBXGroup;
 			children = (
-				DA7B5C000000000000000065 /* data-sync.swift */,
+				DA7B5C000000000000000066 /* data-sync-channels.swift */,
+				DA7B5C000000000000000067 /* data-sync-memberships.swift */,
+				DA7B5C000000000000000065 /* data-sync-users.swift */,
 			);
 			path = DataSync;
 			sourceTree = "<group>";

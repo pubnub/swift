@@ -80,7 +80,7 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 
 ### Validation
 
-Use the smallest relevant validation step first. Always run `swiftlint` to verify code style.
+Use the smallest relevant validation step first.
 
 ```bash
 swift build

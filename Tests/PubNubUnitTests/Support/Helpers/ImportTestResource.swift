@@ -44,7 +44,15 @@ extension URLErrorResource {
 }
 
 enum ImportTestResource {
+  // Xcode copies the JSON fixtures into the test bundle itself, but SwiftPM emits them
+  // into a separate resource bundle that only `Bundle.module` resolves. `SWIFT_PACKAGE`
+  // cannot tell the two apart here: it is defined project-wide in PubNub.xcodeproj, so
+  // it is true under Xcode as well. `Xcode` (via `-DXcode`) is only ever set by Xcode.
+  #if Xcode
   static let testsBundle = Bundle(for: PubNubConfigurationTests.self)
+  #else
+  static let testsBundle = Bundle.module
+  #endif
 
   static func importResource(_ filename: String, withExtension ext: String = "json") throws -> Data {
     let url = try ImportTestResource.resourceURL(filename, withExtension: ext)

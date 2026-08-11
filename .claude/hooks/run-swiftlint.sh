@@ -10,8 +10,8 @@ fi
 # Auto-fix what we can
 swiftlint --fix "$FILE_PATH" 2>/dev/null
 
-# Validate remaining violations
-OUTPUT=$(swiftlint "$FILE_PATH" 2>&1)
+# Validate remaining violations (--strict so warnings block too)
+OUTPUT=$(swiftlint --strict "$FILE_PATH" 2>&1)
 if [[ $? -ne 0 ]]; then
   echo "SwiftLint violations remain in $FILE_PATH" >&2
   echo "$OUTPUT" >&2

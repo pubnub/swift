@@ -27,7 +27,7 @@ public enum PubNubDataSyncPatchOperation {
   /// Asserts that the value at the given path matches, failing the whole patch when it doesn't
   case test(path: String, value: JSONCodable)
 
-  var routerValue: JSONPatchOperation {
+  var patchOperation: JSONPatchOperation {
     switch self {
     case let .add(path, value):
       return .add(path: path, value: value.codableValue)
@@ -368,7 +368,7 @@ public extension PubNub.DataSyncAPI {
     )
 
     let router = DataSyncEntityRouter(
-      .patch(id: id, operations: operations.map { $0.routerValue }, ifMatch: ifMatchesEtag),
+      .patch(id: id, operations: operations.map { $0.patchOperation }, ifMatch: ifMatchesEtag),
       configuration: configuration(from: requestConfig)
     )
 
@@ -655,7 +655,7 @@ public extension PubNub.DataSyncAPI {
     )
 
     let router = DataSyncUserRouter(
-      .patch(id: id, operations: operations.map { $0.routerValue }, ifMatch: ifMatchesEtag),
+      .patch(id: id, operations: operations.map { $0.patchOperation }, ifMatch: ifMatchesEtag),
       configuration: configuration(from: requestConfig)
     )
 
@@ -867,7 +867,7 @@ public extension PubNub.DataSyncAPI {
   ///   - id: The unique identifier of the channel
   ///   - classVersion: The version of the `channel` class the payload conforms to
   ///   - status: An arbitrary status to store with the channel
-  ///   - payload: The replacement channel fields, which must conform to the class schema
+  ///   - payload: The replacement channel fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncChannel/eTag`` last read, to fail the request when the channel changed since
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
@@ -944,7 +944,7 @@ public extension PubNub.DataSyncAPI {
     )
 
     let router = DataSyncChannelRouter(
-      .patch(id: id, operations: operations.map { $0.routerValue }, ifMatch: ifMatchesEtag),
+      .patch(id: id, operations: operations.map { $0.patchOperation }, ifMatch: ifMatchesEtag),
       configuration: configuration(from: requestConfig)
     )
 
@@ -1242,7 +1242,7 @@ public extension PubNub.DataSyncAPI {
     )
 
     let router = DataSyncMembershipRouter(
-      .patch(id: id, operations: operations.map { $0.routerValue }, ifMatch: ifMatchesEtag),
+      .patch(id: id, operations: operations.map { $0.patchOperation }, ifMatch: ifMatchesEtag),
       configuration: configuration(from: requestConfig)
     )
 
@@ -1409,7 +1409,7 @@ public extension PubNub.DataSyncAPI {
   ///   - relationshipClassVersion: The version of the class the payload conforms to
   ///   - id: The unique identifier to create the relationship with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the relationship
-  ///   - payload: The relationship fields, which must conform to the class schema
+  ///   - payload: The relationship fields
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The created ``PubNubDataSyncRelationship``
@@ -1553,7 +1553,7 @@ public extension PubNub.DataSyncAPI {
     )
 
     let router = DataSyncRelationshipRouter(
-      .patch(id: id, operations: operations.map { $0.routerValue }, ifMatch: ifMatchesEtag),
+      .patch(id: id, operations: operations.map { $0.patchOperation }, ifMatch: ifMatchesEtag),
       configuration: configuration(from: requestConfig)
     )
 

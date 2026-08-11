@@ -13,29 +13,6 @@ import XCTest
 
 final class DataSyncRouterTests: XCTestCase {
   let config = TestPubNubFactory.makeConfig(subscribeKey: "demo-sub")
-
-  private func queryValue(_ router: HTTPRouter, _ key: String) throws -> String? {
-    try router.queryItems.get().first { $0.name == key }?.value
-  }
-
-  private func queryNames(_ router: HTTPRouter) throws -> Set<String> {
-    Set(try router.queryItems.get().map { $0.name })
-  }
-
-  private func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
-    let request = try router.asURLRequest.get()
-    let body = try XCTUnwrap(request.httpBody)
-    let envelope = try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
-
-    return try XCTUnwrap(envelope["data"])
-  }
-
-  private func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
-    let request = try router.asURLRequest.get()
-    let body = try XCTUnwrap(request.httpBody)
-
-    return try Constant.jsonDecoder.decode([AnyJSON].self, from: body)
-  }
 }
 
 // MARK: - Users: List
@@ -234,71 +211,6 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/users/alice")
     XCTAssertNil(router.validationError)
     XCTAssertNil(request.value(forHTTPHeaderField: "If-Match"))
-  }
-}
-
-// MARK: - JSONPatchOperation encoding
-
-extension DataSyncRouterTests {
-  private func encode(_ op: JSONPatchOperation) throws -> AnyJSON {
-    let data = try Constant.jsonEncoder.encode([op])
-    let array = try Constant.jsonDecoder.decode([AnyJSON].self, from: data)
-
-    return try XCTUnwrap(array.first)
-  }
-
-  func test_JSONPatch_Add() throws {
-    let json = try encode(.add(path: "/payload/a", value: 1))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "add")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.intOptional, 1)
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Remove() throws {
-    let json = try encode(.remove(path: "/payload/a"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "remove")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertNil(json["value"])
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Replace() throws {
-    let json = try encode(.replace(path: "/payload/a", value: "x"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "replace")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.stringOptional, "x")
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Move() throws {
-    let json = try encode(.move(from: "/payload/a", path: "/payload/b"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "move")
-    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
-    XCTAssertNil(json["value"])
-  }
-
-  func test_JSONPatch_Copy() throws {
-    let json = try encode(.copy(from: "/payload/a", path: "/payload/b"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "copy")
-    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
-    XCTAssertNil(json["value"])
-  }
-
-  func test_JSONPatch_Test() throws {
-    let json = try encode(.test(path: "/payload/a", value: true))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "test")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.boolOptional, true)
-    XCTAssertNil(json["from"])
   }
 }
 
@@ -666,5 +578,30 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipClass)
+  }
+}
+
+private extension DataSyncRouterTests {
+  func queryValue(_ router: HTTPRouter, _ key: String) throws -> String? {
+    try router.queryItems.get().first { $0.name == key }?.value
+  }
+
+  func queryNames(_ router: HTTPRouter) throws -> Set<String> {
+    Set(try router.queryItems.get().map { $0.name })
+  }
+
+  func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+    let envelope = try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
+
+    return try XCTUnwrap(envelope["data"])
+  }
+
+  func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+
+    return try Constant.jsonDecoder.decode([AnyJSON].self, from: body)
   }
 }

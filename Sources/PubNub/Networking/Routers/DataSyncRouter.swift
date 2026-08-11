@@ -23,55 +23,6 @@ enum DataSyncHeader {
   }
 }
 
-// MARK: - JSON Patch (RFC 6902)
-
-/// A single RFC 6902 JSON Patch operation used by DataSync `PATCH` endpoints.
-enum JSONPatchOperation: Encodable {
-  case add(path: String, value: JSONCodable)
-  case remove(path: String)
-  case replace(path: String, value: JSONCodable)
-  case move(from: String, path: String)
-  case copy(from: String, path: String)
-  case test(path: String, value: JSONCodable)
-
-  private enum CodingKeys: String, CodingKey {
-    case op
-    case path
-    case value
-    case from
-  }
-
-  func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-
-    switch self {
-    case let .add(path, value):
-      try container.encode("add", forKey: .op)
-      try container.encode(path, forKey: .path)
-      try container.encode(value, forKey: .value)
-    case let .remove(path):
-      try container.encode("remove", forKey: .op)
-      try container.encode(path, forKey: .path)
-    case let .replace(path, value):
-      try container.encode("replace", forKey: .op)
-      try container.encode(path, forKey: .path)
-      try container.encode(value, forKey: .value)
-    case let .move(from, path):
-      try container.encode("move", forKey: .op)
-      try container.encode(from, forKey: .from)
-      try container.encode(path, forKey: .path)
-    case let .copy(from, path):
-      try container.encode("copy", forKey: .op)
-      try container.encode(from, forKey: .from)
-      try container.encode(path, forKey: .path)
-    case let .test(path, value):
-      try container.encode("test", forKey: .op)
-      try container.encode(path, forKey: .path)
-      try container.encode(value, forKey: .value)
-    }
-  }
-}
-
 // MARK: - Request envelope
 
 /// Wraps a create/replace request body in the `{ "data": ... }`

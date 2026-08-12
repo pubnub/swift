@@ -68,9 +68,6 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     let client = PubNub(configuration: dataSyncConfiguration())
     let userId = randomString()
 
-    // The replacement omits `email`, which must therefore be cleared rather than preserved
-    let replacementPayload = TestUserPayload(fullName: "Swift ITest User Renamed")
-
     client.dataSync.createUser(
       classVersion: userClassVersion,
       id: userId,
@@ -79,6 +76,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case let .success(createdUser):
+        // The replacement omits `email`, which must therefore be cleared rather than preserved
+        let replacementPayload = TestUserPayload(fullName: "Swift ITest User Renamed")
+
         client.dataSync.replaceUser(
           userId,
           classVersion: self.userClassVersion,
@@ -127,6 +127,12 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
+        let expectedPayload = TestUserPayload(
+          fullName: "Swift ITest User",
+          email: "swift.patched@example.com",
+          nickname: "Swifty"
+        )
+
         client.dataSync.patchUser(
           userId,
           operations: [
@@ -136,19 +142,25 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
         ) { patchResult in
           switch patchResult {
           case let .success(patchedUser):
-            XCTAssertPayload(
-              patchedUser.payload,
-              equals: TestUserPayload(
-                fullName: "Swift ITest User",
-                email: "swift.patched@example.com",
-                nickname: "Swifty"
-              )
-            )
+            XCTAssertPayload(patchedUser.payload, equals: expectedPayload)
             XCTAssertEqual(patchedUser.status, "active")
+
+            // Re-fetch to confirm the operations were persisted, not just reflected in the patch response
+            client.dataSync.getUser(userId) { fetchResult in
+              switch fetchResult {
+              case let .success(user):
+                XCTAssertEqual(user.status, "active")
+                XCTAssertEqual(user.eTag, patchedUser.eTag)
+                XCTAssertPayload(user.payload, equals: expectedPayload)
+              case let .failure(error):
+                XCTFail("Failed due to error: \(error)")
+              }
+              patchExpect.fulfill()
+            }
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
+            patchExpect.fulfill()
           }
-          patchExpect.fulfill()
         }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
@@ -341,8 +353,6 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
 // MARK: - Test Data
 
-/// The user payload these tests send and assert against. Every field is optional so a test names
-/// only what it cares about, and an omitted field is left out of the request rather than sent as null
 private struct TestUserPayload: JSONCodable, Equatable {
   let fullName: String?
   let email: String?
@@ -372,8 +382,7 @@ private extension DataSyncUserEndpointIntegrationTests {
 
     func createNext(_ remainingIds: [String]) {
       guard let userId = remainingIds.first else {
-        setupExpect.fulfill()
-        return
+        setupExpect.fulfill(); return
       }
 
       client.dataSync.createUser(

@@ -11,13 +11,29 @@
 import PubNubSDK
 import XCTest
 
-func XCTAssertPayload<T: JSONCodable & Equatable>(
+/// Asserts that `payload` matches `expected` exactly, including its set of keys.
+func XCTAssertPayload<T: JSONCodable>(
   _ payload: JSONCodable?,
   equals expected: T,
   file: StaticString = #filePath,
   line: UInt = #line
 ) {
-  let decoded = try? payload?.decode(T.self)
+  guard let actualJSON = normalizedJSON(payload) else {
+    XCTFail("Received payload could not be encoded as JSON", file: file, line: line)
+    return
+  }
+  guard let expectedJSON = normalizedJSON(expected) else {
+    XCTFail("Expected payload could not be encoded as JSON", file: file, line: line)
+    return
+  }
 
-  XCTAssertEqual(decoded, expected, file: file, line: line)
+  XCTAssertEqual(actualJSON, expectedJSON, file: file, line: line)
+}
+
+/// Encodes `payload` and decodes it back into `AnyJSON`.
+private func normalizedJSON(_ payload: JSONCodable?) -> AnyJSON? {
+  guard let data = payload?.jsonData else {
+    return nil
+  }
+  return try? JSONDecoder().decode(AnyJSON.self, from: data)
 }

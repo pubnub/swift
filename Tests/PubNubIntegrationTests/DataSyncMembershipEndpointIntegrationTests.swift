@@ -88,8 +88,6 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
-    // The replacement omits `invitedBy`, which must therefore be cleared rather than preserved
-    let replacementPayload = TestMembershipPayload(role: "member")
 
     setUpMembershipTestData(
       client: client,
@@ -107,6 +105,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case let .success(createdMembership):
+        // The replacement omits `invitedBy`, which must therefore be cleared rather than preserved
+        let replacementPayload = TestMembershipPayload(role: "member")
+
         client.dataSync.replaceMembership(
           membershipId,
           classVersion: self.membershipClassVersion,
@@ -172,18 +173,33 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
+        let expectedPayload = TestMembershipPayload(role: "admin", invitedBy: "swift-itest")
+
         client.dataSync.patchMembership(
           membershipId,
           operations: [.replace(path: "/payload/role", value: "admin")]
         ) { patchResult in
           switch patchResult {
           case let .success(patchedMembership):
-            XCTAssertPayload(patchedMembership.payload, equals: TestMembershipPayload(role: "admin", invitedBy: "swift-itest"))
+            XCTAssertPayload(patchedMembership.payload, equals: expectedPayload)
             XCTAssertEqual(patchedMembership.status, "active")
+
+            // Re-fetch to confirm the operations were persisted, not just reflected in the patch response
+            client.dataSync.getMembership(membershipId) { fetchResult in
+              switch fetchResult {
+              case let .success(membership):
+                XCTAssertEqual(membership.status, "active")
+                XCTAssertEqual(membership.eTag, patchedMembership.eTag)
+                XCTAssertPayload(membership.payload, equals: expectedPayload)
+              case let .failure(error):
+                XCTFail("Failed due to error: \(error)")
+              }
+              patchExpect.fulfill()
+            }
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
+            patchExpect.fulfill()
           }
-          patchExpect.fulfill()
         }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
@@ -434,8 +450,6 @@ private struct TestMembership {
   let userId: String
 }
 
-/// The membership payload these tests send and assert against. Every field is optional so a test names
-/// only what it cares about, and an omitted field is left out of the request rather than sent as null
 private struct TestMembershipPayload: JSONCodable, Equatable {
   let role: String?
   let invitedBy: String?
@@ -446,12 +460,10 @@ private struct TestMembershipPayload: JSONCodable, Equatable {
   }
 }
 
-/// The payload of the users a membership joins. Only sent during setup, never asserted against
 private struct TestUserSetupPayload: JSONCodable, Equatable {
   let fullName: String
 }
 
-/// The payload of the channels a membership joins. Only sent during setup, never asserted against
 private struct TestChannelSetupPayload: JSONCodable, Equatable {
   let name: String
   let description: String
@@ -547,8 +559,7 @@ private extension DataSyncMembershipEndpointIntegrationTests {
 
     func createNext(_ remaining: [TestMembership]) {
       guard let membership = remaining.first else {
-        setupExpect.fulfill()
-        return
+        setupExpect.fulfill(); return
       }
 
       client.dataSync.createMembership(

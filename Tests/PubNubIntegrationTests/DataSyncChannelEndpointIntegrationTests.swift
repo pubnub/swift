@@ -19,9 +19,10 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
     let client = PubNub(configuration: dataSyncConfiguration())
     let channelId = randomString()
+
     let payload = TestChannelPayload(
       name: "Swift ITest Channel",
-      description: "Created by the Swift integration tests"
+      channelDescription: "Created by the Swift integration tests"
     )
 
     client.dataSync.createChannel(
@@ -70,20 +71,18 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
     let client = PubNub(configuration: dataSyncConfiguration())
     let channelId = randomString()
-    // The replacement omits `description`, which must therefore be cleared rather than preserved
-    let replacementPayload = TestChannelPayload(name: "Swift ITest Channel Renamed")
 
     client.dataSync.createChannel(
       classVersion: channelClassVersion,
       id: channelId,
       status: "active",
-      payload: TestChannelPayload(
-        name: "Swift ITest Channel",
-        description: "Created by the Swift integration tests"
-      )
+      payload: TestChannelPayload(name: "Swift ITest Channel", channelDescription: "Channel description")
     ) { [unowned client] createResult in
       switch createResult {
       case let .success(createdChannel):
+        // The replacement omits `description`, which must therefore be cleared rather than preserved
+        let replacementPayload = TestChannelPayload(name: "Swift ITest Channel Renamed")
+
         client.dataSync.replaceChannel(
           channelId,
           classVersion: self.channelClassVersion,
@@ -127,35 +126,48 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     client.dataSync.createChannel(
       classVersion: channelClassVersion,
       id: channelId,
-      status: "active",
+      status: "inactive",
       payload: TestChannelPayload(
         name: "Swift ITest Channel",
-        description: "Created by the Swift integration tests"
+        channelDescription: "Channel description"
       )
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
+        let expectedPayload = TestChannelPayload(
+          name: "Swift ITest Channel",
+          channelDescription: nil,
+          topic: "integration-testing"
+        )
+
         client.dataSync.patchChannel(
           channelId,
           operations: [
-            .replace(path: "/payload/description", value: "Patched by the Swift integration tests"),
+            .remove(path: "/payload/channelDescription"),
             .add(path: "/payload/topic", value: "integration-testing")
           ]
         ) { patchResult in
           switch patchResult {
           case let .success(patchedChannel):
-            XCTAssertPayload(
-              patchedChannel.payload, equals: TestChannelPayload(
-                name: "Swift ITest Channel",
-                description: "Patched by the Swift integration tests",
-                topic: "integration-testing"
-              )
-            )
-            XCTAssertEqual(patchedChannel.status, "active")
+            XCTAssertEqual(patchedChannel.status, "inactive")
+            XCTAssertPayload(patchedChannel.payload, equals: expectedPayload)
+
+            // Re-fetch to confirm the operations were persisted, not just reflected in the patch response
+            client.dataSync.getChannel(channelId) { fetchResult in
+              switch fetchResult {
+              case let .success(channel):
+                XCTAssertEqual(channel.status, "inactive")
+                XCTAssertEqual(channel.eTag, patchedChannel.eTag)
+                XCTAssertPayload(channel.payload, equals: expectedPayload)
+              case let .failure(error):
+                XCTFail("Failed due to error: \(error)")
+              }
+              patchExpect.fulfill()
+            }
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
+            patchExpect.fulfill()
           }
-          patchExpect.fulfill()
         }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
@@ -186,7 +198,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       status: "active",
       payload: TestChannelPayload(
         name: "Swift ITest Channel",
-        description: "Created by the Swift integration tests"
+        channelDescription: "Channel description"
       )
     ) { [unowned client] createResult in
       switch createResult {
@@ -318,7 +330,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       status: "active",
       payload: TestChannelPayload(
         name: "Swift ITest Channel",
-        description: "Created by the Swift integration tests"
+        channelDescription: "Created by the Swift integration tests"
       )
     ) { [unowned client] createResult in
       switch createResult {
@@ -356,12 +368,12 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
 private struct TestChannelPayload: JSONCodable, Equatable {
   let name: String?
-  let description: String?
+  let channelDescription: String?
   let topic: String?
 
-  init(name: String? = nil, description: String? = nil, topic: String? = nil) {
+  init(name: String? = nil, channelDescription: String? = nil, topic: String? = nil) {
     self.name = name
-    self.description = description
+    self.channelDescription = channelDescription
     self.topic = topic
   }
 }
@@ -393,7 +405,7 @@ private extension DataSyncChannelEndpointIntegrationTests {
         status: "active",
         payload: TestChannelPayload(
           name: channelId,
-          description: "Created by the Swift integration tests"
+          channelDescription: "Created by the Swift integration tests"
         )
       ) { result in
         switch result {

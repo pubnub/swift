@@ -447,6 +447,9 @@
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D595F6C302B59DF00887797 /* PubNubIntegration.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 3D595F6B302B59DF00887797 /* PubNubIntegration.xctestplan */; };
 		3D595F6E302B5D8900887797 /* DataSyncAuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */; };
+		3D595F71302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F70302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift */; };
+		3D595F73302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */; };
+		3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
 		3D65E8E12E2790E10041B534 /* LogMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D65E8E02E2790E10041B534 /* LogMessage.swift */; };
@@ -1174,6 +1177,9 @@
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D595F6B302B59DF00887797 /* PubNubIntegration.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PubNubIntegration.xctestplan; sourceTree = "<group>"; };
 		3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncAuthToken.swift; sourceTree = "<group>"; };
+		3D595F70302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityEndpointIntegrationTests.swift; sourceTree = "<group>"; };
+		3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipEndpointIntegrationTests.swift; sourceTree = "<group>"; };
+		3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncHealthcareFixtures.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
 		3D65E8E02E2790E10041B534 /* LogMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMessage.swift; sourceTree = "<group>"; };
 		3D65E8E22E2791730041B534 /* LogMessageConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMessageConvertible.swift; sourceTree = "<group>"; };
@@ -1600,6 +1606,8 @@
 				3D4A11A02E9A0001009B55E0 /* DataSyncUserEndpointIntegrationTests.swift */,
 				3D4A11A12E9A0002009B55E0 /* DataSyncChannelEndpointIntegrationTests.swift */,
 				3D4A11A22E9A0003009B55E0 /* DataSyncMembershipEndpointIntegrationTests.swift */,
+				3D595F70302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift */,
+				3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */,
 				3DADDF942DCB4776001564C3 /* Support */,
 			);
 			name = PubNubIntegrationTests;
@@ -2586,6 +2594,7 @@
 				3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */,
 				3D4A11A62E9A0007009B55E0 /* XCTAssertPayload.swift */,
 				3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */,
+				3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -3976,6 +3985,9 @@
 				353D92AF23562A1100367B9F /* SubscriptionIntegrationTests.swift in Sources */,
 				3557CE032386054C004BBACC /* PushIntegrationTests.swift in Sources */,
 				3D595F6E302B5D8900887797 /* DataSyncAuthToken.swift in Sources */,
+				3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */,
+				3D595F71302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift in Sources */,
+				3D595F73302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

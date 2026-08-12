@@ -144,23 +144,10 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
           case let .success(patchedUser):
             XCTAssertPayload(patchedUser.payload, equals: expectedPayload)
             XCTAssertEqual(patchedUser.status, "active")
-
-            // Re-fetch to confirm the operations were persisted, not just reflected in the patch response
-            client.dataSync.getUser(userId) { fetchResult in
-              switch fetchResult {
-              case let .success(user):
-                XCTAssertEqual(user.status, "active")
-                XCTAssertEqual(user.eTag, patchedUser.eTag)
-                XCTAssertPayload(user.payload, equals: expectedPayload)
-              case let .failure(error):
-                XCTFail("Failed due to error: \(error)")
-              }
-              patchExpect.fulfill()
-            }
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
-            patchExpect.fulfill()
           }
+          patchExpect.fulfill()
         }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")

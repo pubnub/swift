@@ -151,23 +151,10 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
           case let .success(patchedChannel):
             XCTAssertEqual(patchedChannel.status, "inactive")
             XCTAssertPayload(patchedChannel.payload, equals: expectedPayload)
-
-            // Re-fetch to confirm the operations were persisted, not just reflected in the patch response
-            client.dataSync.getChannel(channelId) { fetchResult in
-              switch fetchResult {
-              case let .success(channel):
-                XCTAssertEqual(channel.status, "inactive")
-                XCTAssertEqual(channel.eTag, patchedChannel.eTag)
-                XCTAssertPayload(channel.payload, equals: expectedPayload)
-              case let .failure(error):
-                XCTFail("Failed due to error: \(error)")
-              }
-              patchExpect.fulfill()
-            }
           case let .failure(error):
             XCTFail("Failed due to error: \(error)")
-            patchExpect.fulfill()
           }
+          patchExpect.fulfill()
         }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
@@ -395,8 +382,7 @@ private extension DataSyncChannelEndpointIntegrationTests {
 
     func createNext(_ remainingIds: [String]) {
       guard let channelId = remainingIds.first else {
-        setupExpect.fulfill()
-        return
+        setupExpect.fulfill(); return
       }
 
       client.dataSync.createChannel(

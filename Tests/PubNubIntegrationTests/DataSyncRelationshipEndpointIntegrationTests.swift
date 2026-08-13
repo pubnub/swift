@@ -19,7 +19,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testCreateAndFetchRelationship() {
     let fetchExpect = expectation(description: "Fetch Relationship Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let relationshipId = randomString()
@@ -73,7 +73,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testReplaceRelationshipReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Relationship Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let relationshipId = randomString()
@@ -129,7 +129,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testPatchRelationshipAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Relationship Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let relationshipId = randomString()
@@ -185,7 +185,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testReplaceRelationshipWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Relationship Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let relationshipId = randomString()
@@ -226,7 +226,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testGetRelationshipsReturnsCreatedRelationships() {
     let listExpect = expectation(description: "List Relationships Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientIds = [randomString(), randomString()]
     let relationshipIds = [randomString(), randomString()]
@@ -264,7 +264,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testGetRelationshipsPagesWithCursor() {
     let listExpect = expectation(description: "List Relationships Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientIds = [randomString(), randomString()]
     let relationshipIds = [randomString(), randomString()]
@@ -306,7 +306,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testGetRelationshipsForEntityAReturnsEveryPatientAttended() {
     let listExpect = expectation(description: "List Relationships Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let firstPatientId = randomString()
     let secondPatientId = randomString()
@@ -346,7 +346,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testGetRelationshipsForEntityBReturnsOnlyThatPatientsPractitioner() {
     let listExpect = expectation(description: "List Relationships Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let otherPatientId = randomString()
@@ -387,7 +387,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testManyToManyRelationshipConnectsOnePractitionerToSeveralFacilities() {
     let listExpect = expectation(description: "List Relationships Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let hospitalId = randomString()
     let clinicId = randomString()
@@ -428,7 +428,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
   func testRemoveRelationshipThenFetchFails() {
     let removeExpect = expectation(description: "Remove Relationship Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
     let patientId = randomString()
     let relationshipId = randomString()

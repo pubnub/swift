@@ -18,7 +18,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testCreateAndFetchEntity() {
     let fetchExpect = expectation(description: "Fetch Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
     let payload = TestPatientPayload.standard(mrn: "MRN-100001")
 
@@ -63,7 +63,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testReplaceEntityReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     client.dataSync.createEntity(
@@ -110,7 +110,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testPatchEntityAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     client.dataSync.createEntity(
@@ -162,7 +162,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testReplaceEntityWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     client.dataSync.createEntity(
@@ -205,7 +205,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testCreateEntityWithDuplicateIdFails() {
     let duplicateExpect = expectation(description: "Duplicate Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     createEntities(client: client, [.patient(id: patientId)])
@@ -237,7 +237,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testGetEntitiesReturnsCreatedEntities() {
     let listExpect = expectation(description: "List Entities Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientIds = [randomString(), randomString(), randomString()]
 
     createEntities(client: client, patientIds.map { .patient(id: $0) })
@@ -262,7 +262,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testGetEntitiesReturnsOnlyEntitiesOfTheRequestedClass() {
     let listExpect = expectation(description: "List Entities Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
     let practitionerId = randomString()
 
@@ -290,7 +290,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testGetEntitiesPagesWithCursor() {
     let listExpect = expectation(description: "List Entities Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientIds = [randomString(), randomString()]
 
     createEntities(client: client, patientIds.map { .patient(id: $0) })
@@ -317,7 +317,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
   func testRemoveEntityThenFetchFails() {
     let removeExpect = expectation(description: "Remove Entity Expectation")
-    let client = PubNub(configuration: dataSyncHealthcareConfiguration(bundle: testsBundle))
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     client.dataSync.createEntity(

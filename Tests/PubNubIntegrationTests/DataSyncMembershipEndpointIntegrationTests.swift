@@ -19,7 +19,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testCreateAndFetchMembership() {
     let fetchExpect = expectation(description: "Fetch Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -84,7 +84,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testReplaceMembershipReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -152,7 +152,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testPatchMembershipAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -213,7 +213,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testReplaceMembershipWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -275,7 +275,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testGetMembershipsForUserReturnsEveryChannelJoined() {
     let listExpect = expectation(description: "List Memberships Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelIds = [randomString(), randomString()]
     let membershipIds = [randomString(), randomString()]
@@ -323,7 +323,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testGetMembershipsForChannelReturnsEveryUserJoined() {
     let listExpect = expectation(description: "List Memberships Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString()]
     let channelId = randomString()
     let membershipIds = [randomString(), randomString()]
@@ -371,7 +371,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
 
   func testRemoveMembershipThenFetchFails() {
     let removeExpect = expectation(description: "Remove Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -457,15 +457,6 @@ private struct TestChannelSetupPayload: JSONCodable, Equatable {
 }
 
 private extension DataSyncMembershipEndpointIntegrationTests {
-  func dataSyncConfiguration() -> PubNubConfiguration {
-    PubNubConfiguration(
-      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
-      userId: randomString(),
-      authToken: dataSyncUserChannelMembershipAuthToken
-    )
-  }
-
   func setUpMembershipTestData(client: PubNub, userIds: [String], channelIds: [String]) {
     let setupExpect = expectation(description: "Setup Membership Test Data Expectation")
     setupExpect.expectedFulfillmentCount = 1
@@ -473,8 +464,7 @@ private extension DataSyncMembershipEndpointIntegrationTests {
 
     func createNextChannel(_ remainingIds: [String]) {
       guard let channelId = remainingIds.first else {
-        setupExpect.fulfill()
-        return
+        setupExpect.fulfill(); return
       }
 
       client.dataSync.createChannel(

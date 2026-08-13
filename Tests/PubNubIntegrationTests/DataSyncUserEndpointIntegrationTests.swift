@@ -17,7 +17,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testCreateAndFetchUser() {
     let fetchExpect = expectation(description: "Fetch User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let payload = TestUserPayload(fullName: "Swift ITest User", email: "swift.itest@example.com")
 
@@ -65,7 +65,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testReplaceUserReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -116,7 +116,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testPatchUserAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -169,7 +169,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testReplaceUserWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -216,7 +216,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testGetUsersReturnsCreatedUsers() {
     let listExpect = expectation(description: "List Users Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString(), randomString()]
 
     createUsers(
@@ -251,7 +251,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testGetUsersPagesWithCursor() {
     let listExpect = expectation(description: "List Users Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString()]
 
     createUsers(
@@ -288,7 +288,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
 
   func testRemoveUserThenFetchFails() {
     let removeExpect = expectation(description: "Remove User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -343,15 +343,6 @@ private struct TestUserPayload: JSONCodable, Equatable {
 }
 
 private extension DataSyncUserEndpointIntegrationTests {
-  func dataSyncConfiguration() -> PubNubConfiguration {
-    PubNubConfiguration(
-      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
-      userId: randomString(),
-      authToken: dataSyncUserChannelMembershipAuthToken
-    )
-  }
-
   func createUsers(client: PubNub, userIds: [String]) {
     let setupExpect = expectation(description: "Create Test Users Expectation")
     setupExpect.expectedFulfillmentCount = 1

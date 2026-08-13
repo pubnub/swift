@@ -356,15 +356,6 @@ private struct TestChannelPayload: JSONCodable, Equatable {
 }
 
 private extension DataSyncChannelEndpointIntegrationTests {
-  func dataSyncConfiguration() -> PubNubConfiguration {
-    PubNubConfiguration(
-      publishKey: PubNubConfiguration(bundle: testsBundle).publishKey,
-      subscribeKey: PubNubConfiguration(bundle: testsBundle).subscribeKey,
-      userId: randomString(),
-      authToken: dataSyncUserChannelMembershipAuthToken
-    )
-  }
-
   func createChannels(client: PubNub, channelIds: [String]) {
     let setupExpect = expectation(description: "Create Test Channels Expectation")
     setupExpect.expectedFulfillmentCount = 1

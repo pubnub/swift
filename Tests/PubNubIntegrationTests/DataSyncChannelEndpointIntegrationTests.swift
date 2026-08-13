@@ -17,7 +17,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testCreateAndFetchChannel() {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     let payload = TestChannelPayload(
@@ -69,7 +69,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testReplaceChannelReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -120,7 +120,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testPatchChannelAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -176,7 +176,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testReplaceChannelWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -226,7 +226,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testGetChannelsReturnsCreatedChannels() {
     let listExpect = expectation(description: "List Channels Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelIds = [randomString(), randomString(), randomString()]
 
     createChannels(
@@ -261,7 +261,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testGetChannelsPagesWithCursor() {
     let listExpect = expectation(description: "List Channels Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelIds = [randomString(), randomString()]
 
     createChannels(
@@ -298,7 +298,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
 
   func testRemoveChannelThenFetchFails() {
     let removeExpect = expectation(description: "Remove Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration())
+    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(

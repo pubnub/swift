@@ -30,7 +30,7 @@ enum ImportTestResourceError: Error, LocalizedError {
 
 struct EndpointResource: Codable {
   var code: Int
-  var body: AnyJSON
+  var body: AnyJSON?
 }
 
 struct URLErrorResource: Codable {

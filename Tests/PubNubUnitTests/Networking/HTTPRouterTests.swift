@@ -17,10 +17,7 @@ final class HTTPRouterTests: XCTestCase {
 
   func test_AsURLRequest_PreservesSuppliedContentType() throws {
     let suppliedContentType = "application/vnd.example+json"
-    let router = BodyRouter(
-      configuration: config,
-      additionalHeaders: [Constant.contentTypeHeaderKey: suppliedContentType]
-    )
+    let router = BodyRouter(configuration: config, additionalHeaders: [Constant.contentTypeHeaderKey: suppliedContentType])
 
     let request = try router.asURLRequest.get()
 

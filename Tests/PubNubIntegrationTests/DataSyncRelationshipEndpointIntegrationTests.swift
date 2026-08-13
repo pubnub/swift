@@ -149,15 +149,14 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       case .success:
         let expectedPayload = TestAttendingPhysicianPayload(
           role: "consulting",
-          since: "2024-01-15",
-          reviewCadenceDays: 60
+          since: nil
         )
 
         client.dataSync.patchRelationship(
           relationshipId,
           operations: [
             .replace(path: "/payload/role", value: "consulting"),
-            .add(path: "/payload/reviewCadenceDays", value: 60)
+            .remove(path: "/payload/since")
           ]
         ) { patchResult in
           switch patchResult {
@@ -424,6 +423,144 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     }
 
     wait(for: [listExpect], timeout: 20.0)
+  }
+
+  func testPatchRelationshipAppliesTestMoveAndAddOperations() {
+    let patchExpect = expectation(description: "Patch Relationship Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let practitionerId = randomString()
+    let patientId = randomString()
+    let relationshipId = randomString()
+
+    createEntities(client: client, [.practitioner(id: practitionerId), .patient(id: patientId)])
+    createRelationships(
+      client: client,
+      [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
+    )
+
+    client.dataSync.patchRelationship(
+      relationshipId,
+      operations: [
+        .test(path: "/payload/role", value: "attending"),
+        .move(from: "/payload/since", path: "/payload/role"),
+        .add(path: "/payload/since", value: "2025-06-01")
+      ]
+    ) { patchResult in
+      switch patchResult {
+      case let .success(patchedRelationship):
+        XCTAssertEqual(patchedRelationship.status, "active")
+        XCTAssertPayload(
+          patchedRelationship.payload,
+          equals: TestAttendingPhysicianPayload(
+            role: "2024-01-15",
+            since: "2025-06-01"
+          )
+        )
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      patchExpect.fulfill()
+    }
+
+    defer {
+      removeRelationships(client: client, ids: [relationshipId])
+      removeEntities(client: client, ids: [practitionerId, patientId])
+    }
+
+    wait(for: [patchExpect], timeout: 20.0)
+  }
+
+  func testPatchRelationshipWithFailingTestOperationLeavesRelationshipUntouched() {
+    let patchExpect = expectation(description: "Patch Relationship Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let practitionerId = randomString()
+    let patientId = randomString()
+    let relationshipId = randomString()
+
+    createEntities(client: client, [.practitioner(id: practitionerId), .patient(id: patientId)])
+    createRelationships(
+      client: client,
+      [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
+    )
+
+    client.dataSync.patchRelationship(
+      relationshipId,
+      operations: [
+        .test(path: "/payload/role", value: "never-assigned"),
+        .replace(path: "/payload/since", value: "2025-01-01")
+      ]
+    ) { [unowned client] patchResult in
+      switch patchResult {
+      case .success:
+        XCTFail("Test should fail")
+        patchExpect.fulfill()
+      case let .failure(error):
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+
+        client.dataSync.getRelationship(relationshipId) { fetchResult in
+          switch fetchResult {
+          case let .success(relationship):
+            XCTAssertEqual(relationship.status, "active")
+            XCTAssertPayload(
+              relationship.payload,
+              equals: TestAttendingPhysicianPayload(
+                role: "attending",
+                since: "2024-01-15"
+              )
+            )
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          patchExpect.fulfill()
+        }
+      }
+    }
+
+    defer {
+      removeRelationships(client: client, ids: [relationshipId])
+      removeEntities(client: client, ids: [practitionerId, patientId])
+    }
+
+    wait(for: [patchExpect], timeout: 20.0)
+  }
+
+  func testCreateRelationshipWithMissingEntityFails() {
+    let createExpect = expectation(description: "Create Relationship Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let practitionerId = randomString()
+    let relationshipId = randomString()
+
+    // Never created, so the service has no entity to attach side B to
+    let missingPatientId = randomString()
+
+    createEntities(client: client, [.practitioner(id: practitionerId)])
+
+    client.dataSync.createRelationship(
+      relationshipClass: attendingPhysicianClass.name,
+      entityAId: practitionerId,
+      entityBId: missingPatientId,
+      relationshipClassVersion: attendingPhysicianClass.version,
+      id: relationshipId,
+      status: "active",
+      payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")
+    ) { createResult in
+      switch createResult {
+      case .success:
+        XCTFail("Test should fail")
+      case let .failure(error):
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError?.reason, .resourceNotFound)
+      }
+      createExpect.fulfill()
+    }
+
+    // No relationship to clean up: the create above is expected to have been rejected
+    defer {
+      removeEntities(client: client, ids: [practitionerId])
+    }
+
+    wait(for: [createExpect], timeout: 15.0)
   }
 
   func testRemoveRelationshipThenFetchFails() {

@@ -22,6 +22,8 @@ struct HealthcareClass {
 
   /// A patient in the hospital network
   static let patient = HealthcareClass(name: "patient", version: 1)
+  /// The second version of the `patient` class, registered under the same name and adding `allergies`
+  static let patientV2 = HealthcareClass(name: "patient", version: 2)
   /// A clinician (physician, nurse, etc.)
   static let practitioner = HealthcareClass(name: "practitioner", version: 1)
   /// A hospital or clinic in the network
@@ -34,26 +36,23 @@ struct HealthcareClass {
 
 // MARK: - Payloads
 
-/// The `patient` class, plus the undeclared field the patch tests add.
+/// The `patient` class.
 struct TestPatientPayload: JSONCodable, Equatable {
   let mrn: String?
   let fullName: String?
   let dateOfBirth: String?
   let diagnosis: String?
-  let preferredLanguage: String?
 
   init(
     mrn: String? = nil,
     fullName: String? = nil,
     dateOfBirth: String? = nil,
-    diagnosis: String? = nil,
-    preferredLanguage: String? = nil
+    diagnosis: String? = nil
   ) {
     self.mrn = mrn
     self.fullName = fullName
     self.dateOfBirth = dateOfBirth
     self.diagnosis = diagnosis
-    self.preferredLanguage = preferredLanguage
   }
 
   /// Every declared property populated, under the caller's medical record number
@@ -63,6 +62,40 @@ struct TestPatientPayload: JSONCodable, Equatable {
       fullName: "Swift ITest Patient",
       dateOfBirth: "1985-04-12",
       diagnosis: "Type 2 diabetes"
+    )
+  }
+}
+
+/// Version 2 of the `patient` class, which adds `allergies` to the properties version 1 already declares.
+struct TestPatientV2Payload: JSONCodable, Equatable {
+  let mrn: String?
+  let fullName: String?
+  let dateOfBirth: String?
+  let diagnosis: String?
+  let allergies: String?
+
+  init(
+    mrn: String? = nil,
+    fullName: String? = nil,
+    dateOfBirth: String? = nil,
+    diagnosis: String? = nil,
+    allergies: String? = nil
+  ) {
+    self.mrn = mrn
+    self.fullName = fullName
+    self.dateOfBirth = dateOfBirth
+    self.diagnosis = diagnosis
+    self.allergies = allergies
+  }
+
+  /// Every declared property populated, under the caller's medical record number
+  static func standard(mrn: String) -> TestPatientV2Payload {
+    TestPatientV2Payload(
+      mrn: mrn,
+      fullName: "Swift ITest Patient V2",
+      dateOfBirth: "1979-09-23",
+      diagnosis: "Anaphylaxis risk",
+      allergies: "Penicillin, peanuts"
     )
   }
 }
@@ -116,16 +149,14 @@ struct TestCareFacilityPayload: JSONCodable, Equatable {
   }
 }
 
-/// The `attending-physician` class, plus the undeclared field the patch tests add.
+/// The `attending-physician` class.
 struct TestAttendingPhysicianPayload: JSONCodable, Equatable {
   let role: String?
   let since: String?
-  let reviewCadenceDays: Int?
 
-  init(role: String? = nil, since: String? = nil, reviewCadenceDays: Int? = nil) {
+  init(role: String? = nil, since: String? = nil) {
     self.role = role
     self.since = since
-    self.reviewCadenceDays = reviewCadenceDays
   }
 }
 
@@ -154,6 +185,16 @@ struct TestEntitySpec {
       entityClass: .patient,
       status: "active",
       payload: TestPatientPayload.standard(mrn: id)
+    )
+  }
+
+  /// A patient conforming to version 2 of the `patient` class, whose medical record number is its own identifier
+  static func patientV2(id: String) -> TestEntitySpec {
+    TestEntitySpec(
+      id: id,
+      entityClass: .patientV2,
+      status: "active",
+      payload: TestPatientV2Payload.standard(mrn: id)
     )
   }
 

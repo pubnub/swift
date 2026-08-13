@@ -14,6 +14,7 @@ import XCTest
 class DataSyncEntityEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: DataSyncEntityEndpointIntegrationTests.self)
   let patientClass = HealthcareClass.patient
+  let patientV2Class = HealthcareClass.patientV2
   let practitionerClass = HealthcareClass.practitioner
 
   func testCreateAndFetchEntity() {
@@ -122,20 +123,19 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        // `mrn`, `dateOfBirth`, and `diagnosis` go untouched by the operations below and must survive them
+        // `mrn` and `dateOfBirth` go untouched by the operations below and must survive them
         let expectedPayload = TestPatientPayload(
           mrn: "MRN-100004",
           fullName: "Swift ITest Patient Renamed",
           dateOfBirth: "1985-04-12",
-          diagnosis: "Type 2 diabetes",
-          preferredLanguage: "en"
+          diagnosis: nil
         )
 
         client.dataSync.patchEntity(
           patientId,
           operations: [
             .replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed"),
-            .add(path: "/payload/preferredLanguage", value: "en")
+            .remove(path: "/payload/diagnosis")
           ]
         ) { patchResult in
           switch patchResult {
@@ -288,6 +288,72 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
+  func testGetEntitiesPinnedToAClassVersionReturnsOnlyThatVersion() {
+    let listExpect = expectation(description: "List Entities Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientV1Id = randomString()
+    let patientV2Id = randomString()
+    let ownEntitiesOnly = "mrn LIKE '\(Constants.prefix)*'"
+
+    createEntities(client: client, [.patient(id: patientV1Id), .patientV2(id: patientV2Id)])
+
+    client.dataSync.getEntities(
+      entityClass: patientClass.name,
+      entityClassVersion: patientClass.version,
+      filter: ownEntitiesOnly
+    ) { result in
+      switch result {
+      case let .success((v1Entities, _)):
+        let v1Ids = Set(v1Entities.map { $0.id })
+        XCTAssertTrue(v1Ids.contains(patientV1Id))
+        XCTAssertFalse(v1Ids.contains(patientV2Id))
+        XCTAssertTrue(v1Entities.allSatisfy { $0.className == self.patientClass.name })
+        XCTAssertTrue(v1Entities.allSatisfy { $0.classVersion == self.patientClass.version })
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      listExpect.fulfill()
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientV1Id, patientV2Id])
+    }
+
+    wait(for: [listExpect], timeout: 20.0)
+  }
+
+  func testGetEntitiesWithoutAClassVersionReturnsEveryVersion() {
+    let listExpect = expectation(description: "List Entities Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientV1Id = randomString()
+    let patientV2Id = randomString()
+
+    createEntities(client: client, [.patient(id: patientV1Id), .patientV2(id: patientV2Id)])
+
+    client.dataSync.getEntities(
+      entityClass: patientClass.name,
+      limit: 100,
+      filter: "mrn LIKE '\(Constants.prefix)*'"
+    ) { result in
+      switch result {
+      case let .success((entities, _)):
+        let fetchedIds = Set(entities.map { $0.id })
+        XCTAssertTrue(Set([patientV1Id, patientV2Id]).isSubset(of: fetchedIds))
+        XCTAssertEqual(entities.first { $0.id == patientV1Id }?.classVersion, self.patientClass.version)
+        XCTAssertEqual(entities.first { $0.id == patientV2Id }?.classVersion, self.patientV2Class.version)
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      listExpect.fulfill()
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientV1Id, patientV2Id])
+    }
+
+    wait(for: [listExpect], timeout: 20.0)
+  }
+
   func testGetEntitiesPagesWithCursor() {
     let listExpect = expectation(description: "List Entities Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
@@ -313,6 +379,225 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     }
 
     wait(for: [listExpect], timeout: 20.0)
+  }
+
+  func testGetEntitiesFollowsCursorToSecondPage() {
+    let listExpect = expectation(description: "List Entities Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientIds = [randomString(), randomString()]
+    let ownEntitiesOnly = "mrn LIKE '\(Constants.prefix)*'"
+
+    createEntities(client: client, patientIds.map { .patient(id: $0) })
+
+    client.dataSync.getEntities(
+      entityClass: patientClass.name,
+      limit: 1,
+      filter: ownEntitiesOnly
+    ) { [unowned client] firstResult in
+      switch firstResult {
+      case let .success((firstPage, next)):
+        XCTAssertEqual(firstPage.count, 1)
+        XCTAssertEqual(next?.hasNext, true)
+
+        // Omitting `limit` lets the service apply its own default, which the second page reports back
+        client.dataSync.getEntities(
+          entityClass: self.patientClass.name,
+          cursor: next?.cursor,
+          filter: ownEntitiesOnly
+        ) { secondResult in
+          switch secondResult {
+          case let .success((secondPage, secondNext)):
+            XCTAssertEqual(secondPage.count, 1)
+            XCTAssertEqual(secondNext?.hasNext, false)
+            XCTAssertEqual(Set(firstPage.map { $0.id } + secondPage.map { $0.id }), Set(patientIds))
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          listExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+        listExpect.fulfill()
+      }
+    }
+
+    defer {
+      removeEntities(client: client, ids: patientIds)
+    }
+
+    wait(for: [listExpect], timeout: 20.0)
+  }
+
+  func testPatchEntityAppliesTestCopyMoveAndAddOperations() {
+    let patchExpect = expectation(description: "Patch Entity Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientId = randomString()
+
+    createEntities(client: client, [.patient(id: patientId)])
+
+    client.dataSync.patchEntity(
+      patientId,
+      operations: [
+        .test(path: "/payload/mrn", value: patientId),
+        .copy(from: "/payload/dateOfBirth", path: "/payload/fullName"),
+        .move(from: "/payload/diagnosis", path: "/payload/mrn"),
+        .add(path: "/payload/diagnosis", value: "Hypertension")
+      ]
+    ) { patchResult in
+      switch patchResult {
+      case let .success(patchedEntity):
+        XCTAssertEqual(patchedEntity.status, "active")
+        XCTAssertPayload(
+          patchedEntity.payload,
+          equals: TestPatientPayload(
+            mrn: "Type 2 diabetes",
+            fullName: "1985-04-12",
+            dateOfBirth: "1985-04-12",
+            diagnosis: "Hypertension"
+          )
+        )
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      patchExpect.fulfill()
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientId])
+    }
+
+    wait(for: [patchExpect], timeout: 15.0)
+  }
+
+  func testPatchEntityWithFailingTestOperationLeavesEntityUntouched() {
+    let patchExpect = expectation(description: "Patch Entity Expectation")
+    let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let patientId = randomString()
+    let payload = TestPatientPayload.standard(mrn: patientId)
+
+    createEntities(client: client, [.patient(id: patientId)])
+
+    client.dataSync.patchEntity(
+      patientId,
+      operations: [
+        .test(path: "/payload/mrn", value: "MRN-NEVER-ASSIGNED"),
+        .replace(path: "/payload/fullName", value: "Should Not Persist")
+      ]
+    ) { [unowned client] patchResult in
+      switch patchResult {
+      case .success:
+        XCTFail("Test should fail")
+        patchExpect.fulfill()
+      case let .failure(error):
+        XCTAssertNotNil(error.pubNubError)
+        XCTAssertEqual(error.pubNubError?.reason, .badRequest)
+
+        client.dataSync.getEntity(patientId) { fetchResult in
+          switch fetchResult {
+          case let .success(entity):
+            XCTAssertPayload(entity.payload, equals: payload)
+            XCTAssertEqual(entity.status, "active")
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          patchExpect.fulfill()
+        }
+      }
+    }
+
+    defer {
+      removeEntities(client: client, ids: [patientId])
+    }
+
+    wait(for: [patchExpect], timeout: 15.0)
+  }
+
+  func testGetEntityUnderDefaultProjectionOmitsRestrictedFields() {
+    let fetchExpect = expectation(description: "Fetch Entity Expectation")
+    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let defaultClient = PubNub(configuration: dataSyncHealthcareDefaultProjectionConfiguration(from: testsBundle))
+    let patientId = randomString()
+
+    // Written under the admin projection, which is the only one able to set every field of `patient`
+    createEntities(client: adminClient, [.patient(id: patientId)])
+
+    defaultClient.dataSync.getEntity(patientId) { fetchResult in
+      switch fetchResult {
+      case let .success(entity):
+        XCTAssertPayload(
+          entity.payload,
+          equals: TestPatientPayload(
+            mrn: patientId,
+            fullName: "Swift ITest Patient"
+          )
+        )
+        // `status` is a system field rather than a projected property, so it stays visible under any projection
+        XCTAssertEqual(entity.status, "active")
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+      }
+      fetchExpect.fulfill()
+    }
+
+    defer {
+      removeEntities(client: adminClient, ids: [patientId])
+    }
+
+    wait(for: [fetchExpect], timeout: 15.0)
+  }
+
+  func testPatchEntityUnderDefaultProjectionPreservesRestrictedFields() {
+    let patchExpect = expectation(description: "Patch Entity Expectation")
+    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
+    let defaultClient = PubNub(configuration: dataSyncHealthcareDefaultProjectionConfiguration(from: testsBundle))
+    let patientId = randomString()
+
+    createEntities(client: adminClient, [.patient(id: patientId)])
+
+    // Patching a field the token can see must not disturb the ones it cannot
+    defaultClient.dataSync.patchEntity(
+      patientId,
+      operations: [.replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed")]
+    ) { [unowned adminClient] patchResult in
+      switch patchResult {
+      case let .success(patchedEntity):
+        XCTAssertPayload(
+          patchedEntity.payload,
+          equals: TestPatientPayload(
+            mrn: patientId,
+            fullName: "Swift ITest Patient Renamed"
+          )
+        )
+
+        // Only the admin projection can confirm the clinical fields survived the patch above
+        adminClient.dataSync.getEntity(patientId) { fetchResult in
+          switch fetchResult {
+          case let .success(entity):
+            XCTAssertPayload(
+              entity.payload, equals: TestPatientPayload(
+                mrn: patientId,
+                fullName: "Swift ITest Patient Renamed",
+                dateOfBirth: "1985-04-12",
+                diagnosis: "Type 2 diabetes"
+              )
+            )
+            XCTAssertEqual(entity.status, "active")
+          case let .failure(error):
+            XCTFail("Failed due to error: \(error)")
+          }
+          patchExpect.fulfill()
+        }
+      case let .failure(error):
+        XCTFail("Failed due to error: \(error)")
+        patchExpect.fulfill()
+      }
+    }
+
+    defer {
+      removeEntities(client: adminClient, ids: [patientId])
+    }
+
+    wait(for: [patchExpect], timeout: 20.0)
   }
 
   func testRemoveEntityThenFetchFails() {

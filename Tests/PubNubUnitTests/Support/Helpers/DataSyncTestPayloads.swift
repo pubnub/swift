@@ -50,10 +50,14 @@ struct PatientPayload: JSONCodable, Equatable {
 struct UserPayload: JSONCodable, Equatable {
   let name: String
   let email: String?
+  let type: String?
+  let profileUrl: String?
 
-  init(name: String, email: String? = nil) {
+  init(name: String, email: String? = nil, type: String? = nil, profileUrl: String? = nil) {
     self.name = name
     self.email = email
+    self.type = type
+    self.profileUrl = profileUrl
   }
 }
 
@@ -64,6 +68,14 @@ struct ChannelPayload: JSONCodable, Equatable {
 
 struct MembershipPayload: JSONCodable, Equatable {
   let role: String
+  let joinedVia: String?
+  let notifications: String?
+
+  init(role: String, joinedVia: String? = nil, notifications: String? = nil) {
+    self.role = role
+    self.joinedVia = joinedVia
+    self.notifications = notifications
+  }
 }
 
 struct RelationshipPayload: JSONCodable, Equatable {

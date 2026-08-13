@@ -30,3 +30,23 @@ func dataSyncHealthcareConfiguration(from bundle: Bundle) -> PubNubConfiguration
     authToken: dataSyncHealthcareAdminAuthToken
   )
 }
+
+/// The configuration reading the DataSync healthcare classes through the `__default__` projection
+func dataSyncHealthcareDefaultProjectionConfiguration(from bundle: Bundle) -> PubNubConfiguration {
+  PubNubConfiguration(
+    publishKey: PubNubConfiguration(bundle: bundle).publishKey,
+    subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
+    userId: randomString(),
+    authToken: dataSyncHealthcareDefaultAuthToken
+  )
+}
+
+/// The configuration authorizing a subscribe to the DataSync healthcare projection channels
+func dataSyncHealthcareSubsribeConfiguration(from bundle: Bundle) -> PubNubConfiguration {
+  PubNubConfiguration(
+    publishKey: PubNubConfiguration(bundle: bundle).publishKey,
+    subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
+    userId: randomString(),
+    authToken: dataSyncHealthcareSubscribeToken,
+  )
+}

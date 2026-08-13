@@ -216,10 +216,12 @@ struct TestRelationshipSpec {
 
 func dataSyncHealthcareConfiguration(bundle: Bundle) -> PubNubConfiguration {
   PubNubConfiguration(
-    publishKey: PubNubConfiguration(bundle: bundle).publishKey,
-    subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
+    publishKey: "pub-c-9d4ccf44-0992-42e9-a6fa-4ad5f0b8011d",
+    subscribeKey: "sub-c-a0cf3142-9e34-4fc5-84be-274a6f3ce1da",
     userId: randomString(),
-    authToken: dataSyncHealthcareAdminAuthToken
+    authToken: dataSyncHealthcareAdminAuthToken,
+    useSecureConnections: false,
+    origin: "ingress-tcp-pub-pdx-int.pubnub.net"
   )
 }
 

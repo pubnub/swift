@@ -288,12 +288,12 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       case let .success((firstPage, next)):
         XCTAssertEqual(firstPage.count, 1)
         XCTAssertEqual(next?.limit, 1)
+        XCTAssertNotNil(next?.cursor)
         XCTAssertTrue(next?.hasNext ?? false)
-        listExpect.fulfill()
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
-        listExpect.fulfill()
       }
+      listExpect.fulfill()
     }
 
     defer {

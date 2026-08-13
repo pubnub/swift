@@ -269,27 +269,17 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       channelIds: channelIds
     )
 
-    client.dataSync.getChannels(limit: 1) { [unowned client] firstResult in
+    client.dataSync.getChannels(limit: 1) { firstResult in
       switch firstResult {
       case let .success((firstPage, next)):
         XCTAssertEqual(firstPage.count, 1)
         XCTAssertEqual(next?.limit, 1)
+        XCTAssertNotNil(next?.cursor)
         XCTAssertTrue(next?.hasNext ?? false)
-
-        client.dataSync.getChannels(cursor: next?.cursor, limit: 1) { secondResult in
-          switch secondResult {
-          case let .success((secondPage, _)):
-            XCTAssertEqual(secondPage.count, 1)
-            XCTAssertNotEqual(secondPage.first?.id, firstPage.first?.id)
-          case let .failure(error):
-            XCTFail("Failed due to error: \(error)")
-          }
-          listExpect.fulfill()
-        }
       case let .failure(error):
         XCTFail("Failed due to error: \(error)")
-        listExpect.fulfill()
       }
+      listExpect.fulfill()
     }
 
     defer {

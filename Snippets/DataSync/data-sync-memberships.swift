@@ -88,9 +88,15 @@ pubnub.dataSync.getMembership("general-alice") { result in
     print("It joins channel `\(membership.channelId)` and user `\(membership.userId)`")
     print("Its eTag, used for optimistic concurrency: \(membership.eTag)")
 
-    if let details = try? membership.payload?.decode(MembershipDetails.self) {
-      print("The member is a \(details.role) with \(details.unreadCount) unread messages")
-      print("They muted the channel: \(details.isMuted)")
+    do {
+      if let details = try membership.payload?.decode(MembershipDetails.self) {
+        print("The member is a \(details.role) with \(details.unreadCount) unread messages")
+        print("They muted the channel: \(details.isMuted)")
+      } else {
+        print("The membership has no stored payload")
+      }
+    } catch {
+      print("The payload isn't a \(MembershipDetails.self): \(error)")
     }
   case let .failure(error):
     print("Get membership request failed with error: \(error.localizedDescription)")

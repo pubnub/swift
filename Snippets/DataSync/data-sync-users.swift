@@ -74,9 +74,15 @@ pubnub.dataSync.getUser("alice") { result in
     print("The user for `\(user.id)`: \(user)")
     print("Its eTag, used for optimistic concurrency: \(user.eTag)")
 
-    if let profile = try? user.payload?.decode(UserProfile.self) {
-      print("\(profile.fullName) has logged in \(profile.loginCount) times")
-      print("Their email is verified: \(profile.isEmailVerified)")
+    do {
+      if let profile = try user.payload?.decode(UserProfile.self) {
+        print("\(profile.fullName) has logged in \(profile.loginCount) times")
+        print("Their email is verified: \(profile.isEmailVerified)")
+      } else {
+        print("The user has no stored payload")
+      }
+    } catch {
+      print("The payload isn't a \(UserProfile.self): \(error)")
     }
   case let .failure(error):
     print("Get user request failed with error: \(error.localizedDescription)")

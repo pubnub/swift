@@ -74,9 +74,15 @@ pubnub.dataSync.getChannel("general") { result in
     print("The channel for `\(channel.id)`: \(channel)")
     print("Its eTag, used for optimistic concurrency: \(channel.eTag)")
 
-    if let details = try? channel.payload?.decode(ChannelDetails.self) {
-      print("\(details.name) discusses \(details.topic)")
-      print("It keeps messages for \(details.retentionDays) days, and is private: \(details.isPrivate)")
+    do {
+      if let details = try channel.payload?.decode(ChannelDetails.self) {
+        print("\(details.name) discusses \(details.topic)")
+        print("It keeps messages for \(details.retentionDays) days, and is private: \(details.isPrivate)")
+      } else {
+        print("The channel has no stored payload")
+      }
+    } catch {
+      print("The payload isn't a \(ChannelDetails.self): \(error)")
     }
   case let .failure(error):
     print("Get channel request failed with error: \(error.localizedDescription)")

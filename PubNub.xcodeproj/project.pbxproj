@@ -1357,6 +1357,8 @@
 		DA7B5C000000000000000065 /* data-sync-users.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-users.swift"; sourceTree = "<group>"; };
 		DA7B5C000000000000000066 /* data-sync-channels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-channels.swift"; sourceTree = "<group>"; };
 		DA7B5C000000000000000067 /* data-sync-memberships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-memberships.swift"; sourceTree = "<group>"; };
+		DA7B5C000000000000000068 /* data-sync-entities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-entities.swift"; sourceTree = "<group>"; };
+		DA7B5C000000000000000069 /* data-sync-relationships.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "data-sync-relationships.swift"; sourceTree = "<group>"; };
 		DC7451ADE06BCF20FF55B601 /* subscription_dataSyncChannelCreate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncChannelCreate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncChannelCreate_success.json; sourceTree = SOURCE_ROOT; };
 		DEF53CCD92081E4D134A3D50 /* SubscribeRouterTests+CoreEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SubscribeRouterTests+CoreEvents.swift"; sourceTree = "<group>"; };
 		E3DEDE381F0C3FE4829E2284 /* subscription_dataSyncChannelUpdate_success.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = subscription_dataSyncChannelUpdate_success.json; path = Tests/PubNubUnitTests/Support/Responses/Subscribe/subscription_dataSyncChannelUpdate_success.json; sourceTree = SOURCE_ROOT; };
@@ -3174,7 +3176,9 @@
 			isa = PBXGroup;
 			children = (
 				DA7B5C000000000000000066 /* data-sync-channels.swift */,
+				DA7B5C000000000000000068 /* data-sync-entities.swift */,
 				DA7B5C000000000000000067 /* data-sync-memberships.swift */,
+				DA7B5C000000000000000069 /* data-sync-relationships.swift */,
 				DA7B5C000000000000000065 /* data-sync-users.swift */,
 			);
 			path = DataSync;

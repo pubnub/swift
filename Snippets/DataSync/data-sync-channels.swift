@@ -108,10 +108,10 @@ pubnub.dataSync.createChannel(
 }
 // snippet.end
 
-// snippet.replace-channel
-// Replace a channel's payload wholesale, only if it hasn't changed since it was read.
+// snippet.set-channel
+// Set a channel's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
-pubnub.dataSync.replaceChannel(
+pubnub.dataSync.setChannel(
   "general",
   classVersion: 1,
   status: "active",
@@ -125,17 +125,17 @@ pubnub.dataSync.replaceChannel(
 ) { result in
   switch result {
   case let .success(channel):
-    print("The replaced channel: \(channel)")
+    print("The set channel: \(channel)")
   case let .failure(error):
-    print("Replace channel request failed with error: \(error.localizedDescription)")
+    print("Set channel request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end
 
-// snippet.patch-channel
+// snippet.update-channel
 // Change part of a channel, leaving the rest of its payload untouched.
 // The operations are applied atomically: if any one of them fails, the channel is left unchanged
-pubnub.dataSync.patchChannel(
+pubnub.dataSync.updateChannel(
   "general",
   operations: [
     .replace(path: "/payload/topic", value: "Company announcements"),
@@ -146,9 +146,9 @@ pubnub.dataSync.patchChannel(
 ) { result in
   switch result {
   case let .success(channel):
-    print("The patched channel: \(channel)")
+    print("The updated channel: \(channel)")
   case let .failure(error):
-    print("Patch channel request failed with error: \(error.localizedDescription)")
+    print("Update channel request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end

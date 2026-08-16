@@ -119,10 +119,10 @@ pubnub.dataSync.createMembership(
 }
 // snippet.end
 
-// snippet.replace-membership
-// Replace a membership's payload wholesale, only if it hasn't changed since it was read.
+// snippet.set-membership
+// Set a membership's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
-pubnub.dataSync.replaceMembership(
+pubnub.dataSync.setMembership(
   "general-alice",
   classVersion: 1,
   status: "active",
@@ -131,17 +131,17 @@ pubnub.dataSync.replaceMembership(
 ) { result in
   switch result {
   case let .success(membership):
-    print("The replaced membership: \(membership)")
+    print("The set membership: \(membership)")
   case let .failure(error):
-    print("Replace membership request failed with error: \(error.localizedDescription)")
+    print("Set membership request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end
 
-// snippet.patch-membership
+// snippet.update-membership
 // Change part of a membership, leaving the rest of its payload untouched.
 // A `Date` value is sent as an ISO 8601 string
-pubnub.dataSync.patchMembership(
+pubnub.dataSync.updateMembership(
   "general-alice",
   operations: [
     .replace(path: "/payload/role", value: "admin"),
@@ -152,9 +152,9 @@ pubnub.dataSync.patchMembership(
 ) { result in
   switch result {
   case let .success(membership):
-    print("The patched membership: \(membership)")
+    print("The updated membership: \(membership)")
   case let .failure(error):
-    print("Patch membership request failed with error: \(error.localizedDescription)")
+    print("Update membership request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end

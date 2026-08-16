@@ -67,7 +67,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testReplaceChannelReplacesPayloadWholesale() {
+  func testSetChannelReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
@@ -83,7 +83,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
         // The replacement omits `description`, which must therefore be cleared rather than preserved
         let replacementPayload = TestChannelPayload(name: "Swift ITest Channel Renamed")
 
-        client.dataSync.replaceChannel(
+        client.dataSync.setChannel(
           channelId,
           classVersion: self.channelClassVersion,
           status: "archived",
@@ -118,7 +118,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testPatchChannelAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateChannelAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Channel Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
@@ -140,7 +140,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
           topic: "integration-testing"
         )
 
-        client.dataSync.patchChannel(
+        client.dataSync.updateChannel(
           channelId,
           operations: [
             .remove(path: "/payload/channelDescription"),
@@ -174,7 +174,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 10.0)
   }
 
-  func testReplaceChannelWithStaleEtagFails() {
+  func testSetChannelWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
@@ -190,7 +190,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.replaceChannel(
+        client.dataSync.setChannel(
           channelId,
           classVersion: self.channelClassVersion,
           status: "archived",

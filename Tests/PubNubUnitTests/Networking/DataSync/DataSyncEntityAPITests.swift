@@ -160,12 +160,12 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_ReplaceEntity_DecodesReplacedEntity() throws {
-    let expectation = self.expectation(description: "replaceEntity")
+  func test_SetEntity_DecodesEntity() throws {
+    let expectation = self.expectation(description: "setEntity")
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.replaceEntity(
+    pubnub.dataSync.setEntity(
       "hcn-patient-alice",
       entityClassVersion: 1,
       payload: PatientPayload(mrn: "MRN-100001"),
@@ -183,12 +183,12 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_PatchEntity_DecodesPatchedEntity() throws {
-    let expectation = self.expectation(description: "patchEntity")
+  func test_UpdateEntity_DecodesUpdatedEntity() throws {
+    let expectation = self.expectation(description: "updateEntity")
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.patchEntity(
+    pubnub.dataSync.updateEntity(
       "hcn-patient-alice",
       operations: [.replace(path: "/payload/diagnosis", value: "Type 2 diabetes")]
     ) { result in
@@ -239,11 +239,11 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_PatchEntity_WithNoOperations_FailsValidation() throws {
-    let expectation = self.expectation(description: "patchEntity no operations")
+  func test_UpdateEntity_WithNoOperations_FailsValidation() throws {
+    let expectation = self.expectation(description: "updateEntity no operations")
     let pubnub = TestPubNubFactory.make()
 
-    pubnub.dataSync.patchEntity("hcn-patient-alice", operations: []) { result in
+    pubnub.dataSync.updateEntity("hcn-patient-alice", operations: []) { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")

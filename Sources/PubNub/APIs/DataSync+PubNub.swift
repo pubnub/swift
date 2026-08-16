@@ -12,7 +12,7 @@ import Foundation
 
 // MARK: - JSON Patch
 
-/// A single [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902) JSON Patch operation applied by the DataSync `patch*` methods.
+/// A single [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902) JSON Patch operation applied by the DataSync `update*` methods.
 public enum PubNubDataSyncPatchOperation {
   /// Adds a value at the given path
   case add(path: String, value: JSONCodable)
@@ -286,7 +286,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces an entity in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``patchEntity(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateEntity(_:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of an entity.
   ///
   /// - Parameters:
@@ -299,7 +299,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncEntity``
   ///     - **Failure**: An `Error` describing the failure
-  func replaceEntity(
+  func setEntity(
     _ id: String,
     entityClassVersion: Int,
     status: String? = nil,
@@ -309,7 +309,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
   ) {
     log(
-      operation: "replaceEntity",
+      operation: "setEntity",
       details: "Replace DataSync entity",
       arguments: [
         ("id", id),
@@ -349,7 +349,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncEntity``
   ///     - **Failure**: An `Error` describing the failure
-  func patchEntity(
+  func updateEntity(
     _ id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
@@ -357,7 +357,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
   ) {
     log(
-      operation: "patchEntity",
+      operation: "updateEntity",
       details: "Patch DataSync entity",
       arguments: [
         ("id", id),
@@ -573,7 +573,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a user in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``patchUser(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateUser(_:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a user.
   ///
   /// - Parameters:
@@ -586,7 +586,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
-  func replaceUser(
+  func setUser(
     _ id: String,
     classVersion: Int,
     status: String? = nil,
@@ -596,7 +596,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
-      operation: "replaceUser",
+      operation: "setUser",
       details: "Replace DataSync user",
       arguments: [
         ("id", id),
@@ -636,7 +636,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
-  func patchUser(
+  func updateUser(
     _ id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
@@ -644,7 +644,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
     log(
-      operation: "patchUser",
+      operation: "updateUser",
       details: "Patch DataSync user",
       arguments: [
         ("id", id),
@@ -860,7 +860,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a channel in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``patchChannel(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateChannel(_:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a channel.
   ///
   /// - Parameters:
@@ -873,7 +873,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
-  func replaceChannel(
+  func setChannel(
     _ id: String,
     classVersion: Int,
     status: String? = nil,
@@ -883,7 +883,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
-      operation: "replaceChannel",
+      operation: "setChannel",
       details: "Replace DataSync channel",
       arguments: [
         ("id", id),
@@ -925,7 +925,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
-  func patchChannel(
+  func updateChannel(
     _ id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
@@ -933,7 +933,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
     log(
-      operation: "patchChannel",
+      operation: "updateChannel",
       details: "Patch DataSync channel",
       arguments: [
         ("id", id),
@@ -1161,7 +1161,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a membership in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``patchMembership(_:operations:ifMatchesEtag:custom:completion:)`` to change part of a membership.
+  /// must send back every field it wants to keep. Use ``updateMembership(_:operations:ifMatchesEtag:custom:completion:)`` to change part of a membership.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
@@ -1173,7 +1173,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncMembership``
   ///     - **Failure**: An `Error` describing the failure
-  func replaceMembership(
+  func setMembership(
     _ id: String,
     classVersion: Int,
     status: String? = nil,
@@ -1183,7 +1183,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncMembership, Error>) -> Void)?
   ) {
     log(
-      operation: "replaceMembership",
+      operation: "setMembership",
       details: "Replace DataSync membership",
       arguments: [
         ("id", id),
@@ -1223,7 +1223,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncMembership``
   ///     - **Failure**: An `Error` describing the failure
-  func patchMembership(
+  func updateMembership(
     _ id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
@@ -1231,7 +1231,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncMembership, Error>) -> Void)?
   ) {
     log(
-      operation: "patchMembership",
+      operation: "updateMembership",
       details: "Patch DataSync membership",
       arguments: [
         ("id", id),
@@ -1467,7 +1467,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a relationship in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``patchRelationship(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateRelationship(_:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a relationship.
   ///
   /// - Parameters:
@@ -1480,7 +1480,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncRelationship``
   ///     - **Failure**: An `Error` describing the failure
-  func replaceRelationship(
+  func setRelationship(
     _ id: String,
     relationshipClassVersion: Int,
     status: String? = nil,
@@ -1490,7 +1490,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncRelationship, Error>) -> Void)?
   ) {
     log(
-      operation: "replaceRelationship",
+      operation: "setRelationship",
       details: "Replace DataSync relationship",
       arguments: [
         ("id", id),
@@ -1534,7 +1534,7 @@ public extension PubNub.DataSyncAPI {
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncRelationship``
   ///     - **Failure**: An `Error` describing the failure
-  func patchRelationship(
+  func updateRelationship(
     _ id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
@@ -1542,7 +1542,7 @@ public extension PubNub.DataSyncAPI {
     completion: ((Result<PubNubDataSyncRelationship, Error>) -> Void)?
   ) {
     log(
-      operation: "patchRelationship",
+      operation: "updateRelationship",
       details: "Patch DataSync relationship",
       arguments: [
         ("id", id),

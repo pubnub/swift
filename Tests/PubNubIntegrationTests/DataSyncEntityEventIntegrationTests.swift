@@ -118,7 +118,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     }
 
     let trigger = { [unowned adminClient, unowned self] in
-      adminClient.dataSync.patchEntity(
+      adminClient.dataSync.updateEntity(
         self.patientId,
         operations: [.replace(path: "/payload/diagnosis", value: "Essential hypertension (I10)")]
       ) { result in
@@ -312,7 +312,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     }
 
     let trigger = { [unowned adminClient, unowned self] in
-      adminClient.dataSync.patchRelationship(
+      adminClient.dataSync.updateRelationship(
         self.relationshipId,
         operations: [.replace(path: "/payload/role", value: "consulting")]
       ) { result in

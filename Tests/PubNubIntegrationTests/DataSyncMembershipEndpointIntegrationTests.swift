@@ -82,7 +82,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 15.0)
   }
 
-  func testReplaceMembershipReplacesPayloadWholesale() {
+  func testSetMembershipReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -108,7 +108,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
         // The replacement omits `invitedBy`, which must therefore be cleared rather than preserved
         let replacementPayload = TestMembershipPayload(role: "member")
 
-        client.dataSync.replaceMembership(
+        client.dataSync.setMembership(
           membershipId,
           classVersion: self.membershipClassVersion,
           status: "inactive",
@@ -150,7 +150,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 15.0)
   }
 
-  func testPatchMembershipAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateMembershipAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Membership Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -175,7 +175,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
       case .success:
         let expectedPayload = TestMembershipPayload(role: "admin", invitedBy: "swift-itest")
 
-        client.dataSync.patchMembership(
+        client.dataSync.updateMembership(
           membershipId,
           operations: [.replace(path: "/payload/role", value: "admin")]
         ) { patchResult in
@@ -211,7 +211,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 15.0)
   }
 
-  func testReplaceMembershipWithStaleEtagFails() {
+  func testSetMembershipWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -234,7 +234,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.replaceMembership(
+        client.dataSync.setMembership(
           membershipId,
           classVersion: self.membershipClassVersion,
           status: "inactive",

@@ -63,7 +63,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testReplaceUserReplacesPayloadWholesale() {
+  func testSetUserReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace User Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -79,7 +79,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
         // The replacement omits `email`, which must therefore be cleared rather than preserved
         let replacementPayload = TestUserPayload(fullName: "Swift ITest User Renamed")
 
-        client.dataSync.replaceUser(
+        client.dataSync.setUser(
           userId,
           classVersion: self.userClassVersion,
           status: "inactive",
@@ -114,7 +114,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testPatchUserAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateUserAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch User Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -133,7 +133,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
           nickname: "Swifty"
         )
 
-        client.dataSync.patchUser(
+        client.dataSync.updateUser(
           userId,
           operations: [
             .replace(path: "/payload/email", value: "swift.patched@example.com"),
@@ -167,7 +167,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 10.0)
   }
 
-  func testReplaceUserWithStaleEtagFails() {
+  func testSetUserWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace User Expectation")
     let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
@@ -180,7 +180,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.replaceUser(
+        client.dataSync.setUser(
           userId,
           classVersion: self.userClassVersion,
           status: "inactive",

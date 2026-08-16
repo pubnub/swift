@@ -62,7 +62,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testReplaceEntityReplacesPayloadWholesale() {
+  func testSetEntityReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Entity Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
@@ -79,7 +79,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         // The replacement omits every field but `fullName`, which must therefore be cleared rather than preserved
         let replacementPayload = TestPatientPayload(fullName: "Swift ITest Patient Renamed")
 
-        client.dataSync.replaceEntity(
+        client.dataSync.setEntity(
           patientId,
           entityClassVersion: self.patientClass.version,
           status: "inactive",
@@ -109,7 +109,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testPatchEntityAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateEntityAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Entity Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
@@ -131,7 +131,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
           diagnosis: nil
         )
 
-        client.dataSync.patchEntity(
+        client.dataSync.updateEntity(
           patientId,
           operations: [
             .replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed"),
@@ -160,7 +160,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 10.0)
   }
 
-  func testReplaceEntityWithStaleEtagFails() {
+  func testSetEntityWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Entity Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
@@ -174,7 +174,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.replaceEntity(
+        client.dataSync.setEntity(
           patientId,
           entityClassVersion: self.patientClass.version,
           status: "inactive",
@@ -428,14 +428,14 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testPatchEntityAppliesTestCopyMoveAndAddOperations() {
+  func testUpdateEntityAppliesTestCopyMoveAndAddOperations() {
     let patchExpect = expectation(description: "Patch Entity Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
 
     createEntities(client: client, [.patient(id: patientId)])
 
-    client.dataSync.patchEntity(
+    client.dataSync.updateEntity(
       patientId,
       operations: [
         .test(path: "/payload/mrn", value: patientId),
@@ -469,7 +469,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 15.0)
   }
 
-  func testPatchEntityWithFailingTestOperationLeavesEntityUntouched() {
+  func testUpdateEntityWithFailingTestOperationLeavesEntityUntouched() {
     let patchExpect = expectation(description: "Patch Entity Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let patientId = randomString()
@@ -477,7 +477,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     createEntities(client: client, [.patient(id: patientId)])
 
-    client.dataSync.patchEntity(
+    client.dataSync.updateEntity(
       patientId,
       operations: [
         .test(path: "/payload/mrn", value: "MRN-NEVER-ASSIGNED"),
@@ -546,7 +546,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 15.0)
   }
 
-  func testPatchEntityUnderDefaultProjectionPreservesRestrictedFields() {
+  func testUpdateEntityUnderDefaultProjectionPreservesRestrictedFields() {
     let patchExpect = expectation(description: "Patch Entity Expectation")
     let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let defaultClient = PubNub(configuration: dataSyncHealthcareDefaultProjectionConfiguration(from: testsBundle))
@@ -555,7 +555,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: adminClient, [.patient(id: patientId)])
 
     // Patching a field the token can see must not disturb the ones it cannot
-    defaultClient.dataSync.patchEntity(
+    defaultClient.dataSync.updateEntity(
       patientId,
       operations: [.replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed")]
     ) { [unowned adminClient] patchResult in

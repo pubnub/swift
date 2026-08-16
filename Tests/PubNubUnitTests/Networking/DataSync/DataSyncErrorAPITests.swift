@@ -54,12 +54,12 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_ReplaceEntity_WhenEtagStale_SurfacesPreconditionFailed() throws {
-    let expectation = self.expectation(description: "replaceEntity stale eTag")
+  func test_SetEntity_WhenEtagStale_SurfacesPreconditionFailed() throws {
+    let expectation = self.expectation(description: "setEntity stale eTag")
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_412"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.replaceEntity(
+    pubnub.dataSync.setEntity(
       "hcn-patient-alice",
       entityClassVersion: 1,
       ifMatchesEtag: "stale-etag"

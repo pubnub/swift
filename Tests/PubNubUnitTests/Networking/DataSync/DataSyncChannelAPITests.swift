@@ -35,12 +35,12 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
-  func test_PatchChannel_DecodesPatchedChannel() throws {
-    let expectation = self.expectation(description: "patchChannel")
+  func test_UpdateChannel_DecodesUpdatedChannel() throws {
+    let expectation = self.expectation(description: "updateChannel")
     let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.patchChannel(
+    pubnub.dataSync.updateChannel(
       "general",
       operations: [.replace(path: "/payload/name", value: "General")],
       ifMatchesEtag: "3w5e111uk7djz"

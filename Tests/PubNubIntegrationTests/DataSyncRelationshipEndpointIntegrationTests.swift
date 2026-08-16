@@ -71,7 +71,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 15.0)
   }
 
-  func testReplaceRelationshipReplacesPayloadWholesale() {
+  func testSetRelationshipReplacesPayloadWholesale() {
     let replaceExpect = expectation(description: "Replace Relationship Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
@@ -94,7 +94,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         // The replacement omits `since`, which must therefore be cleared rather than preserved
         let replacementPayload = TestAttendingPhysicianPayload(role: "consulting")
 
-        client.dataSync.replaceRelationship(
+        client.dataSync.setRelationship(
           relationshipId,
           relationshipClassVersion: self.attendingPhysicianClass.version,
           status: "inactive",
@@ -127,7 +127,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 15.0)
   }
 
-  func testPatchRelationshipAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateRelationshipAppliesOperationsAndKeepsUntouchedFields() {
     let patchExpect = expectation(description: "Patch Relationship Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
@@ -152,7 +152,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
           since: nil
         )
 
-        client.dataSync.patchRelationship(
+        client.dataSync.updateRelationship(
           relationshipId,
           operations: [
             .replace(path: "/payload/role", value: "consulting"),
@@ -182,7 +182,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 15.0)
   }
 
-  func testReplaceRelationshipWithStaleEtagFails() {
+  func testSetRelationshipWithStaleEtagFails() {
     let replaceExpect = expectation(description: "Replace Relationship Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
@@ -198,7 +198,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
     )
 
-    client.dataSync.replaceRelationship(
+    client.dataSync.setRelationship(
       relationshipId,
       relationshipClassVersion: attendingPhysicianClass.version,
       status: "inactive",
@@ -425,7 +425,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testPatchRelationshipAppliesTestMoveAndAddOperations() {
+  func testUpdateRelationshipAppliesTestMoveAndAddOperations() {
     let patchExpect = expectation(description: "Patch Relationship Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
@@ -438,7 +438,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
     )
 
-    client.dataSync.patchRelationship(
+    client.dataSync.updateRelationship(
       relationshipId,
       operations: [
         .test(path: "/payload/role", value: "attending"),
@@ -470,7 +470,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 20.0)
   }
 
-  func testPatchRelationshipWithFailingTestOperationLeavesRelationshipUntouched() {
+  func testUpdateRelationshipWithFailingTestOperationLeavesRelationshipUntouched() {
     let patchExpect = expectation(description: "Patch Relationship Expectation")
     let client = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
     let practitionerId = randomString()
@@ -483,7 +483,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
     )
 
-    client.dataSync.patchRelationship(
+    client.dataSync.updateRelationship(
       relationshipId,
       operations: [
         .test(path: "/payload/role", value: "never-assigned"),

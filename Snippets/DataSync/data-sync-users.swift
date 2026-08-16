@@ -108,10 +108,10 @@ pubnub.dataSync.createUser(
 }
 // snippet.end
 
-// snippet.replace-user
-// Replace a user's payload wholesale, only if it hasn't changed since it was read.
+// snippet.set-user
+// Set a user's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
-pubnub.dataSync.replaceUser(
+pubnub.dataSync.setUser(
   "alice",
   classVersion: 1,
   status: "active",
@@ -125,16 +125,16 @@ pubnub.dataSync.replaceUser(
 ) { result in
   switch result {
   case let .success(user):
-    print("The replaced user: \(user)")
+    print("The set user: \(user)")
   case let .failure(error):
-    print("Replace user request failed with error: \(error.localizedDescription)")
+    print("Set user request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end
 
-// snippet.patch-user
+// snippet.update-user
 // Change part of a user, leaving the rest of its payload untouched
-pubnub.dataSync.patchUser(
+pubnub.dataSync.updateUser(
   "alice",
   operations: [
     .replace(path: "/payload/email", value: "alice.summers@example.com"),
@@ -145,9 +145,9 @@ pubnub.dataSync.patchUser(
 ) { result in
   switch result {
   case let .success(user):
-    print("The patched user: \(user)")
+    print("The updated user: \(user)")
   case let .failure(error):
-    print("Patch user request failed with error: \(error.localizedDescription)")
+    print("Update user request failed with error: \(error.localizedDescription)")
   }
 }
 // snippet.end

@@ -17,7 +17,8 @@ func dataSyncConfiguration(from bundle: Bundle) -> PubNubConfiguration {
     publishKey: PubNubConfiguration(bundle: bundle).publishKey,
     subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
     userId: randomString(),
-    authToken: dataSyncUserChannelMembershipAuthToken
+    authToken: dataSyncUserChannelMembershipAuthToken,
+    origin: "ingress-tcp-h2-dual.pdx1.aws.int.ps.pn"
   )
 }
 
@@ -27,7 +28,8 @@ func dataSyncHealthcareConfiguration(from bundle: Bundle) -> PubNubConfiguration
     publishKey: PubNubConfiguration(bundle: bundle).publishKey,
     subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
     userId: randomString(),
-    authToken: dataSyncHealthcareAdminAuthToken
+    authToken: dataSyncHealthcareAdminAuthToken,
+    origin: "ingress-tcp-h2-dual.pdx1.aws.int.ps.pn"
   )
 }
 
@@ -37,7 +39,8 @@ func dataSyncHealthcareDefaultProjectionConfiguration(from bundle: Bundle) -> Pu
     publishKey: PubNubConfiguration(bundle: bundle).publishKey,
     subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
     userId: randomString(),
-    authToken: dataSyncHealthcareDefaultAuthToken
+    authToken: dataSyncHealthcareDefaultAuthToken,
+    origin: "ingress-tcp-h2-dual.pdx1.aws.int.ps.pn"
   )
 }
 
@@ -48,5 +51,6 @@ func dataSyncHealthcareSubsribeConfiguration(from bundle: Bundle) -> PubNubConfi
     subscribeKey: PubNubConfiguration(bundle: bundle).subscribeKey,
     userId: randomString(),
     authToken: dataSyncHealthcareSubscribeToken,
+    origin: "ingress-tcp-h2-dual.pdx1.aws.int.ps.pn"
   )
 }

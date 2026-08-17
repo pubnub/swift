@@ -40,7 +40,7 @@ extension DataSyncGrant {
   static let userChannelMembership = DataSyncGrant(
     patterns: [
       "channels": [testPattern: crud],
-      "datasync:users": [testPattern: crud],
+      "users": [testPattern: crud],
       "datasync:memberships": [testPattern: crud]
     ]
   )

@@ -15,10 +15,6 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: DataSyncChannelEndpointIntegrationTests.self)
   let channelClassVersion = 1
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   func testCreateAndFetchChannel() throws {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
     let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))

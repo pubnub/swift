@@ -10,7 +10,6 @@
 
 import Foundation
 import PubNubSDK
-import XCTest
 
 /// The configuration authorizing the DataSync User, Channel, and Membership integration test suites
 func dataSyncConfiguration(from bundle: Bundle) throws -> PubNubConfiguration {
@@ -34,20 +33,21 @@ func dataSyncHealthcareSubsribeConfiguration(from bundle: Bundle) throws -> PubN
 
 /// A configuration carrying a freshly granted token for `grant`.
 private func dataSyncConfiguration(granting grant: DataSyncGrant, from bundle: Bundle) throws -> PubNubConfiguration {
-  let keys = PubNubConfiguration(bundle: bundle)
-
-  return PubNubConfiguration(
-    publishKey: keys.publishKey,
-    subscribeKey: keys.subscribeKey,
-    userId: randomString(),
-    authToken: try DataSyncTokenGrant.token(for: grant, bundle: bundle)
+  let credentials = DataSyncTestCredentials(
+    bundle: bundle
   )
-}
-
-/// Skips the calling suite when no secret key is available to grant its token with.
-func skipUnlessDataSyncTokensCanBeGranted(from bundle: Bundle) throws {
-  try XCTSkipIf(
-    DataSyncTokenGrant.secretKey(from: bundle) == nil,
-    "Set the PUBNUB_SECRET_KEY environment variable to run the DataSync integration suites"
+  let authToken = try DataSyncTokenGrant.token(
+    origin: credentials.origin,
+    secretKey: credentials.secretKey,
+    subscribeKey: credentials.subscribeKey,
+    publishKey: credentials.publishKey,
+    grant: grant
+  )
+  return PubNubConfiguration(
+    publishKey: credentials.publishKey,
+    subscribeKey: credentials.subscribeKey,
+    userId: randomString(),
+    authToken: authToken,
+    origin: credentials.origin
   )
 }

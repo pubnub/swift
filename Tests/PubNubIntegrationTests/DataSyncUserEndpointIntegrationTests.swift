@@ -15,10 +15,6 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: DataSyncUserEndpointIntegrationTests.self)
   let userClassVersion = 1
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   func testCreateAndFetchUser() throws {
     let fetchExpect = expectation(description: "Fetch User Expectation")
     let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))

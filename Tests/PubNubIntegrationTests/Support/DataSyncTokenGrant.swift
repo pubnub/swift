@@ -30,8 +30,6 @@ enum DataSyncTokenGrantError: Error {
 // MARK: - Token grant
 
 enum DataSyncTokenGrant {
-  private static let secretKeyEnvironmentKey = "PUBNUB_SECRET_KEY"
-  private static let secretKeyInfoDictionaryKey = "PubNubSecretKey"
   private static let lock = NSLock()
   private static var cachedTokens: [String: String] = [:]
 
@@ -39,21 +37,15 @@ enum DataSyncTokenGrant {
 
   /// Returns the token authorizing `grant`, minting it on first use.
   static func token(
-    for grant: DataSyncGrant,
-    bundle: Bundle,
+    origin: String,
+    secretKey: String,
+    subscribeKey: String,
+    publishKey: String,
+    grant: DataSyncGrant,
     timeout: TimeInterval = 10.0
   ) throws -> String {
-    let keys = PubNubConfiguration(bundle: bundle)
-
-    guard let publishKey = keys.publishKey, !publishKey.isEmpty, !keys.subscribeKey.isEmpty else {
-      throw DataSyncTokenGrantError.missingKeys
-    }
-    guard let secretKey = secretKey(from: bundle) else {
-      throw DataSyncTokenGrantError.missingSecretKey
-    }
-
     let body = try grant.requestBody()
-    let cacheKey = "\(keys.subscribeKey)|\(body)"
+    let cacheKey = "\(subscribeKey)|\(body)"
 
     lock.lock()
     defer { lock.unlock() }
@@ -64,9 +56,9 @@ enum DataSyncTokenGrant {
 
     let token = try requestToken(
       publishKey: publishKey,
-      subscribeKey: keys.subscribeKey,
+      subscribeKey: subscribeKey,
       secretKey: secretKey,
-      origin: keys.origin,
+      origin: origin,
       body: body,
       timeout: timeout
     )
@@ -74,18 +66,6 @@ enum DataSyncTokenGrant {
     cachedTokens[cacheKey] = token
 
     return token
-  }
-
-  /// The secret key to sign grants with, or `nil` when none was supplied.
-  static func secretKey(from bundle: Bundle) -> String? {
-    if let key = ProcessInfo.processInfo.environment[secretKeyEnvironmentKey], !key.isEmpty {
-      return key
-    }
-    guard let key = bundle.object(forInfoDictionaryKey: secretKeyInfoDictionaryKey) as? String, !key.isEmpty else {
-      return nil
-    }
-
-    return key
   }
 }
 
@@ -101,7 +81,7 @@ private struct DataSyncGrantResponse: Decodable {
 
 private extension DataSyncTokenGrant {
   static func requestToken(
-    publishKey: String,
+    publishKey: String?,
     subscribeKey: String,
     secretKey: String,
     origin: String,
@@ -113,7 +93,7 @@ private extension DataSyncTokenGrant {
       ("uuid", "\(Constants.prefix)token-grant")]
     )
     let signature = self.signature(
-      publishKey: publishKey,
+      publishKey: publishKey ?? "",
       secretKey: secretKey,
       path: "/v3/pam/\(subscribeKey)/grant",
       query: query,

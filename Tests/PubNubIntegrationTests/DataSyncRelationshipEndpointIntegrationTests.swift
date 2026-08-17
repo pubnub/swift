@@ -17,10 +17,6 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
   let attendingPhysicianClass = HealthcareClass.attendingPhysician
   let facilityAffiliationClass = HealthcareClass.facilityAffiliation
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   func testCreateAndFetchRelationship() throws {
     let fetchExpect = expectation(description: "Fetch Relationship Expectation")
     let client = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))

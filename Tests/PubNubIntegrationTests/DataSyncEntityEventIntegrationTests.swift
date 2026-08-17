@@ -23,10 +23,6 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
   private let eventTimeout: TimeInterval = 30.0
   private let testsBundle = Bundle(for: DataSyncEntityEventIntegrationTests.self)
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   // MARK: - Entity events
 
   func testListenForEntityCreatedEvent() throws {

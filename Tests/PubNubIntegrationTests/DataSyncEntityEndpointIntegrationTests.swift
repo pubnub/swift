@@ -17,10 +17,6 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
   let patientV2Class = HealthcareClass.patientV2
   let practitionerClass = HealthcareClass.practitioner
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   func testCreateAndFetchEntity() throws {
     let fetchExpect = expectation(description: "Fetch Entity Expectation")
     let client = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))

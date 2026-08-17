@@ -17,10 +17,6 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
   let channelClassVersion = 1
   let membershipClassVersion = 1
 
-  override func setUpWithError() throws {
-    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
-  }
-
   func testCreateAndFetchMembership() throws {
     let fetchExpect = expectation(description: "Fetch Membership Expectation")
     let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))

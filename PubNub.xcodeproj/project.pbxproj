@@ -41,6 +41,7 @@
 		35012ED928564FEB00CF7E0A /* Test+PubNubSpaceEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED328564FBF00CF7E0A /* Test+PubNubSpaceEvent.swift */; };
 		35012EDA28564FEE00CF7E0A /* Test+PubNubSpacePatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED528564FD400CF7E0A /* Test+PubNubSpacePatcher.swift */; };
 		35012EDB28564FF200CF7E0A /* Test+PubNubSpaceInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35012ED728564FE400CF7E0A /* Test+PubNubSpaceInterface.swift */; };
+		3504DA00302F000000000001 /* PubNubDataSyncTests_Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3504DA00302F000000000002 /* PubNubDataSyncTests_Info.plist */; };
 		3505977D2349607C007DC06E /* subscription_membershipSet_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3505977A23495EFD007DC06E /* subscription_membershipSet_success.json */; };
 		3505978023496481007DC06E /* subscription_uuidSet_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 3505977F23496481007DC06E /* subscription_uuidSet_success.json */; };
 		35059782234964A0007DC06E /* subscription_uuidRemove_success.json in Resources */ = {isa = PBXBuildFile; fileRef = 35059781234964A0007DC06E /* subscription_uuidRemove_success.json */; };
@@ -450,6 +451,7 @@
 		3D595F73302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */; };
 		3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */; };
 		3D595F81302B5D8900887797 /* DataSyncConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */; };
+		3D595F82302F000000887797 /* DataSyncTestCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F83302F000000887797 /* DataSyncTestCredentials.swift */; };
 		3D595F93302B5D8900887797 /* DataSyncTokenGrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */; };
 		3D595F91302B5D8900887797 /* DataSyncGrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F90302B5D8900887797 /* DataSyncGrant.swift */; };
 		3D595FB2302E041100887797 /* DataSyncEntityEventIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595FB1302E041100887797 /* DataSyncEntityEventIntegrationTests.swift */; };
@@ -1052,6 +1054,7 @@
 		35EE358722E247B200E3F081 /* URLSessionConfiguration+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSessionConfiguration+PubNub.swift"; sourceTree = "<group>"; };
 		35EE358B22E26A4D00E3F081 /* HTTPURLResponse+PubNub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HTTPURLResponse+PubNub.swift"; sourceTree = "<group>"; };
 		35F0257222BAB043007BD7D3 /* PubNub_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNub_Info.plist; path = Sources/PubNub/PubNub_Info.plist; sourceTree = SOURCE_ROOT; };
+		3504DA00302F000000000002 /* PubNubDataSyncTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNubDataSyncTests_Info.plist; path = PubNub.xcodeproj/PubNubDataSyncTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = PubNubTests_Info.plist; path = PubNub.xcodeproj/PubNubTests_Info.plist; sourceTree = SOURCE_ROOT; };
 		35F0258E22BAC21E007BD7D3 /* PubNub_10_0_Migration_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PubNub_10_0_Migration_Guide.md; sourceTree = "<group>"; };
 		35F0258F22BAC21E007BD7D3 /* PubNub_3_0_Migration_Guide.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PubNub_3_0_Migration_Guide.md; sourceTree = "<group>"; };
@@ -1199,6 +1202,7 @@
 		3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncHealthcareFixtures.swift; sourceTree = "<group>"; };
 		3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncConfiguration.swift; sourceTree = "<group>"; };
+		3D595F83302F000000887797 /* DataSyncTestCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncTestCredentials.swift; sourceTree = "<group>"; };
 		3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncTokenGrant.swift; sourceTree = "<group>"; };
 		3D595F90302B5D8900887797 /* DataSyncGrant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncGrant.swift; sourceTree = "<group>"; };
 		3D595FB1302E041100887797 /* DataSyncEntityEventIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityEventIntegrationTests.swift; sourceTree = "<group>"; };
@@ -2210,6 +2214,7 @@
 			isa = PBXGroup;
 			children = (
 				7941EF47270E46B40054D9EF /* PubNubContractTests_Info.plist */,
+				3504DA00302F000000000002 /* PubNubDataSyncTests_Info.plist */,
 				35F0257322BAB04F007BD7D3 /* PubNubTests_Info.plist */,
 			);
 			name = "Supporting Files";
@@ -2643,6 +2648,7 @@
 				3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */,
 				3D4A11A62E9A0007009B55E0 /* XCTAssertPayload.swift */,
 				3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */,
+				3D595F83302F000000887797 /* DataSyncTestCredentials.swift */,
 				3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */,
 				3D595F90302B5D8900887797 /* DataSyncGrant.swift */,
 				3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */,
@@ -3633,6 +3639,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3D595F6C302B59DF00887797 /* PubNubIntegration.xctestplan in Resources */,
+				3504DA00302F000000000001 /* PubNubDataSyncTests_Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4064,6 +4071,7 @@
 				3D595FB2302E041100887797 /* DataSyncEntityEventIntegrationTests.swift in Sources */,
 				3557CE032386054C004BBACC /* PushIntegrationTests.swift in Sources */,
 				3D595F81302B5D8900887797 /* DataSyncConfiguration.swift in Sources */,
+				3D595F82302F000000887797 /* DataSyncTestCredentials.swift in Sources */,
 				3D595F93302B5D8900887797 /* DataSyncTokenGrant.swift in Sources */,
 				3D595F91302B5D8900887797 /* DataSyncGrant.swift in Sources */,
 				3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */,

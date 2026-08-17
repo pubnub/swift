@@ -15,9 +15,13 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: DataSyncUserEndpointIntegrationTests.self)
   let userClassVersion = 1
 
-  func testCreateAndFetchUser() {
+  override func setUpWithError() throws {
+    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
+  }
+
+  func testCreateAndFetchUser() throws {
     let fetchExpect = expectation(description: "Fetch User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let payload = TestUserPayload(fullName: "Swift ITest User", email: "swift.itest@example.com")
 
@@ -63,9 +67,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testSetUserReplacesPayloadWholesale() {
+  func testSetUserReplacesPayloadWholesale() throws {
     let replaceExpect = expectation(description: "Replace User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -114,9 +118,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testUpdateUserAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateUserAppliesOperationsAndKeepsUntouchedFields() throws {
     let patchExpect = expectation(description: "Patch User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -167,9 +171,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 10.0)
   }
 
-  func testSetUserWithStaleEtagFails() {
+  func testSetUserWithStaleEtagFails() throws {
     let replaceExpect = expectation(description: "Replace User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(
@@ -214,9 +218,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testGetUsersReturnsCreatedUsers() {
+  func testGetUsersReturnsCreatedUsers() throws {
     let listExpect = expectation(description: "List Users Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString(), randomString()]
 
     createUsers(
@@ -249,9 +253,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testGetUsersPagesWithCursor() {
+  func testGetUsersPagesWithCursor() throws {
     let listExpect = expectation(description: "List Users Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString()]
 
     createUsers(
@@ -286,9 +290,9 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testRemoveUserThenFetchFails() {
+  func testRemoveUserThenFetchFails() throws {
     let removeExpect = expectation(description: "Remove User Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
 
     client.dataSync.createUser(

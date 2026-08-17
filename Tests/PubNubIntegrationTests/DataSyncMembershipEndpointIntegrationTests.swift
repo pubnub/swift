@@ -17,9 +17,13 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
   let channelClassVersion = 1
   let membershipClassVersion = 1
 
-  func testCreateAndFetchMembership() {
+  override func setUpWithError() throws {
+    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
+  }
+
+  func testCreateAndFetchMembership() throws {
     let fetchExpect = expectation(description: "Fetch Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -82,9 +86,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 15.0)
   }
 
-  func testSetMembershipReplacesPayloadWholesale() {
+  func testSetMembershipReplacesPayloadWholesale() throws {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -150,9 +154,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 15.0)
   }
 
-  func testUpdateMembershipAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateMembershipAppliesOperationsAndKeepsUntouchedFields() throws {
     let patchExpect = expectation(description: "Patch Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -211,9 +215,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 15.0)
   }
 
-  func testSetMembershipWithStaleEtagFails() {
+  func testSetMembershipWithStaleEtagFails() throws {
     let replaceExpect = expectation(description: "Replace Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()
@@ -273,9 +277,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 15.0)
   }
 
-  func testGetMembershipsForUserReturnsEveryChannelJoined() {
+  func testGetMembershipsForUserReturnsEveryChannelJoined() throws {
     let listExpect = expectation(description: "List Memberships Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelIds = [randomString(), randomString()]
     let membershipIds = [randomString(), randomString()]
@@ -321,9 +325,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 15.0)
   }
 
-  func testGetMembershipsForChannelReturnsEveryUserJoined() {
+  func testGetMembershipsForChannelReturnsEveryUserJoined() throws {
     let listExpect = expectation(description: "List Memberships Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userIds = [randomString(), randomString()]
     let channelId = randomString()
     let membershipIds = [randomString(), randomString()]
@@ -369,9 +373,9 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 15.0)
   }
 
-  func testRemoveMembershipThenFetchFails() {
+  func testRemoveMembershipThenFetchFails() throws {
     let removeExpect = expectation(description: "Remove Membership Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let userId = randomString()
     let channelId = randomString()
     let membershipId = randomString()

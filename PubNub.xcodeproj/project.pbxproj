@@ -446,11 +446,12 @@
 		3D4A11A72E9A0008009B55E0 /* XCTAssertPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4A11A62E9A0007009B55E0 /* XCTAssertPayload.swift */; };
 		3D4ED42F2B519FC500FE58C7 /* SubscriptionSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */; };
 		3D595F6C302B59DF00887797 /* PubNubIntegration.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 3D595F6B302B59DF00887797 /* PubNubIntegration.xctestplan */; };
-		3D595F6E302B5D8900887797 /* DataSyncAuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */; };
 		3D595F71302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F70302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift */; };
 		3D595F73302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */; };
 		3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */; };
 		3D595F81302B5D8900887797 /* DataSyncConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */; };
+		3D595F93302B5D8900887797 /* DataSyncTokenGrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */; };
+		3D595F91302B5D8900887797 /* DataSyncGrant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595F90302B5D8900887797 /* DataSyncGrant.swift */; };
 		3D595FB2302E041100887797 /* DataSyncEntityEventIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D595FB1302E041100887797 /* DataSyncEntityEventIntegrationTests.swift */; };
 		3D5BE9AE2BCEA5B50091ACA7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 3D34160A2BB5832E008558A0 /* PrivacyInfo.xcprivacy */; };
 		3D6265D72ABCA79100FDD5E6 /* CryptorUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */; };
@@ -1194,11 +1195,12 @@
 		3D4A11A62E9A0007009B55E0 /* XCTAssertPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTAssertPayload.swift; sourceTree = "<group>"; };
 		3D4ED42E2B519FC500FE58C7 /* SubscriptionSessionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubscriptionSessionTests.swift; sourceTree = "<group>"; };
 		3D595F6B302B59DF00887797 /* PubNubIntegration.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = PubNubIntegration.xctestplan; sourceTree = "<group>"; };
-		3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncAuthToken.swift; sourceTree = "<group>"; };
 		3D595F70302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D595F72302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncRelationshipEndpointIntegrationTests.swift; sourceTree = "<group>"; };
 		3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncHealthcareFixtures.swift; sourceTree = "<group>"; };
 		3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncConfiguration.swift; sourceTree = "<group>"; };
+		3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncTokenGrant.swift; sourceTree = "<group>"; };
+		3D595F90302B5D8900887797 /* DataSyncGrant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncGrant.swift; sourceTree = "<group>"; };
 		3D595FB1302E041100887797 /* DataSyncEntityEventIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSyncEntityEventIntegrationTests.swift; sourceTree = "<group>"; };
 		3D6265D62ABCA79100FDD5E6 /* CryptorUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptorUtils.swift; sourceTree = "<group>"; };
 		3D65E8E02E2790E10041B534 /* LogMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogMessage.swift; sourceTree = "<group>"; };
@@ -2640,8 +2642,9 @@
 				35293AA1236B51A00049A71F /* PubNub+Integration.swift */,
 				3DAB7C502DD5047F0003D693 /* XCTestCase+Integration.swift */,
 				3D4A11A62E9A0007009B55E0 /* XCTAssertPayload.swift */,
-				3D595F6D302B5D8900887797 /* DataSyncAuthToken.swift */,
 				3D595F80302B5D8900887797 /* DataSyncConfiguration.swift */,
+				3D595F92302B5D8900887797 /* DataSyncTokenGrant.swift */,
+				3D595F90302B5D8900887797 /* DataSyncGrant.swift */,
 				3D595F74302B600000887797 /* DataSyncHealthcareFixtures.swift */,
 			);
 			path = Support;
@@ -4060,8 +4063,9 @@
 				353D92AF23562A1100367B9F /* SubscriptionIntegrationTests.swift in Sources */,
 				3D595FB2302E041100887797 /* DataSyncEntityEventIntegrationTests.swift in Sources */,
 				3557CE032386054C004BBACC /* PushIntegrationTests.swift in Sources */,
-				3D595F6E302B5D8900887797 /* DataSyncAuthToken.swift in Sources */,
 				3D595F81302B5D8900887797 /* DataSyncConfiguration.swift in Sources */,
+				3D595F93302B5D8900887797 /* DataSyncTokenGrant.swift in Sources */,
+				3D595F91302B5D8900887797 /* DataSyncGrant.swift in Sources */,
 				3D595F75302B600000887797 /* DataSyncHealthcareFixtures.swift in Sources */,
 				3D595F71302B600000887797 /* DataSyncEntityEndpointIntegrationTests.swift in Sources */,
 				3D595F73302B600000887797 /* DataSyncRelationshipEndpointIntegrationTests.swift in Sources */,

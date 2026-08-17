@@ -15,9 +15,13 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
   let testsBundle = Bundle(for: DataSyncChannelEndpointIntegrationTests.self)
   let channelClassVersion = 1
 
-  func testCreateAndFetchChannel() {
+  override func setUpWithError() throws {
+    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
+  }
+
+  func testCreateAndFetchChannel() throws {
     let fetchExpect = expectation(description: "Fetch Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     let payload = TestChannelPayload(
@@ -67,9 +71,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [fetchExpect], timeout: 10.0)
   }
 
-  func testSetChannelReplacesPayloadWholesale() {
+  func testSetChannelReplacesPayloadWholesale() throws {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -118,9 +122,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testUpdateChannelAppliesOperationsAndKeepsUntouchedFields() {
+  func testUpdateChannelAppliesOperationsAndKeepsUntouchedFields() throws {
     let patchExpect = expectation(description: "Patch Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -174,9 +178,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [patchExpect], timeout: 10.0)
   }
 
-  func testSetChannelWithStaleEtagFails() {
+  func testSetChannelWithStaleEtagFails() throws {
     let replaceExpect = expectation(description: "Replace Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(
@@ -224,9 +228,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [replaceExpect], timeout: 10.0)
   }
 
-  func testGetChannelsReturnsCreatedChannels() {
+  func testGetChannelsReturnsCreatedChannels() throws {
     let listExpect = expectation(description: "List Channels Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelIds = [randomString(), randomString(), randomString()]
 
     createChannels(
@@ -259,9 +263,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testGetChannelsPagesWithCursor() {
+  func testGetChannelsPagesWithCursor() throws {
     let listExpect = expectation(description: "List Channels Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelIds = [randomString(), randomString()]
 
     createChannels(
@@ -296,9 +300,9 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     wait(for: [listExpect], timeout: 20.0)
   }
 
-  func testRemoveChannelThenFetchFails() {
+  func testRemoveChannelThenFetchFails() throws {
     let removeExpect = expectation(description: "Remove Channel Expectation")
-    let client = PubNub(configuration: dataSyncConfiguration(from: testsBundle))
+    let client = PubNub(configuration: try dataSyncConfiguration(from: testsBundle))
     let channelId = randomString()
 
     client.dataSync.createChannel(

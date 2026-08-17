@@ -23,11 +23,15 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
   private let eventTimeout: TimeInterval = 30.0
   private let testsBundle = Bundle(for: DataSyncEntityEventIntegrationTests.self)
 
+  override func setUpWithError() throws {
+    try skipUnlessDataSyncTokensCanBeGranted(from: testsBundle)
+  }
+
   // MARK: - Entity events
 
-  func testListenForEntityCreatedEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForEntityCreatedEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
 
@@ -86,9 +90,9 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     wait(for: [connectedExpect, createExpect], timeout: eventTimeout, enforceOrder: true)
   }
 
-  func testListenForEntityUpdateEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForEntityUpdateEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
     createEntities(client: adminClient, [.patient(id: patientId)])
@@ -144,9 +148,9 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     wait(for: [connectedExpect, updateExpect], timeout: eventTimeout, enforceOrder: true)
   }
 
-  func testListenForEntityDeletedEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForEntityDeletedEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
     createEntities(client: adminClient, [.patient(id: patientId)])
@@ -197,9 +201,9 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   // MARK: - Relationship events
 
-  func testListenForRelationshipCreatedEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForRelationshipCreatedEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeRelationships(client: adminClient, ids: [relationshipId])
     removeEntities(client: adminClient, ids: [practitionerId, patientId])
@@ -264,9 +268,9 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     wait(for: [connectedExpect, createExpect], timeout: eventTimeout, enforceOrder: true)
   }
 
-  func testListenForRelationshipUpdatedEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForRelationshipUpdatedEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeRelationships(
       client: adminClient,
@@ -339,9 +343,9 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     wait(for: [connectedExpect, updateExpect], timeout: eventTimeout, enforceOrder: true)
   }
 
-  func testListenForRelationshipDeletedEvent() {
-    let adminClient = PubNub(configuration: dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+  func testListenForRelationshipDeletedEvent() throws {
+    let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
 
     removeRelationships(
       client: adminClient,

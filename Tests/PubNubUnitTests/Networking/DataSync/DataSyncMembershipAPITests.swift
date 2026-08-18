@@ -67,6 +67,54 @@ final class DataSyncMembershipAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func test_SetMembership_DecodesMembership() throws {
+    let expectation = self.expectation(description: "setMembership")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_membership_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setMembership(
+      "general__alice",
+      classVersion: 1,
+      payload: MembershipPayload(role: "admin"),
+      ifMatchesEtag: "3w5e111uk7djz"
+    ) { result in
+      switch result {
+      case let .success(membership):
+        XCTAssertEqual(membership.id, "general__alice")
+        XCTAssertEqual(membership.channelId, "general")
+        XCTAssertEqual(membership.userId, "alice")
+        XCTAssertPayload(membership.payload, equals: MembershipPayload(role: "admin"))
+      case let .failure(error):
+        XCTFail("Request failed with \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func test_UpdateMembership_DecodesUpdatedMembership() throws {
+    let expectation = self.expectation(description: "updateMembership")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_membership_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.updateMembership(
+      "general__alice",
+      operations: [.replace(path: "/payload/role", value: "admin")]
+    ) { result in
+      switch result {
+      case let .success(membership):
+        XCTAssertEqual(membership.id, "general__alice")
+        XCTAssertPayload(membership.payload, equals: MembershipPayload(role: "admin"))
+      case let .failure(error):
+        XCTFail("Request failed with \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func test_RemoveMembership_SucceedsWithoutBody() throws {
     let expectation = self.expectation(description: "removeMembership")
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])

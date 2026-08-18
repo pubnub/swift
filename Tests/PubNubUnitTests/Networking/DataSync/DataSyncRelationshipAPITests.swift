@@ -81,6 +81,54 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     wait(for: [expectation], timeout: 1.0)
   }
 
+  func test_SetRelationship_DecodesRelationship() throws {
+    let expectation = self.expectation(description: "setRelationship")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.setRelationship(
+      "rel-alice-treats-bob",
+      relationshipClassVersion: 1,
+      payload: RelationshipPayload(since: "2026-01-01"),
+      ifMatchesEtag: "3w5e111uk7djz"
+    ) { result in
+      switch result {
+      case let .success(relationship):
+        XCTAssertEqual(relationship.id, "rel-alice-treats-bob")
+        XCTAssertEqual(relationship.entityAId, "hcn-doctor-alice")
+        XCTAssertEqual(relationship.entityBId, "hcn-patient-bob")
+        XCTAssertPayload(relationship.payload, equals: RelationshipPayload(since: "2026-01-01"))
+      case let .failure(error):
+        XCTFail("Request failed with \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
+  func test_UpdateRelationship_DecodesUpdatedRelationship() throws {
+    let expectation = self.expectation(description: "updateRelationship")
+    let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_fetch_success"])
+    let pubnub = TestPubNubFactory.make(session: sessions.session)
+
+    pubnub.dataSync.updateRelationship(
+      "rel-alice-treats-bob",
+      operations: [.replace(path: "/payload/since", value: "2026-01-01")]
+    ) { result in
+      switch result {
+      case let .success(relationship):
+        XCTAssertEqual(relationship.id, "rel-alice-treats-bob")
+        XCTAssertPayload(relationship.payload, equals: RelationshipPayload(since: "2026-01-01"))
+      case let .failure(error):
+        XCTFail("Request failed with \(error.localizedDescription)")
+      }
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 1.0)
+  }
+
   func test_RemoveRelationship_SucceedsWithoutBody() throws {
     let expectation = self.expectation(description: "removeRelationship")
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])

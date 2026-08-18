@@ -400,6 +400,68 @@ extension DataSyncRouterTests {
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyMembershipUserId)
   }
+
+  func test_MembershipReplace_SetsVendorContentTypeAndIfMatch() throws {
+    let router = DataSyncMembershipRouter(
+      .replace(
+        id: "m-1",
+        body: .init(
+          status: "active",
+          relationshipClassVersion: 1,
+          payload: MembershipPayload(role: "admin").codableValue
+        ),
+        ifMatch: "\"3\""
+      ),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .put)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.membership+json;version=1")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["status"]?.stringOptional, "active")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
+    XCTAssertEqual(body["payload"]?["role"]?.stringOptional, "admin")
+  }
+
+  func test_MembershipPatch_SetsJsonPatchContentTypeAndIfMatch() throws {
+    let router = DataSyncMembershipRouter(
+      .patch(id: "m-1", operations: [.replace(path: "/payload/role", value: "admin")], ifMatch: "\"3\""),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .patch)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let encodedOps = try decodeBodyArray(router)
+
+    XCTAssertEqual(encodedOps.count, 1)
+    XCTAssertEqual(encodedOps.first?["op"]?.stringOptional, "replace")
+    XCTAssertEqual(encodedOps.first?["path"]?.stringOptional, "/payload/role")
+    XCTAssertEqual(encodedOps.first?["value"]?.stringOptional, "admin")
+  }
+
+  func test_MembershipRemove_SetsIfMatch() throws {
+    let router = DataSyncMembershipRouter(.remove(id: "m-1", ifMatch: "\"3\""), configuration: config)
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .delete)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+    XCTAssertNil(request.httpBody)
+  }
 }
 
 // MARK: - Entities
@@ -578,6 +640,75 @@ extension DataSyncRouterTests {
 
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipClass)
+  }
+
+  func test_RelationshipReplace_SetsVendorContentTypeAndIfMatch() throws {
+    let router = DataSyncRelationshipRouter(
+      .replace(
+        id: "r-1",
+        body: .init(
+          status: "active",
+          relationshipClassVersion: 1,
+          payload: RelationshipPayload(since: "2026-01-01").codableValue
+        ),
+        ifMatch: "\"3\""
+      ),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .put)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+
+    XCTAssertEqual(
+      request.value(forHTTPHeaderField: "Content-Type"),
+      "application/vnd.pubnub.objects.relationship+json;version=1"
+    )
+    XCTAssertEqual(
+      request.value(forHTTPHeaderField: "If-Match"),
+      "\"3\""
+    )
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["status"]?.stringOptional, "active")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
+    XCTAssertEqual(body["payload"]?["since"]?.stringOptional, "2026-01-01")
+  }
+
+  func test_RelationshipPatch_SetsJsonPatchContentTypeAndIfMatch() throws {
+    let router = DataSyncRelationshipRouter(
+      .patch(id: "r-1", operations: [.replace(path: "/payload/since", value: "2026-01-01")], ifMatch: "\"3\""),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .patch)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let encodedOps = try decodeBodyArray(router)
+
+    XCTAssertEqual(encodedOps.count, 1)
+    XCTAssertEqual(encodedOps.first?["op"]?.stringOptional, "replace")
+    XCTAssertEqual(encodedOps.first?["path"]?.stringOptional, "/payload/since")
+    XCTAssertEqual(encodedOps.first?["value"]?.stringOptional, "2026-01-01")
+  }
+
+  func test_RelationshipRemove_SetsIfMatch() throws {
+    let router = DataSyncRelationshipRouter(.remove(id: "r-1", ifMatch: "\"3\""), configuration: config)
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .delete)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+    XCTAssertNil(request.httpBody)
   }
 }
 

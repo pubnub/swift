@@ -27,7 +27,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForEntityCreatedEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
 
@@ -88,7 +88,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForEntityUpdateEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
     createEntities(client: adminClient, [.patient(id: patientId)])
@@ -146,7 +146,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForEntityDeletedEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeEntities(client: adminClient, ids: [patientId])
     createEntities(client: adminClient, [.patient(id: patientId)])
@@ -199,7 +199,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForRelationshipCreatedEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeRelationships(client: adminClient, ids: [relationshipId])
     removeEntities(client: adminClient, ids: [practitionerId, patientId])
@@ -266,7 +266,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForRelationshipUpdatedEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeRelationships(
       client: adminClient,
@@ -341,7 +341,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
   func testListenForRelationshipDeletedEvent() throws {
     let adminClient = PubNub(configuration: try dataSyncHealthcareConfiguration(from: testsBundle))
-    let pubnub = PubNub(configuration: try dataSyncHealthcareSubsribeConfiguration(from: testsBundle))
+    let pubnub = PubNub(configuration: try dataSyncHealthcareSubscribeConfiguration(from: testsBundle))
 
     removeRelationships(
       client: adminClient,

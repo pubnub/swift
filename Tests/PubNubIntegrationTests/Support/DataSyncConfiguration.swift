@@ -27,7 +27,7 @@ func dataSyncHealthcareDefaultProjectionConfiguration(from bundle: Bundle) throw
 }
 
 /// The configuration authorizing a subscribe to the DataSync healthcare projection channels
-func dataSyncHealthcareSubsribeConfiguration(from bundle: Bundle) throws -> PubNubConfiguration {
+func dataSyncHealthcareSubscribeConfiguration(from bundle: Bundle) throws -> PubNubConfiguration {
   try dataSyncConfiguration(granting: .healthcareSubscribe, from: bundle)
 }
 

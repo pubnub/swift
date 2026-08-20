@@ -26,6 +26,7 @@ public class KMPEventListener: NSObject {
   @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
+  @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
 
   // Stores a reference to the Swift listener that acts as a proxy
   // and forwards all calls to this (KMPEventListener) instance
@@ -37,7 +38,8 @@ public class KMPEventListener: NSObject {
     onSignal: ((KMPMessage) -> Void)?,
     onMessageAction: ((KMPMessageAction) -> Void)?,
     onAppContext: ((KMPAppContextEventResult) -> Void)?,
-    onFile: ((KMPFileChangeEvent) -> Void)?
+    onFile: ((KMPFileChangeEvent) -> Void)?,
+    onDataSync: ((KMPDataSyncEvent) -> Void)?
   ) {
     self.uuid = UUID()
     self.onMessage = onMessage
@@ -46,5 +48,6 @@ public class KMPEventListener: NSObject {
     self.onMessageAction = onMessageAction
     self.onAppContext = onAppContext
     self.onFile = onFile
+    self.onDataSync = onDataSync
   }
 }

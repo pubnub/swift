@@ -27,6 +27,7 @@ public class KMPSubscription: NSObject {
   @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
+  @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
 
   @objc
   public init(entity: KMPEntity, receivePresenceEvents: Bool) {
@@ -68,6 +69,9 @@ public class KMPSubscription: NSObject {
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    eventListener.onDataSync = {
+      listener.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscription.addEventListener(eventListener)
@@ -119,6 +123,9 @@ public class KMPSubscription: NSObject {
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
     }
+    underlyingSubscription.onDataSync = {
+      subscription.onDataSync?(KMPDataSyncEvent.from(event: $0))
+    }
 
     return KMPSubscriptionSet(
       subscriptionSet: SubscriptionSet(subscriptions: [
@@ -139,6 +146,7 @@ public class KMPSubscriptionSet: NSObject {
   @objc public var onMessageAction: ((KMPMessageAction) -> Void)?
   @objc public var onAppContext: ((KMPAppContextEventResult) -> Void)?
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
+  @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
 
   init(subscriptionSet: SubscriptionSet) {
     self.subscriptionSet = subscriptionSet
@@ -176,6 +184,9 @@ public class KMPSubscriptionSet: NSObject {
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    eventListener.onDataSync = {
+      listener.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscriptionSet.addEventListener(eventListener)
@@ -224,6 +235,9 @@ public class KMPSubscriptionSet: NSObject {
     }
     underlyingSubscription.onAppContext = {
       subscription.onAppContext?(KMPAppContextEventResult.from(event: $0))
+    }
+    underlyingSubscription.onDataSync = {
+      subscription.onDataSync?(KMPDataSyncEvent.from(event: $0))
     }
 
     subscriptionSet.add(subscription: underlyingSubscription)

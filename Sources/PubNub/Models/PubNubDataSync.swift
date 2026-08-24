@@ -49,6 +49,17 @@ public enum PubNubDataSyncClassLevel: Hashable {
   }
 }
 
+extension PubNubDataSyncClassLevel: Codable {
+  public init(from decoder: Decoder) throws {
+    self.init(stringValue: try decoder.singleValueContainer().decode(String.self))
+  }
+
+  public func encode(to encoder: Encoder) throws {
+    var container = encoder.singleValueContainer()
+    try container.encode(stringValue)
+  }
+}
+
 // MARK: - PubNubDataSyncEntity
 
 /// Represents a DataSync entity in PubNub DataSync.
@@ -67,8 +78,8 @@ public struct PubNubDataSyncEntity: Hashable {
   public let updatedAt: Date
   /// The entity revision used for optimistic concurrency
   public let eTag: String
-  /// The date the entity expires, derived from the time-to-live of its class
-  public let expiresAt: Date
+  /// The date the entity expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
+  public let expiresAt: Date?
   /// The entity status
   public let status: String?
   /// The entity fields
@@ -84,7 +95,7 @@ public struct PubNubDataSyncEntity: Hashable {
     createdAt: Date,
     updatedAt: Date,
     eTag: String,
-    expiresAt: Date,
+    expiresAt: Date? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil
   ) {
@@ -101,6 +112,145 @@ public struct PubNubDataSyncEntity: Hashable {
   }
 }
 
+extension PubNubDataSyncEntity: Codable {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case className = "entityClass"
+    case classLevel = "entityClassLevel"
+    case classVersion = "entityClassVersion"
+    case createdAt
+    case updatedAt
+    case eTag
+    case expiresAt
+    case status
+    case concretePayload = "payload"
+  }
+}
+
+// MARK: - PubNubDataSyncUser
+
+/// Represents a DataSync user in PubNub DataSync.
+public struct PubNubDataSyncUser: Hashable {
+  /// The unique identifier of the user
+  public let id: String
+  /// The level the user's class is registered at
+  public let classLevel: PubNubDataSyncClassLevel
+  /// The version of the user's class
+  public let classVersion: Int
+  /// The date the user was created
+  public let createdAt: Date
+  /// The date the user was last updated
+  public let updatedAt: Date
+  /// The user revision used for optimistic concurrency
+  public let eTag: String
+  /// The date the user expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
+  public let expiresAt: Date?
+  /// The user status
+  public let status: String?
+  /// The user fields
+  public var payload: JSONCodable? { concretePayload }
+
+  let concretePayload: AnyJSON?
+
+  init(
+    id: String,
+    classLevel: PubNubDataSyncClassLevel,
+    classVersion: Int,
+    createdAt: Date,
+    updatedAt: Date,
+    eTag: String,
+    expiresAt: Date? = nil,
+    status: String? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.id = id
+    self.classLevel = classLevel
+    self.classVersion = classVersion
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+    self.eTag = eTag
+    self.expiresAt = expiresAt
+    self.status = status
+    self.concretePayload = payload?.codableValue
+  }
+}
+
+extension PubNubDataSyncUser: Codable {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case classLevel = "entityClassLevel"
+    case classVersion = "entityClassVersion"
+    case createdAt
+    case updatedAt
+    case eTag
+    case expiresAt
+    case status
+    case concretePayload = "payload"
+  }
+}
+
+// MARK: - PubNubDataSyncChannel
+
+/// Represents a DataSync channel in PubNub DataSync.
+public struct PubNubDataSyncChannel: Hashable {
+  /// The unique identifier of the channel
+  public let id: String
+  /// The level the channel's class is registered at
+  public let classLevel: PubNubDataSyncClassLevel
+  /// The version of the channel's class
+  public let classVersion: Int
+  /// The date the channel was created
+  public let createdAt: Date
+  /// The date the channel was last updated
+  public let updatedAt: Date
+  /// The channel revision used for optimistic concurrency
+  public let eTag: String
+  /// The date the channel expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
+  public let expiresAt: Date?
+  /// The channel status
+  public let status: String?
+  /// The channel fields
+  public var payload: JSONCodable? { concretePayload }
+
+  let concretePayload: AnyJSON?
+
+  init(
+    id: String,
+    classLevel: PubNubDataSyncClassLevel,
+    classVersion: Int,
+    createdAt: Date,
+    updatedAt: Date,
+    eTag: String,
+    expiresAt: Date? = nil,
+    status: String? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.id = id
+    self.classLevel = classLevel
+    self.classVersion = classVersion
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+    self.eTag = eTag
+    self.expiresAt = expiresAt
+    self.status = status
+    self.concretePayload = payload?.codableValue
+  }
+}
+
+extension PubNubDataSyncChannel: Codable {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case classLevel = "entityClassLevel"
+    case classVersion = "entityClassVersion"
+    case createdAt
+    case updatedAt
+    case eTag
+    case expiresAt
+    case status
+    case concretePayload = "payload"
+  }
+}
+
 // MARK: - PubNubDataSyncRelationship
 
 /// Represents a DataSync relationship connecting two entities in PubNub DataSync.
@@ -109,8 +259,6 @@ public struct PubNubDataSyncRelationship: Hashable {
   public let id: String
   /// The name of the relationship's class
   public let className: String
-  /// The level the relationship's class is registered at
-  public let classLevel: PubNubDataSyncClassLevel
   /// The version of the relationship's class
   public let classVersion: Int
   /// The unique identifier of the entity on side A of the relationship
@@ -123,8 +271,8 @@ public struct PubNubDataSyncRelationship: Hashable {
   public let updatedAt: Date
   /// The relationship revision used for optimistic concurrency
   public let eTag: String
-  /// The date the relationship expires, derived from the time-to-live of its class
-  public let expiresAt: Date
+  /// The date the relationship expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
+  public let expiresAt: Date?
   /// The relationship status
   public let status: String?
   /// The relationship fields
@@ -135,20 +283,18 @@ public struct PubNubDataSyncRelationship: Hashable {
   init(
     id: String,
     className: String,
-    classLevel: PubNubDataSyncClassLevel,
     classVersion: Int,
     entityAId: String,
     entityBId: String,
     createdAt: Date,
     updatedAt: Date,
     eTag: String,
-    expiresAt: Date,
+    expiresAt: Date? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil
   ) {
     self.id = id
     self.className = className
-    self.classLevel = classLevel
     self.classVersion = classVersion
     self.entityAId = entityAId
     self.entityBId = entityBId
@@ -158,5 +304,89 @@ public struct PubNubDataSyncRelationship: Hashable {
     self.expiresAt = expiresAt
     self.status = status
     self.concretePayload = payload?.codableValue
+  }
+}
+
+extension PubNubDataSyncRelationship: Codable {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case className = "relationshipClass"
+    case classVersion = "relationshipClassVersion"
+    case entityAId
+    case entityBId
+    case createdAt
+    case updatedAt
+    case eTag
+    case expiresAt
+    case status
+    case concretePayload = "payload"
+  }
+}
+
+// MARK: - PubNubDataSyncMembership
+
+/// Represents a DataSync membership connecting a channel and a user in PubNub DataSync.
+public struct PubNubDataSyncMembership: Hashable {
+  /// The unique identifier of the membership
+  public let id: String
+  /// The unique identifier of the channel the membership belongs to
+  public let channelId: String
+  /// The unique identifier of the user the membership belongs to
+  public let userId: String
+  /// The version of the membership's class
+  public let classVersion: Int
+  /// The date the membership was created
+  public let createdAt: Date
+  /// The date the membership was last updated
+  public let updatedAt: Date
+  /// The membership revision used for optimistic concurrency
+  public let eTag: String
+  /// The date the membership expires, derived from the time-to-live of its class,
+  /// or `nil` if the class defines no TTL
+  public let expiresAt: Date?
+  /// The membership status
+  public let status: String?
+  /// The membership fields
+  public var payload: JSONCodable? { concretePayload }
+
+  let concretePayload: AnyJSON?
+
+  init(
+    id: String,
+    channelId: String,
+    userId: String,
+    classVersion: Int,
+    createdAt: Date,
+    updatedAt: Date,
+    eTag: String,
+    expiresAt: Date? = nil,
+    status: String? = nil,
+    payload: JSONCodable? = nil
+  ) {
+    self.id = id
+    self.channelId = channelId
+    self.userId = userId
+    self.classVersion = classVersion
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+    self.eTag = eTag
+    self.expiresAt = expiresAt
+    self.status = status
+    self.concretePayload = payload?.codableValue
+  }
+}
+
+extension PubNubDataSyncMembership: Codable {
+  enum CodingKeys: String, CodingKey {
+    case id
+    case channelId
+    case userId
+    case classVersion = "relationshipClassVersion"
+    case createdAt
+    case updatedAt
+    case eTag
+    case expiresAt
+    case status
+    case concretePayload = "payload"
   }
 }

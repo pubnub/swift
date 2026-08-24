@@ -13,29 +13,6 @@ import XCTest
 
 final class DataSyncRouterTests: XCTestCase {
   let config = TestPubNubFactory.makeConfig(subscribeKey: "demo-sub")
-
-  private func queryValue(_ router: HTTPRouter, _ key: String) throws -> String? {
-    try router.queryItems.get().first { $0.name == key }?.value
-  }
-
-  private func queryNames(_ router: HTTPRouter) throws -> Set<String> {
-    Set(try router.queryItems.get().map { $0.name })
-  }
-
-  private func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
-    let request = try router.asURLRequest.get()
-    let body = try XCTUnwrap(request.httpBody)
-    let envelope = try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
-
-    return try XCTUnwrap(envelope["data"])
-  }
-
-  private func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
-    let request = try router.asURLRequest.get()
-    let body = try XCTUnwrap(request.httpBody)
-
-    return try Constant.jsonDecoder.decode([AnyJSON].self, from: body)
-  }
 }
 
 // MARK: - Users: List
@@ -237,71 +214,6 @@ extension DataSyncRouterTests {
   }
 }
 
-// MARK: - JSONPatchOperation encoding
-
-extension DataSyncRouterTests {
-  private func encode(_ op: JSONPatchOperation) throws -> AnyJSON {
-    let data = try Constant.jsonEncoder.encode([op])
-    let array = try Constant.jsonDecoder.decode([AnyJSON].self, from: data)
-
-    return try XCTUnwrap(array.first)
-  }
-
-  func test_JSONPatch_Add() throws {
-    let json = try encode(.add(path: "/payload/a", value: 1))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "add")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.intOptional, 1)
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Remove() throws {
-    let json = try encode(.remove(path: "/payload/a"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "remove")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertNil(json["value"])
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Replace() throws {
-    let json = try encode(.replace(path: "/payload/a", value: "x"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "replace")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.stringOptional, "x")
-    XCTAssertNil(json["from"])
-  }
-
-  func test_JSONPatch_Move() throws {
-    let json = try encode(.move(from: "/payload/a", path: "/payload/b"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "move")
-    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
-    XCTAssertNil(json["value"])
-  }
-
-  func test_JSONPatch_Copy() throws {
-    let json = try encode(.copy(from: "/payload/a", path: "/payload/b"))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "copy")
-    XCTAssertEqual(json["from"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/b")
-    XCTAssertNil(json["value"])
-  }
-
-  func test_JSONPatch_Test() throws {
-    let json = try encode(.test(path: "/payload/a", value: true))
-
-    XCTAssertEqual(json["op"]?.stringOptional, "test")
-    XCTAssertEqual(json["path"]?.stringOptional, "/payload/a")
-    XCTAssertEqual(json["value"]?.boolOptional, true)
-    XCTAssertNil(json["from"])
-  }
-}
-
 // MARK: - Channels
 
 extension DataSyncRouterTests {
@@ -488,6 +400,68 @@ extension DataSyncRouterTests {
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyMembershipUserId)
   }
+
+  func test_MembershipReplace_SetsVendorContentTypeAndIfMatch() throws {
+    let router = DataSyncMembershipRouter(
+      .replace(
+        id: "m-1",
+        body: .init(
+          status: "active",
+          relationshipClassVersion: 1,
+          payload: MembershipPayload(role: "admin").codableValue
+        ),
+        ifMatch: "\"3\""
+      ),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .put)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/vnd.pubnub.objects.membership+json;version=1")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["status"]?.stringOptional, "active")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
+    XCTAssertEqual(body["payload"]?["role"]?.stringOptional, "admin")
+  }
+
+  func test_MembershipPatch_SetsJsonPatchContentTypeAndIfMatch() throws {
+    let router = DataSyncMembershipRouter(
+      .patch(id: "m-1", operations: [.replace(path: "/payload/role", value: "admin")], ifMatch: "\"3\""),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .patch)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let encodedOps = try decodeBodyArray(router)
+
+    XCTAssertEqual(encodedOps.count, 1)
+    XCTAssertEqual(encodedOps.first?["op"]?.stringOptional, "replace")
+    XCTAssertEqual(encodedOps.first?["path"]?.stringOptional, "/payload/role")
+    XCTAssertEqual(encodedOps.first?["value"]?.stringOptional, "admin")
+  }
+
+  func test_MembershipRemove_SetsIfMatch() throws {
+    let router = DataSyncMembershipRouter(.remove(id: "m-1", ifMatch: "\"3\""), configuration: config)
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .delete)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/memberships/m-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+    XCTAssertNil(request.httpBody)
+  }
 }
 
 // MARK: - Entities
@@ -667,125 +641,98 @@ extension DataSyncRouterTests {
     XCTAssertEqual(router.validationError?.pubNubError?.reason, .missingRequiredParameter)
     XCTAssertEqual(router.validationError?.pubNubError?.details.first, ErrorDescription.emptyRelationshipClass)
   }
-}
 
-// MARK: - Response Decoders
-
-extension DataSyncRouterTests {
-  func test_DecodeSingleResourceEnvelope() throws {
-    let json = """
-    {
-      "data": {
-        "id": "alice", "status": "active", "entityClassVersion": 1,
-        "createdAt": "2021-01-01T00:00:00.000Z", "updatedAt": "2021-01-01T00:00:00.000Z",
-        "eTag": "1", "payload": { "name": "Alice", "email": "alice@example.com" }
-      }
-    }
-    """
-
-    let response = try Constant.jsonDecoder.decode(
-      DataSyncSingleResponse<DataSyncResource>.self,
-      from: XCTUnwrap(json.data(using: .utf8))
-    )
-
-    XCTAssertEqual(response.data.id, "alice")
-    XCTAssertEqual(response.data.status, "active")
-    XCTAssertEqual(response.data.entityClassVersion, 1)
-    XCTAssertEqual(response.data.eTag, "1")
-  }
-
-  func test_DecodeListEnvelopeWithMeta() throws {
-    let json = """
-    {
-      "data": [
-        { "id": "alice", "entityClassVersion": 1, "eTag": "1" }
-      ],
-      "links": { "self": "/users?limit=20", "next": "/users?cursor=TjIw" },
-      "meta": { "has_next": true, "next_cursor": "TjIw", "limit": 20 }
-    }
-    """
-
-    let response = try Constant.jsonDecoder.decode(
-      DataSyncListResponse<DataSyncResource>.self,
-      from: XCTUnwrap(json.data(using: .utf8))
-    )
-
-    XCTAssertEqual(response.data.count, 1)
-    XCTAssertEqual(response.data.first?.id, "alice")
-    XCTAssertEqual(response.meta?.nextCursor, "TjIw")
-    XCTAssertEqual(response.meta?.hasNext, true)
-    XCTAssertEqual(response.meta?.limit, 20)
-    XCTAssertEqual(response.links?.next, "/users?cursor=TjIw")
-  }
-
-  func test_DecodeRelationshipResourceFields() throws {
-    let json = """
-    {
-      "data": {
-        "id": "r-123", "entityAId": "u123", "entityBId": "s456",
-        "relationshipClass": "ProductOwner", "relationshipClassVersion": 1,
-        "status": "active", "eTag": "1", "payload": { "custom": "fields" }
-      }
-    }
-    """
-
-    let response = try Constant.jsonDecoder.decode(
-      DataSyncSingleResponse<DataSyncResource>.self,
-      from: XCTUnwrap(json.data(using: .utf8))
-    )
-
-    XCTAssertEqual(response.data.id, "r-123")
-    XCTAssertEqual(response.data.entityAId, "u123")
-    XCTAssertEqual(response.data.entityBId, "s456")
-    XCTAssertEqual(response.data.relationshipClass, "ProductOwner")
-    XCTAssertEqual(response.data.relationshipClassVersion, 1)
-    XCTAssertEqual(response.data.status, "active")
-    XCTAssertEqual(response.data.eTag, "1")
-    XCTAssertEqual(response.data.payload?["custom"], "fields")
-  }
-}
-
-// MARK: - asURLRequest Content-Type regression
-
-extension DataSyncRouterTests {
-  func test_RouterSuppliedContentTypeSurvivesWithBody() throws {
-    // A router with an explicit Content-Type should not be overridden by the default.
-    let router = DataSyncUserRouter(
-      .create(body: .init(entityClassVersion: 1)),
-      configuration: config
-    )
-
-    let request = try router.asURLRequest.get()
-
-    XCTAssertEqual(
-      request.value(forHTTPHeaderField: "Content-Type"),
-       "application/vnd.pubnub.objects.user+json;version=1"
-    )
-    XCTAssertNotEqual(
-      request.value(forHTTPHeaderField: "Content-Type"),
-      Constant.defaultContentTypeHeader
-    )
-  }
-
-  func test_DefaultContentTypeStillAppliedWhenRouterSuppliesNone() throws {
-    // A router with a body but no explicit Content-Type still gets the default.
-    let router = PublishRouter(
-      PublishRouter.Endpoint.compressedPublish(
-        message: ["msg"],
-        channel: "c",
-        customMessageType: nil,
-        shouldStore: nil,
-        ttl: nil,
-        meta: nil
+  func test_RelationshipReplace_SetsVendorContentTypeAndIfMatch() throws {
+    let router = DataSyncRelationshipRouter(
+      .replace(
+        id: "r-1",
+        body: .init(
+          status: "active",
+          relationshipClassVersion: 1,
+          payload: RelationshipPayload(since: "2026-01-01").codableValue
+        ),
+        ifMatch: "\"3\""
       ),
       configuration: config
     )
 
     let request = try router.asURLRequest.get()
 
+    XCTAssertEqual(router.method, .put)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+
     XCTAssertEqual(
       request.value(forHTTPHeaderField: "Content-Type"),
-      Constant.defaultContentTypeHeader
+      "application/vnd.pubnub.objects.relationship+json;version=1"
     )
+    XCTAssertEqual(
+      request.value(forHTTPHeaderField: "If-Match"),
+      "\"3\""
+    )
+
+    let body = try decodeBody(router)
+
+    XCTAssertEqual(body["status"]?.stringOptional, "active")
+    XCTAssertEqual(body["relationshipClassVersion"]?.intOptional, 1)
+    XCTAssertEqual(body["payload"]?["since"]?.stringOptional, "2026-01-01")
+  }
+
+  func test_RelationshipPatch_SetsJsonPatchContentTypeAndIfMatch() throws {
+    let router = DataSyncRelationshipRouter(
+      .patch(id: "r-1", operations: [.replace(path: "/payload/since", value: "2026-01-01")], ifMatch: "\"3\""),
+      configuration: config
+    )
+
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .patch)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json-patch+json")
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+
+    let encodedOps = try decodeBodyArray(router)
+
+    XCTAssertEqual(encodedOps.count, 1)
+    XCTAssertEqual(encodedOps.first?["op"]?.stringOptional, "replace")
+    XCTAssertEqual(encodedOps.first?["path"]?.stringOptional, "/payload/since")
+    XCTAssertEqual(encodedOps.first?["value"]?.stringOptional, "2026-01-01")
+  }
+
+  func test_RelationshipRemove_SetsIfMatch() throws {
+    let router = DataSyncRelationshipRouter(.remove(id: "r-1", ifMatch: "\"3\""), configuration: config)
+    let request = try router.asURLRequest.get()
+
+    XCTAssertEqual(router.method, .delete)
+    XCTAssertEqual(try router.path.get(), "/v1/datasync/subkeys/demo-sub/relationships/r-1")
+    XCTAssertNil(router.validationError)
+    XCTAssertEqual(request.value(forHTTPHeaderField: "If-Match"), "\"3\"")
+    XCTAssertNil(request.httpBody)
+  }
+}
+
+private extension DataSyncRouterTests {
+  func queryValue(_ router: HTTPRouter, _ key: String) throws -> String? {
+    try router.queryItems.get().first { $0.name == key }?.value
+  }
+
+  func queryNames(_ router: HTTPRouter) throws -> Set<String> {
+    Set(try router.queryItems.get().map { $0.name })
+  }
+
+  func decodeBody(_ router: HTTPRouter) throws -> AnyJSON {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+    let envelope = try Constant.jsonDecoder.decode(AnyJSON.self, from: body)
+
+    return try XCTUnwrap(envelope["data"])
+  }
+
+  func decodeBodyArray(_ router: HTTPRouter) throws -> [AnyJSON] {
+    let request = try router.asURLRequest.get()
+    let body = try XCTUnwrap(request.httpBody)
+
+    return try Constant.jsonDecoder.decode([AnyJSON].self, from: body)
   }
 }

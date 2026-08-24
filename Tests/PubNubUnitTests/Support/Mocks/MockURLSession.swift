@@ -401,7 +401,7 @@ extension MockURLSession {
         let endpointResource: EndpointResource? = ImportTestResource.testResource(resource)
         let urlErrorResource: URLErrorResource? = ImportTestResource.testResource(resource)
 
-        mockTask.mockData = try? endpointResource?.body.jsonDataResult.get()
+        mockTask.mockData = (try? endpointResource?.body?.jsonDataResult.get()) ?? Data()
 
         // Return either the response or an URL error
         if let responseCode = endpointResource?.code {

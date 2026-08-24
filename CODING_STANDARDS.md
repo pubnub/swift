@@ -22,6 +22,6 @@ Apply these standards to Swift SDK test code:
 - Keep tests deterministic and isolated; avoid hidden shared state, order dependence, and timing-sensitive assertions.
 - Prefer focused tests over broad tests that verify many behaviors at once.
 - In throwing contexts, mark test methods as `throws` and prefer `try` / `try XCTUnwrap()` over optional unwrapping patterns to keep tests flat.
-- Each test method should create its own mutable state and dependencies locally — do not share them via class-level var properties or setUp()/tearDown(). Class-level let constants for static test data are fine.
+- Each test method should create its own mutable state and reference-type dependencies locally — do not share them via class-level `var` properties or `setUp()`/`tearDown()`. Class-level `let` constants for static test data are fine, including value types (structs, enums).
 - Use clearly-typed test doubles with consistent prefixes: `Mock` (verifies interactions), `Stub` (returns canned data), `NoOp` (null object), `Expector` (spy with XCTestExpectation).
 - `unowned` captures in test code are acceptable; they reduce unwrapping noise and surface lifecycle bugs immediately.

@@ -212,7 +212,7 @@ extension SubscribeRouterTests {
   func decodeEvent(from resource: String) throws -> PubNubEvent {
     let data = try ImportTestResource.importResource(resource)
     let response = try JSONDecoder().decode(EndpointResource.self, from: data)
-    let body = try response.body.jsonDataResult.get()
+    let body = try XCTUnwrap(response.body).jsonDataResult.get()
     let subscribeResponse = try JSONDecoder().decode(SubscribeResponse.self, from: body)
     let payload = try XCTUnwrap(subscribeResponse.messages.first)
 

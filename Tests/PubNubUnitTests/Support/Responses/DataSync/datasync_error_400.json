@@ -1,0 +1,12 @@
+{
+  "code": 400,
+  "body": {
+    "errors": [
+      {
+        "errorCode": "SYN-0004",
+        "message": "must be greater than or equal to 1",
+        "path": "limit"
+      }
+    ]
+  }
+}

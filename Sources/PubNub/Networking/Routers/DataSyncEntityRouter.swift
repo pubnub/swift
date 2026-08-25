@@ -10,7 +10,7 @@
 
 import Foundation
 
-struct DataSyncEntityRouter: HTTPRouter {
+struct DataSyncEntityRouter: DataSyncRouting {
   enum Endpoint: CustomStringConvertible {
     case all(
       entityClass: String, entityClassVersion: Int?, entityClassLevel: String?, cursor: String?, limit: Int?,
@@ -44,6 +44,7 @@ struct DataSyncEntityRouter: HTTPRouter {
     let id: String?
     let entityClass: String
     let entityClassVersion: Int
+    let entityClassLevel: String?
     let status: String?
     let payload: AnyJSON?
 
@@ -51,12 +52,14 @@ struct DataSyncEntityRouter: HTTPRouter {
       id: String? = nil,
       entityClass: String,
       entityClassVersion: Int,
+      entityClassLevel: String? = nil,
       status: String? = nil,
       payload: AnyJSON? = nil
     ) {
       self.id = id
       self.entityClass = entityClass
       self.entityClassVersion = entityClassVersion
+      self.entityClassLevel = entityClassLevel
       self.status = status
       self.payload = payload
     }

@@ -82,7 +82,7 @@ extension SubscribeDataSyncPayload: Decodable {
         createdAt: try data.decode(Date.self, forKey: .createdAt),
         updatedAt: try data.decode(Date.self, forKey: .updatedAt),
         eTag: try data.decode(String.self, forKey: .eTag),
-        expiresAt: try data.decode(Date.self, forKey: .expiresAt),
+        expiresAt: try data.decodeIfPresent(Date.self, forKey: .expiresAt),
         status: try data.decodeIfPresent(String.self, forKey: .status),
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
@@ -98,7 +98,7 @@ extension SubscribeDataSyncPayload: Decodable {
         createdAt: try data.decode(Date.self, forKey: .createdAt),
         updatedAt: try data.decode(Date.self, forKey: .updatedAt),
         eTag: try data.decode(String.self, forKey: .eTag),
-        expiresAt: try data.decode(Date.self, forKey: .expiresAt),
+        expiresAt: try data.decodeIfPresent(Date.self, forKey: .expiresAt),
         status: try data.decodeIfPresent(String.self, forKey: .status),
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )

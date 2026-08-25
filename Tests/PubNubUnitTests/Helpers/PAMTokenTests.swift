@@ -29,38 +29,34 @@ class PAMTokenTests: XCTestCase {
   ///   "ttl": 60,
   ///   "authorized_uuid": "test-authorized-uuid",
   ///   "resources": {
-  ///    "datasync:memberships": {
-  ///       "membership-1": {
-  ///          "read": true,
-  ///          "write": true,
-  ///          "manage": true,
-  ///          "delete": true,
-  ///          "create": true,
-  ///          "get": true,
-  ///          "update": true,
-  ///          "join": true
-  ///       }
+  ///     "channels": {
+  ///       "channel-1": 239
+  ///     },
+  ///     "groups": {
+  ///       "channel_group-1": 5
+  ///     },
+  ///     "uuids": {
+  ///       "uuid-1": 104
+  ///     },
+  ///     "datasync:memberships": {
+  ///       "membership-1": 255
   ///     }
   ///   },
   ///   "patterns": {
+  ///     "channels": {
+  ///       "^channel-\S*$": 239
+  ///     },
+  ///     "groups": {
+  ///       "^:channel_group-\S*$": 5
+  ///     },
+  ///     "uuids": {
+  ///       "^uuid-\S*$": 104
+  ///     },
   ///     "datasync:entities": {
-  ///       ".*": {
-  ///         "read": true,
-  ///         "write": true,
-  ///         "manage": true,
-  ///         "delete": true,
-  ///         "create": true,
-  ///         "get": true,
-  ///         "update": true,
-  ///         "join": true
-  ///       }
+  ///       ".*": 255
   ///     },
   ///     "datasync:relationships": {
-  ///       ".*": {
-  ///         "read": true,
-  ///         "write": true,
-  ///         "create": true
-  ///       }
+  ///       ".*": 19
   ///     }
   ///   },
   ///   "meta": {
@@ -71,6 +67,7 @@ class PAMTokenTests: XCTestCase {
   ///     }
   ///   }
   /// }
+  /// ```
   static let dataSyncToken = "qGF2AmF0GmEI03xjdHRsGDxjcmVzpGRjaGFuoWljaGFubmVsLTEY72NncnChb2NoYW5uZWxfZ3JvdXAtMQVkdXVpZKFmdXVpZC0xGGh0ZGF0YXN5bmM6bWVtYmVyc2hpcHOhbG1lbWJlcnNoaXAtMRj_Y3BhdKVkY2hhbqFtXmNoYW5uZWwtXFMqJBjvY2dycKF0XjpjaGFubmVsX2dyb3VwLVxTKiQFZHV1aWShal51dWlkLVxTKiQYaHFkYXRhc3luYzplbnRpdGllc6FiLioY_3ZkYXRhc3luYzpyZWxhdGlvbnNoaXBzoWIuKhNkbWV0YaFucG4tcHJvamVjdGlvbnOhY3BhdKF0ZGF0YXN5bmM6ZW50aXRpZXM6LiplYWRtaW5kdXVpZHR0ZXN0LWF1dGhvcml6ZWQtdXVpZGNzaWdE-lT68A=="
 
   /// Equivalent grant request body (as passed to grantToken):
@@ -81,18 +78,10 @@ class PAMTokenTests: XCTestCase {
   ///   "authorized_uuid": "ryan-carroll",
   ///   "resources": {
   ///     "datasync:entities": {
-  ///       "vehicle.toyota-corolla-7f3a": {
-  ///         "read": true,
-  ///         "write": true,
-  ///         "get": true,
-  ///         "update": true
-  ///       }
+  ///       "vehicle.toyota-corolla-7f3a": 99
   ///     },
   ///     "datasync:relationships": {
-  ///       "assignment.ryan-carroll": {
-  ///         "read": true,
-  ///         "get": true
-  ///       }
+  ///       "assignment.ryan-carroll": 33
   ///     }
   ///   },
   ///   "meta": {
@@ -104,6 +93,7 @@ class PAMTokenTests: XCTestCase {
   ///     }
   ///   }
   /// }
+  /// ```
   static let dataSyncCustomToken = "qGF2AmF0GmEI03xjdHRsGDxjcmVzonFkYXRhc3luYzplbnRpdGllc6F4G3ZlaGljbGUudG95b3RhLWNvcm9sbGEtN2YzYRhjdmRhdGFzeW5jOnJlbGF0aW9uc2hpcHOhd2Fzc2lnbm1lbnQucnlhbi1jYXJyb2xsGCFjcGF0oGRtZXRhoW5wbi1wcm9qZWN0aW9uc6FjcmVzongtZGF0YXN5bmM6ZW50aXRpZXM6dmVoaWNsZS50b3lvdGEtY29yb2xsYS03ZjNhaXRlbGVtZXRyeXguZGF0YXN5bmM6cmVsYXRpb25zaGlwczphc3NpZ25tZW50LnJ5YW4tY2Fycm9sbGl0ZWxlbWV0cnlkdXVpZGxyeWFuLWNhcnJvbGxjc2lnRPpU-vA="
 }
 
@@ -171,6 +161,7 @@ extension PAMTokenTests {
 
   func test_SetToken_UpdatesConfiguration() {
     let pubnub = PubNub(configuration: config)
+
     pubnub.set(token: "access-token")
 
     XCTAssertEqual(pubnub.configuration.authToken, "access-token")

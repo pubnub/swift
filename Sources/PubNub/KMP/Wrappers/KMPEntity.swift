@@ -32,9 +32,9 @@ import Foundation
 
 @objc
 public class KMPChannelEntity: KMPEntity {
-  let channel: ChannelRepresentation
+  let channel: Channel
 
-  init(channel: ChannelRepresentation) {
+  init(channel: Channel) {
     self.channel = channel
     super.init(entity: channel)
   }
@@ -42,9 +42,9 @@ public class KMPChannelEntity: KMPEntity {
 
 @objc
 public class KMPChannelGroupEntity: KMPEntity {
-  let channelGroup: ChannelGroupRepresentation
+  let channelGroup: ChannelGroup
 
-  init(channelGroup: ChannelGroupRepresentation) {
+  init(channelGroup: ChannelGroup) {
     self.channelGroup = channelGroup
     super.init(entity: channelGroup)
   }
@@ -52,9 +52,9 @@ public class KMPChannelGroupEntity: KMPEntity {
 
 @objc
 public class KMPUserMetadataEntity: KMPEntity {
-  let userMetadata: UserMetadataRepresentation
+  let userMetadata: UserMetadata
 
-  init(userMetadata: UserMetadataRepresentation) {
+  init(userMetadata: UserMetadata) {
     self.userMetadata = userMetadata
     super.init(entity: userMetadata)
   }
@@ -62,9 +62,9 @@ public class KMPUserMetadataEntity: KMPEntity {
 
 @objc
 public class KMPChannelMetadataEntity: KMPEntity {
-  let channelMetadata: ChannelMetadataRepresentation
+  let channelMetadata: ChannelMetadata
 
-  init(channelMetadata: ChannelMetadataRepresentation) {
+  init(channelMetadata: ChannelMetadata) {
     self.channelMetadata = channelMetadata
     super.init(entity: channelMetadata)
   }

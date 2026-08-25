@@ -1,5 +1,5 @@
 //
-//  ListenersPOC.swift
+//  Subscribable.swift
 //
 //  Copyright (c) PubNub Inc.
 //  All rights reserved.
@@ -30,50 +30,28 @@ public extension SubscribeCapable {
   }
 }
 
-/// A base class for entities that can be subscribed to and unsubscribed from using the PubNub service.
-public class Subscribable: Subscriber {
-  /// An entity name
+/// A base class for the named streams that can be subscribed to and unsubscribed from using the PubNub service.
+public class Subscribable {
+  /// The name this subscribable contributes to the Subscribe loop
   public let name: String
-  /// The PubNub client associated with this channel.
+  /// The PubNub client that created this subscribable
   weak var pubnub: PubNub?
-  /// An underlying subscription type
-  let subscriptionType: SubscribableType
+  /// Determines whether ``name`` is sent to the Subscribe loop as a channel or as a channel group
+  let subscribeTarget: SubscribeTarget
 
-  init(name: String, subscriptionType: SubscribableType, pubnub: PubNub) {
+  init(name: String, subscribeTarget: SubscribeTarget, pubnub: PubNub) {
     self.name = name
-    self.subscriptionType = subscriptionType
+    self.subscribeTarget = subscribeTarget
     self.pubnub = pubnub
   }
-}
 
-enum SubscribableType {
-  case channel
-  case channelGroup
-}
-
-/// Provides the ability to return a `Subscription` object for the underlying entity
-///
-/// Subsequent calls to `.subscribe()` on the obtained `Subscription` instance will initiate the subscription.
-/// Similarly, a subsequent call to `.unsubscribe()` will attempt to deregister the underlying entity from
-/// the Subscribe loop if there are no active subscriptions matching the given entity.
-public protocol Subscriber {
-  /// Creates a `Subscription` object with the specified queue and options.
-  ///
-  /// - Parameters:
-  ///   - queue: The dispatch queue on which the subscription events should be handled.
-  ///   - options: Additional options for configuring the subscription.
-  func subscription(queue: DispatchQueue, options: SubscriptionOptions) -> Subscription
-}
-
-/// Provides a default subscription object for the conforming entity like `ChannelRepresentation`,
-/// `ChannelGroupRepresentation`,`ChannelMetadataRepresentation`, and `UserMetadataRepresentation`
-public extension Subscriber where Self: Subscribable {
-  /// Creates a `Subscription` object with default options for the conforming entity.
+  /// Creates a `Subscription` object for this value.
   ///
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
   ///   - options: Additional options for configuring the subscription
-  func subscription(
+  /// - Returns: A `Subscription` instance for managing this value.
+  public func subscription(
     queue: DispatchQueue = .main,
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) -> Subscription {
@@ -83,6 +61,14 @@ public extension Subscriber where Self: Subscribable {
       options: options
     )
   }
+}
+
+/// The bucket a ``Subscribable`` name occupies in the Subscribe loop.
+enum SubscribeTarget {
+  /// The name is sent as a channel
+  case channel
+  /// The name is sent as a channel group
+  case channelGroup
 }
 
 /// A typealias representing an interface for PubNub subscriptions.

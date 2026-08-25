@@ -1,0 +1,47 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17866337284419052",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17866337284419052",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "update",
+            "source": "data-sync",
+            "type": "entity",
+            "className": "User",
+            "classLevel": "Global",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "alice",
+            "updatedAt": "2026-08-13T15:08:48.220914Z",
+            "createdAt": "2026-08-13T15:04:09.341705Z",
+            "eTag": "3w5e1124yb7pn",
+            "expiresAt": "2026-09-13T00:00:00Z",
+            "status": "active",
+            "payload": {
+              "name": "Alice Example-Summers",
+              "type": "contractor",
+              "email": "alice.summers@example.com",
+              "profileUrl": "https://example.com/users/alice"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

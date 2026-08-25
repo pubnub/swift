@@ -1,0 +1,37 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17866339015772634",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17866339015772634",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "delete",
+            "source": "data-sync",
+            "type": "entity",
+            "className": "User",
+            "classLevel": "Global",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "alice",
+            "deletedAt": "2026-08-13T15:11:41.577263Z"
+          }
+        }
+      }
+    ]
+  }
+}

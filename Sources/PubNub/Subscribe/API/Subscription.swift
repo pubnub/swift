@@ -69,8 +69,8 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     entity.pubnub
   }
 
-  internal var subscriptionType: SubscribableType {
-    entity.subscriptionType
+  internal var subscribeTarget: SubscribeTarget {
+    entity.subscribeTarget
   }
 
   internal var subscriptionNames: [String] {
@@ -78,9 +78,9 @@ public final class Subscription: EventListenerInterface, SubscriptionDisposable,
     let name = entity.name
 
     switch entity {
-    case is ChannelRepresentation:
+    case is Channel:
       return hasPresenceOption ? [name, name.presenceChannelName] : [name]
-    case is ChannelGroupRepresentation:
+    case is ChannelGroup:
       return hasPresenceOption ? [name, name.presenceChannelName] : [name]
     default:
       return [entity.name]
@@ -142,8 +142,8 @@ extension Subscription: SubscribeCapable {
     guard let pubnub = pubnub, !isDisposed else {
       return
     }
-    let channels = subscriptionType == .channel ? [self] : []
-    let channelGroups = subscriptionType == .channelGroup ? [self] : []
+    let channels = subscribeTarget == .channel ? [self] : []
+    let channelGroups = subscribeTarget == .channelGroup ? [self] : []
 
     pubnub.internalSubscribe(with: channels, and: channelGroups, at: timetoken)
   }
@@ -158,8 +158,8 @@ extension Subscription: SubscribeCapable {
     guard let pubnub = pubnub, !isDisposed else {
       return
     }
-    let channels = subscriptionType == .channel ? [self] : []
-    let groups = subscriptionType == .channelGroup ? [self] : []
+    let channels = subscribeTarget == .channel ? [self] : []
+    let groups = subscribeTarget == .channelGroup ? [self] : []
 
     pubnub.internalUnsubscribe(from: channels, and: groups)
   }
@@ -178,8 +178,8 @@ extension Subscription: Hashable {
 // MARK: - SubscribeMessagesReceiver
 
 extension Subscription: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
-    [subscriptionType: subscriptionNames]
+  var subscriptionTopology: [SubscribeTarget: [String]] {
+    [subscribeTarget: subscriptionNames]
   }
 
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent] {
@@ -196,9 +196,9 @@ extension Subscription: SubscribeMessagesReceiver {
     let isNewerOrEqualToTimetoken = payload.publishTimetoken.timetoken >= timetoken ?? 0
     let isMatchingEntity: Bool
 
-    if subscriptionType == .channel {
+    if subscribeTarget == .channel {
       isMatchingEntity = isMatchingEntityName(entity.name, string: payload.channel)
-    } else if subscriptionType == .channelGroup {
+    } else if subscribeTarget == .channelGroup {
       isMatchingEntity = isMatchingEntityName(entity.name, string: payload.subscription ?? payload.channel)
     } else {
       isMatchingEntity = true

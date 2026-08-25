@@ -1,0 +1,48 @@
+{
+  "code": 200,
+  "body": {
+    "t": {
+      "t": "17866369418823047",
+      "r": 21
+    },
+    "m": [
+      {
+        "a": "2",
+        "f": 0,
+        "e": 5,
+        "p": {
+          "t": "17866369418823047",
+          "r": 21
+        },
+        "k": "demo",
+        "c": "alice",
+        "d": {
+          "version": "1.0",
+          "metadata": {
+            "event": "update",
+            "source": "data-sync",
+            "type": "relationship",
+            "className": "Membership",
+            "classLevel": "Global",
+            "classVersion": 1
+          },
+          "data": {
+            "id": "general__alice",
+            "updatedAt": "2026-08-13T16:02:21.882304Z",
+            "createdAt": "2026-08-13T15:59:28.334186Z",
+            "eTag": "3w5e1124zn8qm",
+            "entityAId": "general",
+            "entityBId": "alice",
+            "expiresAt": "2026-09-13T00:00:00Z",
+            "status": "active",
+            "payload": {
+              "role": "moderator",
+              "joinedVia": "invite-link",
+              "notifications": "mentions"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

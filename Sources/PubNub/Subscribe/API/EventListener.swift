@@ -180,7 +180,7 @@ public protocol SubscriptionDisposable {
 // into concrete events for the user.
 protocol SubscribeMessagesReceiver: AnyObject {
   // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribableType: [String]] { get }
+  var subscriptionTopology: [SubscribeTarget: [String]] { get }
   // This method should return an array of `PubNubEvent` instances,
   // representing the concrete events for the user.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]

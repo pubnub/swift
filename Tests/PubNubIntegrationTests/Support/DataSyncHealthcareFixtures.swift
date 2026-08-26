@@ -300,9 +300,9 @@ extension XCTestCase {
 
       client.dataSync.createRelationship(
         className: spec.relationshipClass.name,
+        classVersion: spec.relationshipClass.version,
         entityAId: spec.entityAId,
         entityBId: spec.entityBId,
-        classVersion: spec.relationshipClass.version,
         id: spec.id,
         status: spec.status,
         payload: spec.payload

@@ -24,7 +24,6 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
         XCTAssertEqual(relationships.count, 1)
         XCTAssertEqual(relationships[0].id, "rel-alice-treats-bob")
         XCTAssertEqual(relationships[0].className, "Treats")
-        XCTAssertNil(relationships[0].classLevel)
         XCTAssertEqual(relationships[0].classVersion, 1)
         XCTAssertEqual(relationships[0].entityAId, "hcn-doctor-alice")
         XCTAssertEqual(relationships[0].entityBId, "hcn-patient-bob")
@@ -66,9 +65,9 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.createRelationship(
       className: "Treats",
+      classVersion: 1,
       entityAId: "hcn-doctor-alice",
-      entityBId: "hcn-patient-bob",
-      classVersion: 1
+      entityBId: "hcn-patient-bob"
     ) { result in
       switch result {
       case let .success(relationship):

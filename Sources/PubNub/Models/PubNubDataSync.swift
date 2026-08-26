@@ -271,8 +271,6 @@ public struct PubNubDataSyncRelationship: Hashable {
   public let id: String
   /// The name of the relationship's class
   public let className: String
-  /// The level the relationship's class is registered at
-  public let classLevel: PubNubDataSyncClassLevel?
   /// The version of the relationship's class
   public let classVersion: Int
   /// The unique identifier of the entity on side A of the relationship
@@ -297,7 +295,6 @@ public struct PubNubDataSyncRelationship: Hashable {
   init(
     id: String,
     className: String,
-    classLevel: PubNubDataSyncClassLevel? = nil,
     classVersion: Int,
     entityAId: String,
     entityBId: String,
@@ -310,7 +307,6 @@ public struct PubNubDataSyncRelationship: Hashable {
   ) {
     self.id = id
     self.className = className
-    self.classLevel = classLevel
     self.classVersion = classVersion
     self.entityAId = entityAId
     self.entityBId = entityBId
@@ -327,7 +323,6 @@ extension PubNubDataSyncRelationship: Codable {
   enum CodingKeys: String, CodingKey {
     case id
     case className = "relationshipClass"
-    case classLevel = "relationshipClassLevel"
     case classVersion = "relationshipClassVersion"
     case entityAId
     case entityBId

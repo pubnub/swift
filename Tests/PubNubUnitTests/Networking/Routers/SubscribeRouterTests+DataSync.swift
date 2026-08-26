@@ -127,7 +127,6 @@ extension SubscribeRouterTests {
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
-      classLevel: .subKey,
       classVersion: 1,
       entityAId: "hcn-practitioner-carter",
       entityBId: "hcn-patient-alice",
@@ -144,7 +143,6 @@ extension SubscribeRouterTests {
 
     XCTAssertEqual(relationship.id, expectedRelationship.id)
     XCTAssertEqual(relationship.className, expectedRelationship.className)
-    XCTAssertEqual(relationship.classLevel, expectedRelationship.classLevel)
     XCTAssertEqual(relationship.classVersion, expectedRelationship.classVersion)
     XCTAssertEqual(relationship.entityAId, expectedRelationship.entityAId)
     XCTAssertEqual(relationship.entityBId, expectedRelationship.entityBId)
@@ -166,7 +164,6 @@ extension SubscribeRouterTests {
     let expectedRelationship = PubNubDataSyncRelationship(
       id: "hcn-rel-attending-carter-alice",
       className: "attending-physician",
-      classLevel: .subKey,
       classVersion: 1,
       entityAId: "hcn-practitioner-carter",
       entityBId: "hcn-patient-alice",
@@ -183,7 +180,6 @@ extension SubscribeRouterTests {
 
     XCTAssertEqual(relationship.id, expectedRelationship.id)
     XCTAssertEqual(relationship.className, expectedRelationship.className)
-    XCTAssertEqual(relationship.classLevel, expectedRelationship.classLevel)
     XCTAssertEqual(relationship.classVersion, expectedRelationship.classVersion)
     XCTAssertEqual(relationship.entityAId, expectedRelationship.entityAId)
     XCTAssertEqual(relationship.entityBId, expectedRelationship.entityBId)

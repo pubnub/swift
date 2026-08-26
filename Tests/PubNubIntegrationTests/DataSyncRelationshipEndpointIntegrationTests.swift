@@ -29,9 +29,9 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
     client.dataSync.createRelationship(
       className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      classVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: payload
@@ -82,9 +82,9 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
     client.dataSync.createRelationship(
       className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      classVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")
@@ -138,9 +138,9 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
     client.dataSync.createRelationship(
       className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      classVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")
@@ -538,9 +538,9 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
     client.dataSync.createRelationship(
       className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: missingPatientId,
-      classVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")

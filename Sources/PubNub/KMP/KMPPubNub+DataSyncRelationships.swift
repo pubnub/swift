@@ -23,9 +23,9 @@ import Foundation
 public extension KMPPubNub {
   func getDataSyncRelationships(
     className: String,
+    classVersion: NSNumber?,
     entityAId: String?,
     entityBId: String?,
-    classVersion: NSNumber?,
     cursor: String?,
     limit: NSNumber?,
     filter: String?,
@@ -36,9 +36,9 @@ public extension KMPPubNub {
   ) {
     pubnub.dataSync.getRelationships(
       className: className,
+      classVersion: classVersion?.intValue,
       entityAId: entityAId,
       entityBId: entityBId,
-      classVersion: classVersion?.intValue,
       cursor: cursor,
       limit: limit?.intValue,
       filter: filter,
@@ -74,9 +74,9 @@ public extension KMPPubNub {
 
   func createDataSyncRelationship(
     className: String,
+    classVersion: Int,
     entityAId: String,
     entityBId: String,
-    classVersion: Int,
     id: String?,
     status: String?,
     payload: Any?,
@@ -85,9 +85,9 @@ public extension KMPPubNub {
   ) {
     pubnub.dataSync.createRelationship(
       className: className,
+      classVersion: classVersion,
       entityAId: entityAId,
       entityBId: entityBId,
-      classVersion: classVersion,
       id: id,
       status: status,
       payload: asOptionalCodable(payload)

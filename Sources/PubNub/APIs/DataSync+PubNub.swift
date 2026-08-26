@@ -1348,9 +1348,9 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - className: The name of the class to list relationships of
+  ///   - classVersion: Restricts results to a single version of the class. If omitted, every version is returned
   ///   - entityAId: Restricts results to relationships whose side A is this entity
   ///   - entityBId: Restricts results to relationships whose side B is this entity
-  ///   - classVersion: Restricts results to a single version of the class. If omitted, every version is returned
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of relationships to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
@@ -1362,9 +1362,9 @@ public extension PubNub.DataSyncAPI {
   ///     - **Failure**: An `Error` describing the failure
   func getRelationships(
     className: String,
+    classVersion: Int? = nil,
     entityAId: String? = nil,
     entityBId: String? = nil,
-    classVersion: Int? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
     filter: String? = nil,
@@ -1378,9 +1378,9 @@ public extension PubNub.DataSyncAPI {
       details: "List DataSync relationships",
       arguments: [
         ("className", className),
+        ("classVersion", classVersion),
         ("entityAId", entityAId),
         ("entityBId", entityBId),
-        ("classVersion", classVersion),
         ("cursor", cursor),
         ("limit", limit),
         ("filter", filter),
@@ -1454,9 +1454,9 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - className: The name of the class to create the relationship in
+  ///   - classVersion: The version of the class the payload conforms to
   ///   - entityAId: The unique identifier of the entity on side A
   ///   - entityBId: The unique identifier of the entity on side B
-  ///   - classVersion: The version of the class the payload conforms to
   ///   - id: The unique identifier to create the relationship with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the relationship
   ///   - payload: The relationship fields
@@ -1466,9 +1466,9 @@ public extension PubNub.DataSyncAPI {
   ///     - **Failure**: An `Error` describing the failure
   func createRelationship(
     className: String,
+    classVersion: Int,
     entityAId: String,
     entityBId: String,
-    classVersion: Int,
     id: String? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -1480,9 +1480,9 @@ public extension PubNub.DataSyncAPI {
       details: "Create DataSync relationship",
       arguments: [
         ("className", className),
+        ("classVersion", classVersion),
         ("entityAId", entityAId),
         ("entityBId", entityBId),
-        ("classVersion", classVersion),
         ("id", id),
         ("status", status),
         ("payload", payload),

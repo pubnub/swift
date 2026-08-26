@@ -91,7 +91,6 @@ extension SubscribeDataSyncPayload: Decodable {
       let relationship = PubNubDataSyncRelationship(
         id: identifier,
         className: className,
-        classLevel: classLevel,
         classVersion: classVersion,
         entityAId: try data.decode(String.self, forKey: .entityAId),
         entityBId: try data.decode(String.self, forKey: .entityBId),

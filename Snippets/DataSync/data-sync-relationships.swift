@@ -100,9 +100,9 @@ pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in
 // Connect two entities with a relationship of your own class
 pubnub.dataSync.createRelationship(
   className: "enrollment",
+  classVersion: 1,
   entityAId: "student-alice",
   entityBId: "course-swift-basics",
-  classVersion: 1,
   id: "alice-course-swift-basics",
   status: "active",
   payload: EnrollmentDetails(

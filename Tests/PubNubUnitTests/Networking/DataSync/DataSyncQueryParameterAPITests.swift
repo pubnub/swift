@@ -127,9 +127,9 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.getRelationships(
       className: "attending-physician",
+      classVersion: 2,
       entityAId: "hcn-doctor-alice",
       entityBId: "hcn-patient-bob",
-      classVersion: 2,
       cursor: "TjIw",
       limit: 25
     ) { _ in

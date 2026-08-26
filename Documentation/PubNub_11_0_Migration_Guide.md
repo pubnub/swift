@@ -4,6 +4,16 @@ PubNub Native Swift SDK v11.0 is the latest major release of the PubNub SDK for 
 
 This guide is meant to ease the transition to the 11.0 version of the SDK. To read the full set of documentation, please head over to our official [docs page](https://www.pubnub.com/docs/swift-native/pubnub-swift-sdk)
 
+## New Features
+
+### Data Sync
+
+PubNub 11.0 adds Data Sync APIs for working with users, channels, memberships, and your custom entities and relationships through the `pubNub.dataSync` namespace.
+
+Data Sync helps keep shared application data consistent across clients while giving your app a structured way to model and update its domain data.
+
+For usage details, see the PubNub Swift SDK documentation.
+
 ## Breaking API Changes
 
 ### 1. Unified Subscribe Event Model
@@ -24,7 +34,7 @@ listener.didReceiveSubscriptionChange = { change in /* ... */ }
 // Now (11.0) — prefer the granular callbacks:
 let listener = SubscriptionListener()
 listener.didReceiveMessage = { message in /* ... */ }
-listener.didReceiveSignal = { message in /* ... */ }
+listener.didReceiveSignal = { signal in /* ... */ }
 listener.didReceivePresence = { presence in /* ... */ }
 listener.didReceiveStatus = { status in
   switch status {

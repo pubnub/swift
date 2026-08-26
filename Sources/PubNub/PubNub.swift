@@ -430,26 +430,6 @@ extension PubNub {
   }
 }
 
-// MARK: - EntityCreator
-
-extension PubNub: EntityCreator {
-  public func channel(_ name: String) -> ChannelRepresentation {
-    ChannelRepresentation(name: name, pubnub: self)
-  }
-
-  public func channelGroup(_ name: String) -> ChannelGroupRepresentation {
-    ChannelGroupRepresentation(name: name, pubnub: self)
-  }
-
-  public func userMetadata(_ name: String) -> UserMetadataRepresentation {
-    UserMetadataRepresentation(id: name, pubnub: self)
-  }
-
-  public func channelMetadata(_ name: String) -> ChannelMetadataRepresentation {
-    ChannelMetadataRepresentation(id: name, pubnub: self)
-  }
-}
-
 // MARK: - PAM Token
 
 public extension PubNub {

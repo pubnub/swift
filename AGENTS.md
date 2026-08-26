@@ -14,18 +14,6 @@ Prefer guidance in this file over assumptions from source layout alone. If repos
 - Client configuration is provided through `PubNubConfiguration`.
 - The Swift Package Manager product imported by clients is `PubNubSDK`.
 
-## Repository Layout
-
-- `Sources/PubNub/` — main SDK implementation
-- `Tests/PubNubUnitTests/` — primary Swift unit tests
-- `Tests/PubNubIntegrationTests/` — integration tests
-- `Tests/PubNubContractTests/` — contract and acceptance tests
-- `Examples/` — sample Xcode applications
-- `Snippets/` — documentation code snippets organized by API area
-- `Documentation/` — guides and migration docs
-- `fastlane/` — CI and release automation
-- `PubNub.xcodeproj` / `PubNub.xcworkspace` — Xcode project and workspace
-
 ## Coding Standards
 
 Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that file as the source of truth for production Swift library code and Swift SDK test code standards.
@@ -35,37 +23,16 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 - The SDK has zero external production dependencies. Do not add any.
 - Distribution is supported via SPM (primary), CocoaPods, and Carthage.
 - The only test dependency is Cucumberish (CocoaPods, for contract tests).
-- Platform minimums: iOS 12+, macOS 10.15+, tvOS 12+, watchOS 4+, visionOS 1+. Swift 5.9+.
-
-## Architecture Notes
-
-### Networking
-
-- Routers in `Sources/PubNub/Networking/Routers/` build `URLRequest`s, `HTTPSession` executes them, and response decoders in `Networking/Response/` handle parsing.
-- Retry logic lives in `Request`.
-
-### Event Engine
-
-- `Sources/PubNub/EventEngine/` contains the shared state-machine infrastructure.
-- Subscribe implementation lives under `Sources/PubNub/EventEngine/Subscribe/` and `Sources/PubNub/Subscribe/`.
-- Presence heartbeat and leave logic lives under `Sources/PubNub/EventEngine/Presence/`.
 
 ## Testing
 
 ### Unit Tests (`Tests/PubNubUnitTests/`)
 
-- The only test target in `Package.swift` (`PubNubTests`). Run with `swift test`.
-- Class-level `let` constants and value types (structs, enums) for static test data are acceptable. Only mutable state and reference-type dependencies must be created locally per test method.
+- The SwiftPM test target is `PubNubTests`, but local SwiftPM test runs currently have fixture/configuration parity issues. Prefer Xcode-based unit test validation until that is resolved.
+- Unit tests are part of `PubNub.xcodeproj`. When adding, moving, or renaming test files or shared test helpers, update the Xcode project tree and `PubNubTests` build phase, then run the affected tests through Xcode.
 - Mock all HTTP interactions via `MockURLSession`; do not make real network calls.
 - JSON response fixtures live in `Tests/PubNubUnitTests/Support/Responses/{Feature}/`.
 - Helpers in `Tests/PubNubUnitTests/Support/`.
-
-#### Support Subdirectories (`Tests/PubNubUnitTests/Support/`)
-
-- `Mocks/` — Test doubles (e.g., `MockURLSession.swift`, `MockRequestOperators.swift`, `MockListener.swift`).
-- `Helpers/` — Test utilities (e.g., `ImportTestResource.swift`, `TestLogWriter.swift`, `TestSetup.swift`).
-- `Extensions/` — Test-only extensions (e.g., `EffectInvocation+Equatable.swift`).
-- `Factories/` — Object builders (e.g., `TestPubNubFactory.swift`, `SubscribePayloadFactory.swift`).
 
 ### Integration Tests (`Tests/PubNubIntegrationTests/`)
 
@@ -79,13 +46,11 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 
 ### Validation
 
-Use the smallest relevant validation step first. Always run `swiftlint` to verify code style.
+Use the smallest relevant validation step first.
 
 ```bash
 swift build
-swift test
-swift test --filter PubNubConfigurationTests
-swift test --filter PubNubConfigurationTests/testDefaultValues
+xcodebuild test -project PubNub.xcodeproj -scheme PubNub -destination 'platform=macOS' -only-testing:PubNubTests/<TestClassName>
 swiftlint
 ```
 
@@ -94,6 +59,7 @@ Additional CI and Xcode-based validation is defined in `fastlane/Fastfile`.
 ## Editing Rules
 
 - Preserve existing PubNub copyright headers.
+- Swift writes trigger `.claude/hooks/run-swiftlint.sh`: `swiftlint --fix` then `swiftlint --strict`. Violations block the edit; re-read the file after a reported reformat. Usual blockers: 130-char lines, force unwraps.
 - Snippets in `Snippets/{Area}/` use `// snippet.<id>` / `// snippet.end` markers for doc tooling. Keep markers intact and add snippets for new public API.
 - Prefer updating tests when changing public behavior.
 - Do not expose unreleased, internal, or not-yet-announced features in documentation, snippets, comments intended for users, or user-facing output.

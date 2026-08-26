@@ -165,7 +165,7 @@ class SubscriptionSetTests: XCTestCase {
       ], options: ReceivePresenceEvents()
     )
 
-    let expectedTopology: [SubscribableType: [String]] = [
+    let expectedTopology: [SubscribeTarget: [String]] = [
       .channel: ["c1", "c1-pnpres", "c2", "c2-pnpres"],
       .channelGroup: ["g1", "g1-pnpres"]
     ]

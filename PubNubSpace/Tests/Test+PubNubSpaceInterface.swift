@@ -96,7 +96,7 @@ class PubNubSpaceInterfaceTests: XCTestCase {
     let expectation = XCTestExpectation(description: "Fetch Spaces API")
 
     let testRouterEndpoint = ObjectsChannelRouter.Endpoint.all(
-      customFields: true,
+      include: PubNub.ChannelIncludeFields(custom: true).includeFields,
       totalCount: true,
       filter: nil,
       sort: ["id"],
@@ -137,7 +137,7 @@ class PubNubSpaceInterfaceTests: XCTestCase {
 
     let testRouterEndpoint = ObjectsChannelRouter.Endpoint.fetch(
       metadataId: testSpace.id,
-      customFields: true
+      include: PubNub.ChannelIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs
@@ -178,7 +178,7 @@ class PubNubSpaceInterfaceTests: XCTestCase {
         updated: nil,
         eTag: nil
       ),
-      customFields: true
+      include: PubNub.ChannelIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs
@@ -229,7 +229,7 @@ class PubNubSpaceInterfaceTests: XCTestCase {
         updated: nil,
         eTag: nil
       ),
-      customFields: true
+      include: PubNub.ChannelIncludeFields(custom: true).includeFields
     )
 
     // Validate Inputs

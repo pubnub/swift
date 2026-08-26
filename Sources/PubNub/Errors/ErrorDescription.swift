@@ -216,10 +216,16 @@ extension PubNubError.Reason: CustomStringConvertible, LocalizedError {
       return "Insufficient permissions to perform this operation"
     case .resourceNotFound:
       return "Requested resource not found at that endpoint"
+    case .methodNotAllowed:
+      return "The request method is not supported by this endpoint"
+    case .notAcceptable:
+      return "The requested Accept media type is not supported"
     case .conflict:
       return "Object already changed by another request since last retrieval"
     case .preconditionFailed:
       return "Request payload must be in JSON format"
+    case .contentTooLarge:
+      return "The request body was too large to be processed"
     case .requestURITooLong:
       return "URI of the request was too long to be processed"
     case .tooManyRequests:

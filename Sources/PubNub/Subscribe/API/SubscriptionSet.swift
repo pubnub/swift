@@ -188,11 +188,11 @@ extension SubscriptionSet: SubscribeCapable {
     pubnub.registerAdapter(adapter)
 
     let channels = existingSubscriptions.filter {
-      $0.subscriptionType == .channel
+      $0.subscribeTarget == .channel
     }.allObjects
 
     let groups = existingSubscriptions.filter {
-      $0.subscriptionType == .channelGroup
+      $0.subscribeTarget == .channelGroup
     }.allObjects
 
     pubnub.internalSubscribe(
@@ -217,8 +217,8 @@ extension SubscriptionSet: SubscribeCapable {
 
     pubnub.subscription.remove(adapter)
     pubnub.internalUnsubscribe(
-      from: existingSubscriptions.filter { $0.subscriptionType == .channel },
-      and: existingSubscriptions.filter { $0.subscriptionType == .channelGroup }
+      from: existingSubscriptions.filter { $0.subscribeTarget == .channel },
+      and: existingSubscriptions.filter { $0.subscribeTarget == .channelGroup }
     )
   }
 }
@@ -226,8 +226,8 @@ extension SubscriptionSet: SubscribeCapable {
 // MARK: - SubscribeMessagesReceiver
 
 extension SubscriptionSet: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
-    var result: [SubscribableType: [String]] = [:]
+  var subscriptionTopology: [SubscribeTarget: [String]] {
+    var result: [SubscribeTarget: [String]] = [:]
     result[.channel] = []
     result[.channelGroup] = []
 

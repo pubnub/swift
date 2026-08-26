@@ -271,7 +271,7 @@ extension SubscriptionSession {
     let matchingSubscriptions = remainingSubscriptions.compactMap {
      $0.receiver
     }.filter {
-      !Set($0.subscriptionTopology[subscription.subscriptionType] ?? []).isDisjoint(with: subscription.subscriptionNames)
+      !Set($0.subscriptionTopology[subscription.subscribeTarget] ?? []).isDisjoint(with: subscription.subscriptionNames)
     }
 
     return !matchingSubscriptions.isEmpty
@@ -333,7 +333,7 @@ extension SubscriptionSession: Hashable, CustomStringConvertible {
 // MARK: - SubscribeMessagePayloadReceiver
 
 extension SubscriptionSession: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribableType: [String]] {
+  var subscriptionTopology: [SubscribeTarget: [String]] {
     [.channel: subscribedChannels, .channelGroup: subscribedChannelGroups]
   }
 

@@ -40,7 +40,7 @@ struct CourseDetails: JSONCodable {
 
 // snippet.get-entities
 // Retrieve a page of entities of your own class
-pubnub.dataSync.getEntities(entityClass: "course", limit: 20) { result in
+pubnub.dataSync.getEntities(className: "course", limit: 20) { result in
   switch result {
   case let .success((entities, next)):
     print("The entities: \(entities)")
@@ -54,9 +54,9 @@ pubnub.dataSync.getEntities(entityClass: "course", limit: 20) { result in
 // snippet.get-entities-class-version
 // Restrict results to a single version of the class, resolved at a specific level
 pubnub.dataSync.getEntities(
-  entityClass: "course",
-  entityClassVersion: 1,
-  entityClassLevel: .subKey,
+  className: "course",
+  classVersion: 1,
+  classLevel: .subKey,
   limit: 20
 ) { result in
   switch result {
@@ -99,8 +99,8 @@ pubnub.dataSync.getEntity(id: "course-swift-basics") { result in
 // snippet.create-entity
 // Create an entity of your own class
 pubnub.dataSync.createEntity(
-  entityClass: "course",
-  entityClassVersion: 1,
+  className: "course",
+  classVersion: 1,
   id: "course-swift-basics",
   status: "draft",
   payload: CourseDetails(
@@ -124,7 +124,7 @@ pubnub.dataSync.createEntity(
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setEntity(
   id: "course-swift-basics",
-  entityClassVersion: 1,
+  classVersion: 1,
   status: "published",
   payload: CourseDetails(
     title: "Swift Basics",

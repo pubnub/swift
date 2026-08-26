@@ -90,8 +90,8 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.createUser(
-      classVersion: 2,
       className: "Admin",
+      classVersion: 2,
       classLevel: .subKey,
       id: "alice"
     ) { _ in

@@ -99,6 +99,63 @@ class SubscriptionSessionTests: XCTestCase {
     defer { listener.cancel() }
     wait(for: [statusExpect], timeout: 1.0)
   }
+
+  // MARK: - Overlapping Subscriptions
+
+  func testSubscriptionSession_UnsubscribeRetainsNameHeldByAnotherSubscription() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let firstSubscription = pubnub.channel(testChannel).subscription()
+    let secondSubscription = pubnub.channel(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [firstSubscription, secondSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // The second subscription still holds the name, so it must stay in the Subscribe loop
+    subscriptionSession.internalUnsubscribe(from: [firstSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // With the last subscription holding it gone, the name leaves the Subscribe loop
+    subscriptionSession.internalUnsubscribe(from: [secondSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+  }
+
+  func testSubscriptionSession_UnsubscribeChannelRetainsSameNamedChannelGroup() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    // A channel and a channel group sharing a name occupy different lists in the Subscribe loop
+    let channelSubscription = pubnub.channel(testChannel).subscription()
+    let groupSubscription = pubnub.channelGroup(testChannel).subscription()
+
+    subscriptionSession.subscribe(to: [channelSubscription], and: [groupSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+    XCTAssertEqual(subscriptionSession.subscribedChannelGroups, [testChannel])
+
+    subscriptionSession.internalUnsubscribe(from: [channelSubscription])
+    XCTAssertTrue(subscriptionSession.subscribedChannels.isEmpty)
+    XCTAssertEqual(subscriptionSession.subscribedChannelGroups, [testChannel])
+  }
+
+  func testSubscriptionSession_UnsubscribeRetainsNameHeldBySubscriptionSet() throws {
+    let mockResponses = ["subscription_handshake_success", "cancelled"]
+    let subscriptionSession = try mockSubscriptionSession(with: mockResponses, and: config)
+    let pubnub = PubNub(configuration: config)
+
+    let standaloneSubscription = pubnub.channel(testChannel).subscription()
+    let subscriptionSet = pubnub.subscription(targets: [pubnub.channel(testChannel)])
+
+    subscriptionSession.subscribe(to: [standaloneSubscription])
+    subscriptionSession.registerAdapter(subscriptionSet.adapter)
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+
+    // The set's topology covers both lists, and it still holds the name
+    subscriptionSession.internalUnsubscribe(from: [standaloneSubscription])
+    XCTAssertEqual(subscriptionSession.subscribedChannels, [testChannel])
+  }
 }
 
 fileprivate extension SubscriptionSessionTests {

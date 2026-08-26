@@ -16,7 +16,23 @@ For usage details, see the PubNub Swift SDK documentation.
 
 ## Breaking API Changes
 
-### 1. Unified Subscribe Event Model
+### 1. `Subscription` and `SubscriptionSet` Are Created Through Factory Methods
+
+The initializers of `Subscription` and `SubscriptionSet` are no longer public. Both types are now created only through the `PubNub` factory methods, which is how the documentation has always shown it.
+
+```swift
+// Before (10.0):
+let subscription = Subscription(entity: pubnub.channel("my-channel"))
+let set = SubscriptionSet(entities: [pubnub.channel("a"), pubnub.channelGroup("b")])
+
+// Now (11.0):
+let subscription = pubnub.channel("my-channel").subscription()
+let set = pubnub.subscription(targets: [pubnub.channel("a"), pubnub.channelGroup("b")])
+```
+
+The `entities:` label is now `targets:`. In addition, the `Subscription.entity` property has been renamed to `Subscription.target` and is no longer public.
+
+### 2. Unified Subscribe Event Model
 
 > **Note:** Skip this section if you use the modern listener API (`onMessage`, `onPresence`, …). Only the legacy `SubscriptionListener` is affected.
 
@@ -48,7 +64,7 @@ listener.didReceiveStatus = { status in
 
 Along with the types above, `CoreListener.MessageActionEvent`, `SubscribeResponseHeader`, and the `subscriptionChanged` / `responseReceived` cases of `PubNubSubscribeEvent` are removed.
 
-### 2. Listener Configuration Is Now Immutable
+### 3. Listener Configuration Is Now Immutable
 
 `BaseSubscriptionListener.queue` and `BaseSubscriptionListener.supressCancellationErrors` — inherited by `SubscriptionListener` and `PubNubEntityListener` — changed from `var` to `let`. Both are now set once at construction and cannot be reassigned afterwards.
 
@@ -69,7 +85,7 @@ let listener = SubscriptionListener(
 )
 ```
 
-Both parameters have defaults (`.main` and `true`), so `SubscriptionListener()` and `SubscriptionListener(queue:)` continue to compile unchanged — only post-construction assignment is affected. If you subclass `BaseSubscriptionListener` or `PubNubEntityListener`, forward these values through `super.init(queue:supressCancellationErrors:)` rather than setting the properties in your own initializer.
+Both parameters have defaults (`.main` and `true`), so `SubscriptionListener()` and `SubscriptionListener(queue:)` continue to compile unchanged — only post-construction assignment is affected.
 
 ## Deprecations (Non-Breaking Changes)
 

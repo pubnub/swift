@@ -27,7 +27,7 @@ let pubnub = PubNub(
 
 func subscriptionBasicExample() {
   // snippet.basic-usage
-  // Create a subscription for an example channel entity
+  // Create a subscription for an example channel
   let subscription = pubnub.channel("channel").subscription(options: ReceivePresenceEvents())
   // Triggers the subscription
   subscription.subscribe()
@@ -36,15 +36,15 @@ func subscriptionBasicExample() {
 
 func subscriptionSetAddRemoveExample() {
   // snippet.subscription-set-add-remove
-  // Create a reference to example channel entity
-  let weatherChannelEntity = pubnub.channel("weather-updates")
-  // Create a reference to example channel group entity
-  let newsGroupEntity = pubnub.channelGroup("news-feed")
+  // Create a reference to an example channel
+  let weatherChannel = pubnub.channel("weather-updates")
+  // Create a reference to an example channel group
+  let newsGroup = pubnub.channelGroup("news-feed")
 
-  // Create a SubscriptionSet object from entities above
-  let subscriptionSet = pubnub.subscription(entities: [weatherChannelEntity, newsGroupEntity])
+  // Create a SubscriptionSet object from the values above
+  let subscriptionSet = pubnub.subscription(targets: [weatherChannel, newsGroup])
 
-  // Create a subscription for another channel entity to demonstrate
+  // Create a subscription for another channel to demonstrate
   // adding and removing to/from a SubscriptionSet
   let sportsSubscription = pubnub.channel("sports-scores").subscription()
 
@@ -52,7 +52,7 @@ func subscriptionSetAddRemoveExample() {
   subscriptionSet.add(subscription: sportsSubscription)
   subscriptionSet.remove(subscription: sportsSubscription)
 
-  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to all contained entities
+  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to everything it contains
   subscriptionSet.subscribe()
   // snippet.end
 }
@@ -60,7 +60,7 @@ func subscriptionSetAddRemoveExample() {
 func cloneExample() {
   // snippet.clone
   let subscriptionSet = pubnub.subscription(
-    entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
+    targets: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
     options: ReceivePresenceEvents()
   )
   let subscription = pubnub
@@ -74,7 +74,7 @@ func cloneExample() {
 
 func unsubscribeExample() {
   let subscriptionSet = pubnub.subscription(
-    entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
+    targets: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
     options: ReceivePresenceEvents()
   )
   let subscription = pubnub

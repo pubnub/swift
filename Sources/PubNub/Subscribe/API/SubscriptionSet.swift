@@ -10,11 +10,10 @@
 
 import Foundation
 
-/// A final class representing a set of `Subscription`.
+/// A group of `Subscription` managed as one unit.
 ///
-/// Use this class to manage multiple `Subscription` concurrently.
-/// Utilize closures inherited from `EventListenerInterface` for the handling of subscription-related events.
-/// You can also create an additional `EventListener` and register it by calling `addEventListener(_:)`.
+/// Handle events with the closures inherited from `EventListenerInterface`,
+/// or register additional listeners with `addEventListener(_:)`.
 public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposable, EventListenerHandler {
   @available(*, deprecated, message: "Use the granular callbacks (onMessage, onSignal, onPresence, etc.) instead")
   public var onEvent: ((PubNubEvent) -> Void)?
@@ -31,9 +30,9 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
   public let queue: DispatchQueue
   /// Additional subscription options
   public let options: SubscriptionOptions
-  /// A unique identifier for the current `SubscriptionSet`
+  /// A unique identifier for `SubscriptionSet`
   public let uuid: UUID = UUID()
-  /// Whether current subscription is disposed or not
+  /// Whether the set is disposed
   public var isDisposed: Bool { isDisposedContainer.lockedRead { $0 } }
 
   let isDisposedContainer: Atomic<Bool> = Atomic(false)
@@ -48,50 +47,28 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
     queue: queue
   )
 
-  /// Initializes `SubscriptionSet` object with the specified parameters.
-  ///
-  /// - Parameters:
-  ///   - queue: The dispatch queue on which the subscription events should be handled
-  ///   - entities: A collection of `Subscribable` entities to include in the Subscribe loop
-  ///   - options: Additional subscription options
-  public init(
-    queue: DispatchQueue = .main,
-    entities: any Collection<Subscribable> = [],
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) {
+  init(queue: DispatchQueue = .main, targets: any Collection<Subscribable> = [], options: SubscriptionOptions = .empty()) {
     self.queue = queue
     self.options = SubscriptionOptions.empty() + options
-    self.currentSubscriptions = Atomic(Set(entities.map { Subscription(queue: queue, entity: $0, options: options) }))
+    self.currentSubscriptions = Atomic(Set(targets.map { Subscription(queue: queue, target: $0, options: options) }))
   }
 
-  /// Initializes `SubscriptionSet` object with the specified parameters.
-  ///
-  /// - Parameters:
-  ///   - queue: The dispatch queue on which the subscription events should be handled
-  ///   - subscriptions: A collection of existing `Subscription` instances to include in the Subscribe loop
-  ///   - options: Additional subscription options
-  public init(
-    queue: DispatchQueue = .main,
-    subscriptions: any Collection<Subscription> = [],
-    options: SubscriptionOptions = SubscriptionOptions.empty()
-  ) {
+  init(queue: DispatchQueue = .main, subscriptions: any Collection<Subscription> = [], options: SubscriptionOptions = .empty()) {
     self.queue = queue
     self.options = options
     self.currentSubscriptions = Atomic(Set(subscriptions))
   }
 
-  /// Adds `Subscription` to the existing set of subscriptions.
+  /// Adds a `Subscription` to the set.
   ///
-  /// - Parameters:
-  ///   - subscription: `Subscription` to add
+  /// - Parameter subscription: `Subscription` to add
   public func add(subscription: Subscription) {
     currentSubscriptions.lockedWrite { $0.insert(subscription) }
   }
 
-  /// Adds a collection of `Subscription` to the existing set of subscriptions.
+  /// Adds a collection of `Subscription` to the set.
   ///
-  /// - Parameters:
-  ///   - subscriptions: List of `Subscription` to add
+  /// - Parameter subscriptions: `Subscription` values to add
   public func add(subscriptions: any Collection<Subscription>) {
     currentSubscriptions.lockedWrite {
       for subscription in subscriptions {
@@ -100,18 +77,16 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
     }
   }
 
-  /// Removes `Subscription` from the existing set of subscriptions.
+  /// Removes a `Subscription` from the set.
   ///
-  /// - Parameters:
-  ///   - subscription: `Subscription` to remove
+  /// - Parameter subscription: `Subscription` to remove
   public func remove(subscription: Subscription) {
     currentSubscriptions.lockedWrite { $0.remove(subscription) }
   }
 
-  /// Removes a collection of `Subscription` from the existing set of subscriptions.
+  /// Removes a collection of `Subscription` from the set.
   ///
-  /// - Parameters:
-  ///   - subscriptions: Collection of `Subscription` to remove
+  /// - Parameter subscriptions: `Subscription` values to remove
   public func remove(subscriptions: any Collection<Subscription>) {
     currentSubscriptions.lockedWrite {
       for subscription in subscriptions {
@@ -120,10 +95,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
     }
   }
 
-  /// Creates a clone of the current instance of `SubscriptionSet`.
-  ///
-  /// Use this method to create a new instance with the same configuration as the current `SubscriptionSet`.
-  /// The clone is a separate instance that can be used independently.
+  /// Creates an independent copy of this `SubscriptionSet` with the same configuration.
   public func clone() -> SubscriptionSet {
     let existingSubscriptions = currentSubscriptions.lockedRead { $0 }
 
@@ -139,10 +111,7 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
     return clonedSubscriptionSet
   }
 
-  /// Disposes of the current instance of `SubscriptionSet`, ending all associated subscriptions.
-  ///
-  /// Use this method to gracefully end the subscription and release associated resources.
-  /// Once disposed, the subscription interface cannot be restarted.
+  /// Ends all subscriptions in the set and releases their resources. A disposed set cannot be restarted.
   public func dispose() {
     clearCallbacks()
     currentSubscriptions.lockedRead { $0 }.forEach { $0.dispose() }
@@ -171,13 +140,9 @@ public final class SubscriptionSet: EventListenerInterface, SubscriptionDisposab
 }
 
 extension SubscriptionSet: SubscribeCapable {
-  /// Subscribes to all entities within the current `SubscriptionSet` with the specified timetoken.
+  /// Starts receiving events for every subscription in the set.
   ///
-  /// Use this method to initiate or resume subscriptions for all entities within the set.
-  /// If a timetoken is provided, it represents the starting point for the subscription.
-  /// Otherwise, the `0` timetoken is used.
-  ///
-  /// - Parameter timetoken: The timetoken to use for the subscriptions
+  /// - Parameter timetoken: The timetoken to subscribe from. If `nil`, `0` is used.
   public func subscribe(with timetoken: Timetoken?) {
     let existingSubscriptions = currentSubscriptions.lockedRead { $0 }
 
@@ -186,28 +151,12 @@ extension SubscriptionSet: SubscribeCapable {
     }
 
     pubnub.registerAdapter(adapter)
-
-    let channels = existingSubscriptions.filter {
-      $0.subscribeTarget == .channel
-    }.allObjects
-
-    let groups = existingSubscriptions.filter {
-      $0.subscribeTarget == .channelGroup
-    }.allObjects
-
-    pubnub.internalSubscribe(
-      with: channels,
-      and: groups,
-      at: timetoken
-    )
+    pubnub.internalSubscribe(with: existingSubscriptions.allObjects, at: timetoken)
   }
 
-  /// Unsubscribes from all entities within the current `SubscriptionSet`. If there are no remaining
-  /// subscriptions that match the associated entities, the unsubscribe action will be performed,
-  /// and the entities will be deregistered from the Subscribe loop.
+  /// Stops receiving events for every subscription in the set. The set can be restarted afterwards.
   ///
-  /// Use this method to gracefully end all subscriptions and stop receiving messages for all
-  /// associated entities. After unsubscribing, the subscription set can be restarted if needed.
+  /// Names are deregistered from the Subscribe loop only if no other subscription still contributes them.
   public func unsubscribe() {
     let existingSubscriptions = currentSubscriptions.lockedRead { $0 }
 
@@ -216,28 +165,17 @@ extension SubscriptionSet: SubscribeCapable {
     }
 
     pubnub.subscription.remove(adapter)
-    pubnub.internalUnsubscribe(
-      from: existingSubscriptions.filter { $0.subscribeTarget == .channel },
-      and: existingSubscriptions.filter { $0.subscribeTarget == .channelGroup }
-    )
+    pubnub.internalUnsubscribe(from: existingSubscriptions.allObjects)
   }
 }
 
 // MARK: - SubscribeMessagesReceiver
 
 extension SubscriptionSet: SubscribeMessagesReceiver {
-  var subscriptionTopology: [SubscribeTarget: [String]] {
-    var result: [SubscribeTarget: [String]] = [:]
-    result[.channel] = []
-    result[.channelGroup] = []
-
-    let existingSubscriptions = currentSubscriptions.lockedRead { $0 }
-
-    return existingSubscriptions.reduce(into: result, { accumulatedRes, current in
-      let currentRes = current.subscriptionTopology
-      accumulatedRes[.channel]?.append(contentsOf: currentRes[.channel] ?? [])
-      accumulatedRes[.channelGroup]?.append(contentsOf: currentRes[.channelGroup] ?? [])
-    })
+  var subscriptionTopology: SubscriptionTopology {
+    currentSubscriptions.lockedRead { $0 }.reduce(SubscriptionTopology.empty) {
+      $0 + $1.subscriptionTopology
+    }
   }
 
   // Processes payloads according to the following rules:

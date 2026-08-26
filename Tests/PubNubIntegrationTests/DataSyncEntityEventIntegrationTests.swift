@@ -57,8 +57,8 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
     let trigger = { [unowned adminClient, unowned self] in
       adminClient.dataSync.createEntity(
-        entityClass: self.patientClass.name,
-        entityClassVersion: self.patientClass.version,
+        className: self.patientClass.name,
+        classVersion: self.patientClass.version,
         id: self.patientId,
         status: "active",
         payload: TestPatientPayload.standard(mrn: self.patientId)
@@ -233,10 +233,10 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
     let trigger = { [unowned adminClient, unowned self] in
       adminClient.dataSync.createRelationship(
-        relationshipClass: self.attendingPhysicianClass.name,
+        className: self.attendingPhysicianClass.name,
         entityAId: self.practitionerId,
         entityBId: self.patientId,
-        relationshipClassVersion: self.attendingPhysicianClass.version,
+        classVersion: self.attendingPhysicianClass.version,
         id: self.relationshipId,
         status: "active",
         payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")

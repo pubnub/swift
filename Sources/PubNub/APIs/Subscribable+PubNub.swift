@@ -11,69 +11,85 @@
 import Foundation
 
 public extension PubNub {
-  /// Returns a handle to the channel with the given name.
+  /// Returns a reference to the channel with the given name.
   ///
-  /// This sends no request and changes nothing on the server; it only names the channel that can be
-  /// subscribed to and unsubscribed from.
+  /// This sends no request and changes nothing on the server.
   ///
-  /// - Parameters:
-  ///   - name: The name identifying the channel.
-  /// - Returns: A `Channel` handle for that name.
+  /// - Parameter name: The name of the channel
+  /// - Returns: A `Channel` for the given name
   func channel(_ name: String) -> Channel {
     Channel(name: name, pubnub: self)
   }
 
-  /// Returns a handle to the channel group with the given name.
+  /// Returns a reference to the channel group with the given name.
   ///
-  /// This sends no request and changes nothing on the server: it neither creates the group nor alters
+  /// This sends no request and changes nothing on the server: it neither creates the group nor changes
   /// which channels belong to it.
   ///
-  /// - Parameters:
-  ///   - name: The name identifying the channel group.
-  /// - Returns: A `ChannelGroup` handle for that name.
+  /// - Parameter name: The name of the channel group
+  /// - Returns: A `ChannelGroup` for the given name
   func channelGroup(_ name: String) -> ChannelGroup {
     ChannelGroup(name: name, pubnub: self)
   }
 
-  /// Returns a handle to the stream of App Context changes made to the given user metadata record.
+  /// Returns a reference to the App Context user metadata record with the given identifier.
   ///
   /// This sends no request and changes nothing on the server: it neither creates nor reads the record.
   ///
-  /// - Parameters:
-  ///   - name: The identifier of the user metadata record whose changes should be delivered.
-  /// - Returns: A `UserMetadata` handle for that identifier.
+  /// - Parameter name: The identifier of the user metadata record
+  /// - Returns: A `UserMetadata` for the given identifier
   func userMetadata(_ name: String) -> UserMetadata {
     UserMetadata(id: name, pubnub: self)
   }
 
-  /// Returns a handle to the stream of App Context changes made to the given channel metadata record.
+  /// Returns a reference to the App Context channel metadata record with the given identifier.
   ///
   /// This sends no request and changes nothing on the server: it neither creates nor reads the record.
   ///
-  /// - Parameters:
-  ///   - name: The identifier of the channel metadata record whose changes should be delivered.
-  /// - Returns: A `ChannelMetadata` handle for that identifier.
+  /// - Parameter name: The identifier of the channel metadata record
+  /// - Returns: A `ChannelMetadata` for the given identifier
   func channelMetadata(_ name: String) -> ChannelMetadata {
     ChannelMetadata(id: name, pubnub: self)
   }
 
-  /// Creates a `SubscriptionSet` object from the collection of `Subscribable` values.
+  /// Creates a `SubscriptionSet` from a collection of `Subscribable` values.
   ///
-  /// Use this function to set up and manage subscriptions for several `Subscribable` values at once.
+  /// Use this function to subscribe to several `Subscribable` values at once.
   ///
   /// - Parameters:
   ///   - queue: The dispatch queue on which the subscription events should be handled
-  ///   - entities: A collection of `Subscribable` values to subscribe to
+  ///   - targets: The values to receive events for
   ///   - options: Additional options for configuring the subscription
-  /// - Returns: A `SubscriptionSet` instance for managing the specified values.
+  /// - Returns: A `SubscriptionSet` managing the given values
   func subscription(
     queue: DispatchQueue = .main,
-    entities: any Collection<Subscribable>,
+    targets: any Collection<Subscribable>,
     options: SubscriptionOptions = SubscriptionOptions.empty()
   ) -> SubscriptionSet {
     SubscriptionSet(
       queue: queue,
-      entities: entities,
+      targets: targets,
+      options: options
+    )
+  }
+
+  /// Creates a `SubscriptionSet` from existing `Subscription` values.
+  ///
+  /// Use this function to manage subscriptions you already created as one unit.
+  ///
+  /// - Parameters:
+  ///   - queue: The dispatch queue on which the subscription events should be handled
+  ///   - subscriptions: The existing `Subscription` values to manage together
+  ///   - options: Additional options for configuring the subscription
+  /// - Returns: A `SubscriptionSet` managing the given subscriptions
+  func subscription(
+    queue: DispatchQueue = .main,
+    subscriptions: any Collection<Subscription>,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> SubscriptionSet {
+    SubscriptionSet(
+      queue: queue,
+      subscriptions: subscriptions,
       options: options
     )
   }

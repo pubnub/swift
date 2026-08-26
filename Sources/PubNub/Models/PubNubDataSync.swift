@@ -271,11 +271,7 @@ public struct PubNubDataSyncRelationship: Hashable {
   public let id: String
   /// The name of the relationship's class
   public let className: String
-  /// The level the relationship's class is registered at, or `nil` when the level wasn't reported
-  ///
-  /// Relationships read through ``PubNub/DataSyncAPI/getRelationships(relationshipClass:entityAId:entityBId:relationshipClassVersion:cursor:limit:filter:filterAdvanced:sort:custom:completion:)``
-  /// and its siblings leave this `nil`, because the service doesn't report a level on the relationship resource. Relationships delivered as a
-  /// ``PubNubDataSyncEvent`` carry it.
+  /// The level the relationship's class is registered at
   public let classLevel: PubNubDataSyncClassLevel?
   /// The version of the relationship's class
   public let classVersion: Int

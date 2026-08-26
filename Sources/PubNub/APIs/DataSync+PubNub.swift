@@ -128,9 +128,9 @@ public extension PubNub.DataSyncAPI {
   /// Gets a page of entities of a given class.
   ///
   /// - Parameters:
-  ///   - entityClass: The name of the class to list entities of
-  ///   - entityClassVersion: Restricts results to a single class version. If omitted, every version is returned, including classes that extend this one
-  ///   - entityClassLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///   - className: The name of the class to list entities of
+  ///   - classVersion: Restricts results to a single class version. If omitted, every version is returned, including classes that extend this one
+  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of entities to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
@@ -141,9 +141,9 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncEntity``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getEntities(
-    entityClass: String,
-    entityClassVersion: Int? = nil,
-    entityClassLevel: PubNubDataSyncClassLevel? = nil,
+    className: String,
+    classVersion: Int? = nil,
+    classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
     filter: String? = nil,
@@ -156,9 +156,9 @@ public extension PubNub.DataSyncAPI {
       operation: "getEntities",
       details: "List DataSync entities",
       arguments: [
-        ("entityClass", entityClass),
-        ("entityClassVersion", entityClassVersion),
-        ("entityClassLevel", entityClassLevel?.stringValue),
+        ("className", className),
+        ("classVersion", classVersion),
+        ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
         ("filter", filter),
@@ -170,9 +170,9 @@ public extension PubNub.DataSyncAPI {
 
     let router = DataSyncEntityRouter(
       .all(
-        entityClass: entityClass,
-        entityClassVersion: entityClassVersion,
-        entityClassLevel: entityClassLevel?.stringValue,
+        entityClass: className,
+        entityClassVersion: classVersion,
+        entityClassLevel: classLevel?.stringValue,
         cursor: cursor,
         limit: limit,
         filter: filter,
@@ -230,9 +230,9 @@ public extension PubNub.DataSyncAPI {
   /// Creates an entity of a given class.
   ///
   /// - Parameters:
-  ///   - entityClass: The name of the class to create the entity in
-  ///   - entityClassVersion: The version of the class the payload conforms to
-  ///   - entityClassLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
+  ///   - className: The name of the class to create the entity in
+  ///   - classVersion: The version of the class the payload conforms to
+  ///   - classLevel: The level to resolve the class name at. If omitted, the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///   - id: The unique identifier to create the entity with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the entity
   ///   - payload: The entity fields
@@ -241,9 +241,9 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The created ``PubNubDataSyncEntity``
   ///     - **Failure**: An `Error` describing the failure
   func createEntity(
-    entityClass: String,
-    entityClassVersion: Int,
-    entityClassLevel: PubNubDataSyncClassLevel? = nil,
+    className: String,
+    classVersion: Int,
+    classLevel: PubNubDataSyncClassLevel? = nil,
     id: String? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -254,9 +254,9 @@ public extension PubNub.DataSyncAPI {
       operation: "createEntity",
       details: "Create DataSync entity",
       arguments: [
-        ("entityClass", entityClass),
-        ("entityClassVersion", entityClassVersion),
-        ("entityClassLevel", entityClassLevel?.stringValue),
+        ("className", className),
+        ("classVersion", classVersion),
+        ("classLevel", classLevel?.stringValue),
         ("id", id),
         ("status", status),
         ("payload", payload),
@@ -268,9 +268,9 @@ public extension PubNub.DataSyncAPI {
       .create(
         body: .init(
           id: id,
-          entityClass: entityClass,
-          entityClassVersion: entityClassVersion,
-          entityClassLevel: entityClassLevel?.stringValue,
+          entityClass: className,
+          entityClassVersion: classVersion,
+          entityClassLevel: classLevel?.stringValue,
           status: status,
           payload: payload?.codableValue
         )
@@ -295,7 +295,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the entity
-  ///   - entityClassVersion: The version of the class the payload conforms to
+  ///   - classVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the entity
   ///   - payload: The replacement entity fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the entity changed since
@@ -305,7 +305,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Failure**: An `Error` describing the failure
   func setEntity(
     id: String,
-    entityClassVersion: Int,
+    classVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -317,7 +317,7 @@ public extension PubNub.DataSyncAPI {
       details: "Replace DataSync entity",
       arguments: [
         ("id", id),
-        ("entityClassVersion", entityClassVersion),
+        ("classVersion", classVersion),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -328,7 +328,7 @@ public extension PubNub.DataSyncAPI {
     let router = DataSyncEntityRouter(
       .replace(
         id: id,
-        body: .init(status: status, entityClassVersion: entityClassVersion, payload: payload?.codableValue),
+        body: .init(status: status, entityClassVersion: classVersion, payload: payload?.codableValue),
         ifMatch: ifMatchesEtag
       ),
       configuration: configuration(from: requestConfig)
@@ -345,7 +345,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to an entity.
   ///
-  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  /// The operations are applied atomically: if any one of them fails, the entity is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the entity
@@ -431,8 +431,8 @@ public extension PubNub.DataSyncAPI {
   /// Called without any class parameters, this lists users of the built-in `User` class declared at `global`.
   ///
   /// - Parameters:
-  ///   - classVersion: Restricts results to a single version of the `User` class. If omitted, every version is returned, including classes that extend `User`
   ///   - className: The class to list, which must be `User` or a class that extends it. Defaults to `User`
+  ///   - classVersion: Restricts results to a single version of the `User` class. If omitted, every version is returned, including classes that extend `User`
   ///   - classLevel: The level to resolve `className` at
   ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///     - **Provided**: only that level is searched
@@ -446,8 +446,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncUser``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getUsers(
-    classVersion: Int? = nil,
     className: String? = nil,
+    classVersion: Int? = nil,
     classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
@@ -461,8 +461,8 @@ public extension PubNub.DataSyncAPI {
       operation: "getUsers",
       details: "List DataSync users",
       arguments: [
-        ("classVersion", classVersion),
         ("className", className),
+        ("classVersion", classVersion),
         ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
@@ -537,8 +537,8 @@ public extension PubNub.DataSyncAPI {
   /// Called without any class parameters, this creates a user of the built-in `User` class declared at `global`.
   ///
   /// - Parameters:
-  ///   - classVersion: The version of the `User` class the payload conforms to
   ///   - className: The class to create the user in, which must be `User` or a class that extends it. Defaults to `User`
+  ///   - classVersion: The version of the `User` class the payload conforms to
   ///   - classLevel: The level to resolve `className` at
   ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///     - **Provided**: only that level is searched
@@ -550,8 +550,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The created ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func createUser(
-    classVersion: Int,
     className: String? = nil,
+    classVersion: Int,
     classLevel: PubNubDataSyncClassLevel? = nil,
     id: String? = nil,
     status: String? = nil,
@@ -563,8 +563,8 @@ public extension PubNub.DataSyncAPI {
       operation: "createUser",
       details: "Create DataSync user",
       arguments: [
-        ("classVersion", classVersion),
         ("className", className),
+        ("classVersion", classVersion),
         ("classLevel", classLevel?.stringValue),
         ("id", id),
         ("status", status),
@@ -654,7 +654,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a user.
   ///
-  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  /// The operations are applied atomically: if any one of them fails, the user is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the user
@@ -740,8 +740,8 @@ public extension PubNub.DataSyncAPI {
   /// Called without any class parameters, this lists channels of the built-in `Channel` class declared at `global`.
   ///
   /// - Parameters:
-  ///   - classVersion: Restricts results to a single version of the `Channel` class. If omitted, every version is returned, including classes that extend `Channel`
   ///   - className: The class to list, which must be `Channel` or a class that extends it. Defaults to `Channel`
+  ///   - classVersion: Restricts results to a single version of the `Channel` class. If omitted, every version is returned, including classes that extend `Channel`
   ///   - classLevel: The level to resolve `className` at
   ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///     - **Provided**: only that level is searched
@@ -755,8 +755,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncChannel``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getChannels(
-    classVersion: Int? = nil,
     className: String? = nil,
+    classVersion: Int? = nil,
     classLevel: PubNubDataSyncClassLevel? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
@@ -770,8 +770,8 @@ public extension PubNub.DataSyncAPI {
       operation: "getChannels",
       details: "List DataSync channels",
       arguments: [
-        ("classVersion", classVersion),
         ("className", className),
+        ("classVersion", classVersion),
         ("classLevel", classLevel?.stringValue),
         ("cursor", cursor),
         ("limit", limit),
@@ -846,8 +846,8 @@ public extension PubNub.DataSyncAPI {
   /// Called without any class parameters, this creates a channel of the built-in `Channel` class declared at `global`.
   ///
   /// - Parameters:
-  ///   - classVersion: The version of the `Channel` class the payload conforms to
   ///   - className: The class to create the channel in, which must be `Channel` or a class that extends it. Defaults to `Channel`
+  ///   - classVersion: The version of the `Channel` class the payload conforms to
   ///   - classLevel: The level to resolve `className` at
   ///     - **Omitted**: the first level declaring it wins, searching `subKey`, `account`, then `global`
   ///     - **Provided**: only that level is searched
@@ -859,8 +859,8 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The created ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func createChannel(
-    classVersion: Int,
     className: String? = nil,
+    classVersion: Int,
     classLevel: PubNubDataSyncClassLevel? = nil,
     id: String? = nil,
     status: String? = nil,
@@ -872,8 +872,8 @@ public extension PubNub.DataSyncAPI {
       operation: "createChannel",
       details: "Create DataSync channel",
       arguments: [
-        ("classVersion", classVersion),
         ("className", className),
+        ("classVersion", classVersion),
         ("classLevel", classLevel?.stringValue),
         ("id", id),
         ("status", status),
@@ -1263,7 +1263,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a membership.
   ///
-  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  /// The operations are applied atomically: if any one of them fails, the membership is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
@@ -1347,10 +1347,10 @@ public extension PubNub.DataSyncAPI {
   /// Gets a page of relationships of a given class.
   ///
   /// - Parameters:
-  ///   - relationshipClass: The name of the class to list relationships of
+  ///   - className: The name of the class to list relationships of
   ///   - entityAId: Restricts results to relationships whose side A is this entity
   ///   - entityBId: Restricts results to relationships whose side B is this entity
-  ///   - relationshipClassVersion: Restricts results to a single version of the class. If omitted, every version is returned
+  ///   - classVersion: Restricts results to a single version of the class. If omitted, every version is returned
   ///   - cursor: The ``PubNubDataSyncPage/cursor`` of a previous page, or `nil` for the first page
   ///   - limit: The number of relationships to retrieve, between 1 and 100. Defaults to 20
   ///   - filter: Expression used to filter the results. Mutually exclusive with `filterAdvanced`
@@ -1361,10 +1361,10 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: A `Tuple` containing an `Array` of ``PubNubDataSyncRelationship``, and the next page (if one exists)
   ///     - **Failure**: An `Error` describing the failure
   func getRelationships(
-    relationshipClass: String,
+    className: String,
     entityAId: String? = nil,
     entityBId: String? = nil,
-    relationshipClassVersion: Int? = nil,
+    classVersion: Int? = nil,
     cursor: String? = nil,
     limit: Int? = nil,
     filter: String? = nil,
@@ -1377,10 +1377,10 @@ public extension PubNub.DataSyncAPI {
       operation: "getRelationships",
       details: "List DataSync relationships",
       arguments: [
-        ("relationshipClass", relationshipClass),
+        ("className", className),
         ("entityAId", entityAId),
         ("entityBId", entityBId),
-        ("relationshipClassVersion", relationshipClassVersion),
+        ("classVersion", classVersion),
         ("cursor", cursor),
         ("limit", limit),
         ("filter", filter),
@@ -1392,10 +1392,10 @@ public extension PubNub.DataSyncAPI {
 
     let router = DataSyncRelationshipRouter(
       .all(
-        relationshipClass: relationshipClass,
+        relationshipClass: className,
         entityAId: entityAId,
         entityBId: entityBId,
-        relationshipClassVersion: relationshipClassVersion,
+        relationshipClassVersion: classVersion,
         cursor: cursor,
         limit: limit,
         filter: filter,
@@ -1453,10 +1453,10 @@ public extension PubNub.DataSyncAPI {
   /// Creates a relationship connecting two entities.
   ///
   /// - Parameters:
-  ///   - relationshipClass: The name of the class to create the relationship in
+  ///   - className: The name of the class to create the relationship in
   ///   - entityAId: The unique identifier of the entity on side A
   ///   - entityBId: The unique identifier of the entity on side B
-  ///   - relationshipClassVersion: The version of the class the payload conforms to
+  ///   - classVersion: The version of the class the payload conforms to
   ///   - id: The unique identifier to create the relationship with, or `nil` to let the service assign one
   ///   - status: An arbitrary status to store with the relationship
   ///   - payload: The relationship fields
@@ -1465,10 +1465,10 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The created ``PubNubDataSyncRelationship``
   ///     - **Failure**: An `Error` describing the failure
   func createRelationship(
-    relationshipClass: String,
+    className: String,
     entityAId: String,
     entityBId: String,
-    relationshipClassVersion: Int,
+    classVersion: Int,
     id: String? = nil,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -1479,10 +1479,10 @@ public extension PubNub.DataSyncAPI {
       operation: "createRelationship",
       details: "Create DataSync relationship",
       arguments: [
-        ("relationshipClass", relationshipClass),
+        ("className", className),
         ("entityAId", entityAId),
         ("entityBId", entityBId),
-        ("relationshipClassVersion", relationshipClassVersion),
+        ("classVersion", classVersion),
         ("id", id),
         ("status", status),
         ("payload", payload),
@@ -1496,8 +1496,8 @@ public extension PubNub.DataSyncAPI {
           id: id,
           entityAId: entityAId,
           entityBId: entityBId,
-          relationshipClass: relationshipClass,
-          relationshipClassVersion: relationshipClassVersion,
+          relationshipClass: className,
+          relationshipClassVersion: classVersion,
           status: status,
           payload: payload?.codableValue
         )
@@ -1522,7 +1522,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the relationship
-  ///   - relationshipClassVersion: The version of the class the payload conforms to
+  ///   - classVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the relationship
   ///   - payload: The replacement relationship fields
   ///   - ifMatchesEtag: The ``PubNubDataSyncRelationship/eTag`` last read, to fail the request when it changed since
@@ -1532,7 +1532,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Failure**: An `Error` describing the failure
   func setRelationship(
     id: String,
-    relationshipClassVersion: Int,
+    classVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
     ifMatchesEtag: String? = nil,
@@ -1544,7 +1544,7 @@ public extension PubNub.DataSyncAPI {
       details: "Replace DataSync relationship",
       arguments: [
         ("id", id),
-        ("relationshipClassVersion", relationshipClassVersion),
+        ("classVersion", classVersion),
         ("status", status),
         ("payload", payload),
         ("ifMatchesEtag", ifMatchesEtag),
@@ -1557,7 +1557,7 @@ public extension PubNub.DataSyncAPI {
         id: id,
         body: .init(
           status: status,
-          relationshipClassVersion: relationshipClassVersion,
+          relationshipClassVersion: classVersion,
           payload: payload?.codableValue
         ),
         ifMatch: ifMatchesEtag
@@ -1576,7 +1576,7 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a relationship.
   ///
-  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  /// The operations are applied atomically: if any one of them fails, the relationship is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the relationship

@@ -179,8 +179,8 @@ public protocol SubscriptionDisposable {
 // Types that conform to this protocol are responsible for handling and processing these payloads
 // into concrete events for the user.
 protocol SubscribeMessagesReceiver: AnyObject {
-  // A dictionary representing the names of the underlying subscriptions
-  var subscriptionTopology: [SubscribeTarget: [String]] { get }
+  // The names the conforming type contributes to the Subscribe loop
+  var subscriptionTopology: SubscriptionTopology { get }
   // This method should return an array of `PubNubEvent` instances,
   // representing the concrete events for the user.
   @discardableResult func onPayloadsReceived(payloads: [SubscribeMessagePayload]) -> [PubNubEvent]

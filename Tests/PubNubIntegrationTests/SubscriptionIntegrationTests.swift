@@ -129,7 +129,7 @@ class SubscriptionIntegrationTests: XCTestCase {
 
     var firstSubscription: Subscription? = pubnub.channel(testChannelName).subscription()
     var secondSubscription: Subscription? = pubnub.channel(testChannelName).subscription()
-    var subscriptionSet: SubscriptionSet? = pubnub.subscription(entities: [pubnub.channel(testChannelName)])
+    var subscriptionSet: SubscriptionSet? = pubnub.subscription(targets: [pubnub.channel(testChannelName)])
 
     listener.didReceiveStatus = { [unowned pubnub] statusEvent in
       switch statusEvent {
@@ -431,7 +431,7 @@ class SubscriptionIntegrationTests: XCTestCase {
     let pubnub = PubNub(configuration: .init(bundle: testsBundle))
     let channel = pubnub.channel("test-channel")
     let channel2 = pubnub.channel("test-channel2")
-    let subscriptionSet = pubnub.subscription(entities: [channel, channel2])
+    let subscriptionSet = pubnub.subscription(targets: [channel, channel2])
 
     subscriptionSet.subscribe()
 

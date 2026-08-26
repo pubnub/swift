@@ -17,7 +17,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_all_no_meta"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getRelationships(relationshipClass: "Treats", limit: 20) { [self] result in
+    pubnub.dataSync.getRelationships(className: "Treats", limit: 20) { [self] result in
       switch result {
       case let .success((relationships, next)):
         XCTAssertNil(next)
@@ -65,10 +65,10 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.createRelationship(
-      relationshipClass: "Treats",
+      className: "Treats",
       entityAId: "hcn-doctor-alice",
       entityBId: "hcn-patient-bob",
-      relationshipClassVersion: 1
+      classVersion: 1
     ) { result in
       switch result {
       case let .success(relationship):
@@ -89,7 +89,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.setRelationship(
       id: "rel-alice-treats-bob",
-      relationshipClassVersion: 1,
+      classVersion: 1,
       payload: RelationshipPayload(since: "2026-01-01"),
       ifMatchesEtag: "3w5e111uk7djz"
     ) { result in

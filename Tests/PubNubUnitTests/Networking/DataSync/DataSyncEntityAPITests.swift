@@ -17,7 +17,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { result in
+    pubnub.dataSync.getEntities(className: "patient", limit: 20) { result in
       switch result {
       case let .success((entities, next)):
         XCTAssertEqual(entities.count, 2)
@@ -54,7 +54,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient") { result in
+    pubnub.dataSync.getEntities(className: "patient") { result in
       switch result {
       case let .success((entities, _)):
         let second = entities[1]
@@ -74,7 +74,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_last_page"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", limit: 20) { result in
+    pubnub.dataSync.getEntities(className: "patient", limit: 20) { result in
       switch result {
       case let .success((_, next)):
         XCTAssertNil(next?.cursor)
@@ -130,8 +130,8 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.createEntity(
-      entityClass: "patient",
-      entityClassVersion: 1,
+      className: "patient",
+      classVersion: 1,
       id: "hcn-patient-alice",
       payload: PatientPayload(mrn: "MRN-100001")
     ) { result in
@@ -166,9 +166,9 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.createEntity(
-      entityClass: "patient",
-      entityClassVersion: 1,
-      entityClassLevel: .subKey,
+      className: "patient",
+      classVersion: 1,
+      classLevel: .subKey,
       id: "hcn-patient-alice"
     ) { _ in
       expectation.fulfill()
@@ -189,7 +189,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.setEntity(
       id: "hcn-patient-alice",
-      entityClassVersion: 1,
+      classVersion: 1,
       payload: PatientPayload(mrn: "MRN-100001"),
       ifMatchesEtag: "3w5e111uk7djz"
     ) { result in
@@ -248,7 +248,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let expectation = self.expectation(description: "getEntities empty class")
     let pubnub = TestPubNubFactory.make()
 
-    pubnub.dataSync.getEntities(entityClass: "") { result in
+    pubnub.dataSync.getEntities(className: "") { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")

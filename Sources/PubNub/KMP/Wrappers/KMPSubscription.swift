@@ -32,14 +32,14 @@ public class KMPSubscription: NSObject {
   @objc
   public init(entity: KMPEntity, receivePresenceEvents: Bool) {
     self.subscription = Subscription(
-      entity: entity.entity,
+      target: entity.entity,
       options: receivePresenceEvents ? ReceivePresenceEvents() : .empty()
     )
   }
 
   @objc
   public init(entity: KMPEntity) {
-    self.subscription = Subscription(entity: entity.entity)
+    self.subscription = Subscription(target: entity.entity)
   }
 
   @objc
@@ -65,7 +65,7 @@ public class KMPSubscription: NSObject {
       listener.onMessageAction?(KMPMessageAction(action: $0))
     }
     eventListener.onFileEvent = { [weak self] in
-      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.entity.pubnub))
+      listener.onFile?(KMPFileChangeEvent.from(event: $0, with: self?.subscription.target.pubnub))
     }
     eventListener.onAppContext = {
       listener.onAppContext?(KMPAppContextEventResult.from(event: $0))
@@ -102,7 +102,7 @@ public class KMPSubscription: NSObject {
   @objc
   public func append(subscription: KMPSubscription) -> KMPSubscriptionSet {
     let underlyingSubscription = Subscription(
-      entity: subscription.subscription.entity
+      target: subscription.subscription.target
     )
 
     underlyingSubscription.onMessage = {
@@ -164,7 +164,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func addListener(_ listener: KMPEventListener) {
-    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.entity.pubnub
+    let pubnub = subscriptionSet.currentSubscriptions.lockedRead { $0.first }?.target.pubnub
     let eventListener = EventListener(uuid: listener.uuid)
 
     eventListener.onMessage = {
@@ -216,7 +216,7 @@ public class KMPSubscriptionSet: NSObject {
 
   @objc
   public func append(subscription: KMPSubscription) {
-    let underlyingSubscription = Subscription(entity: subscription.subscription.entity)
+    let underlyingSubscription = Subscription(target: subscription.subscription.target)
 
     underlyingSubscription.onMessage = {
       subscription.onMessage?(KMPMessage(message: $0))

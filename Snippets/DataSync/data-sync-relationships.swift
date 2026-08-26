@@ -41,7 +41,7 @@ struct EnrollmentDetails: JSONCodable {
 
 // snippet.get-relationships
 // Retrieve a page of relationships of your own class
-pubnub.dataSync.getRelationships(relationshipClass: "enrollment", limit: 20) { result in
+pubnub.dataSync.getRelationships(className: "enrollment", limit: 20) { result in
   switch result {
   case let .success((relationships, next)):
     print("The relationships: \(relationships)")
@@ -55,7 +55,7 @@ pubnub.dataSync.getRelationships(relationshipClass: "enrollment", limit: 20) { r
 // snippet.get-relationships-by-side
 // Retrieve the relationships whose side A is a specific entity
 pubnub.dataSync.getRelationships(
-  relationshipClass: "enrollment",
+  className: "enrollment",
   entityAId: "student-alice",
   limit: 20
 ) { result in
@@ -99,10 +99,10 @@ pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in
 // snippet.create-relationship
 // Connect two entities with a relationship of your own class
 pubnub.dataSync.createRelationship(
-  relationshipClass: "enrollment",
+  className: "enrollment",
   entityAId: "student-alice",
   entityBId: "course-swift-basics",
-  relationshipClassVersion: 1,
+  classVersion: 1,
   id: "alice-course-swift-basics",
   status: "active",
   payload: EnrollmentDetails(
@@ -126,7 +126,7 @@ pubnub.dataSync.createRelationship(
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setRelationship(
   id: "alice-course-swift-basics",
-  relationshipClassVersion: 1,
+  classVersion: 1,
   status: "active",
   payload: EnrollmentDetails(
     role: "student",

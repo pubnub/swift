@@ -23,11 +23,6 @@ import Foundation
   init(entity: Subscribable) {
     self.entity = entity
   }
-
-  @objc
-  public var name: String {
-    entity.name
-  }
 }
 
 @objc

@@ -12,36 +12,68 @@ import Foundation
 
 // MARK: - Channel
 
-/// A channel you can subscribe to and unsubscribe from.
+/// A reference to a channel by name.
 public class Channel: Subscribable {
+  /// The name identifying this channel
+  public let name: String
+
   init(name: String, pubnub: PubNub) {
-    super.init(name: name, subscribeTarget: .channel, pubnub: pubnub)
+    self.name = name
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: includingPresence ? [name, name.presenceChannelName] : [name])
   }
 }
 
 // MARK: - ChannelGroup
 
-/// A channel group you can subscribe to and unsubscribe from.
+/// A reference to a channel group by name.
 public class ChannelGroup: Subscribable {
+  /// The name identifying this channel group
+  public let name: String
+
   init(name: String, pubnub: PubNub) {
-    super.init(name: name, subscribeTarget: .channelGroup, pubnub: pubnub)
+    self.name = name
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channelGroups: includingPresence ? [name, name.presenceChannelName] : [name])
   }
 }
 
 // MARK: - UserMetadata
 
-/// A user metadata record whose App Context changes you can subscribe to.
+/// A reference to an App Context user metadata record by identifier.
 public class UserMetadata: Subscribable {
+  /// The identifier of the user metadata record
+  public let id: String
+
   init(id: String, pubnub: PubNub) {
-    super.init(name: id, subscribeTarget: .channel, pubnub: pubnub)
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
   }
 }
 
 // MARK: - ChannelMetadata
 
-/// A channel metadata record whose App Context changes you can subscribe to.
+/// A reference to an App Context channel metadata record by identifier.
 public class ChannelMetadata: Subscribable {
+  /// The identifier of the channel metadata record
+  public let id: String
+
   init(id: String, pubnub: PubNub) {
-    super.init(name: id, subscribeTarget: .channel, pubnub: pubnub)
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
   }
 }

@@ -15,6 +15,8 @@ public enum PubNubDataSyncClassLevel: Hashable {
   /// A class shared across all accounts
   case global
   /// A class scoped to the account
+  ///
+  /// - Important: Not supported yet; support for account-level classes is planned for a future release
   case account
   /// A class scoped to the subscribe key
   case subKey

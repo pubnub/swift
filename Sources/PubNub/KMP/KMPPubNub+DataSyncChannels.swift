@@ -60,7 +60,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPDataSyncChannel) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.getChannel(id) {
+    pubnub.dataSync.getChannel(id: id) {
       switch $0 {
       case .success(let channel):
         onSuccess(KMPDataSyncChannel(channel: channel))
@@ -107,7 +107,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setChannel(
-      id,
+      id: id,
       classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),
@@ -138,7 +138,7 @@ public extension KMPPubNub {
       return
     }
 
-    pubnub.dataSync.updateChannel(id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.updateChannel(id: id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success(let channel):
         onSuccess(KMPDataSyncChannel(channel: channel))
@@ -154,7 +154,7 @@ public extension KMPPubNub {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.removeChannel(id, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.removeChannel(id: id, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success:
         onSuccess()

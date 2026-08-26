@@ -45,7 +45,7 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_user_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getUser("alice") { [self] result in
+    pubnub.dataSync.getUser(id: "alice") { [self] result in
       switch result {
       case let .success(user):
         XCTAssertEqual(user.id, "alice")
@@ -129,7 +129,7 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.removeUser("alice") { result in
+    pubnub.dataSync.removeUser(id: "alice") { result in
       if case let .failure(error) = result {
         XCTFail("Request failed with \(error.localizedDescription)")
       }

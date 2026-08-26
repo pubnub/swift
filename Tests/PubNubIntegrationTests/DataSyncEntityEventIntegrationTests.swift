@@ -119,7 +119,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
     let trigger = { [unowned adminClient, unowned self] in
       adminClient.dataSync.updateEntity(
-        self.patientId,
+        id: self.patientId,
         operations: [.replace(path: "/payload/diagnosis", value: "Essential hypertension (I10)")]
       ) { result in
         if case let .failure(error) = result {
@@ -174,7 +174,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     }
 
     let trigger = { [unowned adminClient, unowned self] in
-      adminClient.dataSync.removeEntity(self.patientId) { result in
+      adminClient.dataSync.removeEntity(id: self.patientId) { result in
         if case let .failure(error) = result {
           XCTFail("Failed to trigger the entity deleted event: \(error)")
         }
@@ -313,7 +313,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
 
     let trigger = { [unowned adminClient, unowned self] in
       adminClient.dataSync.updateRelationship(
-        self.relationshipId,
+        id: self.relationshipId,
         operations: [.replace(path: "/payload/role", value: "consulting")]
       ) { result in
         if case let .failure(error) = result {
@@ -383,7 +383,7 @@ final class DataSyncEntityEventIntegrationTests: XCTestCase {
     }
 
     let trigger = { [unowned adminClient, unowned self] in
-      adminClient.dataSync.removeRelationship(self.relationshipId) { result in
+      adminClient.dataSync.removeRelationship(id: self.relationshipId) { result in
         if case let .failure(error) = result {
           XCTFail("Failed to trigger the relationship deleted event: \(error)")
         }

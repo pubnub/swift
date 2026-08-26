@@ -325,7 +325,7 @@ extension XCTestCase {
   func removeEntities(client: PubNub, ids: [String]) {
     for id in ids {
       let removeExpect = expectation(description: "Remove Test Entity \(id) Expectation")
-      client.dataSync.removeEntity(id) { _ in removeExpect.fulfill() }
+      client.dataSync.removeEntity(id: id) { _ in removeExpect.fulfill() }
       wait(for: [removeExpect], timeout: 10.0)
     }
   }
@@ -333,7 +333,7 @@ extension XCTestCase {
   func removeRelationships(client: PubNub, ids: [String]) {
     for id in ids {
       let removeExpect = expectation(description: "Remove Test Relationship \(id) Expectation")
-      client.dataSync.removeRelationship(id) { _ in removeExpect.fulfill() }
+      client.dataSync.removeRelationship(id: id) { _ in removeExpect.fulfill() }
       wait(for: [removeExpect], timeout: 10.0)
     }
   }

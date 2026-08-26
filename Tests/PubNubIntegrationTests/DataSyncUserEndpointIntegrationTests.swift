@@ -32,7 +32,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(createdUser.id, userId)
         XCTAssertFalse(createdUser.eTag.isEmpty)
 
-        client.dataSync.getUser(userId) { fetchResult in
+        client.dataSync.getUser(id: userId) { fetchResult in
           switch fetchResult {
           case let .success(user):
             XCTAssertEqual(user.id, userId)
@@ -54,7 +54,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeUser(
-          userId,
+          id: userId,
           completion: $0
         )
       }
@@ -80,7 +80,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
         let replacementPayload = TestUserPayload(fullName: "Swift ITest User Renamed")
 
         client.dataSync.setUser(
-          userId,
+          id: userId,
           classVersion: self.userClassVersion,
           status: "inactive",
           payload: replacementPayload
@@ -105,7 +105,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeUser(
-          userId,
+          id: userId,
           completion: $0
         )
       }
@@ -134,7 +134,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
         )
 
         client.dataSync.updateUser(
-          userId,
+          id: userId,
           operations: [
             .replace(path: "/payload/email", value: "swift.patched@example.com"),
             .add(path: "/payload/nickname", value: "Swifty")
@@ -158,7 +158,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeUser(
-          userId,
+          id: userId,
           completion: $0
         )
       }
@@ -181,7 +181,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
       switch createResult {
       case .success:
         client.dataSync.setUser(
-          userId,
+          id: userId,
           classVersion: self.userClassVersion,
           status: "inactive",
           payload: TestUserPayload(fullName: "Swift ITest User Renamed"),
@@ -205,7 +205,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeUser(
-          userId,
+          id: userId,
           completion: $0
         )
       }
@@ -239,7 +239,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
       for userId in userIds {
         waitForCompletion {
           client.dataSync.removeUser(
-            userId,
+            id: userId,
             completion: $0
           )
         }
@@ -276,7 +276,7 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
       for userId in userIds {
         waitForCompletion {
           client.dataSync.removeUser(
-            userId,
+            id: userId,
             completion: $0
           )
         }
@@ -299,10 +299,10 @@ class DataSyncUserEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.removeUser(userId) { removeResult in
+        client.dataSync.removeUser(id: userId) { removeResult in
           switch removeResult {
           case .success:
-            client.dataSync.getUser(userId) { fetchResult in
+            client.dataSync.getUser(id: userId) { fetchResult in
               switch fetchResult {
               case .success:
                 XCTFail("Test should fail")

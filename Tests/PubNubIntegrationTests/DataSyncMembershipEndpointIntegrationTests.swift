@@ -44,7 +44,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(createdMembership.id, membershipId)
         XCTAssertFalse(createdMembership.eTag.isEmpty)
 
-        client.dataSync.getMembership(membershipId) { fetchResult in
+        client.dataSync.getMembership(id: membershipId) { fetchResult in
           switch fetchResult {
           case let .success(membership):
             XCTAssertEqual(membership.id, membershipId)
@@ -68,7 +68,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeMembership(
-          membershipId,
+          id: membershipId,
           completion: $0
         )
       }
@@ -109,7 +109,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
         let replacementPayload = TestMembershipPayload(role: "member")
 
         client.dataSync.setMembership(
-          membershipId,
+          id: membershipId,
           classVersion: self.membershipClassVersion,
           status: "inactive",
           payload: replacementPayload
@@ -136,7 +136,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeMembership(
-          membershipId,
+          id: membershipId,
           completion: $0
         )
       }
@@ -176,7 +176,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
         let expectedPayload = TestMembershipPayload(role: "admin", invitedBy: "swift-itest")
 
         client.dataSync.updateMembership(
-          membershipId,
+          id: membershipId,
           operations: [.replace(path: "/payload/role", value: "admin")]
         ) { patchResult in
           switch patchResult {
@@ -197,7 +197,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeMembership(
-          membershipId,
+          id: membershipId,
           completion: $0
         )
       }
@@ -235,7 +235,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
       switch createResult {
       case .success:
         client.dataSync.setMembership(
-          membershipId,
+          id: membershipId,
           classVersion: self.membershipClassVersion,
           status: "inactive",
           payload: TestMembershipPayload(role: "member"),
@@ -259,7 +259,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeMembership(
-          membershipId,
+          id: membershipId,
           completion: $0
         )
       }
@@ -306,7 +306,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
       for membershipId in membershipIds {
         waitForCompletion {
           client.dataSync.removeMembership(
-            membershipId,
+            id: membershipId,
             completion: $0
           )
         }
@@ -354,7 +354,7 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
       for membershipId in membershipIds {
         waitForCompletion {
           client.dataSync.removeMembership(
-            membershipId,
+            id: membershipId,
             completion: $0
           )
         }
@@ -392,10 +392,10 @@ class DataSyncMembershipEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.removeMembership(membershipId) { removeResult in
+        client.dataSync.removeMembership(id: membershipId) { removeResult in
           switch removeResult {
           case .success:
-            client.dataSync.getMembership(membershipId) { fetchResult in
+            client.dataSync.getMembership(id: membershipId) { fetchResult in
               switch fetchResult {
               case .success:
                 XCTFail("Test should fail")
@@ -514,7 +514,7 @@ private extension DataSyncMembershipEndpointIntegrationTests {
     for userId in userIds {
       waitForCompletion {
         client.dataSync.removeUser(
-          userId,
+          id: userId,
           completion: $0
         )
       }
@@ -522,7 +522,7 @@ private extension DataSyncMembershipEndpointIntegrationTests {
     for channelId in channelIds {
       waitForCompletion {
         client.dataSync.removeChannel(
-          channelId,
+          id: channelId,
           completion: $0
         )
       }

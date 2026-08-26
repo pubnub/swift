@@ -60,7 +60,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPDataSyncEntity) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.getEntity(id) {
+    pubnub.dataSync.getEntity(id: id) {
       switch $0 {
       case .success(let entity):
         onSuccess(KMPDataSyncEntity(entity: entity))
@@ -107,7 +107,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setEntity(
-      id,
+      id: id,
       entityClassVersion: entityClassVersion,
       status: status,
       payload: asOptionalCodable(payload),
@@ -138,7 +138,7 @@ public extension KMPPubNub {
       return
     }
 
-    pubnub.dataSync.updateEntity(id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.updateEntity(id: id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success(let entity):
         onSuccess(KMPDataSyncEntity(entity: entity))
@@ -154,7 +154,7 @@ public extension KMPPubNub {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.removeEntity(id, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.removeEntity(id: id, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success:
         onSuccess()

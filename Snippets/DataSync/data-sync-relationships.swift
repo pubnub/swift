@@ -70,7 +70,7 @@ pubnub.dataSync.getRelationships(
 
 // snippet.get-relationship
 // Retrieve a single relationship by identifier, and decode its payload into your own type
-pubnub.dataSync.getRelationship("alice-course-swift-basics") { result in
+pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in
   switch result {
   case let .success(relationship):
     print("The relationship for `\(relationship.id)`: \(relationship)")
@@ -125,7 +125,7 @@ pubnub.dataSync.createRelationship(
 // Set a relationship's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setRelationship(
-  "alice-course-swift-basics",
+  id: "alice-course-swift-basics",
   relationshipClassVersion: 1,
   status: "active",
   payload: EnrollmentDetails(
@@ -148,7 +148,7 @@ pubnub.dataSync.setRelationship(
 // snippet.update-relationship
 // Change part of a relationship, leaving the rest of its payload untouched
 pubnub.dataSync.updateRelationship(
-  "alice-course-swift-basics",
+  id: "alice-course-swift-basics",
   operations: [
     .replace(path: "/payload/completedLessons", value: 24),
     .replace(path: "/payload/isActive", value: false),
@@ -166,7 +166,7 @@ pubnub.dataSync.updateRelationship(
 
 // snippet.remove-relationship
 // Remove a relationship
-pubnub.dataSync.removeRelationship("alice-course-swift-basics") { result in
+pubnub.dataSync.removeRelationship(id: "alice-course-swift-basics") { result in
   switch result {
   case .success:
     print("The relationship was removed")

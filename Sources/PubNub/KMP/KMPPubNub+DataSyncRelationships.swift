@@ -62,7 +62,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPDataSyncRelationship) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.getRelationship(id) {
+    pubnub.dataSync.getRelationship(id: id) {
       switch $0 {
       case .success(let relationship):
         onSuccess(KMPDataSyncRelationship(relationship: relationship))
@@ -111,7 +111,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setRelationship(
-      id,
+      id: id,
       relationshipClassVersion: relationshipClassVersion,
       status: status,
       payload: asOptionalCodable(payload),
@@ -142,7 +142,7 @@ public extension KMPPubNub {
       return
     }
 
-    pubnub.dataSync.updateRelationship(id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.updateRelationship(id: id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success(let relationship):
         onSuccess(KMPDataSyncRelationship(relationship: relationship))
@@ -158,7 +158,7 @@ public extension KMPPubNub {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.removeRelationship(id, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.removeRelationship(id: id, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success:
         onSuccess()

@@ -203,7 +203,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The ``PubNubDataSyncEntity`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getEntity(
-    _ id: String,
+    id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<PubNubDataSyncEntity, Error>) -> Void)?
   ) {
@@ -290,7 +290,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces an entity in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``updateEntity(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateEntity(id:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of an entity.
   ///
   /// - Parameters:
@@ -304,7 +304,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The replaced ``PubNubDataSyncEntity``
   ///     - **Failure**: An `Error` describing the failure
   func setEntity(
-    _ id: String,
+    id: String,
     entityClassVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -345,6 +345,8 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to an entity.
   ///
+  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  ///
   /// - Parameters:
   ///   - id: The unique identifier of the entity
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
@@ -354,7 +356,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The patched ``PubNubDataSyncEntity``
   ///     - **Failure**: An `Error` describing the failure
   func updateEntity(
-    _ id: String,
+    id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
@@ -395,7 +397,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: An acknowledgement that the entity was removed
   ///     - **Failure**: An `Error` describing the failure
   func removeEntity(
-    _ id: String,
+    id: String,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -506,7 +508,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The ``PubNubDataSyncUser`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getUser(
-    _ id: String,
+    id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<PubNubDataSyncUser, Error>) -> Void)?
   ) {
@@ -597,7 +599,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a user in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``updateUser(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateUser(id:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a user.
   ///
   /// - Parameters:
@@ -611,7 +613,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The replaced ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func setUser(
-    _ id: String,
+    id: String,
     classVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -652,6 +654,8 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a user.
   ///
+  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  ///
   /// - Parameters:
   ///   - id: The unique identifier of the user
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
@@ -661,7 +665,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The patched ``PubNubDataSyncUser``
   ///     - **Failure**: An `Error` describing the failure
   func updateUser(
-    _ id: String,
+    id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
@@ -702,7 +706,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: An acknowledgement that the user was removed
   ///     - **Failure**: An `Error` describing the failure
   func removeUser(
-    _ id: String,
+    id: String,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -813,7 +817,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The ``PubNubDataSyncChannel`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getChannel(
-    _ id: String,
+    id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<PubNubDataSyncChannel, Error>) -> Void)?
   ) {
@@ -904,7 +908,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a channel in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``updateChannel(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateChannel(id:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a channel.
   ///
   /// - Parameters:
@@ -918,7 +922,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The replaced ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func setChannel(
-    _ id: String,
+    id: String,
     classVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -970,7 +974,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The patched ``PubNubDataSyncChannel``
   ///     - **Failure**: An `Error` describing the failure
   func updateChannel(
-    _ id: String,
+    id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
@@ -1011,7 +1015,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: An acknowledgement that the channel was removed
   ///     - **Failure**: An `Error` describing the failure
   func removeChannel(
-    _ id: String,
+    id: String,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -1118,7 +1122,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The ``PubNubDataSyncMembership`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getMembership(
-    _ id: String,
+    id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<PubNubDataSyncMembership, Error>) -> Void)?
   ) {
@@ -1205,7 +1209,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a membership in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``updateMembership(_:operations:ifMatchesEtag:custom:completion:)`` to change part of a membership.
+  /// must send back every field it wants to keep. Use ``updateMembership(id:operations:ifMatchesEtag:custom:completion:)`` to change part of a membership.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
@@ -1218,7 +1222,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The replaced ``PubNubDataSyncMembership``
   ///     - **Failure**: An `Error` describing the failure
   func setMembership(
-    _ id: String,
+    id: String,
     classVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -1259,6 +1263,8 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a membership.
   ///
+  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
@@ -1268,7 +1274,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The patched ``PubNubDataSyncMembership``
   ///     - **Failure**: An `Error` describing the failure
   func updateMembership(
-    _ id: String,
+    id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
@@ -1309,7 +1315,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: An acknowledgement that the membership was removed
   ///     - **Failure**: An `Error` describing the failure
   func removeMembership(
-    _ id: String,
+    id: String,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
@@ -1420,7 +1426,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The ``PubNubDataSyncRelationship`` belonging to the identifier
   ///     - **Failure**: An `Error` describing the failure
   func getRelationship(
-    _ id: String,
+    id: String,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<PubNubDataSyncRelationship, Error>) -> Void)?
   ) {
@@ -1511,7 +1517,7 @@ public extension PubNub.DataSyncAPI {
   /// Replaces a relationship in full.
   ///
   /// Every mutable field is overwritten. Omitting `status` or `payload` clears the stored value rather than preserving it, so a read-modify-write
-  /// must send back every field it wants to keep. Use ``updateRelationship(_:operations:ifMatchesEtag:custom:completion:)`` to change
+  /// must send back every field it wants to keep. Use ``updateRelationship(id:operations:ifMatchesEtag:custom:completion:)`` to change
   /// part of a relationship.
   ///
   /// - Parameters:
@@ -1525,7 +1531,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The replaced ``PubNubDataSyncRelationship``
   ///     - **Failure**: An `Error` describing the failure
   func setRelationship(
-    _ id: String,
+    id: String,
     relationshipClassVersion: Int,
     status: String? = nil,
     payload: JSONCodable? = nil,
@@ -1570,6 +1576,8 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a relationship.
   ///
+  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  ///
   /// - Parameters:
   ///   - id: The unique identifier of the relationship
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
@@ -1579,7 +1587,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: The patched ``PubNubDataSyncRelationship``
   ///     - **Failure**: An `Error` describing the failure
   func updateRelationship(
-    _ id: String,
+    id: String,
     operations: [PubNubDataSyncPatchOperation],
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
@@ -1620,7 +1628,7 @@ public extension PubNub.DataSyncAPI {
   ///     - **Success**: An acknowledgement that the relationship was removed
   ///     - **Failure**: An `Error` describing the failure
   func removeRelationship(
-    _ id: String,
+    id: String,
     ifMatchesEtag: String? = nil,
     custom requestConfig: PubNub.RequestConfiguration = PubNub.RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?

@@ -60,7 +60,7 @@ public extension KMPPubNub {
     onSuccess: @escaping ((KMPDataSyncUser) -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.getUser(id) {
+    pubnub.dataSync.getUser(id: id) {
       switch $0 {
       case .success(let user):
         onSuccess(KMPDataSyncUser(user: user))
@@ -107,7 +107,7 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.setUser(
-      id,
+      id: id,
       classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),
@@ -138,7 +138,7 @@ public extension KMPPubNub {
       return
     }
 
-    pubnub.dataSync.updateUser(id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.updateUser(id: id, operations: patchOperations, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success(let user):
         onSuccess(KMPDataSyncUser(user: user))
@@ -154,7 +154,7 @@ public extension KMPPubNub {
     onSuccess: @escaping (() -> Void),
     onFailure: @escaping ((Error) -> Void)
   ) {
-    pubnub.dataSync.removeUser(id, ifMatchesEtag: ifMatchesEtag) {
+    pubnub.dataSync.removeUser(id: id, ifMatchesEtag: ifMatchesEtag) {
       switch $0 {
       case .success:
         onSuccess()

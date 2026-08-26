@@ -36,7 +36,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(createdChannel.id, channelId)
         XCTAssertFalse(createdChannel.eTag.isEmpty)
 
-        client.dataSync.getChannel(channelId) { fetchResult in
+        client.dataSync.getChannel(id: channelId) { fetchResult in
           switch fetchResult {
           case let .success(channel):
             XCTAssertEqual(channel.id, channelId)
@@ -58,7 +58,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeChannel(
-          channelId,
+          id: channelId,
           completion: $0
         )
       }
@@ -84,7 +84,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
         let replacementPayload = TestChannelPayload(name: "Swift ITest Channel Renamed")
 
         client.dataSync.setChannel(
-          channelId,
+          id: channelId,
           classVersion: self.channelClassVersion,
           status: "archived",
           payload: replacementPayload
@@ -109,7 +109,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeChannel(
-          channelId,
+          id: channelId,
           completion: $0
         )
       }
@@ -141,7 +141,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
         )
 
         client.dataSync.updateChannel(
-          channelId,
+          id: channelId,
           operations: [
             .remove(path: "/payload/channelDescription"),
             .add(path: "/payload/topic", value: "integration-testing")
@@ -165,7 +165,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeChannel(
-          channelId,
+          id: channelId,
           completion: $0
         )
       }
@@ -191,7 +191,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       switch createResult {
       case .success:
         client.dataSync.setChannel(
-          channelId,
+          id: channelId,
           classVersion: self.channelClassVersion,
           status: "archived",
           payload: TestChannelPayload(name: "Swift ITest Channel Renamed"),
@@ -215,7 +215,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     defer {
       waitForCompletion {
         client.dataSync.removeChannel(
-          channelId,
+          id: channelId,
           completion: $0
         )
       }
@@ -249,7 +249,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       for channelId in channelIds {
         waitForCompletion {
           client.dataSync.removeChannel(
-            channelId,
+            id: channelId,
             completion: $0
           )
         }
@@ -286,7 +286,7 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
       for channelId in channelIds {
         waitForCompletion {
           client.dataSync.removeChannel(
-            channelId,
+            id: channelId,
             completion: $0
           )
         }
@@ -312,10 +312,10 @@ class DataSyncChannelEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.removeChannel(channelId) { removeResult in
+        client.dataSync.removeChannel(id: channelId) { removeResult in
           switch removeResult {
           case .success:
-            client.dataSync.getChannel(channelId) { fetchResult in
+            client.dataSync.getChannel(id: channelId) { fetchResult in
               switch fetchResult {
               case .success:
                 XCTFail("Test should fail")

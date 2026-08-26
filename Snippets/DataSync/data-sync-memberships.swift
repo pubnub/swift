@@ -81,7 +81,7 @@ pubnub.dataSync.getMemberships(
 
 // snippet.get-membership
 // Retrieve a single membership by identifier, and decode its payload into your own type
-pubnub.dataSync.getMembership("general-alice") { result in
+pubnub.dataSync.getMembership(id: "general-alice") { result in
   switch result {
   case let .success(membership):
     print("The membership for `\(membership.id)`: \(membership)")
@@ -129,7 +129,7 @@ pubnub.dataSync.createMembership(
 // Set a membership's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setMembership(
-  "general-alice",
+  id: "general-alice",
   classVersion: 1,
   status: "active",
   payload: MembershipDetails(role: "member", unreadCount: 7, isMuted: true),
@@ -148,7 +148,7 @@ pubnub.dataSync.setMembership(
 // Change part of a membership, leaving the rest of its payload untouched.
 // A `Date` value is sent as an ISO 8601 string
 pubnub.dataSync.updateMembership(
-  "general-alice",
+  id: "general-alice",
   operations: [
     .replace(path: "/payload/role", value: "admin"),
     .replace(path: "/payload/unreadCount", value: 0),
@@ -167,7 +167,7 @@ pubnub.dataSync.updateMembership(
 
 // snippet.remove-membership
 // Remove a user from a channel
-pubnub.dataSync.removeMembership("general-alice") { result in
+pubnub.dataSync.removeMembership(id: "general-alice") { result in
   switch result {
   case .success:
     print("The membership was removed")

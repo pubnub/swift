@@ -60,7 +60,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.setEntity(
-      "hcn-patient-alice",
+      id: "hcn-patient-alice",
       entityClassVersion: 1,
       ifMatchesEtag: "stale-etag"
     ) { result in
@@ -81,7 +81,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_404"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntity("missing-entity") { result in
+    pubnub.dataSync.getEntity(id: "missing-entity") { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")
@@ -99,7 +99,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_404"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.removeEntity("missing-entity") { result in
+    pubnub.dataSync.removeEntity(id: "missing-entity") { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")

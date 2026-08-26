@@ -44,7 +44,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_relationship_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getRelationship("rel-alice-treats-bob") { [self] result in
+    pubnub.dataSync.getRelationship(id: "rel-alice-treats-bob") { [self] result in
       switch result {
       case let .success(relationship):
         XCTAssertEqual(relationship.className, "Treats")
@@ -88,7 +88,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.setRelationship(
-      "rel-alice-treats-bob",
+      id: "rel-alice-treats-bob",
       relationshipClassVersion: 1,
       payload: RelationshipPayload(since: "2026-01-01"),
       ifMatchesEtag: "3w5e111uk7djz"
@@ -114,7 +114,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.updateRelationship(
-      "rel-alice-treats-bob",
+      id: "rel-alice-treats-bob",
       operations: [.replace(path: "/payload/since", value: "2026-01-01")]
     ) { result in
       switch result {
@@ -135,7 +135,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.removeRelationship("rel-alice-treats-bob") { result in
+    pubnub.dataSync.removeRelationship(id: "rel-alice-treats-bob") { result in
       if case let .failure(error) = result {
         XCTFail("Request failed with \(error.localizedDescription)")
       }

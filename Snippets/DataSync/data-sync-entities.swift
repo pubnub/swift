@@ -70,7 +70,7 @@ pubnub.dataSync.getEntities(
 
 // snippet.get-entity
 // Retrieve a single entity by identifier, and decode its payload into your own type
-pubnub.dataSync.getEntity("course-swift-basics") { result in
+pubnub.dataSync.getEntity(id: "course-swift-basics") { result in
   switch result {
   case let .success(entity):
     print("The entity for `\(entity.id)`: \(entity)")
@@ -123,7 +123,7 @@ pubnub.dataSync.createEntity(
 // Set an entity's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setEntity(
-  "course-swift-basics",
+  id: "course-swift-basics",
   entityClassVersion: 1,
   status: "published",
   payload: CourseDetails(
@@ -146,7 +146,7 @@ pubnub.dataSync.setEntity(
 // snippet.update-entity
 // Change part of an entity, leaving the rest of its payload untouched
 pubnub.dataSync.updateEntity(
-  "course-swift-basics",
+  id: "course-swift-basics",
   operations: [
     .replace(path: "/payload/title", value: "Swift Basics (2026)"),
     .replace(path: "/payload/lessonCount", value: 32),
@@ -165,7 +165,7 @@ pubnub.dataSync.updateEntity(
 
 // snippet.remove-entity
 // Remove an entity
-pubnub.dataSync.removeEntity("course-swift-basics") { result in
+pubnub.dataSync.removeEntity(id: "course-swift-basics") { result in
   switch result {
   case .success:
     print("The entity was removed")

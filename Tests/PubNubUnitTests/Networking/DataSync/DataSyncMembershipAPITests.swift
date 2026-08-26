@@ -74,7 +74,7 @@ final class DataSyncMembershipAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.setMembership(
-      "general__alice",
+      id: "general__alice",
       classVersion: 1,
       payload: MembershipPayload(role: "admin"),
       ifMatchesEtag: "3w5e111uk7djz"
@@ -100,7 +100,7 @@ final class DataSyncMembershipAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.updateMembership(
-      "general__alice",
+      id: "general__alice",
       operations: [.replace(path: "/payload/role", value: "admin")]
     ) { result in
       switch result {
@@ -121,7 +121,7 @@ final class DataSyncMembershipAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.removeMembership("general__alice") { result in
+    pubnub.dataSync.removeMembership(id: "general__alice") { result in
       if case let .failure(error) = result {
         XCTFail("Request failed with \(error.localizedDescription)")
       }

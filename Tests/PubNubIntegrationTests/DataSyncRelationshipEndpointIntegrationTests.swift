@@ -41,7 +41,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(createdRelationship.id, relationshipId)
         XCTAssertFalse(createdRelationship.eTag.isEmpty)
 
-        client.dataSync.getRelationship(relationshipId) { fetchResult in
+        client.dataSync.getRelationship(id: relationshipId) { fetchResult in
           switch fetchResult {
           case let .success(relationship):
             XCTAssertEqual(relationship.id, relationshipId)
@@ -95,7 +95,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         let replacementPayload = TestAttendingPhysicianPayload(role: "consulting")
 
         client.dataSync.setRelationship(
-          relationshipId,
+          id: relationshipId,
           relationshipClassVersion: self.attendingPhysicianClass.version,
           status: "inactive",
           payload: replacementPayload
@@ -153,7 +153,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         )
 
         client.dataSync.updateRelationship(
-          relationshipId,
+          id: relationshipId,
           operations: [
             .replace(path: "/payload/role", value: "consulting"),
             .remove(path: "/payload/since")
@@ -199,7 +199,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     )
 
     client.dataSync.setRelationship(
-      relationshipId,
+      id: relationshipId,
       relationshipClassVersion: attendingPhysicianClass.version,
       status: "inactive",
       payload: TestAttendingPhysicianPayload(role: "consulting"),
@@ -439,7 +439,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     )
 
     client.dataSync.updateRelationship(
-      relationshipId,
+      id: relationshipId,
       operations: [
         .test(path: "/payload/role", value: "attending"),
         .move(from: "/payload/since", path: "/payload/role"),
@@ -484,7 +484,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     )
 
     client.dataSync.updateRelationship(
-      relationshipId,
+      id: relationshipId,
       operations: [
         .test(path: "/payload/role", value: "never-assigned"),
         .replace(path: "/payload/since", value: "2025-01-01")
@@ -498,7 +498,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError?.reason, .badRequest)
 
-        client.dataSync.getRelationship(relationshipId) { fetchResult in
+        client.dataSync.getRelationship(id: relationshipId) { fetchResult in
           switch fetchResult {
           case let .success(relationship):
             XCTAssertEqual(relationship.status, "active")
@@ -579,10 +579,10 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       [.attendingPhysician(id: relationshipId, practitionerId: practitionerId, patientId: patientId)]
     )
 
-    client.dataSync.removeRelationship(relationshipId) { [unowned client] removeResult in
+    client.dataSync.removeRelationship(id: relationshipId) { [unowned client] removeResult in
       switch removeResult {
       case .success:
-        client.dataSync.getRelationship(relationshipId) { fetchResult in
+        client.dataSync.getRelationship(id: relationshipId) { fetchResult in
           switch fetchResult {
           case .success:
             XCTFail("Test should fail")

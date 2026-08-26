@@ -68,7 +68,7 @@ pubnub.dataSync.getUsers(
 
 // snippet.get-user
 // Retrieve a single user by identifier, and decode its payload into your own type
-pubnub.dataSync.getUser("alice") { result in
+pubnub.dataSync.getUser(id: "alice") { result in
   switch result {
   case let .success(user):
     print("The user for `\(user.id)`: \(user)")
@@ -118,7 +118,7 @@ pubnub.dataSync.createUser(
 // Set a user's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setUser(
-  "alice",
+  id: "alice",
   classVersion: 1,
   status: "active",
   payload: UserProfile(
@@ -141,7 +141,7 @@ pubnub.dataSync.setUser(
 // snippet.update-user
 // Change part of a user, leaving the rest of its payload untouched
 pubnub.dataSync.updateUser(
-  "alice",
+  id: "alice",
   operations: [
     .replace(path: "/payload/email", value: "alice.summers@example.com"),
     .replace(path: "/payload/isEmailVerified", value: true),
@@ -160,7 +160,7 @@ pubnub.dataSync.updateUser(
 
 // snippet.remove-user
 // Remove a user
-pubnub.dataSync.removeUser("alice") { result in
+pubnub.dataSync.removeUser(id: "alice") { result in
   switch result {
   case .success:
     print("The user was removed")

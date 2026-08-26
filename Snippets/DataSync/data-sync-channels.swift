@@ -68,7 +68,7 @@ pubnub.dataSync.getChannels(
 
 // snippet.get-channel
 // Retrieve a single channel by identifier, and decode its payload into your own type
-pubnub.dataSync.getChannel("general") { result in
+pubnub.dataSync.getChannel(id: "general") { result in
   switch result {
   case let .success(channel):
     print("The channel for `\(channel.id)`: \(channel)")
@@ -118,7 +118,7 @@ pubnub.dataSync.createChannel(
 // Set a channel's payload wholesale, only if it hasn't changed since it was read.
 // Every field to keep has to be sent back: an omitted field is cleared, not preserved
 pubnub.dataSync.setChannel(
-  "general",
+  id: "general",
   classVersion: 1,
   status: "active",
   payload: ChannelDetails(
@@ -142,7 +142,7 @@ pubnub.dataSync.setChannel(
 // Change part of a channel, leaving the rest of its payload untouched.
 // The operations are applied atomically: if any one of them fails, the channel is left unchanged
 pubnub.dataSync.updateChannel(
-  "general",
+  id: "general",
   operations: [
     .replace(path: "/payload/topic", value: "Company announcements"),
     .replace(path: "/payload/retentionDays", value: 365),
@@ -161,7 +161,7 @@ pubnub.dataSync.updateChannel(
 
 // snippet.remove-channel
 // Remove a channel
-pubnub.dataSync.removeChannel("general") { result in
+pubnub.dataSync.removeChannel(id: "general") { result in
   switch result {
   case .success:
     print("The channel was removed")

@@ -17,7 +17,7 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getChannel("general") { [self] result in
+    pubnub.dataSync.getChannel(id: "general") { [self] result in
       switch result {
       case let .success(channel):
         XCTAssertEqual(channel.id, "general")
@@ -65,7 +65,7 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.updateChannel(
-      "general",
+      id: "general",
       operations: [.replace(path: "/payload/name", value: "General")],
       ifMatchesEtag: "3w5e111uk7djz"
     ) { result in

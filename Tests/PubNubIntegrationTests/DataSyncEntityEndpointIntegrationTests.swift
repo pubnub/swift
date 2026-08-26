@@ -35,7 +35,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         XCTAssertEqual(createdEntity.id, patientId)
         XCTAssertFalse(createdEntity.eTag.isEmpty)
 
-        client.dataSync.getEntity(patientId) { fetchResult in
+        client.dataSync.getEntity(id: patientId) { fetchResult in
           switch fetchResult {
           case let .success(entity):
             XCTAssertEqual(entity.id, patientId)
@@ -80,7 +80,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         let replacementPayload = TestPatientPayload(fullName: "Swift ITest Patient Renamed")
 
         client.dataSync.setEntity(
-          patientId,
+          id: patientId,
           entityClassVersion: self.patientClass.version,
           status: "inactive",
           payload: replacementPayload
@@ -132,7 +132,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         )
 
         client.dataSync.updateEntity(
-          patientId,
+          id: patientId,
           operations: [
             .replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed"),
             .remove(path: "/payload/diagnosis")
@@ -175,7 +175,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
       switch createResult {
       case .success:
         client.dataSync.setEntity(
-          patientId,
+          id: patientId,
           entityClassVersion: self.patientClass.version,
           status: "inactive",
           payload: TestPatientPayload(fullName: "Swift ITest Patient Renamed"),
@@ -436,7 +436,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.patient(id: patientId)])
 
     client.dataSync.updateEntity(
-      patientId,
+      id: patientId,
       operations: [
         .test(path: "/payload/mrn", value: patientId),
         .copy(from: "/payload/dateOfBirth", path: "/payload/fullName"),
@@ -478,7 +478,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.patient(id: patientId)])
 
     client.dataSync.updateEntity(
-      patientId,
+      id: patientId,
       operations: [
         .test(path: "/payload/mrn", value: "MRN-NEVER-ASSIGNED"),
         .replace(path: "/payload/fullName", value: "Should Not Persist")
@@ -492,7 +492,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         XCTAssertNotNil(error.pubNubError)
         XCTAssertEqual(error.pubNubError?.reason, .badRequest)
 
-        client.dataSync.getEntity(patientId) { fetchResult in
+        client.dataSync.getEntity(id: patientId) { fetchResult in
           switch fetchResult {
           case let .success(entity):
             XCTAssertPayload(entity.payload, equals: payload)
@@ -521,7 +521,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     // Written under the admin projection, which is the only one able to set every field of `patient`
     createEntities(client: adminClient, [.patient(id: patientId)])
 
-    defaultClient.dataSync.getEntity(patientId) { fetchResult in
+    defaultClient.dataSync.getEntity(id: patientId) { fetchResult in
       switch fetchResult {
       case let .success(entity):
         XCTAssertPayload(
@@ -556,7 +556,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     // Patching a field the token can see must not disturb the ones it cannot
     defaultClient.dataSync.updateEntity(
-      patientId,
+      id: patientId,
       operations: [.replace(path: "/payload/fullName", value: "Swift ITest Patient Renamed")]
     ) { [unowned adminClient] patchResult in
       switch patchResult {
@@ -570,7 +570,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
         )
 
         // Only the admin projection can confirm the clinical fields survived the patch above
-        adminClient.dataSync.getEntity(patientId) { fetchResult in
+        adminClient.dataSync.getEntity(id: patientId) { fetchResult in
           switch fetchResult {
           case let .success(entity):
             XCTAssertPayload(
@@ -614,10 +614,10 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     ) { [unowned client] createResult in
       switch createResult {
       case .success:
-        client.dataSync.removeEntity(patientId) { removeResult in
+        client.dataSync.removeEntity(id: patientId) { removeResult in
           switch removeResult {
           case .success:
-            client.dataSync.getEntity(patientId) { fetchResult in
+            client.dataSync.getEntity(id: patientId) { fetchResult in
               switch fetchResult {
               case .success:
                 XCTFail("Test should fail")

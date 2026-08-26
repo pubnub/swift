@@ -94,7 +94,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntity("hcn-patient-alice") { [self] result in
+    pubnub.dataSync.getEntity(id: "hcn-patient-alice") { [self] result in
       switch result {
       case let .success(entity):
         XCTAssertEqual(entity.id, "hcn-patient-alice")
@@ -188,7 +188,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.setEntity(
-      "hcn-patient-alice",
+      id: "hcn-patient-alice",
       entityClassVersion: 1,
       payload: PatientPayload(mrn: "MRN-100001"),
       ifMatchesEtag: "3w5e111uk7djz"
@@ -211,7 +211,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.updateEntity(
-      "hcn-patient-alice",
+      id: "hcn-patient-alice",
       operations: [.replace(path: "/payload/diagnosis", value: "Type 2 diabetes")]
     ) { result in
       switch result {
@@ -231,7 +231,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_remove_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.removeEntity("hcn-patient-alice", ifMatchesEtag: "3w5e111uk7djz") { result in
+    pubnub.dataSync.removeEntity(id: "hcn-patient-alice", ifMatchesEtag: "3w5e111uk7djz") { result in
       switch result {
       case .success:
         break
@@ -265,7 +265,7 @@ final class DataSyncEntityAPITests: DataSyncAPITestCase {
     let expectation = self.expectation(description: "updateEntity no operations")
     let pubnub = TestPubNubFactory.make()
 
-    pubnub.dataSync.updateEntity("hcn-patient-alice", operations: []) { result in
+    pubnub.dataSync.updateEntity(id: "hcn-patient-alice", operations: []) { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")

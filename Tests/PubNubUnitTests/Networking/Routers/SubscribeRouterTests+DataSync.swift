@@ -192,10 +192,9 @@ extension SubscribeRouterTests {
   }
 
   func test_Subscribe_WithDataSyncRelationshipDeleteEvent_ReceivesRemovedRelationship() throws {
-    let expectedRemoval = PubNubDataSyncRemovedObject(
+    let expectedRemoval = PubNubDataSyncRemovedRelationship(
       id: "hcn-rel-attending-tanaka-dubois",
       className: "attending-physician",
-      classLevel: .subKey,
       classVersion: 1,
       deletedAt: try XCTUnwrap(DateFormatter.iso8601.date(from: "2026-07-28T09:07:47.243657Z"))
     )
@@ -468,10 +467,9 @@ extension SubscribeRouterTests {
 
     XCTAssertEqual(
       removed,
-      PubNubDataSyncRemovedObject(
+      PubNubDataSyncRemovedRelationship(
         id: "general__alice",
         className: "Membership",
-        classLevel: .global,
         classVersion: 1,
         deletedAt: try XCTUnwrap(DateFormatter.iso8601.date(from: "2026-08-13T16:05:15.029431Z"))
       )
@@ -674,10 +672,10 @@ extension SubscribeRouterTests {
 
     XCTAssertEqual(events.legacy.deletedRelationship?.id, "general__alice")
     XCTAssertEqual(events.legacy.deletedRelationship?.className, "Membership")
-    XCTAssertEqual(events.legacy.deletedRelationship?.classLevel, .global)
+    XCTAssertEqual(events.legacy.deletedRelationship?.classVersion, 1)
     XCTAssertEqual(events.modern.deletedRelationship?.id, "general__alice")
     XCTAssertEqual(events.modern.deletedRelationship?.className, "Membership")
-    XCTAssertEqual(events.modern.deletedRelationship?.classLevel, .global)
+    XCTAssertEqual(events.modern.deletedRelationship?.classVersion, 1)
   }
 }
 
@@ -772,7 +770,7 @@ private extension PubNubDataSyncEvent {
     return r
   }
 
-  var deletedRelationship: PubNubDataSyncRemovedObject? {
+  var deletedRelationship: PubNubDataSyncRemovedRelationship? {
     guard case let .relationshipDeleted(r) = self else { return nil }
     return r
   }
@@ -806,7 +804,7 @@ private extension PubNubEvent {
     return r
   }
 
-  var deletedDataSyncRelationship: PubNubDataSyncRemovedObject? {
+  var deletedDataSyncRelationship: PubNubDataSyncRemovedRelationship? {
     guard case let .dataSyncChanged(.relationshipDeleted(r)) = self else { return nil }
     return r
   }

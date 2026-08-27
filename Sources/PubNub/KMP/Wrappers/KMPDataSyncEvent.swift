@@ -92,9 +92,9 @@ public class KMPDataSyncRelationshipUpdatedResult: KMPDataSyncEvent {
 
 @objc
 public class KMPDataSyncRelationshipDeletedResult: KMPDataSyncEvent {
-  @objc public let removedObject: KMPDataSyncRemovedObject
+  @objc public let removedObject: KMPDataSyncRemovedRelationship
 
-  init(removedObject: KMPDataSyncRemovedObject) {
+  init(removedObject: KMPDataSyncRemovedRelationship) {
     self.removedObject = removedObject
     super.init(event: "relationshipDeleted")
   }
@@ -120,6 +120,24 @@ public class KMPDataSyncRemovedObject: NSObject {
   }
 }
 
+// MARK: - KMPDataSyncRemovedRelationship
+
+@objc
+public class KMPDataSyncRemovedRelationship: NSObject {
+  @objc public let id: String
+  // Named `objectClass` rather than `className` because `NSObject` already exposes a `className` selector
+  @objc public let objectClass: String
+  @objc public let classVersion: Int
+  @objc public let deletedAt: Date
+
+  init(removedRelationship: PubNubDataSyncRemovedRelationship) {
+    self.id = removedRelationship.id
+    self.objectClass = removedRelationship.className
+    self.classVersion = removedRelationship.classVersion
+    self.deletedAt = removedRelationship.deletedAt
+  }
+}
+
 // MARK: - KMPDataSyncEvent (Factory Method)
 
 extension KMPDataSyncEvent {
@@ -135,8 +153,10 @@ extension KMPDataSyncEvent {
       return KMPDataSyncRelationshipCreatedResult(relationship: KMPDataSyncRelationship(relationship: relationship))
     case .relationshipUpdated(let relationship):
       return KMPDataSyncRelationshipUpdatedResult(relationship: KMPDataSyncRelationship(relationship: relationship))
-    case .relationshipDeleted(let removedObject):
-      return KMPDataSyncRelationshipDeletedResult(removedObject: KMPDataSyncRemovedObject(removedObject: removedObject))
+    case .relationshipDeleted(let removedRelationship):
+      return KMPDataSyncRelationshipDeletedResult(
+        removedObject: KMPDataSyncRemovedRelationship(removedRelationship: removedRelationship)
+      )
     }
   }
 }

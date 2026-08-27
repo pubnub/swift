@@ -23,7 +23,7 @@ public enum PubNubDataSyncEvent {
   /// A relationship was updated
   case relationshipUpdated(PubNubDataSyncRelationship)
   /// A relationship was deleted
-  case relationshipDeleted(PubNubDataSyncRemovedObject)
+  case relationshipDeleted(PubNubDataSyncRemovedRelationship)
 }
 
 /// A DataSync entity or relationship that was deleted.
@@ -37,5 +37,17 @@ public struct PubNubDataSyncRemovedObject: Hashable {
   /// The version of the deleted object's class
   public let classVersion: Int
   /// The date the object was deleted
+  public let deletedAt: Date
+}
+
+/// A DataSync relationship that was deleted.
+public struct PubNubDataSyncRemovedRelationship: Hashable {
+  /// The unique identifier of the deleted relationship
+  public let id: String
+  /// The name of the deleted relationship's class
+  public let className: String
+  /// The version of the deleted relationship's class
+  public let classVersion: Int
+  /// The date the relationship was deleted
   public let deletedAt: Date
 }

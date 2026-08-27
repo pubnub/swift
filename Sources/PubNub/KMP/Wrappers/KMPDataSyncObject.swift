@@ -63,7 +63,7 @@ public class KMPDataSyncUser: NSObject {
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
-  init(user: PubNubDataSyncUser) {
+  init(user: PubNubDataSyncEntity) {
     self.id = user.id
     self.entityClass = user.className
     self.classLevel = user.classLevel.stringValue
@@ -93,7 +93,7 @@ public class KMPDataSyncChannel: NSObject {
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
-  init(channel: PubNubDataSyncChannel) {
+  init(channel: PubNubDataSyncEntity) {
     self.id = channel.id
     self.entityClass = channel.className
     self.classLevel = channel.classLevel.stringValue

@@ -102,7 +102,7 @@ extension SubscribeDataSyncPayload: Decodable {
         payload: try data.decodeIfPresent(AnyJSON.self, forKey: .payload)
       )
       event = action == .create ? .relationshipCreated(relationship) : .relationshipUpdated(relationship)
-    case (.entity, .delete), (.relationship, .delete):
+    case (.entity, .delete):
       let removed = PubNubDataSyncRemovedObject(
         id: identifier,
         className: className,
@@ -110,7 +110,16 @@ extension SubscribeDataSyncPayload: Decodable {
         classVersion: classVersion,
         deletedAt: try data.decode(Date.self, forKey: .deletedAt)
       )
-      event = type == .entity ? .entityDeleted(removed) : .relationshipDeleted(removed)
+      event = .entityDeleted(removed)
+    case (.relationship, .delete):
+      event = .relationshipDeleted(
+        PubNubDataSyncRemovedRelationship(
+          id: identifier,
+          className: className,
+          classVersion: classVersion,
+          deletedAt: try data.decode(Date.self, forKey: .deletedAt)
+        )
+      )
     }
   }
 }

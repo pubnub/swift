@@ -134,7 +134,20 @@ listener.didReceiveBatchSubscription = { events in
       }
 
     case .dataSyncChanged(let dataSyncEvent):
-      print("A DataSync event was received: \(dataSyncEvent)")
+      switch dataSyncEvent {
+      case let .entityCreated(entity):
+        print("Data Sync entity created: \(entity.id)")
+      case let .entityUpdated(entity):
+        print("Data Sync entity updated: \(entity.id)")
+      case let .entityDeleted(entity):
+        print("Data Sync entity deleted: \(entity.id)")
+      case let .relationshipCreated(relationship):
+        print("Data Sync relationship created: \(relationship.id)")
+      case let .relationshipUpdated(relationship):
+        print("Data Sync relationship updated: \(relationship.id)")
+      case let .relationshipDeleted(relationship):
+        print("Data Sync relationship deleted: \(relationship.id)")
+      }
     }
   }
 }

@@ -29,6 +29,10 @@ public class KMPSubscription: NSObject {
   @objc public var onFile: ((KMPFileChangeEvent) -> Void)?
   @objc public var onDataSync: ((KMPDataSyncEvent) -> Void)?
 
+  init(subscription: Subscription) {
+    self.subscription = subscription
+  }
+
   @objc
   public init(entity: KMPEntity, receivePresenceEvents: Bool) {
     self.subscription = Subscription(

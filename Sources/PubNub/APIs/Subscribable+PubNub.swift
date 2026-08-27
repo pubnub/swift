@@ -52,6 +52,31 @@ public extension PubNub {
     ChannelMetadata(id: name, pubnub: self)
   }
 
+  /// Returns a reference to the Data Sync user with the given identifier.
+  func dataSyncUser(_ id: String) -> DataSyncUser {
+    DataSyncUser(id: id, pubnub: self)
+  }
+
+  /// Returns a reference to the Data Sync channel with the given identifier.
+  func dataSyncChannel(_ id: String) -> DataSyncChannel {
+    DataSyncChannel(id: id, pubnub: self)
+  }
+
+  /// Returns a reference to the Data Sync membership with the given identifier.
+  func dataSyncMembership(_ id: String) -> DataSyncMembership {
+    DataSyncMembership(id: id, pubnub: self)
+  }
+
+  /// Returns a reference to the Data Sync entity with the given identifier.
+  func dataSyncEntity(_ id: String) -> DataSyncEntity {
+    DataSyncEntity(id: id, pubnub: self)
+  }
+
+  /// Returns a reference to the Data Sync relationship with the given identifier.
+  func dataSyncRelationship(_ id: String) -> DataSyncRelationship {
+    DataSyncRelationship(id: id, pubnub: self)
+  }
+
   /// Creates a `SubscriptionSet` from a collection of `Subscribable` values.
   ///
   /// Use this function to subscribe to several `Subscribable` values at once.

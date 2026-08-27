@@ -101,6 +101,26 @@ public extension KMPPubNub {
   func channelMetadata(with id: String) -> KMPChannelMetadataEntity {
     KMPChannelMetadataEntity(channelMetadata: pubnub.channelMetadata(id))
   }
+
+  func dataSyncUser(with id: String) -> KMPDataSyncUserReference {
+    KMPDataSyncUserReference(user: pubnub.dataSyncUser(id))
+  }
+
+  func dataSyncChannel(with id: String) -> KMPDataSyncChannelReference {
+    KMPDataSyncChannelReference(channel: pubnub.dataSyncChannel(id))
+  }
+
+  func dataSyncMembership(with id: String) -> KMPDataSyncMembershipReference {
+    KMPDataSyncMembershipReference(membership: pubnub.dataSyncMembership(id))
+  }
+
+  func dataSyncEntity(with id: String) -> KMPDataSyncEntityReference {
+    KMPDataSyncEntityReference(entity: pubnub.dataSyncEntity(id))
+  }
+
+  func dataSyncRelationship(with id: String) -> KMPDataSyncRelationshipReference {
+    KMPDataSyncRelationshipReference(relationship: pubnub.dataSyncRelationship(id))
+  }
 }
 
 // MARK: - LogLevel

@@ -77,3 +77,156 @@ public class ChannelMetadata: Subscribable {
     SubscriptionTopology(channels: [id])
   }
 }
+
+// MARK: - Data Sync
+
+/// A reference to a Data Sync user by identifier.
+public class DataSyncUser: Subscribable {
+  /// The identifier of the Data Sync user
+  public let id: String
+
+  init(id: String, pubnub: PubNub) {
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
+  }
+
+  /// Creates a subscription to a projection of this Data Sync user.
+  public func subscription(
+    projection projectionName: String,
+    queue: DispatchQueue = .main,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> Subscription {
+    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+  }
+}
+
+/// A reference to a Data Sync channel by identifier.
+public class DataSyncChannel: Subscribable {
+  /// The identifier of the Data Sync channel
+  public let id: String
+
+  init(id: String, pubnub: PubNub) {
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
+  }
+
+  /// Creates a subscription to a projection of this Data Sync channel.
+  public func subscription(
+    projection projectionName: String,
+    queue: DispatchQueue = .main,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> Subscription {
+    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+  }
+}
+
+/// A reference to a Data Sync membership by identifier.
+public class DataSyncMembership: Subscribable {
+  /// The identifier of the Data Sync membership
+  public let id: String
+
+  init(id: String, pubnub: PubNub) {
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
+  }
+
+  /// Creates a subscription to a projection of this Data Sync membership.
+  public func subscription(
+    projection projectionName: String,
+    queue: DispatchQueue = .main,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> Subscription {
+    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+  }
+}
+
+/// A reference to a Data Sync entity by identifier.
+public class DataSyncEntity: Subscribable {
+  /// The identifier of the Data Sync entity
+  public let id: String
+
+  init(id: String, pubnub: PubNub) {
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
+  }
+
+  /// Creates a subscription to a projection of this Data Sync entity.
+  public func subscription(
+    projection projectionName: String,
+    queue: DispatchQueue = .main,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> Subscription {
+    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+  }
+}
+
+/// A reference to a Data Sync relationship by identifier.
+public class DataSyncRelationship: Subscribable {
+  /// The identifier of the Data Sync relationship
+  public let id: String
+
+  init(id: String, pubnub: PubNub) {
+    self.id = id
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [id])
+  }
+
+  /// Creates a subscription to a projection of this Data Sync relationship.
+  public func subscription(
+    projection projectionName: String,
+    queue: DispatchQueue = .main,
+    options: SubscriptionOptions = SubscriptionOptions.empty()
+  ) -> Subscription {
+    makeProjectionSubscription(projectionName, id: id, queue: queue, options: options)
+  }
+}
+
+private extension Subscribable {
+  func makeProjectionSubscription(
+    _ projectionName: String,
+    id: String,
+    queue: DispatchQueue,
+    options: SubscriptionOptions
+  ) -> Subscription {
+    Subscription(
+      queue: queue,
+      target: DataSyncProjection(
+        channelName: projectionName == "default" ? id : "__\(projectionName)__\(id)",
+        pubnub: pubnub
+      ),
+      options: options
+    )
+  }
+}
+
+private final class DataSyncProjection: Subscribable {
+  private let channelName: String
+
+  init(channelName: String, pubnub: PubNub?) {
+    self.channelName = channelName
+    super.init(pubnub: pubnub)
+  }
+
+  override func subscriptionTopology(includingPresence: Bool) -> SubscriptionTopology {
+    SubscriptionTopology(channels: [channelName])
+  }
+}

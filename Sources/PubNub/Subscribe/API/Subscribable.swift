@@ -34,7 +34,7 @@ public extension SubscribeCapable {
 public class Subscribable {
   weak var pubnub: PubNub?
 
-  init(pubnub: PubNub) {
+  init(pubnub: PubNub?) {
     self.pubnub = pubnub
   }
 

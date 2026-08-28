@@ -63,7 +63,7 @@ public class Subscribable {
   }
 }
 
-//// The names a value contributes to the Subscribe loop, grouped by the list each name joins.
+// The names a value contributes to the Subscribe loop, grouped by the list each name joins.
 struct SubscriptionTopology: Hashable {
   // Names sent to the Subscribe loop as channels
   var channels: [String] = []
@@ -91,7 +91,7 @@ struct SubscriptionTopology: Hashable {
 }
 
 extension SubscriptionTopology {
-  // Whether the payload was delivered because of one of the names in this topology.
+  // Whether the payload matches one of the names in this topology.
   //
   // Channel names are matched against the channel the message was published to, while channel
   // group names are matched against the subscription that caused the delivery.

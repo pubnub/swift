@@ -23,11 +23,11 @@ The initializers of `Subscription` and `SubscriptionSet` are no longer public. B
 ```swift
 // Before (10.0):
 let subscription = Subscription(entity: pubnub.channel("my-channel"))
-let set = SubscriptionSet(entities: [pubnub.channel("a"), pubnub.channelGroup("b")])
+let subscriptionSet = SubscriptionSet(entities: [pubnub.channel("a"), pubnub.channelGroup("b")])
 
 // Now (11.0):
 let subscription = pubnub.channel("my-channel").subscription()
-let set = pubnub.subscription(targets: [pubnub.channel("a"), pubnub.channelGroup("b")])
+let subscriptionSet = pubnub.subscription(targets: [pubnub.channel("a"), pubnub.channelGroup("b")])
 ```
 
 The `entities:` label is now `targets:`. In addition, the `Subscription.entity` property has been renamed to `Subscription.target` and is no longer public.

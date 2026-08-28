@@ -82,7 +82,7 @@ pubnub.dataSync.getUser(id: "alice") { result in
         print("The user has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(UserProfile.self): \(error)")
+      print("Could not decode \(user.className) version \(user.classVersion) for user \(user.id): \(error)")
     }
   case let .failure(error):
     print("Get user request failed with error: \(error.localizedDescription)")
@@ -115,8 +115,7 @@ pubnub.dataSync.createUser(
 // snippet.end
 
 // snippet.set-user
-// Set a user's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setUser(
   id: "alice",
   classVersion: 1,
@@ -127,7 +126,7 @@ pubnub.dataSync.setUser(
     loginCount: 12,
     isEmailVerified: true
   ),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(user):
@@ -139,7 +138,7 @@ pubnub.dataSync.setUser(
 // snippet.end
 
 // snippet.update-user
-// Change part of a user, leaving the rest of its payload untouched
+// Change selected fields, leaving every unaddressed field untouched
 pubnub.dataSync.updateUser(
   id: "alice",
   operations: [
@@ -147,7 +146,8 @@ pubnub.dataSync.updateUser(
     .replace(path: "/payload/isEmailVerified", value: true),
     .replace(path: "/payload/loginCount", value: 13),
     .add(path: "/payload/nickname", value: "Ali")
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(user):
@@ -160,7 +160,10 @@ pubnub.dataSync.updateUser(
 
 // snippet.remove-user
 // Remove a user
-pubnub.dataSync.removeUser(id: "alice") { result in
+pubnub.dataSync.removeUser(
+  id: "alice",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The user was removed")

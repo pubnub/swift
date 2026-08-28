@@ -298,7 +298,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the entity
   ///   - payload: The replacement entity fields
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the entity changed since
+  ///   - ifMatchesEtag: The entity's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncEntity``
@@ -345,12 +345,13 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to an entity.
   ///
-  /// The operations are applied atomically: if any one of them fails, the entity is left unchanged.
+  /// Unlike ``setEntity(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// are left untouched. The operations are applied atomically: if any one of them fails, the entity is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the entity
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the entity changed since
+  ///   - ifMatchesEtag: The entity's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncEntity``
@@ -391,7 +392,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the entity
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the entity changed since
+  ///   - ifMatchesEtag: The entity's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the entity was removed
@@ -607,7 +608,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `User` class the payload conforms to
   ///   - status: An arbitrary status to store with the user
   ///   - payload: The replacement user fields
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the user changed since
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncEntity``
@@ -654,12 +655,13 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a user.
   ///
-  /// The operations are applied atomically: if any one of them fails, the user is left unchanged.
+  /// Unlike ``setUser(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// are left untouched. The operations are applied atomically: if any one of them fails, the user is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the user
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the user changed since
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncEntity``
@@ -700,7 +702,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the user
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the user changed since
+  ///   - ifMatchesEtag: The user's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the user was removed
@@ -916,7 +918,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `Channel` class the payload conforms to
   ///   - status: An arbitrary status to store with the channel
   ///   - payload: The replacement channel fields
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the channel changed since
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncEntity``
@@ -963,12 +965,13 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a channel.
   ///
-  /// The operations are applied atomically: if any one of them fails, the channel is left unchanged.
+  /// Unlike ``setChannel(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// are left untouched. The operations are applied atomically: if any one of them fails, the channel is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the channel
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the channel changed since
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncEntity``
@@ -1009,7 +1012,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the channel
-  ///   - ifMatchesEtag: The ``PubNubDataSyncEntity/eTag`` last read, to fail the request when the channel changed since
+  ///   - ifMatchesEtag: The channel's last known ``PubNubDataSyncEntity/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the channel was removed
@@ -1216,7 +1219,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the `Membership` class the payload conforms to
   ///   - status: An arbitrary status to store with the membership
   ///   - payload: The replacement membership fields
-  ///   - ifMatchesEtag: The ``PubNubDataSyncMembership/eTag`` last read, to fail the request when the membership changed since
+  ///   - ifMatchesEtag: The membership's last known ``PubNubDataSyncMembership/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncMembership``
@@ -1263,12 +1266,13 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a membership.
   ///
-  /// The operations are applied atomically: if any one of them fails, the membership is left unchanged.
+  /// Unlike ``setMembership(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// are left untouched. The operations are applied atomically: if any one of them fails, the membership is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The ``PubNubDataSyncMembership/eTag`` last read, to fail the request when the membership changed since
+  ///   - ifMatchesEtag: The membership's last known ``PubNubDataSyncMembership/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncMembership``
@@ -1309,7 +1313,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the membership
-  ///   - ifMatchesEtag: The ``PubNubDataSyncMembership/eTag`` last read, to fail the request when the membership changed since
+  ///   - ifMatchesEtag: The membership's last known ``PubNubDataSyncMembership/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the membership was removed
@@ -1525,7 +1529,7 @@ public extension PubNub.DataSyncAPI {
   ///   - classVersion: The version of the class the payload conforms to
   ///   - status: An arbitrary status to store with the relationship
   ///   - payload: The replacement relationship fields
-  ///   - ifMatchesEtag: The ``PubNubDataSyncRelationship/eTag`` last read, to fail the request when it changed since
+  ///   - ifMatchesEtag: The relationship's last known ``PubNubDataSyncRelationship/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The replaced ``PubNubDataSyncRelationship``
@@ -1576,12 +1580,13 @@ public extension PubNub.DataSyncAPI {
 
   /// Applies a set of JSON Patch operations to a relationship.
   ///
-  /// The operations are applied atomically: if any one of them fails, the relationship is left unchanged.
+  /// Unlike ``setRelationship(id:classVersion:status:payload:ifMatchesEtag:custom:completion:)``, fields not addressed by an operation
+  /// are left untouched. The operations are applied atomically: if any one of them fails, the relationship is left unchanged.
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the relationship
   ///   - operations: The RFC 6902 operations to apply, which must not be empty
-  ///   - ifMatchesEtag: The ``PubNubDataSyncRelationship/eTag`` last read, to fail the request when it changed since
+  ///   - ifMatchesEtag: The relationship's last known ``PubNubDataSyncRelationship/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: The patched ``PubNubDataSyncRelationship``
@@ -1622,7 +1627,7 @@ public extension PubNub.DataSyncAPI {
   ///
   /// - Parameters:
   ///   - id: The unique identifier of the relationship
-  ///   - ifMatchesEtag: The ``PubNubDataSyncRelationship/eTag`` last read, to fail the request when it changed since
+  ///   - ifMatchesEtag: The relationship's last known ``PubNubDataSyncRelationship/eTag``, used to prevent modifying a newer revision
   ///   - custom: Custom configuration overrides for this request
   ///   - completion: The async `Result` of the method call
   ///     - **Success**: An acknowledgement that the relationship was removed

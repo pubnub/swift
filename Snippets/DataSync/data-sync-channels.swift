@@ -82,7 +82,7 @@ pubnub.dataSync.getChannel(id: "general") { result in
         print("The channel has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(ChannelDetails.self): \(error)")
+      print("Could not decode \(channel.className) version \(channel.classVersion) for channel \(channel.id): \(error)")
     }
   case let .failure(error):
     print("Get channel request failed with error: \(error.localizedDescription)")
@@ -115,8 +115,7 @@ pubnub.dataSync.createChannel(
 // snippet.end
 
 // snippet.set-channel
-// Set a channel's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setChannel(
   id: "general",
   classVersion: 1,
@@ -127,7 +126,7 @@ pubnub.dataSync.setChannel(
     retentionDays: 90,
     isPrivate: false
   ),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(channel):
@@ -139,8 +138,8 @@ pubnub.dataSync.setChannel(
 // snippet.end
 
 // snippet.update-channel
-// Change part of a channel, leaving the rest of its payload untouched.
-// The operations are applied atomically: if any one of them fails, the channel is left unchanged
+// Change selected fields, leaving every unaddressed field untouched.
+// The operations are atomic: if any one fails, the channel is left unchanged
 pubnub.dataSync.updateChannel(
   id: "general",
   operations: [
@@ -148,7 +147,8 @@ pubnub.dataSync.updateChannel(
     .replace(path: "/payload/retentionDays", value: 365),
     .replace(path: "/payload/isPrivate", value: true),
     .add(path: "/payload/archivedAt", value: "2026-08-11")
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(channel):
@@ -161,7 +161,10 @@ pubnub.dataSync.updateChannel(
 
 // snippet.remove-channel
 // Remove a channel
-pubnub.dataSync.removeChannel(id: "general") { result in
+pubnub.dataSync.removeChannel(
+  id: "general",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The channel was removed")

@@ -86,7 +86,7 @@ pubnub.dataSync.getEntity(id: "course-swift-basics") { result in
         print("The entity has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(CourseDetails.self): \(error)")
+      print("Could not decode \(entity.className) version \(entity.classVersion) for entity \(entity.id): \(error)")
     }
   case let .failure(error):
     print("Get entity request failed with error: \(error.localizedDescription)")
@@ -120,8 +120,7 @@ pubnub.dataSync.createEntity(
 // snippet.end
 
 // snippet.set-entity
-// Set an entity's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setEntity(
   id: "course-swift-basics",
   classVersion: 1,
@@ -132,7 +131,7 @@ pubnub.dataSync.setEntity(
     isPublished: true,
     summary: "An introduction to Swift for new developers"
   ),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(entity):
@@ -144,7 +143,7 @@ pubnub.dataSync.setEntity(
 // snippet.end
 
 // snippet.update-entity
-// Change part of an entity, leaving the rest of its payload untouched
+// Change selected fields, leaving every unaddressed field untouched
 pubnub.dataSync.updateEntity(
   id: "course-swift-basics",
   operations: [
@@ -152,7 +151,8 @@ pubnub.dataSync.updateEntity(
     .replace(path: "/payload/lessonCount", value: 32),
     .replace(path: "/payload/isPublished", value: true),
     .remove(path: "/payload/summary")
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(entity):
@@ -165,7 +165,10 @@ pubnub.dataSync.updateEntity(
 
 // snippet.remove-entity
 // Remove an entity
-pubnub.dataSync.removeEntity(id: "course-swift-basics") { result in
+pubnub.dataSync.removeEntity(
+  id: "course-swift-basics",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The entity was removed")

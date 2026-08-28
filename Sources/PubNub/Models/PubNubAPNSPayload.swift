@@ -26,11 +26,18 @@ public struct PubNubPushConfig: Codable, Hashable {
   ///
   /// This will populate the APN's `apns-expiration` header
   public let expiration: Date?
+  /// The type of the remote notification
+  ///
+  /// This will populate the APN's `apns-push-type` header.
+  ///
+  /// When `nil` the key is omitted from the payload, and APNs treats the notification as ``PubNub/PushType/alert``.
+  public let pushType: PubNub.PushType?
 
   enum CodingKeys: String, CodingKey {
     case authMethod = "auth_method"
     case collapseID = "collapse_id"
     case expiration
+    case pushType = "push_type"
     case targets
     case version
   }
@@ -38,11 +45,13 @@ public struct PubNubPushConfig: Codable, Hashable {
   public init(
     targets: [PubNubPushTarget],
     collapseID: String? = nil,
-    expiration: Date? = nil
+    expiration: Date? = nil,
+    pushType: PubNub.PushType? = nil
   ) {
     self.targets = targets
     self.collapseID = collapseID
     self.expiration = expiration
+    self.pushType = pushType
   }
 }
 

@@ -27,7 +27,7 @@ let pubnub = PubNub(
 
 func subscriptionBasicExample() {
   // snippet.basic-usage
-  // Create a subscription for an example channel entity
+  // Create a subscription for a Pub/Sub channel
   let subscription = pubnub.channel("channel").subscription(options: ReceivePresenceEvents())
   // Triggers the subscription
   subscription.subscribe()
@@ -36,15 +36,15 @@ func subscriptionBasicExample() {
 
 func subscriptionSetAddRemoveExample() {
   // snippet.subscription-set-add-remove
-  // Create a reference to example channel entity
-  let weatherChannelEntity = pubnub.channel("weather-updates")
-  // Create a reference to example channel group entity
-  let newsGroupEntity = pubnub.channelGroup("news-feed")
+  // Create a reference to a Pub/Sub channel
+  let weatherChannel = pubnub.channel("weather-updates")
+  // Create a reference to a Pub/Sub channel group
+  let newsGroup = pubnub.channelGroup("news-feed")
 
-  // Create a SubscriptionSet object from entities above
-  let subscriptionSet = pubnub.subscription(entities: [weatherChannelEntity, newsGroupEntity])
+  // Create a SubscriptionSet object from the values above
+  let subscriptionSet = pubnub.subscription(targets: [weatherChannel, newsGroup])
 
-  // Create a subscription for another channel entity to demonstrate
+  // Create a subscription for another Pub/Sub channel to demonstrate
   // adding and removing to/from a SubscriptionSet
   let sportsSubscription = pubnub.channel("sports-scores").subscription()
 
@@ -52,17 +52,19 @@ func subscriptionSetAddRemoveExample() {
   subscriptionSet.add(subscription: sportsSubscription)
   subscriptionSet.remove(subscription: sportsSubscription)
 
-  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to all contained entities
+  // Triggers `.subscribe()` on the SubscriptionSet, initiating subscriptions to everything it contains
   subscriptionSet.subscribe()
   // snippet.end
 }
 
 func cloneExample() {
   // snippet.clone
+  // Create a subscription set containing a Pub/Sub channel and channel group
   let subscriptionSet = pubnub.subscription(
-    entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
+    targets: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
     options: ReceivePresenceEvents()
   )
+  // Create a subscription for a Pub/Sub channel
   let subscription = pubnub
     .channel("channelName")
     .subscription()
@@ -74,7 +76,7 @@ func cloneExample() {
 
 func unsubscribeExample() {
   let subscriptionSet = pubnub.subscription(
-    entities: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
+    targets: [pubnub.channel("channel"), pubnub.channelGroup("channelGroup")],
     options: ReceivePresenceEvents()
   )
   let subscription = pubnub
@@ -88,10 +90,18 @@ func unsubscribeExample() {
 }
 
 // snippet.subscription
-// Create an example subscription for a channel
+// Create a subscription for a Pub/Sub channel
 let subscription = pubnub
   .channel("channelName")
   .subscription()
+
+// snippet.end
+
+// snippet.data-sync-subscription
+// Create a subscription for a custom projection of a Data Sync entity
+let dataSyncSubscription = pubnub
+  .dataSyncEntity("match-1")
+  .subscription(projection: "stats")
 
 // snippet.end
 
@@ -165,7 +175,7 @@ subscription.onMessageAction = { messageActionEvent in
 // snippet.end
 
 // snippet.on-app-context
-// Add a listener to receive App Context events
+// Add a listener to receive App Context user, channel, and membership metadata events
 subscription.onAppContext = { appContextEvent in
   switch appContextEvent {
   case let .userMetadataSet(changeset):
@@ -184,6 +194,26 @@ subscription.onAppContext = { appContextEvent in
     print("Membership set between \(membership.userMetadataId) and \(membership.channelMetadataId)")
   case let .membershipMetadataRemoved(membership):
     print("Membership removed between \(membership.userMetadataId) and \(membership.channelMetadataId)")
+  }
+}
+// snippet.end
+
+// snippet.on-data-sync
+// Add a listener to receive Data Sync entity and relationship events
+dataSyncSubscription.onDataSync = { dataSyncEvent in
+  switch dataSyncEvent {
+  case let .entityCreated(entity):
+    print("Data Sync entity created: \(entity.id)")
+  case let .entityUpdated(entity):
+    print("Data Sync entity updated: \(entity.id)")
+  case let .entityDeleted(entity):
+    print("Data Sync entity deleted: \(entity.id)")
+  case let .relationshipCreated(relationship):
+    print("Data Sync relationship created: \(relationship.id)")
+  case let .relationshipUpdated(relationship):
+    print("Data Sync relationship updated: \(relationship.id)")
+  case let .relationshipDeleted(relationship):
+    print("Data Sync relationship deleted: \(relationship.id)")
   }
 }
 // snippet.end
@@ -215,12 +245,14 @@ subscription.onEvent = { event in
   case let .presenceChanged(presence):
     print("Presence event: \(presence)")
   case let .appContextChanged(appContextEvent):
-    print("App Context change event: \(appContextEvent)")
+    print("App Context metadata change event: \(appContextEvent)")
   case let .messageActionChanged(messageActionEvent):
     print("Message Reaction event: \(messageActionEvent)")
   case let .fileChanged(fileEvent):
     print("File event: \(fileEvent)")
-  default:
+  case let .dataSyncChanged(dataSyncEvent):
+    print("Data Sync event: \(dataSyncEvent)")
+  @unknown default:
     break
   }
 }

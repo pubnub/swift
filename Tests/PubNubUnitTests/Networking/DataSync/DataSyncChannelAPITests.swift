@@ -42,8 +42,8 @@ final class DataSyncChannelAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.createChannel(
-      classVersion: 2,
       className: "PrivateChannel",
+      classVersion: 2,
       classLevel: .subKey,
       id: "general"
     ) { _ in

@@ -41,7 +41,7 @@ struct EnrollmentDetails: JSONCodable {
 
 // snippet.get-relationships
 // Retrieve a page of relationships of your own class
-pubnub.dataSync.getRelationships(relationshipClass: "enrollment", limit: 20) { result in
+pubnub.dataSync.getRelationships(className: "enrollment", limit: 20) { result in
   switch result {
   case let .success((relationships, next)):
     print("The relationships: \(relationships)")
@@ -55,7 +55,7 @@ pubnub.dataSync.getRelationships(relationshipClass: "enrollment", limit: 20) { r
 // snippet.get-relationships-by-side
 // Retrieve the relationships whose side A is a specific entity
 pubnub.dataSync.getRelationships(
-  relationshipClass: "enrollment",
+  className: "enrollment",
   entityAId: "student-alice",
   limit: 20
 ) { result in
@@ -86,7 +86,10 @@ pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in
         print("The relationship has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(EnrollmentDetails.self): \(error)")
+      print(
+        "Could not decode \(relationship.className) version \(relationship.classVersion) " +
+          "for relationship \(relationship.id): \(error)"
+      )
     }
   case let .failure(error):
     print("Get relationship request failed with error: \(error.localizedDescription)")
@@ -99,10 +102,10 @@ pubnub.dataSync.getRelationship(id: "alice-course-swift-basics") { result in
 // snippet.create-relationship
 // Connect two entities with a relationship of your own class
 pubnub.dataSync.createRelationship(
-  relationshipClass: "enrollment",
+  className: "enrollment",
+  classVersion: 1,
   entityAId: "student-alice",
   entityBId: "course-swift-basics",
-  relationshipClassVersion: 1,
   id: "alice-course-swift-basics",
   status: "active",
   payload: EnrollmentDetails(
@@ -122,11 +125,10 @@ pubnub.dataSync.createRelationship(
 // snippet.end
 
 // snippet.set-relationship
-// Set a relationship's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setRelationship(
   id: "alice-course-swift-basics",
-  relationshipClassVersion: 1,
+  classVersion: 1,
   status: "active",
   payload: EnrollmentDetails(
     role: "student",
@@ -134,7 +136,7 @@ pubnub.dataSync.setRelationship(
     isActive: true,
     grade: "A"
   ),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(relationship):
@@ -146,14 +148,15 @@ pubnub.dataSync.setRelationship(
 // snippet.end
 
 // snippet.update-relationship
-// Change part of a relationship, leaving the rest of its payload untouched
+// Change selected fields, leaving every unaddressed field untouched
 pubnub.dataSync.updateRelationship(
   id: "alice-course-swift-basics",
   operations: [
     .replace(path: "/payload/completedLessons", value: 24),
     .replace(path: "/payload/isActive", value: false),
     .remove(path: "/payload/grade")
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(relationship):
@@ -166,7 +169,10 @@ pubnub.dataSync.updateRelationship(
 
 // snippet.remove-relationship
 // Remove a relationship
-pubnub.dataSync.removeRelationship(id: "alice-course-swift-basics") { result in
+pubnub.dataSync.removeRelationship(
+  id: "alice-course-swift-basics",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The relationship was removed")

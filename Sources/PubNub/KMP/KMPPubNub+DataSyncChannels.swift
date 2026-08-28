@@ -22,8 +22,8 @@ import Foundation
 @objc
 public extension KMPPubNub {
   func getDataSyncChannels(
-    classVersion: NSNumber?,
     className: String?,
+    classVersion: NSNumber?,
     classLevel: String?,
     cursor: String?,
     limit: NSNumber?,
@@ -34,8 +34,8 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.getChannels(
-      classVersion: classVersion?.intValue,
       className: className,
+      classVersion: classVersion?.intValue,
       classLevel: dataSyncClassLevel(from: classLevel),
       cursor: cursor,
       limit: limit?.intValue,
@@ -71,8 +71,8 @@ public extension KMPPubNub {
   }
 
   func createDataSyncChannel(
-    classVersion: Int,
     className: String?,
+    classVersion: Int,
     classLevel: String?,
     id: String?,
     status: String?,
@@ -81,8 +81,8 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.createChannel(
-      classVersion: classVersion,
       className: className,
+      classVersion: classVersion,
       classLevel: dataSyncClassLevel(from: classLevel),
       id: id,
       status: status,

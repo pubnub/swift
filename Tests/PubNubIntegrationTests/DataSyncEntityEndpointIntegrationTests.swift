@@ -24,8 +24,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     let payload = TestPatientPayload.standard(mrn: "MRN-100001")
 
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: payload
@@ -68,8 +68,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     let patientId = randomString()
 
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: TestPatientPayload.standard(mrn: "MRN-100003")
@@ -81,7 +81,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
         client.dataSync.setEntity(
           id: patientId,
-          entityClassVersion: self.patientClass.version,
+          classVersion: self.patientClass.version,
           status: "inactive",
           payload: replacementPayload
         ) { replaceResult in
@@ -115,8 +115,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     let patientId = randomString()
 
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: TestPatientPayload.standard(mrn: "MRN-100004")
@@ -166,8 +166,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     let patientId = randomString()
 
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: TestPatientPayload.standard(mrn: "MRN-100005")
@@ -176,7 +176,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
       case .success:
         client.dataSync.setEntity(
           id: patientId,
-          entityClassVersion: self.patientClass.version,
+          classVersion: self.patientClass.version,
           status: "inactive",
           payload: TestPatientPayload(fullName: "Swift ITest Patient Renamed"),
           ifMatchesEtag: "stale-etag"
@@ -212,8 +212,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     // The conflict is keyed on the identifier alone, so a wholly different payload still collides
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: TestPatientPayload(mrn: "MRN-999999", fullName: "Someone Else Entirely", diagnosis: "Migraine")
@@ -242,7 +242,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     createEntities(client: client, patientIds.map { .patient(id: $0) })
 
-    client.dataSync.getEntities(entityClass: patientClass.name) { result in
+    client.dataSync.getEntities(className: patientClass.name) { result in
       switch result {
       case let .success((entities, _)):
         let fetchedIds = Set(entities.map { $0.id })
@@ -268,7 +268,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     createEntities(client: client, [.patient(id: patientId), .practitioner(id: practitionerId)])
 
-    client.dataSync.getEntities(entityClass: practitionerClass.name, limit: 100) { result in
+    client.dataSync.getEntities(className: practitionerClass.name, limit: 100) { result in
       switch result {
       case let .success((entities, _)):
         let fetchedIds = Set(entities.map { $0.id })
@@ -298,8 +298,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.patient(id: patientV1Id), .patientV2(id: patientV2Id)])
 
     client.dataSync.getEntities(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       filter: ownEntitiesOnly
     ) { result in
       switch result {
@@ -331,7 +331,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.patient(id: patientV1Id), .patientV2(id: patientV2Id)])
 
     client.dataSync.getEntities(
-      entityClass: patientClass.name,
+      className: patientClass.name,
       limit: 100,
       filter: "mrn LIKE '\(Constants.prefix)*'"
     ) { result in
@@ -361,7 +361,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
     createEntities(client: client, patientIds.map { .patient(id: $0) })
 
-    client.dataSync.getEntities(entityClass: patientClass.name, limit: 1) { firstResult in
+    client.dataSync.getEntities(className: patientClass.name, limit: 1) { firstResult in
       switch firstResult {
       case let .success((firstPage, next)):
         XCTAssertEqual(firstPage.count, 1)
@@ -390,7 +390,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, patientIds.map { .patient(id: $0) })
 
     client.dataSync.getEntities(
-      entityClass: patientClass.name,
+      className: patientClass.name,
       limit: 1,
       filter: ownEntitiesOnly
     ) { [unowned client] firstResult in
@@ -401,7 +401,7 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
 
         // Omitting `limit` lets the service apply its own default, which the second page reports back
         client.dataSync.getEntities(
-          entityClass: self.patientClass.name,
+          className: self.patientClass.name,
           cursor: next?.cursor,
           filter: ownEntitiesOnly
         ) { secondResult in
@@ -606,8 +606,8 @@ class DataSyncEntityEndpointIntegrationTests: XCTestCase {
     let patientId = randomString()
 
     client.dataSync.createEntity(
-      entityClass: patientClass.name,
-      entityClassVersion: patientClass.version,
+      className: patientClass.name,
+      classVersion: patientClass.version,
       id: patientId,
       status: "active",
       payload: TestPatientPayload.standard(mrn: "MRN-100006")

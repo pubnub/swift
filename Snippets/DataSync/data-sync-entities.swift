@@ -40,7 +40,7 @@ struct CourseDetails: JSONCodable {
 
 // snippet.get-entities
 // Retrieve a page of entities of your own class
-pubnub.dataSync.getEntities(entityClass: "course", limit: 20) { result in
+pubnub.dataSync.getEntities(className: "course", limit: 20) { result in
   switch result {
   case let .success((entities, next)):
     print("The entities: \(entities)")
@@ -54,9 +54,9 @@ pubnub.dataSync.getEntities(entityClass: "course", limit: 20) { result in
 // snippet.get-entities-class-version
 // Restrict results to a single version of the class, resolved at a specific level
 pubnub.dataSync.getEntities(
-  entityClass: "course",
-  entityClassVersion: 1,
-  entityClassLevel: .subKey,
+  className: "course",
+  classVersion: 1,
+  classLevel: .subKey,
   limit: 20
 ) { result in
   switch result {
@@ -86,7 +86,7 @@ pubnub.dataSync.getEntity(id: "course-swift-basics") { result in
         print("The entity has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(CourseDetails.self): \(error)")
+      print("Could not decode \(entity.className) version \(entity.classVersion) for entity \(entity.id): \(error)")
     }
   case let .failure(error):
     print("Get entity request failed with error: \(error.localizedDescription)")
@@ -99,8 +99,8 @@ pubnub.dataSync.getEntity(id: "course-swift-basics") { result in
 // snippet.create-entity
 // Create an entity of your own class
 pubnub.dataSync.createEntity(
-  entityClass: "course",
-  entityClassVersion: 1,
+  className: "course",
+  classVersion: 1,
   id: "course-swift-basics",
   status: "draft",
   payload: CourseDetails(
@@ -120,11 +120,10 @@ pubnub.dataSync.createEntity(
 // snippet.end
 
 // snippet.set-entity
-// Set an entity's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setEntity(
   id: "course-swift-basics",
-  entityClassVersion: 1,
+  classVersion: 1,
   status: "published",
   payload: CourseDetails(
     title: "Swift Basics",
@@ -132,7 +131,7 @@ pubnub.dataSync.setEntity(
     isPublished: true,
     summary: "An introduction to Swift for new developers"
   ),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(entity):
@@ -144,7 +143,7 @@ pubnub.dataSync.setEntity(
 // snippet.end
 
 // snippet.update-entity
-// Change part of an entity, leaving the rest of its payload untouched
+// Change selected fields, leaving every unaddressed field untouched
 pubnub.dataSync.updateEntity(
   id: "course-swift-basics",
   operations: [
@@ -152,7 +151,8 @@ pubnub.dataSync.updateEntity(
     .replace(path: "/payload/lessonCount", value: 32),
     .replace(path: "/payload/isPublished", value: true),
     .remove(path: "/payload/summary")
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(entity):
@@ -165,7 +165,10 @@ pubnub.dataSync.updateEntity(
 
 // snippet.remove-entity
 // Remove an entity
-pubnub.dataSync.removeEntity(id: "course-swift-basics") { result in
+pubnub.dataSync.removeEntity(
+  id: "course-swift-basics",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The entity was removed")

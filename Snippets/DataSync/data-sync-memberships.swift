@@ -96,7 +96,7 @@ pubnub.dataSync.getMembership(id: "general-alice") { result in
         print("The membership has no stored payload")
       }
     } catch {
-      print("The payload isn't a \(MembershipDetails.self): \(error)")
+      print("Could not decode \(membership.className) version \(membership.classVersion)")
     }
   case let .failure(error):
     print("Get membership request failed with error: \(error.localizedDescription)")
@@ -126,14 +126,13 @@ pubnub.dataSync.createMembership(
 // snippet.end
 
 // snippet.set-membership
-// Set a membership's payload wholesale, only if it hasn't changed since it was read.
-// Every field to keep has to be sent back: an omitted field is cleared, not preserved
+// Replace every mutable field. Every field to keep must be sent back; an omitted field is cleared
 pubnub.dataSync.setMembership(
   id: "general-alice",
   classVersion: 1,
   status: "active",
   payload: MembershipDetails(role: "member", unreadCount: 7, isMuted: true),
-  ifMatchesEtag: "3w5e111uk7djz"
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(membership):
@@ -145,7 +144,7 @@ pubnub.dataSync.setMembership(
 // snippet.end
 
 // snippet.update-membership
-// Change part of a membership, leaving the rest of its payload untouched.
+// Change selected fields, leaving every unaddressed field untouched.
 // A `Date` value is sent as an ISO 8601 string
 pubnub.dataSync.updateMembership(
   id: "general-alice",
@@ -154,7 +153,8 @@ pubnub.dataSync.updateMembership(
     .replace(path: "/payload/unreadCount", value: 0),
     .replace(path: "/payload/isMuted", value: false),
     .add(path: "/payload/lastReadAt", value: Date())
-  ]
+  ],
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
 ) { result in
   switch result {
   case let .success(membership):
@@ -167,7 +167,10 @@ pubnub.dataSync.updateMembership(
 
 // snippet.remove-membership
 // Remove a user from a channel
-pubnub.dataSync.removeMembership(id: "general-alice") { result in
+pubnub.dataSync.removeMembership(
+  id: "general-alice",
+  ifMatchesEtag: "3w5e111uk7djz" // Always provide the eTag from the most recent response
+) { result in
   switch result {
   case .success:
     print("The membership was removed")

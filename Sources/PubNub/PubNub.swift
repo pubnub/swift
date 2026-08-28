@@ -394,8 +394,7 @@ extension PubNub {
   }
 
   func internalSubscribe(
-    with channels: [Subscription],
-    and groups: [Subscription],
+    with subscriptions: [Subscription],
     at timetoken: Timetoken?
   ) {
     logger.debug(
@@ -404,8 +403,8 @@ extension PubNub {
           operation: "internalSubscribe",
           details: "Triggering subscribe operation from Subscription objects",
           arguments: [
-            ("channels", channels.flatMap { $0.subscriptionNames }),
-            ("channelGroups", groups.flatMap { $0.subscriptionNames }),
+            ("channels", subscriptions.flatMap { $0.subscriptionTopology.channels }),
+            ("channelGroups", subscriptions.flatMap { $0.subscriptionTopology.channelGroups }),
             ("timetoken", timetoken)
           ]
         )
@@ -413,20 +412,15 @@ extension PubNub {
     )
 
     subscription.internalSubscribe(
-      with: channels,
-      and: groups,
+      with: subscriptions,
       at: timetoken
     )
   }
 
   func internalUnsubscribe(
-    from channels: [Subscription],
-    and groups: [Subscription]
+    from subscriptions: [Subscription]
   ) {
-    subscription.internalUnsubscribe(
-      from: channels,
-      and: groups
-    )
+    subscription.internalUnsubscribe(from: subscriptions)
   }
 }
 

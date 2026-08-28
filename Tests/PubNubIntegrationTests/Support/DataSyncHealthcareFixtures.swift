@@ -267,8 +267,8 @@ extension XCTestCase {
       }
 
       client.dataSync.createEntity(
-        entityClass: spec.entityClass.name,
-        entityClassVersion: spec.entityClass.version,
+        className: spec.entityClass.name,
+        classVersion: spec.entityClass.version,
         id: spec.id,
         status: spec.status,
         payload: spec.payload
@@ -299,10 +299,10 @@ extension XCTestCase {
       }
 
       client.dataSync.createRelationship(
-        relationshipClass: spec.relationshipClass.name,
+        className: spec.relationshipClass.name,
+        classVersion: spec.relationshipClass.version,
         entityAId: spec.entityAId,
         entityBId: spec.entityBId,
-        relationshipClassVersion: spec.relationshipClass.version,
         id: spec.id,
         status: spec.status,
         payload: spec.payload

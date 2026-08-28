@@ -288,9 +288,10 @@ class SubscriptionTests: XCTestCase {
     let channel = pubnub.channel("c")
     let subscription = channel.subscription(options: ReceivePresenceEvents())
 
-    XCTAssertEqual(subscription.subscriptionNames, ["c", "c-pnpres"])
-    XCTAssertEqual(subscription.subscribeTarget, .channel)
-    XCTAssertEqual(subscription.subscriptionTopology, [.channel: ["c", "c-pnpres"]])
+    XCTAssertEqual(
+      subscription.subscriptionTopology,
+      SubscriptionTopology(channels: ["c", "c-pnpres"])
+    )
   }
 
   func testSubscription_ReceivePresenceEventsForChannelGroup() {
@@ -298,9 +299,121 @@ class SubscriptionTests: XCTestCase {
     let channel = pubnub.channelGroup("g")
     let subscription = channel.subscription(options: ReceivePresenceEvents())
 
-    XCTAssertEqual(subscription.subscriptionNames, ["g", "g-pnpres"])
-    XCTAssertEqual(subscription.subscribeTarget, .channelGroup)
-    XCTAssertEqual(subscription.subscriptionTopology, [.channelGroup: ["g", "g-pnpres"]])
+    XCTAssertEqual(
+      subscription.subscriptionTopology,
+      SubscriptionTopology(channelGroups: ["g", "g-pnpres"])
+    )
+  }
+
+  func testDataSyncSubscribables_UseIdentifierAsChannelWithoutProjection() {
+    let pubnub = TestPubNubFactory.make(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId"
+    )
+    let subscriptions = [
+      pubnub.dataSyncUser("user-id").subscription(),
+      pubnub.dataSyncChannel("channel-id").subscription(),
+      pubnub.dataSyncMembership("membership-id").subscription(),
+      pubnub.dataSyncEntity("entity-id").subscription(),
+      pubnub.dataSyncRelationship("relationship-id").subscription()
+    ]
+
+    XCTAssertEqual(
+      subscriptions.map(\.subscriptionTopology),
+      [
+        SubscriptionTopology(channels: ["user-id"]),
+        SubscriptionTopology(channels: ["channel-id"]),
+        SubscriptionTopology(channels: ["membership-id"]),
+        SubscriptionTopology(channels: ["entity-id"]),
+        SubscriptionTopology(channels: ["relationship-id"])
+      ]
+    )
+  }
+
+  func testDataSyncSubscribables_UseProjectionAndIdentifierAsChannelWithProjection() {
+    let pubnub = TestPubNubFactory.make(
+      publishKey: "pubKey",
+      subscribeKey: "subKey",
+      userId: "userId"
+    )
+    let subscriptions = [
+      pubnub.dataSyncUser("user-id").subscription(projection: "details"),
+      pubnub.dataSyncChannel("channel-id").subscription(projection: "details"),
+      pubnub.dataSyncMembership("membership-id").subscription(projection: "details"),
+      pubnub.dataSyncEntity("entity-id").subscription(projection: "details"),
+      pubnub.dataSyncRelationship("relationship-id").subscription(projection: "details")
+    ]
+
+    XCTAssertEqual(
+      subscriptions.map(\.subscriptionTopology),
+      [
+        SubscriptionTopology(channels: ["__details__user-id"]),
+        SubscriptionTopology(channels: ["__details__channel-id"]),
+        SubscriptionTopology(channels: ["__details__membership-id"]),
+        SubscriptionTopology(channels: ["__details__entity-id"]),
+        SubscriptionTopology(channels: ["__details__relationship-id"])
+      ]
+    )
+  }
+
+  func testDataSyncSubscribables_UseIdentifierAsChannelWithDefaultProjection() {
+    let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
+    let subscriptions = [
+      pubnub.dataSyncUser("user-id").subscription(projection: "default"),
+      pubnub.dataSyncChannel("channel-id").subscription(projection: "default"),
+      pubnub.dataSyncMembership("membership-id").subscription(projection: "default"),
+      pubnub.dataSyncEntity("entity-id").subscription(projection: "default"),
+      pubnub.dataSyncRelationship("relationship-id").subscription(projection: "default")
+    ]
+
+    XCTAssertEqual(
+      subscriptions.map(\.subscriptionTopology),
+      [
+        SubscriptionTopology(channels: ["user-id"]),
+        SubscriptionTopology(channels: ["channel-id"]),
+        SubscriptionTopology(channels: ["membership-id"]),
+        SubscriptionTopology(channels: ["entity-id"]),
+        SubscriptionTopology(channels: ["relationship-id"])
+      ]
+    )
+  }
+
+  func testKMPDataSyncSubscribables_MirrorSwiftReferencesAndProjectionSubscriptions() {
+    let pubnub = TestPubNubFactory.make(publishKey: "pubKey", subscribeKey: "subKey", userId: "userId")
+    let kmpPubNub = KMPPubNub(pubnub: pubnub)
+    let references: [KMPDataSyncReference] = [
+      kmpPubNub.dataSyncUser(with: "user-id"),
+      kmpPubNub.dataSyncChannel(with: "channel-id"),
+      kmpPubNub.dataSyncMembership(with: "membership-id"),
+      kmpPubNub.dataSyncEntity(with: "entity-id"),
+      kmpPubNub.dataSyncRelationship(with: "relationship-id")
+    ]
+
+    XCTAssertEqual(
+      references.map(\.id),
+      ["user-id", "channel-id", "membership-id", "entity-id", "relationship-id"]
+    )
+    XCTAssertEqual(
+      references.map { KMPSubscription(entity: $0).subscription.subscriptionTopology },
+      [
+        SubscriptionTopology(channels: ["user-id"]),
+        SubscriptionTopology(channels: ["channel-id"]),
+        SubscriptionTopology(channels: ["membership-id"]),
+        SubscriptionTopology(channels: ["entity-id"]),
+        SubscriptionTopology(channels: ["relationship-id"])
+      ]
+    )
+    XCTAssertEqual(
+      references.map { $0.subscription(withProjection: "details").subscription.subscriptionTopology },
+      [
+        SubscriptionTopology(channels: ["__details__user-id"]),
+        SubscriptionTopology(channels: ["__details__channel-id"]),
+        SubscriptionTopology(channels: ["__details__membership-id"]),
+        SubscriptionTopology(channels: ["__details__entity-id"]),
+        SubscriptionTopology(channels: ["__details__relationship-id"])
+      ]
+    )
   }
 
   func testSubscription_WithListeners_OnMessage() {

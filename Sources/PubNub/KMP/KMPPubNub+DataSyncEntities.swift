@@ -22,9 +22,9 @@ import Foundation
 @objc
 public extension KMPPubNub {
   func getDataSyncEntities(
-    entityClass: String,
-    entityClassVersion: NSNumber?,
-    entityClassLevel: String?,
+    className: String,
+    classVersion: NSNumber?,
+    classLevel: String?,
     cursor: String?,
     limit: NSNumber?,
     filter: String?,
@@ -34,9 +34,9 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.getEntities(
-      entityClass: entityClass,
-      entityClassVersion: entityClassVersion?.intValue,
-      entityClassLevel: dataSyncClassLevel(from: entityClassLevel),
+      className: className,
+      classVersion: classVersion?.intValue,
+      classLevel: dataSyncClassLevel(from: classLevel),
       cursor: cursor,
       limit: limit?.intValue,
       filter: filter,
@@ -71,9 +71,9 @@ public extension KMPPubNub {
   }
 
   func createDataSyncEntity(
-    entityClass: String,
-    entityClassVersion: Int,
-    entityClassLevel: String?,
+    className: String,
+    classVersion: Int,
+    classLevel: String?,
     id: String?,
     status: String?,
     payload: Any?,
@@ -81,9 +81,9 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.createEntity(
-      entityClass: entityClass,
-      entityClassVersion: entityClassVersion,
-      entityClassLevel: dataSyncClassLevel(from: entityClassLevel),
+      className: className,
+      classVersion: classVersion,
+      classLevel: dataSyncClassLevel(from: classLevel),
       id: id,
       status: status,
       payload: asOptionalCodable(payload)
@@ -99,7 +99,7 @@ public extension KMPPubNub {
 
   func setDataSyncEntity(
     id: String,
-    entityClassVersion: Int,
+    classVersion: Int,
     status: String?,
     payload: Any?,
     ifMatchesEtag: String?,
@@ -108,7 +108,7 @@ public extension KMPPubNub {
   ) {
     pubnub.dataSync.setEntity(
       id: id,
-      entityClassVersion: entityClassVersion,
+      classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),
       ifMatchesEtag: ifMatchesEtag

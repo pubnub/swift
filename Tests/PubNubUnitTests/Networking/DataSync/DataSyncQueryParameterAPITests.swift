@@ -18,9 +18,9 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getEntities(
-      entityClass: "patient",
-      entityClassVersion: 2,
-      entityClassLevel: .account,
+      className: "patient",
+      classVersion: 2,
+      classLevel: .account,
       cursor: "TjIw",
       limit: 25
     ) { _ in
@@ -56,7 +56,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_user_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getUsers(classVersion: 2, className: "Admin", classLevel: .subKey) { _ in
+    pubnub.dataSync.getUsers(className: "Admin", classVersion: 2, classLevel: .subKey) { _ in
       expectation.fulfill()
     }
 
@@ -87,7 +87,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_channel_fetch_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getChannels(classVersion: 2, className: "PrivateChannel", classLevel: .subKey) { _ in
+    pubnub.dataSync.getChannels(className: "PrivateChannel", classVersion: 2, classLevel: .subKey) { _ in
       expectation.fulfill()
     }
 
@@ -126,10 +126,10 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getRelationships(
-      relationshipClass: "attending-physician",
+      className: "attending-physician",
+      classVersion: 2,
       entityAId: "hcn-doctor-alice",
       entityBId: "hcn-patient-bob",
-      relationshipClassVersion: 2,
       cursor: "TjIw",
       limit: 25
     ) { _ in
@@ -150,7 +150,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", filter: "status=='active'") { _ in
+    pubnub.dataSync.getEntities(className: "patient", filter: "status=='active'") { _ in
       expectation.fulfill()
     }
 
@@ -163,7 +163,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", filterAdvanced: "a AND b") { _ in
+    pubnub.dataSync.getEntities(className: "patient", filterAdvanced: "a AND b") { _ in
       expectation.fulfill()
     }
 
@@ -176,7 +176,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient") { _ in
+    pubnub.dataSync.getEntities(className: "patient") { _ in
       expectation.fulfill()
     }
 
@@ -269,7 +269,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getRelationships(
-      relationshipClass: "attending-physician",
+      className: "attending-physician",
       filter: "status=='active'"
     ) { _ in
       expectation.fulfill()
@@ -285,7 +285,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getRelationships(
-      relationshipClass: "attending-physician",
+      className: "attending-physician",
       filterAdvanced: "a AND b"
     ) { _ in
       expectation.fulfill()
@@ -326,7 +326,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getEntities(
-      entityClass: "patient",
+      className: "patient",
       sort: [.init(property: "fullName", ascending: false), .init(property: "mrn")]
     ) { _ in
       expectation.fulfill()
@@ -341,7 +341,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_entity_all_success"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient") { _ in
+    pubnub.dataSync.getEntities(className: "patient") { _ in
       expectation.fulfill()
     }
 
@@ -394,7 +394,7 @@ final class DataSyncQueryParameterAPITests: DataSyncAPITestCase {
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
     pubnub.dataSync.getRelationships(
-      relationshipClass: "attending-physician",
+      className: "attending-physician",
       sort: [.init(property: "since", ascending: false)]
     ) { _ in
       expectation.fulfill()

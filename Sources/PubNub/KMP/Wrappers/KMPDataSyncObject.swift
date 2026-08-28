@@ -63,7 +63,7 @@ public class KMPDataSyncUser: NSObject {
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
-  init(user: PubNubDataSyncUser) {
+  init(user: PubNubDataSyncEntity) {
     self.id = user.id
     self.entityClass = user.className
     self.classLevel = user.classLevel.stringValue
@@ -93,7 +93,7 @@ public class KMPDataSyncChannel: NSObject {
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
-  init(channel: PubNubDataSyncChannel) {
+  init(channel: PubNubDataSyncEntity) {
     self.id = channel.id
     self.entityClass = channel.className
     self.classLevel = channel.classLevel.stringValue
@@ -114,7 +114,6 @@ public class KMPDataSyncRelationship: NSObject {
   @objc public let id: String
   // Named `relationshipClass` rather than `className` because `NSObject` already exposes a `className` selector
   @objc public let relationshipClass: String
-  @objc public let classLevel: String?
   @objc public let classVersion: Int
   @objc public let entityAId: String
   @objc public let entityBId: String
@@ -128,7 +127,6 @@ public class KMPDataSyncRelationship: NSObject {
   init(relationship: PubNubDataSyncRelationship) {
     self.id = relationship.id
     self.relationshipClass = relationship.className
-    self.classLevel = relationship.classLevel?.stringValue
     self.classVersion = relationship.classVersion
     self.entityAId = relationship.entityAId
     self.entityBId = relationship.entityBId

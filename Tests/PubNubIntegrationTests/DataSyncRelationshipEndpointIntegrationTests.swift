@@ -28,10 +28,10 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.practitioner(id: practitionerId), .patient(id: patientId)])
 
     client.dataSync.createRelationship(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      relationshipClassVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: payload
@@ -81,10 +81,10 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.practitioner(id: practitionerId), .patient(id: patientId)])
 
     client.dataSync.createRelationship(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      relationshipClassVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")
@@ -96,7 +96,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
         client.dataSync.setRelationship(
           id: relationshipId,
-          relationshipClassVersion: self.attendingPhysicianClass.version,
+          classVersion: self.attendingPhysicianClass.version,
           status: "inactive",
           payload: replacementPayload
         ) { replaceResult in
@@ -137,10 +137,10 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.practitioner(id: practitionerId), .patient(id: patientId)])
 
     client.dataSync.createRelationship(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: patientId,
-      relationshipClassVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")
@@ -200,7 +200,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
 
     client.dataSync.setRelationship(
       id: relationshipId,
-      relationshipClassVersion: attendingPhysicianClass.version,
+      classVersion: attendingPhysicianClass.version,
       status: "inactive",
       payload: TestAttendingPhysicianPayload(role: "consulting"),
       ifMatchesEtag: "stale-etag"
@@ -241,7 +241,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
       }
     )
 
-    client.dataSync.getRelationships(relationshipClass: attendingPhysicianClass.name, limit: 100) { result in
+    client.dataSync.getRelationships(className: attendingPhysicianClass.name, limit: 100) { result in
       switch result {
       case let .success((relationships, _)):
         let fetchedIds = Set(relationships.map { $0.id })
@@ -280,7 +280,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     )
 
     client.dataSync.getRelationships(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
       limit: 1
     ) { firstResult in
       switch firstResult {
@@ -322,7 +322,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     ])
 
     client.dataSync.getRelationships(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
       entityAId: practitionerId
     ) { result in
       switch result {
@@ -363,7 +363,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     ])
 
     client.dataSync.getRelationships(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
       entityBId: patientId
     ) { result in
       switch result {
@@ -404,7 +404,7 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     ])
 
     client.dataSync.getRelationships(
-      relationshipClass: facilityAffiliationClass.name,
+      className: facilityAffiliationClass.name,
       entityBId: practitionerId
     ) { result in
       switch result {
@@ -537,10 +537,10 @@ class DataSyncRelationshipEndpointIntegrationTests: XCTestCase {
     createEntities(client: client, [.practitioner(id: practitionerId)])
 
     client.dataSync.createRelationship(
-      relationshipClass: attendingPhysicianClass.name,
+      className: attendingPhysicianClass.name,
+      classVersion: attendingPhysicianClass.version,
       entityAId: practitionerId,
       entityBId: missingPatientId,
-      relationshipClassVersion: attendingPhysicianClass.version,
       id: relationshipId,
       status: "active",
       payload: TestAttendingPhysicianPayload(role: "attending", since: "2024-01-15")

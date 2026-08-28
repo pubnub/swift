@@ -84,6 +84,25 @@ final class DataSyncResponseTests: XCTestCase {
     XCTAssertEqual(response.data.payload?["custom"], "fields")
   }
 
+  func test_MembershipRelationship_MapsMembershipEndpointsToRelationshipSides() {
+    let date = Date(timeIntervalSince1970: 1)
+    let membership = PubNubDataSyncMembership(
+      id: "membership",
+      channelId: "channel",
+      userId: "user",
+      className: "Membership",
+      classVersion: 1,
+      createdAt: date,
+      updatedAt: date,
+      eTag: "etag"
+    )
+
+    XCTAssertEqual(membership.relationship.entityAId, membership.channelId)
+    XCTAssertEqual(membership.relationship.entityBId, membership.userId)
+    XCTAssertEqual(membership.relationship.id, membership.id)
+    XCTAssertEqual(membership.relationship.className, membership.className)
+  }
+
   func test_DecodeErrorPayloadWithAndWithoutPath() throws {
     let withPath = """
     {

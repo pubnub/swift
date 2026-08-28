@@ -22,10 +22,10 @@ import Foundation
 @objc
 public extension KMPPubNub {
   func getDataSyncRelationships(
-    relationshipClass: String,
+    className: String,
+    classVersion: NSNumber?,
     entityAId: String?,
     entityBId: String?,
-    relationshipClassVersion: NSNumber?,
     cursor: String?,
     limit: NSNumber?,
     filter: String?,
@@ -35,10 +35,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.getRelationships(
-      relationshipClass: relationshipClass,
+      className: className,
+      classVersion: classVersion?.intValue,
       entityAId: entityAId,
       entityBId: entityBId,
-      relationshipClassVersion: relationshipClassVersion?.intValue,
       cursor: cursor,
       limit: limit?.intValue,
       filter: filter,
@@ -73,10 +73,10 @@ public extension KMPPubNub {
   }
 
   func createDataSyncRelationship(
-    relationshipClass: String,
+    className: String,
+    classVersion: Int,
     entityAId: String,
     entityBId: String,
-    relationshipClassVersion: Int,
     id: String?,
     status: String?,
     payload: Any?,
@@ -84,10 +84,10 @@ public extension KMPPubNub {
     onFailure: @escaping ((Error) -> Void)
   ) {
     pubnub.dataSync.createRelationship(
-      relationshipClass: relationshipClass,
+      className: className,
+      classVersion: classVersion,
       entityAId: entityAId,
       entityBId: entityBId,
-      relationshipClassVersion: relationshipClassVersion,
       id: id,
       status: status,
       payload: asOptionalCodable(payload)
@@ -103,7 +103,7 @@ public extension KMPPubNub {
 
   func setDataSyncRelationship(
     id: String,
-    relationshipClassVersion: Int,
+    classVersion: Int,
     status: String?,
     payload: Any?,
     ifMatchesEtag: String?,
@@ -112,7 +112,7 @@ public extension KMPPubNub {
   ) {
     pubnub.dataSync.setRelationship(
       id: id,
-      relationshipClassVersion: relationshipClassVersion,
+      classVersion: classVersion,
       status: status,
       payload: asOptionalCodable(payload),
       ifMatchesEtag: ifMatchesEtag

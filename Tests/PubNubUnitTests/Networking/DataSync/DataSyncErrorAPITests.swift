@@ -17,7 +17,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_409"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.createEntity(entityClass: "patient", entityClassVersion: 1) { result in
+    pubnub.dataSync.createEntity(className: "patient", classVersion: 1) { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")
@@ -41,7 +41,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
     let sessions = try MockURLSession.mockSession(for: ["datasync_error_400"])
     let pubnub = TestPubNubFactory.make(session: sessions.session)
 
-    pubnub.dataSync.getEntities(entityClass: "patient", limit: 0) { result in
+    pubnub.dataSync.getEntities(className: "patient", limit: 0) { result in
       switch result {
       case .success:
         XCTFail("Request should not succeed")
@@ -61,7 +61,7 @@ final class DataSyncErrorAPITests: DataSyncAPITestCase {
 
     pubnub.dataSync.setEntity(
       id: "hcn-patient-alice",
-      entityClassVersion: 1,
+      classVersion: 1,
       ifMatchesEtag: "stale-etag"
     ) { result in
       switch result {

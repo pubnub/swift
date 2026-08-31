@@ -45,7 +45,7 @@ class PubNubPushConfigTests: XCTestCase {
 
     XCTAssertEqual(
       Set(expectedRawValues.keys),
-      Set(PubNub.PushType.allCases),
+      Set(PubNub.PushType.allCases)
     )
 
     for (pushType, expectedRawValue) in expectedRawValues {

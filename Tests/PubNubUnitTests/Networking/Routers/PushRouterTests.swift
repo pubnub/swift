@@ -23,7 +23,7 @@ extension PushRouterTests {
   func test_ListFCMPushProvisions_WithValidConfig_SetsExpectedEndpoint() {
     let config = TestPubNubFactory.makeConfig()
     let data = Data("A1b2".utf8)
-    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushService: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
     XCTAssertEqual(router.endpoint.pushToken, "A1b2")
@@ -34,7 +34,7 @@ extension PushRouterTests {
   func test_ListFCMPushProvisions_WhenTokenInvalid_ReturnsNilPushToken() throws {
     let config = TestPubNubFactory.makeConfig()
     let data = try XCTUnwrap(Data(hexEncodedString: "A1b2"))
-    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .fcm), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushService: .fcm), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
     XCTAssertEqual(router.category, "List Push Channels")
@@ -45,7 +45,7 @@ extension PushRouterTests {
   func test_ListPushProvisions_WithValidAPNSConfig_SetsExpectedEndpoint() throws {
     let config = TestPubNubFactory.makeConfig()
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
-    let router = PushRouter(.listPushChannels(pushToken: data, pushType: .apns), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: data, pushService: .apns), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "List Push Channels")
     XCTAssertEqual(router.category, "List Push Channels")
@@ -54,7 +54,7 @@ extension PushRouterTests {
 
   func test_ListPushProvisions_WhenTokenEmpty_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig()
-    let router = PushRouter(.listPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
+    let router = PushRouter(.listPushChannels(pushToken: Data(), pushService: .apns), configuration: config)
 
     XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }
@@ -127,7 +127,7 @@ extension PushRouterTests {
     let router = PushRouter(
       .managePushChannels(
         pushToken: data,
-        pushType: .apns,
+        pushService: .apns,
         joining: testChannels,
         leaving: []
       ), configuration: config
@@ -143,7 +143,7 @@ extension PushRouterTests {
     let router = PushRouter(
       .managePushChannels(
         pushToken: Data(),
-        pushType: .apns,
+        pushService: .apns,
         joining: [],
         leaving: []
       ), configuration: config
@@ -218,7 +218,7 @@ extension PushRouterTests {
   func test_RemoveAllPushChannelsRouter_WithValidConfig_SetsExpectedEndpoint() throws {
     let config = TestPubNubFactory.makeConfig()
     let data = try XCTUnwrap(Data(hexEncodedString: "A1B2"))
-    let router = PushRouter(.removeAllPushChannels(pushToken: data, pushType: .apns), configuration: config)
+    let router = PushRouter(.removeAllPushChannels(pushToken: data, pushService: .apns), configuration: config)
 
     XCTAssertEqual(router.endpoint.description, "Remove All Push Channels")
     XCTAssertEqual(router.category, "Remove All Push Channels")
@@ -227,7 +227,7 @@ extension PushRouterTests {
 
   func test_RemoveAllPushChannels_WhenTokenEmpty_ReturnsValidationError() {
     let config = TestPubNubFactory.makeConfig()
-    let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushType: .apns), configuration: config)
+    let router = PushRouter(.removeAllPushChannels(pushToken: Data(), pushService: .apns), configuration: config)
 
     XCTAssertEqual(router.validationError as? PubNubError, PubNubError(.missingRequiredParameter))
   }

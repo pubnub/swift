@@ -24,7 +24,7 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func listPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: PushService = .apns,
+    of pushService: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
@@ -35,7 +35,7 @@ public extension PubNub {
           details: "Execute listPushChannelRegistrations",
           arguments: [
             ("for", deviceToken.hexEncodedString),
-            ("of", pushType),
+            ("of", pushService),
             ("custom", requestConfig)
           ]
         )
@@ -44,7 +44,7 @@ public extension PubNub {
 
     route(
       PushRouter(
-        .listPushChannels(pushToken: deviceToken, pushType: pushType),
+        .listPushChannels(pushToken: deviceToken, pushService: pushService),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),
@@ -70,7 +70,7 @@ public extension PubNub {
     byRemoving removals: [String],
     thenAdding additions: [String],
     for deviceToken: Data,
-    of pushType: PushService = .apns,
+    of pushService: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<(added: [String], removed: [String]), Error>) -> Void)?
   ) {
@@ -83,7 +83,7 @@ public extension PubNub {
             ("byRemoving", removals),
             ("thenAdding", additions),
             ("for", deviceToken.hexEncodedString),
-            ("of", pushType),
+            ("of", pushService),
             ("custom", requestConfig)
           ]
         )
@@ -91,7 +91,7 @@ public extension PubNub {
     )
 
     let router = PushRouter(
-      .managePushChannels(pushToken: deviceToken, pushType: pushType, joining: additions, leaving: removals),
+      .managePushChannels(pushToken: deviceToken, pushService: pushService, joining: additions, leaving: removals),
       configuration: requestConfig.customConfiguration ?? configuration
     )
 
@@ -118,13 +118,13 @@ public extension PubNub {
   func addPushChannelRegistrations(
     _ additions: [String],
     for deviceToken: Data,
-    of pushType: PushService = .apns,
+    of pushService: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     managePushChannelRegistrations(
       byRemoving: [], thenAdding: additions,
-      for: deviceToken, of: pushType,
+      for: deviceToken, of: pushService,
       custom: requestConfig
     ) { completion?($0.map { $0.added }) }
   }
@@ -142,13 +142,13 @@ public extension PubNub {
   func removePushChannelRegistrations(
     _ removals: [String],
     for deviceToken: Data,
-    of pushType: PushService = .apns,
+    of pushService: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<[String], Error>) -> Void)?
   ) {
     managePushChannelRegistrations(
       byRemoving: removals, thenAdding: [],
-      for: deviceToken, of: pushType,
+      for: deviceToken, of: pushService,
       custom: requestConfig
     ) { completion?($0.map { $0.removed }) }
   }
@@ -164,7 +164,7 @@ public extension PubNub {
   ///     - **Failure**: An `Error` describing the failure
   func removeAllPushChannelRegistrations(
     for deviceToken: Data,
-    of pushType: PushService = .apns,
+    of pushService: PushService = .apns,
     custom requestConfig: RequestConfiguration = RequestConfiguration(),
     completion: ((Result<Void, Error>) -> Void)?
   ) {
@@ -175,7 +175,7 @@ public extension PubNub {
           details: "Execute removeAllPushChannelRegistrations",
           arguments: [
             ("for", deviceToken.hexEncodedString),
-            ("of", pushType),
+            ("of", pushService),
             ("custom", requestConfig)
           ]
         )
@@ -184,7 +184,7 @@ public extension PubNub {
 
     route(
       PushRouter(
-        .removeAllPushChannels(pushToken: deviceToken, pushType: pushType),
+        .removeAllPushChannels(pushToken: deviceToken, pushService: pushService),
         configuration: requestConfig.customConfiguration ?? configuration
       ),
       requestOperator: configuration.automaticRetry?.retryOperator(for: .devicePushNotifications),

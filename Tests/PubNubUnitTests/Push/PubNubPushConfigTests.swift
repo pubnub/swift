@@ -43,6 +43,11 @@ class PubNubPushConfigTests: XCTestCase {
       .pushToTalk: "pushtotalk"
     ]
 
+    XCTAssertEqual(
+      Set(expectedRawValues.keys),
+      Set(PubNub.PushType.allCases),
+    )
+
     for (pushType, expectedRawValue) in expectedRawValues {
       let data = try Constant.jsonEncoder.encode(PubNubPushConfig(targets: [fixtureTarget], pushType: pushType))
       let json = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])

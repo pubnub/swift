@@ -30,7 +30,7 @@ public struct PubNubPushConfig: Codable, Hashable {
   ///
   /// This will populate the APN's `apns-push-type` header.
   ///
-  /// When `nil` the key is omitted from the payload, and APNs treats the notification as ``PubNub/PushType/alert``.
+  /// When `nil` the key is omitted from the payload, and PubNub defaults the header to ``PubNub/PushType/alert``.
   public let pushType: PubNub.PushType?
 
   enum CodingKeys: String, CodingKey {

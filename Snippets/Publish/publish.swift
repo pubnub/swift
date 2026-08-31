@@ -142,7 +142,11 @@ pubnub.publish(
 let pushMessage = PubNubPushMessage(
   apns: PubNubAPNSPayload(
     aps: APSPayload(alert: .object(.init(title: "Apple Message")), badge: 1, sound: .string("default")),
-    pubnub: [.init(targets: [.init(topic: "com.pubnub.swift", environment: .production)], collapseID: "SwiftSDK")],
+    pubnub: [.init(
+      targets: [.init(topic: "com.pubnub.swift", environment: .production)],
+      collapseID: "SwiftSDK",
+      pushType: .alert
+    )],
     payload: "Push Message from PubNub Swift SDK"
   ),
   fcm: PubNubFCMPayload(

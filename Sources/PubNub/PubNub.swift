@@ -134,13 +134,13 @@ public extension PubNub {
 
   /// The type of a notification delivered through APNs
   ///
-  /// This determines the value of the `apns-push-type` header that APNs requires for every notification.
-  /// The value should always align with the contents of the `aps` payload, otherwise APNs may return an
-  /// error, delay the notification, or drop it altogether.
+  /// This determines the value of the `apns-push-type` header, which APNs requires for watchOS 6 and later
+  /// and recommends for macOS, iOS, tvOS, and iPadOS. The value should always align with the contents of
+  /// the `aps` payload, otherwise APNs may return an error, delay the notification, or drop it altogether.
   ///
   /// See [Sending Notification Requests to APNs](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)
   /// for more information.
-  enum PushType: String, Codable, Hashable {
+  enum PushType: String, CaseIterable, Codable, Hashable {
     /// A notification that triggers an alert, sound, or badge update.
     case alert
     /// A notification that delivers content silently and wakes your app in the background.

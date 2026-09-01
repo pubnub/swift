@@ -35,7 +35,7 @@ public struct PubNubPushConfig: Codable, Hashable {
 
   enum CodingKeys: String, CodingKey {
     case authMethod = "auth_method"
-    case collapseID = "pn_collapse_id"
+    case collapseID = "collapse_id"
     case expiration
     case pushType = "push_type"
     case targets

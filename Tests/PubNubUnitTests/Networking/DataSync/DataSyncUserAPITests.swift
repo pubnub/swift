@@ -28,7 +28,7 @@ final class DataSyncUserAPITests: DataSyncAPITestCase {
         XCTAssertEqual(users[0].createdAt, createdAt)
         XCTAssertEqual(users[0].updatedAt, updatedAt)
         XCTAssertEqual(users[0].status, "active")
-        XCTAssertNil(users[0].expiresAt)
+        XCTAssertEqual(users[0].expiresAt, expiresAt)
         XCTAssertPayload(users[0].payload, equals: UserPayload(name: "Alice Summers"))
         XCTAssertEqual(next?.hasNext, false)
       case let .failure(error):

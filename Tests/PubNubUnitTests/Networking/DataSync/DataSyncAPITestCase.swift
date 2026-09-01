@@ -25,12 +25,12 @@ extension DataSyncAPITestCase {
     return components.queryItems?.first { $0.name == name }?.value
   }
 
-  func filterQueryValue(_ session: MockURLSession) throws -> String? {
-    try queryValue(session, named: "filter")
+  func fastFilterQueryValue(_ session: MockURLSession) throws -> String? {
+    try queryValue(session, named: "filter_fast")
   }
 
-  func advancedFilterQueryValue(_ session: MockURLSession) throws -> String? {
-    try queryValue(session, named: "filter_advanced")
+  func filterQueryValue(_ session: MockURLSession) throws -> String? {
+    try queryValue(session, named: "filter")
   }
 
   func sortQueryValue(_ session: MockURLSession) throws -> String? {

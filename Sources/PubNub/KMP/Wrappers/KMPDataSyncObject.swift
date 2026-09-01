@@ -29,7 +29,7 @@ public class KMPDataSyncEntity: NSObject {
   @objc public let createdAt: Date
   @objc public let updatedAt: Date
   @objc public let eTag: String
-  @objc public let expiresAt: Date?
+  @objc public let expiresAt: Date
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
@@ -59,7 +59,7 @@ public class KMPDataSyncUser: NSObject {
   @objc public let createdAt: Date
   @objc public let updatedAt: Date
   @objc public let eTag: String
-  @objc public let expiresAt: Date?
+  @objc public let expiresAt: Date
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
@@ -89,7 +89,7 @@ public class KMPDataSyncChannel: NSObject {
   @objc public let createdAt: Date
   @objc public let updatedAt: Date
   @objc public let eTag: String
-  @objc public let expiresAt: Date?
+  @objc public let expiresAt: Date
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
@@ -120,7 +120,7 @@ public class KMPDataSyncRelationship: NSObject {
   @objc public let createdAt: Date
   @objc public let updatedAt: Date
   @objc public let eTag: String
-  @objc public let expiresAt: Date?
+  @objc public let expiresAt: Date
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 
@@ -152,7 +152,7 @@ public class KMPDataSyncMembership: NSObject {
   @objc public let createdAt: Date
   @objc public let updatedAt: Date
   @objc public let eTag: String
-  @objc public let expiresAt: Date?
+  @objc public let expiresAt: Date
   @objc public let status: String?
   @objc public let payload: KMPAnyJSON?
 

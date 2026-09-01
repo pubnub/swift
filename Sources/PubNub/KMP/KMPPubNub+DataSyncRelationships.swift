@@ -28,8 +28,8 @@ public extension KMPPubNub {
     entityBId: String?,
     cursor: String?,
     limit: NSNumber?,
+    filterFast: String?,
     filter: String?,
-    filterAdvanced: String?,
     sort: [KMPDataSyncSortField],
     onSuccess: @escaping (([KMPDataSyncRelationship], KMPDataSyncPage?) -> Void),
     onFailure: @escaping ((Error) -> Void)
@@ -41,8 +41,8 @@ public extension KMPPubNub {
       entityBId: entityBId,
       cursor: cursor,
       limit: limit?.intValue,
+      filterFast: filterFast,
       filter: filter,
-      filterAdvanced: filterAdvanced,
       sort: dataSyncSortFields(from: sort)
     ) {
       switch $0 {

@@ -28,7 +28,7 @@ final class DataSyncRelationshipAPITests: DataSyncAPITestCase {
         XCTAssertEqual(relationships[0].entityAId, "hcn-doctor-alice")
         XCTAssertEqual(relationships[0].entityBId, "hcn-patient-bob")
         XCTAssertEqual(relationships[0].createdAt, createdAt)
-        XCTAssertNil(relationships[0].expiresAt)
+        XCTAssertEqual(relationships[0].expiresAt, expiresAt)
       case let .failure(error):
         XCTFail("Request failed with \(error.localizedDescription)")
       }

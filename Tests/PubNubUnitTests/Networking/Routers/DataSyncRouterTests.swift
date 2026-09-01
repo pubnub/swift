@@ -21,7 +21,7 @@ extension DataSyncRouterTests {
   func test_UserList_AllQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
       entityClass: "User", entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
-      filter: "status=='active'", filterAdvanced: "a AND b", sort: "name:desc,type"
+      filterFast: "status=='active'", filter: "a AND b", sort: "name:desc,type"
     )
     let router = DataSyncUserRouter(
       endpoint,
@@ -38,15 +38,15 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try queryValue(router, "entity_class_level"), "SubKey")
     XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
     XCTAssertEqual(try queryValue(router, "limit"), "25")
-    XCTAssertEqual(try queryValue(router, "filter"), "status=='active'")
-    XCTAssertEqual(try queryValue(router, "filter_advanced"), "a AND b")
+    XCTAssertEqual(try queryValue(router, "filter_fast"), "status=='active'")
+    XCTAssertEqual(try queryValue(router, "filter"), "a AND b")
     XCTAssertEqual(try queryValue(router, "sort"), "name:desc,type")
   }
 
   func test_UserList_OmitsNilQueryItems() throws {
     let endpoint = DataSyncUserRouter.Endpoint.all(
       entityClass: nil, entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
-      filter: nil, filterAdvanced: nil, sort: nil
+      filterFast: nil, filter: nil, sort: nil
     )
     let router = DataSyncUserRouter(
       endpoint,
@@ -60,8 +60,8 @@ extension DataSyncRouterTests {
     XCTAssertFalse(names.contains("entity_class_level"))
     XCTAssertFalse(names.contains("cursor"))
     XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter_fast"))
     XCTAssertFalse(names.contains("filter"))
-    XCTAssertFalse(names.contains("filter_advanced"))
     XCTAssertFalse(names.contains("sort"))
   }
 }
@@ -220,7 +220,7 @@ extension DataSyncRouterTests {
   func test_ChannelList_AllQueryItems() throws {
     let endpoint = DataSyncChannelRouter.Endpoint.all(
       entityClass: "Channel", entityClassVersion: 2, entityClassLevel: "SubKey", cursor: "TjIw", limit: 25,
-      filter: "status=='active'", filterAdvanced: "a AND b", sort: "name:desc,type"
+      filterFast: "status=='active'", filter: "a AND b", sort: "name:desc,type"
     )
     let router = DataSyncChannelRouter(
       endpoint,
@@ -237,15 +237,15 @@ extension DataSyncRouterTests {
     XCTAssertEqual(try queryValue(router, "entity_class_level"), "SubKey")
     XCTAssertEqual(try queryValue(router, "cursor"), "TjIw")
     XCTAssertEqual(try queryValue(router, "limit"), "25")
-    XCTAssertEqual(try queryValue(router, "filter"), "status=='active'")
-    XCTAssertEqual(try queryValue(router, "filter_advanced"), "a AND b")
+    XCTAssertEqual(try queryValue(router, "filter_fast"), "status=='active'")
+    XCTAssertEqual(try queryValue(router, "filter"), "a AND b")
     XCTAssertEqual(try queryValue(router, "sort"), "name:desc,type")
   }
 
   func test_ChannelList_OmitsNilQueryItems() throws {
     let endpoint = DataSyncChannelRouter.Endpoint.all(
       entityClass: nil, entityClassVersion: nil, entityClassLevel: nil, cursor: nil, limit: nil,
-      filter: nil, filterAdvanced: nil, sort: nil
+      filterFast: nil, filter: nil, sort: nil
     )
     let router = DataSyncChannelRouter(
       endpoint,
@@ -259,8 +259,8 @@ extension DataSyncRouterTests {
     XCTAssertFalse(names.contains("entity_class_level"))
     XCTAssertFalse(names.contains("cursor"))
     XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter_fast"))
     XCTAssertFalse(names.contains("filter"))
-    XCTAssertFalse(names.contains("filter_advanced"))
     XCTAssertFalse(names.contains("sort"))
   }
 
@@ -336,7 +336,7 @@ extension DataSyncRouterTests {
   func test_MembershipList_FilterQueryItems() throws {
     let endpoint = DataSyncMembershipRouter.Endpoint.all(
       userId: "alice", channelId: "general", relationshipClassVersion: 1,
-      cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+      cursor: nil, limit: nil, filterFast: nil, filter: nil, sort: nil
     )
 
     let router = DataSyncMembershipRouter(endpoint, configuration: config)
@@ -352,8 +352,8 @@ extension DataSyncRouterTests {
 
     XCTAssertFalse(names.contains("cursor"))
     XCTAssertFalse(names.contains("limit"))
+    XCTAssertFalse(names.contains("filter_fast"))
     XCTAssertFalse(names.contains("filter"))
-    XCTAssertFalse(names.contains("filter_advanced"))
     XCTAssertFalse(names.contains("sort"))
   }
 
@@ -479,7 +479,7 @@ extension DataSyncRouterTests {
     let router = DataSyncEntityRouter(
       .all(
         entityClass: "user", entityClassVersion: nil, entityClassLevel: nil,
-        cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+        cursor: nil, limit: nil, filterFast: nil, filter: nil, sort: nil
       ),
       configuration: config
     )
@@ -494,7 +494,7 @@ extension DataSyncRouterTests {
     let router = DataSyncEntityRouter(
       .all(
         entityClass: "", entityClassVersion: nil, entityClassLevel: nil, cursor: nil,
-        limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+        limit: nil, filterFast: nil, filter: nil, sort: nil
       ),
       configuration: config
     )
@@ -569,7 +569,7 @@ extension DataSyncRouterTests {
     let router = DataSyncRelationshipRouter(
       .all(
         relationshipClass: "ProductOwner", entityAId: "u123", entityBId: "s456",
-        relationshipClassVersion: nil, cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+        relationshipClassVersion: nil, cursor: nil, limit: nil, filterFast: nil, filter: nil, sort: nil
       ),
       configuration: config
     )
@@ -586,7 +586,7 @@ extension DataSyncRouterTests {
     let router = DataSyncRelationshipRouter(
       .all(
         relationshipClass: "", entityAId: nil, entityBId: nil, relationshipClassVersion: nil,
-        cursor: nil, limit: nil, filter: nil, filterAdvanced: nil, sort: nil
+        cursor: nil, limit: nil, filterFast: nil, filter: nil, sort: nil
       ),
       configuration: config
     )

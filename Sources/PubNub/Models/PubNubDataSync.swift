@@ -80,8 +80,8 @@ public struct PubNubDataSyncEntity: Hashable {
   public let updatedAt: Date
   /// The entity revision used for optimistic concurrency
   public let eTag: String
-  /// The date the entity expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
-  public let expiresAt: Date?
+  /// The date the entity expires, derived from the time-to-live of its class
+  public let expiresAt: Date
   /// The entity status
   public let status: String?
   /// The entity fields
@@ -97,7 +97,7 @@ public struct PubNubDataSyncEntity: Hashable {
     createdAt: Date,
     updatedAt: Date,
     eTag: String,
-    expiresAt: Date? = nil,
+    expiresAt: Date,
     status: String? = nil,
     payload: JSONCodable? = nil
   ) {
@@ -149,8 +149,8 @@ public struct PubNubDataSyncRelationship: Hashable {
   public let updatedAt: Date
   /// The relationship revision used for optimistic concurrency
   public let eTag: String
-  /// The date the relationship expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
-  public let expiresAt: Date?
+  /// The date the relationship expires, derived from the time-to-live of its class
+  public let expiresAt: Date
   /// The relationship status
   public let status: String?
   /// The relationship fields
@@ -167,7 +167,7 @@ public struct PubNubDataSyncRelationship: Hashable {
     createdAt: Date,
     updatedAt: Date,
     eTag: String,
-    expiresAt: Date? = nil,
+    expiresAt: Date,
     status: String? = nil,
     payload: JSONCodable? = nil
   ) {
@@ -223,8 +223,8 @@ public struct PubNubDataSyncMembership: Hashable {
   public var updatedAt: Date { relationship.updatedAt }
   /// The membership revision used for optimistic concurrency
   public var eTag: String { relationship.eTag }
-  /// The date the membership expires, derived from the time-to-live of its class, or `nil` if the class defines no TTL
-  public var expiresAt: Date? { relationship.expiresAt }
+  /// The date the membership expires, derived from the time-to-live of its class
+  public var expiresAt: Date { relationship.expiresAt }
   /// The membership status
   public var status: String? { relationship.status }
   /// The membership fields
@@ -241,7 +241,7 @@ public struct PubNubDataSyncMembership: Hashable {
     createdAt: Date,
     updatedAt: Date,
     eTag: String,
-    expiresAt: Date? = nil,
+    expiresAt: Date,
     status: String? = nil,
     payload: JSONCodable? = nil
   ) {
@@ -288,7 +288,7 @@ extension PubNubDataSyncMembership: Codable {
       createdAt: try container.decode(Date.self, forKey: .createdAt),
       updatedAt: try container.decode(Date.self, forKey: .updatedAt),
       eTag: try container.decode(String.self, forKey: .eTag),
-      expiresAt: try container.decodeIfPresent(Date.self, forKey: .expiresAt),
+      expiresAt: try container.decode(Date.self, forKey: .expiresAt),
       status: try container.decodeIfPresent(String.self, forKey: .status),
       payload: try container.decodeIfPresent(AnyJSON.self, forKey: .concretePayload)
     )
@@ -305,7 +305,7 @@ extension PubNubDataSyncMembership: Codable {
     try container.encode(createdAt, forKey: .createdAt)
     try container.encode(updatedAt, forKey: .updatedAt)
     try container.encode(eTag, forKey: .eTag)
-    try container.encodeIfPresent(expiresAt, forKey: .expiresAt)
+    try container.encode(expiresAt, forKey: .expiresAt)
     try container.encodeIfPresent(status, forKey: .status)
     try container.encodeIfPresent(concretePayload, forKey: .concretePayload)
   }

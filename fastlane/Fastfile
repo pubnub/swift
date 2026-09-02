@@ -48,7 +48,6 @@ desc "Executes Integration Tests"
 lane :integration_test do
   pub_key = ENV['SDK_PUB_KEY']
   sub_key = ENV['SDK_SUB_KEY']
-  secret_key = ENV['SDK_SECRET_KEY']
   destination = ENV['DESTINATION'].to_s.empty? ? 'platform=macOS' : ENV['DESTINATION']
   
   datasync_pub_key = ENV['SDK_DS_PUB_KEY']
@@ -64,11 +63,6 @@ lane :integration_test do
     path: "PubNub.xcodeproj/PubNubTests_Info.plist",
     key: "PubNubSubscribeKey",
     value: sub_key
-  )
-  set_info_plist_value(
-    path: "PubNub.xcodeproj/PubNubTests_Info.plist",
-    key: "PubNubSecretKey",
-    value: secret_key.to_s
   )
 
   set_info_plist_value(

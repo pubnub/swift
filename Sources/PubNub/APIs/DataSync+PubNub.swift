@@ -69,8 +69,7 @@ extension PubNubDataSyncPatchOperation: CustomStringConvertible {
 public extension PubNub {
   /// The property and direction to sort a paged DataSync response
   ///
-  /// Only properties declared by the class the results conform to can be sorted on. Sorting on anything
-  /// else, including system fields such as `createdAt` or `status`, fails the request.
+  /// Only properties the class marks as filterable can be sorted on. Sorting on anything else fails the request.
   struct DataSyncSortField: Hashable {
     /// The name of the property to sort by
     public let property: String

@@ -5,13 +5,15 @@
 #
 # Usage:
 #   SDK_DS_API_KEY=... SDK_DS_SUB_KEY=... ./create-classes.sh
-#
-# See README.md for the full environment and the class layout.
+
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/shared.sh"
 
 require_environment
+
+# How long an entity of these classes lives before the server expires it.
+TTL_SEC=3600
 
 PATIENT="$(class_name patient)"
 PRACTITIONER="$(class_name practitioner)"
@@ -24,7 +26,7 @@ meta_post "$META/entity-classes/$PATIENT/versions/1" "$ENTITY_CLASS_MT" "$(cat <
 {
   "data": {
     "description": "A patient in the hospital network",
-    "config": { "ttlSec": 31536000 },
+    "config": { "ttlSec": $TTL_SEC },
     "properties": [
       { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "mrn", "path": "/payload/mrn", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
@@ -42,7 +44,7 @@ meta_post "$META/entity-classes/$PATIENT/versions/2" "$ENTITY_CLASS_MT" "$(cat <
 {
   "data": {
     "description": "A patient in the hospital network",
-    "config": { "ttlSec": 31536000 },
+    "config": { "ttlSec": $TTL_SEC },
     "properties": [
       { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "mrn", "path": "/payload/mrn", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
@@ -61,7 +63,7 @@ meta_post "$META/entity-classes/$PRACTITIONER/versions/1" "$ENTITY_CLASS_MT" "$(
 {
   "data": {
     "description": "A clinician (physician, nurse, etc.)",
-    "config": { "ttlSec": 31536000 },
+    "config": { "ttlSec": $TTL_SEC },
     "properties": [
       { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "npi", "path": "/payload/npi", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
@@ -80,7 +82,7 @@ meta_post "$META/entity-classes/$CARE_FACILITY/versions/1" "$ENTITY_CLASS_MT" "$
 {
   "data": {
     "description": "A hospital or clinic in the network",
-    "config": { "ttlSec": 31536000 },
+    "config": { "ttlSec": $TTL_SEC },
     "properties": [
       { "name": "status", "path": "/status", "valueKind": "string", "filtering": "none", "projections": [{ "name": "__default__" }, { "name": "admin" }] },
       { "name": "code", "path": "/payload/code", "valueKind": "string", "filtering": "simple", "projections": [{ "name": "__default__" }, { "name": "admin" }] },

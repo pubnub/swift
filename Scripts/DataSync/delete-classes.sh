@@ -8,8 +8,7 @@
 #
 # Usage:
 #   SDK_DS_API_KEY=... SDK_DS_SUB_KEY=... ./delete-classes.sh
-#
-# See README.md for the full environment and the class layout.
+
 set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/shared.sh"

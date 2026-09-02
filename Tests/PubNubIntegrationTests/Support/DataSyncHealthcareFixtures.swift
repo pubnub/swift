@@ -14,6 +14,8 @@ import XCTest
 // MARK: - Classes
 
 /// A DataSync class the healthcare integration tests expect to already be registered on the keyset.
+///
+/// Registered out of band by `Scripts/DataSync/create-classes.sh`. Keep these names in step with it.
 struct HealthcareClass {
   /// The name the class is registered under
   let name: String
@@ -21,22 +23,22 @@ struct HealthcareClass {
   let version: Int
 
   /// A patient in the hospital network
-  static let patient = HealthcareClass(name: "patient", version: 1)
-  /// The second version of the `patient` class, registered under the same name and adding `allergies`
-  static let patientV2 = HealthcareClass(name: "patient", version: 2)
+  static let patient = HealthcareClass(name: "Swift-patient", version: 1)
+  /// The second version of the `Swift-patient` class, registered under the same name and adding `allergies`
+  static let patientV2 = HealthcareClass(name: "Swift-patient", version: 2)
   /// A clinician (physician, nurse, etc.)
-  static let practitioner = HealthcareClass(name: "practitioner", version: 1)
+  static let practitioner = HealthcareClass(name: "Swift-practitioner", version: 1)
   /// A hospital or clinic in the network
-  static let careFacility = HealthcareClass(name: "care-facility", version: 1)
+  static let careFacility = HealthcareClass(name: "Swift-care-facility", version: 1)
   /// The physician currently responsible for a patient's care, connecting a practitioner to a patient
-  static let attendingPhysician = HealthcareClass(name: "attending-physician", version: 1)
+  static let attendingPhysician = HealthcareClass(name: "Swift-attending-physician", version: 1)
   /// A many-to-many affiliation connecting a care facility to a practitioner
-  static let facilityAffiliation = HealthcareClass(name: "facility-affiliation", version: 1)
+  static let facilityAffiliation = HealthcareClass(name: "Swift-facility-affiliation", version: 1)
 }
 
 // MARK: - Payloads
 
-/// The `patient` class.
+/// The `Swift-patient` class.
 struct TestPatientPayload: JSONCodable, Equatable {
   let mrn: String?
   let fullName: String?
@@ -66,7 +68,7 @@ struct TestPatientPayload: JSONCodable, Equatable {
   }
 }
 
-/// Version 2 of the `patient` class, which adds `allergies` to the properties version 1 already declares.
+/// Version 2 of the `Swift-patient` class, which adds `allergies` to the properties version 1 already declares.
 struct TestPatientV2Payload: JSONCodable, Equatable {
   let mrn: String?
   let fullName: String?
@@ -100,7 +102,7 @@ struct TestPatientV2Payload: JSONCodable, Equatable {
   }
 }
 
-/// The `practitioner` class.
+/// The `Swift-practitioner` class.
 struct TestPractitionerPayload: JSONCodable, Equatable {
   let npi: String?
   let fullName: String?
@@ -134,7 +136,7 @@ struct TestPractitionerPayload: JSONCodable, Equatable {
   }
 }
 
-/// The `care-facility` class.
+/// The `Swift-care-facility` class.
 struct TestCareFacilityPayload: JSONCodable, Equatable {
   let code: String?
   let name: String?
@@ -149,7 +151,7 @@ struct TestCareFacilityPayload: JSONCodable, Equatable {
   }
 }
 
-/// The `attending-physician` class.
+/// The `Swift-attending-physician` class.
 struct TestAttendingPhysicianPayload: JSONCodable, Equatable {
   let role: String?
   let since: String?
@@ -160,7 +162,7 @@ struct TestAttendingPhysicianPayload: JSONCodable, Equatable {
   }
 }
 
-/// The `facility-affiliation` class.
+/// The `Swift-facility-affiliation` class.
 struct TestFacilityAffiliationPayload: JSONCodable, Equatable {
   let department: String?
 
@@ -188,7 +190,7 @@ struct TestEntitySpec {
     )
   }
 
-  /// A patient conforming to version 2 of the `patient` class, whose medical record number is its own identifier
+  /// A patient conforming to version 2 of the `Swift-patient` class, whose medical record number is its own identifier
   static func patientV2(id: String) -> TestEntitySpec {
     TestEntitySpec(
       id: id,

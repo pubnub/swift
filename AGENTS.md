@@ -39,6 +39,7 @@ Follow the shared Swift coding guidance in `CODING_STANDARDS.md`. Treat that fil
 - Require real PubNub API keys loaded from `PubNubTests_Info.plist`.
 - Make actual network requests. Run through Xcode / Fastlane only (not `swift test`).
 - Helpers in `Tests/PubNubIntegrationTests/Support/`.
+- DataSync healthcare classes must already exist on the keyset. If missing, create them with `Scripts/DataSync/`; keep it in step with `Support/DataSyncHealthcareFixtures.swift`.
 
 ### Contract Tests (`Tests/PubNubContractTests/`)
 
